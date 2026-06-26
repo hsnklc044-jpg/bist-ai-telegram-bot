@@ -3,8 +3,7 @@ QuantBIST RC4
 Dashboard
 """
 
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template
 
 from core.dashboard.service import get_dashboard
 
@@ -20,6 +19,7 @@ def home():
         "dashboard.html",
         stats=dashboard["stats"],
         signals=dashboard["signals"],
+        watchlist=dashboard["watchlist"],
     )
 
 

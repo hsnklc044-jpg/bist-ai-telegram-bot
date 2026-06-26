@@ -1,20 +1,6 @@
-"""
-QuantBIST RC4
-Dashboard Cards
-"""
+def get_watchlist_card():
+    """
+    Dashboard watchlist kartını döndürür.
+    """
 
-from core.dashboard.service import get_dashboard
-
-
-def get_summary_card():
-
-    dashboard = get_dashboard()
-
-    return dashboard["stats"]
-
-
-def get_top_signals_card():
-
-    dashboard = get_dashboard()
-
-    return dashboard["signals"]
+    return get_watchlist()

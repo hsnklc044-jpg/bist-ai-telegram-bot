@@ -5,36 +5,84 @@ Dashboard Service
 
 from __future__ import annotations
 
-from core.portfolio.dashboard_data import (
-    get_dashboard_stats,
+from datetime import datetime
+
+from core.ai.dashboard_ai import generate_ai_summary
+from core.ai.recommendation_engine import generate_recommendation
+
+from core.dashboard.cards import (
+    get_summary_cards,
+    get_signals_card,
+    get_watchlist_card,
 )
 
-from core.analytics.signals import (
-    get_top_signals,
+from core.dashboard.charts import (
+    get_dashboard_charts,
 )
 
-from core.watchlist.service import (
-    get_watchlist,
+from core.market.service import (
+    get_market_status,
 )
 
 
-def get_dashboard():
+def get_dashboard() -> dict:
+    """
+    QuantBIST Dashboard verilerini üretir.
 
-    stats = get_dashboard_stats()
+    Bu servis yalnızca orchestrator görevi görür.
+    """
 
-    signals = get_top_signals()
+    # ----------------------------------
+    # Dashboard Data
+    # ----------------------------------
 
-    # Dashboard için örnek kullanıcı.
-    # İleride giriş sistemi geldiğinde
-    # gerçek chat_id kullanılacak.
-    watchlist = get_watchlist(0)
+    stats = get_summary_cards()
 
-    return {
+    signals = get_signals_card()
+
+    watchlist = get_watchlist_card()
+
+    charts = get_dashboard_charts()
+
+    market = get_market_status()
+
+    # ----------------------------------
+    # AI
+    # ----------------------------------
+
+    ai = generate_ai_summary(
+        stats=stats,
+        signals=signals,
+    )
+
+    recommendation = generate_recommendation(
+        ai,
+    )
+
+    # ----------------------------------
+    # Dashboard Object
+    # ----------------------------------
+
+    dashboard = {
 
         "stats": stats,
 
-        "signals": signals[:5],
+        "signals": signals,
 
         "watchlist": watchlist,
 
+        "charts": charts,
+
+        "market": market,
+
+        "ai": ai,
+
+        "recommendation": recommendation,
+
+        "updated": datetime.now().strftime(
+            "%d.%m.%Y %H:%M"
+        ),
+
     }
+
+    return dashboard

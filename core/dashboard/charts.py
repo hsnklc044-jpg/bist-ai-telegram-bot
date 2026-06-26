@@ -3,49 +3,30 @@ QuantBIST RC4
 Dashboard Charts
 """
 
-from pathlib import Path
-
-import matplotlib.pyplot as plt
-import pandas as pd
+from __future__ import annotations
 
 
-DATA_FILE = Path("data/equity_curve.csv")
-OUTPUT_FILE = Path("static/equity_curve.png")
+def get_dashboard_charts() -> dict:
+    """
+    Dashboard grafik bilgilerini döndürür.
+    """
 
+    return {
 
-def generate_equity_curve():
+        "equity_curve": {
 
-    if not DATA_FILE.exists():
-        return
+            "title": "Equity Curve",
 
-    df = pd.read_csv(DATA_FILE)
+            "image": "/static/equity_curve.png",
 
-    if df.empty:
-        return
+        },
 
-    equity = df["equity"]
+        "portfolio": {
 
-    plt.figure(figsize=(10, 4))
+            "title": "Portfolio Allocation",
 
-    plt.plot(
-        equity,
-        linewidth=3,
-    )
+            "image": "/static/portfolio_pie.png",
 
-    plt.title("Equity Curve")
+        },
 
-    plt.grid(True)
-
-    plt.tight_layout()
-
-    OUTPUT_FILE.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    plt.savefig(
-        OUTPUT_FILE,
-        dpi=150,
-    )
-
-    plt.close()
+    }

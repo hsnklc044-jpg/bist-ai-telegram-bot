@@ -5,44 +5,59 @@ Watchlist Service
 
 from __future__ import annotations
 
-from core.watchlist.repository import (
-    load_watchlist,
-    save_watchlist,
-)
+from core.analytics.analyzer import analyze_stock
+from core.watchlist.repository import load_watchlist
+
+DEFAULT_USER_ID = "1790584407"
 
 
-def add_symbol(chat_id: int, symbol: str):
-
-    symbol = symbol.upper().replace(".IS", "") + ".IS"
-
-    data = load_watchlist()
-
-    chat_id = str(chat_id)
-
-    data.setdefault(chat_id, [])
-
-    if symbol not in data[chat_id]:
-        data[chat_id].append(symbol)
-
-    save_watchlist(data)
-
-
-def remove_symbol(chat_id: int, symbol: str):
-
-    symbol = symbol.upper().replace(".IS", "") + ".IS"
+def get_watchlist(user_id: str | int = DEFAULT_USER_ID) -> list[str]:
+    """
+    Kullanıcının watchlist sembollerini döndürür.
+    """
 
     data = load_watchlist()
 
-    chat_id = str(chat_id)
+    if not data:
+        return []
 
-    if chat_id in data and symbol in data[chat_id]:
-        data[chat_id].remove(symbol)
-
-    save_watchlist(data)
+    return data.get(str(user_id), [])
 
 
-def get_watchlist(chat_id: int):
+def get_watchlist_details(
+    user_id: str | int = DEFAULT_USER_ID,
+) -> list[dict]:
+    """
+    Watchlist hisselerini analiz ederek
+    Dashboard'a hazır hale getirir.
+    """
 
-    data = load_watchlist()
+    symbols = get_watchlist(user_id)
 
-    return data.get(str(chat_id), [])
+    results = []
+
+    for symbol in symbols:
+
+        try:
+
+            analysis = analyze_stock(symbol)
+
+            if analysis:
+
+                results.append({
+
+                    "symbol": analysis["symbol"],
+
+                    "signal": analysis["signal"],
+
+                    "score": analysis["score"],
+
+                    "trend": analysis["trend"],
+
+                })
+
+        except Exception:
+
+            continue
+
+    return results

@@ -1,0 +1,147 @@
+<div class="card">
+
+    <h2>🤖 AI Summary</h2>
+
+    <table>
+
+        <tr>
+            <td>Risk</td>
+
+            <td>
+
+                {% if dashboard.ai.risk == "LOW" %}
+
+                    <span class="buy">{{ dashboard.ai.risk }}</span>
+
+                {% elif dashboard.ai.risk == "MEDIUM" %}
+
+                    <span class="watch">{{ dashboard.ai.risk }}</span>
+
+                {% else %}
+
+                    <span class="sell">{{ dashboard.ai.risk }}</span>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        <tr>
+            <td>Best Opportunity</td>
+            <td>{{ dashboard.ai.best }}</td>
+        </tr>
+
+        <tr>
+            <td>Worst Position</td>
+            <td>{{ dashboard.ai.worst }}</td>
+        </tr>
+
+        <tr>
+            <td>Cash Ratio</td>
+            <td>{{ dashboard.ai.cash_ratio }}%</td>
+        </tr>
+
+        <tr>
+            <td>Recommendation</td>
+            <td>
+                <strong>{{ dashboard.ai.recommendation }}</strong>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Portfolio Health</td>
+
+            <td>
+
+                {% if dashboard.ai.portfolio_health >= 80 %}
+
+                    <span class="buy">
+                        {{ dashboard.ai.portfolio_health }}%
+                    </span>
+
+                {% elif dashboard.ai.portfolio_health >= 60 %}
+
+                    <span class="watch">
+                        {{ dashboard.ai.portfolio_health }}%
+                    </span>
+
+                {% else %}
+
+                    <span class="sell">
+                        {{ dashboard.ai.portfolio_health }}%
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        <tr>
+            <td>Portfolio Grade</td>
+
+            <td>
+
+                {% if dashboard.ai.portfolio_grade == "A" %}
+
+                    <span class="buy">{{ dashboard.ai.portfolio_grade }}</span>
+
+                {% elif dashboard.ai.portfolio_grade == "B" %}
+
+                    <span class="buy">{{ dashboard.ai.portfolio_grade }}</span>
+
+                {% elif dashboard.ai.portfolio_grade == "C" %}
+
+                    <span class="watch">{{ dashboard.ai.portfolio_grade }}</span>
+
+                {% else %}
+
+                    <span class="sell">{{ dashboard.ai.portfolio_grade }}</span>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        <tr>
+            <td>Diversification</td>
+
+            <td>
+
+                {% if dashboard.ai.diversification == "EXCELLENT" %}
+
+                    <span class="buy">{{ dashboard.ai.diversification }}</span>
+
+                {% elif dashboard.ai.diversification == "GOOD" %}
+
+                    <span class="buy">{{ dashboard.ai.diversification }}</span>
+
+                {% elif dashboard.ai.diversification == "AVERAGE" %}
+
+                    <span class="watch">{{ dashboard.ai.diversification }}</span>
+
+                {% else %}
+
+                    <span class="sell">{{ dashboard.ai.diversification }}</span>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+    </table>
+
+    <hr style="margin:20px 0;border:0;border-top:1px solid #334155;">
+
+    <h3>🧠 AI Recommendation</h3>
+
+    <p style="line-height:1.8; margin-bottom:0;">
+
+        {{ dashboard.recommendation }}
+
+    </p>
+
+</div>
