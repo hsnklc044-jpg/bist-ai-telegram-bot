@@ -24,44 +24,75 @@ from core.market.service import (
     get_market_status,
 )
 
+from core.portfolio.analyzer import (
+    analyze_portfolio,
+)
+
 
 def get_dashboard() -> dict:
     """
-    QuantBIST Dashboard verilerini üretir.
+    QuantBIST RC4 Dashboard Service.
 
+    Dashboard için gerekli tüm verileri üretir.
     Bu servis yalnızca orchestrator görevi görür.
     """
 
-    # ----------------------------------
-    # Dashboard Data
-    # ----------------------------------
+    # -------------------------------------------------
+    # Portfolio
+    # -------------------------------------------------
 
     stats = get_summary_cards()
 
+    # -------------------------------------------------
+    # Signals
+    # -------------------------------------------------
+
     signals = get_signals_card()
+
+    # -------------------------------------------------
+    # Watchlist
+    # -------------------------------------------------
 
     watchlist = get_watchlist_card()
 
+    # -------------------------------------------------
+    # Charts
+    # -------------------------------------------------
+
     charts = get_dashboard_charts()
+
+    # -------------------------------------------------
+    # Market
+    # -------------------------------------------------
 
     market = get_market_status()
 
-    # ----------------------------------
-    # AI
-    # ----------------------------------
+    # -------------------------------------------------
+    # Portfolio Analysis
+    # -------------------------------------------------
+
+    analysis = analyze_portfolio(stats)
+
+    # -------------------------------------------------
+    # Dashboard AI
+    # -------------------------------------------------
 
     ai = generate_ai_summary(
         stats=stats,
         signals=signals,
     )
 
-    recommendation = generate_recommendation(
-        ai,
+    # -------------------------------------------------
+    # Recommendation Engine
+    # -------------------------------------------------
+
+    decision = generate_recommendation(
+        analysis,
     )
 
-    # ----------------------------------
+    # -------------------------------------------------
     # Dashboard Object
-    # ----------------------------------
+    # -------------------------------------------------
 
     dashboard = {
 
@@ -75,9 +106,13 @@ def get_dashboard() -> dict:
 
         "market": market,
 
+        "analysis": analysis,
+
         "ai": ai,
 
-        "recommendation": recommendation,
+        "decision": decision,
+
+        "recommendation": decision["summary"],
 
         "updated": datetime.now().strftime(
             "%d.%m.%Y %H:%M"

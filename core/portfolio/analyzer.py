@@ -6,31 +6,40 @@ Portfolio Analyzer
 from __future__ import annotations
 
 from core.portfolio.health import calculate_portfolio_health
+from core.portfolio.optimizer import optimize_portfolio
+from core.portfolio.allocator import calculate_target_allocations
+from core.portfolio.rebalancer import generate_rebalance_plan
+from core.portfolio.risk import calculate_risk
 
 
 def analyze_portfolio(stats) -> dict:
     """
-    Portföyü analiz eder.
+    RC4 Portfolio Analysis Engine.
+
+    Bu modül Dashboard, Telegram ve AI için
+    portföy analizinin merkezidir.
     """
 
     health = calculate_portfolio_health(stats)
 
-    if health["score"] >= 90:
-        status = "Excellent"
+    risk = calculate_risk(stats)
 
-    elif health["score"] >= 80:
-        status = "Good"
+    optimization = optimize_portfolio()
 
-    elif health["score"] >= 70:
-        status = "Average"
+    allocation = calculate_target_allocations()
 
-    else:
-        status = "Weak"
+    rebalance = generate_rebalance_plan()
 
     return {
 
-        "status": status,
-
         "health": health,
+
+        "risk": risk,
+
+        "optimization": optimization,
+
+        "allocation": allocation,
+
+        "rebalance": rebalance,
 
     }

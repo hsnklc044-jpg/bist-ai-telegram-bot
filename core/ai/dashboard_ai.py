@@ -13,12 +13,10 @@ def generate_ai_summary(
     signals: list[dict],
 ) -> dict:
     """
-    Dashboard AI Summary üretir.
-    """
+    Dashboard AI Summary.
 
-    # ----------------------------------
-    # Portfolio Analysis
-    # ----------------------------------
+    Dashboard için tüm AI verilerini üretir.
+    """
 
     analysis = analyze_portfolio(stats)
 
@@ -26,34 +24,42 @@ def generate_ai_summary(
 
     risk = analysis["risk"]
 
-    # ----------------------------------
+    optimization = analysis["optimization"]
+
+    rebalance = analysis["rebalance"]
+
+    # -----------------------------
     # Best Opportunity
-    # ----------------------------------
+    # -----------------------------
 
     if signals:
 
-        best = signals[0]["symbol"]
+        best = max(
+            signals,
+            key=lambda x: x["score"],
+        )
 
-        best_score = signals[0]["score"]
+        best_symbol = best["symbol"]
 
     else:
 
-        best = "-"
+        best_symbol = "-"
 
-        best_score = 0
-
-    # ----------------------------------
+    # -----------------------------
     # Worst Position
-    # Sprint 12 sonunda gerçek hesaplanacak
-    # ----------------------------------
+    # -----------------------------
 
-    worst = "-"
+    worst_symbol = optimization["smallest_position"]
 
-    # ----------------------------------
+    # -----------------------------
     # Recommendation
-    # ----------------------------------
+    # -----------------------------
 
-    if risk["level"] == "VERY HIGH":
+    if rebalance["needs_rebalance"]:
+
+        recommendation = "REBALANCING RECOMMENDED"
+
+    elif risk["level"] == "VERY HIGH":
 
         recommendation = "REDUCE RISK"
 
@@ -61,25 +67,21 @@ def generate_ai_summary(
 
         recommendation = "HOLD"
 
-    elif best_score >= 80:
+    elif health["score"] >= 90:
 
         recommendation = "STRONG BUY"
 
-    elif best_score >= 70:
+    elif health["score"] >= 80:
 
         recommendation = "BUY"
 
-    elif best_score >= 60:
+    elif health["score"] >= 70:
 
         recommendation = "WATCH"
 
     else:
 
         recommendation = "HOLD"
-
-    # ----------------------------------
-    # Result
-    # ----------------------------------
 
     return {
 
@@ -89,18 +91,26 @@ def generate_ai_summary(
 
         "risk_comment": risk["comment"],
 
-        "best": best,
-
-        "worst": worst,
-
         "cash_ratio": health["cash_ratio"],
-
-        "recommendation": recommendation,
 
         "portfolio_health": health["score"],
 
         "portfolio_grade": health["grade"],
 
         "diversification": health["diversification"],
+
+        "best": best_symbol,
+
+        "worst": worst_symbol,
+
+        "largest_position": optimization["largest_position"],
+
+        "largest_weight": optimization["largest_weight"],
+
+        "rebalance": rebalance["needs_rebalance"],
+
+        "rebalance_summary": rebalance["summary"],
+
+        "recommendation": recommendation,
 
     }
