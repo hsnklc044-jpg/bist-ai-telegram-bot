@@ -1,160 +1,138 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Portfolio Risk Engine
 """
 
 from __future__ import annotations
 
-from core.portfolio.models import PortfolioStats
+from core.config.portfolio import (
+    RISK_CRITICAL,
+    RISK_HIGH,
+    RISK_LOW,
+    RISK_MEDIUM,
+)
+
+from core.infrastructure.exceptions import (
+    PortfolioError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.portfolio.models import (
+    PortfolioRisk,
+    PortfolioStats,
+)
+
+logger = get_logger(__name__)
 
 
-def calculate_risk(
+def calculate_portfolio_risk(
     stats: PortfolioStats,
-) -> dict:
+) -> PortfolioRisk:
     """
-    Portföy risk analizini yapar.
+    Calculate portfolio risk profile.
+
+    Parameters
+    ----------
+    stats
+        Portfolio statistics.
 
     Returns
     -------
-    dict
-        {
-            "score": int,
-            "level": str,
-            "cash_ratio": float,
-            "comment": str,
-        }
+    PortfolioRisk
     """
 
-    # ----------------------------------
-    # Cash Ratio
-    # ----------------------------------
+    logger.info(
+        "Calculating portfolio risk..."
+    )
 
-    if stats.portfolio > 0:
+    try:
 
-        cash_ratio = round(
-            stats.cash / stats.portfolio * 100,
+        if stats.max_drawdown < 0:
+
+            raise PortfolioError(
+                "Maximum drawdown cannot be negative."
+            )
+
+        score = round(
+            float(stats.max_drawdown),
             2,
         )
 
-    else:
+        # -------------------------------------------------
+        # Risk Level
+        # -------------------------------------------------
 
-        cash_ratio = 0.0
+        if score < RISK_LOW:
 
-    # ----------------------------------
-    # Risk Score
-    # ----------------------------------
+            level = "LOW"
 
-    score = 0
+        elif score < RISK_MEDIUM:
 
-    # Max Drawdown
+            level = "MEDIUM"
 
-    if stats.max_drawdown > 20:
+        elif score < RISK_HIGH:
 
-        score += 35
+            level = "HIGH"
 
-    elif stats.max_drawdown > 10:
+        elif score < RISK_CRITICAL:
 
-        score += 20
+            level = "VERY_HIGH"
 
-    else:
+        else:
 
-        score += 10
+            level = "CRITICAL"
 
-    # Sharpe Ratio
+        # -------------------------------------------------
+        # Volatility Estimate
+        # -------------------------------------------------
 
-    if stats.sharpe < 1:
+        volatility = round(
+            score * 1.50,
+            2,
+        )
 
-        score += 30
+        # -------------------------------------------------
+        # Summary
+        # -------------------------------------------------
 
-    elif stats.sharpe < 2:
+        summary = (
+            f"{level} risk "
+            f"(Drawdown {score:.2f}%)"
+        )
 
-        score += 20
+        logger.info(
+            "Portfolio risk calculated successfully."
+        )
 
-    else:
+        return PortfolioRisk(
 
-        score += 10
+            level=level,
 
-    # Win Rate
+            score=score,
 
-    if stats.win_rate < 50:
+            volatility=volatility,
 
-        score += 20
+            max_drawdown=stats.max_drawdown,
 
-    elif stats.win_rate < 60:
+            sharpe=stats.sharpe,
 
-        score += 10
+            summary=summary,
 
-    # Cash Ratio
+        )
 
-    if cash_ratio < 5:
+    except PortfolioError:
 
-        score += 20
+        raise
 
-    elif cash_ratio < 10:
+    except Exception as exc:
 
-        score += 10
+        logger.exception(
+            "Portfolio risk calculation failed."
+        )
 
-    # Position Count
-
-    if stats.positions < 3:
-
-        score += 15
-
-    elif stats.positions < 6:
-
-        score += 8
-
-    # ----------------------------------
-    # Risk Level
-    # ----------------------------------
-
-    if score <= 30:
-
-        level = "LOW"
-
-    elif score <= 50:
-
-        level = "MEDIUM"
-
-    elif score <= 70:
-
-        level = "HIGH"
-
-    else:
-
-        level = "VERY HIGH"
-
-    # ----------------------------------
-    # Comment
-    # ----------------------------------
-
-    comments = {
-        "LOW": (
-            "Portfolio risk is low. "
-            "Current allocation appears balanced."
-        ),
-        "MEDIUM": (
-            "Portfolio risk is moderate. "
-            "Monitor existing positions."
-        ),
-        "HIGH": (
-            "Portfolio risk is elevated. "
-            "Consider reducing exposure."
-        ),
-        "VERY HIGH": (
-            "Portfolio risk is very high. "
-            "Immediate review is recommended."
-        ),
-    }
-
-    return {
-
-        "score": score,
-
-        "level": level,
-
-        "cash_ratio": cash_ratio,
-
-        "comment": comments[level],
-
-    }
+        raise PortfolioError(
+            str(exc)
+        ) from exc

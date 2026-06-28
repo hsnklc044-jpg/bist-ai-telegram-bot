@@ -1,45 +1,124 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Portfolio Analyzer
 """
 
 from __future__ import annotations
 
-from core.portfolio.health import calculate_portfolio_health
-from core.portfolio.optimizer import optimize_portfolio
-from core.portfolio.allocator import calculate_target_allocations
-from core.portfolio.rebalancer import generate_rebalance_plan
-from core.portfolio.risk import calculate_risk
+from core.infrastructure.exceptions import (
+    PortfolioError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.portfolio.health import (
+    calculate_portfolio_health,
+)
+
+from core.portfolio.models import (
+    PortfolioAnalysis,
+    PortfolioStats,
+)
+
+from core.portfolio.optimizer import (
+    optimize_portfolio,
+)
+
+from core.portfolio.rebalancer import (
+    generate_rebalance_plan,
+)
+
+from core.portfolio.risk import (
+    calculate_portfolio_risk,
+)
+
+logger = get_logger(__name__)
 
 
-def analyze_portfolio(stats) -> dict:
+def analyze_portfolio(
+    stats: PortfolioStats,
+) -> PortfolioAnalysis:
     """
-    RC4 Portfolio Analysis Engine.
+    Execute the complete Portfolio Engine.
 
-    Bu modül Dashboard, Telegram ve AI için
-    portföy analizinin merkezidir.
+    Parameters
+    ----------
+    stats
+        Portfolio dashboard statistics.
+
+    Returns
+    -------
+    PortfolioAnalysis
     """
 
-    health = calculate_portfolio_health(stats)
+    logger.info(
+        "Portfolio analysis started."
+    )
 
-    risk = calculate_risk(stats)
+    try:
 
-    optimization = optimize_portfolio()
+        # -----------------------------------------
+        # Health
+        # -----------------------------------------
 
-    allocation = calculate_target_allocations()
+        health = calculate_portfolio_health(
+            stats,
+        )
 
-    rebalance = generate_rebalance_plan()
+        # -----------------------------------------
+        # Risk
+        # -----------------------------------------
 
-    return {
+        risk = calculate_portfolio_risk(
+            stats,
+        )
 
-        "health": health,
+        # -----------------------------------------
+        # Optimization
+        # -----------------------------------------
 
-        "risk": risk,
+        optimization = optimize_portfolio()
 
-        "optimization": optimization,
+        # -----------------------------------------
+        # Rebalance
+        # -----------------------------------------
 
-        "allocation": allocation,
+        rebalance = generate_rebalance_plan(
+            optimization,
+        )
 
-        "rebalance": rebalance,
+        analysis = PortfolioAnalysis(
 
-    }
+            stats=stats,
+
+            health=health,
+
+            risk=risk,
+
+            optimization=optimization,
+
+            rebalance=rebalance,
+
+        )
+
+        logger.info(
+            "Portfolio analysis completed."
+        )
+
+        return analysis
+
+    except PortfolioError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Portfolio analysis failed."
+        )
+
+        raise PortfolioError(
+            str(exc)
+        ) from exc

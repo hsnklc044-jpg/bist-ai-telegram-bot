@@ -1,59 +1,73 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Decision Engine
 """
 
 from __future__ import annotations
 
-from core.analysis.engine import analyze
 from core.ai.recommendation_engine import generate_recommendation
 from core.decision.models import Decision
+from core.infrastructure.exceptions import DecisionError
+from core.infrastructure.logger import get_logger
+from core.market.service import get_market_status
+from core.portfolio.models import PortfolioStats
+from core.portfolio.service import get_portfolio_analysis
+
+logger = get_logger(__name__)
 
 
 def generate_decision(
-    stats,
-    signals: list[dict],
+    stats: PortfolioStats,
 ) -> Decision:
     """
-    QuantBIST merkezi karar motoru.
-
-    Framework içerisindeki analiz motorlarını kullanarak
-    nihai yatırım kararını üretir.
-
-    Parameters
-    ----------
-    stats
-        PortfolioStats nesnesi.
-
-    signals
-        Güncel sinyaller.
-        (İleride AI ve Strategy Engine tarafından kullanılacaktır.)
-
-    Returns
-    -------
-    Decision
+    Execute the complete decision workflow.
     """
 
-    # --------------------------------------------------
-    # Analysis Engine
-    # --------------------------------------------------
+    logger.info("Decision Engine started.")
 
-    analysis = analyze(stats)
+    try:
 
-    portfolio = analysis["portfolio"]
+        # ---------------------------------------------
+        # Portfolio Engine
+        # ---------------------------------------------
 
-    market = analysis["market"]
+        portfolio = get_portfolio_analysis(
+            stats,
+        )
 
-    # --------------------------------------------------
-    # AI Recommendation
-    # --------------------------------------------------
+        # ---------------------------------------------
+        # Market Engine
+        # ---------------------------------------------
 
-    decision = generate_recommendation(
+        market = get_market_status()
 
-        portfolio=portfolio,
+        # ---------------------------------------------
+        # AI Recommendation Engine
+        # ---------------------------------------------
 
-        market=market,
+        decision = generate_recommendation(
 
-    )
+            portfolio=portfolio,
 
-    return decision
+            market=market,
+
+        )
+
+        logger.info(
+            "Decision Engine completed."
+        )
+
+        return decision
+
+    except DecisionError:
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Decision Engine failed."
+        )
+
+        raise DecisionError(
+            str(exc)
+        ) from exc

@@ -1,169 +1,176 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Portfolio Optimizer
 """
 
 from __future__ import annotations
 
-from core.portfolio.repository import load_portfolio
+from core.config.portfolio import (
+    MAX_POSITION_WEIGHT,
+    TARGET_POSITION_WEIGHT,
+)
+
+from core.infrastructure.exceptions import (
+    PortfolioOptimizationError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.portfolio.models import (
+    PortfolioOptimization,
+)
+
+from core.portfolio.repository import (
+    load_portfolio,
+)
+
+logger = get_logger(__name__)
 
 
-TARGET_WEIGHT = 20.0
-MAX_WEIGHT = 25.0
-
-
-def optimize_portfolio() -> dict:
+def optimize_portfolio() -> PortfolioOptimization:
     """
-    Portfolio allocation analysis.
+    Analyze portfolio allocation and generate
+    optimization recommendations.
 
     Returns
     -------
-    dict
-        Portfolio optimization results.
+    PortfolioOptimization
     """
 
-    portfolio = load_portfolio()
-
-    if portfolio.empty:
-
-        return {
-
-            "total_value": 0.0,
-
-            "position_count": 0,
-
-            "average_weight": 0.0,
-
-            "largest_position": None,
-
-            "largest_weight": 0.0,
-
-            "smallest_position": None,
-
-            "smallest_weight": 0.0,
-
-            "concentration_risk": False,
-
-            "rebalance": False,
-
-            "weights": [],
-
-            "suggestions": [],
-
-        }
-
-    total_value = float(portfolio["value"].sum())
-
-    position_count = len(portfolio)
-
-    average_weight = round(
-        100 / position_count,
-        2,
+    logger.info(
+        "Starting portfolio optimization..."
     )
 
-    weights = []
+    try:
 
-    suggestions = []
+        portfolio = load_portfolio()
 
-    largest_position = None
-    largest_weight = -1.0
+        if portfolio.empty:
 
-    smallest_position = None
-    smallest_weight = 101.0
+            logger.warning(
+                "Portfolio is empty."
+            )
 
-    concentration_risk = False
+            return PortfolioOptimization(
 
-    for _, row in portfolio.iterrows():
+                total_value=0.0,
 
-        symbol = row["symbol"]
+                largest_position="-",
 
-        value = float(row["value"])
+                smallest_position="-",
 
-        weight = round(
-            value / total_value * 100,
-            2,
+                concentration_risk=False,
+
+                rebalance=False,
+
+                suggestions=[],
+
+            )
+
+        total_value = float(
+            portfolio["value"].sum()
         )
 
-        weights.append({
+        if total_value <= 0:
 
-            "symbol": symbol,
-
-            "value": round(value, 2),
-
-            "weight": weight,
-
-        })
-
-        # Largest Position
-
-        if weight > largest_weight:
-
-            largest_weight = weight
-
-            largest_position = symbol
-
-        # Smallest Position
-
-        if weight < smallest_weight:
-
-            smallest_weight = weight
-
-            smallest_position = symbol
-
-        # Concentration Risk
-
-        if weight > MAX_WEIGHT:
-
-            concentration_risk = True
-
-            suggestions.append(
-
-                f"{symbol}: Reduce allocation ({weight:.2f}%)"
-
+            raise PortfolioOptimizationError(
+                "Total portfolio value must be positive."
             )
 
-        # Underweight
+        largest_symbol = "-"
+        smallest_symbol = "-"
 
-        elif weight < TARGET_WEIGHT / 2:
+        largest_weight = -1.0
+        smallest_weight = 101.0
 
-            suggestions.append(
+        concentration_risk = False
+        rebalance = False
 
-                f"{symbol}: Consider increasing allocation ({weight:.2f}%)"
+        suggestions: list[str] = []
 
+        for _, row in portfolio.iterrows():
+
+            symbol = str(row["symbol"])
+
+            value = float(row["value"])
+
+            weight = round(
+                value / total_value * 100,
+                2,
             )
 
-    weights.sort(
+            if weight > largest_weight:
 
-        key=lambda item: item["weight"],
+                largest_weight = weight
 
-        reverse=True,
+                largest_symbol = symbol
 
-    )
+            if weight < smallest_weight:
 
-    rebalance = concentration_risk or len(suggestions) > 0
+                smallest_weight = weight
 
-    return {
+                smallest_symbol = symbol
 
-        "total_value": round(total_value, 2),
+            if weight > MAX_POSITION_WEIGHT:
 
-        "position_count": position_count,
+                concentration_risk = True
+                rebalance = True
 
-        "average_weight": average_weight,
+                suggestions.append(
 
-        "largest_position": largest_position,
+                    f"Reduce {symbol} allocation "
+                    f"({weight:.2f}%)"
 
-        "largest_weight": largest_weight,
+                )
 
-        "smallest_position": smallest_position,
+            elif weight < TARGET_POSITION_WEIGHT / 2:
 
-        "smallest_weight": smallest_weight,
+                rebalance = True
 
-        "concentration_risk": concentration_risk,
+                suggestions.append(
 
-        "rebalance": rebalance,
+                    f"Increase {symbol} allocation "
+                    f"({weight:.2f}%)"
 
-        "weights": weights,
+                )
 
-        "suggestions": suggestions,
+        logger.info(
 
-    }
+            "Portfolio optimization completed "
+            "(%d suggestion(s)).",
+
+            len(suggestions),
+
+        )
+
+        return PortfolioOptimization(
+
+            total_value=round(total_value, 2),
+
+            largest_position=largest_symbol,
+
+            smallest_position=smallest_symbol,
+
+            concentration_risk=concentration_risk,
+
+            rebalance=rebalance,
+
+            suggestions=suggestions,
+
+        )
+
+    except PortfolioOptimizationError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Portfolio optimization failed."
+        )
+
+        raise PortfolioOptimizationError(
+            str(exc)
+        ) from exc

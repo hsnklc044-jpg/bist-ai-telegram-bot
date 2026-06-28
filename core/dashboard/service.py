@@ -1,5 +1,5 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Dashboard Service
 """
 
@@ -7,12 +7,9 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from core.ai.dashboard_ai import generate_ai_summary
-from core.ai.recommendation_engine import generate_recommendation
-
 from core.dashboard.cards import (
-    get_summary_cards,
     get_signals_card,
+    get_summary_cards,
     get_watchlist_card,
 )
 
@@ -20,104 +17,88 @@ from core.dashboard.charts import (
     get_dashboard_charts,
 )
 
+from core.decision.engine import (
+    generate_decision,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
 from core.market.service import (
     get_market_status,
 )
 
-from core.portfolio.analyzer import (
-    analyze_portfolio,
+from core.models.dashboard import (
+    DashboardModel,
 )
 
+logger = get_logger(__name__)
 
-def get_dashboard() -> dict:
+
+def get_dashboard() -> DashboardModel:
     """
-    QuantBIST RC4 Dashboard Service.
+    Build complete dashboard model.
 
-    Dashboard için gerekli tüm verileri üretir.
-    Bu servis yalnızca orchestrator görevi görür.
+    Returns
+    -------
+    DashboardModel
     """
 
-    # -------------------------------------------------
+    logger.info(
+        "Building dashboard model..."
+    )
+
+    # --------------------------------------------
     # Portfolio
-    # -------------------------------------------------
+    # --------------------------------------------
 
     stats = get_summary_cards()
 
-    # -------------------------------------------------
-    # Signals
-    # -------------------------------------------------
-
-    signals = get_signals_card()
-
-    # -------------------------------------------------
-    # Watchlist
-    # -------------------------------------------------
-
-    watchlist = get_watchlist_card()
-
-    # -------------------------------------------------
-    # Charts
-    # -------------------------------------------------
-
-    charts = get_dashboard_charts()
-
-    # -------------------------------------------------
+    # --------------------------------------------
     # Market
-    # -------------------------------------------------
+    # --------------------------------------------
 
     market = get_market_status()
 
-    # -------------------------------------------------
-    # Portfolio Analysis
-    # -------------------------------------------------
+    # --------------------------------------------
+    # Decision
+    # --------------------------------------------
 
-    analysis = analyze_portfolio(stats)
+    decision = generate_decision(
+        stats,
+    )
 
-    # -------------------------------------------------
-    # Dashboard AI
-    # -------------------------------------------------
+    # --------------------------------------------
+    # Dashboard Components
+    # --------------------------------------------
 
-    ai = generate_ai_summary(
+    signals = get_signals_card()
+
+    watchlist = get_watchlist_card()
+
+    charts = get_dashboard_charts()
+
+    dashboard = DashboardModel(
+
         stats=stats,
+
+        market=market,
+
+        decision=decision,
+
         signals=signals,
+
+        watchlist=watchlist,
+
+        charts=charts,
+
+        updated=datetime.now(),
+
     )
 
-    # -------------------------------------------------
-    # Recommendation Engine
-    # -------------------------------------------------
-
-    decision = generate_recommendation(
-        analysis,
+    logger.info(
+        "Dashboard model ready."
     )
-
-    # -------------------------------------------------
-    # Dashboard Object
-    # -------------------------------------------------
-
-    dashboard = {
-
-        "stats": stats,
-
-        "signals": signals,
-
-        "watchlist": watchlist,
-
-        "charts": charts,
-
-        "market": market,
-
-        "analysis": analysis,
-
-        "ai": ai,
-
-        "decision": decision,
-
-        "recommendation": decision["summary"],
-
-        "updated": datetime.now().strftime(
-            "%d.%m.%Y %H:%M"
-        ),
-
-    }
 
     return dashboard

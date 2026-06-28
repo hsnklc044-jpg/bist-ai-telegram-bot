@@ -1,24 +1,62 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Market Service
 """
 
 from __future__ import annotations
 
+from core.infrastructure.exceptions import (
+    MarketError,
+)
 
-def get_market_status() -> dict:
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.market.analyzer import (
+    analyze_market,
+)
+
+from core.market.models import (
+    MarketStatus,
+)
+
+logger = get_logger(__name__)
+
+
+def get_market_status() -> MarketStatus:
     """
-    Dashboard ve Telegram için market bilgisi.
+    Public entry point for the Market Engine.
+
+    Returns
+    -------
+    MarketStatus
     """
 
-    return {
+    logger.info(
+        "Market Service started."
+    )
 
-        "status": "OPEN",
+    try:
 
-        "index": "BIST100",
+        market = analyze_market()
 
-        "change": "+1.24",
+        logger.info(
+            "Market Service completed."
+        )
 
-        "trend": "BULLISH",
+        return market
 
-    }
+    except MarketError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Market Service failed."
+        )
+
+        raise MarketError(
+            str(exc)
+        ) from exc

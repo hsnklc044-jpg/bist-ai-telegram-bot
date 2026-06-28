@@ -1,42 +1,122 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Market Analyzer
 """
 
 from __future__ import annotations
 
-from core.market.scanner import scan_market
+from core.infrastructure.exceptions import (
+    MarketError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.market.breadth import (
+    calculate_market_breadth,
+)
+
+from core.market.models import (
+    MarketStatus,
+)
+
+from core.market.regime import (
+    determine_market_regime,
+)
+
+from core.market.scanner import (
+    scan_market,
+)
+
+from core.market.sentiment import (
+    analyze_market_sentiment,
+)
+
+logger = get_logger(__name__)
 
 
-def analyze_market():
+def analyze_market() -> MarketStatus:
     """
-    Market analizinin tek giriş noktası.
+    Execute the complete Market Engine.
+
+    Returns
+    -------
+    MarketStatus
     """
 
-    market = scan_market()
+    logger.info(
+        "Market analysis started."
+    )
 
-    return {
+    try:
 
-        "status": market.status,
+        # ------------------------------------------
+        # Raw Market Scan
+        # ------------------------------------------
 
-        "index": market.index,
+        raw_market = scan_market()
 
-        "change": market.change,
+        # ------------------------------------------
+        # Breadth
+        # ------------------------------------------
 
-        "trend": market.trend,
+        breadth = calculate_market_breadth()
 
-        "breadth": market.breadth,
+        # ------------------------------------------
+        # Sentiment
+        # ------------------------------------------
 
-        "sentiment": market.sentiment,
+        sentiment = analyze_market_sentiment()
 
-        "volatility": market.volatility,
+        # ------------------------------------------
+        # Regime
+        # ------------------------------------------
 
-        "regime": market.regime,
+        regime = determine_market_regime(
 
-        "bullish": market.bullish,
+            trend=raw_market.trend,
 
-        "bearish": market.bearish,
+            breadth=breadth,
 
-        "neutral": market.neutral,
+            sentiment=sentiment,
 
-    }
+        )
+
+        logger.info(
+            "Market analysis completed."
+        )
+
+        return MarketStatus(
+
+            status=raw_market.status,
+
+            index=raw_market.index,
+
+            change=raw_market.change,
+
+            trend=raw_market.trend,
+
+            breadth=breadth,
+
+            sentiment=sentiment,
+
+            volatility=raw_market.volatility,
+
+            regime=regime,
+
+        )
+
+    except MarketError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Market analysis failed."
+        )
+
+        raise MarketError(
+            str(exc)
+        ) from exc

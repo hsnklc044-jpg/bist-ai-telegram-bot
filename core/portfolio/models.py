@@ -1,24 +1,171 @@
 """
-QuantBIST RC4
-Portfolio Domain Models
+QuantBIST Framework
+Portfolio Models
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+
+# =====================================================
+# PORTFOLIO POSITION
+# =====================================================
+
+@dataclass(slots=True)
+class Position:
+    """
+    Portfolio position.
+    """
+
+    symbol: str
+
+    price: float
+
+    quantity: float
+
+    value: float
+
+    weight: float = 0.0
+
+
+# =====================================================
+# DASHBOARD STATS
+# =====================================================
 
 @dataclass(slots=True)
 class PortfolioStats:
     """
-    Portfolio summary statistics.
+    Dashboard summary statistics.
     """
 
     portfolio: float
+
     cash: float
+
     positions: int
+
     top_stock: str
+
     sharpe: float
+
     win_rate: float
+
     profit_factor: float
+
     max_drawdown: float
+
+
+# =====================================================
+# HEALTH
+# =====================================================
+
+@dataclass(slots=True)
+class PortfolioHealth:
+    """
+    Portfolio health analysis.
+    """
+
+    score: float
+
+    grade: str
+
+    diversification: float
+
+    concentration: float
+
+    cash_ratio: float
+
+    summary: str
+
+
+# =====================================================
+# RISK
+# =====================================================
+
+@dataclass(slots=True)
+class PortfolioRisk:
+    """
+    Portfolio risk profile.
+    """
+
+    level: str
+
+    score: float
+
+    volatility: float
+
+    max_drawdown: float
+
+    sharpe: float
+
+    summary: str
+
+
+# =====================================================
+# OPTIMIZATION
+# =====================================================
+
+@dataclass(slots=True)
+class PortfolioOptimization:
+    """
+    Portfolio optimization result.
+    """
+
+    total_value: float
+
+    largest_position: str
+
+    smallest_position: str
+
+    concentration_risk: bool
+
+    rebalance: bool
+
+    suggestions: list[str] = field(
+        default_factory=list
+    )
+
+
+# =====================================================
+# REBALANCER
+# =====================================================
+
+@dataclass(slots=True)
+class RebalanceResult:
+    """
+    Portfolio rebalance analysis.
+    """
+
+    needs_rebalance: bool
+
+    summary: str
+
+    buy: list[str] = field(
+        default_factory=list
+    )
+
+    sell: list[str] = field(
+        default_factory=list
+    )
+
+
+# =====================================================
+# ANALYZER
+# =====================================================
+
+@dataclass(slots=True)
+class PortfolioAnalysis:
+    """
+    Final Portfolio Engine output.
+    """
+
+    stats: PortfolioStats
+
+    health: PortfolioHealth
+
+    risk: PortfolioRisk
+
+    optimization: PortfolioOptimization
+
+    rebalance: RebalanceResult

@@ -1,37 +1,86 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Market Scanner
 """
 
 from __future__ import annotations
 
-from core.market.models import MarketStatus
+from core.infrastructure.exceptions import (
+    MarketScanError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.market.models import (
+    MarketStatus,
+)
+
+logger = get_logger(__name__)
 
 
 def scan_market() -> MarketStatus:
     """
-    Market Scanner.
+    Scan the current market.
 
-    Şimdilik placeholder değerler döndürür.
-    Daha sonra gerçek veri kaynaklarıyla beslenecektir.
+    Returns
+    -------
+    MarketStatus
     """
 
-    return MarketStatus(
-
-        status="OPEN",
-
-        index="BIST100",
-
-        change=1.24,
-
-        trend="BULLISH",
-
-        breadth="POSITIVE",
-
-        sentiment="GREED",
-
-        volatility="LOW",
-
-        regime="RISK_ON",
-
+    logger.info(
+        "Scanning market..."
     )
+
+    try:
+
+        #
+        # TODO
+        #
+        # Buraya daha sonra
+        #
+        # Yahoo Finance
+        # Finnhub
+        # TradingView
+        # Matriks
+        # BIST API
+        #
+        # bağlanacak.
+        #
+
+        market = MarketStatus(
+
+            status="OPEN",
+
+            index="BIST100",
+
+            change=1.42,
+
+            trend="BULLISH",
+
+            breadth="UNKNOWN",
+
+            sentiment="UNKNOWN",
+
+            volatility="LOW",
+
+            regime="UNKNOWN",
+
+        )
+
+        logger.info(
+            "Market scan completed."
+        )
+
+        return market
+
+    except Exception as exc:
+
+        logger.exception(
+            "Market scan failed."
+        )
+
+        raise MarketScanError(
+            str(exc)
+        ) from exc

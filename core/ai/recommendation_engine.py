@@ -1,224 +1,140 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 AI Recommendation Engine
 """
 
 from __future__ import annotations
 
+from core.ai.scoring import calculate_score
 from core.decision.models import Decision
+from core.infrastructure.logger import get_logger
+from core.market.models import MarketStatus
+from core.portfolio.models import PortfolioAnalysis
+
+logger = get_logger(__name__)
 
 
 def generate_recommendation(
-    portfolio: dict,
-    market: dict,
+    portfolio: PortfolioAnalysis,
+    market: MarketStatus,
 ) -> Decision:
     """
-    QuantBIST AI Decision Engine.
+    Generate the final investment recommendation.
 
-    Portfolio Analyzer ve Market Analyzer çıktılarından
-    nihai yatırım kararını üretir.
+    Parameters
+    ----------
+    portfolio
+        Portfolio analysis.
+
+    market
+        Market analysis.
+
+    Returns
+    -------
+    Decision
     """
 
-    # --------------------------------------------------
-    # Portfolio
-    # --------------------------------------------------
-
-    health = portfolio["health"]
-    risk = portfolio["risk"]
-    optimization = portfolio["optimization"]
-    rebalance = portfolio["rebalance"]
-
-    # --------------------------------------------------
-    # Market
-    # --------------------------------------------------
-
-    trend = market["trend"]
-    regime = market["regime"]
-    status = market["status"]
-
-    # --------------------------------------------------
-    # Initial Score
-    # --------------------------------------------------
-
-    score = 100
-
-    reasons = []
-
-    suggestions = []
-
-    warnings = []
-
-    # --------------------------------------------------
-    # Portfolio Health
-    # --------------------------------------------------
-
-    if health["score"] < 70:
-
-        score -= 25
-
-        reasons.append(
-            "Portfolio health is below target."
-        )
-
-    elif health["score"] < 85:
-
-        score -= 10
-
-        reasons.append(
-            "Portfolio health can be improved."
-        )
-
-    # --------------------------------------------------
-    # Risk
-    # --------------------------------------------------
-
-    if risk["level"] == "VERY HIGH":
-
-        score -= 30
-
-        warnings.append(
-            "Portfolio risk is VERY HIGH."
-        )
-
-    elif risk["level"] == "HIGH":
-
-        score -= 20
-
-        warnings.append(
-            "Portfolio risk is HIGH."
-        )
-
-    elif risk["level"] == "MEDIUM":
-
-        score -= 10
-
-    # --------------------------------------------------
-    # Concentration
-    # --------------------------------------------------
-
-    if optimization["concentration_risk"]:
-
-        score -= 15
-
-        warnings.append(
-
-            f"Large concentration in "
-
-            f"{optimization['largest_position']}."
-
-        )
-
-    # --------------------------------------------------
-    # Rebalance
-    # --------------------------------------------------
-
-    if rebalance["needs_rebalance"]:
-
-        score -= 10
-
-        suggestions.extend(
-
-            rebalance["summary"].split(",")
-
-        )
-
-    # --------------------------------------------------
-    # Market Trend
-    # --------------------------------------------------
-
-    if trend == "BULLISH":
-
-        score += 5
-
-    elif trend == "BEARISH":
-
-        score -= 10
-
-        warnings.append(
-            "Market trend is bearish."
-        )
-
-    # --------------------------------------------------
-    # Market Regime
-    # --------------------------------------------------
-
-    if regime == "RISK_OFF":
-
-        score -= 10
-
-        warnings.append(
-            "Risk-Off market regime."
-        )
-
-    elif regime == "RISK_ON":
-
-        score += 5
-
-    # --------------------------------------------------
-    # Normalize
-    # --------------------------------------------------
-
-    score = max(
-        0,
-        min(
-            100,
-            int(score),
-        ),
+    logger.info(
+        "Generating AI recommendation..."
     )
 
     # --------------------------------------------------
-    # Decision
+    # AI SCORE
+    # --------------------------------------------------
+
+    score = calculate_score(
+        portfolio,
+        market,
+    )
+
+    # --------------------------------------------------
+    # ACTION
     # --------------------------------------------------
 
     if score >= 90:
 
         action = "STRONG BUY"
-        confidence = 95
-        priority = "LOW"
 
-    elif score >= 80:
+    elif score >= 75:
 
         action = "BUY"
-        confidence = 90
-        priority = "LOW"
-
-    elif score >= 70:
-
-        action = "WATCH"
-        confidence = 80
-        priority = "MEDIUM"
 
     elif score >= 55:
 
-        action = "REBALANCE"
-        confidence = 75
-        priority = "HIGH"
+        action = "WATCH"
+
+    elif score >= 35:
+
+        action = "REDUCE"
 
     else:
 
-        action = "REDUCE RISK"
-        confidence = 95
-        priority = "CRITICAL"
+        action = "SELL"
 
     # --------------------------------------------------
-    # Summary
+    # CONFIDENCE
     # --------------------------------------------------
 
-    summary = (
-
-        f"{action} | "
-
-        f"Score: {score}/100 | "
-
-        f"Market: {trend}"
-
+    confidence = min(
+        99,
+        max(
+            50,
+            score + 5,
+        ),
     )
 
     # --------------------------------------------------
-    # Decision Model
+    # REASON
     # --------------------------------------------------
 
-    return Decision(
+    reasons = []
+
+    if portfolio.health.grade == "A":
+        reasons.append(
+            "Healthy portfolio"
+        )
+
+    elif portfolio.health.grade == "B":
+        reasons.append(
+            "Stable portfolio"
+        )
+
+    else:
+        reasons.append(
+            "Portfolio needs improvement"
+        )
+
+    if market.regime == "RISK_ON":
+
+        reasons.append(
+            "Risk-On market"
+        )
+
+    elif market.regime == "RISK_OFF":
+
+        reasons.append(
+            "Risk-Off market"
+        )
+
+    else:
+
+        reasons.append(
+            "Neutral market"
+        )
+
+    if portfolio.rebalance.needs_rebalance:
+
+        reasons.append(
+            "Portfolio rebalancing recommended"
+        )
+
+    reason = ". ".join(reasons)
+
+    # --------------------------------------------------
+    # RESULT
+    # --------------------------------------------------
+
+    decision = Decision(
 
         action=action,
 
@@ -226,32 +142,18 @@ def generate_recommendation(
 
         confidence=confidence,
 
-        priority=priority,
-
-        summary=summary,
-
-        portfolio_health=health["score"],
-
-        portfolio_grade=health["grade"],
-
-        risk_level=risk["level"],
-
-        market_status=status,
-
-        market_trend=trend,
-
-        market_regime=regime,
-
-        best_symbol=optimization["largest_position"],
-
-        worst_symbol=optimization["smallest_position"],
-
-        rebalance_required=rebalance["needs_rebalance"],
-
-        reasons=reasons,
-
-        suggestions=suggestions,
-
-        warnings=warnings,
+        reason=reason,
 
     )
+
+    logger.info(
+
+        "Recommendation: %s (%d)",
+
+        action,
+
+        score,
+
+    )
+
+    return decision

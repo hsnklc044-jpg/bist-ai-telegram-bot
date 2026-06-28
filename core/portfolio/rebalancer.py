@@ -1,101 +1,111 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Portfolio Rebalancer
 """
 
 from __future__ import annotations
 
-from core.portfolio.allocator import calculate_target_allocations
+from core.infrastructure.exceptions import (
+    PortfolioError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.portfolio.models import (
+    RebalanceResult,
+)
+
+from core.portfolio.optimizer import (
+    optimize_portfolio,
+)
+
+logger = get_logger(__name__)
 
 
-def generate_rebalance_plan() -> dict:
+def generate_rebalance_plan() -> RebalanceResult:
     """
-    Portföy için yeniden dengeleme planı oluşturur.
+    Generate a portfolio rebalance plan.
 
     Returns
     -------
-    dict
-        {
-            "needs_rebalance": bool,
-            "actions": list,
-            "summary": str,
-        }
+    RebalanceResult
     """
 
-    allocation = calculate_target_allocations()
-
-    if not allocation["allocations"]:
-
-        return {
-
-            "needs_rebalance": False,
-
-            "actions": [],
-
-            "summary": "Portfolio is empty.",
-
-        }
-
-    actions = []
-
-    for item in allocation["allocations"]:
-
-        if item["action"] == "KEEP":
-
-            continue
-
-        actions.append({
-
-            "symbol": item["symbol"],
-
-            "action": item["action"],
-
-            "current_weight": item["current_weight"],
-
-            "target_weight": item["target_weight"],
-
-            "difference": abs(item["difference"]),
-
-        })
-
-    actions.sort(
-
-        key=lambda x: x["difference"],
-
-        reverse=True,
-
+    logger.info(
+        "Generating portfolio rebalance plan..."
     )
 
-    if not actions:
+    try:
 
-        summary = "Portfolio is already balanced."
+        optimization = optimize_portfolio()
 
-    else:
+        if not optimization.rebalance:
 
-        increase = sum(
-            1 for x in actions
-            if x["action"] == "INCREASE"
-        )
+            logger.info(
+                "Portfolio is already balanced."
+            )
 
-        reduce = sum(
-            1 for x in actions
-            if x["action"] == "REDUCE"
-        )
+            return RebalanceResult(
+
+                needs_rebalance=False,
+
+                summary="No rebalance required.",
+
+                buy=[],
+
+                sell=[],
+
+            )
+
+        buy: list[str] = []
+
+        sell: list[str] = []
+
+        for suggestion in optimization.suggestions:
+
+            if suggestion.startswith("Increase"):
+
+                buy.append(suggestion)
+
+            elif suggestion.startswith("Reduce"):
+
+                sell.append(suggestion)
 
         summary = (
 
-            f"{reduce} position(s) should be reduced, "
-
-            f"{increase} position(s) should be increased."
+            f"Buy: {len(buy)} | "
+            f"Sell: {len(sell)}"
 
         )
 
-    return {
+        logger.info(
+            "Rebalance plan created."
+        )
 
-        "needs_rebalance": allocation["needs_rebalance"],
+        return RebalanceResult(
 
-        "actions": actions,
+            needs_rebalance=True,
 
-        "summary": summary,
+            summary=summary,
 
-    }
+            buy=buy,
+
+            sell=sell,
+
+        )
+
+    except PortfolioError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Rebalance plan generation failed."
+        )
+
+        raise PortfolioError(
+            str(exc)
+        ) from exc

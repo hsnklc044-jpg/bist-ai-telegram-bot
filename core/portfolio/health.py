@@ -1,148 +1,154 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Portfolio Health Engine
 """
 
 from __future__ import annotations
 
-from core.portfolio.models import PortfolioStats
+from core.config.portfolio import (
+    HEALTH_EXCELLENT,
+    HEALTH_GOOD,
+    HEALTH_WARNING,
+    IDEAL_CASH_RATIO,
+)
+
+from core.infrastructure.exceptions import (
+    PortfolioError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.portfolio.models import (
+    PortfolioHealth,
+    PortfolioStats,
+)
+
+logger = get_logger(__name__)
 
 
 def calculate_portfolio_health(
     stats: PortfolioStats,
-) -> dict:
+) -> PortfolioHealth:
     """
-    Portföy sağlığını hesaplar.
-
-    Returns
-    -------
-    dict
-        {
-            "score": int,
-            "grade": str,
-            "risk": str,
-            "cash_ratio": float,
-            "diversification": str,
-        }
+    Calculate overall portfolio health.
     """
 
-    # ----------------------------------
-    # Cash Ratio
-    # ----------------------------------
+    logger.info(
+        "Calculating portfolio health..."
+    )
 
-    if stats.portfolio > 0:
+    try:
 
-        cash_ratio = round(
-            stats.cash / stats.portfolio * 100,
-            2,
-        )
+        if stats.portfolio < 0:
 
-    else:
+            raise PortfolioError(
+                "Portfolio value cannot be negative."
+            )
+
+        # -------------------------------------------------
+        # Cash Ratio
+        # -------------------------------------------------
 
         cash_ratio = 0.0
 
-    # ----------------------------------
-    # Health Score
-    # ----------------------------------
+        if stats.portfolio > 0:
 
-    score = 100.0
+            cash_ratio = round(
+                stats.cash / stats.portfolio * 100,
+                2,
+            )
 
-    # Max Drawdown
-    score -= stats.max_drawdown
+        # -------------------------------------------------
+        # Diversification
+        # -------------------------------------------------
 
-    # Sharpe Ratio
-    score += stats.sharpe * 2
-
-    # Win Rate
-    score += stats.win_rate / 10
-
-    # Profit Factor
-    score += stats.profit_factor * 5
-
-    score = max(
-        0.0,
-        min(
+        diversification = min(
+            stats.positions * 10.0,
             100.0,
-            score,
-        ),
-    )
+        )
 
-    score = round(score)
+        concentration = round(
+            100.0 - diversification,
+            2,
+        )
 
-    # ----------------------------------
-    # Grade
-    # ----------------------------------
+        # -------------------------------------------------
+        # Score
+        # -------------------------------------------------
 
-    if score >= 90:
+        score = 100.0
 
-        grade = "A"
+        if diversification < 50:
+            score -= 20
 
-    elif score >= 80:
+        elif diversification < 70:
+            score -= 10
 
-        grade = "B"
+        if cash_ratio < IDEAL_CASH_RATIO:
+            score -= 10
 
-    elif score >= 70:
+        score = max(
+            0.0,
+            round(score, 2),
+        )
 
-        grade = "C"
+        # -------------------------------------------------
+        # Grade
+        # -------------------------------------------------
 
-    elif score >= 60:
+        if score >= HEALTH_EXCELLENT:
 
-        grade = "D"
+            grade = "A"
 
-    else:
+        elif score >= HEALTH_GOOD:
 
-        grade = "F"
+            grade = "B"
 
-    # ----------------------------------
-    # Risk
-    # ----------------------------------
+        elif score >= HEALTH_WARNING:
 
-    if cash_ratio >= 20:
+            grade = "C"
 
-        risk = "LOW"
+        else:
 
-    elif cash_ratio >= 10:
+            grade = "D"
 
-        risk = "MEDIUM"
+        summary = (
+            f"Portfolio Grade {grade} "
+            f"({score:.0f}/100)"
+        )
 
-    else:
+        logger.info(
+            "Portfolio health calculated successfully."
+        )
 
-        risk = "HIGH"
+        return PortfolioHealth(
 
-    # ----------------------------------
-    # Diversification
-    # ----------------------------------
+            score=score,
 
-    if stats.positions >= 10:
+            grade=grade,
 
-        diversification = "EXCELLENT"
+            diversification=diversification,
 
-    elif stats.positions >= 6:
+            concentration=concentration,
 
-        diversification = "GOOD"
+            cash_ratio=cash_ratio,
 
-    elif stats.positions >= 3:
+            summary=summary,
 
-        diversification = "AVERAGE"
+        )
 
-    else:
+    except PortfolioError:
 
-        diversification = "POOR"
+        raise
 
-    # ----------------------------------
-    # Result
-    # ----------------------------------
+    except Exception as exc:
 
-    return {
+        logger.exception(
+            "Portfolio health calculation failed."
+        )
 
-        "score": score,
-
-        "grade": grade,
-
-        "risk": risk,
-
-        "cash_ratio": cash_ratio,
-
-        "diversification": diversification,
-
-    }
+        raise PortfolioError(
+            str(exc)
+        ) from exc
