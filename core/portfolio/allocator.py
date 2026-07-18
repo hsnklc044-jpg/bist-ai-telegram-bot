@@ -1,76 +1,288 @@
 """
-QuantBIST RC4
+QuantBIST Framework
 Portfolio Allocator
 """
 
 from __future__ import annotations
 
-from core.portfolio.optimizer import optimize_portfolio
+from dataclasses import dataclass
+
+from core.config.portfolio import (
+    MAX_POSITION_WEIGHT,
+    TARGET_POSITION_WEIGHT,
+)
+
+from core.infrastructure.exceptions import (
+    PortfolioError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.portfolio.repository import (
+    load_portfolio,
+)
+
+logger = get_logger(__name__)
 
 
-def calculate_target_allocations() -> dict:
+# =====================================================
+# MODELS
+# =====================================================
+
+@dataclass(slots=True)
+class Allocation:
+
+    symbol: str
+
+    value: float
+
+    current_weight: float
+
+    target_weight: float
+
+    drift: float
+
+    action: str
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+def _determine_action(
+    weight: float,
+) -> str:
     """
-    Portföy için hedef ağırlıkları hesaplar.
+    Determine allocation action.
     """
 
-    optimization = optimize_portfolio()
+    if weight > MAX_POSITION_WEIGHT:
 
-    weights = optimization["weights"]
+        return "REDUCE"
 
-    if not weights:
+    if weight < TARGET_POSITION_WEIGHT * 0.50:
 
-        return {
+        return "INCREASE"
 
-            "target_weight": 0.0,
+    return "KEEP"
 
-            "allocations": [],
 
-        }
+def _calculate_target(
+    positions: int,
+) -> float:
+    """
+    Calculate equal-weight target.
+    """
 
-    target_weight = round(
-        100 / len(weights),
+    if positions <= 0:
+
+        return 0.0
+
+    return round(
+        100 / positions,
         2,
     )
 
-    allocations = []
 
-    for item in weights:
+# =====================================================
+# PUBLIC API
+# =====================================================
 
-        diff = round(
-            item["weight"] - target_weight,
-            2,
+def allocate_portfolio() -> list[Allocation]:
+    """
+    Calculate portfolio allocation.
+
+    Returns
+    -------
+    list[Allocation]
+    """
+
+    logger.info(
+        "Calculating portfolio allocation..."
+    )
+
+    try:
+
+        portfolio = load_portfolio()
+
+        if portfolio.empty:
+
+            logger.warning(
+                "Portfolio is empty."
+            )
+
+            return []
+
+        total_value = float(
+            portfolio["value"].sum()
         )
 
-        if diff > 5:
+        if total_value <= 0:
 
-            action = "REDUCE"
+            raise PortfolioError(
+                "Invalid portfolio value."
+            )
 
-        elif diff < -5:
+        target = _calculate_target(
+            len(portfolio)
+        )
 
-            action = "INCREASE"
+        allocations: list[Allocation] = []
 
-        else:
+        for _, row in portfolio.iterrows():
 
-            action = "KEEP"
+            symbol = str(
+                row["symbol"]
+            )
 
-        allocations.append({
+            value = float(
+                row["value"]
+            )
 
-            "symbol": item["symbol"],
+            current_weight = round(
 
-            "current_weight": item["weight"],
+                value / total_value * 100,
 
-            "target_weight": target_weight,
+                2,
 
-            "difference": diff,
+            )
 
-            "action": action,
+            drift = round(
 
-        })
+                current_weight - target,
+
+                2,
+
+            )
+
+            allocations.append(
+
+                Allocation(
+
+                    symbol=symbol,
+
+                    value=round(
+                        value,
+                        2,
+                    ),
+
+                    current_weight=current_weight,
+
+                    target_weight=target,
+
+                    drift=drift,
+
+                    action=_determine_action(
+                        current_weight,
+                    ),
+
+                )
+
+            )
+
+        allocations.sort(
+
+            key=lambda item: item.current_weight,
+
+            reverse=True,
+
+        )
+
+        logger.info(
+
+            "Portfolio allocation completed (%d positions).",
+
+            len(allocations),
+
+        )
+
+        return allocations
+
+    except PortfolioError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Portfolio allocation failed."
+        )
+
+        raise PortfolioError(
+            str(exc)
+        ) from exc
+
+
+# =====================================================
+# SUMMARY
+# =====================================================
+
+def allocation_summary() -> dict:
+    """
+    Allocation summary.
+    """
+
+    allocations = allocate_portfolio()
+
+    if not allocations:
+
+        return {
+
+            "positions": 0,
+
+            "largest": "-",
+
+            "smallest": "-",
+
+            "average_weight": 0.0,
+
+        }
+
+    largest = allocations[0]
+
+    smallest = allocations[-1]
+
+    average = round(
+
+        sum(
+
+            item.current_weight
+
+            for item in allocations
+
+        )
+
+        / len(allocations),
+
+        2,
+
+    )
 
     return {
 
-        "target_weight": target_weight,
+        "positions": len(allocations),
 
-        "allocations": allocations,
+        "largest": largest.symbol,
+
+        "smallest": smallest.symbol,
+
+        "average_weight": average,
 
     }
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "Allocation",
+
+    "allocate_portfolio",
+
+    "allocation_summary",
+
+]

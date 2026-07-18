@@ -5,155 +5,243 @@ AI Recommendation Engine
 
 from __future__ import annotations
 
-from core.ai.scoring import calculate_score
 from core.decision.models import Decision
-from core.infrastructure.logger import get_logger
-from core.market.models import MarketStatus
-from core.portfolio.models import PortfolioAnalysis
 
-logger = get_logger(__name__)
 
+# =====================================================
+# HELPERS
+# =====================================================
+
+def _build_overview(
+    decision: Decision,
+) -> list[str]:
+    """
+    Executive overview.
+    """
+
+    overview: list[str] = []
+
+    overview.append(
+        f"Recommendation : {decision.action}"
+    )
+
+    overview.append(
+        f"AI Score : {decision.score}/100"
+    )
+
+    overview.append(
+        f"Confidence : {decision.confidence}%"
+    )
+
+    overview.append(
+        f"Priority : {decision.priority}"
+    )
+
+    return overview
+
+
+# =====================================================
+# PORTFOLIO
+# =====================================================
+
+def _portfolio_section(
+    decision: Decision,
+) -> list[str]:
+    """
+    Portfolio explanation.
+    """
+
+    lines: list[str] = []
+
+    lines.append(
+        f"Portfolio Grade : {decision.portfolio_grade}"
+    )
+
+    lines.append(
+        f"Portfolio Health : {decision.portfolio_health:.1f}"
+    )
+
+    lines.append(
+        f"Risk Level : {decision.risk_level}"
+    )
+
+    if decision.rebalance_required:
+
+        lines.append(
+            "Portfolio rebalancing is recommended."
+        )
+
+    return lines
+
+
+# =====================================================
+# MARKET
+# =====================================================
+
+def _market_section(
+    decision: Decision,
+) -> list[str]:
+    """
+    Market explanation.
+    """
+
+    return [
+
+        f"Market Trend : {decision.market_trend}",
+
+        f"Market Regime : {decision.market_regime}",
+
+        f"Market Status : {decision.market_status}",
+
+    ]
+
+
+# =====================================================
+# REASONS
+# =====================================================
+
+def _reason_section(
+    decision: Decision,
+) -> list[str]:
+    """
+    Decision reasons.
+    """
+
+    if decision.reasons:
+
+        return decision.reasons
+
+    return [
+
+        "No additional explanation available."
+
+    ]
+
+
+# =====================================================
+# SUGGESTIONS
+# =====================================================
+
+def _suggestion_section(
+    decision: Decision,
+) -> list[str]:
+    """
+    Optimization suggestions.
+    """
+
+    return decision.suggestions
+
+
+# =====================================================
+# WARNINGS
+# =====================================================
+
+def _warning_section(
+    decision: Decision,
+) -> list[str]:
+    """
+    Risk warnings.
+    """
+
+    return decision.warnings
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
 
 def generate_recommendation(
-    portfolio: PortfolioAnalysis,
-    market: MarketStatus,
-) -> Decision:
+    decision: Decision,
+) -> str:
     """
-    Generate the final investment recommendation.
+    Generate a human-readable recommendation.
 
     Parameters
     ----------
-    portfolio
-        Portfolio analysis.
-
-    market
-        Market analysis.
+    decision
+        Final Decision model.
 
     Returns
     -------
-    Decision
+    str
     """
 
-    logger.info(
-        "Generating AI recommendation..."
+    sections: list[str] = []
+
+    sections.extend(
+        _build_overview(
+            decision,
+        )
     )
 
-    # --------------------------------------------------
-    # AI SCORE
-    # --------------------------------------------------
+    sections.append("")
 
-    score = calculate_score(
-        portfolio,
-        market,
-    )
+    sections.append("Portfolio")
 
-    # --------------------------------------------------
-    # ACTION
-    # --------------------------------------------------
+    sections.extend(
 
-    if score >= 90:
-
-        action = "STRONG BUY"
-
-    elif score >= 75:
-
-        action = "BUY"
-
-    elif score >= 55:
-
-        action = "WATCH"
-
-    elif score >= 35:
-
-        action = "REDUCE"
-
-    else:
-
-        action = "SELL"
-
-    # --------------------------------------------------
-    # CONFIDENCE
-    # --------------------------------------------------
-
-    confidence = min(
-        99,
-        max(
-            50,
-            score + 5,
-        ),
-    )
-
-    # --------------------------------------------------
-    # REASON
-    # --------------------------------------------------
-
-    reasons = []
-
-    if portfolio.health.grade == "A":
-        reasons.append(
-            "Healthy portfolio"
+        _portfolio_section(
+            decision,
         )
-
-    elif portfolio.health.grade == "B":
-        reasons.append(
-            "Stable portfolio"
-        )
-
-    else:
-        reasons.append(
-            "Portfolio needs improvement"
-        )
-
-    if market.regime == "RISK_ON":
-
-        reasons.append(
-            "Risk-On market"
-        )
-
-    elif market.regime == "RISK_OFF":
-
-        reasons.append(
-            "Risk-Off market"
-        )
-
-    else:
-
-        reasons.append(
-            "Neutral market"
-        )
-
-    if portfolio.rebalance.needs_rebalance:
-
-        reasons.append(
-            "Portfolio rebalancing recommended"
-        )
-
-    reason = ". ".join(reasons)
-
-    # --------------------------------------------------
-    # RESULT
-    # --------------------------------------------------
-
-    decision = Decision(
-
-        action=action,
-
-        score=score,
-
-        confidence=confidence,
-
-        reason=reason,
 
     )
 
-    logger.info(
+    sections.append("")
 
-        "Recommendation: %s (%d)",
+    sections.append("Market")
 
-        action,
+    sections.extend(
 
-        score,
+        _market_section(
+            decision,
+        )
 
     )
 
-    return decision
+    sections.append("")
+
+    sections.append("Reasons")
+
+    sections.extend(
+
+        _reason_section(
+            decision,
+        )
+
+    )
+
+    if decision.suggestions:
+
+        sections.append("")
+
+        sections.append(
+            "Suggestions"
+        )
+
+        sections.extend(
+
+            _suggestion_section(
+                decision,
+            )
+
+        )
+
+    if decision.warnings:
+
+        sections.append("")
+
+        sections.append(
+            "Warnings"
+        )
+
+        sections.extend(
+
+            _warning_section(
+                decision,
+            )
+
+        )
+
+    return "\n".join(
+        sections
+    )

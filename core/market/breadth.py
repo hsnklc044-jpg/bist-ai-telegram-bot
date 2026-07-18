@@ -13,20 +13,96 @@ from core.infrastructure.logger import (
     get_logger,
 )
 
+from core.market.indicators import (
+    generate_indicator_snapshot,
+)
+
 from core.market.models import (
+    BreadthStatus,
     MarketBreadth,
 )
 
 logger = get_logger(__name__)
 
 
-def calculate_market_breadth() -> MarketBreadth:
+# =====================================================
+# DEFAULT MARKET SYMBOL
+# =====================================================
+
+DEFAULT_MARKET_SYMBOL = "^XU100.IS"
+
+
+# =====================================================
+# SCORE HELPERS
+# =====================================================
+
+def _trend_score(
+    snapshot,
+) -> int:
+    """
+    Trend contribution.
+    """
+
+    if snapshot.trend.value == "BULLISH":
+        return 35
+
+    if snapshot.trend.value == "NEUTRAL":
+        return 20
+
+    return 5
+
+
+def _rsi_score(
+    snapshot,
+) -> int:
+    """
+    RSI contribution.
+    """
+
+    if 45 <= snapshot.rsi <= 65:
+        return 25
+
+    if 35 <= snapshot.rsi <= 75:
+        return 15
+
+    return 5
+
+
+def _macd_score(
+    snapshot,
+) -> int:
+    """
+    MACD contribution.
+    """
+
+    if snapshot.macd > snapshot.macd_signal:
+        return 20
+
+    return 5
+
+
+def _ema_score(
+    snapshot,
+) -> int:
+    """
+    EMA contribution.
+    """
+
+    if snapshot.price > snapshot.ema200:
+        return 20
+
+    return 5
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
+
+def calculate_market_breadth(
+    symbol: str = DEFAULT_MARKET_SYMBOL,
+) -> MarketBreadth:
     """
     Calculate overall market breadth.
-
-    Returns
-    -------
-    MarketBreadth
     """
 
     logger.info(
@@ -35,55 +111,42 @@ def calculate_market_breadth() -> MarketBreadth:
 
     try:
 
-        # ==================================================
-        # PLACEHOLDER DATA
-        # ==================================================
+        snapshot = generate_indicator_snapshot(
+            symbol,
+        )
 
-        advance_decline_ratio = 1.35
+        score = (
 
-        sector_strength = 0.72
+            _trend_score(snapshot)
 
-        volume_participation = 0.81
+            + _rsi_score(snapshot)
 
-        # ==================================================
-        # SCORE
-        # ==================================================
+            + _macd_score(snapshot)
 
-        score = 0
+            + _ema_score(snapshot)
 
-        if advance_decline_ratio > 1:
-            score += 1
+        )
 
-        if sector_strength >= 0.60:
-            score += 1
-
-        if volume_participation >= 0.70:
-            score += 1
-
-        normalized_score = round(
-            score / 3 * 100,
+        score = round(
+            min(score, 100),
             2,
         )
 
-        # ==================================================
-        # STATUS
-        # ==================================================
+        if score >= 70:
 
-        if score == 3:
+            status = BreadthStatus.POSITIVE
 
-            status = "POSITIVE"
+        elif score >= 45:
 
-        elif score == 2:
-
-            status = "NEUTRAL"
+            status = BreadthStatus.NEUTRAL
 
         else:
 
-            status = "NEGATIVE"
+            status = BreadthStatus.NEGATIVE
 
         summary = (
-            f"{status} market breadth "
-            f"({normalized_score:.0f}/100)"
+            f"{status.value} breadth "
+            f"({score:.0f}/100)"
         )
 
         logger.info(
@@ -94,7 +157,7 @@ def calculate_market_breadth() -> MarketBreadth:
 
             status=status,
 
-            score=normalized_score,
+            score=score,
 
             summary=summary,
 
@@ -109,3 +172,14 @@ def calculate_market_breadth() -> MarketBreadth:
         raise MarketError(
             str(exc)
         ) from exc
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "calculate_market_breadth",
+
+]

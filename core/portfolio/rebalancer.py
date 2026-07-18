@@ -13,80 +13,85 @@ from core.infrastructure.logger import (
     get_logger,
 )
 
-from core.portfolio.models import (
-    RebalanceResult,
+from core.portfolio.allocator import (
+    allocate_portfolio,
 )
 
-from core.portfolio.optimizer import (
-    optimize_portfolio,
+from core.portfolio.models import (
+    PortfolioOptimization,
+    RebalanceResult,
 )
 
 logger = get_logger(__name__)
 
 
-def generate_rebalance_plan() -> RebalanceResult:
-    """
-    Generate a portfolio rebalance plan.
+# =====================================================
+# CONFIG
+# =====================================================
 
-    Returns
-    -------
-    RebalanceResult
+DRIFT_THRESHOLD = 5.0
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
+
+def generate_rebalance_plan(
+    optimization: PortfolioOptimization,
+) -> RebalanceResult:
+    """
+    Generate portfolio rebalance plan.
     """
 
     logger.info(
-        "Generating portfolio rebalance plan..."
+        "Generating rebalance plan..."
     )
 
     try:
 
-        optimization = optimize_portfolio()
-
-        if not optimization.rebalance:
-
-            logger.info(
-                "Portfolio is already balanced."
-            )
-
-            return RebalanceResult(
-
-                needs_rebalance=False,
-
-                summary="No rebalance required.",
-
-                buy=[],
-
-                sell=[],
-
-            )
+        allocations = allocate_portfolio()
 
         buy: list[str] = []
 
         sell: list[str] = []
 
-        for suggestion in optimization.suggestions:
+        for item in allocations:
 
-            if suggestion.startswith("Increase"):
+            if item.action == "INCREASE":
 
-                buy.append(suggestion)
+                buy.append(item.symbol)
 
-            elif suggestion.startswith("Reduce"):
+            elif item.action == "REDUCE":
 
-                sell.append(suggestion)
+                sell.append(item.symbol)
 
-        summary = (
+        needs_rebalance = (
 
-            f"Buy: {len(buy)} | "
-            f"Sell: {len(sell)}"
+            optimization.rebalance
+
+            or len(buy) > 0
+
+            or len(sell) > 0
 
         )
 
-        logger.info(
-            "Rebalance plan created."
-        )
+        if not needs_rebalance:
 
-        return RebalanceResult(
+            summary = (
+                "Portfolio allocation is balanced."
+            )
 
-            needs_rebalance=True,
+        else:
+
+            summary = (
+                f"Rebalance required "
+                f"(Buy: {len(buy)}, "
+                f"Sell: {len(sell)})."
+            )
+
+        result = RebalanceResult(
+
+            needs_rebalance=needs_rebalance,
 
             summary=summary,
 
@@ -96,6 +101,12 @@ def generate_rebalance_plan() -> RebalanceResult:
 
         )
 
+        logger.info(
+            "Rebalance plan generated."
+        )
+
+        return result
+
     except PortfolioError:
 
         raise
@@ -103,9 +114,72 @@ def generate_rebalance_plan() -> RebalanceResult:
     except Exception as exc:
 
         logger.exception(
-            "Rebalance plan generation failed."
+            "Rebalance generation failed."
         )
 
         raise PortfolioError(
             str(exc)
         ) from exc
+
+
+# =====================================================
+# METRICS
+# =====================================================
+
+def rebalance_score(
+    optimization: PortfolioOptimization,
+) -> float:
+    """
+    Portfolio rebalance quality score.
+    """
+
+    allocations = allocate_portfolio()
+
+    if not allocations:
+
+        return 100.0
+
+    drift = sum(
+
+        abs(item.drift)
+
+        for item in allocations
+
+    ) / len(allocations)
+
+    score = max(
+
+        0.0,
+
+        100.0 - drift * 5,
+
+    )
+
+    if optimization.concentration_risk:
+
+        score -= 15
+
+    if optimization.rebalance:
+
+        score -= 10
+
+    return round(
+
+        max(score, 0.0),
+
+        2,
+
+    )
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "generate_rebalance_plan",
+
+    "rebalance_score",
+
+]

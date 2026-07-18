@@ -6,6 +6,33 @@ Portfolio Models
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
+
+
+# =====================================================
+# ENUMS
+# =====================================================
+
+class PortfolioSeverity(Enum):
+    """
+    Portfolio optimization severity.
+    """
+
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
+class PortfolioAction(Enum):
+    """
+    Final optimizer action.
+    """
+
+    BUY = "BUY"
+    HOLD = "HOLD"
+    REBALANCE = "REBALANCE"
+    REDUCE_RISK = "REDUCE_RISK"
 
 
 # =====================================================
@@ -110,17 +137,49 @@ class PortfolioRisk:
 class PortfolioOptimization:
     """
     Portfolio optimization result.
+
+    Shared by:
+
+    - Dashboard
+    - Decision Engine
+    - Recommendation Engine
+    - Morning Report
+    - Telegram Bot
     """
+
+    # Portfolio Summary
 
     total_value: float
 
+    # Largest Position
+
     largest_position: str
 
+    largest_weight: float
+
+    # Smallest Position
+
     smallest_position: str
+
+    smallest_weight: float
+
+    # Risk
 
     concentration_risk: bool
 
     rebalance: bool
+
+    # Overall Quality
+
+    health_score: int
+
+    severity: PortfolioSeverity
+
+    # Final Recommendation
+
+    overall_action: PortfolioAction
+
+    # Suggestions
 
     suggestions: list[str] = field(
         default_factory=list

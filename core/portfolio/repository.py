@@ -18,9 +18,9 @@ from core.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
 
-# ==========================================================
+# =====================================================
 # CONFIGURATION
-# ==========================================================
+# =====================================================
 
 PORTFOLIO_FILE = Path("data/portfolio_model.csv")
 
@@ -37,16 +37,40 @@ NUMERIC_COLUMNS = (
     "value",
 )
 
-# ==========================================================
+COLUMN_ALIASES = {
+
+    # Quantity
+    "lot": "quantity",
+    "lots": "quantity",
+    "adet": "quantity",
+    "miktar": "quantity",
+    "qty": "quantity",
+
+    # Symbol
+    "ticker": "symbol",
+    "code": "symbol",
+
+    # Price
+    "close": "price",
+    "cost": "price",
+
+    # Value
+    "total": "value",
+    "amount": "value",
+    "tutar": "value",
+
+}
+
+# =====================================================
 # HELPERS
-# ==========================================================
+# =====================================================
 
 
 def _normalize_columns(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     """
-    Normalize dataframe column names.
+    Normalize dataframe columns.
     """
 
     df.columns = [
@@ -59,6 +83,14 @@ def _normalize_columns(
 
     ]
 
+    df.rename(
+
+        columns=COLUMN_ALIASES,
+
+        inplace=True,
+
+    )
+
     return df
 
 
@@ -66,7 +98,7 @@ def _create_missing_columns(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     """
-    Create calculated columns if required.
+    Create calculated columns.
     """
 
     if (
@@ -86,7 +118,7 @@ def _create_missing_columns(
     ):
 
         logger.info(
-            "Creating missing 'value' column."
+            "Creating value column."
         )
 
         df["value"] = (
@@ -104,7 +136,7 @@ def _convert_numeric_columns(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     """
-    Convert numeric columns safely.
+    Convert numeric columns.
     """
 
     for column in NUMERIC_COLUMNS:
@@ -150,18 +182,14 @@ def _validate_schema(
         )
 
 
-# ==========================================================
+# =====================================================
 # PUBLIC API
-# ==========================================================
+# =====================================================
 
 
 def load_portfolio() -> pd.DataFrame:
     """
-    Load portfolio data.
-
-    Returns
-    -------
-    pandas.DataFrame
+    Load portfolio dataframe.
     """
 
     logger.info(
@@ -215,13 +243,20 @@ def load_portfolio() -> pd.DataFrame:
     except Exception as exc:
 
         logger.exception(
-
             "Unexpected repository error."
-
         )
 
         raise PortfolioRepositoryError(
-
             str(exc)
-
         ) from exc
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "load_portfolio",
+
+]

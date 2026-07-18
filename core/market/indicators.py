@@ -1,129 +1,489 @@
-"""
-QuantBIST RC4
-Technical Indicators
+﻿"""
+QuantBIST Framework
+Market Indicator Engine
 """
 
 from __future__ import annotations
 
 import pandas as pd
 
+from ta.momentum import RSIIndicator
+from ta.trend import (
+    EMAIndicator,
+    MACD,
+    SMAIndicator,
+)
+from ta.volatility import (
+    AverageTrueRange,
+    BollingerBands,
+)
 
-def calculate_ma(
-    close: pd.Series,
-) -> tuple[float, float]:
+from core.infrastructure.exceptions import (
+    MarketError,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.market.data import (
+    load_price_history,
+)
+
+from core.market.models import (
+    IndicatorSnapshot,
+    MarketTrend,
+)
+
+logger = get_logger(__name__)
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+def _last(series: pd.Series) -> float:
     """
-    Calculate MA20 and MA50.
+    Return last value.
     """
 
-    ma20 = float(
-        close.rolling(20).mean().iloc[-1]
+    return round(
+        float(series.iloc[-1]),
+        4,
     )
 
-    ma50 = float(
-        close.rolling(50).mean().iloc[-1]
+
+def _ema(
+    close: pd.Series,
+    window: int,
+) -> float:
+
+    return _last(
+
+        EMAIndicator(
+            close,
+            window=window,
+        ).ema_indicator()
+
+    )
+
+
+def _sma(
+    close: pd.Series,
+    window: int,
+) -> float:
+
+    return _last(
+
+        SMAIndicator(
+            close,
+            window=window,
+        ).sma_indicator()
+
+    )
+
+
+def _rsi(
+    close: pd.Series,
+) -> float:
+
+    return _last(
+
+        RSIIndicator(
+            close,
+            window=14,
+        ).rsi()
+
+    )
+def _macd(
+    close: pd.Series,
+) -> tuple[float, float, float]:
+    """
+    Calculate MACD values.
+    """
+
+    macd = MACD(close)
+
+    return (
+
+        _last(
+            macd.macd()
+        ),
+
+        _last(
+            macd.macd_signal()
+        ),
+
+        _last(
+            macd.macd_diff()
+        ),
+
+    )
+
+
+def _atr(
+    high: pd.Series,
+    low: pd.Series,
+    close: pd.Series,
+) -> float:
+    """
+    Calculate ATR.
+    """
+
+    return _last(
+
+        AverageTrueRange(
+
+            high,
+
+            low,
+
+            close,
+
+            window=14,
+
+        ).average_true_range()
+
+    )
+
+
+def _bollinger(
+    close: pd.Series,
+) -> tuple[float, float, float]:
+    """
+    Calculate Bollinger Bands.
+    """
+
+    bb = BollingerBands(
+
+        close,
+
+        window=20,
+
+        window_dev=2,
+
     )
 
     return (
-        round(ma20, 2),
-        round(ma50, 2),
+
+        _last(
+            bb.bollinger_hband()
+        ),
+
+        _last(
+            bb.bollinger_mavg()
+        ),
+
+        _last(
+            bb.bollinger_lband()
+        ),
+
     )
 
 
-def calculate_rsi(
-    close: pd.Series,
-) -> float:
+# =====================================================
+# TREND ENGINE
+# =====================================================
+
+def _trend(
+    ema20: float,
+    ema50: float,
+    ema200: float,
+) -> MarketTrend:
     """
-    Calculate RSI.
-    """
-
-    delta = close.diff()
-
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-
-    avg_gain = gain.rolling(14).mean()
-    avg_loss = loss.rolling(14).mean()
-
-    gain_last = avg_gain.iloc[-1]
-    loss_last = avg_loss.iloc[-1]
-
-    if pd.isna(gain_last) or pd.isna(loss_last):
-        return 50.0
-
-    if loss_last == 0:
-        return 100.0
-
-    rs = gain_last / loss_last
-
-    rsi = 100 - (100 / (1 + rs))
-
-    return round(float(rsi), 2)
-
-
-def calculate_macd(
-    close: pd.Series,
-) -> float:
-    """
-    Calculate MACD.
+    Determine primary trend.
     """
 
-    ema12 = close.ewm(
-        span=12,
-        adjust=False,
-    ).mean()
+    if ema20 > ema50 > ema200:
 
-    ema26 = close.ewm(
-        span=26,
-        adjust=False,
-    ).mean()
+        return MarketTrend.BULLISH
 
-    macd = ema12.iloc[-1] - ema26.iloc[-1]
+    if ema20 < ema50 < ema200:
 
-    if pd.isna(macd):
-        return 0.0
+        return MarketTrend.BEARISH
 
-    return round(float(macd), 2)
+    return MarketTrend.NEUTRAL
 
 
-def calculate_volatility(
-    close: pd.Series,
-) -> float:
+def _momentum(
+    rsi: float,
+    histogram: float,
+) -> str:
     """
-    Calculate volatility.
+    Determine momentum.
     """
 
-    volatility = (
-        close.pct_change(fill_method=None)
-        .std()
+    if rsi >= 70:
+
+        return "OVERBOUGHT"
+
+    if rsi <= 30:
+
+        return "OVERSOLD"
+
+    if histogram > 0:
+
+        return "POSITIVE"
+
+    if histogram < 0:
+
+        return "NEGATIVE"
+
+    return "NEUTRAL"
+
+# =====================================================
+# SNAPSHOT ENGINE
+# =====================================================
+
+def generate_indicator_snapshot(
+    symbol: str,
+) -> IndicatorSnapshot:
+    """
+    Generate complete technical indicator snapshot.
+    """
+
+    logger.info(
+        "Generating indicator snapshot for %s",
+        symbol,
     )
 
-    if pd.isna(volatility):
-        return 0.0
+    try:
+
+        df = load_price_history(symbol)
+
+        if df.empty:
+
+            raise MarketError(
+                f"No market data for {symbol}"
+            )
+
+        close = df["close"]
+        high = df["high"]
+        low = df["low"]
+        volume = df["volume"]
+
+        ema20 = _ema(close, 20)
+        ema50 = _ema(close, 50)
+        ema200 = _ema(close, 200)
+
+        sma20 = _sma(close, 20)
+        sma50 = _sma(close, 50)
+        sma200 = _sma(close, 200)
+
+        rsi = _rsi(close)
+
+        macd, signal, histogram = _macd(
+            close,
+        )
+
+        atr = _atr(
+            high,
+            low,
+            close,
+        )
+
+        bb_upper, bb_middle, bb_lower = _bollinger(
+            close,
+        )
+
+        trend = _trend(
+            ema20,
+            ema50,
+            ema200,
+        )
+
+        momentum = _momentum(
+            rsi,
+            histogram,
+        )
+
+        snapshot = IndicatorSnapshot(
+
+            symbol=symbol,
+
+            price=_last(close),
+
+            volume=_last(volume),
+
+            ema20=ema20,
+            ema50=ema50,
+            ema200=ema200,
+
+            sma20=sma20,
+            sma50=sma50,
+            sma200=sma200,
+
+            rsi=rsi,
+
+            atr=atr,
+
+            macd=macd,
+            macd_signal=signal,
+            macd_histogram=histogram,
+
+            bollinger_upper=bb_upper,
+            bollinger_middle=bb_middle,
+            bollinger_lower=bb_lower,
+
+            trend=trend,
+
+            momentum=momentum,
+
+        )
+
+        logger.info(
+            "Indicator snapshot generated for %s",
+            symbol,
+        )
+
+        return snapshot
+
+    except MarketError:
+
+        raise
+
+    except Exception as exc:
+
+        logger.exception(
+            "Indicator calculation failed."
+        )
+
+        raise MarketError(
+            str(exc)
+        ) from exc
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+def is_bullish(
+    snapshot: IndicatorSnapshot,
+) -> bool:
+    """
+    Returns True if trend is bullish.
+    """
+
+    return snapshot.trend is MarketTrend.BULLISH
+
+
+def is_bearish(
+    snapshot: IndicatorSnapshot,
+) -> bool:
+    """
+    Returns True if trend is bearish.
+    """
+
+    return snapshot.trend is MarketTrend.BEARISH
+
+
+def is_neutral(
+    snapshot: IndicatorSnapshot,
+) -> bool:
+    """
+    Returns True if trend is neutral.
+    """
+
+    return snapshot.trend is MarketTrend.NEUTRAL
+
+
+def strong_buy_signal(
+    snapshot: IndicatorSnapshot,
+) -> bool:
+    """
+    Strong bullish signal.
+    """
+
+    return (
+
+        snapshot.trend is MarketTrend.BULLISH
+
+        and snapshot.rsi < 70
+
+        and snapshot.macd > snapshot.macd_signal
+
+    )
+
+
+def strong_sell_signal(
+    snapshot: IndicatorSnapshot,
+) -> bool:
+    """
+    Strong bearish signal.
+    """
+
+    return (
+
+        snapshot.trend is MarketTrend.BEARISH
+
+        and snapshot.rsi > 30
+
+        and snapshot.macd < snapshot.macd_signal
+
+    )
+
+
+def indicator_score(
+    snapshot: IndicatorSnapshot,
+) -> float:
+    """
+    Calculate a technical score between 0 and 100.
+    """
+
+    score = 50.0
+
+    if snapshot.trend is MarketTrend.BULLISH:
+        score += 20
+    elif snapshot.trend is MarketTrend.BEARISH:
+        score -= 20
+
+    if snapshot.rsi < 30:
+        score += 10
+    elif snapshot.rsi > 70:
+        score -= 10
+
+    if snapshot.macd > snapshot.macd_signal:
+        score += 10
+    else:
+        score -= 10
+
+    if snapshot.price > snapshot.ema200:
+        score += 10
+    else:
+        score -= 10
 
     return round(
-        float(volatility * 100),
+
+        max(
+            0.0,
+            min(
+                100.0,
+                score,
+            ),
+        ),
+
         2,
+
     )
 
 
-def calculate_volume_ratio(
-    volume: pd.Series,
-) -> float:
-    """
-    Calculate volume ratio.
-    """
+# =====================================================
+# EXPORTS
+# =====================================================
 
-    avg_volume = (
-        volume.rolling(20)
-        .mean()
-        .iloc[-1]
-    )
+__all__ = [
 
-    if pd.isna(avg_volume) or avg_volume <= 0:
-        return 1.0
+    "generate_indicator_snapshot",
 
-    return round(
-        float(volume.iloc[-1]) /
-        float(avg_volume),
-        2,
-    )
+    "indicator_score",
+
+    "is_bullish",
+
+    "is_bearish",
+
+    "is_neutral",
+
+    "strong_buy_signal",
+
+    "strong_sell_signal",
+
+]

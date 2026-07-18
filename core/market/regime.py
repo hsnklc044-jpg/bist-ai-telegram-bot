@@ -13,37 +13,63 @@ from core.infrastructure.logger import (
     get_logger,
 )
 
+from core.market.breadth import (
+    calculate_market_breadth,
+)
+
+from core.market.indicators import (
+    generate_indicator_snapshot,
+)
+
 from core.market.models import (
-    MarketBreadth,
     MarketRegime,
-    MarketSentiment,
+    MarketRegimeType,
+    MarketTrend,
+)
+
+from core.market.sentiment import (
+    calculate_market_sentiment,
 )
 
 logger = get_logger(__name__)
 
 
+# =====================================================
+# DEFAULT MARKET SYMBOL
+# =====================================================
+
+DEFAULT_MARKET_SYMBOL = "^XU100.IS"
+
+
+# =====================================================
+# SCORE HELPERS
+# =====================================================
+
+def _trend_score(
+    trend: MarketTrend,
+) -> int:
+    """
+    Trend contribution.
+    """
+
+    if trend is MarketTrend.BULLISH:
+        return 40
+
+    if trend is MarketTrend.NEUTRAL:
+        return 20
+
+    return 0
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
+
 def determine_market_regime(
-    trend: str,
-    breadth: MarketBreadth,
-    sentiment: MarketSentiment,
+    symbol: str = DEFAULT_MARKET_SYMBOL,
 ) -> MarketRegime:
     """
-    Determine the current market regime.
-
-    Parameters
-    ----------
-    trend
-        Current market trend.
-
-    breadth
-        Market breadth analysis.
-
-    sentiment
-        Market sentiment analysis.
-
-    Returns
-    -------
-    MarketRegime
+    Determine current market regime.
     """
 
     logger.info(
@@ -52,58 +78,67 @@ def determine_market_regime(
 
     try:
 
-        score = 0
-
-        # ------------------------------------------
-        # Trend
-        # ------------------------------------------
-
-        if trend.upper() == "BULLISH":
-            score += 40
-
-        elif trend.upper() == "NEUTRAL":
-            score += 20
-
-        # ------------------------------------------
-        # Breadth
-        # ------------------------------------------
-
-        score += breadth.score * 0.30
-
-        # ------------------------------------------
-        # Sentiment
-        # ------------------------------------------
-
-        score += sentiment.score * 0.30
-
-        score = round(
-            min(score, 100),
-            2,
+        snapshot = generate_indicator_snapshot(
+            symbol,
         )
 
-        # ------------------------------------------
-        # Regime
-        # ------------------------------------------
+        breadth = calculate_market_breadth(
+            symbol,
+        )
+
+        sentiment = calculate_market_sentiment(
+            symbol,
+        )
+
+        score = (
+
+            _trend_score(
+                snapshot.trend,
+            )
+
+            + breadth.score * 0.30
+
+            + sentiment.score * 0.30
+
+        )
+
+        score = round(
+
+            min(
+                score,
+                100,
+            ),
+
+            2,
+
+        )
 
         if score >= 70:
 
-            status = "RISK_ON"
+            status = MarketRegimeType.RISK_ON
 
         elif score >= 45:
 
-            status = "NEUTRAL"
+            status = MarketRegimeType.NEUTRAL
 
         else:
 
-            status = "RISK_OFF"
+            status = MarketRegimeType.RISK_OFF
 
         summary = (
-            f"{status} market "
+
+            f"{status.value} "
+
             f"({score:.0f}/100)"
+
         )
 
         logger.info(
-            "Market regime calculated."
+
+            "Market regime determined: %s",
+
+            status.value,
+
         )
 
         return MarketRegime(
@@ -125,3 +160,54 @@ def determine_market_regime(
         raise MarketError(
             str(exc)
         ) from exc
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+def is_risk_on(
+    regime: MarketRegime,
+) -> bool:
+    """
+    Returns True if market is Risk-On.
+    """
+
+    return regime.status is MarketRegimeType.RISK_ON
+
+
+def is_risk_off(
+    regime: MarketRegime,
+) -> bool:
+    """
+    Returns True if market is Risk-Off.
+    """
+
+    return regime.status is MarketRegimeType.RISK_OFF
+
+
+def is_neutral(
+    regime: MarketRegime,
+) -> bool:
+    """
+    Returns True if market is Neutral.
+    """
+
+    return regime.status is MarketRegimeType.NEUTRAL
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "determine_market_regime",
+
+    "is_risk_on",
+
+    "is_risk_off",
+
+    "is_neutral",
+
+]

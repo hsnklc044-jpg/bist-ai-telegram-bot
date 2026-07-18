@@ -1,0 +1,1615 @@
+2026-06-30 17:04:17,246 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:04:17,271 | INFO | werkzeug | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-06-30 17:04:17,271 | INFO | werkzeug | [33mPress CTRL+C to quit[0m
+2026-06-30 17:04:17,283 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-06-30 17:04:18,000 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:04:18,011 | WARNING | werkzeug |  * Debugger is active!
+2026-06-30 17:04:18,012 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-06-30 17:04:51,736 | INFO | __main__ | Dashboard requested.
+2026-06-30 17:04:51,736 | INFO | core.dashboard.service | Dashboard Service started.
+2026-06-30 17:04:51,736 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-06-30 17:04:51,737 | INFO | core.portfolio.repository | Loading portfolio...
+2026-06-30 17:04:51,806 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-06-30 17:04:51,809 | ERROR | core.dashboard.service | Dashboard Service failed.
+Traceback (most recent call last):
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\dashboard\service.py", line 66, in get_dashboard
+    stats = get_summary_cards()
+            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\dashboard\cards.py", line 34, in get_summary_cards
+    return get_dashboard_stats()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\portfolio\dashboard_data.py", line 32, in get_dashboard_stats
+    portfolio = load_portfolio()
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\portfolio\repository.py", line 197, in load_portfolio
+    _validate_schema(df)
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\portfolio\repository.py", line 144, in _validate_schema
+    raise PortfolioValidationError(
+core.infrastructure.exceptions.PortfolioValidationError: Missing required columns: quantity
+2026-06-30 17:04:51,827 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\flask\\app.py', reloading
+2026-06-30 17:04:51,974 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-06-30 17:04:52,698 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:04:52,709 | WARNING | werkzeug |  * Debugger is active!
+2026-06-30 17:04:52,711 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-06-30 17:04:52,725 | INFO | __main__ | Dashboard requested.
+2026-06-30 17:04:52,725 | INFO | core.dashboard.service | Dashboard Service started.
+2026-06-30 17:04:52,725 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-06-30 17:04:52,725 | INFO | core.portfolio.repository | Loading portfolio...
+2026-06-30 17:04:52,729 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-06-30 17:04:52,731 | ERROR | core.dashboard.service | Dashboard Service failed.
+Traceback (most recent call last):
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\dashboard\service.py", line 66, in get_dashboard
+    stats = get_summary_cards()
+            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\dashboard\cards.py", line 34, in get_summary_cards
+    return get_dashboard_stats()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\portfolio\dashboard_data.py", line 32, in get_dashboard_stats
+    portfolio = load_portfolio()
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\portfolio\repository.py", line 197, in load_portfolio
+    _validate_schema(df)
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\portfolio\repository.py", line 144, in _validate_schema
+    raise PortfolioValidationError(
+core.infrastructure.exceptions.PortfolioValidationError: Missing required columns: quantity
+2026-06-30 17:04:52,737 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:04:52] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-06-30 17:04:52,787 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:04:52] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-06-30 17:04:52,836 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:04:52] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-06-30 17:04:52,859 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:04:52] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=CpTid7N1PmvNjqCgD2w0 HTTP/1.1" 200 -
+2026-06-30 17:04:52,870 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:04:52] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-06-30 17:09:57,488 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:09:57,506 | INFO | werkzeug | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-06-30 17:09:57,507 | INFO | werkzeug | [33mPress CTRL+C to quit[0m
+2026-06-30 17:09:57,514 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-06-30 17:09:58,243 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:09:58,253 | WARNING | werkzeug |  * Debugger is active!
+2026-06-30 17:09:58,255 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-06-30 17:10:30,176 | INFO | __main__ | Dashboard requested.
+2026-06-30 17:10:30,176 | INFO | core.dashboard.service | Dashboard Service started.
+2026-06-30 17:10:30,177 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-06-30 17:10:30,177 | INFO | core.portfolio.repository | Loading portfolio...
+2026-06-30 17:10:30,194 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-06-30 17:10:30,203 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-06-30 17:10:30,209 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-06-30 17:10:30,210 | INFO | core.market.service | Market Service started.
+2026-06-30 17:10:30,210 | INFO | core.market.data | Loading history for ^XU100.IS
+2026-06-30 17:10:32,469 | ERROR | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: ^XU100.IS"}}}
+2026-06-30 17:10:33,384 | ERROR | yfinance | $^XU100.IS: possibly delisted; no price data found  (period=1mo) (Yahoo error = "No data found, symbol may be delisted")
+2026-06-30 17:10:33,395 | ERROR | yfinance | 
+1 Failed download:
+2026-06-30 17:10:33,395 | ERROR | yfinance | ['^XU100.IS']: possibly delisted; no price data found  (period=1mo) (Yahoo error = "No data found, symbol may be delisted")
+2026-06-30 17:10:33,407 | INFO | core.market.data | Loaded 0 candles for ^XU100.IS
+2026-06-30 17:10:33,409 | ERROR | core.dashboard.service | Dashboard Service failed.
+Traceback (most recent call last):
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\dashboard\service.py", line 72, in get_dashboard
+    market = get_market_status()
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\market\service.py", line 94, in get_market_status
+    market = load_snapshot(
+             ^^^^^^^^^^^^^^
+  File "C:\Users\hsnkl\Documents\QuantBIST_RC4\core\market\data.py", line 220, in load_snapshot
+    raise MarketError(
+core.infrastructure.exceptions.MarketError: No data for ^XU100.IS
+2026-06-30 17:10:33,420 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:10:33] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-06-30 17:10:33,468 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:10:33] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-06-30 17:10:33,474 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:10:33] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-06-30 17:10:33,486 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:10:33] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=8PnrYs7MG7ieXZKeD4XF HTTP/1.1" 200 -
+2026-06-30 17:17:27,828 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:17:27,845 | INFO | werkzeug | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-06-30 17:17:27,845 | INFO | werkzeug | [33mPress CTRL+C to quit[0m
+2026-06-30 17:17:27,853 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-06-30 17:17:28,565 | INFO | __main__ | QuantBIST RC4 started.
+2026-06-30 17:17:28,575 | WARNING | werkzeug |  * Debugger is active!
+2026-06-30 17:17:28,576 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-06-30 17:17:34,783 | INFO | __main__ | Dashboard requested.
+2026-06-30 17:17:34,783 | INFO | core.dashboard.service | Dashboard Service started.
+2026-06-30 17:17:34,784 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-06-30 17:17:34,784 | INFO | core.portfolio.repository | Loading portfolio...
+2026-06-30 17:17:34,792 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-06-30 17:17:34,795 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-06-30 17:17:34,795 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-06-30 17:17:34,796 | INFO | core.market.service | Market Service started.
+2026-06-30 17:17:34,796 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:35,897 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-06-30 17:17:35,897 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:35,898 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:36,254 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:36,263 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:36,264 | INFO | core.market.breadth | Calculating market breadth...
+2026-06-30 17:17:36,264 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:36,264 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:36,685 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:36,692 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:36,693 | INFO | core.market.breadth | Market breadth calculated.
+2026-06-30 17:17:36,695 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-06-30 17:17:36,697 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:36,697 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:37,177 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:37,184 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:37,184 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-06-30 17:17:37,184 | INFO | core.market.regime | Determining market regime...
+2026-06-30 17:17:37,184 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:37,184 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:37,646 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:37,649 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:37,650 | INFO | core.market.breadth | Calculating market breadth...
+2026-06-30 17:17:37,650 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:37,650 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:38,051 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:38,057 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:38,057 | INFO | core.market.breadth | Market breadth calculated.
+2026-06-30 17:17:38,057 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-06-30 17:17:38,057 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:38,057 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:38,418 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:38,423 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:38,425 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-06-30 17:17:38,426 | INFO | core.market.regime | Market regime determined: NEUTRAL
+2026-06-30 17:17:38,426 | INFO | core.market.service | Market Service completed.
+2026-06-30 17:17:38,426 | INFO | core.decision.service | Decision Service started.
+2026-06-30 17:17:38,428 | INFO | core.decision.engine | Decision Engine started.
+2026-06-30 17:17:38,428 | INFO | core.portfolio.service | Portfolio Service started.
+2026-06-30 17:17:38,429 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-06-30 17:17:38,429 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-06-30 17:17:38,429 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-06-30 17:17:38,429 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-06-30 17:17:38,429 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-06-30 17:17:38,429 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-06-30 17:17:38,429 | INFO | core.portfolio.repository | Loading portfolio...
+2026-06-30 17:17:38,430 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-06-30 17:17:38,431 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-06-30 17:17:38,431 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-06-30 17:17:38,431 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-06-30 17:17:38,431 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-06-30 17:17:38,431 | INFO | core.portfolio.repository | Loading portfolio...
+2026-06-30 17:17:38,433 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-06-30 17:17:38,434 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-06-30 17:17:38,435 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-06-30 17:17:38,435 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-06-30 17:17:38,435 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-06-30 17:17:38,435 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-06-30 17:17:38,435 | INFO | core.market.service | Market Service started.
+2026-06-30 17:17:38,435 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:39,008 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-06-30 17:17:39,009 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:39,009 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:39,455 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:39,459 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:39,459 | INFO | core.market.breadth | Calculating market breadth...
+2026-06-30 17:17:39,459 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:39,459 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:39,899 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:39,905 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:39,906 | INFO | core.market.breadth | Market breadth calculated.
+2026-06-30 17:17:39,906 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-06-30 17:17:39,906 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:39,906 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:40,458 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:40,461 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:40,462 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-06-30 17:17:40,462 | INFO | core.market.regime | Determining market regime...
+2026-06-30 17:17:40,462 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:40,462 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:40,877 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:40,889 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:40,892 | INFO | core.market.breadth | Calculating market breadth...
+2026-06-30 17:17:40,892 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:40,898 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:41,428 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:41,434 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:41,434 | INFO | core.market.breadth | Market breadth calculated.
+2026-06-30 17:17:41,434 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-06-30 17:17:41,434 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-06-30 17:17:41,434 | INFO | core.market.data | Loading history for XU100.IS
+2026-06-30 17:17:41,796 | INFO | core.market.data | Loaded 123 candles for XU100.IS
+2026-06-30 17:17:41,799 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-06-30 17:17:41,799 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-06-30 17:17:41,799 | INFO | core.market.regime | Market regime determined: NEUTRAL
+2026-06-30 17:17:41,799 | INFO | core.market.service | Market Service completed.
+2026-06-30 17:17:41,799 | INFO | core.committee.service | Committee Service started.
+2026-06-30 17:17:41,799 | INFO | core.committee.engine | Investment Committee started.
+2026-06-30 17:17:41,799 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-06-30 17:17:41,799 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-06-30 17:17:41,799 | INFO | core.committee.voting | Committee voting started.
+2026-06-30 17:17:41,799 | INFO | core.committee.voting | Committee decision: HOLD
+2026-06-30 17:17:41,799 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-06-30 17:17:41,799 | INFO | core.committee.service | Committee decision: HOLD (61%)
+2026-06-30 17:17:41,799 | INFO | core.decision.engine | Decision completed: HOLD (61%)
+2026-06-30 17:17:41,799 | INFO | core.decision.service | Decision generated: HOLD (61%)
+2026-06-30 17:17:41,800 | INFO | core.market.data | Loading history for SASA.IS
+2026-06-30 17:17:42,259 | INFO | core.market.data | Loaded 126 candles for SASA.IS
+2026-06-30 17:17:42,259 | INFO | core.market.indicators | Generating indicator snapshot for SASA.IS
+2026-06-30 17:17:42,259 | INFO | core.market.data | Loading history for SASA.IS
+2026-06-30 17:17:42,730 | INFO | core.market.data | Loaded 126 candles for SASA.IS
+2026-06-30 17:17:42,735 | INFO | core.market.indicators | Indicator snapshot generated for SASA.IS
+2026-06-30 17:17:42,735 | INFO | core.market.data | Loading history for SISE.IS
+2026-06-30 17:17:43,261 | INFO | core.market.data | Loaded 126 candles for SISE.IS
+2026-06-30 17:17:43,262 | INFO | core.market.indicators | Generating indicator snapshot for SISE.IS
+2026-06-30 17:17:43,262 | INFO | core.market.data | Loading history for SISE.IS
+2026-06-30 17:17:43,826 | INFO | core.market.data | Loaded 126 candles for SISE.IS
+2026-06-30 17:17:43,830 | INFO | core.market.indicators | Indicator snapshot generated for SISE.IS
+2026-06-30 17:17:43,830 | INFO | core.market.data | Loading history for THYAO.IS
+2026-06-30 17:17:44,456 | INFO | core.market.data | Loaded 126 candles for THYAO.IS
+2026-06-30 17:17:44,457 | INFO | core.market.indicators | Generating indicator snapshot for THYAO.IS
+2026-06-30 17:17:44,457 | INFO | core.market.data | Loading history for THYAO.IS
+2026-06-30 17:17:44,891 | INFO | core.market.data | Loaded 126 candles for THYAO.IS
+2026-06-30 17:17:44,894 | INFO | core.market.indicators | Indicator snapshot generated for THYAO.IS
+2026-06-30 17:17:44,895 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-06-30 17:17:45,358 | INFO | core.market.data | Loaded 126 candles for TUPRS.IS
+2026-06-30 17:17:45,359 | INFO | core.market.indicators | Generating indicator snapshot for TUPRS.IS
+2026-06-30 17:17:45,359 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-06-30 17:17:45,933 | INFO | core.market.data | Loaded 126 candles for TUPRS.IS
+2026-06-30 17:17:45,938 | INFO | core.market.indicators | Indicator snapshot generated for TUPRS.IS
+2026-06-30 17:17:45,938 | INFO | core.market.data | Loading history for ASELS.IS
+2026-06-30 17:17:46,474 | INFO | core.market.data | Loaded 126 candles for ASELS.IS
+2026-06-30 17:17:46,474 | INFO | core.market.indicators | Generating indicator snapshot for ASELS.IS
+2026-06-30 17:17:46,475 | INFO | core.market.data | Loading history for ASELS.IS
+2026-06-30 17:17:47,029 | INFO | core.market.data | Loaded 126 candles for ASELS.IS
+2026-06-30 17:17:47,033 | INFO | core.market.indicators | Indicator snapshot generated for ASELS.IS
+2026-06-30 17:17:47,033 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-06-30 17:17:47,475 | INFO | core.market.data | Loaded 126 candles for KCHOL.IS
+2026-06-30 17:17:47,475 | INFO | core.market.indicators | Generating indicator snapshot for KCHOL.IS
+2026-06-30 17:17:47,475 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-06-30 17:17:48,008 | INFO | core.market.data | Loaded 126 candles for KCHOL.IS
+2026-06-30 17:17:48,012 | INFO | core.market.indicators | Indicator snapshot generated for KCHOL.IS
+2026-06-30 17:17:48,012 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-06-30 17:17:48,469 | INFO | core.market.data | Loaded 126 candles for YKBNK.IS
+2026-06-30 17:17:48,470 | INFO | core.market.indicators | Generating indicator snapshot for YKBNK.IS
+2026-06-30 17:17:48,470 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-06-30 17:17:48,915 | INFO | core.market.data | Loaded 126 candles for YKBNK.IS
+2026-06-30 17:17:48,922 | INFO | core.market.indicators | Indicator snapshot generated for YKBNK.IS
+2026-06-30 17:17:48,923 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-06-30 17:17:49,492 | INFO | core.market.data | Loaded 128 candles for BIMAS.IS
+2026-06-30 17:17:49,493 | INFO | core.market.indicators | Generating indicator snapshot for BIMAS.IS
+2026-06-30 17:17:49,493 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-06-30 17:17:49,957 | INFO | core.market.data | Loaded 128 candles for BIMAS.IS
+2026-06-30 17:17:49,963 | INFO | core.market.indicators | Indicator snapshot generated for BIMAS.IS
+2026-06-30 17:17:49,964 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-06-30 17:17:50,497 | INFO | core.market.data | Loaded 126 candles for HEKTS.IS
+2026-06-30 17:17:50,498 | INFO | core.market.indicators | Generating indicator snapshot for HEKTS.IS
+2026-06-30 17:17:50,498 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-06-30 17:17:50,969 | INFO | core.market.data | Loaded 126 candles for HEKTS.IS
+2026-06-30 17:17:50,977 | INFO | core.market.indicators | Indicator snapshot generated for HEKTS.IS
+2026-06-30 17:17:50,977 | INFO | core.market.data | Loading history for PETKM.IS
+2026-06-30 17:17:51,413 | INFO | core.market.data | Loaded 126 candles for PETKM.IS
+2026-06-30 17:17:51,414 | INFO | core.market.indicators | Generating indicator snapshot for PETKM.IS
+2026-06-30 17:17:51,414 | INFO | core.market.data | Loading history for PETKM.IS
+2026-06-30 17:17:51,869 | INFO | core.market.data | Loaded 126 candles for PETKM.IS
+2026-06-30 17:17:51,874 | INFO | core.market.indicators | Indicator snapshot generated for PETKM.IS
+2026-06-30 17:17:51,874 | INFO | core.market.data | Loading history for TCELL.IS
+2026-06-30 17:17:52,304 | INFO | core.market.data | Loaded 126 candles for TCELL.IS
+2026-06-30 17:17:52,304 | INFO | core.market.indicators | Generating indicator snapshot for TCELL.IS
+2026-06-30 17:17:52,304 | INFO | core.market.data | Loading history for TCELL.IS
+2026-06-30 17:17:52,800 | INFO | core.market.data | Loaded 126 candles for TCELL.IS
+2026-06-30 17:17:52,805 | INFO | core.market.indicators | Indicator snapshot generated for TCELL.IS
+2026-06-30 17:17:52,805 | INFO | core.market.data | Loading history for GARAN.IS
+2026-06-30 17:17:53,256 | INFO | core.market.data | Loaded 126 candles for GARAN.IS
+2026-06-30 17:17:53,257 | INFO | core.market.indicators | Generating indicator snapshot for GARAN.IS
+2026-06-30 17:17:53,257 | INFO | core.market.data | Loading history for GARAN.IS
+2026-06-30 17:17:53,737 | INFO | core.market.data | Loaded 126 candles for GARAN.IS
+2026-06-30 17:17:53,742 | INFO | core.market.indicators | Indicator snapshot generated for GARAN.IS
+2026-06-30 17:17:53,745 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-06-30 17:17:54,308 | INFO | core.market.data | Loaded 126 candles for AKBNK.IS
+2026-06-30 17:17:54,308 | INFO | core.market.indicators | Generating indicator snapshot for AKBNK.IS
+2026-06-30 17:17:54,308 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-06-30 17:17:54,899 | INFO | core.market.data | Loaded 126 candles for AKBNK.IS
+2026-06-30 17:17:54,907 | INFO | core.market.indicators | Indicator snapshot generated for AKBNK.IS
+2026-06-30 17:17:54,908 | INFO | core.market.data | Loading history for EREGL.IS
+2026-06-30 17:17:55,348 | INFO | core.market.data | Loaded 126 candles for EREGL.IS
+2026-06-30 17:17:55,349 | INFO | core.market.indicators | Generating indicator snapshot for EREGL.IS
+2026-06-30 17:17:55,350 | INFO | core.market.data | Loading history for EREGL.IS
+2026-06-30 17:17:55,779 | INFO | core.market.data | Loaded 126 candles for EREGL.IS
+2026-06-30 17:17:55,782 | INFO | core.market.indicators | Indicator snapshot generated for EREGL.IS
+2026-06-30 17:17:55,813 | INFO | core.dashboard.service | Dashboard Service completed.
+2026-06-30 17:17:55,828 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:17:55] "GET / HTTP/1.1" 200 -
+2026-06-30 17:17:55,901 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:17:55] "[36mGET /static/equity_curve.png HTTP/1.1[0m" 304 -
+2026-06-30 17:17:55,902 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:17:55] "[36mGET /static/portfolio_pie.png HTTP/1.1[0m" 304 -
+2026-06-30 17:17:55,911 | INFO | werkzeug | 127.0.0.1 - - [30/Jun/2026 17:17:55] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-18 20:47:33,024 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:47:33,083 | INFO | werkzeug | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-07-18 20:47:33,083 | INFO | werkzeug | [33mPress CTRL+C to quit[0m
+2026-07-18 20:47:33,120 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:47:34,357 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:47:34,376 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:47:34,378 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:48:05,045 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:48:05,045 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:48:05,045 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:48:05,046 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:05,137 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:05,150 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:05,150 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:48:05,150 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:48:05,150 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:48:05,150 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:48:05,150 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:48:05,150 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:48:05,150 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:48:05,150 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:48:05,150 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:05,162 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:05,162 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:05,162 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:48:05,162 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:48:05,162 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:48:05,162 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:05,162 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:05,162 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:05,178 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:48:05,178 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:48:05,178 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:48:05,178 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:48:05,178 | INFO | core.market.service | Market Service started.
+2026-07-18 20:48:05,178 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:11,849 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:48:11,849 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:11,849 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:12,296 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:12,345 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:12,345 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:12,345 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:12,345 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:12,746 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:12,746 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:12,746 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:12,746 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:12,762 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:12,762 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:13,076 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:13,088 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:13,088 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:13,088 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:48:13,088 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:13,088 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:13,455 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:13,462 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:13,462 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:13,462 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:13,462 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:13,799 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:13,820 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:13,822 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:13,822 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:13,822 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:13,822 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:14,140 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:14,148 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:14,148 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:14,148 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:48:14,150 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:48:14,150 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:48:14,150 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:48:14,151 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:48:14,151 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:48:14,151 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:48:14,151 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:48:14,151 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:48:14,151 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:48:14,151 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:48:14,151 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:48:14,151 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:14,156 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:14,157 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:14,351 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\plotly\\graph_objs\\pie\\__init__.py', reloading
+2026-07-18 20:48:14,643 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:48:16,031 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:48:16,045 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:48:16,050 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:48:16,066 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:48:16,066 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:48:16,066 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:48:16,066 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:16,072 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:16,072 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:16,075 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:48:16,075 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:48:16,075 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:48:16,075 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:48:16,075 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:48:16,075 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:48:16,075 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:48:16,075 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:48:16,075 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:16,075 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:16,078 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:16,078 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:48:16,078 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:48:16,081 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:48:16,081 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:16,081 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:16,081 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:16,081 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:48:16,081 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:48:16,081 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:48:16,081 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:48:16,081 | INFO | core.market.service | Market Service started.
+2026-07-18 20:48:16,081 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:17,131 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:48:17,131 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:17,131 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:17,411 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:17,418 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:17,418 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:17,418 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:17,418 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:17,863 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:17,874 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:17,874 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:17,874 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:17,874 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:17,874 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:18,272 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:18,302 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:18,306 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:18,306 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:48:18,306 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:18,308 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:18,746 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:18,759 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:18,759 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:18,759 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:18,759 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:19,186 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:19,197 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:19,197 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:19,197 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:19,197 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:19,197 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:19,592 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:19,600 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:19,600 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:19,600 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:48:19,600 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:48:19,600 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:48:19,600 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:48:19,600 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:48:19,600 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:48:19,600 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:48:19,600 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:48:19,600 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:48:19,600 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:48:19,600 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:48:19,600 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:48:19,600 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:19,604 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:19,606 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:19,759 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\plotly\\graph_objs\\pie\\_marker.py', reloading
+2026-07-18 20:48:20,055 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:48:22,101 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:48:22,113 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:48:22,122 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:48:22,141 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:48:22] "GET /health HTTP/1.1" 200 -
+2026-07-18 20:48:22,200 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:48:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-07-18 20:48:32,574 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:48:32,576 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:48:32,576 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:48:32,577 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:32,590 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:32,594 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:32,594 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:48:32,594 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:48:32,594 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:48:32,594 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:48:32,594 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:48:32,594 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:48:32,594 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:48:32,594 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:48:32,594 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:32,602 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:32,602 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:32,602 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:48:32,602 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:48:32,607 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:48:32,607 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:32,610 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:32,612 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:32,612 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:48:32,612 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:48:32,618 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:48:32,618 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:48:32,618 | INFO | core.market.service | Market Service started.
+2026-07-18 20:48:32,619 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:33,646 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:48:33,646 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:33,646 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:33,977 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:33,979 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:33,979 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:33,979 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:33,979 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:34,259 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:34,266 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:34,266 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:34,266 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:34,266 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:34,266 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:34,660 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:34,662 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:34,662 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:34,662 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:48:34,662 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:34,662 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:35,001 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:35,005 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:35,007 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:35,007 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:35,007 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:35,320 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:35,328 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:35,328 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:35,328 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:35,328 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:35,328 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:35,681 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:35,688 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:35,688 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:35,688 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:48:35,693 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:48:35,693 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:48:35,693 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:48:35,693 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:48:35,693 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:48:35,693 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:48:35,693 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:48:35,693 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:48:35,694 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:48:35,694 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:48:35,694 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:48:35,695 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:35,695 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:35,700 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:35,943 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\plotly\\graph_objs\\pie\\_domain.py', reloading
+2026-07-18 20:48:36,249 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:48:37,776 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:48:37,793 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:48:37,798 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:48:37,815 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:48:37,815 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:48:37,815 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:48:37,815 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:37,822 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:37,830 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:37,831 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:48:37,831 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:48:37,831 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:48:37,831 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:48:37,831 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:48:37,831 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:48:37,831 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:48:37,831 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:48:37,831 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:37,834 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:37,835 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:37,837 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:48:37,837 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:48:37,837 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:48:37,837 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:37,839 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:37,841 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:37,842 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:48:37,842 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:48:37,842 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:48:37,842 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:48:37,842 | INFO | core.market.service | Market Service started.
+2026-07-18 20:48:37,842 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:38,834 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:48:38,834 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:38,834 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:39,199 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:39,203 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:39,203 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:39,203 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:39,203 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:39,525 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:39,537 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:39,537 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:39,537 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:39,537 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:39,537 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:39,897 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:39,905 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:39,910 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:39,911 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:48:39,911 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:39,911 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:40,241 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:40,246 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:40,246 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:48:40,246 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:40,246 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:40,608 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:40,618 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:40,618 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:48:40,618 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:48:40,618 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:48:40,620 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:48:40,970 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:48:40,988 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:48:40,988 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:48:40,993 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:48:40,994 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:48:40,994 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:48:40,994 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:48:40,994 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:48:40,994 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:48:40,994 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:48:40,994 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:48:40,996 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:48:40,996 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:48:40,996 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:48:40,998 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:48:40,998 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:48:41,001 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:48:41,003 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:48:42,215 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\plotly\\graph_objs\\scattergl\\marker\\_colorbar.py', reloading
+2026-07-18 20:48:42,530 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:48:43,980 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:48:43,999 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:48:44,012 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:49:22,703 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:49:22,705 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:49:22,707 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:49:22,707 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:22,737 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:22,742 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:22,744 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:49:22,744 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:49:22,744 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:49:22,744 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:49:22,744 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:49:22,744 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:49:22,744 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:49:22,744 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:49:22,744 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:22,751 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:22,756 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:22,759 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:49:22,759 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:49:22,759 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:49:22,763 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:22,765 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:22,770 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:22,772 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:49:22,772 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:49:22,772 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:49:22,772 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:49:22,772 | INFO | core.market.service | Market Service started.
+2026-07-18 20:49:22,772 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:23,937 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:49:23,937 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:23,937 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:24,283 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:24,298 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:24,298 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:24,298 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:24,298 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:24,714 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:24,729 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:24,729 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:24,729 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:24,729 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:24,732 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:25,119 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:25,137 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:25,138 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:49:25,138 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:49:25,139 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:25,139 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:25,496 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:25,503 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:25,507 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:25,507 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:25,507 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:25,884 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:25,897 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:25,897 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:25,897 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:25,899 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:25,899 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:26,282 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:26,291 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:26,293 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:49:26,293 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:49:26,293 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:49:26,293 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:49:26,293 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:49:26,293 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:49:26,293 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:49:26,293 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:49:26,293 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:49:26,296 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:49:26,296 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:49:26,296 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:49:26,296 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:49:26,296 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:26,298 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:26,301 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:26,854 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\plotly\\graph_objs\\scatter\\_fillpattern.py', reloading
+2026-07-18 20:49:27,124 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:49:28,555 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:49:28,569 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:49:28,575 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:49:28,589 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:49:28,589 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:49:28,589 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:49:28,589 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:28,589 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:28,589 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:28,600 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:49:28,600 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:49:28,600 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:49:28,600 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:49:28,600 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:49:28,600 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:49:28,600 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:49:28,600 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:49:28,600 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:28,603 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:28,603 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:28,603 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:49:28,603 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:49:28,603 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:49:28,603 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:28,603 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:28,608 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:28,608 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:49:28,608 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:49:28,608 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:49:28,608 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:49:28,608 | INFO | core.market.service | Market Service started.
+2026-07-18 20:49:28,608 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:29,437 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:49:29,437 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:29,437 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:29,749 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:29,757 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:29,757 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:29,757 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:29,757 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:30,177 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:30,190 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:30,190 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:30,190 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:30,190 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:30,190 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:30,581 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:30,590 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:30,590 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:49:30,590 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:49:30,596 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:30,596 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:30,976 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:30,984 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:30,984 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:30,984 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:30,984 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:31,389 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:31,394 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:31,394 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:31,394 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:31,394 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:31,394 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:31,738 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:31,755 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:31,756 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:49:31,756 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:49:31,756 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:49:31,756 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:49:31,756 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:49:31,756 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:49:31,756 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:49:31,756 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:49:31,756 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:49:31,756 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:49:31,756 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:49:31,756 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:49:31,756 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:49:31,756 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:31,763 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:31,763 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:32,110 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:49:32,112 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:49:32,112 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:49:32,112 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:32,121 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:32,125 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:32,128 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:49:32,128 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:49:32,128 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:49:32,128 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:49:32,128 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:49:32,128 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:49:32,131 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:49:32,131 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:49:32,131 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:32,134 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:32,138 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:32,140 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:49:32,140 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:49:32,140 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:49:32,140 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:32,148 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:32,152 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:32,155 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:49:32,155 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:49:32,155 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:49:32,155 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:49:32,159 | INFO | core.market.service | Market Service started.
+2026-07-18 20:49:32,159 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:32,527 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:49:32,527 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:32,534 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:32,885 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:32,902 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:32,902 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:32,902 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:32,902 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:33,237 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:33,250 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:33,250 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:33,251 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:33,251 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:33,251 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:33,551 | INFO | core.charts.equity | Generating equity chart.
+2026-07-18 20:49:33,575 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:33,589 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:33,594 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:49:33,594 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:49:33,597 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:33,597 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:33,724 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-18 20:49:33,861 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-18 20:49:33,964 | INFO | core.charts.service | Dashboard charts ready.
+2026-07-18 20:49:33,970 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:49:33,970 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:33,975 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:33,975 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:33,979 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:49:33,979 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:49:33,988 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:34,000 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:34,000 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:34,000 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:34,000 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:34,341 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:49:34,347 | INFO | core.market.indicators | Generating indicator snapshot for SASA.IS
+2026-07-18 20:49:34,349 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:49:34,694 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:34,700 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:34,700 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:34,700 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:34,700 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:34,700 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:35,123 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:49:35,136 | INFO | core.market.indicators | Indicator snapshot generated for SASA.IS
+2026-07-18 20:49:35,137 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:49:35,479 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:35,507 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:35,507 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:49:35,507 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:49:35,513 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:49:35,514 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:49:35,514 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:49:35,514 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:49:35,514 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:49:35,514 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:49:35,514 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:49:35,514 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:49:35,514 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:49:35,514 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:49:35,514 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:49:35,514 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:35,514 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:35,514 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:35,629 | INFO | core.charts.equity | Generating equity chart.
+2026-07-18 20:49:35,705 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-18 20:49:35,772 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-18 20:49:35,853 | INFO | core.charts.service | Dashboard charts ready.
+2026-07-18 20:49:35,853 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:49:35,853 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:35,858 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:35,861 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:35,861 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:49:35,861 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:49:36,027 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:49:36,029 | INFO | core.market.indicators | Generating indicator snapshot for SISE.IS
+2026-07-18 20:49:36,030 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:49:36,388 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:49:36,388 | INFO | core.market.indicators | Generating indicator snapshot for SASA.IS
+2026-07-18 20:49:36,390 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:49:36,832 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:49:36,869 | INFO | core.market.indicators | Indicator snapshot generated for SISE.IS
+2026-07-18 20:49:36,876 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:49:37,277 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:49:37,295 | INFO | core.market.indicators | Indicator snapshot generated for SASA.IS
+2026-07-18 20:49:37,295 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:49:37,786 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:49:37,789 | INFO | core.market.indicators | Generating indicator snapshot for THYAO.IS
+2026-07-18 20:49:37,789 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:49:38,156 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:49:38,156 | INFO | core.market.indicators | Generating indicator snapshot for SISE.IS
+2026-07-18 20:49:38,166 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:49:38,517 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:49:38,534 | INFO | core.market.indicators | Indicator snapshot generated for THYAO.IS
+2026-07-18 20:49:38,534 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:49:38,930 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:49:38,944 | INFO | core.market.indicators | Indicator snapshot generated for SISE.IS
+2026-07-18 20:49:38,944 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:49:39,348 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:49:39,349 | INFO | core.market.indicators | Generating indicator snapshot for TUPRS.IS
+2026-07-18 20:49:39,349 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:49:39,705 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:49:39,708 | INFO | core.market.indicators | Generating indicator snapshot for THYAO.IS
+2026-07-18 20:49:39,708 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:49:40,117 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:49:40,132 | INFO | core.market.indicators | Indicator snapshot generated for TUPRS.IS
+2026-07-18 20:49:40,134 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:49:40,458 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:49:40,476 | INFO | core.market.indicators | Indicator snapshot generated for THYAO.IS
+2026-07-18 20:49:40,479 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:49:40,801 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:49:40,801 | INFO | core.market.indicators | Generating indicator snapshot for ASELS.IS
+2026-07-18 20:49:40,803 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:49:41,321 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:49:41,324 | INFO | core.market.indicators | Generating indicator snapshot for TUPRS.IS
+2026-07-18 20:49:41,324 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:49:41,687 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:49:41,701 | INFO | core.market.indicators | Indicator snapshot generated for ASELS.IS
+2026-07-18 20:49:41,701 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:49:42,061 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:49:42,076 | INFO | core.market.indicators | Indicator snapshot generated for TUPRS.IS
+2026-07-18 20:49:42,076 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:49:42,542 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:49:42,542 | INFO | core.market.indicators | Generating indicator snapshot for KCHOL.IS
+2026-07-18 20:49:42,545 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:49:42,895 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:49:42,897 | INFO | core.market.indicators | Generating indicator snapshot for ASELS.IS
+2026-07-18 20:49:42,897 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:49:43,334 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:49:43,352 | INFO | core.market.indicators | Indicator snapshot generated for KCHOL.IS
+2026-07-18 20:49:43,353 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:49:43,785 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:49:43,799 | INFO | core.market.indicators | Indicator snapshot generated for ASELS.IS
+2026-07-18 20:49:43,799 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:49:44,167 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:49:44,172 | INFO | core.market.indicators | Generating indicator snapshot for YKBNK.IS
+2026-07-18 20:49:44,172 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:49:44,575 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:49:44,576 | INFO | core.market.indicators | Generating indicator snapshot for KCHOL.IS
+2026-07-18 20:49:44,576 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:49:44,895 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:49:44,910 | INFO | core.market.indicators | Indicator snapshot generated for YKBNK.IS
+2026-07-18 20:49:44,910 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:49:45,159 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:49:45,175 | INFO | core.market.indicators | Indicator snapshot generated for KCHOL.IS
+2026-07-18 20:49:45,177 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:49:45,552 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:49:45,552 | INFO | core.market.indicators | Generating indicator snapshot for BIMAS.IS
+2026-07-18 20:49:45,555 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:49:45,894 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:49:45,894 | INFO | core.market.indicators | Generating indicator snapshot for YKBNK.IS
+2026-07-18 20:49:45,905 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:49:46,318 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:49:46,331 | INFO | core.market.indicators | Indicator snapshot generated for BIMAS.IS
+2026-07-18 20:49:46,335 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:49:46,688 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:49:46,703 | INFO | core.market.indicators | Indicator snapshot generated for YKBNK.IS
+2026-07-18 20:49:46,703 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:49:47,075 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:49:47,076 | INFO | core.market.indicators | Generating indicator snapshot for HEKTS.IS
+2026-07-18 20:49:47,078 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:49:47,443 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:49:47,445 | INFO | core.market.indicators | Generating indicator snapshot for BIMAS.IS
+2026-07-18 20:49:47,446 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:49:47,807 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:49:47,822 | INFO | core.market.indicators | Indicator snapshot generated for HEKTS.IS
+2026-07-18 20:49:47,822 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:49:48,191 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:49:48,202 | INFO | core.market.indicators | Indicator snapshot generated for BIMAS.IS
+2026-07-18 20:49:48,204 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:49:48,540 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:49:48,540 | INFO | core.market.indicators | Generating indicator snapshot for PETKM.IS
+2026-07-18 20:49:48,545 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:49:48,935 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:49:48,935 | INFO | core.market.indicators | Generating indicator snapshot for HEKTS.IS
+2026-07-18 20:49:48,938 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:49:49,319 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:49:49,330 | INFO | core.market.indicators | Indicator snapshot generated for PETKM.IS
+2026-07-18 20:49:49,332 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:49:49,725 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:49:49,740 | INFO | core.market.indicators | Indicator snapshot generated for HEKTS.IS
+2026-07-18 20:49:49,742 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:49:50,096 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:49:50,096 | INFO | core.market.indicators | Generating indicator snapshot for TCELL.IS
+2026-07-18 20:49:50,096 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:49:50,478 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:49:50,486 | INFO | core.market.indicators | Generating indicator snapshot for PETKM.IS
+2026-07-18 20:49:50,486 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:49:50,881 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:49:50,892 | INFO | core.market.indicators | Indicator snapshot generated for TCELL.IS
+2026-07-18 20:49:50,897 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:49:51,243 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:49:51,257 | INFO | core.market.indicators | Indicator snapshot generated for PETKM.IS
+2026-07-18 20:49:51,260 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:49:51,625 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:49:51,625 | INFO | core.market.indicators | Generating indicator snapshot for GARAN.IS
+2026-07-18 20:49:51,625 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:49:52,107 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:49:52,114 | INFO | core.market.indicators | Generating indicator snapshot for TCELL.IS
+2026-07-18 20:49:52,114 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:49:52,545 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:49:52,556 | INFO | core.market.indicators | Indicator snapshot generated for GARAN.IS
+2026-07-18 20:49:52,556 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:49:52,991 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:49:53,005 | INFO | core.market.indicators | Indicator snapshot generated for TCELL.IS
+2026-07-18 20:49:53,007 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:49:53,409 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:49:53,409 | INFO | core.market.indicators | Generating indicator snapshot for AKBNK.IS
+2026-07-18 20:49:53,411 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:49:53,797 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:49:53,797 | INFO | core.market.indicators | Generating indicator snapshot for GARAN.IS
+2026-07-18 20:49:53,797 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:49:54,228 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:49:54,240 | INFO | core.market.indicators | Indicator snapshot generated for AKBNK.IS
+2026-07-18 20:49:54,241 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:49:54,675 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:49:54,686 | INFO | core.market.indicators | Indicator snapshot generated for GARAN.IS
+2026-07-18 20:49:54,688 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:49:55,185 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:49:55,185 | INFO | core.market.indicators | Generating indicator snapshot for EREGL.IS
+2026-07-18 20:49:55,189 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:49:55,599 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:49:55,602 | INFO | core.market.indicators | Generating indicator snapshot for AKBNK.IS
+2026-07-18 20:49:55,602 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:49:56,019 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:49:56,027 | INFO | core.market.indicators | Indicator snapshot generated for EREGL.IS
+2026-07-18 20:49:56,044 | INFO | core.dashboard.service | Dashboard ready.
+2026-07-18 20:49:56,186 | INFO | werkzeug |  * Detected change in 'C:\\Users\\hsnkl\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\flask\\app.py', reloading
+2026-07-18 20:49:56,262 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:49:56] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-07-18 20:49:56,429 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:49:56,768 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:49:58,067 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:49:58,076 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:49:58,084 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:49:58,103 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:49:58,103 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:49:58,103 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:49:58,103 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:49:58,107 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:49:58,107 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:49:58,107 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:49:58,119 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:49:58,119 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:49:58,119 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:49:58,119 | INFO | core.market.service | Market Service started.
+2026-07-18 20:49:58,119 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:59,030 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:49:59,030 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:59,032 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:59,449 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:59,457 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:59,457 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:49:59,457 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:59,457 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:49:59,803 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:49:59,812 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:49:59,812 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:49:59,812 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:49:59,814 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:49:59,814 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:50:00,155 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:50:00,155 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:50:00,155 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:50:00,155 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:50:00,155 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:50:00,155 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:50:00,659 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:50:00,661 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:50:00,661 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:50:00,661 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:50:00,661 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:50:01,024 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:50:01,037 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:50:01,037 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:50:01,037 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:50:01,037 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:50:01,037 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:50:01,333 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:50:01,346 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:50:01,346 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:50:01,346 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:50:01,346 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:50:01,348 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:50:01,348 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:50:01,348 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:50:01,348 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:50:01,348 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:50:01,348 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:50:01,348 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:50:01,348 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:50:01,348 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:50:01,348 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:50:01,348 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:50:01,348 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:50:01,348 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:50:02,026 | INFO | core.charts.equity | Generating equity chart.
+2026-07-18 20:50:02,124 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-18 20:50:02,242 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-18 20:50:02,324 | INFO | core.charts.service | Dashboard charts ready.
+2026-07-18 20:50:02,324 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:50:02,324 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:50:02,324 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:50:02,340 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:50:02,340 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:50:02,340 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:50:02,731 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:50:02,754 | INFO | core.market.indicators | Generating indicator snapshot for SASA.IS
+2026-07-18 20:50:02,754 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:50:03,141 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:50:03,152 | INFO | core.market.indicators | Indicator snapshot generated for SASA.IS
+2026-07-18 20:50:03,152 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:50:03,592 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:50:03,592 | INFO | core.market.indicators | Generating indicator snapshot for SISE.IS
+2026-07-18 20:50:03,592 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:50:04,006 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:50:04,006 | INFO | core.market.indicators | Indicator snapshot generated for SISE.IS
+2026-07-18 20:50:04,006 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:50:04,527 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:50:04,527 | INFO | core.market.indicators | Generating indicator snapshot for THYAO.IS
+2026-07-18 20:50:04,528 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:50:04,994 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:50:05,011 | INFO | core.market.indicators | Indicator snapshot generated for THYAO.IS
+2026-07-18 20:50:05,011 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:50:05,407 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:50:05,407 | INFO | core.market.indicators | Generating indicator snapshot for TUPRS.IS
+2026-07-18 20:50:05,407 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:50:05,789 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:50:05,801 | INFO | core.market.indicators | Indicator snapshot generated for TUPRS.IS
+2026-07-18 20:50:05,801 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:50:06,230 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:50:06,230 | INFO | core.market.indicators | Generating indicator snapshot for ASELS.IS
+2026-07-18 20:50:06,230 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:50:06,653 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:50:06,667 | INFO | core.market.indicators | Indicator snapshot generated for ASELS.IS
+2026-07-18 20:50:06,668 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:50:07,034 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:50:07,034 | INFO | core.market.indicators | Generating indicator snapshot for KCHOL.IS
+2026-07-18 20:50:07,034 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:50:07,402 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:50:07,409 | INFO | core.market.indicators | Indicator snapshot generated for KCHOL.IS
+2026-07-18 20:50:07,409 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:50:07,742 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:50:07,742 | INFO | core.market.indicators | Generating indicator snapshot for YKBNK.IS
+2026-07-18 20:50:07,742 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:50:08,117 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:50:08,128 | INFO | core.market.indicators | Indicator snapshot generated for YKBNK.IS
+2026-07-18 20:50:08,128 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:50:08,528 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:50:08,530 | INFO | core.market.indicators | Generating indicator snapshot for BIMAS.IS
+2026-07-18 20:50:08,530 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:50:08,906 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:50:08,916 | INFO | core.market.indicators | Indicator snapshot generated for BIMAS.IS
+2026-07-18 20:50:08,916 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:50:09,285 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:50:09,285 | INFO | core.market.indicators | Generating indicator snapshot for HEKTS.IS
+2026-07-18 20:50:09,285 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:50:09,691 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:50:09,699 | INFO | core.market.indicators | Indicator snapshot generated for HEKTS.IS
+2026-07-18 20:50:09,699 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:50:10,064 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:50:10,064 | INFO | core.market.indicators | Generating indicator snapshot for PETKM.IS
+2026-07-18 20:50:10,064 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:50:10,465 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:50:10,471 | INFO | core.market.indicators | Indicator snapshot generated for PETKM.IS
+2026-07-18 20:50:10,474 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:50:10,867 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:50:10,867 | INFO | core.market.indicators | Generating indicator snapshot for TCELL.IS
+2026-07-18 20:50:10,867 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:50:11,242 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:50:11,249 | INFO | core.market.indicators | Indicator snapshot generated for TCELL.IS
+2026-07-18 20:50:11,249 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:50:11,646 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:50:11,646 | INFO | core.market.indicators | Generating indicator snapshot for GARAN.IS
+2026-07-18 20:50:11,646 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:50:12,056 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:50:12,062 | INFO | core.market.indicators | Indicator snapshot generated for GARAN.IS
+2026-07-18 20:50:12,070 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:50:12,479 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:50:12,479 | INFO | core.market.indicators | Generating indicator snapshot for AKBNK.IS
+2026-07-18 20:50:12,479 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:50:12,923 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:50:12,930 | INFO | core.market.indicators | Indicator snapshot generated for AKBNK.IS
+2026-07-18 20:50:12,930 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:50:13,333 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:50:13,333 | INFO | core.market.indicators | Generating indicator snapshot for EREGL.IS
+2026-07-18 20:50:13,333 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:50:13,662 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:50:13,670 | INFO | core.market.indicators | Indicator snapshot generated for EREGL.IS
+2026-07-18 20:50:13,672 | INFO | core.dashboard.service | Dashboard ready.
+2026-07-18 20:50:13,711 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:50:13] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-07-18 20:50:13,860 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:50:13] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2026-07-18 20:50:13,867 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:50:13] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2026-07-18 20:50:13,902 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:50:13] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=kogYUk5yEhP4Z4KPQ9rY HTTP/1.1" 200 -
+2026-07-18 20:50:13,927 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:50:13] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2026-07-18 20:58:47,148 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:58:47,183 | INFO | werkzeug | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-07-18 20:58:47,183 | INFO | werkzeug | [33mPress CTRL+C to quit[0m
+2026-07-18 20:58:47,190 | INFO | werkzeug |  * Restarting with watchdog (windowsapi)
+2026-07-18 20:58:48,399 | INFO | __main__ | QuantBIST RC4 started.
+2026-07-18 20:58:48,415 | WARNING | werkzeug |  * Debugger is active!
+2026-07-18 20:58:48,415 | INFO | werkzeug |  * Debugger PIN: 135-157-539
+2026-07-18 20:59:01,046 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:59:01,048 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:59:01,048 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:59:01,048 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:01,061 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:01,064 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:01,066 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:59:01,067 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:59:01,067 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:59:01,067 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:59:01,067 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:59:01,067 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:59:01,067 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:59:01,069 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:59:01,069 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:01,072 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:01,073 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:01,073 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:59:01,073 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:59:01,073 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:59:01,073 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:01,080 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:01,080 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:01,086 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:59:01,087 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:59:01,087 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:59:01,087 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:59:01,087 | INFO | core.market.service | Market Service started.
+2026-07-18 20:59:01,087 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:02,132 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:59:02,132 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:02,132 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:02,517 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:02,525 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:02,525 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:59:02,525 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:02,525 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:02,836 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:02,850 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:02,850 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:59:02,852 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:59:02,852 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:02,852 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:03,222 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:03,236 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:03,236 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:59:03,241 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:59:03,241 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:03,241 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:03,621 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:03,640 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:03,641 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:59:03,642 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:03,642 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:04,010 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:04,026 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:04,026 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:59:04,026 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:59:04,026 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:04,028 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:04,036 | INFO | __main__ | Dashboard requested.
+2026-07-18 20:59:04,036 | INFO | core.dashboard.service | Preparing dashboard...
+2026-07-18 20:59:04,038 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:59:04,038 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:04,039 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:04,042 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:04,044 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:59:04,045 | INFO | core.portfolio.service | Portfolio Service started.
+2026-07-18 20:59:04,045 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-18 20:59:04,045 | INFO | core.portfolio.health | Calculating portfolio health...
+2026-07-18 20:59:04,045 | INFO | core.portfolio.health | Portfolio health calculated successfully.
+2026-07-18 20:59:04,045 | INFO | core.portfolio.risk | Calculating portfolio risk...
+2026-07-18 20:59:04,046 | INFO | core.portfolio.risk | Portfolio risk calculated successfully.
+2026-07-18 20:59:04,046 | INFO | core.portfolio.optimizer | Starting portfolio optimization...
+2026-07-18 20:59:04,046 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:04,048 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:04,050 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:04,051 | INFO | core.portfolio.optimizer | Portfolio optimization completed | Health=85 | Severity=MEDIUM | Action=BUY | Suggestions=1
+2026-07-18 20:59:04,052 | INFO | core.portfolio.rebalancer | Generating rebalance plan...
+2026-07-18 20:59:04,052 | INFO | core.portfolio.allocator | Calculating portfolio allocation...
+2026-07-18 20:59:04,052 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:04,056 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:04,059 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:04,061 | INFO | core.portfolio.allocator | Portfolio allocation completed (6 positions).
+2026-07-18 20:59:04,061 | INFO | core.portfolio.rebalancer | Rebalance plan generated.
+2026-07-18 20:59:04,061 | INFO | core.portfolio.analyzer | Portfolio analysis completed.
+2026-07-18 20:59:04,061 | INFO | core.portfolio.service | Portfolio Service completed (Health=B Risk=MEDIUM)
+2026-07-18 20:59:04,061 | INFO | core.market.service | Market Service started.
+2026-07-18 20:59:04,061 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:04,358 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:04,374 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:04,377 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:59:04,379 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:59:04,379 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:59:04,379 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:59:04,379 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:59:04,379 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:59:04,379 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:59:04,379 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:59:04,379 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:59:04,379 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:59:04,379 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:59:04,382 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:59:04,382 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:59:04,382 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:04,385 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:04,386 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:04,708 | INFO | core.market.data | Loaded 22 candles for XU100.IS
+2026-07-18 20:59:04,708 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:04,713 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:05,038 | INFO | core.charts.equity | Generating equity chart.
+2026-07-18 20:59:05,115 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-18 20:59:05,135 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:05,146 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:05,146 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:59:05,146 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:05,151 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:05,242 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-18 20:59:05,315 | INFO | core.charts.service | Dashboard charts ready.
+2026-07-18 20:59:05,315 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:59:05,317 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:05,317 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:05,323 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:05,324 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:59:05,324 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:59:05,413 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:05,431 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:05,431 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:59:05,431 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:59:05,434 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:05,435 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:05,836 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:59:05,845 | INFO | core.market.indicators | Generating indicator snapshot for SASA.IS
+2026-07-18 20:59:05,847 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:59:06,193 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:06,208 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:06,208 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:59:06,209 | INFO | core.market.regime | Determining market regime...
+2026-07-18 20:59:06,209 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:06,209 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:06,566 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:59:06,571 | INFO | core.market.indicators | Indicator snapshot generated for SASA.IS
+2026-07-18 20:59:06,579 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:59:06,904 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:06,917 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:06,920 | INFO | core.market.breadth | Calculating market breadth...
+2026-07-18 20:59:06,920 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:06,920 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:07,413 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:59:07,413 | INFO | core.market.indicators | Generating indicator snapshot for SISE.IS
+2026-07-18 20:59:07,416 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:59:07,792 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:07,804 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:07,804 | INFO | core.market.breadth | Market breadth calculated.
+2026-07-18 20:59:07,804 | INFO | core.market.sentiment | Calculating market sentiment...
+2026-07-18 20:59:07,804 | INFO | core.market.indicators | Generating indicator snapshot for XU100.IS
+2026-07-18 20:59:07,807 | INFO | core.market.data | Loading history for XU100.IS
+2026-07-18 20:59:08,126 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:59:08,129 | INFO | core.market.indicators | Indicator snapshot generated for SISE.IS
+2026-07-18 20:59:08,138 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:59:08,203 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:08] "GET /health HTTP/1.1" 200 -
+2026-07-18 20:59:08,239 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:08] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-07-18 20:59:08,521 | INFO | core.market.data | Loaded 122 candles for XU100.IS
+2026-07-18 20:59:08,542 | INFO | core.market.indicators | Indicator snapshot generated for XU100.IS
+2026-07-18 20:59:08,544 | INFO | core.market.sentiment | Market sentiment calculated.
+2026-07-18 20:59:08,544 | INFO | core.market.regime | Market regime determined: RISK_OFF
+2026-07-18 20:59:08,544 | INFO | core.market.service | Market Service completed.
+2026-07-18 20:59:08,544 | INFO | core.committee.service | Committee Service started.
+2026-07-18 20:59:08,544 | INFO | core.committee.engine | Investment Committee started.
+2026-07-18 20:59:08,544 | INFO | core.committee.scoring | Generating committee scorecard...
+2026-07-18 20:59:08,544 | INFO | core.committee.scoring | Committee scorecard ready.
+2026-07-18 20:59:08,544 | INFO | core.committee.voting | Committee voting started.
+2026-07-18 20:59:08,544 | INFO | core.committee.voting | Committee decision: HOLD
+2026-07-18 20:59:08,544 | INFO | core.committee.engine | Investment Committee finished: HOLD
+2026-07-18 20:59:08,544 | INFO | core.committee.service | Committee decision: HOLD (60%)
+2026-07-18 20:59:08,544 | INFO | core.charts.service | Preparing dashboard charts.
+2026-07-18 20:59:08,544 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-18 20:59:08,544 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:08,550 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:08,552 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:08,657 | INFO | core.charts.equity | Generating equity chart.
+2026-07-18 20:59:08,732 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-18 20:59:08,815 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-18 20:59:08,882 | INFO | core.charts.service | Dashboard charts ready.
+2026-07-18 20:59:08,882 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-18 20:59:08,882 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-18 20:59:08,892 | INFO | core.portfolio.repository | Portfolio loaded (6 rows).
+2026-07-18 20:59:08,893 | INFO | core.portfolio.repository | Portfolio repository ready.
+2026-07-18 20:59:08,893 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared.
+2026-07-18 20:59:08,893 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:59:08,954 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:59:08,954 | INFO | core.market.indicators | Generating indicator snapshot for THYAO.IS
+2026-07-18 20:59:08,954 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:59:09,338 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:59:09,340 | INFO | core.market.indicators | Generating indicator snapshot for SASA.IS
+2026-07-18 20:59:09,342 | INFO | core.market.data | Loading history for SASA.IS
+2026-07-18 20:59:09,801 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:59:09,808 | INFO | core.market.indicators | Indicator snapshot generated for THYAO.IS
+2026-07-18 20:59:09,808 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:59:10,127 | INFO | core.market.data | Loaded 125 candles for SASA.IS
+2026-07-18 20:59:10,134 | INFO | core.market.indicators | Indicator snapshot generated for SASA.IS
+2026-07-18 20:59:10,134 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:59:10,513 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:59:10,513 | INFO | core.market.indicators | Generating indicator snapshot for TUPRS.IS
+2026-07-18 20:59:10,517 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:59:10,934 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:59:10,934 | INFO | core.market.indicators | Generating indicator snapshot for SISE.IS
+2026-07-18 20:59:10,934 | INFO | core.market.data | Loading history for SISE.IS
+2026-07-18 20:59:11,346 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:59:11,362 | INFO | core.market.indicators | Indicator snapshot generated for TUPRS.IS
+2026-07-18 20:59:11,365 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:59:11,760 | INFO | core.market.data | Loaded 125 candles for SISE.IS
+2026-07-18 20:59:11,764 | INFO | core.market.indicators | Indicator snapshot generated for SISE.IS
+2026-07-18 20:59:11,774 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:59:12,186 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:59:12,186 | INFO | core.market.indicators | Generating indicator snapshot for ASELS.IS
+2026-07-18 20:59:12,186 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:59:12,565 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:59:12,567 | INFO | core.market.indicators | Generating indicator snapshot for THYAO.IS
+2026-07-18 20:59:12,567 | INFO | core.market.data | Loading history for THYAO.IS
+2026-07-18 20:59:12,920 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:59:12,938 | INFO | core.market.indicators | Indicator snapshot generated for ASELS.IS
+2026-07-18 20:59:12,939 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:59:13,261 | INFO | core.market.data | Loaded 125 candles for THYAO.IS
+2026-07-18 20:59:13,273 | INFO | core.market.indicators | Indicator snapshot generated for THYAO.IS
+2026-07-18 20:59:13,274 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:59:13,621 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:59:13,621 | INFO | core.market.indicators | Generating indicator snapshot for KCHOL.IS
+2026-07-18 20:59:13,621 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:59:13,961 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:59:13,967 | INFO | core.market.indicators | Generating indicator snapshot for TUPRS.IS
+2026-07-18 20:59:13,967 | INFO | core.market.data | Loading history for TUPRS.IS
+2026-07-18 20:59:14,378 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:59:14,394 | INFO | core.market.indicators | Indicator snapshot generated for KCHOL.IS
+2026-07-18 20:59:14,394 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:59:14,829 | INFO | core.market.data | Loaded 125 candles for TUPRS.IS
+2026-07-18 20:59:14,839 | INFO | core.market.indicators | Indicator snapshot generated for TUPRS.IS
+2026-07-18 20:59:14,842 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:59:15,198 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:59:15,198 | INFO | core.market.indicators | Generating indicator snapshot for YKBNK.IS
+2026-07-18 20:59:15,198 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:59:15,551 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:59:15,551 | INFO | core.market.indicators | Generating indicator snapshot for ASELS.IS
+2026-07-18 20:59:15,551 | INFO | core.market.data | Loading history for ASELS.IS
+2026-07-18 20:59:15,879 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:59:15,885 | INFO | core.market.indicators | Indicator snapshot generated for YKBNK.IS
+2026-07-18 20:59:15,885 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:59:16,331 | INFO | core.market.data | Loaded 125 candles for ASELS.IS
+2026-07-18 20:59:16,346 | INFO | core.market.indicators | Indicator snapshot generated for ASELS.IS
+2026-07-18 20:59:16,346 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:59:16,755 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:59:16,757 | INFO | core.market.indicators | Generating indicator snapshot for BIMAS.IS
+2026-07-18 20:59:16,757 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:59:17,151 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:59:17,151 | INFO | core.market.indicators | Generating indicator snapshot for KCHOL.IS
+2026-07-18 20:59:17,151 | INFO | core.market.data | Loading history for KCHOL.IS
+2026-07-18 20:59:17,532 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:59:17,547 | INFO | core.market.indicators | Indicator snapshot generated for BIMAS.IS
+2026-07-18 20:59:17,548 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:59:17,904 | INFO | core.market.data | Loaded 125 candles for KCHOL.IS
+2026-07-18 20:59:17,919 | INFO | core.market.indicators | Indicator snapshot generated for KCHOL.IS
+2026-07-18 20:59:17,919 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:59:18,291 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:59:18,291 | INFO | core.market.indicators | Generating indicator snapshot for HEKTS.IS
+2026-07-18 20:59:18,293 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:59:18,666 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:59:18,666 | INFO | core.market.indicators | Generating indicator snapshot for YKBNK.IS
+2026-07-18 20:59:18,666 | INFO | core.market.data | Loading history for YKBNK.IS
+2026-07-18 20:59:19,155 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:59:19,176 | INFO | core.market.indicators | Indicator snapshot generated for HEKTS.IS
+2026-07-18 20:59:19,176 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:59:19,518 | INFO | core.market.data | Loaded 125 candles for YKBNK.IS
+2026-07-18 20:59:19,532 | INFO | core.market.indicators | Indicator snapshot generated for YKBNK.IS
+2026-07-18 20:59:19,532 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:59:19,872 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:59:19,872 | INFO | core.market.indicators | Generating indicator snapshot for PETKM.IS
+2026-07-18 20:59:19,880 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:59:20,329 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:59:20,329 | INFO | core.market.indicators | Generating indicator snapshot for BIMAS.IS
+2026-07-18 20:59:20,329 | INFO | core.market.data | Loading history for BIMAS.IS
+2026-07-18 20:59:20,682 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:59:20,703 | INFO | core.market.indicators | Indicator snapshot generated for PETKM.IS
+2026-07-18 20:59:20,706 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:59:21,109 | INFO | core.market.data | Loaded 127 candles for BIMAS.IS
+2026-07-18 20:59:21,121 | INFO | core.market.indicators | Indicator snapshot generated for BIMAS.IS
+2026-07-18 20:59:21,121 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:59:21,530 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:59:21,530 | INFO | core.market.indicators | Generating indicator snapshot for TCELL.IS
+2026-07-18 20:59:21,537 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:59:21,914 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:59:21,920 | INFO | core.market.indicators | Generating indicator snapshot for HEKTS.IS
+2026-07-18 20:59:21,920 | INFO | core.market.data | Loading history for HEKTS.IS
+2026-07-18 20:59:22,337 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:59:22,352 | INFO | core.market.indicators | Indicator snapshot generated for TCELL.IS
+2026-07-18 20:59:22,356 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:59:22,710 | INFO | core.market.data | Loaded 125 candles for HEKTS.IS
+2026-07-18 20:59:22,719 | INFO | core.market.indicators | Indicator snapshot generated for HEKTS.IS
+2026-07-18 20:59:22,726 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:59:23,081 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:59:23,084 | INFO | core.market.indicators | Generating indicator snapshot for GARAN.IS
+2026-07-18 20:59:23,084 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:59:23,502 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:59:23,506 | INFO | core.market.indicators | Generating indicator snapshot for PETKM.IS
+2026-07-18 20:59:23,506 | INFO | core.market.data | Loading history for PETKM.IS
+2026-07-18 20:59:23,887 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:59:23,899 | INFO | core.market.indicators | Indicator snapshot generated for GARAN.IS
+2026-07-18 20:59:23,899 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:59:24,233 | INFO | core.market.data | Loaded 125 candles for PETKM.IS
+2026-07-18 20:59:24,248 | INFO | core.market.indicators | Indicator snapshot generated for PETKM.IS
+2026-07-18 20:59:24,248 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:59:24,671 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:59:24,671 | INFO | core.market.indicators | Generating indicator snapshot for AKBNK.IS
+2026-07-18 20:59:24,671 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:59:25,169 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:59:25,169 | INFO | core.market.indicators | Generating indicator snapshot for TCELL.IS
+2026-07-18 20:59:25,172 | INFO | core.market.data | Loading history for TCELL.IS
+2026-07-18 20:59:25,585 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:59:25,600 | INFO | core.market.indicators | Indicator snapshot generated for AKBNK.IS
+2026-07-18 20:59:25,603 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:59:25,895 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:25] "GET /health HTTP/1.1" 200 -
+2026-07-18 20:59:25,929 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:25] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-07-18 20:59:25,981 | INFO | core.market.data | Loaded 125 candles for TCELL.IS
+2026-07-18 20:59:25,999 | INFO | core.market.indicators | Indicator snapshot generated for TCELL.IS
+2026-07-18 20:59:26,011 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:59:26,420 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:59:26,420 | INFO | core.market.indicators | Generating indicator snapshot for EREGL.IS
+2026-07-18 20:59:26,423 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:59:26,822 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:59:26,824 | INFO | core.market.indicators | Generating indicator snapshot for GARAN.IS
+2026-07-18 20:59:26,824 | INFO | core.market.data | Loading history for GARAN.IS
+2026-07-18 20:59:27,193 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:59:27,212 | INFO | core.market.indicators | Indicator snapshot generated for EREGL.IS
+2026-07-18 20:59:27,215 | INFO | core.dashboard.service | Dashboard ready.
+2026-07-18 20:59:27,248 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:27] "GET / HTTP/1.1" 200 -
+2026-07-18 20:59:27,614 | INFO | core.market.data | Loaded 125 candles for GARAN.IS
+2026-07-18 20:59:27,627 | INFO | core.market.indicators | Indicator snapshot generated for GARAN.IS
+2026-07-18 20:59:27,627 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:59:27,939 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:59:27,940 | INFO | core.market.indicators | Generating indicator snapshot for AKBNK.IS
+2026-07-18 20:59:27,940 | INFO | core.market.data | Loading history for AKBNK.IS
+2026-07-18 20:59:28,274 | INFO | core.market.data | Loaded 125 candles for AKBNK.IS
+2026-07-18 20:59:28,282 | INFO | core.market.indicators | Indicator snapshot generated for AKBNK.IS
+2026-07-18 20:59:28,282 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:59:28,644 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:59:28,644 | INFO | core.market.indicators | Generating indicator snapshot for EREGL.IS
+2026-07-18 20:59:28,644 | INFO | core.market.data | Loading history for EREGL.IS
+2026-07-18 20:59:29,073 | INFO | core.market.data | Loaded 125 candles for EREGL.IS
+2026-07-18 20:59:29,080 | INFO | core.market.indicators | Indicator snapshot generated for EREGL.IS
+2026-07-18 20:59:29,080 | INFO | core.dashboard.service | Dashboard ready.
+2026-07-18 20:59:29,080 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:29] "GET / HTTP/1.1" 200 -
+2026-07-18 20:59:29,291 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:29] "GET /static/portfolio_pie.png HTTP/1.1" 200 -
+2026-07-18 20:59:29,294 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:29] "GET /static/equity_curve.png HTTP/1.1" 200 -
+2026-07-18 20:59:29,343 | INFO | werkzeug | 127.0.0.1 - - [18/Jul/2026 20:59:29] "GET /static/style.css HTTP/1.1" 200 -

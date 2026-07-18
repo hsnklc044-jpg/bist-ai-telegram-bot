@@ -1,31 +1,68 @@
 """
 QuantBIST RC4
-Dashboard
+Application Entry Point
 """
 
-from flask import Flask, render_template
+from __future__ import annotations
 
-from core.dashboard.service import get_dashboard
+from flask import Flask
+from flask import render_template
+
+from core.dashboard.service import (
+    get_dashboard,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def home():
+def dashboard():
 
-    dashboard = get_dashboard()
+    logger.info(
+        "Dashboard requested."
+    )
+
+    data = get_dashboard()
 
     return render_template(
+
         "dashboard.html",
-        stats=dashboard["stats"],
-        signals=dashboard["signals"],
-        watchlist=dashboard["watchlist"],
+
+        dashboard=data,
+
     )
+
+
+@app.route("/health")
+def health():
+
+    return {
+
+        "status": "OK",
+
+        "application": "QuantBIST RC4",
+
+    }
 
 
 if __name__ == "__main__":
 
+    logger.info(
+        "QuantBIST RC4 started."
+    )
+
     app.run(
-        debug=True,
+
+        host="127.0.0.1",
+
         port=5000,
+
+        debug=True,
+
     )

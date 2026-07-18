@@ -13,77 +13,142 @@ from core.infrastructure.logger import (
     get_logger,
 )
 
+from core.market.indicators import (
+    generate_indicator_snapshot,
+)
+
 from core.market.models import (
     MarketSentiment,
+    SentimentStatus,
 )
 
 logger = get_logger(__name__)
 
 
-def analyze_market_sentiment() -> MarketSentiment:
-    """
-    Analyze overall market sentiment.
+# =====================================================
+# DEFAULT MARKET SYMBOL
+# =====================================================
 
-    Returns
-    -------
-    MarketSentiment
+DEFAULT_MARKET_SYMBOL = "^XU100.IS"
+
+
+# =====================================================
+# SCORE HELPERS
+# =====================================================
+
+def _rsi_score(
+    snapshot,
+) -> int:
+    """
+    RSI contribution.
+    """
+
+    if snapshot.rsi >= 70:
+        return 10
+
+    if snapshot.rsi <= 30:
+        return 90
+
+    return 50
+
+
+def _macd_score(
+    snapshot,
+) -> int:
+    """
+    MACD contribution.
+    """
+
+    if snapshot.macd > snapshot.macd_signal:
+        return 70
+
+    return 30
+
+
+def _momentum_score(
+    snapshot,
+) -> int:
+    """
+    Momentum contribution.
+    """
+
+    mapping = {
+
+        "POSITIVE": 80,
+
+        "NEUTRAL": 50,
+
+        "NEGATIVE": 20,
+
+        "OVERBOUGHT": 35,
+
+        "OVERSOLD": 75,
+
+    }
+
+    return mapping.get(
+        snapshot.momentum,
+        50,
+    )
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
+
+def calculate_market_sentiment(
+    symbol: str = DEFAULT_MARKET_SYMBOL,
+) -> MarketSentiment:
+    """
+    Calculate market sentiment.
     """
 
     logger.info(
-        "Analyzing market sentiment..."
+        "Calculating market sentiment..."
     )
 
     try:
 
-        # ==================================================
-        # PLACEHOLDER DATA
-        # ==================================================
-
-        fear_greed_index = 68
-
-        news_score = 0.72
-
-        foreign_flow = 0.63
-
-        # ==================================================
-        # SCORE
-        # ==================================================
-
-        score = 0
-
-        if fear_greed_index >= 60:
-            score += 1
-
-        if news_score >= 0.60:
-            score += 1
-
-        if foreign_flow >= 0.60:
-            score += 1
-
-        normalized_score = round(
-            score / 3 * 100,
-            2,
+        snapshot = generate_indicator_snapshot(
+            symbol,
         )
 
-        # ==================================================
-        # STATUS
-        # ==================================================
+        score = round(
 
-        if score == 3:
+            (
 
-            status = "GREED"
+                _rsi_score(snapshot)
 
-        elif score == 2:
+                + _macd_score(snapshot)
 
-            status = "NEUTRAL"
+                + _momentum_score(snapshot)
+
+            )
+
+            / 3,
+
+            2,
+
+        )
+
+        if score >= 70:
+
+            status = SentimentStatus.GREED
+
+        elif score >= 45:
+
+            status = SentimentStatus.NEUTRAL
 
         else:
 
-            status = "FEAR"
+            status = SentimentStatus.FEAR
 
         summary = (
-            f"{status} market sentiment "
-            f"({normalized_score:.0f}/100)"
+
+            f"{status.value} sentiment "
+
+            f"({score:.0f}/100)"
+
         )
 
         logger.info(
@@ -94,7 +159,7 @@ def analyze_market_sentiment() -> MarketSentiment:
 
             status=status,
 
-            score=normalized_score,
+            score=score,
 
             summary=summary,
 
@@ -109,3 +174,14 @@ def analyze_market_sentiment() -> MarketSentiment:
         raise MarketError(
             str(exc)
         ) from exc
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "calculate_market_sentiment",
+
+]

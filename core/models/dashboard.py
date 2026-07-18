@@ -5,33 +5,34 @@ Dashboard View Model
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
-
-from core.decision.models import Decision
-from core.market.models import MarketStatus
-from core.portfolio.models import PortfolioStats
+from dataclasses import dataclass, field
 
 
 @dataclass(slots=True)
 class DashboardModel:
     """
-    Complete dashboard view model.
-
-    This is the object returned by the Dashboard
-    Service and consumed by the presentation layer.
+    Dashboard View Model.
     """
 
-    stats: PortfolioStats
+    stats: dict = field(default_factory=dict)
 
-    market: MarketStatus
+    portfolio: object | None = None
 
-    decision: Decision
+    market: object | None = None
 
-    signals: list[dict]
+    committee: object | None = None
 
-    watchlist: list[str]
+    decision: object | None = None
 
-    charts: dict
+    charts: dict = field(default_factory=dict)
 
-    updated: datetime
+    signals: list = field(default_factory=list)
+
+    watchlist: list = field(default_factory=list)
+
+    updated: str = ""
+
+
+__all__ = [
+    "DashboardModel",
+]

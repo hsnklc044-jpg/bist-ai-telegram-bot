@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 
 <head>
@@ -19,225 +19,290 @@
 
 <div class="container">
 
-    <h1>🚀 QuantBIST RC4 Dashboard</h1>
+    <!-- ============================================= -->
+    <!-- HEADER -->
+    <!-- ============================================= -->
 
-    <!-- SUMMARY -->
+    <header class="header">
 
-    <div class="cards">
+        <div>
+
+            <h1>📈 QuantBIST RC4</h1>
+
+            <p>
+                AI Powered BIST Portfolio Management
+            </p>
+
+        </div>
+
+        <div class="updated">
+
+            <small>Last Update</small>
+
+            <h3>
+
+                {{ dashboard.updated.strftime("%d.%m.%Y %H:%M") }}
+
+            </h3>
+
+        </div>
+
+    </header>
+
+    <!-- ============================================= -->
+    <!-- SUMMARY CARDS -->
+    <!-- ============================================= -->
+
+    <section class="cards">
 
         <div class="card">
-            <h2>💰 Portfolio</h2>
-            <div class="big">
-                {{ "{:,.0f}".format(dashboard.stats.portfolio) }} TL
-            </div>
+
+            <h3>Portfolio</h3>
+
+            <h2>
+
+                ₺{{ "{:,.0f}".format(dashboard.stats.portfolio) }}
+
+            </h2>
+
+            <small>Total Value</small>
+
         </div>
 
         <div class="card">
-            <h2>💵 Cash</h2>
-            <div class="big">
-                {{ "{:,.0f}".format(dashboard.stats.cash) }} TL
-            </div>
+
+            <h3>Cash</h3>
+
+            <h2>
+
+                ₺{{ "{:,.0f}".format(dashboard.stats.cash) }}
+
+            </h2>
+
+            <small>Available Cash</small>
+
         </div>
 
         <div class="card">
-            <h2>📂 Positions</h2>
-            <div class="big">
+
+            <h3>Positions</h3>
+
+            <h2>
+
                 {{ dashboard.stats.positions }}
-            </div>
+
+            </h2>
+
+            <small>Active Holdings</small>
+
         </div>
 
         <div class="card">
-            <h2>🏆 Top Stock</h2>
-            <div class="big">
+
+            <h3>Top Holding</h3>
+
+            <h2>
+
                 {{ dashboard.stats.top_stock }}
+
+            </h2>
+
+            <small>Largest Position</small>
+
+        </div>
+
+    </section>
+
+    <!-- ============================================= -->
+    <!-- INVESTMENT COMMITTEE -->
+    <!-- ============================================= -->
+
+    <section class="decision">
+
+        <div class="card big">
+
+            <h2>
+
+                Investment Committee
+
+            </h2>
+
+            <div class="decision-action">
+
+                {{ dashboard.decision.action }}
+
             </div>
-        </div>
 
-        <div class="card">
-            <h2>⚡ Sharpe</h2>
-            <div class="big">
-                {{ dashboard.stats.sharpe }}
+            <div class="decision-confidence">
+
+                Confidence :
+                {{ dashboard.decision.confidence }}%
+
             </div>
-        </div>
 
-        <div class="card">
-            <h2>🎯 Win Rate</h2>
-            <div class="big">
-                {{ dashboard.stats.win_rate }}%
+            <div class="decision-priority">
+
+                Priority :
+                {{ dashboard.decision.priority }}
+
             </div>
-        </div>
 
-        <div class="card">
-            <h2>🏅 Profit Factor</h2>
-            <div class="big">
-                {{ dashboard.stats.profit_factor }}
-            </div>
-        </div>
+            <p>
 
-        <div class="card">
-            <h2>📉 Max Drawdown</h2>
-            <div class="big">
-                {{ dashboard.stats.max_drawdown }}%
-            </div>
-        </div>
+                {{ dashboard.decision.summary }}
 
-    </div>
-
-    <!-- TOP SIGNALS -->
-
-    <div class="card">
-
-        <h2>📈 Top Signals</h2>
-
-        <table>
-
-            <thead>
-
-            <tr>
-
-                <th>Symbol</th>
-                <th>Signal</th>
-                <th>Score</th>
-                <th>Trend</th>
-
-            </tr>
-
-            </thead>
-
-            <tbody>
-
-            {% for s in dashboard.signals %}
-
-            <tr>
-
-                <td>{{ s.symbol }}</td>
-
-                <td>
-
-                    {% if s.signal == "BUY" %}
-
-                        <span class="buy">{{ s.signal }}</span>
-
-                    {% elif s.signal == "WATCH" %}
-
-                        <span class="watch">{{ s.signal }}</span>
-
-                    {% else %}
-
-                        <span class="sell">{{ s.signal }}</span>
-
-                    {% endif %}
-
-                </td>
-
-                <td>{{ s.score }}</td>
-
-                <td>{{ s.trend }}</td>
-
-            </tr>
-
-            {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    <!-- CHARTS -->
-
-    <div class="chart-grid">
-
-        <div class="card">
-
-            <h2>📈 Equity Curve</h2>
-
-            <img
-                class="chart-image"
-                src="{{ dashboard.charts.equity }}"
-                alt="Equity Curve">
+            </p>
 
         </div>
 
-        <div class="card">
+    </section>
+    <!-- ============================================= -->
+    <!-- MARKET & PORTFOLIO -->
+    <!-- ============================================= -->
 
-            <h2>🥧 Portfolio Allocation</h2>
-
-            <img
-                class="chart-image"
-                src="{{ dashboard.charts.allocation }}"
-                alt="Portfolio Allocation">
-
-        </div>
-
-    </div>
-
-    <!-- WATCHLIST + AI -->
-
-    <div class="bottom-grid">
+    <section class="grid-2">
 
         <div class="card">
 
-            <h2>📌 Watchlist</h2>
+            <h2>📊 Market Status</h2>
 
-            {% if dashboard.watchlist %}
-
-            <table>
-
-                <thead>
+            <table class="info-table">
 
                 <tr>
-
-                    <th>Symbol</th>
-                    <th>Signal</th>
-                    <th>Score</th>
-                    <th>Trend</th>
-
+                    <td>Status</td>
+                    <td>{{ dashboard.market.status }}</td>
                 </tr>
-
-                </thead>
-
-                <tbody>
-
-                {% for stock in dashboard.watchlist %}
 
                 <tr>
-
-                    <td>{{ stock.symbol }}</td>
-
-                    <td>
-
-                        {% if stock.signal == "BUY" %}
-
-                            <span class="buy">{{ stock.signal }}</span>
-
-                        {% elif stock.signal == "WATCH" %}
-
-                            <span class="watch">{{ stock.signal }}</span>
-
-                        {% else %}
-
-                            <span class="sell">{{ stock.signal }}</span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>{{ stock.score }}</td>
-
-                    <td>{{ stock.trend }}</td>
-
+                    <td>Trend</td>
+                    <td>{{ dashboard.market.trend.value }}</td>
                 </tr>
 
-                {% endfor %}
+                <tr>
+                    <td>Regime</td>
+                    <td>{{ dashboard.market.regime.status.value }}</td>
+                </tr>
 
-                </tbody>
+                <tr>
+                    <td>Breadth</td>
+                    <td>{{ dashboard.market.breadth.summary }}</td>
+                </tr>
+
+                <tr>
+                    <td>Sentiment</td>
+                    <td>{{ dashboard.market.sentiment.summary }}</td>
+                </tr>
+
+                <tr>
+                    <td>Volatility</td>
+                    <td>{{ dashboard.market.volatility.value }}</td>
+                </tr>
 
             </table>
 
+        </div>
+
+        <div class="card">
+
+            <h2>💼 Portfolio Health</h2>
+
+            <table class="info-table">
+
+                <tr>
+                    <td>Health</td>
+                    <td>{{ dashboard.decision.portfolio_health }}%</td>
+                </tr>
+
+                <tr>
+                    <td>Grade</td>
+                    <td>{{ dashboard.decision.portfolio_grade }}</td>
+                </tr>
+
+                <tr>
+                    <td>Risk Level</td>
+                    <td>{{ dashboard.decision.risk_level }}</td>
+                </tr>
+
+                <tr>
+                    <td>Best Symbol</td>
+                    <td>{{ dashboard.decision.best_symbol }}</td>
+                </tr>
+
+                <tr>
+                    <td>Worst Symbol</td>
+                    <td>{{ dashboard.decision.worst_symbol }}</td>
+                </tr>
+
+                <tr>
+                    <td>Rebalance</td>
+
+                    <td>
+
+                    {% if dashboard.decision.rebalance_required %}
+
+                        ✅ Required
+
+                    {% else %}
+
+                        ✔ No
+
+                    {% endif %}
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- ============================================= -->
+    <!-- REASONS -->
+    <!-- ============================================= -->
+
+    <section class="card">
+
+        <h2>🧠 Committee Reasons</h2>
+
+        <ul>
+
+        {% for reason in dashboard.decision.reasons %}
+
+            <li>{{ reason }}</li>
+
+        {% endfor %}
+
+        </ul>
+
+    </section>
+
+    <!-- ============================================= -->
+    <!-- WARNINGS & SUGGESTIONS -->
+    <!-- ============================================= -->
+
+    <section class="grid-2">
+
+        <div class="card">
+
+            <h2>⚠ Warnings</h2>
+
+            {% if dashboard.decision.warnings %}
+
+            <ul>
+
+            {% for warning in dashboard.decision.warnings %}
+
+                <li>{{ warning }}</li>
+
+            {% endfor %}
+
+            </ul>
+
             {% else %}
 
-            <p>Watchlist boş.</p>
+            <p>No active warnings.</p>
 
             {% endif %}
 
@@ -245,186 +310,213 @@
 
         <div class="card">
 
-            <h2>🤖 AI Summary</h2>
+            <h2>💡 Suggestions</h2>
 
-            <table>
+            {% if dashboard.decision.suggestions %}
 
-                <tr>
-                    <td>Risk</td>
+            <ul>
 
-                    <td>
+            {% for suggestion in dashboard.decision.suggestions %}
 
-                        {% if dashboard.ai.risk == "LOW" %}
+                <li>{{ suggestion }}</li>
 
-                            <span class="buy">{{ dashboard.ai.risk }}</span>
+            {% endfor %}
 
-                        {% elif dashboard.ai.risk == "MEDIUM" %}
+            </ul>
 
-                            <span class="watch">{{ dashboard.ai.risk }}</span>
+            {% else %}
 
-                        {% else %}
+            <p>No suggestions available.</p>
 
-                            <span class="sell">{{ dashboard.ai.risk }}</span>
+            {% endif %}
 
-                        {% endif %}
+        </div>
 
-                    </td>
+    </section>
 
-                </tr>
+    <!-- ============================================= -->
+    <!-- SIGNALS -->
+    <!-- ============================================= -->
 
-                <tr>
-                    <td>Best Opportunity</td>
-                    <td>{{ dashboard.ai.best }}</td>
-                </tr>
+    <section class="card">
 
-                <tr>
-                    <td>Worst Position</td>
-                    <td>{{ dashboard.ai.worst }}</td>
-                </tr>
+        <h2>📈 Top Signals</h2>
 
-                <tr>
-                    <td>Cash Ratio</td>
-                    <td>{{ dashboard.ai.cash_ratio }}%</td>
-                </tr>
+        <table class="table">
 
-                <tr>
-                    <td>Recommendation</td>
-                    <td>
-                        <strong>{{ dashboard.ai.recommendation }}</strong>
-                    </td>
-                </tr>
+            <thead>
 
                 <tr>
 
-                    <td>Portfolio Health</td>
-
-                    <td>
-
-                        {% if dashboard.ai.portfolio_health >= 80 %}
-
-                            <span class="buy">
-                                {{ dashboard.ai.portfolio_health }}%
-                            </span>
-
-                        {% elif dashboard.ai.portfolio_health >= 60 %}
-
-                            <span class="watch">
-                                {{ dashboard.ai.portfolio_health }}%
-                            </span>
-
-                        {% else %}
-
-                            <span class="sell">
-                                {{ dashboard.ai.portfolio_health }}%
-                            </span>
-
-                        {% endif %}
-
-                    </td>
+                    <th>Symbol</th>
+                    <th>Signal</th>
+                    <th>Score</th>
 
                 </tr>
 
-            </table>
+            </thead>
 
-            <hr style="margin:20px 0;border:0;border-top:1px solid #334155;">
+            <tbody>
 
-            <h3>🧠 AI Recommendation</h3>
+            {% for signal in dashboard.signals %}
 
-            <p style="line-height:1.8;">
+                <tr>
 
-                {{ dashboard.recommendation }}
+                    <td>{{ signal.symbol }}</td>
+
+                    <td>{{ signal.signal }}</td>
+
+                    <td>{{ signal.score }}</td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- ============================================= -->
+    <!-- WATCHLIST -->
+    <!-- ============================================= -->
+
+    <section class="card">
+
+        <h2>👁 Watchlist</h2>
+
+        <div class="watchlist">
+
+        {% for symbol in dashboard.watchlist %}
+
+            <span class="badge">
+
+                {{ symbol }}
+
+            </span>
+
+        {% endfor %}
+
+        </div>
+
+    </section>
+
+    <!-- ============================================= -->
+    <!-- CHARTS -->
+    <!-- ============================================= -->
+
+    <section class="grid-2">
+
+        <div class="card">
+
+            <h2>📊 Portfolio Allocation</h2>
+
+            <img
+
+                src="{{ url_for('static', filename='portfolio_pie.png') }}"
+
+                class="chart"
+
+                alt="Portfolio Allocation">
+
+        </div>
+
+        <div class="card">
+
+            <h2>📈 Equity Curve</h2>
+
+            <img
+
+                src="{{ url_for('static', filename='equity_curve.png') }}"
+
+                class="chart"
+
+                alt="Equity Curve">
+
+        </div>
+
+    </section>
+
+    <!-- ============================================= -->
+    <!-- SYSTEM STATUS -->
+    <!-- ============================================= -->
+
+    <section class="grid-3">
+
+        <div class="card">
+
+            <h3>🤖 AI Decision</h3>
+
+            <h2>{{ dashboard.decision.action }}</h2>
+
+            <p>
+
+                Confidence :
+                {{ dashboard.decision.confidence }}%
 
             </p>
 
         </div>
 
-    </div>
+        <div class="card">
 
-    <!-- ========================= -->
-    <!-- MARKET -->
-    <!-- ========================= -->
+            <h3>🌍 Market</h3>
 
-    <div class="card">
+            <h2>{{ dashboard.market.trend.value }}</h2>
 
-        <h2>🌍 Market Status</h2>
+            <p>
 
-        <table>
+                {{ dashboard.market.regime.status.value }}
 
-            <tr>
+            </p>
 
-                <td>Status</td>
+        </div>
 
-                <td>
+        <div class="card">
 
-                    {% if dashboard.market.status == "OPEN" %}
+            <h3>💼 Portfolio</h3>
 
-                        <span class="buy">{{ dashboard.market.status }}</span>
+            <h2>{{ dashboard.decision.portfolio_grade }}</h2>
 
-                    {% else %}
+            <p>
 
-                        {{ dashboard.market.status }}
+                Health :
+                {{ dashboard.decision.portfolio_health }}%
 
-                    {% endif %}
+            </p>
 
-                </td>
+        </div>
 
-            </tr>
+    </section>
 
-            <tr>
-
-                <td>Index</td>
-
-                <td>{{ dashboard.market.index }}</td>
-
-            </tr>
-
-            <tr>
-
-                <td>Daily Change</td>
-
-                <td>
-
-                    {% if dashboard.market.change|string|first == "+" %}
-
-                        <span class="buy">
-                            {{ dashboard.market.change }}
-                        </span>
-
-                    {% else %}
-
-                        <span class="sell">
-                            {{ dashboard.market.change }}
-                        </span>
-
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-            <tr>
-
-                <td>Updated</td>
-
-                <td>{{ dashboard.updated }}</td>
-
-            </tr>
-
-        </table>
-
-    </div>
-
-    <!-- ========================= -->
+    <!-- ============================================= -->
     <!-- FOOTER -->
-    <!-- ========================= -->
+    <!-- ============================================= -->
 
     <footer class="footer">
 
-        <strong>QuantBIST RC4</strong><br>
+        <hr>
 
-        AI Powered Portfolio Management System<br>
+        <p>
 
-        Version 2.0 • Sprint 11
+            <strong>QuantBIST RC4</strong>
+
+        </p>
+
+        <p>
+
+            Enterprise AI Powered Portfolio Management System
+
+        </p>
+
+        <p>
+
+            Dashboard Generated :
+
+            {{ dashboard.updated.strftime("%d.%m.%Y %H:%M") }}
+
+        </p>
 
     </footer>
 
