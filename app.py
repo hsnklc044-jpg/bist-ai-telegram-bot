@@ -1,5 +1,5 @@
 """
-QuantBIST RC4
+QuantBIST RC5
 Application Entry Point
 """
 
@@ -16,7 +16,9 @@ from core.infrastructure.logger import (
     get_logger,
 )
 
+
 logger = get_logger(__name__)
+
 
 app = Flask(__name__)
 
@@ -46,7 +48,7 @@ def health():
 
         "status": "OK",
 
-        "application": "QuantBIST RC4",
+        "application": "QuantBIST RC5",
 
     }
 
@@ -54,7 +56,7 @@ def health():
 if __name__ == "__main__":
 
     logger.info(
-        "QuantBIST RC4 started."
+        "QuantBIST RC5 started."
     )
 
     app.run(
