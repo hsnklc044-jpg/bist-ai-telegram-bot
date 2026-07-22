@@ -14,6 +14,11 @@ from core.charts.service import (
 )
 
 
+from core.committee.service import (
+    get_committee_decision,
+)
+
+
 from core.dashboard.cards import (
     get_signals_card,
     get_summary_cards,
@@ -21,8 +26,8 @@ from core.dashboard.cards import (
 )
 
 
-from core.decision.service import (
-    get_decision,
+from core.decision.builder import (
+    build_decision,
 )
 
 
@@ -80,7 +85,11 @@ def get_dashboard() -> DashboardModel:
               ↓
         Portfolio Intelligence
               ↓
-        Decision Engine
+        Market Intelligence
+              ↓
+        Investment Committee
+              ↓
+        Final AI Decision
               ↓
         Dashboard
 
@@ -131,13 +140,34 @@ def get_dashboard() -> DashboardModel:
 
 
         # -----------------------------------------
-        # Decision
+        # Committee
         # -----------------------------------------
 
 
-        decision = get_decision(
+        committee = get_committee_decision(
 
-            portfolio_stats,
+            portfolio,
+
+            market,
+
+        )
+
+
+
+
+
+        # -----------------------------------------
+        # Final Decision
+        # -----------------------------------------
+
+
+        decision = build_decision(
+
+            committee=committee,
+
+            portfolio=portfolio,
+
+            market=market,
 
         )
 
@@ -179,7 +209,7 @@ def get_dashboard() -> DashboardModel:
             market=market,
 
 
-            committee=None,
+            committee=committee,
 
 
             decision=decision,
@@ -205,7 +235,7 @@ def get_dashboard() -> DashboardModel:
 
         logger.info(
 
-            "Dashboard ready | %s | AI=%d",
+            "Dashboard ready | Action=%s | AI=%d",
 
             decision.action,
 
@@ -218,6 +248,14 @@ def get_dashboard() -> DashboardModel:
 
 
         return dashboard
+
+
+
+
+
+    except DashboardError:
+
+        raise
 
 
 
