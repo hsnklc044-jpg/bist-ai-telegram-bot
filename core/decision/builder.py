@@ -12,7 +12,9 @@ from datetime import datetime
 from uuid import uuid4
 
 
-from core.ai.scoring import calculate_score
+from core.ai.scoring import (
+    calculate_score,
+)
 
 from core.committee.models import (
     CommitteeResult,
@@ -77,7 +79,6 @@ def _enum_value(
 
 
 
-
 def _risk_score(
     portfolio: PortfolioAnalysis,
 ) -> float:
@@ -85,15 +86,15 @@ def _risk_score(
 
     mapping = {
 
-        "LOW":20.0,
+        "LOW": 20.0,
 
-        "MEDIUM":50.0,
+        "MEDIUM": 50.0,
 
-        "HIGH":75.0,
+        "HIGH": 75.0,
 
-        "VERY_HIGH":85.0,
+        "VERY_HIGH": 85.0,
 
-        "CRITICAL":95.0,
+        "CRITICAL": 95.0,
 
     }
 
@@ -114,9 +115,8 @@ def _risk_score(
 
 
 
-
 def _confidence(
-    value:int,
+    value: int,
 ) -> int:
 
 
@@ -138,16 +138,15 @@ def _confidence(
 
 
 
-
 # =====================================================
 # ACTION ENGINE
 # =====================================================
 
 
 def _final_action(
-    ai_score:int,
-    committee:CommitteeResult,
-    portfolio:PortfolioAnalysis,
+    ai_score: int,
+    committee: CommitteeResult,
+    portfolio: PortfolioAnalysis,
 ) -> str:
 
 
@@ -178,7 +177,6 @@ def _final_action(
 
 
 
-
     if (
 
         ai_score >= 90
@@ -194,7 +192,6 @@ def _final_action(
     ):
 
         return DecisionAction.STRONG_BUY.value
-
 
 
 
@@ -222,10 +219,9 @@ def _final_action(
 
 
 
-
     if (
 
-        ai_score >=70
+        ai_score >= 70
 
         and
 
@@ -239,11 +235,9 @@ def _final_action(
 
 
 
-
-    if ai_score <=35:
+    if ai_score <= 35:
 
         return DecisionAction.SELL.value
-
 
 
 
@@ -257,7 +251,7 @@ def _final_action(
 
     ):
 
-        return _enum_value(action)
+        return DecisionAction.REDUCE.value
 
 
 
@@ -266,6 +260,89 @@ def _final_action(
     return _enum_value(action)
 
 
+
+
+
+# =====================================================
+# TECHNICAL INTELLIGENCE
+# =====================================================
+
+
+def _technical_data(
+    market,
+) -> dict:
+
+
+    return {
+
+        "technical_score":
+
+            float(
+
+                getattr(
+
+                    market,
+
+                    "technical_score",
+
+                    0.0,
+
+                )
+
+            ),
+
+
+        "technical_trend":
+
+            str(
+
+                getattr(
+
+                    market,
+
+                    "trend",
+
+                    "",
+
+                )
+
+            ),
+
+
+        "rsi":
+
+            float(
+
+                getattr(
+
+                    market,
+
+                    "rsi",
+
+                    0.0,
+
+                )
+
+            ),
+
+
+        "macd_signal":
+
+            str(
+
+                getattr(
+
+                    market,
+
+                    "macd_signal",
+
+                    "",
+
+                )
+
+            ),
+
+    }
 
 
 
@@ -295,14 +372,14 @@ def _ai_explanation(
 
     result.append(
 
-        f"Market regime: {market.regime.status.value}"
+        f"Market regime: {_enum_value(market.regime.status)}"
 
     )
 
 
     result.append(
 
-        f"Market trend: {market.trend.value}"
+        f"Market trend: {_enum_value(market.trend)}"
 
     )
 
@@ -347,6 +424,24 @@ def _ai_explanation(
 
 
 
+def _explanation_text(
+    explanation: list[str],
+) -> str:
+
+
+    return " | ".join(
+
+        explanation
+
+    )
+
+
+
+
+
+# =====================================================
+# SCORE BREAKDOWN
+# =====================================================
 
 
 def _score_breakdown(
@@ -398,8 +493,6 @@ def _score_breakdown(
 
 
 
-
-
 def _decision_context(
     portfolio,
     market,
@@ -414,12 +507,20 @@ def _decision_context(
 
         "trend":
 
-            market.trend.value,
+            _enum_value(
+
+                market.trend
+
+            ),
 
 
         "regime":
 
-            market.regime.status.value,
+            _enum_value(
+
+                market.regime.status
+
+            ),
 
 
         "portfolio_grade":
@@ -436,8 +537,6 @@ def _decision_context(
             ),
 
     }
-
-
 
 
 
@@ -478,18 +577,7 @@ def _warnings(
         )
 
 
-    if market.volatility.value == "HIGH":
-
-        warnings.append(
-
-            "High volatility environment."
-
-        )
-
-
     return warnings
-
-
 
 
 
@@ -536,17 +624,15 @@ def _suggestions(
 
 
 
-
-
 # =====================================================
 # PUBLIC API
 # =====================================================
 
 
 def build_decision(
-    committee:CommitteeResult,
-    portfolio:PortfolioAnalysis,
-    market:MarketStatus,
+    committee: CommitteeResult,
+    portfolio: PortfolioAnalysis,
+    market: MarketStatus,
 ) -> Decision:
 
 
@@ -557,7 +643,6 @@ def build_decision(
         market,
 
     )
-
 
 
     action = _final_action(
@@ -571,7 +656,6 @@ def build_decision(
     )
 
 
-
     confidence = _confidence(
 
         committee.confidence
@@ -579,14 +663,38 @@ def build_decision(
     )
 
 
+    explanation = _ai_explanation(
+
+        portfolio,
+
+        market,
+
+        committee,
+
+        ai_score,
+
+    )
+
+
+    technical = _technical_data(
+
+        market,
+
+    )
+
+
 
     return Decision(
 
+
         decision_id=_generate_decision_id(),
+
 
         timestamp=datetime.now(),
 
+
         engine_version="RC5",
+
 
 
         action=action,
@@ -605,6 +713,7 @@ def build_decision(
         ),
 
 
+
         summary=(
 
             f"{action} | "
@@ -620,16 +729,12 @@ def build_decision(
         ai_score=ai_score,
 
 
+        ai_explanation=explanation,
 
-        ai_explanation=_ai_explanation(
 
-            portfolio,
+        explanation_text=_explanation_text(
 
-            market,
-
-            committee,
-
-            ai_score,
+            explanation
 
         ),
 
@@ -657,12 +762,24 @@ def build_decision(
 
 
 
+        technical_score=technical["technical_score"],
+
+
+        technical_trend=technical["technical_trend"],
+
+
+        rsi=technical["rsi"],
+
+
+        macd_signal=technical["macd_signal"],
+
+
+
         committee_action=_enum_value(
 
             committee.action
 
         ),
-
 
 
         committee_score=committee.score,
@@ -708,25 +825,22 @@ def build_decision(
         market_status=market.status,
 
 
-        market_trend=market.trend.value,
+        market_trend=_enum_value(
 
-
-        market_regime=market.regime.status.value,
-
-
-
-        reasons=_ai_explanation(
-
-            portfolio,
-
-            market,
-
-            committee,
-
-            ai_score,
+            market.trend
 
         ),
 
+
+        market_regime=_enum_value(
+
+            market.regime.status
+
+        ),
+
+
+
+        reasons=explanation,
 
 
         suggestions=_suggestions(
@@ -753,8 +867,7 @@ def build_decision(
 
 
 
-
-__all__=[
+__all__ = [
 
     "build_decision",
 
