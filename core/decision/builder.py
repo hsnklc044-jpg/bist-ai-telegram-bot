@@ -79,6 +79,7 @@ def _enum_value(
 
 
 
+
 def _risk_score(
     portfolio: PortfolioAnalysis,
 ) -> float:
@@ -115,8 +116,9 @@ def _risk_score(
 
 
 
+
 def _confidence(
-    value: int,
+    value:int,
 ) -> int:
 
 
@@ -138,15 +140,16 @@ def _confidence(
 
 
 
+
 # =====================================================
 # ACTION ENGINE
 # =====================================================
 
 
 def _final_action(
-    ai_score: int,
-    committee: CommitteeResult,
-    portfolio: PortfolioAnalysis,
+    ai_score:int,
+    committee:CommitteeResult,
+    portfolio:PortfolioAnalysis,
 ) -> str:
 
 
@@ -177,6 +180,7 @@ def _final_action(
 
 
 
+
     if (
 
         ai_score >= 90
@@ -192,6 +196,7 @@ def _final_action(
     ):
 
         return DecisionAction.STRONG_BUY.value
+
 
 
 
@@ -219,6 +224,7 @@ def _final_action(
 
 
 
+
     if (
 
         ai_score >= 70
@@ -235,9 +241,11 @@ def _final_action(
 
 
 
+
     if ai_score <= 35:
 
         return DecisionAction.SELL.value
+
 
 
 
@@ -263,84 +271,110 @@ def _final_action(
 
 
 
+
 # =====================================================
 # TECHNICAL INTELLIGENCE
 # =====================================================
 
 
 def _technical_data(
-    market,
+    market: MarketStatus,
 ) -> dict:
+    """
+    Extract technical intelligence
+    from MarketStatus indicators.
+    """
+
+
+    indicators = getattr(
+
+        market,
+
+        "indicators",
+
+        None,
+
+    )
+
+
+
+    if indicators is None:
+
+        return {
+
+            "technical_score": 0.0,
+
+            "technical_trend": "",
+
+            "rsi": 0.0,
+
+            "macd_signal": "",
+
+        }
+
+
+
+
+    macd_signal = (
+
+        "BULLISH"
+
+        if indicators.macd > indicators.macd_signal
+
+        else "BEARISH"
+
+    )
+
 
 
     return {
 
-        "technical_score":
+        "technical_score": round(
 
-            float(
+            (
 
-                getattr(
+                indicators.rsi
 
-                    market,
+                +
 
-                    "technical_score",
+                (
 
-                    0.0,
+                    100
+
+                    if indicators.trend.value == "BULLISH"
+
+                    else 50
 
                 )
 
-            ),
+            )
+
+            / 2,
+
+            2,
+
+        ),
 
 
         "technical_trend":
 
-            str(
+            indicators.trend.value,
 
-                getattr(
-
-                    market,
-
-                    "trend",
-
-                    "",
-
-                )
-
-            ),
 
 
         "rsi":
 
             float(
 
-                getattr(
-
-                    market,
-
-                    "rsi",
-
-                    0.0,
-
-                )
+                indicators.rsi
 
             ),
+
 
 
         "macd_signal":
 
-            str(
-
-                getattr(
-
-                    market,
-
-                    "macd_signal",
-
-                    "",
-
-                )
-
-            ),
+            macd_signal,
 
     }
 
@@ -398,7 +432,6 @@ def _ai_explanation(
     )
 
 
-
     if market.risk_off:
 
         result.append(
@@ -406,7 +439,6 @@ def _ai_explanation(
             "Risk-Off environment detected."
 
         )
-
 
 
     if portfolio.rebalance.needs_rebalance:
@@ -420,14 +452,14 @@ def _ai_explanation(
 
     return result
 
-
-
+# =====================================================
+# EXPLANATION TEXT
+# =====================================================
 
 
 def _explanation_text(
     explanation: list[str],
 ) -> str:
-
 
     return " | ".join(
 
@@ -493,6 +525,11 @@ def _score_breakdown(
 
 
 
+# =====================================================
+# DECISION CONTEXT
+# =====================================================
+
+
 def _decision_context(
     portfolio,
     market,
@@ -542,12 +579,18 @@ def _decision_context(
 
 
 
+# =====================================================
+# WARNINGS
+# =====================================================
+
+
 def _warnings(
     portfolio,
     market,
 ):
 
     warnings = []
+
 
 
     if portfolio.rebalance.needs_rebalance:
@@ -559,6 +602,7 @@ def _warnings(
         )
 
 
+
     if portfolio.optimization.concentration_risk:
 
         warnings.append(
@@ -566,6 +610,7 @@ def _warnings(
             "Concentration risk detected."
 
         )
+
 
 
     if market.risk_off:
@@ -577,10 +622,26 @@ def _warnings(
         )
 
 
+
+    if market.volatility.value == "HIGH":
+
+        warnings.append(
+
+            "High volatility environment."
+
+        )
+
+
+
     return warnings
 
 
 
+
+
+# =====================================================
+# SUGGESTIONS
+# =====================================================
 
 
 def _suggestions(
@@ -589,6 +650,7 @@ def _suggestions(
 ):
 
     suggestions = []
+
 
 
     if market.risk_on:
@@ -600,6 +662,7 @@ def _suggestions(
         )
 
 
+
     if portfolio.rebalance.needs_rebalance:
 
         suggestions.append(
@@ -609,6 +672,7 @@ def _suggestions(
         )
 
 
+
     if not suggestions:
 
         suggestions.append(
@@ -616,6 +680,7 @@ def _suggestions(
             "Monitor market conditions."
 
         )
+
 
 
     return suggestions
@@ -645,6 +710,7 @@ def build_decision(
     )
 
 
+
     action = _final_action(
 
         ai_score,
@@ -656,11 +722,13 @@ def build_decision(
     )
 
 
+
     confidence = _confidence(
 
         committee.confidence
 
     )
+
 
 
     explanation = _ai_explanation(
@@ -676,6 +744,7 @@ def build_decision(
     )
 
 
+
     technical = _technical_data(
 
         market,
@@ -687,6 +756,7 @@ def build_decision(
     return Decision(
 
 
+
         decision_id=_generate_decision_id(),
 
 
@@ -694,6 +764,7 @@ def build_decision(
 
 
         engine_version="RC5",
+
 
 
 
@@ -726,10 +797,13 @@ def build_decision(
 
 
 
+
         ai_score=ai_score,
 
 
+
         ai_explanation=explanation,
+
 
 
         explanation_text=_explanation_text(
@@ -737,6 +811,7 @@ def build_decision(
             explanation
 
         ),
+
 
 
 
@@ -752,6 +827,7 @@ def build_decision(
 
 
 
+
         decision_context=_decision_context(
 
             portfolio,
@@ -761,6 +837,9 @@ def build_decision(
         ),
 
 
+
+
+        # Technical Intelligence
 
         technical_score=technical["technical_score"],
 
@@ -775,6 +854,10 @@ def build_decision(
 
 
 
+
+
+        # Committee
+
         committee_action=_enum_value(
 
             committee.action
@@ -788,6 +871,10 @@ def build_decision(
         committee_consensus=committee.consensus,
 
 
+
+
+
+        # Portfolio
 
         portfolio_health=portfolio.health.score,
 
@@ -806,12 +893,15 @@ def build_decision(
 
 
 
+
+
+        # Risk
+
         risk_level=_enum_value(
 
             portfolio.risk.level
 
         ),
-
 
 
         risk_score=_risk_score(
@@ -821,6 +911,10 @@ def build_decision(
         ),
 
 
+
+
+
+        # Market
 
         market_status=market.status,
 
@@ -840,7 +934,11 @@ def build_decision(
 
 
 
+
+        # Explanation
+
         reasons=explanation,
+
 
 
         suggestions=_suggestions(
@@ -861,10 +959,16 @@ def build_decision(
 
         ),
 
+
     )
 
 
 
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
 
 
 __all__ = [
