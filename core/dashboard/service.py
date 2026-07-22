@@ -14,11 +14,6 @@ from core.charts.service import (
 )
 
 
-from core.committee.service import (
-    get_committee_decision,
-)
-
-
 from core.dashboard.cards import (
     get_signals_card,
     get_summary_cards,
@@ -26,8 +21,8 @@ from core.dashboard.cards import (
 )
 
 
-from core.decision.builder import (
-    build_decision,
+from core.decision.service import (
+    get_decision,
 )
 
 
@@ -77,7 +72,7 @@ logger = get_logger(__name__)
 
 def get_dashboard() -> DashboardModel:
     """
-    Build complete RC5 dashboard.
+    Build complete QuantBIST RC5 dashboard.
 
     Flow:
 
@@ -87,11 +82,11 @@ def get_dashboard() -> DashboardModel:
               ↓
         Market Intelligence
               ↓
-        Investment Committee
+        Decision Engine
               ↓
-        Final AI Decision
+        Charts
               ↓
-        Dashboard
+        Dashboard Model
 
     """
 
@@ -110,12 +105,19 @@ def get_dashboard() -> DashboardModel:
 
 
         # -----------------------------------------
-        # Portfolio
+        # Portfolio Statistics
         # -----------------------------------------
 
 
         portfolio_stats = get_dashboard_stats()
 
+
+
+
+
+        # -----------------------------------------
+        # Portfolio Intelligence
+        # -----------------------------------------
 
 
         portfolio = get_portfolio_analysis(
@@ -129,7 +131,7 @@ def get_dashboard() -> DashboardModel:
 
 
         # -----------------------------------------
-        # Market
+        # Market Intelligence
         # -----------------------------------------
 
 
@@ -140,34 +142,13 @@ def get_dashboard() -> DashboardModel:
 
 
         # -----------------------------------------
-        # Committee
+        # Decision Intelligence
         # -----------------------------------------
 
 
-        committee = get_committee_decision(
+        decision = get_decision(
 
-            portfolio,
-
-            market,
-
-        )
-
-
-
-
-
-        # -----------------------------------------
-        # Final Decision
-        # -----------------------------------------
-
-
-        decision = build_decision(
-
-            committee=committee,
-
-            portfolio=portfolio,
-
-            market=market,
+            portfolio_stats,
 
         )
 
@@ -209,7 +190,7 @@ def get_dashboard() -> DashboardModel:
             market=market,
 
 
-            committee=committee,
+            committee=None,
 
 
             decision=decision,
@@ -233,9 +214,11 @@ def get_dashboard() -> DashboardModel:
 
 
 
+
+
         logger.info(
 
-            "Dashboard ready | Action=%s | AI=%d",
+            "Dashboard ready | %s | AI=%d",
 
             decision.action,
 
@@ -250,12 +233,6 @@ def get_dashboard() -> DashboardModel:
         return dashboard
 
 
-
-
-
-    except DashboardError:
-
-        raise
 
 
 

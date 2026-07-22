@@ -86,6 +86,116 @@ def get_summary_cards() -> dict:
 
 
 
+# =====================================================
+# AI DECISION CARDS
+# =====================================================
+
+
+def get_ai_cards(
+    decision,
+) -> dict:
+    """
+    Generate RC5 AI intelligence cards.
+
+    Source:
+
+        Decision Engine
+
+    Includes:
+
+        - Action
+        - AI Score
+        - Confidence
+        - Technical Score
+        - Risk
+        - Market Regime
+
+    """
+
+
+    return {
+
+
+        "action":
+
+            decision.action,
+
+
+
+        "ai_score":
+
+            decision.ai_score,
+
+
+
+        "confidence":
+
+            decision.confidence,
+
+
+
+        "technical_score":
+
+            decision.technical_score,
+
+
+
+        "technical_trend":
+
+            decision.technical_trend,
+
+
+
+        "rsi":
+
+            decision.rsi,
+
+
+
+        "macd_signal":
+
+            decision.macd_signal,
+
+
+
+        "risk":
+
+            decision.risk_level,
+
+
+
+        "risk_score":
+
+            decision.risk_score,
+
+
+
+        "market_regime":
+
+            decision.market_regime,
+
+
+
+        "market_trend":
+
+            decision.market_trend,
+
+
+
+        "rebalance":
+
+            decision.rebalance_required,
+
+
+
+        "summary":
+
+            decision.summary,
+
+    }
+
+
+
 
 
 # =====================================================
@@ -120,16 +230,13 @@ def get_watchlist_card() -> list[dict]:
 
     try:
 
-
         return get_watchlist_details()
 
 
 
     except Exception:
 
-
         return []
-
 
 
 
@@ -144,6 +251,8 @@ def get_watchlist_card() -> list[dict]:
 __all__ = [
 
     "get_summary_cards",
+
+    "get_ai_cards",
 
     "get_signals_card",
 
