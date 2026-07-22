@@ -11,11 +11,6 @@ from core.analytics.signals import (
 )
 
 
-from core.portfolio.dashboard_data import (
-    get_dashboard_stats,
-)
-
-
 from core.watchlist.service import (
     get_watchlist_details,
 )
@@ -29,21 +24,26 @@ from core.watchlist.service import (
 # =====================================================
 
 
-def get_summary_cards() -> dict:
+def get_summary_cards(
+    stats,
+) -> dict:
     """
     Generate dashboard summary cards.
+
+    Stats are prepared by dashboard service.
+
+    Prevents duplicate portfolio calculation.
     """
-
-
-    stats = get_dashboard_stats()
 
 
 
     return {
 
+
         "portfolio":
 
             stats.portfolio,
+
 
 
         "cash":
@@ -51,9 +51,11 @@ def get_summary_cards() -> dict:
             stats.cash,
 
 
+
         "positions":
 
             stats.positions,
+
 
 
         "top_stock":
@@ -61,9 +63,11 @@ def get_summary_cards() -> dict:
             stats.top_stock,
 
 
+
         "sharpe":
 
             stats.sharpe,
+
 
 
         "win_rate":
@@ -71,9 +75,11 @@ def get_summary_cards() -> dict:
             stats.win_rate,
 
 
+
         "profit_factor":
 
             stats.profit_factor,
+
 
 
         "max_drawdown":
@@ -81,6 +87,8 @@ def get_summary_cards() -> dict:
             stats.max_drawdown,
 
     }
+
+
 
 
 
@@ -100,15 +108,6 @@ def get_ai_cards(
     Source:
 
         Decision Engine
-
-    Includes:
-
-        - Action
-        - AI Score
-        - Confidence
-        - Technical Score
-        - Risk
-        - Market Regime
 
     """
 
@@ -198,6 +197,8 @@ def get_ai_cards(
 
 
 
+
+
 # =====================================================
 # SIGNALS
 # =====================================================
@@ -210,6 +211,7 @@ def get_signals_card() -> list[dict]:
 
 
     return get_top_signals()
+
 
 
 
@@ -243,6 +245,8 @@ def get_watchlist_card() -> list[dict]:
 
 
 
+
+
 # =====================================================
 # EXPORTS
 # =====================================================
@@ -250,12 +254,17 @@ def get_watchlist_card() -> list[dict]:
 
 __all__ = [
 
+
     "get_summary_cards",
+
 
     "get_ai_cards",
 
+
     "get_signals_card",
 
+
     "get_watchlist_card",
+
 
 ]
