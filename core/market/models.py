@@ -1,18 +1,20 @@
 """
-QuantBIST Framework
-Market Domain Models
+QuantBIST RC5
+Market Intelligence Domain Models
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+
 
 
 # =====================================================
 # ENUMS
 # =====================================================
+
 
 class MarketTrend(Enum):
     """
@@ -20,8 +22,12 @@ class MarketTrend(Enum):
     """
 
     BULLISH = "BULLISH"
+
     NEUTRAL = "NEUTRAL"
+
     BEARISH = "BEARISH"
+
+
 
 
 class MarketRegimeType(Enum):
@@ -30,50 +36,66 @@ class MarketRegimeType(Enum):
     """
 
     RISK_ON = "RISK_ON"
+
     NEUTRAL = "NEUTRAL"
+
     RISK_OFF = "RISK_OFF"
+
+
 
 
 class BreadthStatus(Enum):
     """
-    Market breadth condition.
+    Market participation condition.
     """
 
     POSITIVE = "POSITIVE"
+
     NEUTRAL = "NEUTRAL"
+
     NEGATIVE = "NEGATIVE"
+
+
 
 
 class SentimentStatus(Enum):
     """
-    Market sentiment.
+    Investor sentiment state.
     """
 
     GREED = "GREED"
+
     NEUTRAL = "NEUTRAL"
+
     FEAR = "FEAR"
+
+
 
 
 class VolatilityLevel(Enum):
     """
-    Market volatility level.
+    Market volatility state.
     """
 
     LOW = "LOW"
+
     NORMAL = "NORMAL"
+
     HIGH = "HIGH"
+
+
+
 
 
 # =====================================================
 # RAW MARKET SNAPSHOT
 # =====================================================
 
+
 @dataclass(slots=True)
 class MarketSnapshot:
     """
-    Raw market data.
-
-    Produced by Market Data Provider.
+    Raw market data snapshot.
     """
 
     symbol: str
@@ -89,15 +111,20 @@ class MarketSnapshot:
     updated: datetime
 
 
+
+
+
 # =====================================================
 # TECHNICAL INDICATORS
 # =====================================================
 
+
 @dataclass(slots=True)
 class IndicatorSnapshot:
     """
-    Complete technical indicator snapshot.
+    Technical indicator package.
     """
+
 
     symbol: str
 
@@ -105,40 +132,60 @@ class IndicatorSnapshot:
 
     volume: float
 
+
     ema20: float
+
     ema50: float
+
     ema200: float
 
+
     sma20: float
+
     sma50: float
+
     sma200: float
+
 
     rsi: float
 
+
     atr: float
 
+
     macd: float
+
     macd_signal: float
+
     macd_histogram: float
 
+
     bollinger_upper: float
+
     bollinger_middle: float
+
     bollinger_lower: float
+
 
     trend: MarketTrend
 
     momentum: str
 
 
+
+
+
 # =====================================================
 # MARKET BREADTH
 # =====================================================
 
+
 @dataclass(slots=True)
 class MarketBreadth:
     """
-    Market breadth analysis.
+    Market breadth intelligence.
     """
+
 
     status: BreadthStatus
 
@@ -147,15 +194,25 @@ class MarketBreadth:
     summary: str
 
 
+    factors: dict[str, float] = field(
+        default_factory=dict,
+    )
+
+
+
+
+
 # =====================================================
 # MARKET SENTIMENT
 # =====================================================
 
+
 @dataclass(slots=True)
 class MarketSentiment:
     """
-    Market sentiment analysis.
+    Market psychology intelligence.
     """
+
 
     status: SentimentStatus
 
@@ -164,15 +221,25 @@ class MarketSentiment:
     summary: str
 
 
+    factors: dict[str, float] = field(
+        default_factory=dict,
+    )
+
+
+
+
+
 # =====================================================
 # MARKET REGIME
 # =====================================================
+
 
 @dataclass(slots=True)
 class MarketRegime:
     """
     Current market regime.
     """
+
 
     status: MarketRegimeType
 
@@ -181,21 +248,33 @@ class MarketRegime:
     summary: str
 
 
+    factors: dict[str, float] = field(
+        default_factory=dict,
+    )
+
+
+
+
+
 # =====================================================
 # MARKET STATUS
 # =====================================================
 
+
 @dataclass(slots=True)
 class MarketStatus:
     """
-    Complete market analysis.
+    Complete market intelligence model.
 
-    Shared across Dashboard,
-    AI Engine,
-    Decision Engine,
-    Telegram,
-    Morning Report.
+    Used by:
+
+    - Dashboard
+    - AI Engine
+    - Decision Engine
+    - Reports
+
     """
+
 
     status: str
 
@@ -203,86 +282,224 @@ class MarketStatus:
 
     change: float
 
+
     trend: MarketTrend
+
 
     volatility: VolatilityLevel
 
+
     breadth: MarketBreadth
+
 
     sentiment: MarketSentiment
 
+
     regime: MarketRegime
+
 
     indicators: IndicatorSnapshot | None = None
 
-    updated: datetime | None = None
+
+    updated: datetime = field(
+        default_factory=datetime.now,
+    )
+
+
+
+
+    # =================================================
+    # PROPERTIES
+    # =================================================
+
 
     @property
-    def bullish(self) -> bool:
+    def bullish(
+        self,
+    ) -> bool:
 
         return self.trend is MarketTrend.BULLISH
 
+
+
+
     @property
-    def bearish(self) -> bool:
+    def bearish(
+        self,
+    ) -> bool:
 
         return self.trend is MarketTrend.BEARISH
 
+
+
+
     @property
-    def neutral(self) -> bool:
+    def neutral(
+        self,
+    ) -> bool:
 
         return self.trend is MarketTrend.NEUTRAL
 
+
+
+
     @property
-    def risk_on(self) -> bool:
+    def risk_on(
+        self,
+    ) -> bool:
 
         return self.regime.status is MarketRegimeType.RISK_ON
 
+
+
+
     @property
-    def risk_off(self) -> bool:
+    def risk_off(
+        self,
+    ) -> bool:
 
         return self.regime.status is MarketRegimeType.RISK_OFF
 
+
+
+
     @property
-    def market_score(self) -> float:
+    def market_score(
+        self,
+    ) -> float:
         """
-        Composite market score.
+        Weighted market intelligence score.
+
+        Regime      : 40%
+        Breadth     : 35%
+        Sentiment   : 25%
+
         """
 
-        return round(
 
-            (
-                self.breadth.score
-                + self.sentiment.score
-                + self.regime.score
-            )
-            / 3,
+        score = (
 
-            2,
+            self.regime.score * 0.40
+
+            +
+
+            self.breadth.score * 0.35
+
+            +
+
+            self.sentiment.score * 0.25
 
         )
 
+
+        return round(
+            score,
+            2,
+        )
+
+
+
+
     @property
-    def healthy(self) -> bool:
+    def healthy(
+        self,
+    ) -> bool:
         """
-        True if market score is healthy.
+        Healthy market condition?
         """
 
         return self.market_score >= 70
 
-    @property
-    def defensive(self) -> bool:
-        """
-        True if defensive positioning
-        is recommended.
-        """
 
-        return self.regime.status is MarketRegimeType.RISK_OFF
+
 
     @property
-    def aggressive(self) -> bool:
+    def defensive(
+        self,
+    ) -> bool:
         """
-        True if aggressive positioning
-        is allowed.
+        Defensive positioning required?
         """
 
-        return self.regime.status is MarketRegimeType.RISK_ON
+        return self.risk_off
+
+
+
+
+    @property
+    def aggressive(
+        self,
+    ) -> bool:
+        """
+        Aggressive positioning allowed?
+        """
+
+        return self.risk_on
+
+
+
+
+    @property
+    def summary(
+        self,
+    ) -> dict:
+        """
+        Dashboard friendly market summary.
+        """
+
+        return {
+
+            "trend":
+                self.trend.value,
+
+
+            "regime":
+                self.regime.status.value,
+
+
+            "sentiment":
+                self.sentiment.status.value,
+
+
+            "breadth":
+                self.breadth.status.value,
+
+
+            "score":
+                self.market_score,
+
+        }
+
+
+
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+__all__ = [
+
+    "MarketTrend",
+
+    "MarketRegimeType",
+
+    "BreadthStatus",
+
+    "SentimentStatus",
+
+    "VolatilityLevel",
+
+    "MarketSnapshot",
+
+    "IndicatorSnapshot",
+
+    "MarketBreadth",
+
+    "MarketSentiment",
+
+    "MarketRegime",
+
+    "MarketStatus",
+
+]

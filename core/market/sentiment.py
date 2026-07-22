@@ -1,9 +1,10 @@
 """
-QuantBIST Framework
+QuantBIST RC5
 Market Sentiment Engine
 """
 
 from __future__ import annotations
+
 
 from core.infrastructure.exceptions import (
     MarketError,
@@ -22,126 +23,269 @@ from core.market.models import (
     SentimentStatus,
 )
 
+
 logger = get_logger(__name__)
+
+
 
 
 # =====================================================
 # DEFAULT MARKET SYMBOL
 # =====================================================
 
-DEFAULT_MARKET_SYMBOL = "^XU100.IS"
+DEFAULT_MARKET_SYMBOL = "XU100.IS"
+
+
+
 
 
 # =====================================================
 # SCORE HELPERS
 # =====================================================
 
+
 def _rsi_score(
     snapshot,
-) -> int:
+) -> float:
     """
-    RSI contribution.
-    """
+    RSI sentiment contribution.
 
-    if snapshot.rsi >= 70:
-        return 10
+    Extreme fear creates opportunity.
+    """
 
     if snapshot.rsi <= 30:
-        return 90
 
-    return 50
+        return 90.0
+
+
+
+    if snapshot.rsi < 40:
+
+        return 75.0
+
+
+
+    if snapshot.rsi >= 70:
+
+        return 20.0
+
+
+
+    if snapshot.rsi > 60:
+
+        return 40.0
+
+
+
+    return 60.0
+
+
+
 
 
 def _macd_score(
     snapshot,
-) -> int:
+) -> float:
     """
-    MACD contribution.
+    MACD sentiment contribution.
     """
 
     if snapshot.macd > snapshot.macd_signal:
-        return 70
 
-    return 30
+        return 75.0
+
+
+
+    return 30.0
+
+
+
 
 
 def _momentum_score(
     snapshot,
-) -> int:
+) -> float:
     """
-    Momentum contribution.
+    Momentum sentiment contribution.
     """
 
     mapping = {
 
-        "POSITIVE": 80,
+        "POSITIVE": 80.0,
 
-        "NEUTRAL": 50,
+        "NEUTRAL": 50.0,
 
-        "NEGATIVE": 20,
+        "NEGATIVE": 20.0,
 
-        "OVERBOUGHT": 35,
+        "OVERBOUGHT": 35.0,
 
-        "OVERSOLD": 75,
+        "OVERSOLD": 75.0,
 
     }
 
+
     return mapping.get(
+
         snapshot.momentum,
-        50,
+
+        50.0,
+
     )
+
+
+
+
+
+# =====================================================
+# STATUS
+# =====================================================
+
+
+def _sentiment_status(
+    score: float,
+) -> SentimentStatus:
+    """
+    Convert score into sentiment status.
+    """
+
+    if score >= 70:
+
+        return SentimentStatus.GREED
+
+
+
+    if score >= 45:
+
+        return SentimentStatus.NEUTRAL
+
+
+
+    return SentimentStatus.FEAR
+
+
+
 
 
 # =====================================================
 # PUBLIC API
 # =====================================================
 
+
 def calculate_market_sentiment(
     symbol: str = DEFAULT_MARKET_SYMBOL,
 ) -> MarketSentiment:
     """
     Calculate market sentiment.
+
+    Pipeline:
+
+        Indicators
+             ↓
+        Sentiment Score
+             ↓
+        Sentiment Status
+
     """
 
     logger.info(
-        "Calculating market sentiment..."
+
+        "Calculating market sentiment | %s",
+
+        symbol,
+
     )
+
 
     try:
 
+
         snapshot = generate_indicator_snapshot(
+
             symbol,
+
         )
+
+
+
+        rsi = _rsi_score(
+
+            snapshot,
+
+        )
+
+
+        macd = _macd_score(
+
+            snapshot,
+
+        )
+
+
+        momentum = _momentum_score(
+
+            snapshot,
+
+        )
+
+
+
+
 
         score = round(
 
             (
 
-                _rsi_score(snapshot)
+                rsi * 0.40
 
-                + _macd_score(snapshot)
+                +
 
-                + _momentum_score(snapshot)
+                macd * 0.30
 
-            )
+                +
 
-            / 3,
+                momentum * 0.30
+
+            ),
 
             2,
 
         )
 
-        if score >= 70:
 
-            status = SentimentStatus.GREED
 
-        elif score >= 45:
 
-            status = SentimentStatus.NEUTRAL
 
-        else:
+        status = _sentiment_status(
 
-            status = SentimentStatus.FEAR
+            score,
+
+        )
+
+
+
+
+
+        factors = {
+
+            "rsi":
+
+                rsi,
+
+
+            "macd":
+
+                macd,
+
+
+            "momentum":
+
+                momentum,
+
+        }
+
+
+
+
 
         summary = (
 
@@ -151,9 +295,21 @@ def calculate_market_sentiment(
 
         )
 
+
+
+
+
         logger.info(
-            "Market sentiment calculated."
+
+            "Market sentiment completed | Score=%.2f",
+
+            score,
+
         )
+
+
+
+
 
         return MarketSentiment(
 
@@ -163,17 +319,32 @@ def calculate_market_sentiment(
 
             summary=summary,
 
+            factors=factors,
+
         )
+
+
+
+
 
     except Exception as exc:
 
+
         logger.exception(
+
             "Market sentiment calculation failed."
+
         )
 
+
         raise MarketError(
+
             str(exc)
+
         ) from exc
+
+
+
 
 
 # =====================================================

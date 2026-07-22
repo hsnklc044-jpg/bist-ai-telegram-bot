@@ -1,9 +1,12 @@
 """
-QuantBIST Framework
+QuantBIST RC5
 Portfolio Optimizer
+
+Portfolio allocation intelligence engine.
 """
 
 from __future__ import annotations
+
 
 from core.config.portfolio import (
     MAX_POSITION_WEIGHT,
@@ -28,95 +31,145 @@ from core.portfolio.repository import (
     load_portfolio,
 )
 
+
 logger = get_logger(__name__)
+
+
+
+
+# =====================================================
+# HEALTH
+# =====================================================
 
 
 def _calculate_health_score(
     concentration_penalty: int,
     underweight_penalty: int,
 ) -> int:
-    """
-    Calculate portfolio health score.
-    """
 
     score = 100
 
     score -= concentration_penalty
+
     score -= underweight_penalty
 
-    return max(score, 0)
+
+    return max(
+        0,
+        min(
+            score,
+            100,
+        ),
+    )
+
+
+
+
+
+# =====================================================
+# SEVERITY
+# =====================================================
 
 
 def _determine_severity(
     score: int,
 ) -> PortfolioSeverity:
-    """
-    Determine optimization severity.
-    """
+
 
     if score >= 90:
+
         return PortfolioSeverity.LOW
 
+
     if score >= 75:
+
         return PortfolioSeverity.MEDIUM
 
+
     if score >= 60:
+
         return PortfolioSeverity.HIGH
 
+
     return PortfolioSeverity.CRITICAL
+
+
+
+
+
+# =====================================================
+# ACTION
+# =====================================================
 
 
 def _determine_action(
     severity: PortfolioSeverity,
 ) -> PortfolioAction:
+
+
+    if severity is PortfolioSeverity.LOW:
+
+        return PortfolioAction.HOLD
+
+
+    if severity is PortfolioSeverity.MEDIUM:
+
+        return PortfolioAction.REBALANCE
+
+
+    if severity is PortfolioSeverity.HIGH:
+
+        return PortfolioAction.REDUCE_RISK
+
+
+    return PortfolioAction.REDUCE_RISK
+
+
+
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
+
+
+def optimize_portfolio(
+    stats=None,
+) -> PortfolioOptimization:
     """
-    Determine final optimizer action.
+    Analyze portfolio allocation.
     """
 
-    match severity:
-
-        case PortfolioSeverity.LOW:
-            return PortfolioAction.HOLD
-
-        case PortfolioSeverity.MEDIUM:
-            return PortfolioAction.BUY
-
-        case PortfolioSeverity.HIGH:
-            return PortfolioAction.REBALANCE
-
-        case _:
-            return PortfolioAction.REDUCE_RISK
-
-
-def optimize_portfolio() -> PortfolioOptimization:
-    """
-    Analyze portfolio allocation and
-    generate optimization recommendations.
-    """
 
     logger.info(
-        "Starting portfolio optimization..."
+        "Portfolio optimization started."
     )
+
 
     try:
 
+
         portfolio = load_portfolio()
+
 
         if portfolio.empty:
 
-            logger.warning(
-                "Portfolio is empty."
-            )
 
             return PortfolioOptimization(
 
                 total_value=0.0,
 
                 largest_position="-",
+
                 largest_weight=0.0,
 
                 smallest_position="-",
+
                 smallest_weight=0.0,
+
+                best_symbol="-",
+
+                worst_symbol="-",
 
                 concentration_risk=False,
 
@@ -128,13 +181,16 @@ def optimize_portfolio() -> PortfolioOptimization:
 
                 overall_action=PortfolioAction.HOLD,
 
-                suggestions=[],
-
             )
+
+
+
+
 
         total_value = float(
             portfolio["value"].sum()
         )
+
 
         if total_value <= 0:
 
@@ -142,85 +198,153 @@ def optimize_portfolio() -> PortfolioOptimization:
                 "Invalid portfolio value."
             )
 
+
+
+
         largest_position = "-"
+
         smallest_position = "-"
 
-        largest_weight = float("-inf")
-        smallest_weight = float("inf")
+
+        largest_weight = 0.0
+
+        smallest_weight = 100.0
+
+
+
+
+        best_symbol = "-"
+
+        worst_symbol = "-"
+
+
+
 
         concentration_risk = False
+
         rebalance = False
 
+
+
         concentration_penalty = 0
+
         underweight_penalty = 0
 
-        suggestions: list[str] = []
 
-        for row in portfolio.itertuples(index=False):
 
-            symbol = str(row.symbol)
+        suggestions = []
 
-            value = float(row.value)
+
+
+
+
+        for row in portfolio.itertuples(
+            index=False
+        ):
+
+
+            symbol = str(
+                row.symbol
+            )
+
+
+            value = float(
+                row.value
+            )
+
 
             weight = round(
-                value / total_value * 100,
+
+                value
+                /
+                total_value
+                *
+                100,
+
                 2,
+
             )
+
+
+
 
             if weight > largest_weight:
 
                 largest_weight = weight
+
                 largest_position = symbol
+
+
+
 
             if weight < smallest_weight:
 
                 smallest_weight = weight
+
                 smallest_position = symbol
+
+
+
+
+
+            if weight > largest_weight:
+
+                best_symbol = symbol
+
+
+
+
+
+            if weight < smallest_weight:
+
+                worst_symbol = symbol
+
+
+
+
 
             if weight > MAX_POSITION_WEIGHT:
 
+
                 concentration_risk = True
+
                 rebalance = True
 
-                concentration_penalty += 15
 
-                difference = round(
-                    weight - TARGET_POSITION_WEIGHT,
-                    2,
-                )
+                concentration_penalty += 10
+
+
 
                 suggestions.append(
 
-                    (
-                        f"Reduce {symbol}: "
-                        f"{weight:.2f}% → "
-                        f"{TARGET_POSITION_WEIGHT:.2f}% "
-                        f"(-{difference:.2f}%)"
-                    )
+                    f"{symbol} ağırlığı yüksek "
+                    f"({weight:.2f}%). Azaltılabilir."
 
                 )
 
+
+
+
+
             elif weight < TARGET_POSITION_WEIGHT / 2:
+
 
                 rebalance = True
 
                 underweight_penalty += 5
 
-                difference = round(
-                    TARGET_POSITION_WEIGHT - weight,
-                    2,
-                )
 
                 suggestions.append(
 
-                    (
-                        f"Increase {symbol}: "
-                        f"{weight:.2f}% → "
-                        f"{TARGET_POSITION_WEIGHT:.2f}% "
-                        f"(+{difference:.2f}%)"
-                    )
+                    f"{symbol} düşük ağırlıkta "
+                    f"({weight:.2f}%). Artırılabilir."
 
                 )
+
+
+
+
+
 
         health_score = _calculate_health_score(
 
@@ -230,71 +354,106 @@ def optimize_portfolio() -> PortfolioOptimization:
 
         )
 
+
+
         severity = _determine_severity(
-            health_score
-        )
-
-        action = _determine_action(
-            severity
-        )
-
-        logger.info(
-
-            "Portfolio optimization completed | "
-            "Health=%d | Severity=%s | Action=%s | Suggestions=%d",
 
             health_score,
 
-            severity.value,
+        )
 
-            action.value,
 
-            len(suggestions),
+
+        action = _determine_action(
+
+            severity,
 
         )
 
+
+
+
+
         return PortfolioOptimization(
 
-            total_value=round(total_value, 2),
+
+            total_value=round(
+
+                total_value,
+
+                2,
+
+            ),
+
 
             largest_position=largest_position,
 
-            largest_weight=round(
-                largest_weight,
-                2,
-            ),
+
+            largest_weight=largest_weight,
+
 
             smallest_position=smallest_position,
 
-            smallest_weight=round(
-                smallest_weight,
-                2,
-            ),
+
+            smallest_weight=smallest_weight,
+
+
+            best_symbol=best_symbol,
+
+
+            worst_symbol=worst_symbol,
+
 
             concentration_risk=concentration_risk,
 
+
             rebalance=rebalance,
+
 
             health_score=health_score,
 
+
             severity=severity,
 
+
             overall_action=action,
+
 
             suggestions=suggestions,
 
         )
 
+
+
+
+
     except PortfolioOptimizationError:
 
         raise
 
+
+
     except Exception as exc:
+
 
         logger.exception(
             "Portfolio optimization failed."
         )
 
+
         raise PortfolioOptimizationError(
+
             str(exc)
+
         ) from exc
+
+
+
+
+
+
+__all__ = [
+
+    "optimize_portfolio",
+
+]

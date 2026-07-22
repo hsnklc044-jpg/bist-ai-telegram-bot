@@ -1,9 +1,10 @@
 """
-QuantBIST Framework
-Chart Service
+QuantBIST RC5
+Chart Intelligence Service
 """
 
 from __future__ import annotations
+
 
 from core.charts.ai import (
     generate_ai_gauge,
@@ -25,96 +26,138 @@ from core.infrastructure.logger import (
     get_logger,
 )
 
+
 logger = get_logger(__name__)
 
 
+
+
+
 # =====================================================
-# INDIVIDUAL CHARTS
+# CHART HELPERS
 # =====================================================
+
 
 def get_portfolio_chart() -> str:
     """
-    Portfolio allocation chart.
+    Portfolio allocation visualization.
     """
 
     try:
 
         return generate_allocation_chart()
 
+
     except Exception:
 
+
         logger.exception(
-            "Portfolio allocation chart failed."
+
+            "Portfolio chart generation failed."
+
         )
+
 
         return ""
 
 
+
+
+
 def get_equity_chart() -> str:
     """
-    Equity curve chart.
+    Equity curve visualization.
     """
 
     try:
 
         return generate_equity_chart()
 
+
     except Exception:
 
+
         logger.exception(
-            "Equity chart failed."
+
+            "Equity chart generation failed."
+
         )
 
+
         return ""
+
+
+
 
 
 def get_risk_chart(
     score: float,
 ) -> str:
     """
-    Portfolio risk gauge.
+    Risk gauge visualization.
     """
 
     try:
 
         return generate_risk_gauge(
+
             score,
+
         )
+
 
     except Exception:
 
+
         logger.exception(
-            "Risk gauge failed."
+
+            "Risk chart generation failed."
+
         )
 
+
         return ""
+
+
+
 
 
 def get_ai_chart(
     score: float,
 ) -> str:
     """
-    AI confidence gauge.
+    AI score visualization.
     """
 
     try:
 
         return generate_ai_gauge(
+
             score,
+
         )
+
 
     except Exception:
 
+
         logger.exception(
-            "AI gauge failed."
+
+            "AI chart generation failed."
+
         )
+
 
         return ""
 
 
+
+
+
 # =====================================================
-# DASHBOARD
+# DASHBOARD BUILDER
 # =====================================================
+
 
 def get_dashboard_charts(
     *,
@@ -122,39 +165,77 @@ def get_dashboard_charts(
     ai_score: float = 0.0,
 ) -> dict[str, str]:
     """
-    Build dashboard charts.
+    Generate complete dashboard chart package.
+
+    Returns:
+
+    {
+        allocation,
+        equity,
+        risk,
+        ai
+    }
+
     """
 
+
     logger.info(
-        "Preparing dashboard charts."
+
+        "Dashboard charts generation started."
+
     )
+
+
 
     charts = {
 
-        "allocation": get_portfolio_chart(),
 
-        "equity": get_equity_chart(),
+        "allocation":
 
-        "risk": get_risk_chart(
-            risk_score,
-        ),
+            get_portfolio_chart(),
 
-        "ai": get_ai_chart(
-            ai_score,
-        ),
+
+
+        "equity":
+
+            get_equity_chart(),
+
+
+
+        "risk":
+
+            get_risk_chart(
+
+                risk_score,
+
+            ),
+
+
+
+        "ai":
+
+            get_ai_chart(
+
+                ai_score,
+
+            ),
 
     }
 
+
+
     logger.info(
-        "Dashboard charts ready."
+
+        "Dashboard charts completed."
+
     )
+
 
     return charts
 
 
-# =====================================================
-# EXPORTS
-# =====================================================
+
+
 
 __all__ = [
 

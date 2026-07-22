@@ -1,0 +1,91 @@
+<header class="qb-header">
+
+    <div class="qb-brand">
+
+        <div class="qb-logo">
+            📈
+        </div>
+
+        <div>
+
+            <h1>QuantBIST Enterprise</h1>
+
+            <p>AI Portfolio Intelligence Platform</p>
+
+        </div>
+
+    </div>
+
+    <div class="qb-status">
+
+        <div class="status-card">
+
+            <span class="status-title">
+                Decision
+            </span>
+
+            <span class="status-value action-{{ dashboard.decision.action|lower }}">
+                {{ dashboard.decision.action }}
+            </span>
+
+        </div>
+
+        <div class="status-card">
+
+            <span class="status-title">
+                Confidence
+            </span>
+
+            <span class="status-value">
+
+                {{ dashboard.decision.confidence }}%
+
+            </span>
+
+        </div>
+
+        <div class="status-card">
+
+            <span class="status-title">
+                AI Score
+            </span>
+
+            <span class="status-value">
+
+                {{ dashboard.decision.ai_score }}
+
+            </span>
+
+        </div>
+
+        <div class="status-card">
+
+            <span class="status-title">
+                Risk
+            </span>
+
+            <span class="status-value">
+
+                {{ dashboard.decision.risk_level }}
+
+            </span>
+
+        </div>
+
+        <div class="status-card">
+
+            <span class="status-title">
+                Updated
+            </span>
+
+            <span class="status-value">
+
+                {{ dashboard.updated.strftime("%d.%m.%Y %H:%M") }}
+
+            </span>
+
+        </div>
+
+    </div>
+
+</header>

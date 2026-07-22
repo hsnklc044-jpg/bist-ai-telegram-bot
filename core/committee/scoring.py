@@ -1,9 +1,10 @@
 """
-QuantBIST Framework
-Investment Committee Scoring
+QuantBIST RC5
+Investment Committee Scoring Engine
 """
 
 from __future__ import annotations
+
 
 from core.infrastructure.logger import (
     get_logger,
@@ -17,182 +18,398 @@ from core.portfolio.models import (
     PortfolioAnalysis,
 )
 
+
 logger = get_logger(__name__)
+
+
+
+
+
+# =====================================================
+# CONSTANTS
+# =====================================================
+
+
+MAX_SCORE = 100
+
+MIN_SCORE = 0
+
+
+
+REBALANCE_PENALTY = 8
+
+
+CONCENTRATION_PENALTY = 10
+
+
+RISK_WEIGHT = 0.15
+
+
+
+
+
+# Committee weights
+
+PORTFOLIO_WEIGHT = 0.35
+
+MARKET_WEIGHT = 0.35
+
+RISK_WEIGHT_FINAL = 0.30
+
+
+
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+
+def _normalize_score(
+    score: float,
+) -> float:
+    """
+    Keep score between 0-100.
+    """
+
+
+    return round(
+
+        max(
+
+            MIN_SCORE,
+
+            min(
+
+                MAX_SCORE,
+
+                float(score),
+
+            ),
+
+        ),
+
+        2,
+
+    )
+
+
+
+
 
 
 # =====================================================
 # PORTFOLIO MANAGER
 # =====================================================
 
+
 def portfolio_score(
     portfolio: PortfolioAnalysis,
 ) -> float:
     """
-    Portfolio Manager score.
+    Portfolio Manager evaluation.
     """
 
-    score = portfolio.health.score
 
-    if portfolio.rebalance.needs_rebalance:
-        score -= 10
+    score = float(
 
-    score -= portfolio.risk.score * 0.20
-
-    return round(
-
-        max(
-            0,
-            min(
-                score,
-                100,
-            ),
-        ),
-
-        2,
+        portfolio.health.score
 
     )
+
+
+
+    if portfolio.rebalance.needs_rebalance:
+
+        score -= REBALANCE_PENALTY
+
+
+
+    risk_penalty = (
+
+        portfolio.risk.score
+
+        *
+
+        RISK_WEIGHT
+
+    )
+
+
+
+    score -= risk_penalty
+
+
+
+    return _normalize_score(
+
+        score
+
+    )
+
+
+
+
+
 
 
 # =====================================================
 # MARKET ANALYST
 # =====================================================
 
+
 def market_score(
     market: MarketStatus,
 ) -> float:
     """
-    Market Analyst score.
+    Market Analyst evaluation.
     """
 
-    return round(
 
-        market.market_score,
+    if market is None:
 
-        2,
+        return 50.0
+
+
+
+    return _normalize_score(
+
+        market.market_score
 
     )
+
+
+
+
+
 
 
 # =====================================================
 # RISK MANAGER
 # =====================================================
 
+
 def risk_score(
     portfolio: PortfolioAnalysis,
 ) -> float:
     """
-    Risk Manager score.
+    Risk Manager evaluation.
+
+    Lower risk = higher score.
     """
 
-    score = 100
 
-    score -= portfolio.risk.score
+    if portfolio is None:
+
+        return 50.0
+
+
+
+    risk = float(
+
+        portfolio.risk.score
+
+    )
+
+
+
+    score = 100 - risk
+
+
 
     if portfolio.optimization.concentration_risk:
 
-        score -= 10
+        score -= CONCENTRATION_PENALTY
+
+
 
     if portfolio.rebalance.needs_rebalance:
 
-        score -= 10
+        score -= REBALANCE_PENALTY
 
-    return round(
 
-        max(
-            0,
-            min(
-                score,
-                100,
-            ),
-        ),
 
-        2,
+    return _normalize_score(
+
+        score
 
     )
+
+
+
+
+
 
 
 # =====================================================
 # AI ANALYST
 # =====================================================
 
+
 def ai_score(
     portfolio: PortfolioAnalysis,
     market: MarketStatus,
 ) -> float:
     """
-    AI Analyst score.
+    AI Analyst intelligence score.
 
-    Average of portfolio and market.
+    Highest committee influence.
     """
 
-    return round(
 
-        (
+    portfolio_value = portfolio_score(
 
-            portfolio_score(
-                portfolio,
-            )
-
-            + market_score(
-                market,
-            )
-
-        )
-
-        / 2,
-
-        2,
+        portfolio
 
     )
 
 
+    market_value = market_score(
+
+        market
+
+    )
+
+
+    risk_value = risk_score(
+
+        portfolio
+
+    )
+
+
+
+    score = (
+
+        portfolio_value
+
+        *
+
+        PORTFOLIO_WEIGHT
+
+        +
+
+        market_value
+
+        *
+
+        MARKET_WEIGHT
+
+        +
+
+        risk_value
+
+        *
+
+        RISK_WEIGHT_FINAL
+
+    )
+
+
+
+    return _normalize_score(
+
+        score
+
+    )
+
+
+
+
+
+
+
 # =====================================================
-# COMMITTEE SCORECARD
+# SCORECARD
 # =====================================================
+
 
 def generate_scorecard(
     portfolio: PortfolioAnalysis,
     market: MarketStatus,
 ) -> dict[str, float]:
     """
-    Generate committee scorecard.
+    Generate committee intelligence scorecard.
     """
 
+
     logger.info(
-        "Generating committee scorecard..."
+
+        "Generating committee scorecard."
+
     )
+
+
 
     scorecard = {
 
-        "portfolio": portfolio_score(
-            portfolio,
-        ),
 
-        "market": market_score(
-            market,
-        ),
+        "portfolio":
 
-        "risk": risk_score(
-            portfolio,
-        ),
+            portfolio_score(
 
-        "ai": ai_score(
-            portfolio,
-            market,
-        ),
+                portfolio,
+
+            ),
+
+
+
+        "market":
+
+            market_score(
+
+                market,
+
+            ),
+
+
+
+        "risk":
+
+            risk_score(
+
+                portfolio,
+
+            ),
+
+
+
+        "ai":
+
+            ai_score(
+
+                portfolio,
+
+                market,
+
+            ),
+
 
     }
 
+
+
     logger.info(
-        "Committee scorecard ready."
+
+        "Committee scorecard ready | %s",
+
+        scorecard,
+
     )
 
+
+
     return scorecard
+
+
+
+
 
 
 # =====================================================
 # EXPORTS
 # =====================================================
+
 
 __all__ = [
 

@@ -1,65 +1,126 @@
 """
-QuantBIST Framework
+QuantBIST RC5
 Portfolio Repository
+
+Portfolio data access layer.
 """
 
 from __future__ import annotations
 
+
 from pathlib import Path
 
+
 import pandas as pd
+
 
 from core.infrastructure.exceptions import (
     PortfolioRepositoryError,
     PortfolioValidationError,
 )
 
-from core.infrastructure.logger import get_logger
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
 
 logger = get_logger(__name__)
+
+
+
+
 
 # =====================================================
 # CONFIGURATION
 # =====================================================
 
-PORTFOLIO_FILE = Path("data/portfolio_model.csv")
+
+PORTFOLIO_FILE = Path(
+    "data/portfolio_model.csv"
+)
+
+
 
 REQUIRED_COLUMNS = (
+
     "symbol",
+
     "price",
+
     "quantity",
+
     "value",
+
 )
 
+
+
 NUMERIC_COLUMNS = (
+
     "price",
+
     "quantity",
+
     "value",
+
 )
+
+
+
+
 
 COLUMN_ALIASES = {
 
-    # Quantity
-    "lot": "quantity",
-    "lots": "quantity",
-    "adet": "quantity",
-    "miktar": "quantity",
-    "qty": "quantity",
 
-    # Symbol
-    "ticker": "symbol",
-    "code": "symbol",
+    "lot":
+        "quantity",
 
-    # Price
-    "close": "price",
-    "cost": "price",
+    "lots":
+        "quantity",
 
-    # Value
-    "total": "value",
-    "amount": "value",
-    "tutar": "value",
+    "adet":
+        "quantity",
+
+    "miktar":
+        "quantity",
+
+    "qty":
+        "quantity",
+
+
+
+    "ticker":
+        "symbol",
+
+    "code":
+        "symbol",
+
+
+
+    "close":
+        "price",
+
+    "cost":
+        "price",
+
+
+
+    "total":
+        "value",
+
+    "amount":
+        "value",
+
+    "tutar":
+        "value",
 
 }
+
+
+
+
+
 
 # =====================================================
 # HELPERS
@@ -73,6 +134,7 @@ def _normalize_columns(
     Normalize dataframe columns.
     """
 
+
     df.columns = [
 
         str(column)
@@ -83,6 +145,7 @@ def _normalize_columns(
 
     ]
 
+
     df.rename(
 
         columns=COLUMN_ALIASES,
@@ -91,7 +154,39 @@ def _normalize_columns(
 
     )
 
+
     return df
+
+
+
+
+
+
+def _clean_symbol(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+
+
+    if "symbol" in df.columns:
+
+        df["symbol"] = (
+
+            df["symbol"]
+
+            .astype(str)
+
+            .str.strip()
+
+            .str.upper()
+
+        )
+
+
+    return df
+
+
+
+
 
 
 def _create_missing_columns(
@@ -100,6 +195,7 @@ def _create_missing_columns(
     """
     Create calculated columns.
     """
+
 
     if (
 
@@ -117,31 +213,40 @@ def _create_missing_columns(
 
     ):
 
+
         logger.info(
-            "Creating value column."
+            "Creating portfolio value column."
         )
+
 
         df["value"] = (
 
             df["price"]
 
-            * df["quantity"]
+            *
+
+            df["quantity"]
 
         )
 
+
     return df
+
+
+
+
 
 
 def _convert_numeric_columns(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """
-    Convert numeric columns.
-    """
+
 
     for column in NUMERIC_COLUMNS:
 
+
         if column in df.columns:
+
 
             df[column] = pd.to_numeric(
 
@@ -151,15 +256,22 @@ def _convert_numeric_columns(
 
             ).fillna(0.0)
 
+
+
     return df
+
+
+
+
 
 
 def _validate_schema(
     df: pd.DataFrame,
 ) -> None:
     """
-    Validate dataframe schema.
+    Validate required columns.
     """
+
 
     missing = [
 
@@ -171,15 +283,81 @@ def _validate_schema(
 
     ]
 
+
+
     if missing:
+
 
         raise PortfolioValidationError(
 
             "Missing required columns: "
 
-            + ", ".join(missing)
+            +
+
+            ", ".join(missing)
 
         )
+
+
+
+
+
+
+def _validate_values(
+    df: pd.DataFrame,
+) -> None:
+    """
+    Validate portfolio values.
+    """
+
+
+    if df.empty:
+
+        raise PortfolioValidationError(
+
+            "Portfolio dataframe is empty."
+
+        )
+
+
+
+
+    if (
+
+        (df["price"] < 0).any()
+
+        or
+
+        (df["quantity"] < 0).any()
+
+        or
+
+        (df["value"] < 0).any()
+
+    ):
+
+
+        raise PortfolioValidationError(
+
+            "Portfolio contains negative values."
+
+        )
+
+
+
+
+    if df["symbol"].duplicated().any():
+
+
+        raise PortfolioValidationError(
+
+            "Duplicate portfolio symbols detected."
+
+        )
+
+
+
+
 
 
 # =====================================================
@@ -189,16 +367,21 @@ def _validate_schema(
 
 def load_portfolio() -> pd.DataFrame:
     """
-    Load portfolio dataframe.
+    Load and validate portfolio dataframe.
     """
+
 
     logger.info(
         "Loading portfolio..."
     )
 
+
+
     try:
 
+
         if not PORTFOLIO_FILE.exists():
+
 
             raise PortfolioRepositoryError(
 
@@ -206,29 +389,74 @@ def load_portfolio() -> pd.DataFrame:
 
             )
 
-        df = pd.read_csv(PORTFOLIO_FILE)
+
+
+
+        df = pd.read_csv(
+
+            PORTFOLIO_FILE,
+
+            encoding="utf-8",
+
+        )
+
+
+
+        if df.empty:
+
+
+            raise PortfolioValidationError(
+
+                "Portfolio file is empty."
+
+            )
+
+
+
+
+
+        df = _normalize_columns(df)
+
+
+
+        df = _clean_symbol(df)
+
+
+
+        df = _create_missing_columns(df)
+
+
+
+        df = _convert_numeric_columns(df)
+
+
+
+        _validate_schema(df)
+
+
+
+        _validate_values(df)
+
+
+
+
 
         logger.info(
 
-            "Portfolio loaded (%d rows).",
+            "Portfolio repository ready | Rows=%d",
 
             len(df),
 
         )
 
-        df = _normalize_columns(df)
 
-        df = _create_missing_columns(df)
 
-        df = _convert_numeric_columns(df)
-
-        _validate_schema(df)
-
-        logger.info(
-            "Portfolio repository ready."
-        )
 
         return df.copy()
+
+
+
+
 
     except (
 
@@ -240,20 +468,36 @@ def load_portfolio() -> pd.DataFrame:
 
         raise
 
+
+
+
+
     except Exception as exc:
 
+
         logger.exception(
+
             "Unexpected repository error."
+
         )
 
+
+
         raise PortfolioRepositoryError(
+
             str(exc)
+
         ) from exc
+
+
+
+
 
 
 # =====================================================
 # EXPORTS
 # =====================================================
+
 
 __all__ = [
 

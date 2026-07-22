@@ -1,96 +1,145 @@
 """
-QuantBIST Framework
+QuantBIST RC5
 Dashboard Cards
 """
 
 from __future__ import annotations
 
+
 from core.analytics.signals import (
     get_top_signals,
 )
+
 
 from core.portfolio.dashboard_data import (
     get_dashboard_stats,
 )
 
+
 from core.watchlist.service import (
-    get_watchlist,
+    get_watchlist_details,
 )
+
+
+
 
 
 # =====================================================
 # SUMMARY
 # =====================================================
 
-def get_summary_cards():
-    """
-    Portfolio summary cards.
 
-    Returns
-    -------
-    PortfolioStats
+def get_summary_cards() -> dict:
+    """
+    Generate dashboard summary cards.
     """
 
-    return get_dashboard_stats()
+
+    stats = get_dashboard_stats()
+
+
+
+    return {
+
+        "portfolio":
+
+            stats.portfolio,
+
+
+        "cash":
+
+            stats.cash,
+
+
+        "positions":
+
+            stats.positions,
+
+
+        "top_stock":
+
+            stats.top_stock,
+
+
+        "sharpe":
+
+            stats.sharpe,
+
+
+        "win_rate":
+
+            stats.win_rate,
+
+
+        "profit_factor":
+
+            stats.profit_factor,
+
+
+        "max_drawdown":
+
+            stats.max_drawdown,
+
+    }
+
+
+
+
+
 
 
 # =====================================================
 # SIGNALS
 # =====================================================
 
+
 def get_signals_card() -> list[dict]:
     """
-    Dashboard signal list.
-
-    Returns
-    -------
-    list[dict]
+    Dashboard AI signals.
     """
 
+
     return get_top_signals()
+
+
+
+
+
 
 
 # =====================================================
 # WATCHLIST
 # =====================================================
 
-def get_watchlist_card() -> list[str]:
-    """
-    Dashboard watchlist.
 
-    Returns
-    -------
-    list[str]
+def get_watchlist_card() -> list[dict]:
+    """
+    Dashboard watchlist intelligence.
     """
 
-    watchlist = get_watchlist()
 
-    if not watchlist:
+    try:
+
+
+        return get_watchlist_details()
+
+
+
+    except Exception:
+
+
         return []
 
-    # watchlist.service farklı formatlar döndürse bile
-    # dashboard için standart liste üret.
-    result: list[str] = []
 
-    for item in watchlist:
 
-        if isinstance(item, str):
 
-            result.append(item)
 
-        elif isinstance(item, dict):
-
-            symbol = item.get("symbol")
-
-            if symbol:
-                result.append(symbol)
-
-    return result
 
 
 # =====================================================
 # EXPORTS
 # =====================================================
+
 
 __all__ = [
 

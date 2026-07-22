@@ -1,63 +1,287 @@
 """
-QuantBIST RC4
-Watchlist Service
+QuantBIST RC5
+Watchlist Intelligence Service
 """
 
 from __future__ import annotations
 
-from core.analytics.analyzer import analyze_stock
-from core.watchlist.repository import load_watchlist
+
+from core.analytics.analyzer import (
+    analyze_stock,
+)
+
+from core.infrastructure.logger import (
+    get_logger,
+)
+
+from core.watchlist.repository import (
+    load_watchlist,
+)
+
+
+logger = get_logger(__name__)
+
+
+
+# =====================================================
+# CONFIG
+# =====================================================
 
 DEFAULT_USER_ID = "1790584407"
 
 
-def get_watchlist(user_id: str | int = DEFAULT_USER_ID) -> list[str]:
+
+
+
+# =====================================================
+# WATCHLIST SYMBOLS
+# =====================================================
+
+
+def get_watchlist(
+    user_id: str | int = DEFAULT_USER_ID,
+) -> list[str]:
     """
-    Kullanıcının watchlist sembollerini döndürür.
+    Return user watchlist symbols.
     """
 
-    data = load_watchlist()
 
-    if not data:
+    try:
+
+        data = load_watchlist()
+
+
+        if not data:
+
+            return []
+
+
+
+        return data.get(
+
+            str(user_id),
+
+            [],
+
+        )
+
+
+    except Exception as exc:
+
+
+        logger.exception(
+
+            "Watchlist loading failed | %s",
+
+            exc,
+
+        )
+
+
         return []
 
-    return data.get(str(user_id), [])
+
+
+
+
+# =====================================================
+# WATCHLIST ANALYSIS
+# =====================================================
 
 
 def get_watchlist_details(
     user_id: str | int = DEFAULT_USER_ID,
 ) -> list[dict]:
     """
-    Watchlist hisselerini analiz ederek
-    Dashboard'a hazır hale getirir.
+    Analyze watchlist symbols.
+
+    Returns RC5 dashboard ready data.
     """
 
-    symbols = get_watchlist(user_id)
 
-    results = []
+    symbols = get_watchlist(
+        user_id,
+    )
+
+
+    results: list[dict] = []
+
+
 
     for symbol in symbols:
 
+
         try:
 
-            analysis = analyze_stock(symbol)
 
-            if analysis:
+            analysis = analyze_stock(
+                symbol,
+            )
 
-                results.append({
 
-                    "symbol": analysis["symbol"],
+            if not analysis:
 
-                    "signal": analysis["signal"],
+                continue
 
-                    "score": analysis["score"],
 
-                    "trend": analysis["trend"],
 
-                })
+            results.append(
 
-        except Exception:
+                {
+
+
+                    "symbol":
+
+                        analysis.get(
+                            "symbol",
+                            symbol,
+                        ),
+
+
+
+                    "price":
+
+                        analysis.get(
+                            "price",
+                            0,
+                        ),
+
+
+
+                    "signal":
+
+                        analysis.get(
+                            "signal",
+                            "WATCH",
+                        ),
+
+
+
+                    "score":
+
+                        analysis.get(
+                            "score",
+                            0,
+                        ),
+
+
+
+                    "confidence":
+
+                        analysis.get(
+                            "confidence",
+                            0,
+                        ),
+
+
+
+                    "trend":
+
+                        analysis.get(
+                            "trend",
+                            "NEUTRAL",
+                        ),
+
+
+
+                    "momentum":
+
+                        analysis.get(
+                            "momentum",
+                            "NEUTRAL",
+                        ),
+
+
+
+                    "risk_level":
+
+                        analysis.get(
+                            "risk_level",
+                            "LOW",
+                        ),
+
+
+
+                    "entry_price":
+
+                        analysis.get(
+                            "entry_price",
+                            0,
+                        ),
+
+
+
+                    "stop_loss":
+
+                        analysis.get(
+                            "stop_loss",
+                            0,
+                        ),
+
+
+
+                    "target_1":
+
+                        analysis.get(
+                            "target_1",
+                            0,
+                        ),
+
+
+                }
+
+            )
+
+
+
+        except Exception as exc:
+
+
+            logger.warning(
+
+                "Watchlist analysis failed | %s | %s",
+
+                symbol,
+
+                exc,
+
+            )
+
 
             continue
 
+
+
+    results.sort(
+
+        key=lambda item:
+
+        item.get(
+            "score",
+            0,
+        ),
+
+        reverse=True,
+
+    )
+
+
+
     return results
+
+
+
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+
+__all__ = [
+
+    "get_watchlist",
+
+    "get_watchlist_details",
+
+]

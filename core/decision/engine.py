@@ -1,144 +1,82 @@
 """
-QuantBIST Framework
-Decision Engine
+QuantBIST RC5
+Decision Engine Compatibility Layer
+
+Legacy support for old imports.
 """
 
 from __future__ import annotations
 
-from core.committee.service import (
-    get_committee_decision,
-)
 
-from core.decision.builder import (
-    build_decision,
-)
+from core.decision.models import Decision
+from core.decision.service import get_decision
+from core.infrastructure.exceptions import DecisionError
+from core.infrastructure.logger import get_logger
+from core.portfolio.models import PortfolioStats
 
-from core.decision.models import (
-    Decision,
-)
 
-from core.infrastructure.exceptions import (
-    DecisionError,
-)
-
-from core.infrastructure.logger import (
-    get_logger,
-)
-
-from core.market.service import (
-    get_market_status,
-)
-
-from core.portfolio.models import (
-    PortfolioStats,
-)
-
-from core.portfolio.service import (
-    get_portfolio_analysis,
-)
 
 logger = get_logger(__name__)
 
 
+
+
 # =====================================================
-# PUBLIC API
+# LEGACY PUBLIC API
 # =====================================================
+
 
 def generate_decision(
     stats: PortfolioStats,
 ) -> Decision:
     """
-    Execute the complete Decision Engine.
+    Legacy wrapper.
 
-    Workflow
-    --------
-    Portfolio
-        ↓
-    Market
-        ↓
-    Investment Committee
-        ↓
-    Decision Builder
-        ↓
-    Decision
+    Old:
+
+        generate_decision(stats)
+
+    New:
+
+        get_decision(stats)
+
     """
 
     logger.info(
-        "Decision Engine started."
+        "Legacy Decision Engine call redirected to Decision Service."
     )
+
 
     try:
 
-        # -------------------------------------------------
-        # Portfolio
-        # -------------------------------------------------
-
-        portfolio = get_portfolio_analysis(
-            stats,
+        return get_decision(
+            stats
         )
 
-        # -------------------------------------------------
-        # Market
-        # -------------------------------------------------
-
-        market = get_market_status()
-
-        # -------------------------------------------------
-        # Investment Committee
-        # -------------------------------------------------
-
-        committee = get_committee_decision(
-
-            portfolio,
-
-            market,
-
-        )
-
-        # -------------------------------------------------
-        # Decision Builder
-        # -------------------------------------------------
-
-        decision = build_decision(
-
-            committee=committee,
-
-            portfolio=portfolio,
-
-            market=market,
-
-        )
-
-        logger.info(
-
-            "Decision completed: %s (%d%%)",
-
-            decision.action,
-
-            decision.confidence,
-
-        )
-
-        return decision
 
     except DecisionError:
 
         raise
 
+
     except Exception as exc:
+
 
         logger.exception(
             "Decision Engine failed."
         )
+
 
         raise DecisionError(
             str(exc)
         ) from exc
 
 
+
 # =====================================================
 # EXPORTS
 # =====================================================
+
 
 __all__ = [
 

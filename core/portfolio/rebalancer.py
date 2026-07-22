@@ -1,9 +1,10 @@
 """
-QuantBIST Framework
-Portfolio Rebalancer
+QuantBIST RC5
+Portfolio Rebalancer Engine
 """
 
 from __future__ import annotations
+
 
 from core.infrastructure.exceptions import (
     PortfolioError,
@@ -22,72 +23,180 @@ from core.portfolio.models import (
     RebalanceResult,
 )
 
+
 logger = get_logger(__name__)
+
+
+
 
 
 # =====================================================
 # CONFIG
 # =====================================================
 
+
 DRIFT_THRESHOLD = 5.0
+
+
+
+
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+
+def _action_value(
+    action,
+) -> str:
+
+    if hasattr(
+        action,
+        "value",
+    ):
+
+        return action.value
+
+    return str(action)
+
+
+
+
 
 
 # =====================================================
 # PUBLIC API
 # =====================================================
 
+
 def generate_rebalance_plan(
     optimization: PortfolioOptimization,
 ) -> RebalanceResult:
     """
-    Generate portfolio rebalance plan.
+    Generate RC5 rebalance plan.
+
+    Uses:
+
+    - Optimization result
+    - Allocation drift
+    - Target deviations
+
     """
 
+
     logger.info(
-        "Generating rebalance plan..."
+        "Generating rebalance plan."
     )
+
 
     try:
 
+
+        if optimization is None:
+
+            raise PortfolioError(
+                "Optimization result missing."
+            )
+
+
+
         allocations = allocate_portfolio()
+
+
 
         buy: list[str] = []
 
         sell: list[str] = []
 
+
+
+
+
         for item in allocations:
 
-            if item.action == "INCREASE":
 
-                buy.append(item.symbol)
+            drift = abs(
+                float(
+                    item.drift
+                )
+            )
 
-            elif item.action == "REDUCE":
 
-                sell.append(item.symbol)
+            if drift < DRIFT_THRESHOLD:
+
+                continue
+
+
+
+
+            action = _action_value(
+                item.action
+            )
+
+
+
+            if action == "INCREASE":
+
+                buy.append(
+                    item.symbol
+                )
+
+
+
+            elif action == "REDUCE":
+
+                sell.append(
+                    item.symbol
+                )
+
+
+
+
+
 
         needs_rebalance = (
 
             optimization.rebalance
 
-            or len(buy) > 0
+            or bool(buy)
 
-            or len(sell) > 0
+            or bool(sell)
 
         )
 
-        if not needs_rebalance:
+
+
+
+
+        if needs_rebalance:
+
 
             summary = (
-                "Portfolio allocation is balanced."
+
+                f"Rebalance required "
+
+                f"(Buy={len(buy)}, "
+
+                f"Sell={len(sell)})"
+
             )
+
+
 
         else:
 
+
             summary = (
-                f"Rebalance required "
-                f"(Buy: {len(buy)}, "
-                f"Sell: {len(sell)})."
+
+                "Portfolio allocation balanced."
+
             )
+
+
+
+
+
 
         result = RebalanceResult(
 
@@ -101,80 +210,197 @@ def generate_rebalance_plan(
 
         )
 
+
+
+
+
+
         logger.info(
-            "Rebalance plan generated."
+
+            "Rebalance completed | Required=%s",
+
+            needs_rebalance,
+
         )
 
+
+
         return result
+
+
+
+
 
     except PortfolioError:
 
         raise
 
+
+
+
+
     except Exception as exc:
 
+
         logger.exception(
+
             "Rebalance generation failed."
+
         )
 
+
         raise PortfolioError(
+
             str(exc)
+
         ) from exc
+
+
+
+
+
 
 
 # =====================================================
 # METRICS
 # =====================================================
 
+
 def rebalance_score(
     optimization: PortfolioOptimization,
 ) -> float:
     """
-    Portfolio rebalance quality score.
+    Calculate portfolio rebalance quality score.
+
+    100 = Perfect balance
+
     """
 
-    allocations = allocate_portfolio()
 
-    if not allocations:
+    try:
 
-        return 100.0
 
-    drift = sum(
+        if optimization is None:
 
-        abs(item.drift)
+            return 0.0
 
-        for item in allocations
 
-    ) / len(allocations)
 
-    score = max(
 
-        0.0,
+        allocations = allocate_portfolio()
 
-        100.0 - drift * 5,
 
-    )
 
-    if optimization.concentration_risk:
+        if not allocations:
 
-        score -= 15
+            return 100.0
 
-    if optimization.rebalance:
 
-        score -= 10
 
-    return round(
 
-        max(score, 0.0),
 
-        2,
+        average_drift = (
 
-    )
+            sum(
+
+                abs(
+                    float(item.drift)
+                )
+
+                for item in allocations
+
+            )
+
+            /
+
+            len(allocations)
+
+        )
+
+
+
+
+
+
+        score = (
+
+            100.0
+
+            -
+
+            average_drift * 5
+
+        )
+
+
+
+
+
+        if optimization.concentration_risk:
+
+            score -= 15
+
+
+
+
+
+        if optimization.rebalance:
+
+            score -= 10
+
+
+
+
+
+        return round(
+
+            max(
+
+                0.0,
+
+                min(
+
+                    score,
+
+                    100.0,
+
+                ),
+
+            ),
+
+            2,
+
+        )
+
+
+
+
+
+    except Exception as exc:
+
+
+        logger.exception(
+
+            "Rebalance score failed."
+
+        )
+
+
+        raise PortfolioError(
+
+            str(exc)
+
+        ) from exc
+
+
+
+
 
 
 # =====================================================
 # EXPORTS
 # =====================================================
+
 
 __all__ = [
 

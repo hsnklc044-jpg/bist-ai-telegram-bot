@@ -1,58 +1,81 @@
 """
-QuantBIST Framework
-Investment Committee Voting
+QuantBIST RC5
+Investment Committee Voting Engine
 """
 
 from __future__ import annotations
 
-from collections import Counter
+
+from collections import defaultdict
+
 
 from core.committee.models import (
+    CommitteeMember,
     CommitteeResult,
     CommitteeVote,
     Vote,
 )
 
+
+from core.infrastructure.exceptions import (
+    DecisionError,
+)
+
+
 from core.infrastructure.logger import (
     get_logger,
 )
 
+
+
 logger = get_logger(__name__)
 
 
+
+
+
 # =====================================================
-# CONFIG
+# MEMBER WEIGHTS
 # =====================================================
 
-VOTE_WEIGHTS = {
 
-    Vote.STRONG_BUY: 5,
+MEMBER_WEIGHTS = {
 
-    Vote.BUY: 4,
 
-    Vote.HOLD: 3,
+    CommitteeMember.AI_ANALYST: 2.5,
 
-    Vote.REDUCE: 2,
 
-    Vote.SELL: 1,
+    CommitteeMember.MARKET_ANALYST: 2.0,
+
+
+    CommitteeMember.PORTFOLIO_MANAGER: 1.5,
+
+
+    CommitteeMember.RISK_MANAGER: 1.0,
+
 
 }
+
+
+
+
 
 
 # =====================================================
 # HELPERS
 # =====================================================
 
+
 def _average_confidence(
     votes: list[CommitteeVote],
 ) -> int:
-    """
-    Average confidence.
-    """
+
 
     if not votes:
 
         return 0
+
+
 
     return round(
 
@@ -64,21 +87,28 @@ def _average_confidence(
 
         )
 
-        / len(votes)
+        /
+
+        len(votes)
 
     )
+
+
+
+
+
 
 
 def _average_score(
     votes: list[CommitteeVote],
 ) -> float:
-    """
-    Average score.
-    """
+
 
     if not votes:
 
         return 0.0
+
+
 
     return round(
 
@@ -90,160 +120,412 @@ def _average_score(
 
         )
 
-        / len(votes),
+        /
+
+        len(votes),
 
         2,
 
     )
+
+
+
+
+
 
 
 def _consensus(
     votes: list[CommitteeVote],
 ) -> float:
     """
-    Committee consensus percentage.
+    Consensus percentage.
     """
+
 
     if not votes:
 
         return 0.0
 
-    counter = Counter(
 
-        vote.vote
 
-        for vote in votes
+    counter = defaultdict(int)
 
-    )
+
+
+    for vote in votes:
+
+        counter[vote.vote] += 1
+
+
+
 
     majority = max(
+
         counter.values()
+
     )
+
+
 
     return round(
 
         majority
 
-        / len(votes)
+        /
 
-        * 100,
+        len(votes)
+
+        *
+
+        100,
 
         2,
 
     )
 
 
+
+
+
+
+
+def _weighted_vote(
+    votes: list[CommitteeVote],
+) -> Vote:
+    """
+    Weighted committee decision.
+    """
+
+
+    scores = defaultdict(float)
+
+
+
+    for vote in votes:
+
+
+        weight = MEMBER_WEIGHTS.get(
+
+            vote.member,
+
+            1.0,
+
+        )
+
+
+        scores[vote.vote] += weight
+
+
+
+
+
+    return max(
+
+        scores,
+
+        key=scores.get,
+
+    )
+
+
+
+
+
+
+
 def _priority(
     confidence: int,
     consensus: float,
 ) -> str:
-    """
-    Decision priority.
-    """
 
-    if confidence >= 90 and consensus >= 90:
+
+    if (
+
+        confidence >= 90
+
+        and
+
+        consensus >= 75
+
+    ):
 
         return "CRITICAL"
+
+
+
 
     if confidence >= 80:
 
         return "HIGH"
 
+
+
+
     if confidence >= 60:
 
-        return "MEDIUM"
+        return "NORMAL"
+
+
+
 
     return "LOW"
+
+
+
+
+
+
+
+def _summary(
+    action: Vote,
+    confidence: int,
+    consensus: float,
+) -> str:
+
+
+    return (
+
+        f"{action.value} | "
+
+        f"Confidence {confidence}% | "
+
+        f"Consensus {consensus:.0f}%"
+
+    )
+
+
+
+
+
+
+
+def _explanation(
+    votes: list[CommitteeVote],
+) -> list[str]:
+
+
+    return [
+
+        vote.summary
+
+        for vote in votes
+
+    ]
+
+
+
+
+
+
+
+def _decision_factors(
+    votes: list[CommitteeVote],
+) -> dict[str,float]:
+
+
+    return {
+
+        vote.member.value:
+
+            vote.score
+
+        for vote in votes
+
+    }
+
+
+
+
+
 
 
 # =====================================================
 # PUBLIC API
 # =====================================================
 
+
 def conduct_vote(
     votes: list[CommitteeVote],
 ) -> CommitteeResult:
     """
-    Execute committee voting.
+    Execute RC5 committee voting.
     """
 
+
     logger.info(
+
         "Committee voting started."
+
     )
 
-    if not votes:
 
-        raise ValueError(
-            "Committee contains no votes."
+
+    try:
+
+
+        if not votes:
+
+            raise DecisionError(
+
+                "Committee contains no votes."
+
+            )
+
+
+
+
+        action = _weighted_vote(
+
+            votes,
+
         )
 
-    counter = Counter(
 
-        vote.vote
 
-        for vote in votes
+        confidence = _average_confidence(
 
-    )
+            votes,
 
-    action = counter.most_common(1)[0][0]
+        )
 
-    confidence = _average_confidence(
-        votes,
-    )
 
-    score = _average_score(
-        votes,
-    )
 
-    consensus = _consensus(
-        votes,
-    )
+        score = _average_score(
 
-    priority = _priority(
+            votes,
 
-        confidence,
+        )
 
-        consensus,
 
-    )
 
-    summary = (
+        consensus = _consensus(
 
-        f"{action.value} "
+            votes,
 
-        f"({confidence}% confidence, "
+        )
 
-        f"{consensus:.0f}% consensus)"
 
-    )
 
-    logger.info(
-        "Committee decision: %s",
-        action.value,
-    )
+        priority = _priority(
 
-    return CommitteeResult(
+            confidence,
 
-        action=action,
+            consensus,
 
-        confidence=confidence,
+        )
 
-        score=score,
 
-        priority=priority,
 
-        summary=summary,
+        summary = _summary(
 
-        votes=votes,
+            action,
 
-        consensus=consensus,
+            confidence,
 
-    )
+            consensus,
+
+        )
+
+
+
+
+
+
+        result = CommitteeResult(
+
+
+            action=action,
+
+
+            confidence=confidence,
+
+
+            score=score,
+
+
+            priority=priority,
+
+
+            summary=summary,
+
+
+            votes=votes,
+
+
+            consensus=consensus,
+
+
+            explanation=_explanation(
+
+                votes,
+
+            ),
+
+
+            decision_factors=_decision_factors(
+
+                votes,
+
+            ),
+
+        )
+
+
+
+
+
+        logger.info(
+
+            "Committee decision completed | Action=%s Score=%.2f Consensus=%.2f",
+
+            action.value,
+
+            score,
+
+            consensus,
+
+        )
+
+
+
+        return result
+
+
+
+
+
+
+    except DecisionError:
+
+        raise
+
+
+
+    except Exception as exc:
+
+
+        logger.exception(
+
+            "Committee voting failed."
+
+        )
+
+
+        raise DecisionError(
+
+            str(exc)
+
+        ) from exc
+
+
+
+
 
 
 # =====================================================
 # EXPORTS
 # =====================================================
+
 
 __all__ = [
 

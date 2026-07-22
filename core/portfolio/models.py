@@ -1,17 +1,22 @@
 """
-QuantBIST Framework
-Portfolio Models
+QuantBIST RC5
+Portfolio Domain Models
 """
 
 from __future__ import annotations
+
 
 from dataclasses import dataclass, field
 from enum import Enum
 
 
+
+
+
 # =====================================================
 # ENUMS
 # =====================================================
+
 
 class PortfolioSeverity(Enum):
     """
@@ -19,30 +24,45 @@ class PortfolioSeverity(Enum):
     """
 
     LOW = "LOW"
+
     MEDIUM = "MEDIUM"
+
     HIGH = "HIGH"
+
     CRITICAL = "CRITICAL"
+
+
+
 
 
 class PortfolioAction(Enum):
     """
-    Final optimizer action.
+    Portfolio recommended action.
     """
 
     BUY = "BUY"
+
     HOLD = "HOLD"
+
     REBALANCE = "REBALANCE"
+
     REDUCE_RISK = "REDUCE_RISK"
 
 
+
+
+
+
+
 # =====================================================
-# PORTFOLIO POSITION
+# POSITION
 # =====================================================
+
 
 @dataclass(slots=True)
 class Position:
     """
-    Portfolio position.
+    Single portfolio position.
     """
 
     symbol: str
@@ -56,14 +76,20 @@ class Position:
     weight: float = 0.0
 
 
+
+
+
+
+
 # =====================================================
-# DASHBOARD STATS
+# PORTFOLIO STATS
 # =====================================================
+
 
 @dataclass(slots=True)
 class PortfolioStats:
     """
-    Dashboard summary statistics.
+    Dashboard portfolio statistics.
     """
 
     portfolio: float
@@ -74,6 +100,7 @@ class PortfolioStats:
 
     top_stock: str
 
+
     sharpe: float
 
     win_rate: float
@@ -83,14 +110,20 @@ class PortfolioStats:
     max_drawdown: float
 
 
+
+
+
+
+
 # =====================================================
 # HEALTH
 # =====================================================
 
+
 @dataclass(slots=True)
 class PortfolioHealth:
     """
-    Portfolio health analysis.
+    Portfolio health intelligence.
     """
 
     score: float
@@ -106,14 +139,29 @@ class PortfolioHealth:
     summary: str
 
 
+
+    @property
+    def healthy(
+        self,
+    ) -> bool:
+
+        return self.score >= 80
+
+
+
+
+
+
+
 # =====================================================
 # RISK
 # =====================================================
 
+
 @dataclass(slots=True)
 class PortfolioRisk:
     """
-    Portfolio risk profile.
+    Portfolio risk intelligence.
     """
 
     level: str
@@ -129,102 +177,257 @@ class PortfolioRisk:
     summary: str
 
 
+
+    @property
+    def high_risk(
+        self,
+    ) -> bool:
+
+        return self.level.upper() in (
+
+            "HIGH",
+
+            "CRITICAL",
+
+        )
+
+
+
+
+
+
+
 # =====================================================
 # OPTIMIZATION
 # =====================================================
+
 
 @dataclass(slots=True)
 class PortfolioOptimization:
     """
     Portfolio optimization result.
-
-    Shared by:
-
-    - Dashboard
-    - Decision Engine
-    - Recommendation Engine
-    - Morning Report
-    - Telegram Bot
     """
 
-    # Portfolio Summary
 
     total_value: float
 
-    # Largest Position
 
     largest_position: str
 
     largest_weight: float
 
-    # Smallest Position
 
     smallest_position: str
 
     smallest_weight: float
 
-    # Risk
 
-    concentration_risk: bool
 
-    rebalance: bool
+    best_symbol: str = "-"
 
-    # Overall Quality
+    worst_symbol: str = "-"
 
-    health_score: int
 
-    severity: PortfolioSeverity
 
-    # Final Recommendation
+    concentration_risk: bool = False
 
-    overall_action: PortfolioAction
 
-    # Suggestions
+    rebalance: bool = False
+
+
+
+    health_score: int = 100
+
+
+
+    severity: PortfolioSeverity = PortfolioSeverity.LOW
+
+
+
+    overall_action: PortfolioAction = PortfolioAction.HOLD
+
+
 
     suggestions: list[str] = field(
-        default_factory=list
+
+        default_factory=list,
+
     )
 
 
+
+
+
+
+
 # =====================================================
-# REBALANCER
+# REBALANCE
 # =====================================================
+
 
 @dataclass(slots=True)
 class RebalanceResult:
     """
-    Portfolio rebalance analysis.
+    Portfolio rebalance plan.
     """
+
 
     needs_rebalance: bool
 
+
     summary: str
 
+
+
     buy: list[str] = field(
-        default_factory=list
+
+        default_factory=list,
+
     )
+
 
     sell: list[str] = field(
-        default_factory=list
+
+        default_factory=list,
+
     )
 
 
+
+
+
+
+
 # =====================================================
-# ANALYZER
+# FINAL ANALYSIS
 # =====================================================
+
 
 @dataclass(slots=True)
 class PortfolioAnalysis:
     """
-    Final Portfolio Engine output.
+    Complete RC5 portfolio intelligence output.
     """
+
 
     stats: PortfolioStats
 
+
     health: PortfolioHealth
+
 
     risk: PortfolioRisk
 
+
     optimization: PortfolioOptimization
 
+
     rebalance: RebalanceResult
+
+
+
+
+
+
+    @property
+    def health_score(
+        self,
+    ) -> float:
+
+        return self.health.score
+
+
+
+
+
+
+    @property
+    def risk_level(
+        self,
+    ) -> str:
+
+        return self.risk.level
+
+
+
+
+
+
+    @property
+    def needs_rebalance(
+        self,
+    ) -> bool:
+
+        return self.rebalance.needs_rebalance
+
+
+
+
+
+
+    @property
+    def concentration_risk(
+        self,
+    ) -> bool:
+
+        return self.optimization.concentration_risk
+
+
+
+
+
+
+    @property
+    def investable(
+        self,
+    ) -> bool:
+
+        return (
+
+            self.health.score >= 70
+
+            and
+
+            self.risk.level.upper()
+            not in (
+
+                "HIGH",
+
+                "CRITICAL",
+
+            )
+
+        )
+
+
+
+
+
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+
+__all__ = [
+
+    "PortfolioSeverity",
+
+    "PortfolioAction",
+
+    "Position",
+
+    "PortfolioStats",
+
+    "PortfolioHealth",
+
+    "PortfolioRisk",
+
+    "PortfolioOptimization",
+
+    "RebalanceResult",
+
+    "PortfolioAnalysis",
+
+]

@@ -1,9 +1,10 @@
 """
-QuantBIST Framework
+QuantBIST RC5
 Portfolio Risk Engine
 """
 
 from __future__ import annotations
+
 
 from core.config.portfolio import (
     RISK_CRITICAL,
@@ -12,127 +13,407 @@ from core.config.portfolio import (
     RISK_MEDIUM,
 )
 
+
 from core.infrastructure.exceptions import (
     PortfolioError,
 )
 
+
 from core.infrastructure.logger import (
     get_logger,
 )
+
 
 from core.portfolio.models import (
     PortfolioRisk,
     PortfolioStats,
 )
 
+
+
 logger = get_logger(__name__)
+
+
+
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+
+def _normalize(
+    value: float,
+) -> float:
+    """
+    Keep risk score between 0-100.
+    """
+
+    return round(
+
+        max(
+
+            0.0,
+
+            min(
+
+                value,
+
+                100.0,
+
+            ),
+
+        ),
+
+        2,
+
+    )
+
+
+
+
+
+
+
+def _drawdown_score(
+    drawdown: float,
+) -> float:
+    """
+    Drawdown risk contribution.
+    """
+
+    return max(
+
+        0.0,
+
+        drawdown,
+
+    )
+
+
+
+
+
+
+
+def _sharpe_penalty(
+    sharpe: float,
+) -> float:
+    """
+    Sharpe based risk adjustment.
+    """
+
+
+    if sharpe >= 2:
+
+        return -10
+
+
+
+    if sharpe >= 1:
+
+        return 0
+
+
+
+    if sharpe >= 0:
+
+        return 10
+
+
+
+    return 20
+
+
+
+
+
+
+
+def _position_risk(
+    positions: int,
+) -> float:
+    """
+    Position concentration risk.
+    """
+
+
+    if positions <= 3:
+
+        return 20
+
+
+
+    if positions <= 5:
+
+        return 10
+
+
+
+    if positions <= 10:
+
+        return 5
+
+
+
+    return 0
+
+
+
+
+
+
+
+def _risk_level(
+    score: float,
+) -> str:
+    """
+    Convert score into RC5 risk level.
+    """
+
+
+    if score < RISK_LOW:
+
+        return "LOW"
+
+
+
+    if score < RISK_MEDIUM:
+
+        return "MEDIUM"
+
+
+
+    if score < RISK_HIGH:
+
+        return "HIGH"
+
+
+
+    return "CRITICAL"
+
+
+
+
+
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
 
 
 def calculate_portfolio_risk(
     stats: PortfolioStats,
 ) -> PortfolioRisk:
     """
-    Calculate portfolio risk profile.
-
-    Parameters
-    ----------
-    stats
-        Portfolio statistics.
-
-    Returns
-    -------
-    PortfolioRisk
+    Calculate RC5 portfolio risk profile.
     """
 
+
+
     logger.info(
-        "Calculating portfolio risk..."
+
+        "Portfolio risk calculation started."
+
     )
 
+
+
     try:
+
+
 
         if stats.max_drawdown < 0:
 
             raise PortfolioError(
+
                 "Maximum drawdown cannot be negative."
+
             )
 
-        score = round(
-            float(stats.max_drawdown),
-            2,
+
+
+
+
+        score = 0.0
+
+
+
+
+
+        score += _drawdown_score(
+
+            float(
+
+                stats.max_drawdown
+
+            )
+
         )
 
-        # -------------------------------------------------
-        # Risk Level
-        # -------------------------------------------------
 
-        if score < RISK_LOW:
 
-            level = "LOW"
 
-        elif score < RISK_MEDIUM:
 
-            level = "MEDIUM"
+        score += _sharpe_penalty(
 
-        elif score < RISK_HIGH:
+            float(
 
-            level = "HIGH"
+                stats.sharpe
 
-        elif score < RISK_CRITICAL:
+            )
 
-            level = "VERY_HIGH"
+        )
 
-        else:
 
-            level = "CRITICAL"
 
-        # -------------------------------------------------
-        # Volatility Estimate
-        # -------------------------------------------------
+
+
+        score += _position_risk(
+
+            int(
+
+                stats.positions
+
+            )
+
+        )
+
+
+
+
+
+        score = _normalize(
+
+            score,
+
+        )
+
+
+
+
+
+        level = _risk_level(
+
+            score,
+
+        )
+
+
+
+
 
         volatility = round(
-            score * 1.50,
+
+            min(
+
+                score,
+
+                100,
+
+            ),
+
             2,
+
         )
 
-        # -------------------------------------------------
-        # Summary
-        # -------------------------------------------------
+
+
+
 
         summary = (
+
             f"{level} risk "
-            f"(Drawdown {score:.2f}%)"
+
+            f"(Score {score:.0f}/100)"
+
         )
 
+
+
+
+
         logger.info(
-            "Portfolio risk calculated successfully."
+
+            "Risk completed | Level=%s Score=%.2f",
+
+            level,
+
+            score,
+
         )
+
+
+
+
 
         return PortfolioRisk(
 
+
             level=level,
+
 
             score=score,
 
+
             volatility=volatility,
+
 
             max_drawdown=stats.max_drawdown,
 
+
             sharpe=stats.sharpe,
+
 
             summary=summary,
 
+
         )
+
+
+
+
+
+
 
     except PortfolioError:
 
         raise
 
+
+
+
+
     except Exception as exc:
 
+
         logger.exception(
+
             "Portfolio risk calculation failed."
+
         )
 
+
         raise PortfolioError(
+
             str(exc)
+
         ) from exc
+
+
+
+
+
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+
+__all__ = [
+
+    "calculate_portfolio_risk",
+
+]

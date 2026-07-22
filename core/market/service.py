@@ -1,9 +1,13 @@
 """
-QuantBIST Framework
-Market Service
+QuantBIST RC5
+Market Intelligence Service
 """
 
 from __future__ import annotations
+
+
+from datetime import datetime
+
 
 from core.infrastructure.exceptions import (
     MarketError,
@@ -38,7 +42,10 @@ from core.market.sentiment import (
     calculate_market_sentiment,
 )
 
+
 logger = get_logger(__name__)
+
+
 
 # =====================================================
 # CONFIG
@@ -47,169 +54,344 @@ logger = get_logger(__name__)
 DEFAULT_MARKET_SYMBOL = "XU100.IS"
 
 
+
+
 # =====================================================
 # HELPERS
 # =====================================================
 
-def _volatility(snapshot) -> VolatilityLevel:
+
+def _volatility(
+    snapshot,
+) -> VolatilityLevel:
     """
-    Estimate volatility from ATR ratio.
+    Calculate volatility level.
     """
 
-    if snapshot.price <= 0:
+    try:
+
+        if snapshot.price <= 0:
+
+            return VolatilityLevel.NORMAL
+
+
+
+        ratio = (
+
+            snapshot.atr
+
+            /
+
+            snapshot.price
+
+        )
+
+
+
+        if ratio >= 0.03:
+
+            return VolatilityLevel.HIGH
+
+
+
+        if ratio <= 0.01:
+
+            return VolatilityLevel.LOW
+
+
+
         return VolatilityLevel.NORMAL
 
-    ratio = snapshot.atr / snapshot.price
 
-    if ratio >= 0.03:
-        return VolatilityLevel.HIGH
 
-    if ratio <= 0.01:
-        return VolatilityLevel.LOW
+    except Exception:
 
-    return VolatilityLevel.NORMAL
+
+        logger.exception(
+            "Volatility calculation failed."
+        )
+
+
+        return VolatilityLevel.NORMAL
+
+
+
 
 
 # =====================================================
 # PUBLIC API
 # =====================================================
 
+
 def get_market_status(
     symbol: str = DEFAULT_MARKET_SYMBOL,
 ) -> MarketStatus:
     """
-    Execute complete Market Engine.
+    Execute RC5 Market Intelligence Engine.
 
-    Returns
-    -------
-    MarketStatus
+    Pipeline:
+
+        Data
+          ↓
+        Indicators
+          ↓
+        Breadth
+          ↓
+        Sentiment
+          ↓
+        Regime
+          ↓
+        MarketStatus
+
     """
 
     logger.info(
-        "Market Service started."
+
+        "Market Intelligence started | %s",
+
+        symbol,
+
     )
+
+
 
     try:
 
+
         market = load_snapshot(
+
             symbol,
+
         )
+
+
+
+        if not market:
+
+
+            raise MarketError(
+
+                f"Market snapshot unavailable: {symbol}"
+
+            )
+
+
+
+
 
         indicators = generate_indicator_snapshot(
+
             symbol,
+
         )
+
+
+
+
 
         breadth = calculate_market_breadth(
+
             symbol,
+
         )
+
+
+
+
 
         sentiment = calculate_market_sentiment(
+
             symbol,
+
         )
 
+
+
+
+
         regime = determine_market_regime(
+
             symbol,
+
         )
+
+
+
+
+
+        volatility = _volatility(
+
+            indicators,
+
+        )
+
+
+
+
+
 
         status = MarketStatus(
 
+
+
             status=regime.status.value,
+
+
 
             index=symbol,
 
-            change=market["change"],
+
+
+            change=market.get(
+
+                "change",
+
+                0,
+
+            ),
+
+
 
             trend=indicators.trend,
 
-            volatility=_volatility(
-                indicators,
-            ),
+
+
+            volatility=volatility,
+
+
 
             breadth=breadth,
 
+
+
             sentiment=sentiment,
+
+
 
             regime=regime,
 
+
+
             indicators=indicators,
 
-            updated=market["updated"],
+
+
+            updated=market.get(
+
+                "updated",
+
+                datetime.now(),
+
+            ),
+
+
 
         )
+
+
+
+
+
 
         logger.info(
-            "Market Service completed."
+
+            "Market completed | "
+            "Regime=%s | Score=%.2f | Volatility=%s",
+
+            regime.status.value,
+
+            status.market_score,
+
+            volatility.value,
+
         )
 
+
+
+
         return status
+
+
+
+
 
     except MarketError:
 
         raise
 
+
+
+
+
     except Exception as exc:
 
+
         logger.exception(
-            "Market Service failed."
+
+            "Market Intelligence failed."
+
         )
 
+
         raise MarketError(
+
             str(exc)
+
         ) from exc
+
+
+
 
 
 # =====================================================
 # SHORTCUTS
 # =====================================================
 
+
 def market_score(
     market: MarketStatus,
 ) -> float:
-    """
-    Return composite market score.
-    """
 
     return market.market_score
+
+
 
 
 def bullish(
     market: MarketStatus,
 ) -> bool:
-    """
-    Bullish market?
-    """
 
     return market.bullish
+
+
 
 
 def bearish(
     market: MarketStatus,
 ) -> bool:
-    """
-    Bearish market?
-    """
 
     return market.bearish
+
+
 
 
 def risk_on(
     market: MarketStatus,
 ) -> bool:
-    """
-    Risk-On market?
-    """
 
     return market.risk_on
+
+
 
 
 def risk_off(
     market: MarketStatus,
 ) -> bool:
-    """
-    Risk-Off market?
-    """
 
     return market.risk_off
+
+
+
 
 
 # =====================================================

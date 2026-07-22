@@ -3,525 +3,1268 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QuantBIST RC4 Dashboard</title>
+<title>QuantBIST RC5 Profesyonel Yatırım Terminali</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
+
 <body>
+
 
 <div class="container">
 
-    <!-- ============================================= -->
-    <!-- HEADER -->
-    <!-- ============================================= -->
 
-    <header class="header">
+<!-- =========================
+HEADER
+========================= -->
 
-        <div>
 
-            <h1>📈 QuantBIST RC4</h1>
+<header class="enterprise-header">
 
-            <p>
-                AI Powered BIST Portfolio Management
-            </p>
 
-        </div>
+<div class="terminal-status">
 
-        <div class="updated">
 
-            <small>Last Update</small>
+    <div class="market-clock">
 
-            <h3>
+        <span>
+        🕒 Sistem Saati
+        </span>
 
-                {{ dashboard.updated.strftime("%d.%m.%Y %H:%M") }}
+        <strong id="clock">
+        --:--
+        </strong>
 
-            </h3>
+    </div>
 
-        </div>
 
-    </header>
 
-    <!-- ============================================= -->
-    <!-- SUMMARY CARDS -->
-    <!-- ============================================= -->
+    <div class="market-state">
 
-    <section class="cards">
+        <span>
+        Piyasa Durumu
+        </span>
 
-        <div class="card">
 
-            <h3>Portfolio</h3>
+        <strong>
+        🟢 AKTİF
+        </strong>
 
-            <h2>
+    </div>
 
-                ₺{{ "{:,.0f}".format(dashboard.stats.portfolio) }}
 
-            </h2>
+</div>
 
-            <small>Total Value</small>
 
-        </div>
 
-        <div class="card">
+<div class="brand">
 
-            <h3>Cash</h3>
 
-            <h2>
+<h1>
+📈 QuantBIST RC5
+</h1>
 
-                ₺{{ "{:,.0f}".format(dashboard.stats.cash) }}
 
-            </h2>
+<p>
+Yapay Zeka Destekli BIST Portföy Zekâ Platformu
+</p>
 
-            <small>Available Cash</small>
 
-        </div>
+</div>
 
-        <div class="card">
 
-            <h3>Positions</h3>
 
-            <h2>
 
-                {{ dashboard.stats.positions }}
 
-            </h2>
+<div class="header-metrics">
 
-            <small>Active Holdings</small>
 
-        </div>
+<div class="metric-box">
 
-        <div class="card">
+<span>
+Karar
+</span>
 
-            <h3>Top Holding</h3>
+<strong>
+{{ dashboard.decision.action }}
+</strong>
 
-            <h2>
+</div>
 
-                {{ dashboard.stats.top_stock }}
 
-            </h2>
 
-            <small>Largest Position</small>
 
-        </div>
 
-    </section>
+<div class="metric-box">
 
-    <!-- ============================================= -->
-    <!-- INVESTMENT COMMITTEE -->
-    <!-- ============================================= -->
+<span>
+Güven Seviyesi
+</span>
 
-    <section class="decision">
+<strong>
+{{ dashboard.decision.confidence }}%
+</strong>
 
-        <div class="card big">
+</div>
 
-            <h2>
 
-                Investment Committee
 
-            </h2>
 
-            <div class="decision-action">
 
-                {{ dashboard.decision.action }}
+<div class="metric-box">
 
-            </div>
+<span>
+Yapay Zeka Skoru
+</span>
 
-            <div class="decision-confidence">
+<strong>
+{{ dashboard.decision.score }}
+</strong>
 
-                Confidence :
-                {{ dashboard.decision.confidence }}%
+</div>
 
-            </div>
 
-            <div class="decision-priority">
 
-                Priority :
-                {{ dashboard.decision.priority }}
 
-            </div>
 
-            <p>
+<div class="metric-box">
 
-                {{ dashboard.decision.summary }}
+<span>
+Portföy Notu
+</span>
 
-            </p>
+<strong>
+{{ dashboard.decision.portfolio_grade }}
+</strong>
 
-        </div>
+</div>
 
-    </section>
-    <!-- ============================================= -->
-    <!-- MARKET & PORTFOLIO -->
-    <!-- ============================================= -->
 
-    <section class="grid-2">
 
-        <div class="card">
 
-            <h2>📊 Market Status</h2>
 
-            <table class="info-table">
+<div class="metric-box">
 
-                <tr>
-                    <td>Status</td>
-                    <td>{{ dashboard.market.status }}</td>
-                </tr>
+<span>
+Risk Seviyesi
+</span>
 
-                <tr>
-                    <td>Trend</td>
-                    <td>{{ dashboard.market.trend.value }}</td>
-                </tr>
+<strong class="risk-{{ dashboard.decision.risk_level|lower }}">
+{{ dashboard.decision.risk_level }}
+</strong>
 
-                <tr>
-                    <td>Regime</td>
-                    <td>{{ dashboard.market.regime.status.value }}</td>
-                </tr>
+</div>
 
-                <tr>
-                    <td>Breadth</td>
-                    <td>{{ dashboard.market.breadth.summary }}</td>
-                </tr>
 
-                <tr>
-                    <td>Sentiment</td>
-                    <td>{{ dashboard.market.sentiment.summary }}</td>
-                </tr>
+</div>
 
-                <tr>
-                    <td>Volatility</td>
-                    <td>{{ dashboard.market.volatility.value }}</td>
-                </tr>
 
-            </table>
+</header>
 
-        </div>
 
-        <div class="card">
 
-            <h2>💼 Portfolio Health</h2>
 
-            <table class="info-table">
 
-                <tr>
-                    <td>Health</td>
-                    <td>{{ dashboard.decision.portfolio_health }}%</td>
-                </tr>
 
-                <tr>
-                    <td>Grade</td>
-                    <td>{{ dashboard.decision.portfolio_grade }}</td>
-                </tr>
+<!-- =========================
+PORTFÖY ÖZETİ
+========================= -->
 
-                <tr>
-                    <td>Risk Level</td>
-                    <td>{{ dashboard.decision.risk_level }}</td>
-                </tr>
 
-                <tr>
-                    <td>Best Symbol</td>
-                    <td>{{ dashboard.decision.best_symbol }}</td>
-                </tr>
+<section class="cards">
 
-                <tr>
-                    <td>Worst Symbol</td>
-                    <td>{{ dashboard.decision.worst_symbol }}</td>
-                </tr>
 
-                <tr>
-                    <td>Rebalance</td>
 
-                    <td>
+<div class="card">
 
-                    {% if dashboard.decision.rebalance_required %}
+<h3>
+Portföy
+</h3>
 
-                        ✅ Required
+<h2>
+₺{{ "{:,.0f}".format(dashboard.stats.portfolio) }}
+</h2>
 
-                    {% else %}
+<small>
+Toplam Değer
+</small>
 
-                        ✔ No
+</div>
 
-                    {% endif %}
 
-                    </td>
 
-                </tr>
 
-            </table>
 
-        </div>
+<div class="card">
 
-    </section>
+<h3>
+Nakit
+</h3>
 
-    <!-- ============================================= -->
-    <!-- REASONS -->
-    <!-- ============================================= -->
+<h2>
+₺{{ "{:,.0f}".format(dashboard.stats.cash) }}
+</h2>
 
-    <section class="card">
+<small>
+Kullanılabilir Nakit
+</small>
 
-        <h2>🧠 Committee Reasons</h2>
+</div>
 
-        <ul>
 
-        {% for reason in dashboard.decision.reasons %}
 
-            <li>{{ reason }}</li>
 
-        {% endfor %}
 
-        </ul>
+<div class="card">
 
-    </section>
+<h3>
+Pozisyon Sayısı
+</h3>
 
-    <!-- ============================================= -->
-    <!-- WARNINGS & SUGGESTIONS -->
-    <!-- ============================================= -->
+<h2>
+{{ dashboard.stats.positions }}
+</h2>
 
-    <section class="grid-2">
+<small>
+Aktif Hisseler
+</small>
 
-        <div class="card">
+</div>
 
-            <h2>⚠ Warnings</h2>
 
-            {% if dashboard.decision.warnings %}
 
-            <ul>
 
-            {% for warning in dashboard.decision.warnings %}
 
-                <li>{{ warning }}</li>
+<div class="card">
 
-            {% endfor %}
+<h3>
+En Büyük Pozisyon
+</h3>
 
-            </ul>
+<h2>
+{{ dashboard.stats.top_stock }}
+</h2>
 
-            {% else %}
+<small>
+Portföy Lideri
+</small>
 
-            <p>No active warnings.</p>
+</div>
 
-            {% endif %}
 
-        </div>
+</section>
 
-        <div class="card">
 
-            <h2>💡 Suggestions</h2>
 
-            {% if dashboard.decision.suggestions %}
 
-            <ul>
 
-            {% for suggestion in dashboard.decision.suggestions %}
 
-                <li>{{ suggestion }}</li>
 
-            {% endfor %}
+<!-- =========================
+YAPAY ZEKA KARAR PANELİ
+========================= -->
 
-            </ul>
 
-            {% else %}
+<!-- =========================
+AI KARAR ANALİZİ
+========================= -->
 
-            <p>No suggestions available.</p>
 
-            {% endif %}
+<section class="card ai-analysis-panel">
 
-        </div>
 
-    </section>
+<h2>
+🧠 Yapay Zeka Karar Analizi
+</h2>
 
-    <!-- ============================================= -->
-    <!-- SIGNALS -->
-    <!-- ============================================= -->
 
-    <section class="card">
 
-        <h2>📈 Top Signals</h2>
+<div class="ai-analysis-grid">
 
-        <table class="table">
 
-            <thead>
+<div class="ai-box">
 
-                <tr>
+<h3>
+Kararın Temeli
+</h3>
 
-                    <th>Symbol</th>
-                    <th>Signal</th>
-                    <th>Score</th>
 
-                </tr>
+<ul>
 
-            </thead>
 
-            <tbody>
+<li>
+Piyasa Rejimi:
+<strong>
+{{ dashboard.decision.market_regime }}
+</strong>
+</li>
 
-            {% for signal in dashboard.signals %}
 
-                <tr>
+<li>
+Portföy Sağlığı:
+<strong>
+{{ dashboard.decision.portfolio_health }}/100
+</strong>
+</li>
 
-                    <td>{{ signal.symbol }}</td>
 
-                    <td>{{ signal.signal }}</td>
+<li>
+Risk Seviyesi:
+<strong>
+{{ dashboard.decision.risk_level }}
+</strong>
+</li>
 
-                    <td>{{ signal.score }}</td>
 
-                </tr>
+<li>
+Komite Kararı:
+<strong>
+{{ dashboard.decision.committee_action }}
+</strong>
+</li>
 
-            {% endfor %}
 
-            </tbody>
+</ul>
 
-        </table>
 
-    </section>
+</div>
 
-    <!-- ============================================= -->
-    <!-- WATCHLIST -->
-    <!-- ============================================= -->
 
-    <section class="card">
 
-        <h2>👁 Watchlist</h2>
 
-        <div class="watchlist">
 
-        {% for symbol in dashboard.watchlist %}
+<div class="ai-box">
 
-            <span class="badge">
 
-                {{ symbol }}
+<h3>
+📊 AI Değerlendirme
+</h3>
 
-            </span>
 
-        {% endfor %}
+<ul>
 
-        </div>
 
-    </section>
+<li>
+AI Skor:
+<strong>
+{{ dashboard.decision.ai_score }}
+</strong>
+</li>
 
-    <!-- ============================================= -->
-    <!-- CHARTS -->
-    <!-- ============================================= -->
 
-    <section class="grid-2">
+<li>
+Güven:
+<strong>
+{{ dashboard.decision.confidence }}%
+</strong>
+</li>
 
-        <div class="card">
 
-            <h2>📊 Portfolio Allocation</h2>
+<li>
+Portföy Notu:
+<strong>
+{{ dashboard.decision.portfolio_grade }}
+</strong>
+</li>
 
-            <img
 
-                src="{{ url_for('static', filename='portfolio_pie.png') }}"
+</ul>
 
-                class="chart"
 
-                alt="Portfolio Allocation">
+</div>
 
-        </div>
 
-        <div class="card">
 
-            <h2>📈 Equity Curve</h2>
+</div>
 
-            <img
 
-                src="{{ url_for('static', filename='equity_curve.png') }}"
+</section>
+<!-- =========================
+PORTFOLIO INTELLIGENCE SUMMARY
+========================= -->
 
-                class="chart"
+<section class="card intelligence-panel">
 
-                alt="Equity Curve">
+<h2>
+🧠 Portföy Zeka Özeti
+</h2>
 
-        </div>
 
-    </section>
+<div class="intelligence-grid">
 
-    <!-- ============================================= -->
-    <!-- SYSTEM STATUS -->
-    <!-- ============================================= -->
 
-    <section class="grid-3">
+<div class="intel-item">
 
-        <div class="card">
+<span>
+Piyasa Modu
+</span>
 
-            <h3>🤖 AI Decision</h3>
+<strong>
+{{ dashboard.market.regime.status.value }}
+</strong>
 
-            <h2>{{ dashboard.decision.action }}</h2>
+</div>
 
-            <p>
 
-                Confidence :
-                {{ dashboard.decision.confidence }}%
 
-            </p>
+<div class="intel-item">
 
-        </div>
+<span>
+AI Kararı
+</span>
 
-        <div class="card">
+<strong>
+{{ dashboard.decision.action }}
+</strong>
 
-            <h3>🌍 Market</h3>
+</div>
 
-            <h2>{{ dashboard.market.trend.value }}</h2>
 
-            <p>
 
-                {{ dashboard.market.regime.status.value }}
+<div class="intel-item">
 
-            </p>
+<span>
+Risk Profili
+</span>
 
-        </div>
+<strong>
+{{ dashboard.decision.risk_level }}
+</strong>
 
-        <div class="card">
+</div>
 
-            <h3>💼 Portfolio</h3>
 
-            <h2>{{ dashboard.decision.portfolio_grade }}</h2>
 
-            <p>
+<div class="intel-item">
 
-                Health :
-                {{ dashboard.decision.portfolio_health }}%
+<span>
+Portföy Not
+</span>
 
-            </p>
+<strong>
+{{ dashboard.decision.portfolio_grade }}
+</strong>
 
-        </div>
+</div>
 
-    </section>
 
-    <!-- ============================================= -->
-    <!-- FOOTER -->
-    <!-- ============================================= -->
+</div>
 
-    <footer class="footer">
 
-        <hr>
+<p class="intel-text">
 
-        <p>
+Piyasa rejimi, portföy sağlığı,
+risk profili ve teknik göstergeler
+birlikte değerlendirilerek
+yapay zeka komitesi aşağıdaki stratejiyi önermektedir:
 
-            <strong>QuantBIST RC4</strong>
+</p>
 
-        </p>
+<strong>
+{{ dashboard.decision.action }}
+</strong>
 
-        <p>
+strategy.
 
-            Enterprise AI Powered Portfolio Management System
+</p>
 
-        </p>
 
-        <p>
+</section>
 
-            Dashboard Generated :
+<!-- =========================
+AI RISK RADAR
+========================= -->
 
-            {{ dashboard.updated.strftime("%d.%m.%Y %H:%M") }}
 
-        </p>
+<section class="grid-2">
 
-    </footer>
+
+<div class="card">
+
+
+<h2>
+🎯 Yapay Zeka Risk Radarı
+</h2>
+
+
+
+<div class="risk-list">
+
+
+<div class="risk-item">
+
+<span>
+Piyasa Riski
+</span>
+
+<strong>
+{{ dashboard.market.regime.status.value }}
+</strong>
+
+</div>
+
+
+
+<div class="risk-item">
+
+<span>
+Volatilite
+</span>
+
+<strong>
+{{ dashboard.market.volatility.value }}
+</strong>
+
+</div>
+
+
+
+<div class="risk-item">
+
+<span>
+Portföy Riski
+</span>
+
+<strong>
+{{ dashboard.portfolio.risk.level }}
+</strong>
+
+</div>
+
+
+
+<div class="risk-item">
+
+<span>
+Yoğunlaşma Riski
+</span>
+
+<strong>
+{{ dashboard.portfolio.health.concentration }}
+</strong>
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+🚀 Eylem Merkezi
+</h2>
+
+
+
+<ul class="action-list">
+
+
+<li>
+
+Mevcut Strateji:
+
+<strong>
+{{ dashboard.decision.action }}
+</strong>
+
+</li>
+
+
+
+<li>
+
+Öncelik:
+
+<strong>
+{{ dashboard.decision.priority }}
+</strong>
+
+</li>
+
+
+
+<li>
+
+Güven Seviyesi:
+
+<strong>
+{{ dashboard.decision.confidence }}%
+</strong>
+
+</li>
+
+
+
+<li>
+
+Yapay Zeka Skoru:
+
+<strong>
+{{ dashboard.decision.score }}
+</strong>
+
+</li>
+
+
+
+</ul>
+
+
+</div>
+
+
+</section>
+
+<section class="grid-2">
+
+
+<div class="card analytics-card">
+
+<h2>
+🎯 Risk Analizi
+</h2>
+
+<div class="chart-container">
+
+{{ dashboard.charts.risk | safe }}
+
+</div>
+
+</div>
+
+
+
+<div class="card analytics-card">
+
+<h2>
+🧠 AI Güven Analizi
+</h2>
+
+<div class="chart-container">
+
+{{ dashboard.charts.ai | safe }}
+
+</div>
+
+</div>
+
+
+</section>
+
+<!-- =========================
+COMMITTEE ANALYSIS
+========================= -->
+
+
+<div class="card committee-card">
+
+
+<h2>
+🧠 Komite Karar Gerekçeleri
+</h2>
+
+
+<ul class="reason-list">
+
+<div class="committee-score">
+
+
+<div>
+<span>
+Portföy Yöneticisi
+</span>
+
+<strong>
+67%
+</strong>
+
+</div>
+
+
+<div>
+<span>
+Piyasa Analisti
+</span>
+
+<strong>
+54%
+</strong>
+
+</div>
+
+
+<div>
+<span>
+Risk Yöneticisi
+</span>
+
+<strong>
+70%
+</strong>
+
+</div>
+
+
+<div>
+<span>
+Yapay Zeka Analisti
+</span>
+
+<strong>
+60%
+</strong>
+
+</div>
+
+
+</div>
+
+
+{% for reason in dashboard.decision.reasons %}
+
+<li>
+{{ reason }}
+</li>
+
+{% endfor %}
+
+
+</ul>
+
+
+</div>
+
+
+
+
+
+<!-- =========================
+WARNINGS & SUGGESTIONS
+========================= -->
+
+
+<section class="grid-2">
+
+
+<div class="card warning-card">
+
+
+<h2>
+⚠️ Uyarılar
+</h2>
+
+
+
+{% if dashboard.decision.warnings %}
+
+
+<ul>
+
+
+{% for warning in dashboard.decision.warnings %}
+
+<li>
+{{ warning }}
+</li>
+
+{% endfor %}
+
+
+</ul>
+
+
+{% else %}
+
+
+<p>
+Herhangi bir risk uyarısı bulunmamaktadır.
+</p>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+
+
+
+<div class="card suggestion-card">
+
+
+<h2>
+💡 Öneriler
+</h2>
+
+
+
+{% if dashboard.decision.suggestions %}
+
+
+<ul>
+
+
+{% for suggestion in dashboard.decision.suggestions %}
+
+<li>
+{{ suggestion }}
+</li>
+
+{% endfor %}
+
+
+</ul>
+
+
+{% else %}
+
+
+<p>
+Henüz öneri bulunmamaktadır.
+</p>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- =========================
+SIGNALS
+========================= -->
+
+
+<!-- =========================
+AI SIGNAL INTELLIGENCE
+========================= -->
+
+
+<section class="card signal-panel">
+
+
+<h2>
+📡 Yapay Zeka Piyasa Tarayıcı
+</h2>
+
+<div class="signal-summary">
+
+
+<div class="signal-box">
+<span>
+Aktif Sinyaller
+</span>
+
+<strong>
+{{ dashboard.signals | length }}
+</strong>
+</div>
+
+
+
+<div class="signal-box">
+<span>
+Piyasa Gücü
+</span>
+
+<strong>
+72%
+</strong>
+</div>
+
+
+
+<div class="signal-box">
+<span>
+Yapay Zeka Güveni
+</span>
+
+<strong>
+{{ dashboard.decision.confidence }}%
+</strong>
+</div>
+
+
+
+<div class="signal-box">
+<span>
+Piyasa Modu
+</span>
+
+<strong>
+{{ dashboard.market.regime.status }}
+</strong>
+</div>
+
+
+
+<div class="signal-box">
+<span>
+En Güçlü Sinyal
+</span>
+
+<strong>
+{% if dashboard.signals %}
+{{ dashboard.signals[0].symbol }}
+{% else %}
+NONE
+{% endif %}
+</strong>
+
+</div>
+
+
+
+<div class="signal-box">
+<span>
+Piyasa Aksiyonu
+</span>
+
+<strong>
+{{ dashboard.decision.action }}
+</strong>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="signal-table-wrapper">
+
+<table class="signal-table">
+
+<thead>
+
+<tr>
+
+<th>Sıra</th>
+
+<th>Sembol</th>
+
+<th>Sinyal</th>
+
+<th>AI Skor</th>
+
+<th>Güç</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{% for signal in dashboard.signals %}
+
+
+<tr>
+
+
+<td class="signal-rank">
+
+#{{ loop.index }}
+
+</td>
+
+
+
+<td class="signal-symbol">
+
+<strong>
+{{ signal.symbol }}
+</strong>
+
+</td>
+
+
+
+<td>
+
+<span class="signal-badge 
+{% if signal.signal == 'BUY' %}
+buy
+{% elif signal.signal == 'SELL' %}
+sell
+{% else %}
+watch
+{% endif %}
+">
+
+{{ signal.signal }}
+
+</span>
+
+</td>
+
+
+
+
+<td class="signal-score">
+
+<strong>
+{{ signal.score }}
+</strong>
+
+<span class="score-label">
+/100
+</span>
+
+</td>
+
+
+
+
+<td>
+
+
+<div class="signal-strength">
+
+
+<div class="signal-progress">
+
+<div 
+class="signal-progress-bar"
+style="width:{{ signal.score }}%">
+</div>
+
+</div>
+
+
+<span>
+{{ signal.score }}%
+</span>
+
+
+</div>
+
+
+
+</td>
+
+
+
+</tr>
+
+
+{% endfor %}
+
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- =========================
+ANALYTICS
+========================= -->
+
+
+<!-- ===============================
+ANALYTICS COMMAND CENTER
+=============================== -->
+
+
+<section class="analytics-panel">
+
+
+
+<div class="card analytics-card">
+
+
+<div class="analytics-header">
+
+<h2>
+📊 Portföy Dağılımı
+</h2>
+
+
+<span>
+Varlık Dağılımı
+</span>
+
+</div>
+
+
+
+<div class="chart-container">
+
+<div id="portfolioChart">
+{{ dashboard.charts.allocation | safe }}
+</div>
+
+</div>
+
+
+
+<div class="chart-footer">
+
+
+<div>
+
+<span>
+Strateji
+</span>
+
+
+<strong>
+{{ dashboard.decision.action }}
+</strong>
+
+</div>
+
+
+
+<div>
+
+<span>
+Portföy Notu
+</span>
+
+
+<strong>
+{{ dashboard.decision.portfolio_grade }}
+</strong>
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card analytics-card">
+
+
+<div class="analytics-header">
+
+
+<h2>
+📈 Portföy Performans Eğrisi
+</h2>
+
+
+<span>
+Performans Geçmişi
+</span>
+
+
+</div>
+
+
+
+<div class="chart-container">
+
+{{ dashboard.charts.equity | safe }}
+
+</div>
+
+</div>
+
+
+
+<div class="chart-footer">
+
+
+<div>
+
+<span>
+Portföy Değeri
+</span>
+
+
+<strong>
+₺{{ "{:,.0f}".format(dashboard.stats.portfolio) }}
+</strong>
+
+
+</div>
+
+
+
+<div>
+
+<span>
+Sağlık Skoru
+</span>
+
+
+<strong>
+{{ dashboard.portfolio.health.score }}/100
+</strong>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
 
 </div>
 
 </body>
 
 </html>
+

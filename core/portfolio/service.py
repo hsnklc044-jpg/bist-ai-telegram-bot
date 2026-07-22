@@ -1,9 +1,10 @@
 """
-QuantBIST Framework
-Portfolio Service
+QuantBIST RC5
+Portfolio Intelligence Service
 """
 
 from __future__ import annotations
+
 
 from core.infrastructure.exceptions import (
     PortfolioError,
@@ -22,146 +23,409 @@ from core.portfolio.models import (
     PortfolioStats,
 )
 
+
 logger = get_logger(__name__)
 
 
-# =====================================================
-# PUBLIC API
-# =====================================================
-
-def get_portfolio_analysis(
-    stats: PortfolioStats,
-) -> PortfolioAnalysis:
-    """
-    Execute the complete Portfolio Engine.
-
-    This service is the single public entry point for
-    portfolio analysis.
-
-    Parameters
-    ----------
-    stats
-        Portfolio dashboard statistics.
-
-    Returns
-    -------
-    PortfolioAnalysis
-    """
-
-    logger.info(
-        "Portfolio Service started."
-    )
-
-    try:
-
-        analysis = analyze_portfolio(
-            stats,
-        )
-
-        logger.info(
-
-            "Portfolio Service completed "
-            "(Health=%s Risk=%s)",
-
-            analysis.health.grade,
-
-            analysis.risk.level,
-
-        )
-
-        return analysis
-
-    except PortfolioError:
-
-        raise
-
-    except Exception as exc:
-
-        logger.exception(
-            "Portfolio Service failed."
-        )
-
-        raise PortfolioError(
-            str(exc)
-        ) from exc
 
 
 # =====================================================
 # HELPERS
 # =====================================================
 
+
+def _enum_value(
+    value,
+) -> str:
+
+    if hasattr(
+        value,
+        "value",
+    ):
+
+        return value.value
+
+    return str(value)
+
+
+
+
+
+# =====================================================
+# PUBLIC API
+# =====================================================
+
+
+def get_portfolio_analysis(
+    stats: PortfolioStats,
+) -> PortfolioAnalysis:
+    """
+    Execute complete portfolio intelligence engine.
+
+    Flow:
+
+        Portfolio Stats
+              ↓
+        Portfolio Analyzer
+              ↓
+        Portfolio Analysis
+
+    """
+
+
+    logger.info(
+        "Portfolio Intelligence started."
+    )
+
+
+    try:
+
+
+        if stats is None:
+
+            raise PortfolioError(
+                "Portfolio stats cannot be empty."
+            )
+
+
+
+        analysis = analyze_portfolio(
+            stats,
+        )
+
+
+
+        if analysis is None:
+
+            raise PortfolioError(
+                "Portfolio analyzer returned empty result."
+            )
+
+
+
+        logger.info(
+
+            "Portfolio completed | Health=%s | Risk=%s",
+
+            analysis.health.grade,
+
+            _enum_value(
+                analysis.risk.level
+            ),
+
+        )
+
+
+
+        return analysis
+
+
+
+    except PortfolioError:
+
+        raise
+
+
+
+    except Exception as exc:
+
+
+        logger.exception(
+
+            "Portfolio Intelligence failed."
+
+        )
+
+
+        raise PortfolioError(
+
+            str(exc)
+
+        ) from exc
+
+
+
+
+
+
+# =====================================================
+# HEALTH
+# =====================================================
+
+
 def is_healthy(
     analysis: PortfolioAnalysis,
 ) -> bool:
     """
-    Returns True if portfolio health
-    is considered healthy.
+    Portfolio health check.
     """
+
 
     return analysis.health.score >= 80
 
 
-def needs_rebalance(
-    analysis: PortfolioAnalysis,
-) -> bool:
-    """
-    Returns True if portfolio
-    requires rebalancing.
-    """
-
-    return analysis.rebalance.needs_rebalance
 
 
-def has_concentration_risk(
-    analysis: PortfolioAnalysis,
-) -> bool:
-    """
-    Returns True if concentration
-    risk exists.
-    """
-
-    return analysis.optimization.concentration_risk
 
 
-def portfolio_value(
+def health_score(
     analysis: PortfolioAnalysis,
 ) -> float:
     """
-    Returns current portfolio value.
+    Return portfolio health score.
     """
 
-    return analysis.optimization.total_value
+
+    return float(
+        analysis.health.score
+    )
 
 
-def top_position(
+
+
+
+def portfolio_grade(
     analysis: PortfolioAnalysis,
 ) -> str:
     """
-    Returns the largest portfolio position.
+    Return portfolio grade.
     """
 
-    return analysis.optimization.largest_position
+
+    return analysis.health.grade
+
+
+
+
+
+# =====================================================
+# RISK
+# =====================================================
 
 
 def risk_level(
     analysis: PortfolioAnalysis,
 ) -> str:
     """
-    Returns portfolio risk level.
+    Return portfolio risk level.
     """
 
-    return analysis.risk.level
+
+    return _enum_value(
+        analysis.risk.level
+    )
+
+
+
+
+
+def risk_score(
+    analysis: PortfolioAnalysis,
+) -> float:
+    """
+    Return portfolio risk score.
+    """
+
+
+    return float(
+        analysis.risk.score
+    )
+
+
+
+
+
+def has_concentration_risk(
+    analysis: PortfolioAnalysis,
+) -> bool:
+    """
+    Concentration risk check.
+    """
+
+
+    return bool(
+
+        analysis.optimization.concentration_risk
+
+    )
+
+
+
+
+
+
+# =====================================================
+# REBALANCE
+# =====================================================
+
+
+def needs_rebalance(
+    analysis: PortfolioAnalysis,
+) -> bool:
+    """
+    Portfolio rebalance requirement.
+    """
+
+
+    return bool(
+
+        analysis.rebalance.needs_rebalance
+
+    )
+
+
+
+
+
+
+# =====================================================
+# VALUE
+# =====================================================
+
+
+def portfolio_value(
+    analysis: PortfolioAnalysis,
+) -> float:
+    """
+    Total portfolio value.
+    """
+
+
+    return float(
+
+        analysis.optimization.total_value
+
+    )
+
+
+
+
+
+
+def top_position(
+    analysis: PortfolioAnalysis,
+) -> str:
+    """
+    Largest portfolio position.
+    """
+
+
+    return analysis.optimization.largest_position
+
+
+
+
+
+
+def bottom_position(
+    analysis: PortfolioAnalysis,
+) -> str:
+    """
+    Smallest portfolio position.
+    """
+
+
+    return analysis.optimization.smallest_position
+
+
+
+
+
+
+
+# =====================================================
+# SUMMARY
+# =====================================================
+
+
+def portfolio_summary(
+    analysis: PortfolioAnalysis,
+) -> dict[str, object]:
+    """
+    RC5 portfolio intelligence summary.
+    """
+
+
+    return {
+
+
+        "health":
+
+            float(
+                analysis.health.score
+            ),
+
+
+
+        "grade":
+
+            analysis.health.grade,
+
+
+
+        "risk":
+
+            _enum_value(
+                analysis.risk.level
+            ),
+
+
+
+        "risk_score":
+
+            float(
+                analysis.risk.score
+            ),
+
+
+
+        "rebalance":
+
+            bool(
+                analysis.rebalance.needs_rebalance
+            ),
+
+
+
+        "largest_position":
+
+            analysis.optimization.largest_position,
+
+
+
+        "smallest_position":
+
+            analysis.optimization.smallest_position,
+
+
+
+        "concentration_risk":
+
+            bool(
+                analysis.optimization.concentration_risk
+            ),
+
+    }
+
+
+
+
 
 
 # =====================================================
 # EXPORTS
 # =====================================================
 
+
 __all__ = [
 
     "get_portfolio_analysis",
 
     "is_healthy",
+
+    "health_score",
+
+    "portfolio_grade",
 
     "needs_rebalance",
 
@@ -171,6 +435,12 @@ __all__ = [
 
     "top_position",
 
+    "bottom_position",
+
     "risk_level",
+
+    "risk_score",
+
+    "portfolio_summary",
 
 ]
