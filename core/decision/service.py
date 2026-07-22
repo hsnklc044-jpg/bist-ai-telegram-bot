@@ -9,7 +9,6 @@ for Decision Engine.
 from __future__ import annotations
 
 
-
 from core.committee.service import (
     get_committee_decision,
 )
@@ -66,17 +65,20 @@ def get_decision(
 
     Flow:
 
-        Portfolio
-            ↓
-        Market
-            ↓
-        Committee
-            ↓
+        Portfolio Stats
+              ↓
+        Portfolio Intelligence
+              ↓
+        Market Intelligence
+              ↓
+        Investment Committee
+              ↓
         Decision Builder
-            ↓
-        Decision
+              ↓
+        Final Decision
 
     """
+
 
 
     logger.info(
@@ -90,6 +92,23 @@ def get_decision(
     try:
 
 
+        if portfolio_stats is None:
+
+            raise DecisionError(
+
+                "Portfolio statistics cannot be empty."
+
+            )
+
+
+
+
+
+        # -----------------------------------------
+        # Portfolio
+        # -----------------------------------------
+
+
         portfolio = get_portfolio_analysis(
 
             portfolio_stats,
@@ -98,8 +117,22 @@ def get_decision(
 
 
 
+
+
+        # -----------------------------------------
+        # Market
+        # -----------------------------------------
+
+
         market = get_market_status()
 
+
+
+
+
+        # -----------------------------------------
+        # Committee
+        # -----------------------------------------
 
 
         committee = get_committee_decision(
@@ -110,6 +143,13 @@ def get_decision(
 
         )
 
+
+
+
+
+        # -----------------------------------------
+        # Final Decision
+        # -----------------------------------------
 
 
         decision = build_decision(
@@ -125,10 +165,23 @@ def get_decision(
 
 
 
+
+        if decision is None:
+
+            raise DecisionError(
+
+                "Decision builder returned empty result."
+
+            )
+
+
+
+
+
         logger.info(
 
             "Decision completed | "
-            "Action=%s | Score=%d | Confidence=%d",
+            "Action=%s | AI=%d | Confidence=%d",
 
             decision.action,
 
@@ -145,9 +198,11 @@ def get_decision(
 
 
 
+
     except DecisionError:
 
         raise
+
 
 
 
@@ -167,7 +222,6 @@ def get_decision(
             str(exc)
 
         ) from exc
-
 
 
 
@@ -248,6 +302,39 @@ def critical(
 
 
 
+def accumulate_signal(
+    portfolio_stats,
+) -> bool:
+    """
+    Accumulate recommendation check.
+    """
+
+    return get_decision(
+
+        portfolio_stats
+
+    ).accumulate_signal
+
+
+
+
+
+def strong_buy_signal(
+    portfolio_stats,
+) -> bool:
+    """
+    Strong buy recommendation check.
+    """
+
+    return get_decision(
+
+        portfolio_stats
+
+    ).strong_buy_signal
+
+
+
+
 
 # =====================================================
 # EXPORTS
@@ -267,5 +354,9 @@ __all__ = [
     "high_confidence",
 
     "critical",
+
+    "accumulate_signal",
+
+    "strong_buy_signal",
 
 ]
