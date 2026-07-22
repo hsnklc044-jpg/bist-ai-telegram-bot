@@ -12,8 +12,6 @@ from enum import Enum
 
 
 
-
-
 # =====================================================
 # ENUMS
 # =====================================================
@@ -43,8 +41,6 @@ class DecisionAction(Enum):
 
 
 
-
-
 class RiskLevel(Enum):
     """
     Portfolio and market risk levels.
@@ -59,8 +55,6 @@ class RiskLevel(Enum):
     VERY_HIGH = "VERY_HIGH"
 
     CRITICAL = "CRITICAL"
-
-
 
 
 
@@ -84,7 +78,6 @@ class PriorityLevel(Enum):
 
 
 
-
 # =====================================================
 # DECISION MODEL
 # =====================================================
@@ -93,7 +86,7 @@ class PriorityLevel(Enum):
 @dataclass(slots=True)
 class Decision:
     """
-    QuantBIST Final AI Decision Model.
+    QuantBIST RC5 Final AI Decision Model.
 
     Single source of truth:
 
@@ -125,8 +118,6 @@ class Decision:
 
 
 
-
-
     # =================================================
     # Final Decision
     # =================================================
@@ -149,8 +140,6 @@ class Decision:
 
 
 
-
-
     # =================================================
     # AI Intelligence
     # =================================================
@@ -162,6 +151,10 @@ class Decision:
     ai_explanation: list[str] = field(
         default_factory=list,
     )
+
+
+    explanation_text: str = ""
+
 
 
     score_breakdown: dict[str, float] = field(
@@ -177,9 +170,28 @@ class Decision:
 
 
 
+    # =================================================
+    # Technical Intelligence
+    # =================================================
+
+
+    technical_score: float = 0.0
+
+
+    technical_trend: str = ""
+
+
+    rsi: float = 0.0
+
+
+    macd_signal: str = ""
+
+
+
+
 
     # =================================================
-    # Committee
+    # Committee Intelligence
     # =================================================
 
 
@@ -190,7 +202,6 @@ class Decision:
 
 
     committee_consensus: float = 0.0
-
 
 
 
@@ -219,7 +230,6 @@ class Decision:
 
 
 
-
     # =================================================
     # Risk Intelligence
     # =================================================
@@ -229,7 +239,6 @@ class Decision:
 
 
     risk_score: float = 0.0
-
 
 
 
@@ -247,7 +256,6 @@ class Decision:
 
 
     market_regime: str = ""
-
 
 
 
@@ -276,9 +284,8 @@ class Decision:
 
 
 
-
     # =================================================
-    # PROPERTIES
+    # SIGNAL PROPERTIES
     # =================================================
 
 
@@ -286,9 +293,6 @@ class Decision:
     def buy_signal(
         self,
     ) -> bool:
-        """
-        Buy recommendation.
-        """
 
         return self.action in (
 
@@ -303,14 +307,32 @@ class Decision:
 
 
 
+    @property
+    def accumulate_signal(
+        self,
+    ) -> bool:
+
+        return self.action == DecisionAction.ACCUMULATE.value
+
+
+
+
+
+    @property
+    def strong_buy_signal(
+        self,
+    ) -> bool:
+
+        return self.action == DecisionAction.STRONG_BUY.value
+
+
+
+
 
     @property
     def sell_signal(
         self,
     ) -> bool:
-        """
-        Sell recommendation.
-        """
 
         return self.action in (
 
@@ -330,9 +352,6 @@ class Decision:
     def hold_signal(
         self,
     ) -> bool:
-        """
-        Hold recommendation.
-        """
 
         return self.action in (
 
@@ -350,9 +369,6 @@ class Decision:
     def watch_signal(
         self,
     ) -> bool:
-        """
-        Watch state.
-        """
 
         return self.action == DecisionAction.WATCH.value
 
@@ -364,9 +380,6 @@ class Decision:
     def rebalance_signal(
         self,
     ) -> bool:
-        """
-        Portfolio rebalance required.
-        """
 
         return self.rebalance_required
 
@@ -378,12 +391,8 @@ class Decision:
     def healthy(
         self,
     ) -> bool:
-        """
-        Portfolio health status.
-        """
 
         return self.portfolio_health >= 80
-
 
 
 
@@ -393,12 +402,8 @@ class Decision:
     def high_confidence(
         self,
     ) -> bool:
-        """
-        High confidence decision.
-        """
 
         return self.confidence >= 80
-
 
 
 
@@ -408,9 +413,6 @@ class Decision:
     def critical(
         self,
     ) -> bool:
-        """
-        Critical priority.
-        """
 
         return (
 
@@ -426,14 +428,10 @@ class Decision:
 
 
 
-
     @property
     def risk_is_high(
         self,
     ) -> bool:
-        """
-        High risk condition.
-        """
 
         return self.risk_level.upper() in (
 
@@ -449,14 +447,10 @@ class Decision:
 
 
 
-
     @property
     def investable(
         self,
     ) -> bool:
-        """
-        AI allows portfolio exposure.
-        """
 
         return (
 
@@ -480,14 +474,10 @@ class Decision:
 
 
 
-
     @property
     def market_bullish(
         self,
     ) -> bool:
-        """
-        Bullish market condition.
-        """
 
         return (
 
@@ -503,14 +493,10 @@ class Decision:
 
 
 
-
     @property
     def risk_off(
         self,
     ) -> bool:
-        """
-        Risk-off market regime.
-        """
 
         return (
 
@@ -526,14 +512,15 @@ class Decision:
 
 
 
+    # =================================================
+    # DASHBOARD HELPERS
+    # =================================================
+
 
     @property
     def summary_dict(
         self,
     ) -> dict:
-        """
-        Dashboard friendly summary.
-        """
 
         return {
 
@@ -559,6 +546,10 @@ class Decision:
 
             "market":
                 self.market_regime,
+
+
+            "technical_score":
+                self.technical_score,
 
         }
 
