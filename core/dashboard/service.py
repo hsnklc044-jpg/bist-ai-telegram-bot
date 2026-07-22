@@ -15,6 +15,7 @@ from core.charts.service import (
 
 
 from core.dashboard.cards import (
+    get_ai_cards,
     get_signals_card,
     get_summary_cards,
     get_watchlist_card,
@@ -72,7 +73,7 @@ logger = get_logger(__name__)
 
 def get_dashboard() -> DashboardModel:
     """
-    Build complete QuantBIST RC5 dashboard.
+    Build complete QuantBIST dashboard.
 
     Flow:
 
@@ -86,16 +87,14 @@ def get_dashboard() -> DashboardModel:
               ↓
         Charts
               ↓
-        Dashboard Model
+        Dashboard
 
     """
 
 
 
     logger.info(
-
         "Dashboard generation started."
-
     )
 
 
@@ -103,9 +102,8 @@ def get_dashboard() -> DashboardModel:
     try:
 
 
-
         # -----------------------------------------
-        # Portfolio Statistics
+        # Portfolio Stats
         # -----------------------------------------
 
 
@@ -181,36 +179,48 @@ def get_dashboard() -> DashboardModel:
         dashboard = DashboardModel(
 
 
-            stats=get_summary_cards(),
+
+            stats=get_summary_cards(
+
+                portfolio_stats,
+
+            ),
+
 
 
             portfolio=portfolio,
 
 
+
             market=market,
+
 
 
             committee=None,
 
 
+
             decision=decision,
+
 
 
             charts=charts,
 
 
+
             signals=get_signals_card(),
+
 
 
             watchlist=get_watchlist_card(),
 
 
+
             updated=datetime.now(),
 
 
+
         )
-
-
 
 
 
@@ -236,8 +246,6 @@ def get_dashboard() -> DashboardModel:
 
 
 
-
-
     except Exception as exc:
 
 
@@ -247,7 +255,6 @@ def get_dashboard() -> DashboardModel:
             "Dashboard generation failed."
 
         )
-
 
 
         raise DashboardError(
