@@ -1,6 +1,14 @@
 """
-QuantBIST RC5
+QuantBIST RC6
 Decision Intelligence Models
+
+Single source of truth for:
+
+- Dashboard
+- API
+- Reports
+- Telegram
+- AI Explanation
 """
 
 from __future__ import annotations
@@ -12,15 +20,14 @@ from enum import Enum
 
 
 
+
+
 # =====================================================
 # ENUMS
 # =====================================================
 
 
 class DecisionAction(Enum):
-    """
-    Final AI decision actions.
-    """
 
     STRONG_BUY = "STRONG BUY"
 
@@ -41,10 +48,8 @@ class DecisionAction(Enum):
 
 
 
+
 class RiskLevel(Enum):
-    """
-    Portfolio and market risk levels.
-    """
 
     LOW = "LOW"
 
@@ -59,10 +64,8 @@ class RiskLevel(Enum):
 
 
 
+
 class PriorityLevel(Enum):
-    """
-    Decision priority levels.
-    """
 
     LOW = "LOW"
 
@@ -78,6 +81,8 @@ class PriorityLevel(Enum):
 
 
 
+
+
 # =====================================================
 # DECISION MODEL
 # =====================================================
@@ -85,19 +90,6 @@ class PriorityLevel(Enum):
 
 @dataclass(slots=True)
 class Decision:
-    """
-    QuantBIST RC5 Final AI Decision Model.
-
-    Single source of truth:
-
-    - Dashboard
-    - API
-    - Reports
-    - Telegram
-    - AI Explanation
-
-    """
-
 
 
     # =================================================
@@ -109,11 +101,12 @@ class Decision:
 
 
     timestamp: datetime = field(
-        default_factory=datetime.now,
+        default_factory=datetime.now
     )
 
 
-    engine_version: str = "RC5"
+    engine_version: str = "RC6"
+
 
 
 
@@ -129,6 +122,9 @@ class Decision:
     score: int = 0
 
 
+    ai_score: int = 0
+
+
     confidence: int = 0
 
 
@@ -138,6 +134,12 @@ class Decision:
     summary: str = ""
 
 
+    recommendation: str = ""
+
+
+
+
+
 
 
     # =================================================
@@ -145,26 +147,24 @@ class Decision:
     # =================================================
 
 
-    ai_score: int = 0
-
-
     ai_explanation: list[str] = field(
-        default_factory=list,
+        default_factory=list
     )
 
 
     explanation_text: str = ""
 
 
-
     score_breakdown: dict[str, float] = field(
-        default_factory=dict,
+        default_factory=dict
     )
 
 
     decision_context: dict[str, str] = field(
-        default_factory=dict,
+        default_factory=dict
     )
+
+
 
 
 
@@ -190,6 +190,8 @@ class Decision:
 
 
 
+
+
     # =================================================
     # Committee Intelligence
     # =================================================
@@ -202,6 +204,8 @@ class Decision:
 
 
     committee_consensus: float = 0.0
+
+
 
 
 
@@ -230,6 +234,8 @@ class Decision:
 
 
 
+
+
     # =================================================
     # Risk Intelligence
     # =================================================
@@ -239,6 +245,8 @@ class Decision:
 
 
     risk_score: float = 0.0
+
+
 
 
 
@@ -261,38 +269,41 @@ class Decision:
 
 
 
+
+
     # =================================================
     # Explanation Layer
     # =================================================
 
 
     reasons: list[str] = field(
-        default_factory=list,
-    )
-
-
-    suggestions: list[str] = field(
-        default_factory=list,
+        default_factory=list
     )
 
 
     warnings: list[str] = field(
-        default_factory=list,
+        default_factory=list
+    )
+
+
+    suggestions: list[str] = field(
+        default_factory=list
     )
 
 
 
 
 
-    # =================================================
-    # SIGNAL PROPERTIES
-    # =================================================
+
+
+
+    # =====================================================
+    # SIGNALS
+    # =====================================================
 
 
     @property
-    def buy_signal(
-        self,
-    ) -> bool:
+    def buy_signal(self):
 
         return self.action in (
 
@@ -308,31 +319,23 @@ class Decision:
 
 
     @property
-    def accumulate_signal(
-        self,
-    ) -> bool:
+    def accumulate_signal(self):
 
         return self.action == DecisionAction.ACCUMULATE.value
 
 
 
 
-
     @property
-    def strong_buy_signal(
-        self,
-    ) -> bool:
+    def strong_buy_signal(self):
 
         return self.action == DecisionAction.STRONG_BUY.value
 
 
 
 
-
     @property
-    def sell_signal(
-        self,
-    ) -> bool:
+    def sell_signal(self):
 
         return self.action in (
 
@@ -347,72 +350,24 @@ class Decision:
 
 
 
-
     @property
-    def hold_signal(
-        self,
-    ) -> bool:
-
-        return self.action in (
-
-            DecisionAction.HOLD.value,
-
-            DecisionAction.WATCH.value,
-
-        )
-
-
-
-
-
-    @property
-    def watch_signal(
-        self,
-    ) -> bool:
-
-        return self.action == DecisionAction.WATCH.value
-
-
-
-
-
-    @property
-    def rebalance_signal(
-        self,
-    ) -> bool:
+    def rebalance_signal(self):
 
         return self.rebalance_required
 
 
 
 
-
     @property
-    def healthy(
-        self,
-    ) -> bool:
-
-        return self.portfolio_health >= 80
-
-
-
-
-
-    @property
-    def high_confidence(
-        self,
-    ) -> bool:
+    def high_confidence(self):
 
         return self.confidence >= 80
 
 
 
 
-
     @property
-    def critical(
-        self,
-    ) -> bool:
+    def critical(self):
 
         return (
 
@@ -428,99 +383,14 @@ class Decision:
 
 
 
-    @property
-    def risk_is_high(
-        self,
-    ) -> bool:
 
-        return self.risk_level.upper() in (
-
-            RiskLevel.HIGH.value,
-
-            RiskLevel.VERY_HIGH.value,
-
-            RiskLevel.CRITICAL.value,
-
-        )
-
-
-
+    # =====================================================
+    # DASHBOARD OUTPUTS
+    # =====================================================
 
 
     @property
-    def investable(
-        self,
-    ) -> bool:
-
-        return (
-
-            self.buy_signal
-
-            and
-
-            self.confidence >= 60
-
-            and
-
-            self.risk_level.upper()
-
-            !=
-
-            RiskLevel.CRITICAL.value
-
-        )
-
-
-
-
-
-    @property
-    def market_bullish(
-        self,
-    ) -> bool:
-
-        return (
-
-            self.market_trend.upper()
-
-            ==
-
-            "BULLISH"
-
-        )
-
-
-
-
-
-    @property
-    def risk_off(
-        self,
-    ) -> bool:
-
-        return (
-
-            self.market_regime.upper()
-
-            ==
-
-            "RISK_OFF"
-
-        )
-
-
-
-
-
-    # =================================================
-    # DASHBOARD HELPERS
-    # =================================================
-
-
-    @property
-    def summary_dict(
-        self,
-    ) -> dict:
+    def summary_dict(self):
 
         return {
 
@@ -529,7 +399,7 @@ class Decision:
 
 
             "score":
-                self.score,
+                self.ai_score,
 
 
             "confidence":
@@ -548,10 +418,54 @@ class Decision:
                 self.market_regime,
 
 
-            "technical_score":
-                self.technical_score,
+            "trend":
+                self.market_trend,
+
+
+            "rebalance":
+                self.rebalance_required,
 
         }
+
+
+
+
+
+
+
+    @property
+    def intelligence_dict(self):
+
+        return {
+
+
+            "action":
+                self.action,
+
+
+            "score":
+                self.ai_score,
+
+
+            "recommendation":
+                self.recommendation,
+
+
+            "reasons":
+                self.reasons,
+
+
+            "warnings":
+                self.warnings,
+
+
+            "suggestions":
+                self.suggestions,
+
+
+        }
+
+
 
 
 

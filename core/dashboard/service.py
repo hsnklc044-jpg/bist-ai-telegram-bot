@@ -87,7 +87,8 @@ def get_dashboard() -> DashboardModel:
               |
         Dashboard
 
-    Committee is executed only inside Decision Engine.
+    Committee execution:
+        handled by Decision Engine
 
     """
 
@@ -144,9 +145,6 @@ def get_dashboard() -> DashboardModel:
 
         # -----------------------------------------
         # Decision Intelligence
-        #
-        # Committee runs here once.
-        #
         # -----------------------------------------
 
 
@@ -165,15 +163,22 @@ def get_dashboard() -> DashboardModel:
 
 
         # -----------------------------------------
-        # Committee
+        # Committee Intelligence
         #
-        # Decision model currently keeps
-        # committee summary fields only.
+        # Decision Engine owns committee flow.
         #
         # -----------------------------------------
 
 
-        committee = None
+        committee = getattr(
+
+            decision,
+
+            "committee",
+
+            None,
+
+        )
 
 
 
@@ -229,6 +234,14 @@ def get_dashboard() -> DashboardModel:
 
 
 
+            ai=get_ai_cards(
+
+                decision,
+
+            ),
+
+
+
             charts=charts,
 
 
@@ -242,6 +255,8 @@ def get_dashboard() -> DashboardModel:
 
 
             updated=datetime.now(),
+
+
 
         )
 
