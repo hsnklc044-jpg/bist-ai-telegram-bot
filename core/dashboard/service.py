@@ -1,5 +1,5 @@
 """
-QuantBIST RC5
+QuantBIST RC6
 Dashboard Intelligence Service
 """
 
@@ -75,26 +75,28 @@ def get_dashboard() -> DashboardModel:
     """
     Build complete QuantBIST dashboard.
 
-    Flow:
+    RC6 Flow:
 
         Portfolio Stats
-              ↓
+              |
         Portfolio Intelligence
-              ↓
+              |
         Market Intelligence
-              ↓
-        Decision Engine
-              ↓
-        Charts
-              ↓
+              |
+        Decision Intelligence
+              |
         Dashboard
+
+    Committee is executed only inside Decision Engine.
 
     """
 
 
 
     logger.info(
+
         "Dashboard generation started."
+
     )
 
 
@@ -102,8 +104,9 @@ def get_dashboard() -> DashboardModel:
     try:
 
 
+
         # -----------------------------------------
-        # Portfolio Stats
+        # Portfolio Statistics
         # -----------------------------------------
 
 
@@ -141,6 +144,9 @@ def get_dashboard() -> DashboardModel:
 
         # -----------------------------------------
         # Decision Intelligence
+        #
+        # Committee runs here once.
+        #
         # -----------------------------------------
 
 
@@ -148,7 +154,26 @@ def get_dashboard() -> DashboardModel:
 
             portfolio_stats,
 
+            portfolio,
+
+            market,
+
         )
+
+
+
+
+
+        # -----------------------------------------
+        # Committee
+        #
+        # Decision model currently keeps
+        # committee summary fields only.
+        #
+        # -----------------------------------------
+
+
+        committee = None
 
 
 
@@ -196,7 +221,7 @@ def get_dashboard() -> DashboardModel:
 
 
 
-            committee=None,
+            committee=committee,
 
 
 
@@ -218,8 +243,6 @@ def get_dashboard() -> DashboardModel:
 
             updated=datetime.now(),
 
-
-
         )
 
 
@@ -228,11 +251,13 @@ def get_dashboard() -> DashboardModel:
 
         logger.info(
 
-            "Dashboard ready | %s | AI=%d",
+            "Dashboard ready | Action=%s | AI=%d | Confidence=%d",
 
             decision.action,
 
             decision.ai_score,
+
+            decision.confidence,
 
         )
 
@@ -255,6 +280,7 @@ def get_dashboard() -> DashboardModel:
             "Dashboard generation failed."
 
         )
+
 
 
         raise DashboardError(

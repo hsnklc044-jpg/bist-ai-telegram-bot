@@ -1,5 +1,5 @@
 """
-QuantBIST RC5
+QuantBIST RC6
 Dashboard View Model
 """
 
@@ -14,13 +14,16 @@ from core.committee.models import (
     CommitteeResult,
 )
 
+
 from core.decision.models import (
     Decision,
 )
 
+
 from core.market.models import (
     MarketStatus,
 )
+
 
 from core.portfolio.models import (
     PortfolioAnalysis,
@@ -33,7 +36,7 @@ from core.portfolio.models import (
 @dataclass(slots=True)
 class DashboardModel:
     """
-    Complete RC5 Dashboard View Model.
+    Complete QuantBIST RC6 Dashboard View Model.
 
     Used by:
 
@@ -47,7 +50,7 @@ class DashboardModel:
 
 
     # =================================================
-    # Summary Cards
+    # Summary Statistics
     # =================================================
 
 
@@ -84,7 +87,7 @@ class DashboardModel:
 
 
     # =================================================
-    # Committee Intelligence
+    # Investment Committee
     # =================================================
 
 
@@ -95,11 +98,26 @@ class DashboardModel:
 
 
     # =================================================
-    # Final AI Decision
+    # Final Decision
     # =================================================
 
 
     decision: Decision | None = None
+
+
+
+
+
+    # =================================================
+    # AI Cards
+    # =================================================
+
+
+    ai: dict = field(
+
+        default_factory=dict,
+
+    )
 
 
 
@@ -156,6 +174,67 @@ class DashboardModel:
 
 
     updated: datetime | None = None
+
+
+
+
+
+    # =================================================
+    # Helpers
+    # =================================================
+
+
+    @property
+    def summary(self) -> dict:
+        """
+        Quick dashboard summary.
+        """
+
+
+        if self.decision is None:
+
+            return {}
+
+
+
+        return {
+
+            "action":
+                self.decision.action,
+
+
+            "score":
+                self.decision.ai_score,
+
+
+            "confidence":
+                self.decision.confidence,
+
+
+            "risk":
+                self.decision.risk_level,
+
+
+            "market":
+                self.decision.market_regime,
+
+
+        }
+
+
+
+
+
+    @property
+    def summary_dict(self) -> dict:
+        """
+        Backward compatibility alias.
+        """
+
+
+        return self.summary
+
+
 
 
 
