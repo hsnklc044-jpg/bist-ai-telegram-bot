@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Portfolio Report
 
 Portfolio intelligence reporting layer.
@@ -73,7 +73,7 @@ def generate_portfolio_report(
 
 
     return f"""
-💼 QUANTBIST RC6 PORTFOLIO REPORT
+💼 QUANTBIST RC7 PORTFOLIO REPORT
 
 ════════════════════
 

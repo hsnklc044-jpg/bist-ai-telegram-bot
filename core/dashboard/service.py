@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Dashboard Intelligence Service
 """
 
@@ -75,7 +75,7 @@ def get_dashboard() -> DashboardModel:
     """
     Build complete QuantBIST dashboard.
 
-    RC6 Flow:
+    RC7 Flow:
 
         Portfolio Stats
               |

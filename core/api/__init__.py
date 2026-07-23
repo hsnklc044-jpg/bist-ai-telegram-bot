@@ -1,5 +1,5 @@
 """
-QuantBIST RC6 API Layer
+QuantBIST RC7 API Layer
 
 Bu paket, QuantBIST servislerini dış dünyaya tek bir giriş
 noktasından sunar.

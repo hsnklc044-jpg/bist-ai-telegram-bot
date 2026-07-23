@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 JSON Export
 
 JSON report generator.

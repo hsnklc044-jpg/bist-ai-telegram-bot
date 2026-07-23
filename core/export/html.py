@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 HTML Export
 
 HTML report generator.
@@ -126,7 +126,7 @@ def export_html(
 <meta charset="UTF-8">
 
 <title>
-QuantBIST RC6 Report
+QuantBIST RC7 Report
 </title>
 
 
@@ -197,7 +197,7 @@ pre {{
 
 
 <h1>
-QUANTBIST RC6 REPORT
+QUANTBIST RC7 REPORT
 </h1>
 
 

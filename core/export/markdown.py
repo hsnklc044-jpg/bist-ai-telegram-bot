@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Markdown Export
 
 Markdown report generator.
@@ -61,7 +61,7 @@ def export_markdown(
 
 
     lines.append(
-        "# QUANTBIST RC6 REPORT"
+        "# QUANTBIST RC7 REPORT"
     )
 
 

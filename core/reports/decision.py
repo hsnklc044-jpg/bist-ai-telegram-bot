@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Decision Report
 
 AI decision explanation layer.
@@ -78,7 +78,7 @@ def generate_decision_report(
 
 
     return f"""
-🤖 QUANTBIST RC6 AI DECISION REPORT
+🤖 QUANTBIST RC7 AI DECISION REPORT
 
 ════════════════════
 

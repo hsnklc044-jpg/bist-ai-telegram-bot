@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Summary Report
 """
 
@@ -20,7 +20,7 @@ def generate_summary_report(
     """
     Generate complete dashboard summary report.
 
-    RC6:
+    RC7:
     - No duplicate calculations
     - Uses DashboardModel
     - Single intelligence source
@@ -47,7 +47,7 @@ def generate_summary_report(
 
 
     return f"""
-📊 QUANTBIST RC6 SUMMARY
+📊 QUANTBIST RC7 SUMMARY
 
 ════════════════════
 

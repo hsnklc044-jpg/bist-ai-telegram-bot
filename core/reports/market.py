@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Market Intelligence Report
 """
 
@@ -33,7 +33,7 @@ def generate_market_report(
     if market is None:
 
         return """
-📈 QUANTBIST RC6 MARKET REPORT
+📈 QUANTBIST RC7 MARKET REPORT
 
 No market data available.
 """
@@ -84,7 +84,7 @@ No market data available.
 
 
     return f"""
-📈 QUANTBIST RC6 MARKET REPORT
+📈 QUANTBIST RC7 MARKET REPORT
 
 
 ════════════════════

@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 TXT Export
 """
 
@@ -27,7 +27,7 @@ def export_txt(
     lines: list[str] = []
 
     lines.append("=" * 80)
-    lines.append("QUANTBIST RC6 REPORT")
+    lines.append("QUANTBIST RC7 REPORT")
     lines.append("=" * 80)
     lines.append("")
 

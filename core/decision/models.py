@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Decision Intelligence Models
 
 Single source of truth for:
@@ -105,7 +105,7 @@ class Decision:
     )
 
 
-    engine_version: str = "RC6"
+    engine_version: str = "RC7"
 
 
 

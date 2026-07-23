@@ -1,4 +1,4 @@
-ï»¿"""
+"""
 QuantBIST RC5
 Market Indicator Engine
 """
@@ -53,9 +53,9 @@ logger = get_logger(__name__)
 
 
 # RC5:
-# Teknik gÃ¶stergeler iÃ§in minimum veri ihtiyacÄ±.
-# EMA200 uzun dÃ¶nem gÃ¶stergedir ancak eksik veri durumunda
-# dashboard akÄ±ÅŸÄ±nÄ± durdurmamalÄ±dÄ±r.
+# Teknik göstergeler için minimum veri ihtiyacı.
+# EMA200 uzun dönem göstergedir ancak eksik veri durumunda
+# dashboard akışını durdurmamalıdır.
 
 MIN_HISTORY_LENGTH = 50
 
@@ -410,8 +410,8 @@ def generate_indicator_snapshot(
 
 
         # RC5 DATA CONTROL
-        # EMA200 iÃ§in ideal veri 220 gÃ¼ndÃ¼r.
-        # Ancak eksik veri dashboard akÄ±ÅŸÄ±nÄ± durdurmaz.
+        # EMA200 için ideal veri 220 gündür.
+        # Ancak eksik veri dashboard akışını durdurmaz.
 
         if len(df) < MIN_HISTORY_LENGTH:
 

@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 API Service
 
 Central access point for all QuantBIST services.

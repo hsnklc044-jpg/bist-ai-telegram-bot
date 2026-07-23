@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Reports Service
 
 Single entry point
@@ -48,7 +48,7 @@ def generate_report(
     """
     Generate complete QuantBIST report package.
 
-    RC6 Flow
+    RC7 Flow
 
         DashboardModel
               │

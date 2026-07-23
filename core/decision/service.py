@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Decision Service
 
 Single public entry point
@@ -56,7 +56,7 @@ def get_decision(
     """
     Build final QuantBIST AI decision.
 
-    RC6 Flow:
+    RC7 Flow:
 
         Portfolio Stats
               |
