@@ -1,6 +1,8 @@
 """
-QuantBIST RC5
+QuantBIST RC6
 Dashboard Cards
+
+Dashboard presentation layer.
 """
 
 from __future__ import annotations
@@ -30,65 +32,38 @@ def get_summary_cards(
     """
     Generate dashboard summary cards.
 
-    Stats are prepared by dashboard service.
-
-    Prevents duplicate portfolio calculation.
+    Stats are calculated once
+    by dashboard service.
     """
-
 
 
     return {
 
-
         "portfolio":
-
             stats.portfolio,
 
-
-
         "cash":
-
             stats.cash,
 
-
-
         "positions":
-
             stats.positions,
 
-
-
         "top_stock":
-
             stats.top_stock,
 
-
-
         "sharpe":
-
             stats.sharpe,
 
-
-
         "win_rate":
-
             stats.win_rate,
 
-
-
         "profit_factor":
-
             stats.profit_factor,
 
-
-
         "max_drawdown":
-
             stats.max_drawdown,
 
     }
-
-
 
 
 
@@ -103,97 +78,52 @@ def get_ai_cards(
     decision,
 ) -> dict:
     """
-    Generate RC5 AI intelligence cards.
-
-    Source:
-
-        Decision Engine
-
+    Generate AI decision cards.
     """
 
 
     return {
 
-
         "action":
-
             decision.action,
 
-
-
         "ai_score":
-
             decision.ai_score,
 
-
-
         "confidence":
-
             decision.confidence,
 
-
-
         "technical_score":
-
             decision.technical_score,
 
-
-
         "technical_trend":
-
             decision.technical_trend,
 
-
-
         "rsi":
-
             decision.rsi,
 
-
-
         "macd_signal":
-
             decision.macd_signal,
 
-
-
         "risk":
-
             decision.risk_level,
 
-
-
         "risk_score":
-
             decision.risk_score,
 
-
-
         "market_regime":
-
             decision.market_regime,
 
-
-
         "market_trend":
-
             decision.market_trend,
 
-
-
         "rebalance":
-
             decision.rebalance_required,
 
-
-
         "summary":
-
             decision.summary,
 
     }
-
-
 
 
 
@@ -216,9 +146,6 @@ def get_signals_card() -> list[dict]:
 
 
 
-
-
-
 # =====================================================
 # WATCHLIST
 # =====================================================
@@ -235,13 +162,9 @@ def get_watchlist_card() -> list[dict]:
         return get_watchlist_details()
 
 
-
     except Exception:
 
         return []
-
-
-
 
 
 
@@ -254,17 +177,12 @@ def get_watchlist_card() -> list[dict]:
 
 __all__ = [
 
-
     "get_summary_cards",
-
 
     "get_ai_cards",
 
-
     "get_signals_card",
 
-
     "get_watchlist_card",
-
 
 ]

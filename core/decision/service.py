@@ -1,5 +1,5 @@
 """
-QuantBIST RC5
+QuantBIST RC6
 Decision Service
 
 Single public entry point
@@ -34,15 +34,6 @@ from core.infrastructure.logger import (
 )
 
 
-from core.market.service import (
-    get_market_status,
-)
-
-
-from core.portfolio.service import (
-    get_portfolio_analysis,
-)
-
 
 
 
@@ -59,22 +50,24 @@ logger = get_logger(__name__)
 
 def get_decision(
     portfolio_stats,
+    portfolio,
+    market,
 ) -> Decision:
     """
     Build final QuantBIST AI decision.
 
-    Flow:
+    RC6 Flow:
 
         Portfolio Stats
-              ↓
+              |
         Portfolio Intelligence
-              ↓
+              |
         Market Intelligence
-              ↓
+              |
         Investment Committee
-              ↓
+              |
         Decision Builder
-              ↓
+              |
         Final Decision
 
     """
@@ -95,44 +88,25 @@ def get_decision(
         if portfolio_stats is None:
 
             raise DecisionError(
-
                 "Portfolio statistics cannot be empty."
+            )
 
+
+        if portfolio is None:
+
+            raise DecisionError(
+                "Portfolio analysis cannot be empty."
+            )
+
+
+        if market is None:
+
+            raise DecisionError(
+                "Market status cannot be empty."
             )
 
 
 
-
-
-        # -----------------------------------------
-        # Portfolio
-        # -----------------------------------------
-
-
-        portfolio = get_portfolio_analysis(
-
-            portfolio_stats,
-
-        )
-
-
-
-
-
-        # -----------------------------------------
-        # Market
-        # -----------------------------------------
-
-
-        market = get_market_status()
-
-
-
-
-
-        # -----------------------------------------
-        # Committee
-        # -----------------------------------------
 
 
         committee = get_committee_decision(
@@ -145,11 +119,6 @@ def get_decision(
 
 
 
-
-
-        # -----------------------------------------
-        # Final Decision
-        # -----------------------------------------
 
 
         decision = build_decision(
@@ -169,9 +138,7 @@ def get_decision(
         if decision is None:
 
             raise DecisionError(
-
                 "Decision builder returned empty result."
-
             )
 
 
@@ -205,8 +172,6 @@ def get_decision(
 
 
 
-
-
     except Exception as exc:
 
 
@@ -227,110 +192,80 @@ def get_decision(
 
 
 
+
+
 # =====================================================
-# SHORTCUTS
+# SIGNAL HELPERS
 # =====================================================
 
 
 def buy_signal(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
 
-    return get_decision(
-
-        portfolio_stats
-
-    ).buy_signal
+    return decision.buy_signal
 
 
 
 
 
 def sell_signal(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
 
-    return get_decision(
-
-        portfolio_stats
-
-    ).sell_signal
+    return decision.sell_signal
 
 
 
 
 
 def rebalance_signal(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
 
-    return get_decision(
-
-        portfolio_stats
-
-    ).rebalance_signal
+    return decision.rebalance_signal
 
 
 
 
 
 def high_confidence(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
 
-    return get_decision(
-
-        portfolio_stats
-
-    ).high_confidence
+    return decision.high_confidence
 
 
 
 
 
 def critical(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
 
-    return get_decision(
-
-        portfolio_stats
-
-    ).critical
+    return decision.critical
 
 
 
 
 
 def accumulate_signal(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
-    """
-    Accumulate recommendation check.
-    """
 
-    return get_decision(
-
-        portfolio_stats
-
-    ).accumulate_signal
+    return decision.accumulate_signal
 
 
 
 
 
 def strong_buy_signal(
-    portfolio_stats,
+    decision: Decision,
 ) -> bool:
-    """
-    Strong buy recommendation check.
-    """
 
-    return get_decision(
+    return decision.strong_buy_signal
 
-        portfolio_stats
 
-    ).strong_buy_signal
 
 
 
