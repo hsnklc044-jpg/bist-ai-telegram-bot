@@ -1,50 +1,128 @@
 """
-QuantBIST RC4
+QuantBIST RC6
 Summary Report
 """
 
 from __future__ import annotations
 
-from core.portfolio.dashboard_data import get_dashboard_stats
+
+from core.models.dashboard import (
+    DashboardModel,
+)
 
 
-def generate_summary_report() -> str:
+
+
+
+def generate_summary_report(
+    dashboard: DashboardModel,
+) -> str:
     """
-    Generate portfolio summary report.
+    Generate complete dashboard summary report.
+
+    RC6:
+    - No duplicate calculations
+    - Uses DashboardModel
+    - Single intelligence source
     """
 
-    stats = get_dashboard_stats()
+
+
+    decision = dashboard.decision
+
+    portfolio = dashboard.portfolio
+
+    market = dashboard.market
+
+
+
+
+
+    if decision is None:
+
+        return "Decision data unavailable."
+
+
+
+
 
     return f"""
-📊 QUANTBIST RC4 SUMMARY
+📊 QUANTBIST RC6 SUMMARY
 
 ════════════════════
 
-💰 Portfolio Value :
-{stats.portfolio:,.2f} TL
+🤖 AI DECISION
 
-📂 Positions :
-{stats.positions}
+Action :
+{decision.action}
 
-💵 Cash :
-{stats.cash:,.2f} TL
+AI Score :
+{decision.ai_score}
 
-🏆 Top Stock :
-{stats.top_stock}
+Confidence :
+{decision.confidence}%
+
 
 ════════════════════
 
-⚡ Sharpe :
-{stats.sharpe}
+💼 PORTFOLIO
 
-🎯 Win Rate :
-{stats.win_rate}%
+Portfolio Value :
+{dashboard.stats.get("portfolio", 0):,.2f} TL
 
-🏅 Profit Factor :
-{stats.profit_factor}
+Positions :
+{dashboard.stats.get("positions", 0)}
 
-📉 Max Drawdown :
-{stats.max_drawdown}%
+Cash :
+{dashboard.stats.get("cash", 0):,.2f} TL
+
+Top Stock :
+{dashboard.stats.get("top_stock", "-")}
+
+
+════════════════════
+
+📈 MARKET
+
+Trend :
+{decision.market_trend}
+
+Regime :
+{decision.market_regime}
+
+
+════════════════════
+
+⚠️ RISK
+
+Level :
+{decision.risk_level}
+
+Risk Score :
+{decision.risk_score}
+
+
+════════════════════
+
+📌 SUMMARY
+
+{decision.summary}
+
 
 ════════════════════
 """
+
+
+
+
+
+# =====================================================
+# EXPORTS
+# =====================================================
+
+
+__all__ = [
+
+    "generate_summary_report",
+
+]
