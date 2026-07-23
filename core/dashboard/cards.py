@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Dashboard Cards
 
 Dashboard presentation layer.
@@ -78,50 +78,154 @@ def get_ai_cards(
     decision,
 ) -> dict:
     """
-    Generate AI decision cards.
+    Generate RC7 AI decision intelligence cards.
+
+    Source:
+
+        Decision Engine RC7
+
     """
 
 
     return {
 
+        # ---------------------------------------------
+        # Final Action
+        # ---------------------------------------------
+
         "action":
             decision.action,
+
+
+        "score":
+            decision.score,
+
 
         "ai_score":
             decision.ai_score,
 
+
         "confidence":
             decision.confidence,
+
+
+
+        # ---------------------------------------------
+        # Recommendation Layer
+        # ---------------------------------------------
+
+
+        "recommendation":
+            getattr(
+                decision,
+                "recommendation",
+                decision.summary,
+            ),
+
+
+
+        "summary":
+            decision.summary,
+
+
+
+        # ---------------------------------------------
+        # Explanation Layer
+        # ---------------------------------------------
+
+
+        "reasons":
+            decision.reasons,
+
+
+        "warnings":
+            decision.warnings,
+
+
+        "suggestions":
+            decision.suggestions,
+
+
+
+        "score_breakdown":
+            decision.score_breakdown,
+
+
+
+        "decision_context":
+            decision.decision_context,
+
+
+
+        # ---------------------------------------------
+        # Technical Intelligence
+        # ---------------------------------------------
+
 
         "technical_score":
             decision.technical_score,
 
+
         "technical_trend":
             decision.technical_trend,
+
 
         "rsi":
             decision.rsi,
 
+
         "macd_signal":
             decision.macd_signal,
+
+
+
+        # ---------------------------------------------
+        # Risk Intelligence
+        # ---------------------------------------------
+
 
         "risk":
             decision.risk_level,
 
+
         "risk_score":
             decision.risk_score,
+
+
+
+        # ---------------------------------------------
+        # Market Intelligence
+        # ---------------------------------------------
+
+
+        "market_status":
+            decision.market_status,
+
 
         "market_regime":
             decision.market_regime,
 
+
         "market_trend":
             decision.market_trend,
 
+
+
+        # ---------------------------------------------
+        # Portfolio Intelligence
+        # ---------------------------------------------
+
+
+        "portfolio_health":
+            decision.portfolio_health,
+
+
+        "portfolio_grade":
+            decision.portfolio_grade,
+
+
         "rebalance":
             decision.rebalance_required,
-
-        "summary":
-            decision.summary,
 
     }
 

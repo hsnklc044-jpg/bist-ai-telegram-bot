@@ -1,5 +1,5 @@
 """
-QuantBIST RC6
+QuantBIST RC7
 Dashboard View Model
 """
 
@@ -36,7 +36,7 @@ from core.portfolio.models import (
 @dataclass(slots=True)
 class DashboardModel:
     """
-    Complete QuantBIST RC6 Dashboard View Model.
+    Complete QuantBIST RC7 Dashboard View Model.
 
     Used by:
 
@@ -98,7 +98,7 @@ class DashboardModel:
 
 
     # =================================================
-    # Final Decision
+    # Final Decision Intelligence
     # =================================================
 
 
@@ -109,7 +109,7 @@ class DashboardModel:
 
 
     # =================================================
-    # AI Cards
+    # AI Presentation Cards
     # =================================================
 
 
@@ -180,7 +180,45 @@ class DashboardModel:
 
 
     # =================================================
-    # Helpers
+    # AI INTELLIGENCE
+    # =================================================
+
+
+    @property
+    def intelligence(self) -> dict:
+        """
+        Full AI decision intelligence output.
+
+        Source:
+
+            Decision Model
+
+        """
+
+
+        if self.decision is None:
+
+            return {}
+
+
+
+        if hasattr(
+            self.decision,
+            "intelligence_dict",
+        ):
+
+            return self.decision.intelligence_dict
+
+
+
+        return {}
+
+
+
+
+
+    # =================================================
+    # SUMMARY
     # =================================================
 
 
@@ -199,24 +237,53 @@ class DashboardModel:
 
         return {
 
+
             "action":
+
                 self.decision.action,
 
 
+
             "score":
+
                 self.decision.ai_score,
 
 
+
             "confidence":
+
                 self.decision.confidence,
 
 
+
+            "priority":
+
+                self.decision.priority,
+
+
+
             "risk":
+
                 self.decision.risk_level,
 
 
+
             "market":
+
                 self.decision.market_regime,
+
+
+
+            "trend":
+
+                self.decision.market_trend,
+
+
+
+            "rebalance":
+
+                self.decision.rebalance_required,
+
 
 
         }
@@ -235,6 +302,34 @@ class DashboardModel:
         return self.summary
 
 
+
+
+
+    # =================================================
+    # STATUS HELPERS
+    # =================================================
+
+
+    @property
+    def ready(self) -> bool:
+        """
+        Dashboard availability status.
+        """
+
+
+        return (
+
+            self.decision is not None
+
+            and
+
+            self.market is not None
+
+            and
+
+            self.portfolio is not None
+
+        )
 
 
 
