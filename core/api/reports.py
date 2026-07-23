@@ -1,68 +1,16 @@
-"""
-QuantBIST RC6
-API Reports Service
-
-Reports API facade.
-"""
-
-from __future__ import annotations
+from core.dashboard.service import get_dashboard
+from core.reports.service import generate_report as _generate_report
 
 
-from core.models.dashboard import (
-    DashboardModel,
-)
+def report():
 
+    dashboard = get_dashboard()
 
-from core.reports.service import (
-    generate_report as _generate_report,
-)
-
-
-
-
-
-# =====================================================
-# PUBLIC API
-# =====================================================
-
-
-def get_report(
-    dashboard: DashboardModel,
-) -> dict:
-    """
-    Generate complete report package.
-
-    Source:
-
-        core.reports.service
-
-    Includes:
-
-        - Summary
-        - Portfolio
-        - Market
-        - Decision
-
-    """
-
-
-    return _generate_report(
-
-        dashboard,
-
+    result = _generate_report(
+        dashboard
     )
 
+    return result
 
 
-
-
-# =====================================================
-# EXPORTS
-# =====================================================
-
-
-__all__ = [
-
-    "get_report",
-
-]
+get_report = report

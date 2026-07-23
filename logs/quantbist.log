@@ -27407,3 +27407,811 @@ core.infrastructure.exceptions.MarketError: Insufficient market history: 122
 2026-07-22 13:54:48,936 | INFO | werkzeug | 127.0.0.1 - - [22/Jul/2026 13:54:48] "GET / HTTP/1.1" 200 -
 2026-07-22 13:54:48,976 | INFO | werkzeug | 127.0.0.1 - - [22/Jul/2026 13:54:48] "GET /static/style.css HTTP/1.1" 200 -
 2026-07-22 13:54:51,020 | INFO | werkzeug | 127.0.0.1 - - [22/Jul/2026 13:54:51] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-07-23 18:14:18,270 | INFO | core.dashboard.service | Dashboard generation started.
+2026-07-23 18:14:18,270 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-23 18:14:18,270 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:14:18,276 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:14:18,276 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared | Value=99283.58 Positions=6
+2026-07-23 18:14:18,276 | INFO | core.portfolio.service | Portfolio Intelligence started.
+2026-07-23 18:14:18,276 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-23 18:14:18,278 | INFO | core.portfolio.health | Portfolio health calculation started.
+2026-07-23 18:14:18,278 | INFO | core.portfolio.health | Portfolio health completed | Grade=B Score=80.00
+2026-07-23 18:14:18,279 | INFO | core.portfolio.risk | Portfolio risk calculation started.
+2026-07-23 18:14:18,279 | INFO | core.portfolio.risk | Risk completed | Level=MEDIUM Score=15.00
+2026-07-23 18:14:18,279 | INFO | core.portfolio.optimizer | Portfolio optimization started.
+2026-07-23 18:14:18,279 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:14:18,282 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:14:18,283 | INFO | core.portfolio.rebalancer | Generating rebalance plan.
+2026-07-23 18:14:18,283 | INFO | core.portfolio.allocator | Portfolio allocation started.
+2026-07-23 18:14:18,283 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:14:18,286 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:14:18,286 | INFO | core.portfolio.allocator | Allocation completed | Positions=6
+2026-07-23 18:14:18,288 | INFO | core.portfolio.rebalancer | Rebalance completed | Required=True
+2026-07-23 18:14:18,288 | INFO | core.portfolio.analyzer | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:14:18,288 | INFO | core.portfolio.service | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:14:18,288 | INFO | core.market.service | Market Intelligence started | XU100.IS
+2026-07-23 18:14:18,288 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:19,917 | INFO | core.market.data | Market data loaded | XU100.IS | candles=22
+2026-07-23 18:14:19,917 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:14:19,917 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:20,394 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:14:20,394 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:14:20,394 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:14:20,394 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:14:20,394 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:14:20,394 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:20,931 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:14:20,931 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:14:20,944 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:14:20,944 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:14:20,946 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:14:20,946 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:14:20,946 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:21,629 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:14:21,629 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:14:21,642 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:14:21,642 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:14:21,642 | INFO | core.market.regime | Determining market regime | XU100.IS
+2026-07-23 18:14:21,642 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:14:21,642 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:22,372 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:14:22,388 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:14:22,401 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:14:22,403 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:14:22,403 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:14:22,403 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:22,975 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:14:22,975 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:14:22,989 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:14:22,989 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:14:22,989 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:14:22,989 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:14:22,989 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:14:23,762 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:14:23,764 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:14:23,776 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:14:23,776 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:14:23,776 | INFO | core.market.regime | Market regime completed | NEUTRAL | 69.20
+2026-07-23 18:14:23,776 | INFO | core.market.service | Market completed | Regime=NEUTRAL | Score=67.18 | Volatility=NORMAL
+2026-07-23 18:14:23,776 | INFO | core.decision.service | Generating QuantBIST decision.
+2026-07-23 18:14:23,776 | INFO | core.committee.service | Investment Committee analysis started.
+2026-07-23 18:14:23,776 | INFO | core.committee.engine | Investment Committee started.
+2026-07-23 18:14:23,776 | INFO | core.committee.scoring | Generating committee scorecard.
+2026-07-23 18:14:23,776 | INFO | core.committee.scoring | Committee scorecard ready | {'portfolio': 69.75, 'market': 67.18, 'risk': 67.0, 'ai': 68.03}
+2026-07-23 18:14:23,782 | INFO | core.committee.voting | Committee voting started.
+2026-07-23 18:14:23,783 | INFO | core.committee.voting | Committee decision completed | Action=ACCUMULATE Score=70.49 Consensus=75.00
+2026-07-23 18:14:23,783 | INFO | core.committee.engine | Committee finished | Action=ACCUMULATE Score=70.49
+2026-07-23 18:14:23,783 | INFO | core.committee.service | Committee completed | Action=ACCUMULATE | Score=70.49 | Confidence=70 | Consensus=75.00
+2026-07-23 18:14:23,783 | INFO | core.ai.scoring | AI scoring started.
+2026-07-23 18:14:23,783 | INFO | core.ai.scoring | AI Score=80 Portfolio=20 Market=10
+2026-07-23 18:14:23,783 | INFO | core.decision.service | Decision completed | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:14:23,785 | INFO | core.charts.service | Dashboard charts generation started.
+2026-07-23 18:14:23,785 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-23 18:14:23,785 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:14:23,785 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:14:24,457 | INFO | core.charts.equity | Generating equity chart.
+2026-07-23 18:14:24,545 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-23 18:14:24,646 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-23 18:14:24,720 | INFO | core.charts.service | Dashboard charts completed.
+2026-07-23 18:14:24,727 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:14:25,447 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:14:25,447 | INFO | core.market.indicators | Generating indicator snapshot | SASA.IS
+2026-07-23 18:14:25,447 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:14:26,055 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:14:26,055 | WARNING | core.market.indicators | Limited market history | SASA.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:26,072 | INFO | core.market.indicators | Indicator snapshot completed | SASA.IS | Trend=NEUTRAL
+2026-07-23 18:14:26,072 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:14:26,632 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:14:26,634 | INFO | core.market.indicators | Generating indicator snapshot | SISE.IS
+2026-07-23 18:14:26,634 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:14:27,318 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:14:27,318 | WARNING | core.market.indicators | Limited market history | SISE.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:27,329 | INFO | core.market.indicators | Indicator snapshot completed | SISE.IS | Trend=NEUTRAL
+2026-07-23 18:14:27,329 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:14:28,017 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:14:28,018 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:14:28,018 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:14:28,677 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:14:28,685 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:28,698 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:14:28,700 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:14:29,377 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:14:29,377 | INFO | core.market.indicators | Generating indicator snapshot | TUPRS.IS
+2026-07-23 18:14:29,377 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:14:29,928 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:14:29,928 | WARNING | core.market.indicators | Limited market history | TUPRS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:29,943 | INFO | core.market.indicators | Indicator snapshot completed | TUPRS.IS | Trend=BULLISH
+2026-07-23 18:14:29,943 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:14:30,625 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:14:30,627 | INFO | core.market.indicators | Generating indicator snapshot | ASELS.IS
+2026-07-23 18:14:30,627 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:14:31,449 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:14:31,454 | WARNING | core.market.indicators | Limited market history | ASELS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:31,454 | INFO | core.market.indicators | Indicator snapshot completed | ASELS.IS | Trend=NEUTRAL
+2026-07-23 18:14:31,469 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:14:32,101 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:14:32,101 | INFO | core.market.indicators | Generating indicator snapshot | KCHOL.IS
+2026-07-23 18:14:32,101 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:14:32,825 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:14:32,825 | WARNING | core.market.indicators | Limited market history | KCHOL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:32,841 | INFO | core.market.indicators | Indicator snapshot completed | KCHOL.IS | Trend=BULLISH
+2026-07-23 18:14:32,841 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:14:33,563 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:14:33,563 | INFO | core.market.indicators | Generating indicator snapshot | YKBNK.IS
+2026-07-23 18:14:33,565 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:14:34,413 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:14:34,413 | WARNING | core.market.indicators | Limited market history | YKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:34,427 | INFO | core.market.indicators | Indicator snapshot completed | YKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:14:34,427 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:14:35,125 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:14:35,125 | INFO | core.market.indicators | Generating indicator snapshot | BIMAS.IS
+2026-07-23 18:14:35,125 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:14:35,642 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:14:35,642 | WARNING | core.market.indicators | Limited market history | BIMAS.IS | candles=127 | EMA200 accuracy reduced
+2026-07-23 18:14:35,660 | INFO | core.market.indicators | Indicator snapshot completed | BIMAS.IS | Trend=BULLISH
+2026-07-23 18:14:35,660 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:14:36,323 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:14:36,323 | INFO | core.market.indicators | Generating indicator snapshot | HEKTS.IS
+2026-07-23 18:14:36,323 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:14:36,899 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:14:36,899 | WARNING | core.market.indicators | Limited market history | HEKTS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:36,915 | INFO | core.market.indicators | Indicator snapshot completed | HEKTS.IS | Trend=NEUTRAL
+2026-07-23 18:14:36,915 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:14:37,514 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:14:37,516 | INFO | core.market.indicators | Generating indicator snapshot | PETKM.IS
+2026-07-23 18:14:37,516 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:14:37,995 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:14:37,995 | WARNING | core.market.indicators | Limited market history | PETKM.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:38,007 | INFO | core.market.indicators | Indicator snapshot completed | PETKM.IS | Trend=NEUTRAL
+2026-07-23 18:14:38,007 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:14:38,625 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:14:38,627 | INFO | core.market.indicators | Generating indicator snapshot | TCELL.IS
+2026-07-23 18:14:38,627 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:14:39,254 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:14:39,254 | WARNING | core.market.indicators | Limited market history | TCELL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:39,265 | INFO | core.market.indicators | Indicator snapshot completed | TCELL.IS | Trend=NEUTRAL
+2026-07-23 18:14:39,265 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:14:39,857 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:14:39,857 | INFO | core.market.indicators | Generating indicator snapshot | GARAN.IS
+2026-07-23 18:14:39,857 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:14:40,460 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:14:40,460 | WARNING | core.market.indicators | Limited market history | GARAN.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:40,460 | INFO | core.market.indicators | Indicator snapshot completed | GARAN.IS | Trend=NEUTRAL
+2026-07-23 18:14:40,460 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:14:41,057 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:14:41,057 | INFO | core.market.indicators | Generating indicator snapshot | AKBNK.IS
+2026-07-23 18:14:41,057 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:14:41,671 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:14:41,671 | WARNING | core.market.indicators | Limited market history | AKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:41,671 | INFO | core.market.indicators | Indicator snapshot completed | AKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:14:41,671 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:14:42,462 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:14:42,462 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:14:42,462 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:14:43,023 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:14:43,023 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:43,028 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:14:43,031 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:14:43,663 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:14:43,663 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:14:43,663 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:14:44,534 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:14:44,534 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:44,545 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:14:44,545 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:14:45,138 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:14:45,138 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:14:45,138 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:14:45,778 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:14:45,778 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:14:45,786 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:14:45,786 | INFO | core.dashboard.service | Dashboard ready | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:30:38,111 | INFO | core.dashboard.service | Dashboard generation started.
+2026-07-23 18:30:38,111 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-23 18:30:38,111 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:30:38,121 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:30:38,123 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared | Value=99283.58 Positions=6
+2026-07-23 18:30:38,123 | INFO | core.portfolio.service | Portfolio Intelligence started.
+2026-07-23 18:30:38,123 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-23 18:30:38,124 | INFO | core.portfolio.health | Portfolio health calculation started.
+2026-07-23 18:30:38,124 | INFO | core.portfolio.health | Portfolio health completed | Grade=B Score=80.00
+2026-07-23 18:30:38,124 | INFO | core.portfolio.risk | Portfolio risk calculation started.
+2026-07-23 18:30:38,124 | INFO | core.portfolio.risk | Risk completed | Level=MEDIUM Score=15.00
+2026-07-23 18:30:38,124 | INFO | core.portfolio.optimizer | Portfolio optimization started.
+2026-07-23 18:30:38,124 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:30:38,136 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:30:38,136 | INFO | core.portfolio.rebalancer | Generating rebalance plan.
+2026-07-23 18:30:38,136 | INFO | core.portfolio.allocator | Portfolio allocation started.
+2026-07-23 18:30:38,136 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:30:38,148 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:30:38,148 | INFO | core.portfolio.allocator | Allocation completed | Positions=6
+2026-07-23 18:30:38,148 | INFO | core.portfolio.rebalancer | Rebalance completed | Required=True
+2026-07-23 18:30:38,148 | INFO | core.portfolio.analyzer | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:30:38,148 | INFO | core.portfolio.service | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:30:38,148 | INFO | core.market.service | Market Intelligence started | XU100.IS
+2026-07-23 18:30:38,148 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:39,958 | INFO | core.market.data | Market data loaded | XU100.IS | candles=22
+2026-07-23 18:30:39,959 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:30:39,959 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:40,644 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:30:40,645 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:30:40,666 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:30:40,666 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:30:40,680 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:30:40,680 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:41,249 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:30:41,251 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:30:41,264 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:30:41,264 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:30:41,264 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:30:41,264 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:30:41,264 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:41,827 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:30:41,827 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:30:41,840 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:30:41,842 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:30:41,843 | INFO | core.market.regime | Determining market regime | XU100.IS
+2026-07-23 18:30:41,843 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:30:41,843 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:42,393 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:30:42,393 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:30:42,415 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:30:42,415 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:30:42,415 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:30:42,417 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:43,058 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:30:43,058 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:30:43,072 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:30:43,072 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:30:43,072 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:30:43,072 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:30:43,072 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:30:43,600 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:30:43,600 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:30:43,615 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:30:43,615 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:30:43,615 | INFO | core.market.regime | Market regime completed | NEUTRAL | 69.20
+2026-07-23 18:30:43,615 | INFO | core.market.service | Market completed | Regime=NEUTRAL | Score=67.18 | Volatility=NORMAL
+2026-07-23 18:30:43,615 | INFO | core.decision.service | Generating QuantBIST decision.
+2026-07-23 18:30:43,615 | INFO | core.committee.service | Investment Committee analysis started.
+2026-07-23 18:30:43,615 | INFO | core.committee.engine | Investment Committee started.
+2026-07-23 18:30:43,615 | INFO | core.committee.scoring | Generating committee scorecard.
+2026-07-23 18:30:43,615 | INFO | core.committee.scoring | Committee scorecard ready | {'portfolio': 69.75, 'market': 67.18, 'risk': 67.0, 'ai': 68.03}
+2026-07-23 18:30:43,617 | INFO | core.committee.voting | Committee voting started.
+2026-07-23 18:30:43,617 | INFO | core.committee.voting | Committee decision completed | Action=ACCUMULATE Score=70.49 Consensus=75.00
+2026-07-23 18:30:43,617 | INFO | core.committee.engine | Committee finished | Action=ACCUMULATE Score=70.49
+2026-07-23 18:30:43,617 | INFO | core.committee.service | Committee completed | Action=ACCUMULATE | Score=70.49 | Confidence=70 | Consensus=75.00
+2026-07-23 18:30:43,617 | INFO | core.ai.scoring | AI scoring started.
+2026-07-23 18:30:43,617 | INFO | core.ai.scoring | AI Score=80 Portfolio=20 Market=10
+2026-07-23 18:30:43,617 | INFO | core.decision.service | Decision completed | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:30:43,617 | INFO | core.charts.service | Dashboard charts generation started.
+2026-07-23 18:30:43,617 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-23 18:30:43,617 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:30:43,620 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:30:44,773 | INFO | core.charts.equity | Generating equity chart.
+2026-07-23 18:30:44,884 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-23 18:30:44,997 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-23 18:30:45,092 | INFO | core.charts.service | Dashboard charts completed.
+2026-07-23 18:30:45,093 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:30:45,883 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:30:45,883 | INFO | core.market.indicators | Generating indicator snapshot | SASA.IS
+2026-07-23 18:30:45,883 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:30:46,531 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:30:46,531 | WARNING | core.market.indicators | Limited market history | SASA.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:46,565 | INFO | core.market.indicators | Indicator snapshot completed | SASA.IS | Trend=NEUTRAL
+2026-07-23 18:30:46,572 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:30:47,277 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:30:47,280 | INFO | core.market.indicators | Generating indicator snapshot | SISE.IS
+2026-07-23 18:30:47,282 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:30:47,947 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:30:47,947 | WARNING | core.market.indicators | Limited market history | SISE.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:47,967 | INFO | core.market.indicators | Indicator snapshot completed | SISE.IS | Trend=NEUTRAL
+2026-07-23 18:30:47,967 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:30:48,865 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:30:48,871 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:30:48,871 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:30:49,475 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:30:49,478 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:49,528 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:30:49,532 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:30:50,385 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:30:50,385 | INFO | core.market.indicators | Generating indicator snapshot | TUPRS.IS
+2026-07-23 18:30:50,385 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:30:51,226 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:30:51,231 | WARNING | core.market.indicators | Limited market history | TUPRS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:51,317 | INFO | core.market.indicators | Indicator snapshot completed | TUPRS.IS | Trend=BULLISH
+2026-07-23 18:30:51,324 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:30:52,169 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:30:52,169 | INFO | core.market.indicators | Generating indicator snapshot | ASELS.IS
+2026-07-23 18:30:52,169 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:30:52,821 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:30:52,821 | WARNING | core.market.indicators | Limited market history | ASELS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:52,850 | INFO | core.market.indicators | Indicator snapshot completed | ASELS.IS | Trend=NEUTRAL
+2026-07-23 18:30:52,850 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:30:53,526 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:30:53,528 | INFO | core.market.indicators | Generating indicator snapshot | KCHOL.IS
+2026-07-23 18:30:53,529 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:30:54,347 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:30:54,347 | WARNING | core.market.indicators | Limited market history | KCHOL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:54,361 | INFO | core.market.indicators | Indicator snapshot completed | KCHOL.IS | Trend=BULLISH
+2026-07-23 18:30:54,364 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:30:54,983 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:30:54,983 | INFO | core.market.indicators | Generating indicator snapshot | YKBNK.IS
+2026-07-23 18:30:54,983 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:30:55,613 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:30:55,613 | WARNING | core.market.indicators | Limited market history | YKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:55,624 | INFO | core.market.indicators | Indicator snapshot completed | YKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:30:55,629 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:30:56,162 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:30:56,162 | INFO | core.market.indicators | Generating indicator snapshot | BIMAS.IS
+2026-07-23 18:30:56,162 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:30:56,913 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:30:56,913 | WARNING | core.market.indicators | Limited market history | BIMAS.IS | candles=127 | EMA200 accuracy reduced
+2026-07-23 18:30:56,927 | INFO | core.market.indicators | Indicator snapshot completed | BIMAS.IS | Trend=BULLISH
+2026-07-23 18:30:56,927 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:30:57,488 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:30:57,488 | INFO | core.market.indicators | Generating indicator snapshot | HEKTS.IS
+2026-07-23 18:30:57,499 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:30:58,359 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:30:58,361 | WARNING | core.market.indicators | Limited market history | HEKTS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:58,375 | INFO | core.market.indicators | Indicator snapshot completed | HEKTS.IS | Trend=NEUTRAL
+2026-07-23 18:30:58,377 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:30:59,006 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:30:59,006 | INFO | core.market.indicators | Generating indicator snapshot | PETKM.IS
+2026-07-23 18:30:59,009 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:30:59,724 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:30:59,726 | WARNING | core.market.indicators | Limited market history | PETKM.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:30:59,755 | INFO | core.market.indicators | Indicator snapshot completed | PETKM.IS | Trend=NEUTRAL
+2026-07-23 18:30:59,757 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:31:00,545 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:31:00,547 | INFO | core.market.indicators | Generating indicator snapshot | TCELL.IS
+2026-07-23 18:31:00,551 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:31:01,516 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:31:01,516 | WARNING | core.market.indicators | Limited market history | TCELL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:31:01,544 | INFO | core.market.indicators | Indicator snapshot completed | TCELL.IS | Trend=NEUTRAL
+2026-07-23 18:31:01,550 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:31:02,403 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:31:02,405 | INFO | core.market.indicators | Generating indicator snapshot | GARAN.IS
+2026-07-23 18:31:02,405 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:31:03,355 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:31:03,355 | WARNING | core.market.indicators | Limited market history | GARAN.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:31:03,395 | INFO | core.market.indicators | Indicator snapshot completed | GARAN.IS | Trend=NEUTRAL
+2026-07-23 18:31:03,399 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:31:04,281 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:31:04,286 | INFO | core.market.indicators | Generating indicator snapshot | AKBNK.IS
+2026-07-23 18:31:04,297 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:31:05,044 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:31:05,044 | WARNING | core.market.indicators | Limited market history | AKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:31:05,103 | INFO | core.market.indicators | Indicator snapshot completed | AKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:31:05,115 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:31:06,088 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:31:06,088 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:31:06,088 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:31:06,804 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:31:06,807 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:31:06,856 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:31:06,864 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:31:07,544 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:31:07,544 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:31:07,544 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:31:08,380 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:31:08,384 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:31:08,434 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:31:08,441 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:31:09,071 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:31:09,078 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:31:09,078 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:31:09,995 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:31:10,023 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:31:10,127 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:31:10,137 | INFO | core.dashboard.service | Dashboard ready | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:44:55,744 | INFO | core.dashboard.service | Dashboard generation started.
+2026-07-23 18:44:55,744 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-23 18:44:55,744 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:44:55,744 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:44:55,744 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared | Value=99283.58 Positions=6
+2026-07-23 18:44:55,744 | INFO | core.portfolio.service | Portfolio Intelligence started.
+2026-07-23 18:44:55,744 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-23 18:44:55,744 | INFO | core.portfolio.health | Portfolio health calculation started.
+2026-07-23 18:44:55,753 | INFO | core.portfolio.health | Portfolio health completed | Grade=B Score=80.00
+2026-07-23 18:44:55,754 | INFO | core.portfolio.risk | Portfolio risk calculation started.
+2026-07-23 18:44:55,754 | INFO | core.portfolio.risk | Risk completed | Level=MEDIUM Score=15.00
+2026-07-23 18:44:55,754 | INFO | core.portfolio.optimizer | Portfolio optimization started.
+2026-07-23 18:44:55,754 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:44:55,758 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:44:55,758 | INFO | core.portfolio.rebalancer | Generating rebalance plan.
+2026-07-23 18:44:55,758 | INFO | core.portfolio.allocator | Portfolio allocation started.
+2026-07-23 18:44:55,758 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:44:55,765 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:44:55,765 | INFO | core.portfolio.allocator | Allocation completed | Positions=6
+2026-07-23 18:44:55,765 | INFO | core.portfolio.rebalancer | Rebalance completed | Required=True
+2026-07-23 18:44:55,765 | INFO | core.portfolio.analyzer | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:44:55,765 | INFO | core.portfolio.service | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:44:55,765 | INFO | core.market.service | Market Intelligence started | XU100.IS
+2026-07-23 18:44:55,765 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:44:58,206 | INFO | core.market.data | Market data loaded | XU100.IS | candles=22
+2026-07-23 18:44:58,206 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:44:58,206 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:44:59,103 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:44:59,103 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:44:59,111 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:44:59,113 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:44:59,113 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:44:59,113 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:00,050 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:00,050 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:00,061 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:00,061 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:45:00,061 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:45:00,061 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:00,061 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:00,737 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:00,737 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:00,749 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:00,749 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:45:00,749 | INFO | core.market.regime | Determining market regime | XU100.IS
+2026-07-23 18:45:00,749 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:00,749 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:01,524 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:01,524 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:01,533 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:01,533 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:45:01,533 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:01,533 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:02,168 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:02,168 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:02,172 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:02,172 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:45:02,172 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:45:02,172 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:02,172 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:02,924 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:02,924 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:02,940 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:02,940 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:45:02,941 | INFO | core.market.regime | Market regime completed | NEUTRAL | 69.20
+2026-07-23 18:45:02,941 | INFO | core.market.service | Market completed | Regime=NEUTRAL | Score=67.18 | Volatility=NORMAL
+2026-07-23 18:45:02,941 | INFO | core.decision.service | Generating QuantBIST decision.
+2026-07-23 18:45:02,941 | INFO | core.committee.service | Investment Committee analysis started.
+2026-07-23 18:45:02,941 | INFO | core.committee.engine | Investment Committee started.
+2026-07-23 18:45:02,943 | INFO | core.committee.scoring | Generating committee scorecard.
+2026-07-23 18:45:02,943 | INFO | core.committee.scoring | Committee scorecard ready | {'portfolio': 69.75, 'market': 67.18, 'risk': 67.0, 'ai': 68.03}
+2026-07-23 18:45:02,943 | INFO | core.committee.voting | Committee voting started.
+2026-07-23 18:45:02,943 | INFO | core.committee.voting | Committee decision completed | Action=ACCUMULATE Score=70.49 Consensus=75.00
+2026-07-23 18:45:02,943 | INFO | core.committee.engine | Committee finished | Action=ACCUMULATE Score=70.49
+2026-07-23 18:45:02,945 | INFO | core.committee.service | Committee completed | Action=ACCUMULATE | Score=70.49 | Confidence=70 | Consensus=75.00
+2026-07-23 18:45:02,945 | INFO | core.ai.scoring | AI scoring started.
+2026-07-23 18:45:02,945 | INFO | core.ai.scoring | AI Score=80 Portfolio=20 Market=10
+2026-07-23 18:45:02,945 | INFO | core.decision.service | Decision completed | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:45:02,947 | INFO | core.charts.service | Dashboard charts generation started.
+2026-07-23 18:45:02,947 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-23 18:45:02,947 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:45:02,953 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:45:03,600 | INFO | core.charts.equity | Generating equity chart.
+2026-07-23 18:45:03,698 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-23 18:45:03,841 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-23 18:45:03,963 | INFO | core.charts.service | Dashboard charts completed.
+2026-07-23 18:45:03,963 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:45:04,839 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:45:04,839 | INFO | core.market.indicators | Generating indicator snapshot | SASA.IS
+2026-07-23 18:45:04,841 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:45:05,476 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:45:05,476 | WARNING | core.market.indicators | Limited market history | SASA.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:05,482 | INFO | core.market.indicators | Indicator snapshot completed | SASA.IS | Trend=NEUTRAL
+2026-07-23 18:45:05,490 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:45:06,524 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:45:06,524 | INFO | core.market.indicators | Generating indicator snapshot | SISE.IS
+2026-07-23 18:45:06,524 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:45:07,263 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:45:07,279 | WARNING | core.market.indicators | Limited market history | SISE.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:07,295 | INFO | core.market.indicators | Indicator snapshot completed | SISE.IS | Trend=NEUTRAL
+2026-07-23 18:45:07,312 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:45:07,992 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:45:07,994 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:45:07,994 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:45:08,633 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:45:08,633 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:08,666 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:45:08,680 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:45:09,604 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:45:09,604 | INFO | core.market.indicators | Generating indicator snapshot | TUPRS.IS
+2026-07-23 18:45:09,604 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:45:10,499 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:45:10,499 | WARNING | core.market.indicators | Limited market history | TUPRS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:10,530 | INFO | core.market.indicators | Indicator snapshot completed | TUPRS.IS | Trend=BULLISH
+2026-07-23 18:45:10,530 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:45:11,397 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:45:11,397 | INFO | core.market.indicators | Generating indicator snapshot | ASELS.IS
+2026-07-23 18:45:11,397 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:45:12,232 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:45:12,232 | WARNING | core.market.indicators | Limited market history | ASELS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:12,238 | INFO | core.market.indicators | Indicator snapshot completed | ASELS.IS | Trend=NEUTRAL
+2026-07-23 18:45:12,240 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:45:13,241 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:45:13,241 | INFO | core.market.indicators | Generating indicator snapshot | KCHOL.IS
+2026-07-23 18:45:13,241 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:45:14,103 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:45:14,103 | WARNING | core.market.indicators | Limited market history | KCHOL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:14,103 | INFO | core.market.indicators | Indicator snapshot completed | KCHOL.IS | Trend=BULLISH
+2026-07-23 18:45:14,103 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:45:15,196 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:45:15,196 | INFO | core.market.indicators | Generating indicator snapshot | YKBNK.IS
+2026-07-23 18:45:15,196 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:45:16,062 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:45:16,062 | WARNING | core.market.indicators | Limited market history | YKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:16,070 | INFO | core.market.indicators | Indicator snapshot completed | YKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:45:16,070 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:45:16,838 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:45:16,838 | INFO | core.market.indicators | Generating indicator snapshot | BIMAS.IS
+2026-07-23 18:45:16,838 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:45:17,560 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:45:17,560 | WARNING | core.market.indicators | Limited market history | BIMAS.IS | candles=127 | EMA200 accuracy reduced
+2026-07-23 18:45:17,560 | INFO | core.market.indicators | Indicator snapshot completed | BIMAS.IS | Trend=BULLISH
+2026-07-23 18:45:17,560 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:45:18,468 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:45:18,468 | INFO | core.market.indicators | Generating indicator snapshot | HEKTS.IS
+2026-07-23 18:45:18,468 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:45:19,190 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:45:19,190 | WARNING | core.market.indicators | Limited market history | HEKTS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:19,207 | INFO | core.market.indicators | Indicator snapshot completed | HEKTS.IS | Trend=NEUTRAL
+2026-07-23 18:45:19,209 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:45:20,107 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:45:20,107 | INFO | core.market.indicators | Generating indicator snapshot | PETKM.IS
+2026-07-23 18:45:20,107 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:45:20,828 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:45:20,828 | WARNING | core.market.indicators | Limited market history | PETKM.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:20,838 | INFO | core.market.indicators | Indicator snapshot completed | PETKM.IS | Trend=NEUTRAL
+2026-07-23 18:45:20,838 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:45:21,961 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:45:21,961 | INFO | core.market.indicators | Generating indicator snapshot | TCELL.IS
+2026-07-23 18:45:21,961 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:45:22,884 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:45:22,884 | WARNING | core.market.indicators | Limited market history | TCELL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:22,897 | INFO | core.market.indicators | Indicator snapshot completed | TCELL.IS | Trend=NEUTRAL
+2026-07-23 18:45:22,897 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:45:23,697 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:45:23,697 | INFO | core.market.indicators | Generating indicator snapshot | GARAN.IS
+2026-07-23 18:45:23,697 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:45:24,831 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:45:24,831 | WARNING | core.market.indicators | Limited market history | GARAN.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:24,835 | INFO | core.market.indicators | Indicator snapshot completed | GARAN.IS | Trend=NEUTRAL
+2026-07-23 18:45:24,835 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:45:25,751 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:45:25,751 | INFO | core.market.indicators | Generating indicator snapshot | AKBNK.IS
+2026-07-23 18:45:25,751 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:45:26,765 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:45:26,767 | WARNING | core.market.indicators | Limited market history | AKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:26,776 | INFO | core.market.indicators | Indicator snapshot completed | AKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:45:26,776 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:45:27,692 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:45:27,694 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:45:27,694 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:45:28,547 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:45:28,547 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:28,556 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:45:28,556 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:45:29,328 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:45:29,328 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:45:29,328 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:45:30,207 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:45:30,207 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:30,211 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:45:30,211 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:45:31,183 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:45:31,183 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:45:31,183 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:45:31,882 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:45:31,882 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:31,882 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:45:31,882 | INFO | core.dashboard.service | Dashboard ready | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:45:31,882 | INFO | core.decision.service | Generating QuantBIST decision.
+2026-07-23 18:45:31,882 | INFO | core.committee.service | Investment Committee analysis started.
+2026-07-23 18:45:31,882 | INFO | core.committee.engine | Investment Committee started.
+2026-07-23 18:45:31,882 | INFO | core.committee.scoring | Generating committee scorecard.
+2026-07-23 18:45:31,882 | INFO | core.committee.scoring | Committee scorecard ready | {'portfolio': 69.75, 'market': 67.18, 'risk': 67.0, 'ai': 68.03}
+2026-07-23 18:45:31,882 | INFO | core.committee.voting | Committee voting started.
+2026-07-23 18:45:31,896 | INFO | core.committee.voting | Committee decision completed | Action=ACCUMULATE Score=70.49 Consensus=75.00
+2026-07-23 18:45:31,896 | INFO | core.committee.engine | Committee finished | Action=ACCUMULATE Score=70.49
+2026-07-23 18:45:31,896 | INFO | core.committee.service | Committee completed | Action=ACCUMULATE | Score=70.49 | Confidence=70 | Consensus=75.00
+2026-07-23 18:45:31,897 | INFO | core.ai.scoring | AI scoring started.
+2026-07-23 18:45:31,897 | INFO | core.ai.scoring | AI Score=80 Portfolio=20 Market=10
+2026-07-23 18:45:31,898 | INFO | core.decision.service | Decision completed | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:45:36,664 | INFO | core.dashboard.service | Dashboard generation started.
+2026-07-23 18:45:36,664 | INFO | core.portfolio.dashboard_data | Preparing dashboard portfolio statistics...
+2026-07-23 18:45:36,664 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:45:36,683 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:45:36,683 | INFO | core.portfolio.dashboard_data | Dashboard portfolio prepared | Value=99283.58 Positions=6
+2026-07-23 18:45:36,683 | INFO | core.portfolio.service | Portfolio Intelligence started.
+2026-07-23 18:45:36,683 | INFO | core.portfolio.analyzer | Portfolio analysis started.
+2026-07-23 18:45:36,683 | INFO | core.portfolio.health | Portfolio health calculation started.
+2026-07-23 18:45:36,683 | INFO | core.portfolio.health | Portfolio health completed | Grade=B Score=80.00
+2026-07-23 18:45:36,683 | INFO | core.portfolio.risk | Portfolio risk calculation started.
+2026-07-23 18:45:36,683 | INFO | core.portfolio.risk | Risk completed | Level=MEDIUM Score=15.00
+2026-07-23 18:45:36,683 | INFO | core.portfolio.optimizer | Portfolio optimization started.
+2026-07-23 18:45:36,683 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:45:36,688 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:45:36,688 | INFO | core.portfolio.rebalancer | Generating rebalance plan.
+2026-07-23 18:45:36,688 | INFO | core.portfolio.allocator | Portfolio allocation started.
+2026-07-23 18:45:36,688 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:45:36,697 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:45:36,699 | INFO | core.portfolio.allocator | Allocation completed | Positions=6
+2026-07-23 18:45:36,699 | INFO | core.portfolio.rebalancer | Rebalance completed | Required=True
+2026-07-23 18:45:36,699 | INFO | core.portfolio.analyzer | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:45:36,699 | INFO | core.portfolio.service | Portfolio completed | Health=B | Risk=MEDIUM
+2026-07-23 18:45:36,699 | INFO | core.market.service | Market Intelligence started | XU100.IS
+2026-07-23 18:45:36,701 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:38,344 | INFO | core.market.data | Market data loaded | XU100.IS | candles=22
+2026-07-23 18:45:38,346 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:38,347 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:39,457 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:39,457 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:39,475 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:39,475 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:45:39,475 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:39,475 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:40,383 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:40,383 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:40,397 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:40,397 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:45:40,397 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:45:40,397 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:40,399 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:41,195 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:41,195 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:41,195 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:41,195 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:45:41,211 | INFO | core.market.regime | Determining market regime | XU100.IS
+2026-07-23 18:45:41,211 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:41,211 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:42,008 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:42,008 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:42,023 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:42,023 | INFO | core.market.breadth | Calculating market breadth | XU100.IS
+2026-07-23 18:45:42,023 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:42,023 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:42,843 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:42,843 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:42,856 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:42,856 | INFO | core.market.breadth | Market breadth completed | Score=85.00
+2026-07-23 18:45:42,856 | INFO | core.market.sentiment | Calculating market sentiment | XU100.IS
+2026-07-23 18:45:42,856 | INFO | core.market.indicators | Generating indicator snapshot | XU100.IS
+2026-07-23 18:45:42,856 | INFO | core.market.data | Loading market data | XU100.IS
+2026-07-23 18:45:43,765 | INFO | core.market.data | Market data loaded | XU100.IS | candles=122
+2026-07-23 18:45:43,765 | WARNING | core.market.indicators | Limited market history | XU100.IS | candles=122 | EMA200 accuracy reduced
+2026-07-23 18:45:43,768 | INFO | core.market.indicators | Indicator snapshot completed | XU100.IS | Trend=BULLISH
+2026-07-23 18:45:43,775 | INFO | core.market.sentiment | Market sentiment completed | Score=39.00
+2026-07-23 18:45:43,775 | INFO | core.market.regime | Market regime completed | NEUTRAL | 69.20
+2026-07-23 18:45:43,775 | INFO | core.market.service | Market completed | Regime=NEUTRAL | Score=67.18 | Volatility=NORMAL
+2026-07-23 18:45:43,775 | INFO | core.decision.service | Generating QuantBIST decision.
+2026-07-23 18:45:43,775 | INFO | core.committee.service | Investment Committee analysis started.
+2026-07-23 18:45:43,776 | INFO | core.committee.engine | Investment Committee started.
+2026-07-23 18:45:43,777 | INFO | core.committee.scoring | Generating committee scorecard.
+2026-07-23 18:45:43,778 | INFO | core.committee.scoring | Committee scorecard ready | {'portfolio': 69.75, 'market': 67.18, 'risk': 67.0, 'ai': 68.03}
+2026-07-23 18:45:43,778 | INFO | core.committee.voting | Committee voting started.
+2026-07-23 18:45:43,778 | INFO | core.committee.voting | Committee decision completed | Action=ACCUMULATE Score=70.49 Consensus=75.00
+2026-07-23 18:45:43,778 | INFO | core.committee.engine | Committee finished | Action=ACCUMULATE Score=70.49
+2026-07-23 18:45:43,778 | INFO | core.committee.service | Committee completed | Action=ACCUMULATE | Score=70.49 | Confidence=70 | Consensus=75.00
+2026-07-23 18:45:43,778 | INFO | core.ai.scoring | AI scoring started.
+2026-07-23 18:45:43,778 | INFO | core.ai.scoring | AI Score=80 Portfolio=20 Market=10
+2026-07-23 18:45:43,778 | INFO | core.decision.service | Decision completed | Action=ACCUMULATE | AI=80 | Confidence=70
+2026-07-23 18:45:43,778 | INFO | core.charts.service | Dashboard charts generation started.
+2026-07-23 18:45:43,778 | INFO | core.charts.allocation | Generating allocation chart.
+2026-07-23 18:45:43,778 | INFO | core.portfolio.repository | Loading portfolio...
+2026-07-23 18:45:43,778 | INFO | core.portfolio.repository | Portfolio repository ready | Rows=6
+2026-07-23 18:45:44,157 | INFO | core.charts.equity | Generating equity chart.
+2026-07-23 18:45:44,208 | INFO | core.charts.risk | Generating risk gauge.
+2026-07-23 18:45:44,273 | INFO | core.charts.ai | Generating AI gauge.
+2026-07-23 18:45:44,316 | INFO | core.charts.service | Dashboard charts completed.
+2026-07-23 18:45:44,316 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:45:45,185 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:45:45,185 | INFO | core.market.indicators | Generating indicator snapshot | SASA.IS
+2026-07-23 18:45:45,185 | INFO | core.market.data | Loading market data | SASA.IS
+2026-07-23 18:45:46,537 | INFO | core.market.data | Market data loaded | SASA.IS | candles=125
+2026-07-23 18:45:46,539 | WARNING | core.market.indicators | Limited market history | SASA.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:46,545 | INFO | core.market.indicators | Indicator snapshot completed | SASA.IS | Trend=NEUTRAL
+2026-07-23 18:45:46,545 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:45:47,471 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:45:47,471 | INFO | core.market.indicators | Generating indicator snapshot | SISE.IS
+2026-07-23 18:45:47,471 | INFO | core.market.data | Loading market data | SISE.IS
+2026-07-23 18:45:48,252 | INFO | core.market.data | Market data loaded | SISE.IS | candles=125
+2026-07-23 18:45:48,252 | WARNING | core.market.indicators | Limited market history | SISE.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:48,256 | INFO | core.market.indicators | Indicator snapshot completed | SISE.IS | Trend=NEUTRAL
+2026-07-23 18:45:48,256 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:45:49,212 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:45:49,212 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:45:49,212 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:45:50,144 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:45:50,144 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:50,152 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:45:50,152 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:45:51,076 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:45:51,076 | INFO | core.market.indicators | Generating indicator snapshot | TUPRS.IS
+2026-07-23 18:45:51,076 | INFO | core.market.data | Loading market data | TUPRS.IS
+2026-07-23 18:45:51,926 | INFO | core.market.data | Market data loaded | TUPRS.IS | candles=125
+2026-07-23 18:45:51,926 | WARNING | core.market.indicators | Limited market history | TUPRS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:51,936 | INFO | core.market.indicators | Indicator snapshot completed | TUPRS.IS | Trend=BULLISH
+2026-07-23 18:45:51,938 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:45:53,128 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:45:53,128 | INFO | core.market.indicators | Generating indicator snapshot | ASELS.IS
+2026-07-23 18:45:53,128 | INFO | core.market.data | Loading market data | ASELS.IS
+2026-07-23 18:45:54,199 | INFO | core.market.data | Market data loaded | ASELS.IS | candles=125
+2026-07-23 18:45:54,199 | WARNING | core.market.indicators | Limited market history | ASELS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:54,199 | INFO | core.market.indicators | Indicator snapshot completed | ASELS.IS | Trend=NEUTRAL
+2026-07-23 18:45:54,199 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:45:55,030 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:45:55,030 | INFO | core.market.indicators | Generating indicator snapshot | KCHOL.IS
+2026-07-23 18:45:55,030 | INFO | core.market.data | Loading market data | KCHOL.IS
+2026-07-23 18:45:56,203 | INFO | core.market.data | Market data loaded | KCHOL.IS | candles=125
+2026-07-23 18:45:56,203 | WARNING | core.market.indicators | Limited market history | KCHOL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:56,209 | INFO | core.market.indicators | Indicator snapshot completed | KCHOL.IS | Trend=BULLISH
+2026-07-23 18:45:56,209 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:45:57,075 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:45:57,075 | INFO | core.market.indicators | Generating indicator snapshot | YKBNK.IS
+2026-07-23 18:45:57,077 | INFO | core.market.data | Loading market data | YKBNK.IS
+2026-07-23 18:45:57,932 | INFO | core.market.data | Market data loaded | YKBNK.IS | candles=125
+2026-07-23 18:45:57,932 | WARNING | core.market.indicators | Limited market history | YKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:45:57,932 | INFO | core.market.indicators | Indicator snapshot completed | YKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:45:57,946 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:45:58,920 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:45:58,920 | INFO | core.market.indicators | Generating indicator snapshot | BIMAS.IS
+2026-07-23 18:45:58,920 | INFO | core.market.data | Loading market data | BIMAS.IS
+2026-07-23 18:45:59,953 | INFO | core.market.data | Market data loaded | BIMAS.IS | candles=127
+2026-07-23 18:45:59,955 | WARNING | core.market.indicators | Limited market history | BIMAS.IS | candles=127 | EMA200 accuracy reduced
+2026-07-23 18:45:59,957 | INFO | core.market.indicators | Indicator snapshot completed | BIMAS.IS | Trend=BULLISH
+2026-07-23 18:45:59,963 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:46:00,662 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:46:00,662 | INFO | core.market.indicators | Generating indicator snapshot | HEKTS.IS
+2026-07-23 18:46:00,662 | INFO | core.market.data | Loading market data | HEKTS.IS
+2026-07-23 18:46:01,795 | INFO | core.market.data | Market data loaded | HEKTS.IS | candles=125
+2026-07-23 18:46:01,797 | WARNING | core.market.indicators | Limited market history | HEKTS.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:01,797 | INFO | core.market.indicators | Indicator snapshot completed | HEKTS.IS | Trend=NEUTRAL
+2026-07-23 18:46:01,797 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:46:02,834 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:46:02,834 | INFO | core.market.indicators | Generating indicator snapshot | PETKM.IS
+2026-07-23 18:46:02,834 | INFO | core.market.data | Loading market data | PETKM.IS
+2026-07-23 18:46:03,848 | INFO | core.market.data | Market data loaded | PETKM.IS | candles=125
+2026-07-23 18:46:03,848 | WARNING | core.market.indicators | Limited market history | PETKM.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:03,858 | INFO | core.market.indicators | Indicator snapshot completed | PETKM.IS | Trend=NEUTRAL
+2026-07-23 18:46:03,858 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:46:04,751 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:46:04,751 | INFO | core.market.indicators | Generating indicator snapshot | TCELL.IS
+2026-07-23 18:46:04,751 | INFO | core.market.data | Loading market data | TCELL.IS
+2026-07-23 18:46:05,475 | INFO | core.market.data | Market data loaded | TCELL.IS | candles=125
+2026-07-23 18:46:05,475 | WARNING | core.market.indicators | Limited market history | TCELL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:05,475 | INFO | core.market.indicators | Indicator snapshot completed | TCELL.IS | Trend=NEUTRAL
+2026-07-23 18:46:05,475 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:46:06,295 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:46:06,295 | INFO | core.market.indicators | Generating indicator snapshot | GARAN.IS
+2026-07-23 18:46:06,295 | INFO | core.market.data | Loading market data | GARAN.IS
+2026-07-23 18:46:07,011 | INFO | core.market.data | Market data loaded | GARAN.IS | candles=125
+2026-07-23 18:46:07,011 | WARNING | core.market.indicators | Limited market history | GARAN.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:07,018 | INFO | core.market.indicators | Indicator snapshot completed | GARAN.IS | Trend=NEUTRAL
+2026-07-23 18:46:07,018 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:46:07,932 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:46:07,932 | INFO | core.market.indicators | Generating indicator snapshot | AKBNK.IS
+2026-07-23 18:46:07,932 | INFO | core.market.data | Loading market data | AKBNK.IS
+2026-07-23 18:46:08,746 | INFO | core.market.data | Market data loaded | AKBNK.IS | candles=125
+2026-07-23 18:46:08,746 | WARNING | core.market.indicators | Limited market history | AKBNK.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:08,763 | INFO | core.market.indicators | Indicator snapshot completed | AKBNK.IS | Trend=NEUTRAL
+2026-07-23 18:46:08,765 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:46:09,581 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:46:09,581 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:46:09,581 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:46:11,006 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:46:11,006 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:11,006 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:46:11,006 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:46:11,828 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:46:11,828 | INFO | core.market.indicators | Generating indicator snapshot | EREGL.IS
+2026-07-23 18:46:11,828 | INFO | core.market.data | Loading market data | EREGL.IS
+2026-07-23 18:46:12,775 | INFO | core.market.data | Market data loaded | EREGL.IS | candles=125
+2026-07-23 18:46:12,775 | WARNING | core.market.indicators | Limited market history | EREGL.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:12,786 | INFO | core.market.indicators | Indicator snapshot completed | EREGL.IS | Trend=BULLISH
+2026-07-23 18:46:12,786 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:46:13,674 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:46:13,674 | INFO | core.market.indicators | Generating indicator snapshot | THYAO.IS
+2026-07-23 18:46:13,674 | INFO | core.market.data | Loading market data | THYAO.IS
+2026-07-23 18:46:14,634 | INFO | core.market.data | Market data loaded | THYAO.IS | candles=125
+2026-07-23 18:46:14,634 | WARNING | core.market.indicators | Limited market history | THYAO.IS | candles=125 | EMA200 accuracy reduced
+2026-07-23 18:46:14,642 | INFO | core.market.indicators | Indicator snapshot completed | THYAO.IS | Trend=BULLISH
+2026-07-23 18:46:14,642 | INFO | core.dashboard.service | Dashboard ready | Action=ACCUMULATE | AI=80 | Confidence=70
