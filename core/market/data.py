@@ -1,12 +1,20 @@
 """
-QuantBIST RC5
+QuantBIST RC8
 Market Data Provider
+
+Responsibilities:
+
+- Yahoo Finance OHLCV provider
+- Data normalization
+- Market cache layer
+- Snapshot generation
+- Data quality information
 """
 
 from __future__ import annotations
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 import pandas as pd
@@ -17,6 +25,7 @@ from core.infrastructure.exceptions import (
     MarketError,
 )
 
+
 from core.infrastructure.logger import (
     get_logger,
 )
@@ -24,6 +33,7 @@ from core.infrastructure.logger import (
 
 
 logger = get_logger(__name__)
+
 
 
 
@@ -38,6 +48,66 @@ DEFAULT_PERIOD = "6mo"
 DEFAULT_INTERVAL = "1d"
 
 
+CACHE_MINUTES = 5
+
+
+
+
+
+# =====================================================
+# CACHE
+# =====================================================
+
+
+_PRICE_CACHE: dict[str, dict] = {}
+
+
+
+
+
+def _cache_valid(
+    symbol: str,
+) -> bool:
+
+
+    item = _PRICE_CACHE.get(symbol)
+
+
+    if not item:
+
+        return False
+
+
+
+    age = (
+
+        datetime.now()
+
+        -
+
+        item["time"]
+
+    )
+
+
+
+    return (
+
+        age
+
+        <
+
+        timedelta(
+
+            minutes=CACHE_MINUTES
+
+        )
+
+    )
+
+
+
+
 
 
 
@@ -49,9 +119,6 @@ DEFAULT_INTERVAL = "1d"
 def _normalize_dataframe(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """
-    Normalize Yahoo Finance dataframe.
-    """
 
 
     if df.empty:
@@ -64,8 +131,11 @@ def _normalize_dataframe(
 
 
         if isinstance(
+
             df.columns,
+
             pd.MultiIndex,
+
         ):
 
 
@@ -124,6 +194,7 @@ def _normalize_dataframe(
 
 
 
+
         df["volume"] = (
 
             pd.to_numeric(
@@ -157,9 +228,77 @@ def _normalize_dataframe(
 
         raise MarketError(
 
-            f"Data normalization failed: {exc}"
+            f"Normalization failed: {exc}"
 
         ) from exc
+
+
+
+
+
+
+
+# =====================================================
+# DATA QUALITY
+# =====================================================
+
+
+def get_data_quality(
+    df: pd.DataFrame,
+) -> dict:
+
+
+    candles = len(df)
+
+
+
+    if candles >= 200:
+
+        reliability = 100
+
+
+    elif candles >= 100:
+
+        reliability = 85
+
+
+    elif candles >= 50:
+
+        reliability = 70
+
+
+    else:
+
+        reliability = 50
+
+
+
+
+    return {
+
+
+        "candles":
+
+            candles,
+
+
+        "reliability":
+
+            reliability,
+
+
+        "ema200_available":
+
+            candles >= 200,
+
+
+        "updated":
+
+            datetime.now(),
+
+    }
+
+
 
 
 
@@ -175,9 +314,32 @@ def load_price_history(
     period: str = DEFAULT_PERIOD,
     interval: str = DEFAULT_INTERVAL,
 ) -> pd.DataFrame:
-    """
-    Download OHLCV history.
-    """
+
+
+    cache_key = (
+
+        f"{symbol}_{period}_{interval}"
+
+    )
+
+
+
+    if _cache_valid(cache_key):
+
+
+        logger.debug(
+
+            "Cache hit | %s",
+
+            symbol,
+
+        )
+
+
+        return _PRICE_CACHE[cache_key]["data"]
+
+
+
 
 
     logger.info(
@@ -189,7 +351,9 @@ def load_price_history(
     )
 
 
+
     try:
+
 
 
         df = yf.download(
@@ -210,11 +374,13 @@ def load_price_history(
 
 
 
+
         df = _normalize_dataframe(
 
             df,
 
         )
+
 
 
 
@@ -229,15 +395,37 @@ def load_price_history(
 
 
 
+
+
+        _PRICE_CACHE[cache_key] = {
+
+
+            "data":
+
+                df,
+
+
+            "time":
+
+                datetime.now(),
+
+
+        }
+
+
+
+
+
         logger.info(
 
-            "Market data loaded | %s | candles=%d",
+            "Market loaded | %s | candles=%d",
 
             symbol,
 
             len(df),
 
         )
+
 
 
         return df
@@ -272,6 +460,7 @@ def load_price_history(
 
 
 
+
 # =====================================================
 # LAST PRICE
 # =====================================================
@@ -280,9 +469,6 @@ def load_price_history(
 def load_last_price(
     symbol: str,
 ) -> float:
-    """
-    Return latest close price.
-    """
 
 
     df = load_price_history(
@@ -292,17 +478,6 @@ def load_last_price(
         period="5d",
 
     )
-
-
-
-    if df.empty:
-
-        raise MarketError(
-
-            f"No price data: {symbol}"
-
-        )
-
 
 
     return round(
@@ -322,6 +497,8 @@ def load_last_price(
 
 
 
+
+
 # =====================================================
 # SNAPSHOT
 # =====================================================
@@ -330,9 +507,6 @@ def load_last_price(
 def load_snapshot(
     symbol: str,
 ) -> dict:
-    """
-    Return market snapshot.
-    """
 
 
     df = load_price_history(
@@ -349,7 +523,7 @@ def load_snapshot(
 
         raise MarketError(
 
-            f"Insufficient snapshot data: {symbol}"
+            f"Insufficient data: {symbol}"
 
         )
 
@@ -374,8 +548,7 @@ def load_snapshot(
 
 
 
-    if previous != 0:
-
+    if previous:
 
         change = round(
 
@@ -420,11 +593,9 @@ def load_snapshot(
             ),
 
 
-
         "change":
 
             change,
-
 
 
         "volume":
@@ -436,12 +607,23 @@ def load_snapshot(
             ),
 
 
+        "quality":
+
+            get_data_quality(
+
+                df
+
+            ),
+
 
         "updated":
 
             datetime.now(),
 
     }
+
+
+
 
 
 
@@ -456,9 +638,6 @@ def load_snapshot(
 def load_market(
     symbols: list[str],
 ) -> dict[str,pd.DataFrame]:
-    """
-    Download multiple symbols.
-    """
 
 
     result = {}
@@ -501,6 +680,7 @@ def load_market(
 
 
 
+
 # =====================================================
 # EXPORTS
 # =====================================================
@@ -508,12 +688,20 @@ def load_market(
 
 __all__ = [
 
+
     "load_price_history",
+
 
     "load_last_price",
 
+
     "load_snapshot",
 
+
     "load_market",
+
+
+    "get_data_quality",
+
 
 ]

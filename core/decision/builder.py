@@ -2,7 +2,7 @@
 QuantBIST RC7
 Decision Builder
 
-Builds final AI investment decision.
+Build final AI investment decision.
 """
 
 from __future__ import annotations
@@ -17,25 +17,11 @@ from core.ai.scoring import (
 )
 
 
-from core.committee.models import (
-    CommitteeResult,
-    Vote,
-)
-
-
 from core.decision.models import (
     Decision,
     DecisionAction,
-)
-
-
-from core.market.models import (
-    MarketStatus,
-)
-
-
-from core.portfolio.models import (
-    PortfolioAnalysis,
+    PriorityLevel,
+    RiskLevel,
 )
 
 
@@ -47,7 +33,7 @@ from core.portfolio.models import (
 # =====================================================
 
 
-def _generate_decision_id() -> str:
+def _id() -> str:
 
     return (
 
@@ -61,58 +47,110 @@ def _generate_decision_id() -> str:
 
 
 
-def _enum_value(
-    value,
-) -> str:
+def _enum_value(value):
 
-    if hasattr(
-        value,
-        "value",
-    ):
+    if hasattr(value, "value"):
 
-        return str(
-            value.value
-        ).upper()
+        return value.value
+
+    return str(value)
 
 
-    return str(
-        value
-    ).upper()
+
+
+
+
 
 # =====================================================
-# RISK SCORE
+# ACTION
+# =====================================================
+
+
+def _action(
+    score: int,
+) -> str:
+
+
+    if score >= 90:
+
+        return DecisionAction.STRONG_BUY.value
+
+
+    if score >= 75:
+
+        return DecisionAction.BUY.value
+
+
+    if score >= 60:
+
+        return DecisionAction.ACCUMULATE.value
+
+
+    if score >= 45:
+
+        return DecisionAction.HOLD.value
+
+
+    if score >= 30:
+
+        return DecisionAction.REDUCE.value
+
+
+    if score >= 15:
+
+        return DecisionAction.SELL.value
+
+
+    return DecisionAction.STRONG_SELL.value
+
+
+
+
+
+
+
+# =====================================================
+# RISK
 # =====================================================
 
 
 def _risk_score(
-    portfolio: PortfolioAnalysis,
-) -> float:
-
+    portfolio,
+):
 
     mapping = {
 
-        "LOW": 20.0,
 
-        "MEDIUM": 50.0,
+        "LOW":20,
 
-        "HIGH": 75.0,
 
-        "VERY_HIGH": 85.0,
+        "MEDIUM":50,
 
-        "CRITICAL": 95.0,
+
+        "HIGH":75,
+
+
+        "VERY_HIGH":85,
+
+
+        "CRITICAL":95,
 
     }
 
 
+    level = _enum_value(
+
+        portfolio.risk.level
+
+    ).upper()
+
+
+
     return mapping.get(
 
-        _enum_value(
+        level,
 
-            portfolio.risk.level
-
-        ),
-
-        50.0,
+        50,
 
     )
 
@@ -121,15 +159,10 @@ def _risk_score(
 
 
 
-# =====================================================
-# CONFIDENCE
-# =====================================================
-
 
 def _confidence(
-    value: int,
-) -> int:
-
+    committee,
+):
 
     return max(
 
@@ -139,264 +172,15 @@ def _confidence(
 
             99,
 
-            int(value),
+            int(
 
-        )
-
-    )
-
-
-
-
-
-
-
-# =====================================================
-# ACTION ENGINE
-# =====================================================
-
-
-def _final_action(
-    ai_score: int,
-    committee: CommitteeResult,
-    portfolio: PortfolioAnalysis,
-) -> str:
-
-
-    risk = _enum_value(
-
-        portfolio.risk.level
-
-    )
-
-
-    action = committee.action
-
-
-
-
-
-    if risk in (
-
-        "CRITICAL",
-
-        "VERY_HIGH",
-
-    ):
-
-        return DecisionAction.REDUCE.value
-
-
-
-
-
-    if (
-
-        ai_score >= 90
-
-        and
-
-        action == Vote.STRONG_BUY
-
-        and
-
-        committee.confidence >= 80
-
-    ):
-
-        return DecisionAction.STRONG_BUY.value
-
-
-
-
-
-    if (
-
-        ai_score >= 75
-
-        and
-
-        action in (
-
-            Vote.BUY,
-
-            Vote.STRONG_BUY,
-
-        )
-
-    ):
-
-        return DecisionAction.BUY.value
-
-
-
-
-
-    if (
-
-        ai_score >= 70
-
-        and
-
-        action == Vote.HOLD
-
-    ):
-
-        return DecisionAction.WATCH.value
-
-
-
-
-
-    if ai_score <= 35:
-
-        return DecisionAction.SELL.value
-
-
-
-
-
-    if action in (
-
-        Vote.REDUCE,
-
-        Vote.SELL,
-
-    ):
-
-        return DecisionAction.REDUCE.value
-
-
-
-
-
-    return _enum_value(action)
-
-# =====================================================
-# TECHNICAL INTELLIGENCE
-# =====================================================
-
-
-def _technical_data(
-    market: MarketStatus,
-) -> dict:
-    """
-    Extract technical intelligence
-    from MarketStatus indicators.
-    """
-
-
-    indicators = getattr(
-
-        market,
-
-        "indicators",
-
-        None,
-
-    )
-
-
-
-    if indicators is None:
-
-        return {
-
-            "technical_score": 0.0,
-
-            "technical_trend": "",
-
-            "rsi": 0.0,
-
-            "macd_signal": "",
-
-        }
-
-
-
-
-
-    macd_signal = (
-
-        "BULLISH"
-
-        if indicators.macd > indicators.macd_signal
-
-        else "BEARISH"
-
-    )
-
-
-
-
-
-    trend = getattr(
-
-        indicators.trend,
-
-        "value",
-
-        str(indicators.trend),
-
-    )
-
-
-
-
-
-    return {
-
-
-        "technical_score": round(
-
-            (
-
-                indicators.rsi
-
-                +
-
-                (
-
-                    100
-
-                    if trend == "BULLISH"
-
-                    else 50
-
-                )
-
-            )
-
-            / 2,
-
-            2,
-
-        ),
-
-
-
-        "technical_trend":
-
-            trend,
-
-
-
-        "rsi":
-
-            float(
-
-                indicators.rsi
+                committee.confidence
 
             ),
 
+        )
 
-
-        "macd_signal":
-
-            macd_signal,
-
-    }
-
+    )
 
 
 
@@ -404,106 +188,15 @@ def _technical_data(
 
 
 # =====================================================
-# AI EXPLANATION
+# TEXT
 # =====================================================
 
 
-def _ai_explanation(
-    portfolio,
-    market,
-    committee,
+def _recommendation(
+    action,
     score,
+    confidence,
 ):
-
-    result = []
-
-
-
-    result.append(
-
-        f"AI Score: {score}/100"
-
-    )
-
-
-
-    result.append(
-
-        f"Market regime: {_enum_value(market.regime.status)}"
-
-    )
-
-
-
-    result.append(
-
-        f"Market trend: {_enum_value(market.trend)}"
-
-    )
-
-
-
-    result.append(
-
-        f"Portfolio health: {portfolio.health.score}/100"
-
-    )
-
-
-
-    result.append(
-
-        f"Committee decision: {_enum_value(committee.action)}"
-
-    )
-
-
-
-
-
-    if market.risk_off:
-
-        result.append(
-
-            "Risk-Off environment detected."
-
-        )
-
-
-
-
-
-    if portfolio.rebalance.needs_rebalance:
-
-        result.append(
-
-            "Portfolio rebalance required."
-
-        )
-
-
-
-
-
-    return result
-
-
-
-
-
-
-
-# =====================================================
-# RECOMMENDATION TEXT
-# =====================================================
-
-
-def _recommendation_text(
-    action: str,
-    score: int,
-    confidence: int,
-) -> str:
-
 
     return (
 
@@ -520,147 +213,31 @@ def _recommendation_text(
 
 
 
-
-# =====================================================
-# EXPLANATION TEXT
-# =====================================================
-
-
-def _explanation_text(
-    explanation: list[str],
-) -> str:
-
-
-    return " | ".join(
-
-        explanation
-
-    )
-
-# =====================================================
-# SCORE BREAKDOWN
-# =====================================================
-
-
-def _score_breakdown(
+def _reasons(
+    score,
     portfolio,
     market,
     committee,
 ):
 
-    return {
+    return [
 
+        f"AI Score: {score}/100",
 
-        "portfolio_health":
+        f"Market Trend: {_enum_value(market.trend)}",
 
-            float(
+        f"Market Regime: {_enum_value(market.regime.status)}",
 
-                portfolio.health.score
+        f"Portfolio Grade: {portfolio.health.grade}",
 
-            ),
+        f"Committee Decision: {_enum_value(committee.action)}",
 
+    ]
 
 
-        "market_score":
 
-            float(
 
-                market.market_score
 
-            ),
-
-
-
-        "committee_score":
-
-            float(
-
-                committee.score
-
-            ),
-
-
-
-        "risk_factor":
-
-            -_risk_score(
-
-                portfolio
-
-            ),
-
-    }
-
-
-
-
-
-
-
-# =====================================================
-# DECISION CONTEXT
-# =====================================================
-
-
-def _decision_context(
-    portfolio,
-    market,
-):
-
-    return {
-
-
-        "market_status":
-
-            market.status,
-
-
-
-        "trend":
-
-            _enum_value(
-
-                market.trend
-
-            ),
-
-
-
-        "regime":
-
-            _enum_value(
-
-                market.regime.status
-
-            ),
-
-
-
-        "portfolio_grade":
-
-            portfolio.health.grade,
-
-
-
-        "risk":
-
-            _enum_value(
-
-                portfolio.risk.level
-
-            ),
-
-    }
-
-
-
-
-
-
-
-# =====================================================
-# WARNINGS
-# =====================================================
 
 
 def _warnings(
@@ -668,121 +245,34 @@ def _warnings(
     market,
 ):
 
-    warnings = []
-
-
-
+    result = []
 
 
     if portfolio.rebalance.needs_rebalance:
 
-        warnings.append(
+        result.append(
 
             "Portfolio rebalance required."
 
         )
 
 
-
-
-
-    if portfolio.optimization.concentration_risk:
-
-        warnings.append(
-
-            "Concentration risk detected."
-
-        )
-
-
-
-
-
     if market.risk_off:
 
-        warnings.append(
+        result.append(
 
             "Market risk-off condition."
 
         )
 
 
-
-
-
-    if market.volatility.value == "HIGH":
-
-        warnings.append(
-
-            "High volatility environment."
-
-        )
-
-
-
-
-
-    return warnings
+    return result
 
 
 
 
 
 
-
-# =====================================================
-# SUGGESTIONS
-# =====================================================
-
-
-def _suggestions(
-    portfolio,
-    market,
-):
-
-    suggestions = []
-
-
-
-
-
-    if market.risk_on:
-
-        suggestions.append(
-
-            "Selective equity exposure can be maintained."
-
-        )
-
-
-
-
-
-    if portfolio.rebalance.needs_rebalance:
-
-        suggestions.append(
-
-            "Review target portfolio weights."
-
-        )
-
-
-
-
-
-    if not suggestions:
-
-        suggestions.append(
-
-            "Monitor market conditions."
-
-        )
-
-
-
-
-
-    return suggestions
 
 # =====================================================
 # PUBLIC API
@@ -790,17 +280,16 @@ def _suggestions(
 
 
 def build_decision(
-    committee: CommitteeResult,
-    portfolio: PortfolioAnalysis,
-    market: MarketStatus,
+    committee,
+    portfolio,
+    market,
 ) -> Decision:
     """
-    Build final QuantBIST RC7 AI decision.
+    Build final RC7 decision.
     """
 
 
-
-    ai_score = calculate_score(
+    score = calculate_score(
 
         portfolio,
 
@@ -810,100 +299,61 @@ def build_decision(
 
 
 
+    action = _action(
 
-
-    action = _final_action(
-
-        ai_score,
-
-        committee,
-
-        portfolio,
+        score,
 
     )
-
-
 
 
 
     confidence = _confidence(
 
-        committee.confidence
+        committee,
 
     )
 
 
 
-
-
-    explanation = _ai_explanation(
+    risk_score = _risk_score(
 
         portfolio,
 
-        market,
-
-        committee,
-
-        ai_score,
-
     )
 
 
 
-
-
-    technical = _technical_data(
-
-        market,
-
-    )
+    decision = Decision(
 
 
 
+        decision_id=_id(),
 
-
-
-
-    return Decision(
-
-
-
-
-
-        # -----------------------------------------
-        # Identity
-        # -----------------------------------------
-
-
-        decision_id=_generate_decision_id(),
-
-
-        timestamp=datetime.now(),
-
-
-        engine_version="RC7",
-
-
-
-
-
-        # -----------------------------------------
-        # Final Decision
-        # -----------------------------------------
 
 
         action=action,
 
 
-        score=ai_score,
+
+        score=score,
+
+
+
+        ai_score=score,
+
 
 
         confidence=confidence,
 
 
-        priority=_enum_value(
 
-            committee.priority
+        priority=(
+
+            PriorityLevel.HIGH.value
+
+            if confidence < 60
+
+            else PriorityLevel.NORMAL.value
 
         ),
 
@@ -913,7 +363,7 @@ def build_decision(
 
             f"{action} | "
 
-            f"AI {ai_score}/100 | "
+            f"AI {score}/100 | "
 
             f"Confidence {confidence}%"
 
@@ -921,137 +371,16 @@ def build_decision(
 
 
 
-        recommendation=_recommendation_text(
+        recommendation=_recommendation(
 
             action,
 
-            ai_score,
+            score,
 
             confidence,
 
         ),
 
-
-
-
-
-        # -----------------------------------------
-        # AI Intelligence
-        # -----------------------------------------
-
-
-        ai_score=ai_score,
-
-
-
-        ai_explanation=explanation,
-
-
-
-        explanation_text=_explanation_text(
-
-            explanation
-
-        ),
-
-
-
-
-
-        score_breakdown=_score_breakdown(
-
-            portfolio,
-
-            market,
-
-            committee,
-
-        ),
-
-
-
-
-
-        decision_context=_decision_context(
-
-            portfolio,
-
-            market,
-
-        ),
-
-
-
-
-
-        # -----------------------------------------
-        # Technical Intelligence
-        # -----------------------------------------
-
-
-        technical_score=technical["technical_score"],
-
-
-        technical_trend=technical["technical_trend"],
-
-
-        rsi=technical["rsi"],
-
-
-        macd_signal=technical["macd_signal"],
-
-
-
-
-
-        # -----------------------------------------
-        # Committee Intelligence
-        # -----------------------------------------
-
-
-        committee_action=_enum_value(
-
-            committee.action
-
-        ),
-
-
-        committee_score=committee.score,
-
-
-        committee_consensus=committee.consensus,
-
-
-
-
-
-        # -----------------------------------------
-        # Portfolio Intelligence
-        # -----------------------------------------
-
-
-        portfolio_health=portfolio.health.score,
-
-
-        portfolio_grade=portfolio.health.grade,
-
-
-        best_symbol=portfolio.optimization.largest_position,
-
-
-        worst_symbol=portfolio.optimization.smallest_position,
-
-
-
-        rebalance_required=portfolio.rebalance.needs_rebalance,
-
-
-
-
-
-        # -----------------------------------------
-        # Risk Intelligence
-        # -----------------------------------------
 
 
         risk_level=_enum_value(
@@ -1062,22 +391,18 @@ def build_decision(
 
 
 
-        risk_score=_risk_score(
+        risk_score=risk_score,
 
-            portfolio,
+
+
+
+
+        market_status=_enum_value(
+
+            market.status
 
         ),
 
-
-
-
-
-        # -----------------------------------------
-        # Market Intelligence
-        # -----------------------------------------
-
-
-        market_status=market.status,
 
 
         market_trend=_enum_value(
@@ -1085,6 +410,7 @@ def build_decision(
             market.trend
 
         ),
+
 
 
         market_regime=_enum_value(
@@ -1096,21 +422,47 @@ def build_decision(
 
 
 
-
-        # -----------------------------------------
-        # Explanation Layer
-        # -----------------------------------------
-
-
-        reasons=explanation,
+        portfolio_health=portfolio.health.score,
 
 
 
-        suggestions=_suggestions(
+        portfolio_grade=portfolio.health.grade,
+
+
+
+        rebalance_required=
+
+            portfolio.rebalance.needs_rebalance,
+
+
+
+
+        committee_action=_enum_value(
+
+            committee.action
+
+        ),
+
+
+
+        committee_score=committee.score,
+
+
+
+        committee_consensus=committee.consensus,
+
+
+
+
+        reasons=_reasons(
+
+            score,
 
             portfolio,
 
             market,
+
+            committee,
 
         ),
 
@@ -1126,17 +478,22 @@ def build_decision(
 
 
 
+        suggestions=[
+
+            "Monitor market conditions.",
+
+        ],
+
     )
 
 
 
+    return decision
 
 
 
 
-# =====================================================
-# EXPORTS
-# =====================================================
+
 
 
 __all__ = [
@@ -1144,4 +501,3 @@ __all__ = [
     "build_decision",
 
 ]
-

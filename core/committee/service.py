@@ -1,6 +1,18 @@
 """
-QuantBIST RC5
+QuantBIST RC7
 Investment Committee Service
+
+Public gateway for Investment Committee Engine.
+
+Flow:
+
+Portfolio
+    |
+Market
+    |
+Committee Engine
+    |
+Committee Result
 """
 
 from __future__ import annotations
@@ -12,9 +24,11 @@ from core.committee.engine import (
 )
 
 
+
 from core.committee.models import (
     CommitteeResult,
 )
+
 
 
 from core.infrastructure.exceptions import (
@@ -22,14 +36,17 @@ from core.infrastructure.exceptions import (
 )
 
 
+
 from core.infrastructure.logger import (
     get_logger,
 )
 
 
+
 from core.market.models import (
     MarketStatus,
 )
+
 
 
 from core.portfolio.models import (
@@ -41,6 +58,7 @@ from core.portfolio.models import (
 
 
 logger = get_logger(__name__)
+
 
 
 
@@ -59,12 +77,10 @@ def _action_value(
     Convert enum action safely.
     """
 
+
     if hasattr(
-
         action,
-
         "value",
-
     ):
 
         return str(
@@ -90,31 +106,53 @@ def get_committee_decision(
     market: MarketStatus,
 ) -> CommitteeResult:
     """
-    Execute Investment Committee.
+    Generate investment committee decision.
 
-    Flow:
+    RC7 Pipeline:
 
-        Portfolio
-            ↓
-        Market
-            ↓
+        Portfolio Intelligence
+                |
+        Market Intelligence
+                |
         Committee Engine
-            ↓
+                |
         Committee Result
 
     """
 
 
-
     logger.info(
 
-        "Investment Committee analysis started."
+        "Investment Committee started."
 
     )
 
 
 
     try:
+
+
+
+        if portfolio is None:
+
+            raise DecisionError(
+
+                "Portfolio missing."
+
+            )
+
+
+
+        if market is None:
+
+            raise DecisionError(
+
+                "Market data missing."
+
+            )
+
+
+
 
 
         result = run_committee(
@@ -127,14 +165,16 @@ def get_committee_decision(
 
 
 
-        if result is None:
 
+
+        if result is None:
 
             raise DecisionError(
 
-                "Committee returned empty result."
+                "Committee result empty."
 
             )
+
 
 
 
@@ -142,11 +182,11 @@ def get_committee_decision(
         logger.info(
 
             "Committee completed | "
-            "Action=%s | Score=%.2f | Confidence=%d | Consensus=%.2f",
+            "Action=%s Score=%s Confidence=%s Consensus=%s",
 
             _action_value(
 
-                result.action,
+                result.action
 
             ),
 
@@ -161,7 +201,9 @@ def get_committee_decision(
 
 
 
+
         return result
+
 
 
 
@@ -180,7 +222,7 @@ def get_committee_decision(
 
         logger.exception(
 
-            "Investment Committee service failed."
+            "Committee service failed."
 
         )
 
@@ -198,18 +240,17 @@ def get_committee_decision(
 
 
 # =====================================================
-# SHORTCUTS
+# SIGNAL HELPERS
 # =====================================================
 
 
 def buy_signal(
     committee: CommitteeResult,
 ) -> bool:
-    """
-    Committee buy signal.
-    """
+
 
     return committee.buy_signal
+
 
 
 
@@ -219,11 +260,10 @@ def buy_signal(
 def sell_signal(
     committee: CommitteeResult,
 ) -> bool:
-    """
-    Committee sell signal.
-    """
+
 
     return committee.sell_signal
+
 
 
 
@@ -233,11 +273,10 @@ def sell_signal(
 def high_confidence(
     committee: CommitteeResult,
 ) -> bool:
-    """
-    High confidence committee decision.
-    """
+
 
     return committee.high_confidence
+
 
 
 
@@ -247,9 +286,7 @@ def high_confidence(
 def unanimous(
     committee: CommitteeResult,
 ) -> bool:
-    """
-    All members agree.
-    """
+
 
     return committee.unanimous
 
@@ -258,14 +295,29 @@ def unanimous(
 
 
 
+
 def consensus(
     committee: CommitteeResult,
-) -> int:
+) -> float:
     """
-    Return consensus percentage.
+    Committee agreement percentage.
     """
 
-    return committee.consensus_percent
+
+    return float(
+
+        getattr(
+
+            committee,
+
+            "consensus",
+
+            0,
+
+        )
+
+    )
+
 
 
 
@@ -275,15 +327,13 @@ def consensus(
 def is_strong_buy(
     committee: CommitteeResult,
 ) -> bool:
-    """
-    Strong buy committee decision.
-    """
+
 
     return (
 
         _action_value(
 
-            committee.action,
+            committee.action
 
         )
 
@@ -302,9 +352,7 @@ def is_strong_buy(
 def risk_warning(
     committee: CommitteeResult,
 ) -> bool:
-    """
-    Committee risk warning.
-    """
+
 
     return committee.sell_signal
 
@@ -314,22 +362,30 @@ def risk_warning(
 
 
 
+# =====================================================
+# DASHBOARD OUTPUT
+# =====================================================
+
+
 def decision_summary(
     committee: CommitteeResult,
 ) -> dict:
     """
-    Dashboard friendly committee summary.
+    Dashboard friendly committee card.
     """
 
+
     return {
+
 
         "action":
 
             _action_value(
 
-                committee.action,
+                committee.action
 
             ),
+
 
 
         "score":
@@ -337,19 +393,46 @@ def decision_summary(
             committee.score,
 
 
+
         "confidence":
 
             committee.confidence,
 
 
+
         "consensus":
 
-            committee.consensus_percent,
+            consensus(
+
+                committee
+
+            ),
+
 
 
         "priority":
 
             committee.priority,
+
+
+
+        "members":
+
+            len(
+
+                committee.votes
+
+            )
+
+            if hasattr(
+
+                committee,
+
+                "votes",
+
+            )
+
+            else 0,
 
 
     }
@@ -367,22 +450,32 @@ def decision_summary(
 
 __all__ = [
 
+
     "get_committee_decision",
+
 
     "buy_signal",
 
+
     "sell_signal",
+
 
     "high_confidence",
 
+
     "unanimous",
+
 
     "consensus",
 
+
     "is_strong_buy",
+
 
     "risk_warning",
 
+
     "decision_summary",
+
 
 ]

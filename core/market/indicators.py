@@ -1,6 +1,15 @@
-"""
-QuantBIST RC5
+ï»¿"""
+QuantBIST RC8
 Market Indicator Engine
+
+Technical Intelligence Layer
+
+- EMA Trend
+- RSI Momentum
+- MACD
+- ATR
+- Bollinger Bands
+- Technical Score
 """
 
 from __future__ import annotations
@@ -11,11 +20,13 @@ import pandas as pd
 
 from ta.momentum import RSIIndicator
 
+
 from ta.trend import (
     EMAIndicator,
     MACD,
     SMAIndicator,
 )
+
 
 from ta.volatility import (
     AverageTrueRange,
@@ -23,17 +34,21 @@ from ta.volatility import (
 )
 
 
+
 from core.infrastructure.exceptions import (
     MarketError,
 )
+
 
 from core.infrastructure.logger import (
     get_logger,
 )
 
+
 from core.market.data import (
     load_price_history,
 )
+
 
 from core.market.models import (
     IndicatorSnapshot,
@@ -42,7 +57,12 @@ from core.market.models import (
 
 
 
+
+
 logger = get_logger(__name__)
+
+
+
 
 
 
@@ -52,12 +72,13 @@ logger = get_logger(__name__)
 # =====================================================
 
 
-# RC5:
-# Teknik göstergeler için minimum veri ihtiyacý.
-# EMA200 uzun dönem göstergedir ancak eksik veri durumunda
-# dashboard akýþýný durdurmamalýdýr.
-
 MIN_HISTORY_LENGTH = 50
+
+
+
+
+
+
 
 # =====================================================
 # HELPERS
@@ -67,15 +88,16 @@ MIN_HISTORY_LENGTH = 50
 def _last(
     series: pd.Series,
 ) -> float:
-    """
-    Return last valid value safely.
-    """
+
 
     series = series.dropna()
+
 
     if series.empty:
 
         return 0.0
+
+
 
     return round(
 
@@ -89,10 +111,13 @@ def _last(
 
 
 
+
+
 def _ema(
     close: pd.Series,
     window: int,
 ) -> float:
+
 
     return _last(
 
@@ -102,9 +127,13 @@ def _ema(
 
             window=window,
 
-        ).ema_indicator()
+        )
+
+        .ema_indicator()
 
     )
+
+
 
 
 
@@ -115,6 +144,7 @@ def _sma(
     window: int,
 ) -> float:
 
+
     return _last(
 
         SMAIndicator(
@@ -123,9 +153,13 @@ def _sma(
 
             window=window,
 
-        ).sma_indicator()
+        )
+
+        .sma_indicator()
 
     )
+
+
 
 
 
@@ -135,6 +169,7 @@ def _rsi(
     close: pd.Series,
 ) -> float:
 
+
     return _last(
 
         RSIIndicator(
@@ -143,7 +178,9 @@ def _rsi(
 
             window=14,
 
-        ).rsi()
+        )
+
+        .rsi()
 
     )
 
@@ -151,12 +188,12 @@ def _rsi(
 
 
 
+
+
 def _macd(
     close: pd.Series,
-) -> tuple[float, float, float]:
-    """
-    Calculate MACD.
-    """
+):
+
 
     indicator = MACD(
 
@@ -193,14 +230,14 @@ def _macd(
 
 
 
+
+
 def _atr(
-    high: pd.Series,
-    low: pd.Series,
-    close: pd.Series,
-) -> float:
-    """
-    Calculate ATR.
-    """
+    high,
+    low,
+    close,
+):
+
 
     return _last(
 
@@ -214,7 +251,9 @@ def _atr(
 
             window=14,
 
-        ).average_true_range()
+        )
+
+        .average_true_range()
 
     )
 
@@ -222,12 +261,12 @@ def _atr(
 
 
 
+
+
 def _bollinger(
-    close: pd.Series,
-) -> tuple[float, float, float]:
-    """
-    Calculate Bollinger bands.
-    """
+    close,
+):
+
 
     bb = BollingerBands(
 
@@ -268,6 +307,56 @@ def _bollinger(
 
 
 
+
+
+# =====================================================
+# ADAPTIVE LONG TERM EMA
+# =====================================================
+
+
+def _long_term_ema(
+    close: pd.Series,
+    candles: int,
+) -> float:
+
+
+    if candles >= 200:
+
+        return _ema(
+
+            close,
+
+            200,
+
+        )
+
+
+    if candles >= 100:
+
+        return _ema(
+
+            close,
+
+            100,
+
+        )
+
+
+    return _ema(
+
+        close,
+
+        50,
+
+    )
+
+
+
+
+
+
+
+
 # =====================================================
 # TREND ENGINE
 # =====================================================
@@ -276,22 +365,39 @@ def _bollinger(
 def _trend(
     ema20: float,
     ema50: float,
-    ema200: float,
+    long_term: float,
 ) -> MarketTrend:
-    """
-    Determine primary market trend.
-    """
 
 
-    if ema20 > ema50 > ema200:
+    if (
+
+        ema20 > ema50
+
+        and
+
+        ema50 > long_term
+
+    ):
 
         return MarketTrend.BULLISH
 
 
 
-    if ema20 < ema50 < ema200:
+
+
+    if (
+
+        ema20 < ema50
+
+        and
+
+        ema50 < long_term
+
+    ):
 
         return MarketTrend.BEARISH
+
+
 
 
 
@@ -301,13 +407,17 @@ def _trend(
 
 
 
+
+
+# =====================================================
+# MOMENTUM
+# =====================================================
+
+
 def _momentum(
     rsi: float,
     histogram: float,
 ) -> str:
-    """
-    Determine momentum state.
-    """
 
 
     if rsi >= 70:
@@ -336,17 +446,22 @@ def _momentum(
 
     return "NEUTRAL"
 
+
+
+
+
+
+
+
 # =====================================================
-# SNAPSHOT ENGINE
+# SNAPSHOT
 # =====================================================
 
 
 def generate_indicator_snapshot(
     symbol: str,
 ) -> IndicatorSnapshot:
-    """
-    Generate complete technical snapshot.
-    """
+
 
     logger.info(
 
@@ -360,6 +475,7 @@ def generate_indicator_snapshot(
     try:
 
 
+
         df = load_price_history(
 
             symbol,
@@ -368,13 +484,15 @@ def generate_indicator_snapshot(
 
 
 
+
         if df.empty:
 
             raise MarketError(
 
-                f"No market data for {symbol}"
+                f"No market data: {symbol}"
 
             )
+
 
 
 
@@ -409,31 +527,36 @@ def generate_indicator_snapshot(
 
 
 
-        # RC5 DATA CONTROL
-        # EMA200 için ideal veri 220 gündür.
-        # Ancak eksik veri dashboard akýþýný durdurmaz.
+        candles = len(df)
 
-        if len(df) < MIN_HISTORY_LENGTH:
+
+
+        if candles < MIN_HISTORY_LENGTH:
 
             raise MarketError(
 
-                f"Insufficient market history: {len(df)}"
+                f"Insufficient history: {candles}"
 
             )
 
 
 
-        if len(df) < 220:
+
+
+
+        if candles < 200:
 
             logger.warning(
 
-                "Limited market history | %s | candles=%d | EMA200 accuracy reduced",
+                "Short history | %s | candles=%d | adaptive EMA active",
 
                 symbol,
 
-                len(df),
+                candles,
 
             )
+
+
 
 
 
@@ -451,6 +574,7 @@ def generate_indicator_snapshot(
 
 
 
+
         ema20 = _ema(
 
             close,
@@ -458,6 +582,7 @@ def generate_indicator_snapshot(
             20,
 
         )
+
 
 
         ema50 = _ema(
@@ -469,13 +594,17 @@ def generate_indicator_snapshot(
         )
 
 
-        ema200 = _ema(
+
+        long_term = _long_term_ema(
 
             close,
 
-            200,
+            candles,
 
         )
+
+
+
 
 
 
@@ -505,6 +634,8 @@ def generate_indicator_snapshot(
             200,
 
         )
+
+
 
 
 
@@ -554,13 +685,15 @@ def generate_indicator_snapshot(
 
 
 
+
+
         trend = _trend(
 
             ema20,
 
             ema50,
 
-            ema200,
+            long_term,
 
         )
 
@@ -575,6 +708,9 @@ def generate_indicator_snapshot(
             histogram,
 
         )
+
+
+
 
 
 
@@ -595,15 +731,19 @@ def generate_indicator_snapshot(
 
             ema20=ema20,
 
+
             ema50=ema50,
 
-            ema200=ema200,
+
+            ema200=long_term,
 
 
 
             sma20=sma20,
 
+
             sma50=sma50,
+
 
             sma200=sma200,
 
@@ -612,14 +752,15 @@ def generate_indicator_snapshot(
             rsi=rsi,
 
 
-
             atr=atr,
 
 
 
             macd=macd,
 
+
             macd_signal=signal,
+
 
             macd_histogram=histogram,
 
@@ -627,7 +768,9 @@ def generate_indicator_snapshot(
 
             bollinger_upper=bb_upper,
 
+
             bollinger_middle=bb_middle,
+
 
             bollinger_lower=bb_lower,
 
@@ -644,9 +787,11 @@ def generate_indicator_snapshot(
 
 
 
+
+
         logger.info(
 
-            "Indicator snapshot completed | %s | Trend=%s",
+            "Indicator completed | %s | Trend=%s",
 
             symbol,
 
@@ -656,7 +801,10 @@ def generate_indicator_snapshot(
 
 
 
+
+
         return snapshot
+
 
 
 
@@ -665,6 +813,8 @@ def generate_indicator_snapshot(
     except MarketError:
 
         raise
+
+
 
 
 
@@ -685,6 +835,12 @@ def generate_indicator_snapshot(
 
         ) from exc
 
+
+
+
+
+
+
 # =====================================================
 # SIGNAL HELPERS
 # =====================================================
@@ -694,7 +850,10 @@ def is_bullish(
     snapshot: IndicatorSnapshot,
 ) -> bool:
 
+
     return snapshot.trend is MarketTrend.BULLISH
+
+
 
 
 
@@ -704,7 +863,10 @@ def is_bearish(
     snapshot: IndicatorSnapshot,
 ) -> bool:
 
+
     return snapshot.trend is MarketTrend.BEARISH
+
+
 
 
 
@@ -714,7 +876,10 @@ def is_neutral(
     snapshot: IndicatorSnapshot,
 ) -> bool:
 
+
     return snapshot.trend is MarketTrend.NEUTRAL
+
+
 
 
 
@@ -723,9 +888,7 @@ def is_neutral(
 def strong_buy_signal(
     snapshot: IndicatorSnapshot,
 ) -> bool:
-    """
-    Strong buy technical condition.
-    """
+
 
     return (
 
@@ -745,12 +908,12 @@ def strong_buy_signal(
 
 
 
+
+
 def strong_sell_signal(
     snapshot: IndicatorSnapshot,
 ) -> bool:
-    """
-    Strong sell technical condition.
-    """
+
 
     return (
 
@@ -770,25 +933,27 @@ def strong_sell_signal(
 
 
 
+
+
+# =====================================================
+# SCORE
+# =====================================================
+
+
 def indicator_score(
     snapshot: IndicatorSnapshot,
 ) -> float:
-    """
-    Calculate technical indicator score.
 
-    Range:
-        0 - 100
-    """
 
     score = 50.0
 
 
 
-    # Trend
 
     if snapshot.trend is MarketTrend.BULLISH:
 
         score += 20
+
 
 
     elif snapshot.trend is MarketTrend.BEARISH:
@@ -798,11 +963,12 @@ def indicator_score(
 
 
 
-    # RSI
+
 
     if snapshot.rsi < 30:
 
         score += 10
+
 
 
     elif snapshot.rsi > 70:
@@ -812,13 +978,14 @@ def indicator_score(
 
 
 
-    # MACD
+
 
     if snapshot.macd > snapshot.macd_signal:
 
         score += 10
 
 
+
     else:
 
         score -= 10
@@ -826,16 +993,18 @@ def indicator_score(
 
 
 
-    # Long term trend
+
 
     if snapshot.price > snapshot.ema200:
 
         score += 10
 
 
+
     else:
 
         score -= 10
+
 
 
 
@@ -845,13 +1014,13 @@ def indicator_score(
 
         max(
 
-            0.0,
+            0,
 
             min(
 
-                score,
+                100,
 
-                100.0,
+                score,
 
             ),
 
@@ -865,9 +1034,7 @@ def indicator_score(
 
 
 
-# =====================================================
-# EXPORTS
-# =====================================================
+
 
 
 __all__ = [

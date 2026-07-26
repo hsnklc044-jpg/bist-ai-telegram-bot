@@ -95,10 +95,18 @@ class DashboardModel:
 
 
 
+    committee_card: dict = field(
+
+        default_factory=dict,
+
+    )
+
+
+
 
 
     # =================================================
-    # Final Decision Intelligence
+    # Decision Intelligence
     # =================================================
 
 
@@ -109,7 +117,7 @@ class DashboardModel:
 
 
     # =================================================
-    # AI Presentation Cards
+    # AI Cards
     # =================================================
 
 
@@ -186,14 +194,6 @@ class DashboardModel:
 
     @property
     def intelligence(self) -> dict:
-        """
-        Full AI decision intelligence output.
-
-        Source:
-
-            Decision Model
-
-        """
 
 
         if self.decision is None:
@@ -203,8 +203,11 @@ class DashboardModel:
 
 
         if hasattr(
+
             self.decision,
+
             "intelligence_dict",
+
         ):
 
             return self.decision.intelligence_dict
@@ -217,6 +220,8 @@ class DashboardModel:
 
 
 
+
+
     # =================================================
     # SUMMARY
     # =================================================
@@ -224,9 +229,6 @@ class DashboardModel:
 
     @property
     def summary(self) -> dict:
-        """
-        Quick dashboard summary.
-        """
 
 
         if self.decision is None:
@@ -243,11 +245,9 @@ class DashboardModel:
                 self.decision.action,
 
 
-
             "score":
 
                 self.decision.ai_score,
-
 
 
             "confidence":
@@ -255,11 +255,9 @@ class DashboardModel:
                 self.decision.confidence,
 
 
-
             "priority":
 
                 self.decision.priority,
-
 
 
             "risk":
@@ -267,11 +265,9 @@ class DashboardModel:
                 self.decision.risk_level,
 
 
-
             "market":
 
                 self.decision.market_regime,
-
 
 
             "trend":
@@ -279,11 +275,9 @@ class DashboardModel:
                 self.decision.market_trend,
 
 
-
             "rebalance":
 
                 self.decision.rebalance_required,
-
 
 
         }
@@ -292,12 +286,9 @@ class DashboardModel:
 
 
 
+
     @property
     def summary_dict(self) -> dict:
-        """
-        Backward compatibility alias.
-        """
-
 
         return self.summary
 
@@ -305,16 +296,14 @@ class DashboardModel:
 
 
 
+
     # =================================================
-    # STATUS HELPERS
+    # STATUS
     # =================================================
 
 
     @property
     def ready(self) -> bool:
-        """
-        Dashboard availability status.
-        """
 
 
         return (
@@ -330,6 +319,7 @@ class DashboardModel:
             self.portfolio is not None
 
         )
+
 
 
 

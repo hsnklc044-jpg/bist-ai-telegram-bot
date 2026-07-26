@@ -1,5 +1,5 @@
 """
-QuantBIST RC5
+QuantBIST RC7
 Investment Committee Voting Engine
 """
 
@@ -41,21 +41,67 @@ logger = get_logger(__name__)
 
 MEMBER_WEIGHTS = {
 
-
     CommitteeMember.AI_ANALYST: 2.5,
-
 
     CommitteeMember.MARKET_ANALYST: 2.0,
 
-
     CommitteeMember.PORTFOLIO_MANAGER: 1.5,
-
 
     CommitteeMember.RISK_MANAGER: 1.0,
 
-
 }
 
+
+
+
+
+# =====================================================
+# NORMALIZER
+# =====================================================
+
+
+def _normalize_vote(value) -> Vote:
+    """
+    Convert any vote format to Vote enum.
+    """
+
+    if isinstance(value, Vote):
+
+        return value
+
+
+
+    if isinstance(value, dict):
+
+        value = value.get(
+            "action",
+            "HOLD"
+        )
+
+
+
+    if isinstance(value, str):
+
+        try:
+
+            return Vote(value)
+
+
+        except Exception:
+
+            try:
+
+                return Vote(
+                    value.upper()
+                )
+
+            except Exception:
+
+                return Vote.HOLD
+
+
+
+    return Vote.HOLD
 
 
 
@@ -98,7 +144,6 @@ def _average_confidence(
 
 
 
-
 def _average_score(
     votes: list[CommitteeVote],
 ) -> float:
@@ -133,7 +178,6 @@ def _average_score(
 
 
 
-
 def _consensus(
     votes: list[CommitteeVote],
 ) -> float:
@@ -154,8 +198,15 @@ def _consensus(
 
     for vote in votes:
 
-        counter[vote.vote] += 1
 
+        current_vote = _normalize_vote(
+
+            vote.vote
+
+        )
+
+
+        counter[current_vote] += 1
 
 
 
@@ -189,6 +240,7 @@ def _consensus(
 
 
 
+
 def _weighted_vote(
     votes: list[CommitteeVote],
 ) -> Vote:
@@ -204,6 +256,14 @@ def _weighted_vote(
     for vote in votes:
 
 
+        current_vote = _normalize_vote(
+
+            vote.vote
+
+        )
+
+
+
         weight = MEMBER_WEIGHTS.get(
 
             vote.member,
@@ -213,9 +273,14 @@ def _weighted_vote(
         )
 
 
-        scores[vote.vote] += weight
+
+        scores[current_vote] += weight
 
 
+
+    if not scores:
+
+        return Vote.HOLD
 
 
 
@@ -226,6 +291,7 @@ def _weighted_vote(
         key=scores.get,
 
     )
+
 
 
 
@@ -276,6 +342,7 @@ def _priority(
 
 
 
+
 def _summary(
     action: Vote,
     confidence: int,
@@ -292,6 +359,7 @@ def _summary(
         f"Consensus {consensus:.0f}%"
 
     )
+
 
 
 
@@ -318,12 +386,14 @@ def _explanation(
 
 
 
+
 def _decision_factors(
     votes: list[CommitteeVote],
-) -> dict[str,float]:
+) -> dict[str, float]:
 
 
     return {
+
 
         vote.member.value:
 
@@ -332,6 +402,7 @@ def _decision_factors(
         for vote in votes
 
     }
+
 
 
 
@@ -348,7 +419,7 @@ def conduct_vote(
     votes: list[CommitteeVote],
 ) -> CommitteeResult:
     """
-    Execute RC5 committee voting.
+    Execute RC7 committee voting.
     """
 
 
@@ -425,7 +496,6 @@ def conduct_vote(
             consensus,
 
         )
-
 
 
 
@@ -516,6 +586,7 @@ def conduct_vote(
             str(exc)
 
         ) from exc
+
 
 
 

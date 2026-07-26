@@ -9,17 +9,21 @@ from __future__ import annotations
 from datetime import datetime
 
 
+
 from core.charts.service import (
     get_dashboard_charts,
 )
 
 
+
 from core.dashboard.cards import (
     get_ai_cards,
+    get_committee_card,
     get_signals_card,
     get_summary_cards,
     get_watchlist_card,
 )
+
 
 
 from core.decision.service import (
@@ -27,9 +31,11 @@ from core.decision.service import (
 )
 
 
+
 from core.infrastructure.exceptions import (
     DashboardError,
 )
+
 
 
 from core.infrastructure.logger import (
@@ -37,9 +43,11 @@ from core.infrastructure.logger import (
 )
 
 
+
 from core.market.service import (
     get_market_status,
 )
+
 
 
 from core.models.dashboard import (
@@ -47,9 +55,11 @@ from core.models.dashboard import (
 )
 
 
+
 from core.portfolio.dashboard_data import (
     get_dashboard_stats,
 )
+
 
 
 from core.portfolio.service import (
@@ -66,6 +76,8 @@ logger = get_logger(__name__)
 
 
 
+
+
 # =====================================================
 # PUBLIC API
 # =====================================================
@@ -73,31 +85,13 @@ logger = get_logger(__name__)
 
 def get_dashboard() -> DashboardModel:
     """
-    Build complete QuantBIST dashboard.
-
-    RC7 Flow:
-
-        Portfolio Stats
-              |
-        Portfolio Intelligence
-              |
-        Market Intelligence
-              |
-        Decision Intelligence
-              |
-        Dashboard
-
-    Committee execution:
-        handled by Decision Engine
-
+    Build complete QuantBIST RC7 dashboard.
     """
 
 
 
     logger.info(
-
         "Dashboard generation started."
-
     )
 
 
@@ -106,21 +100,13 @@ def get_dashboard() -> DashboardModel:
 
 
 
-        # -----------------------------------------
         # Portfolio Statistics
-        # -----------------------------------------
-
 
         portfolio_stats = get_dashboard_stats()
 
 
 
-
-
-        # -----------------------------------------
         # Portfolio Intelligence
-        # -----------------------------------------
-
 
         portfolio = get_portfolio_analysis(
 
@@ -130,23 +116,13 @@ def get_dashboard() -> DashboardModel:
 
 
 
-
-
-        # -----------------------------------------
         # Market Intelligence
-        # -----------------------------------------
-
 
         market = get_market_status()
 
 
 
-
-
-        # -----------------------------------------
         # Decision Intelligence
-        # -----------------------------------------
-
 
         decision = get_decision(
 
@@ -160,113 +136,128 @@ def get_dashboard() -> DashboardModel:
 
 
 
+        # Committee Card
 
-
-        # -----------------------------------------
-        # Committee Intelligence
-        #
-        # Decision Engine owns committee flow.
-        #
-        # -----------------------------------------
-
-
-        committee = getattr(
+        committee_card = get_committee_card(
 
             decision,
 
-            "committee",
-
-            None,
-
         )
 
 
 
-
-
-        # -----------------------------------------
         # Charts
-        # -----------------------------------------
-
 
         charts = get_dashboard_charts(
 
-            risk_score=decision.risk_score,
+            risk_score=
 
-            ai_score=decision.ai_score,
+                decision.risk_score,
+
+
+            ai_score=
+
+                decision.ai_score,
 
         )
 
 
 
+        # Cards
+
+        summary_cards = get_summary_cards(
+
+            portfolio_stats,
+
+        )
 
 
-        # -----------------------------------------
+
+        ai_cards = get_ai_cards(
+
+            decision,
+
+        )
+
+
+
+        signals = get_signals_card()
+
+
+
+        watchlist = get_watchlist_card()
+
+
+
+
+
         # Dashboard Model
-        # -----------------------------------------
-
 
         dashboard = DashboardModel(
 
 
+            stats=
 
-            stats=get_summary_cards(
-
-                portfolio_stats,
-
-            ),
+                summary_cards,
 
 
+            portfolio=
 
-            portfolio=portfolio,
-
-
-
-            market=market,
+                portfolio,
 
 
+            market=
 
-            committee=committee,
-
-
-
-            decision=decision,
+                market,
 
 
-
-            ai=get_ai_cards(
+            committee=
 
                 decision,
 
-            ),
+
+            decision=
+
+                decision,
 
 
+            ai=
 
-            charts=charts,
-
-
-
-            signals=get_signals_card(),
+                ai_cards,
 
 
+            charts=
 
-            watchlist=get_watchlist_card(),
-
-
-
-            updated=datetime.now(),
+                charts,
 
 
+            signals=
+
+                signals,
+
+
+            watchlist=
+
+                watchlist,
+
+
+            updated=
+
+                datetime.now(),
 
         )
 
 
+
+        # Dynamic presentation field
+
+        dashboard.committee_card = committee_card
 
 
 
         logger.info(
 
-            "Dashboard ready | Action=%s | AI=%d | Confidence=%d",
+            "Dashboard ready | Action=%s AI=%s Confidence=%s",
 
             decision.action,
 
@@ -275,8 +266,6 @@ def get_dashboard() -> DashboardModel:
             decision.confidence,
 
         )
-
-
 
 
 
@@ -289,13 +278,11 @@ def get_dashboard() -> DashboardModel:
     except Exception as exc:
 
 
-
         logger.exception(
 
             "Dashboard generation failed."
 
         )
-
 
 
         raise DashboardError(
@@ -309,10 +296,6 @@ def get_dashboard() -> DashboardModel:
 
 
 
-
-# =====================================================
-# EXPORTS
-# =====================================================
 
 
 __all__ = [

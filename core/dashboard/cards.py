@@ -2,10 +2,11 @@
 QuantBIST RC7
 Dashboard Cards
 
-Dashboard presentation layer.
+Presentation layer for Dashboard.
 """
 
 from __future__ import annotations
+
 
 
 from core.analytics.signals import (
@@ -22,7 +23,7 @@ from core.watchlist.service import (
 
 
 # =====================================================
-# SUMMARY
+# SUMMARY CARDS
 # =====================================================
 
 
@@ -30,38 +31,59 @@ def get_summary_cards(
     stats,
 ) -> dict:
     """
-    Generate dashboard summary cards.
-
-    Stats are calculated once
-    by dashboard service.
+    Portfolio summary presentation card.
     """
 
 
     return {
 
+
         "portfolio":
+
             stats.portfolio,
 
+
+
         "cash":
+
             stats.cash,
 
+
+
         "positions":
+
             stats.positions,
 
+
+
         "top_stock":
+
             stats.top_stock,
 
+
+
         "sharpe":
+
             stats.sharpe,
 
+
+
         "win_rate":
+
             stats.win_rate,
 
+
+
         "profit_factor":
+
             stats.profit_factor,
 
+
+
         "max_drawdown":
+
             stats.max_drawdown,
+
 
     }
 
@@ -70,7 +92,7 @@ def get_summary_cards(
 
 
 # =====================================================
-# AI DECISION CARDS
+# AI DECISION CARD
 # =====================================================
 
 
@@ -78,154 +100,218 @@ def get_ai_cards(
     decision,
 ) -> dict:
     """
-    Generate RC7 AI decision intelligence cards.
-
-    Source:
-
-        Decision Engine RC7
-
+    AI decision presentation card.
     """
+
+
+    if decision is None:
+
+        return {}
+
 
 
     return {
 
-        # ---------------------------------------------
-        # Final Action
-        # ---------------------------------------------
 
         "action":
+
             decision.action,
 
 
+
         "score":
-            decision.score,
 
-
-        "ai_score":
             decision.ai_score,
 
 
+
         "confidence":
+
             decision.confidence,
 
 
 
-        # ---------------------------------------------
-        # Recommendation Layer
-        # ---------------------------------------------
-
-
         "recommendation":
-            getattr(
-                decision,
-                "recommendation",
-                decision.summary,
-            ),
 
+            decision.recommendation,
 
-
-        "summary":
-            decision.summary,
-
-
-
-        # ---------------------------------------------
-        # Explanation Layer
-        # ---------------------------------------------
-
-
-        "reasons":
-            decision.reasons,
-
-
-        "warnings":
-            decision.warnings,
-
-
-        "suggestions":
-            decision.suggestions,
-
-
-
-        "score_breakdown":
-            decision.score_breakdown,
-
-
-
-        "decision_context":
-            decision.decision_context,
-
-
-
-        # ---------------------------------------------
-        # Technical Intelligence
-        # ---------------------------------------------
-
-
-        "technical_score":
-            decision.technical_score,
-
-
-        "technical_trend":
-            decision.technical_trend,
-
-
-        "rsi":
-            decision.rsi,
-
-
-        "macd_signal":
-            decision.macd_signal,
-
-
-
-        # ---------------------------------------------
-        # Risk Intelligence
-        # ---------------------------------------------
 
 
         "risk":
+
             decision.risk_level,
 
 
+
         "risk_score":
+
             decision.risk_score,
 
 
 
-        # ---------------------------------------------
-        # Market Intelligence
-        # ---------------------------------------------
-
-
-        "market_status":
-            decision.market_status,
-
-
-        "market_regime":
-            decision.market_regime,
-
-
         "market_trend":
+
             decision.market_trend,
 
 
 
-        # ---------------------------------------------
-        # Portfolio Intelligence
-        # ---------------------------------------------
+        "market_regime":
+
+            decision.market_regime,
+
 
 
         "portfolio_health":
+
             decision.portfolio_health,
 
 
+
         "portfolio_grade":
-            decision.portfolio_grade,
+
+            getattr(
+
+                decision,
+
+                "portfolio_grade",
+
+                "",
+
+            ),
+
 
 
         "rebalance":
+
             decision.rebalance_required,
+
+
+
+        "reasons":
+
+            decision.reasons,
+
+
+
+        "warnings":
+
+            decision.warnings,
+
+
+
+        "suggestions":
+
+            getattr(
+
+                decision,
+
+                "suggestions",
+
+                [],
+
+            ),
+
+
+    }
+
+
+
+
+
+# =====================================================
+# COMMITTEE CARD
+# =====================================================
+
+
+def get_committee_card(
+    decision,
+) -> dict:
+    """
+    Investment committee presentation card.
+
+    RC7:
+    Committee data is transferred
+    through Decision object.
+    """
+
+
+    if decision is None:
+
+        return {}
+
+
+
+    return {
+
+
+        "action":
+
+            getattr(
+
+                decision,
+
+                "committee_action",
+
+                "",
+
+            ),
+
+
+
+        "score":
+
+            getattr(
+
+                decision,
+
+                "committee_score",
+
+                0,
+
+            ),
+
+
+
+        "consensus":
+
+            getattr(
+
+                decision,
+
+                "committee_consensus",
+
+                0,
+
+            ),
+
+
+
+        "confidence":
+
+            getattr(
+
+                decision,
+
+                "confidence",
+
+                0,
+
+            ),
+
+
+
+        "priority":
+
+            getattr(
+
+                decision,
+
+                "priority",
+
+                "",
+
+            ),
+
 
     }
 
@@ -240,11 +326,21 @@ def get_ai_cards(
 
 def get_signals_card() -> list[dict]:
     """
-    Dashboard AI signals.
+    AI stock signals.
     """
 
 
-    return get_top_signals()
+    try:
+
+        return get_top_signals()
+
+
+
+    except Exception:
+
+        return []
+
+
 
 
 
@@ -257,7 +353,7 @@ def get_signals_card() -> list[dict]:
 
 def get_watchlist_card() -> list[dict]:
     """
-    Dashboard watchlist intelligence.
+    Watchlist intelligence.
     """
 
 
@@ -266,9 +362,12 @@ def get_watchlist_card() -> list[dict]:
         return get_watchlist_details()
 
 
+
     except Exception:
 
         return []
+
+
 
 
 
@@ -281,12 +380,20 @@ def get_watchlist_card() -> list[dict]:
 
 __all__ = [
 
+
     "get_summary_cards",
+
 
     "get_ai_cards",
 
+
+    "get_committee_card",
+
+
     "get_signals_card",
 
+
     "get_watchlist_card",
+
 
 ]

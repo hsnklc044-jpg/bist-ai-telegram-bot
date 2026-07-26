@@ -19,6 +19,9 @@ from datetime import datetime
 from enum import Enum
 
 
+from core.committee.models import CommitteeResult
+
+
 
 
 
@@ -141,7 +144,6 @@ class Decision:
 
 
 
-
     # =================================================
     # AI Intelligence
     # =================================================
@@ -155,6 +157,7 @@ class Decision:
     explanation_text: str = ""
 
 
+
     score_breakdown: dict[str, float] = field(
         default_factory=dict
     )
@@ -163,7 +166,6 @@ class Decision:
     decision_context: dict[str, str] = field(
         default_factory=dict
     )
-
 
 
 
@@ -195,6 +197,9 @@ class Decision:
     # =================================================
     # Committee Intelligence
     # =================================================
+
+
+    committee: CommitteeResult | None = None
 
 
     committee_action: str = ""
@@ -384,6 +389,9 @@ class Decision:
 
 
 
+
+
+
     # =====================================================
     # DASHBOARD OUTPUTS
     # =====================================================
@@ -394,38 +402,48 @@ class Decision:
 
         return {
 
+
             "action":
+
                 self.action,
 
 
             "score":
+
                 self.ai_score,
 
 
             "confidence":
+
                 self.confidence,
 
 
             "priority":
+
                 self.priority,
 
 
             "risk":
+
                 self.risk_level,
 
 
             "market":
+
                 self.market_regime,
 
 
             "trend":
+
                 self.market_trend,
 
 
             "rebalance":
+
                 self.rebalance_required,
 
         }
+
 
 
 
@@ -440,30 +458,124 @@ class Decision:
 
 
             "action":
+
                 self.action,
 
 
+
             "score":
+
                 self.ai_score,
 
 
+
+            "confidence":
+
+                self.confidence,
+
+
+
             "recommendation":
+
                 self.recommendation,
 
 
+
+            "committee":
+
+                getattr(
+
+                    self.committee,
+
+                    "summary",
+
+                    {},
+
+                )
+
+                if self.committee
+
+                else None,
+
+
+
+            "committee_action":
+
+                self.committee_action,
+
+
+
+            "committee_score":
+
+                self.committee_score,
+
+
+
+            "committee_consensus":
+
+                self.committee_consensus,
+
+
+
+            "risk":
+
+                self.risk_level,
+
+
+
+            "market_trend":
+
+                self.market_trend,
+
+
+
+            "market_regime":
+
+                self.market_regime,
+
+
+
             "reasons":
+
                 self.reasons,
 
 
+
             "warnings":
+
                 self.warnings,
 
 
+
             "suggestions":
+
                 self.suggestions,
 
-
         }
+
+
+
+
+
+
+
+    # =====================================================
+    # TEXT SUMMARY
+    # =====================================================
+
+
+    @property
+    def display_text(self):
+
+        return (
+
+            f"{self.action} | "
+
+            f"AI Score={self.ai_score}/100 | "
+
+            f"Confidence={self.confidence}%"
+
+        )
 
 
 

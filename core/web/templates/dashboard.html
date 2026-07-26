@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>QuantBIST RC7 Dashboard</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>📊 QuantBIST RC7</h1>
+
+<h3>Portfolio Intelligence Dashboard</h3>
+
+
+
+<!-- KPI PANEL -->
+
+
+<div class="kpi-grid">
+
+
+<div class="kpi">
+
+<span>🤖 AI SCORE</span>
+
+<strong>
+{{ data.decision.ai_score }}
+</strong>
+
+</div>
+
+
+<div class="kpi">
+
+<span>🎯 CONFIDENCE</span>
+
+<strong>
+{{ data.decision.confidence }}%
+</strong>
+
+</div>
+
+
+<div class="kpi">
+
+<span>💼 PORTFÖY</span>
+
+<strong>
+{{ data.stats.portfolio }}
+</strong>
+
+</div>
+
+
+<div class="kpi">
+
+span>⚠️ RİSK</span>
+
+<strong>
+{{ data.decision.risk_level }}
+</strong>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- AI KARAR -->
+
+
+<div class="card ai-card">
+
+
+<h2>🤖 AI KARAR</h2>
+
+
+<p>
+
+Karar:
+
+<b>
+{{ data.decision.action }}
+</b>
+
+</p>
+
+
+<p>
+
+Öneri:
+
+<br>
+
+{{ data.decision.recommendation }}
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- PORTFÖY -->
+
+
+<div class="card">
+
+
+<h2>💼 PORTFÖY</h2>
+
+
+<div class="grid">
+
+
+<div>
+
+Değer
+
+<strong>
+{{ data.stats.portfolio }}
+</strong>
+
+</div>
+
+
+<div>
+
+Nakit
+
+<strong>
+{{ data.stats.cash }}
+</strong>
+
+</div>
+
+
+<div>
+
+Pozisyon
+
+<strong>
+{{ data.stats.positions }}
+</strong>
+
+</div>
+
+
+<div>
+
+En Büyük
+
+<strong>
+{{ data.stats.top_stock }}
+</strong>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- PİYASA -->
+
+
+<div class="card">
+
+
+<h2>📈 PİYASA</h2>
+
+
+<div class="grid">
+
+
+<div>
+
+Trend
+
+<strong>
+{{ data.decision.market_trend }}
+</strong>
+
+</div>
+
+
+<div>
+
+Rejim
+
+<strong>
+{{ data.decision.market_regime }}
+</strong>
+
+</div>
+
+
+<div>
+
+Durum
+
+<strong>
+{{ data.decision.market_status }}
+</strong>
+
+</div>
+
+
+<div>
+
+Risk
+
+<strong>
+{{ data.decision.risk_level }}
+</strong>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- KOMİTE -->
+
+
+<div class="card">
+
+
+<h2>🏛️ YATIRIM KOMİTESİ</h2>
+
+
+{% if data.committee %}
+
+
+<div class="grid">
+
+
+<div>
+
+Karar
+
+<strong>
+{{ data.committee.action.value }}
+</strong>
+
+</div>
+
+
+<div>
+
+Skor
+
+<strong>
+{{ data.committee.score }}
+</strong>
+
+</div>
+
+
+<div>
+
+Konsensüs
+
+<strong>
+{{ data.committee.consensus }}%
+</strong>
+
+</div>
+
+
+</div>
+
+
+{% else %}
+
+<p>
+Komite verisi yok
+</p>
+
+
+{% endif %}
+
+
+</div>
+
+
+
+
+
+
+
+<!-- AI ANALİZ -->
+
+
+<div class="card">
+
+
+<h2>🧠 AI ANALİZ</h2>
+
+
+<ul>
+
+
+{% for item in data.decision.reasons %}
+
+<li>
+{{ item }}
+</li>
+
+
+{% endfor %}
+
+
+</ul>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- UYARILAR -->
+
+
+<div class="card">
+
+
+<h2>⚠️ UYARILAR</h2>
+
+
+<ul>
+
+
+{% for item in data.decision.warnings %}
+
+
+<li>
+{{ item }}
+</li>
+
+
+{% else %}
+
+<li>
+Aktif uyarı yok
+</li>
+
+
+{% endfor %}
+
+
+</ul>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- SİNYALLER -->
+
+
+<div class="card">
+
+
+<h2>📡 AI SİNYALLER</h2>
+
+
+<div class="signals">
+
+
+{% for signal in data.signals %}
+
+
+<div class="signal">
+
+
+<h3>
+{{ signal.symbol }}
+</h3>
+
+
+<p>
+
+Sinyal:
+
+<b>
+{{ signal.signal }}
+</b>
+
+</p>
+
+
+<p>
+
+Skor:
+
+<b>
+{{ signal.score }}/100
+</b>
+
+</p>
+
+
+<p>
+
+Güven:
+
+<b>
+{{ signal.confidence }}%
+</b>
+
+</p>
+
+
+<p>
+
+Trend:
+
+<b>
+{{ signal.trend }}
+</b>
+
+</p>
+
+
+</div>
+
+
+{% endfor %}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- GRAFİKLER -->
+
+
+<div class="card">
+
+
+<h2>📊 GRAFİKLER</h2>
+
+
+<div class="chart-grid">
+
+
+{% for name, chart in data.charts.items() %}
+
+
+<div class="chart-card">
+
+
+<h3>
+
+{% if name=="allocation" %}
+
+💼 Portföy Dağılımı
+
+{% elif name=="equity" %}
+
+📈 Getiri Eğrisi
+
+{% elif name=="risk" %}
+
+⚠️ Risk
+
+{% elif name=="ai" %}
+
+🤖 AI Skoru
+
+{% else %}
+
+{{name}}
+
+{% endif %}
+
+</h3>
+
+
+{{ chart | safe }}
+
+
+</div>
+
+
+{% endfor %}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="update">
+
+Son Güncelleme:
+
+{{ data.updated }}
+
+</div>
+
+
+
+</div>
+
+
+</body>
+
+</html>

@@ -43,6 +43,8 @@ logger = get_logger(__name__)
 
 
 
+
+
 # =====================================================
 # PUBLIC API
 # =====================================================
@@ -75,14 +77,13 @@ def get_decision(
 
 
     logger.info(
-
         "Generating QuantBIST decision."
-
     )
 
 
 
     try:
+
 
 
         if portfolio_stats is None:
@@ -92,11 +93,13 @@ def get_decision(
             )
 
 
+
         if portfolio is None:
 
             raise DecisionError(
                 "Portfolio analysis cannot be empty."
             )
+
 
 
         if market is None:
@@ -109,6 +112,13 @@ def get_decision(
 
 
 
+
+
+        # =================================================
+        # INVESTMENT COMMITTEE
+        # =================================================
+
+
         committee = get_committee_decision(
 
             portfolio,
@@ -119,6 +129,13 @@ def get_decision(
 
 
 
+
+
+
+
+        # =================================================
+        # DECISION BUILD
+        # =================================================
 
 
         decision = build_decision(
@@ -135,6 +152,8 @@ def get_decision(
 
 
 
+
+
         if decision is None:
 
             raise DecisionError(
@@ -145,16 +164,99 @@ def get_decision(
 
 
 
+
+
+        # =================================================
+        # COMMITTEE INTELLIGENCE INJECTION
+        # =================================================
+        #
+        # Decision modelinde committee objesi yok.
+        # Dashboard ve API için gerekli alanları
+        # doğrudan Decision içine taşıyoruz.
+        #
+
+
+        if committee:
+
+
+
+            committee_action = getattr(
+
+                committee,
+
+                "action",
+
+                "",
+
+            )
+
+
+
+            if hasattr(
+
+                committee_action,
+
+                "value",
+
+            ):
+
+
+                committee_action = (
+
+                    committee_action.value
+
+                )
+
+
+
+            decision.committee_action = (
+
+                committee_action
+
+            )
+
+
+
+            decision.committee_score = getattr(
+
+                committee,
+
+                "score",
+
+                0,
+
+            )
+
+
+
+            decision.committee_consensus = getattr(
+
+                committee,
+
+                "consensus",
+
+                0,
+
+            )
+
+
+
+
+
+
+
         logger.info(
 
             "Decision completed | "
-            "Action=%s | AI=%d | Confidence=%d",
+            "Action=%s | AI=%d | Confidence=%d | Committee=%s",
 
             decision.action,
 
             decision.ai_score,
 
             decision.confidence,
+
+            decision.committee_action,
 
         )
 
@@ -166,9 +268,13 @@ def get_decision(
 
 
 
+
+
     except DecisionError:
 
         raise
+
+
 
 
 
@@ -187,6 +293,9 @@ def get_decision(
             str(exc)
 
         ) from exc
+
+
+
 
 
 

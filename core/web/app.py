@@ -1,62 +1,267 @@
 """
 QuantBIST RC7
-FastAPI Application
+Web Dashboard
 """
 
-from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
+from __future__ import annotations
 
-from core.api import (
-    get_dashboard,
-    get_decision,
-    get_report,
-)
+
+from fastapi import FastAPI, Request
+
+from fastapi.staticfiles import StaticFiles
+
+from fastapi.templating import Jinja2Templates
+
+from fastapi.responses import JSONResponse
+
+
+from core.api import get_dashboard
+
+
+from core.infrastructure.logger import get_logger
+
+
+
+
+
+logger = get_logger(__name__)
+
+
+
+
+
+# =====================================================
+# APP
+# =====================================================
+
 
 app = FastAPI(
+
     title="QuantBIST API",
-    description="QuantBIST Portfolio Intelligence API",
-    version="7.0.0",
+
+    version="RC7",
+
 )
+
+
+
+
+
+
+
+# =====================================================
+# STATIC FILES
+# =====================================================
+
+
+app.mount(
+
+    "/static",
+
+    StaticFiles(
+
+        directory="core/web/static"
+
+    ),
+
+    name="static",
+
+)
+
+
+
+
+
+
+
+# =====================================================
+# TEMPLATES
+# =====================================================
+
+
+templates = Jinja2Templates(
+
+    directory="core/web/templates"
+
+)
+
+
+
+
+
+
+
+# =====================================================
+# ROOT
+# =====================================================
 
 
 @app.get("/")
 def root():
+
     return {
-        "name": "QuantBIST",
-        "version": "RC7",
-        "status": "running",
+
+
+        "name":
+
+            "QuantBIST",
+
+
+
+        "version":
+
+            "RC7",
+
+
+
+        "status":
+
+            "running",
+
+
     }
+
+
+
+
+
+
+
+# =====================================================
+# HEALTH
+# =====================================================
 
 
 @app.get("/health")
 def health():
+
     return {
-        "status": "ok",
+
+
+        "status":
+
+            "ok",
+
+
     }
 
 
+
+
+
+
+
+# =====================================================
+# DASHBOARD
+# =====================================================
+
+
 @app.get("/dashboard")
-def dashboard():
-    """
-    Complete dashboard.
-    """
-    dashboard_model = get_dashboard()
-    return jsonable_encoder(dashboard_model)
+def dashboard(
+
+    request: Request,
+
+):
 
 
-@app.get("/decision")
-def decision():
-    """
-    Latest investment decision.
-    """
-    decision_model = get_decision()
-    return jsonable_encoder(decision_model)
+    try:
 
 
-@app.get("/report")
-def report():
-    """
-    Complete analysis report.
-    """
-    report_model = get_report()
-    return jsonable_encoder(report_model)
+        logger.info(
+
+            "Dashboard request received."
+
+        )
+
+
+
+        data = get_dashboard()
+
+
+
+        return templates.TemplateResponse(
+
+            name="dashboard.html",
+
+            request=request,
+
+            context={
+
+                "data": data,
+
+            },
+
+        )
+
+
+
+
+
+    except Exception as exc:
+
+
+        logger.exception(
+
+            "Dashboard rendering failed."
+
+        )
+
+
+
+        return JSONResponse(
+
+            status_code=500,
+
+            content={
+
+
+                "status":
+
+                    "error",
+
+
+
+                "message":
+
+                    str(exc),
+
+
+
+                "type":
+
+                    type(exc).__name__,
+
+
+            },
+
+        )
+
+
+
+
+
+
+
+# =====================================================
+# LOCAL SERVER
+# =====================================================
+
+
+if __name__ == "__main__":
+
+
+    import uvicorn
+
+
+
+    uvicorn.run(
+
+        "core.web.app:app",
+
+        host="127.0.0.1",
+
+        port=8000,
+
+        reload=True,
+
+    )
