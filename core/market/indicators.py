@@ -14,50 +14,31 @@ Technical Intelligence Layer
 
 from __future__ import annotations
 
-
 import pandas as pd
-
-
 from ta.momentum import RSIIndicator
-
-
 from ta.trend import (
-    EMAIndicator,
     MACD,
+    EMAIndicator,
     SMAIndicator,
 )
-
-
 from ta.volatility import (
     AverageTrueRange,
     BollingerBands,
 )
 
-
-
 from core.infrastructure.exceptions import (
     MarketError,
 )
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
-
 from core.market.data import (
     load_price_history,
 )
-
-
 from core.market.models import (
     IndicatorSnapshot,
     MarketTrend,
 )
-
-
-
-
 
 logger = get_logger(__name__)
 

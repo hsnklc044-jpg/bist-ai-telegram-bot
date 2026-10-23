@@ -5,19 +5,12 @@ Reports Package
 
 from __future__ import annotations
 
-
-from core.reports.summary import (
-    generate_summary_report,
-)
-
-
 from core.reports.service import (
     generate_report,
 )
-
-
-
-
+from core.reports.summary import (
+    generate_summary_report,
+)
 
 __all__ = [
 

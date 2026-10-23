@@ -5,25 +5,20 @@ Market Breadth Engine
 
 from __future__ import annotations
 
-
 from core.infrastructure.exceptions import (
     MarketError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.market.indicators import (
     generate_indicator_snapshot,
 )
-
 from core.market.models import (
     BreadthStatus,
     MarketBreadth,
     MarketTrend,
 )
-
 
 logger = get_logger(__name__)
 

@@ -5,31 +5,21 @@ Portfolio Risk Engine
 
 from __future__ import annotations
 
-
 from core.config.portfolio import (
-    RISK_CRITICAL,
     RISK_HIGH,
     RISK_LOW,
     RISK_MEDIUM,
 )
-
-
 from core.infrastructure.exceptions import (
     PortfolioError,
 )
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
-
 from core.portfolio.models import (
     PortfolioRisk,
     PortfolioStats,
 )
-
-
 
 logger = get_logger(__name__)
 

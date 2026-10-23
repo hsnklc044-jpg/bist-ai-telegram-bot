@@ -1,57 +1,81 @@
 """
-QuantBIST RC4
+QuantBIST
 Handler Registry
 """
 
 from __future__ import annotations
 
+from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
+    ContextTypes,
+    filters,
 )
 
-from bot.start import start
+from bot.analysis import analyze, top
 from bot.reports import summary
-from bot.analysis import (
-    top,
-    analyze,
-)
+from bot.start import start
 from bot.watchlist import (
     watchadd,
-    watchremove,
     watchlist,
+    watchremove,
     watchscan,
+)
+from core.infrastructure.logger import get_logger
+
+logger = get_logger(__name__)
+
+COMMANDS = (
+    ("start", start),
+    ("help", start),
+    ("summary", summary),
+    ("top", top),
+    ("analyze", analyze),
+    ("watchadd", watchadd),
+    ("watchremove", watchremove),
+    ("watchlist", watchlist),
+    ("watchscan", watchscan),
 )
 
 
-def register_handlers(app: Application) -> None:
-    """Register Telegram handlers."""
+async def on_error(
+    update: object,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Log the failure and tell the user something went wrong."""
 
-    handlers = [
+    logger.error(
+        "Telegram handler failed.",
+        exc_info=context.error,
+    )
 
-        ("start", start),
+    if isinstance(update, Update) and update.effective_message:
+        await update.effective_message.reply_text(
+            "⚠️ Bir hata oluştu, ayrıntılar log dosyasında."
+        )
 
-        ("summary", summary),
 
-        ("top", top),
+def register_handlers(
+    app: Application,
+    chat_id: int,
+) -> None:
+    """
+    Register Telegram handlers.
 
-        ("analyze", analyze),
+    Only messages from `chat_id` are answered; everyone
+    else is ignored.
+    """
 
-        ("watchadd", watchadd),
+    allowed = filters.Chat(chat_id=chat_id)
 
-        ("watchremove", watchremove),
-
-        ("watchlist", watchlist),
-
-        ("watchscan", watchscan),
-
-    ]
-
-    for command, callback in handlers:
-
+    for command, callback in COMMANDS:
         app.add_handler(
             CommandHandler(
                 command,
                 callback,
+                filters=allowed,
             )
         )
+
+    app.add_error_handler(on_error)

@@ -5,19 +5,15 @@ Investment Committee Scoring Engine
 
 from __future__ import annotations
 
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.market.models import (
     MarketStatus,
 )
-
 from core.portfolio.models import (
     PortfolioAnalysis,
 )
-
 
 logger = get_logger(__name__)
 

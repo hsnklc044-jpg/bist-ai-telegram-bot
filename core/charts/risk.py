@@ -11,7 +11,6 @@ from core.charts.base import (
     apply_layout,
     to_html,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )

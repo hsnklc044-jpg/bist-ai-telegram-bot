@@ -7,30 +7,24 @@ Portfolio allocation intelligence engine.
 
 from __future__ import annotations
 
-
 from core.config.portfolio import (
     MAX_POSITION_WEIGHT,
     TARGET_POSITION_WEIGHT,
 )
-
 from core.infrastructure.exceptions import (
     PortfolioOptimizationError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.portfolio.models import (
     PortfolioAction,
     PortfolioOptimization,
     PortfolioSeverity,
 )
-
 from core.portfolio.repository import (
     load_portfolio,
 )
-
 
 logger = get_logger(__name__)
 
@@ -274,6 +268,8 @@ def optimize_portfolio(
 
                 largest_position = symbol
 
+                best_symbol = symbol
+
 
 
 
@@ -283,21 +279,12 @@ def optimize_portfolio(
 
                 smallest_position = symbol
 
-
-
-
-
-            if weight > largest_weight:
-
-                best_symbol = symbol
-
-
-
-
-
-            if weight < smallest_weight:
-
                 worst_symbol = symbol
+
+
+
+
+
 
 
 

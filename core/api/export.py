@@ -7,14 +7,17 @@ Export API facade.
 
 from __future__ import annotations
 
-from core.models.dashboard import DashboardModel
-
+from core.config.paths import REPORTS_DIR
 from core.export.service import (
-    export_report as _export_report,
-    save_report as _save_report,
     export_file as _export_file,
 )
-
+from core.export.service import (
+    export_report as _export_report,
+)
+from core.export.service import (
+    save_report as _save_report,
+)
+from core.models.dashboard import DashboardModel
 
 # =====================================================
 # PUBLIC API
@@ -51,7 +54,7 @@ def save_report(
 def export_file(
     dashboard: DashboardModel,
     format: str = "txt",
-    directory: str = "reports/output",
+    directory: str = str(REPORTS_DIR),
 ) -> str:
     """
     Export report to a timestamped file.

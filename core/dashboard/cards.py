@@ -7,20 +7,12 @@ Presentation layer for Dashboard.
 
 from __future__ import annotations
 
-
-
 from core.analytics.signals import (
     get_top_signals,
 )
-
-
 from core.watchlist.service import (
     get_watchlist_details,
 )
-
-
-
-
 
 # =====================================================
 # SUMMARY CARDS

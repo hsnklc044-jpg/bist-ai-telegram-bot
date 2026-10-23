@@ -11,11 +11,9 @@ from core.charts.base import (
     apply_layout,
     to_html,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.portfolio.repository import (
     load_portfolio,
 )

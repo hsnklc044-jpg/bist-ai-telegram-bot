@@ -5,27 +5,21 @@ Chart Intelligence Service
 
 from __future__ import annotations
 
-
 from core.charts.ai import (
     generate_ai_gauge,
 )
-
 from core.charts.allocation import (
     generate_allocation_chart,
 )
-
 from core.charts.equity import (
     generate_equity_chart,
 )
-
 from core.charts.risk import (
     generate_risk_gauge,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 
 logger = get_logger(__name__)
 

@@ -15,38 +15,24 @@ File Output
 
 from __future__ import annotations
 
-
 from datetime import datetime
 from pathlib import Path
-
-
-from core.models.dashboard import (
-    DashboardModel,
-)
-
-
-from core.export.txt import (
-    export_txt,
-)
-
-
-from core.export.markdown import (
-    export_markdown,
-)
-
 
 from core.export.html import (
     export_html,
 )
-
-
 from core.export.json import (
     export_json,
 )
-
-
-
-
+from core.export.markdown import (
+    export_markdown,
+)
+from core.export.txt import (
+    export_txt,
+)
+from core.models.dashboard import (
+    DashboardModel,
+)
 
 # =====================================================
 # FORMAT CONSTANTS

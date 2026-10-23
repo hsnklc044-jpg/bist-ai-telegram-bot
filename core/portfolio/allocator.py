@@ -5,27 +5,21 @@ Portfolio Allocation Engine
 
 from __future__ import annotations
 
-
 from dataclasses import dataclass
-
 
 from core.config.portfolio import (
     MAX_POSITION_WEIGHT,
     TARGET_POSITION_WEIGHT,
 )
-
 from core.infrastructure.exceptions import (
     PortfolioError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.portfolio.repository import (
     load_portfolio,
 )
-
 
 logger = get_logger(__name__)
 

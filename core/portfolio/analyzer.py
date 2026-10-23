@@ -7,36 +7,28 @@ Main portfolio intelligence orchestrator.
 
 from __future__ import annotations
 
-
 from core.infrastructure.exceptions import (
     PortfolioError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.portfolio.health import (
     calculate_portfolio_health,
 )
-
 from core.portfolio.models import (
     PortfolioAnalysis,
     PortfolioStats,
 )
-
 from core.portfolio.optimizer import (
     optimize_portfolio,
 )
-
 from core.portfolio.rebalancer import (
     generate_rebalance_plan,
 )
-
 from core.portfolio.risk import (
     calculate_portfolio_risk,
 )
-
 
 logger = get_logger(__name__)
 

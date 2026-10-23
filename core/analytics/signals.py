@@ -5,15 +5,16 @@ Signal Analytics Engine
 
 from __future__ import annotations
 
-
 from core.analytics.analyzer import (
     analyze_stock,
 )
-
+from core.config.thresholds import (
+    MIN_SIGNAL_CONFIDENCE,
+    MIN_SIGNAL_SCORE,
+)
 from core.infrastructure.logger import (
     get_logger,
 )
-
 
 logger = get_logger(__name__)
 
@@ -115,12 +116,12 @@ def _is_valid_signal(
         return False
 
 
-    if score < 50:
+    if score < MIN_SIGNAL_SCORE:
 
         return False
 
 
-    if confidence < 50:
+    if confidence < MIN_SIGNAL_CONFIDENCE:
 
         return False
 

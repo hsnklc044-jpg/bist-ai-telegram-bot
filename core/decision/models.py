@@ -13,17 +13,12 @@ Single source of truth for:
 
 from __future__ import annotations
 
-
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
-
+from core import __version__
 from core.committee.models import CommitteeResult
-
-
-
-
 
 # =====================================================
 # ENUMS
@@ -108,7 +103,7 @@ class Decision:
     )
 
 
-    engine_version: str = "RC7"
+    engine_version: str = __version__
 
 
 

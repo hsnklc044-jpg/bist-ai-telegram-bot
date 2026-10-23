@@ -6,10 +6,9 @@ Watchlist Repository
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
+from core.config.paths import WATCHLIST_FILE
 from core.infrastructure.logger import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -17,11 +16,6 @@ logger = get_logger(__name__)
 # =====================================================
 # CONFIG
 # =====================================================
-
-WATCHLIST_FILE = Path(
-    "data/watchlist.json"
-)
-
 
 
 # =====================================================

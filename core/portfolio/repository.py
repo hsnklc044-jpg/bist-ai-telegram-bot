@@ -7,23 +7,16 @@ Portfolio data access layer.
 
 from __future__ import annotations
 
-
-from pathlib import Path
-
-
 import pandas as pd
 
-
+from core.config.paths import PORTFOLIO_FILE
 from core.infrastructure.exceptions import (
     PortfolioRepositoryError,
     PortfolioValidationError,
 )
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 
 logger = get_logger(__name__)
 
@@ -34,11 +27,6 @@ logger = get_logger(__name__)
 # =====================================================
 # CONFIGURATION
 # =====================================================
-
-
-PORTFOLIO_FILE = Path(
-    "data/portfolio_model.csv"
-)
 
 
 

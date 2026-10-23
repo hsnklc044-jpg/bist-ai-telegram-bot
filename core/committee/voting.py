@@ -5,9 +5,7 @@ Investment Committee Voting Engine
 
 from __future__ import annotations
 
-
 from collections import defaultdict
-
 
 from core.committee.models import (
     CommitteeMember,
@@ -15,18 +13,12 @@ from core.committee.models import (
     CommitteeVote,
     Vote,
 )
-
-
 from core.infrastructure.exceptions import (
     DecisionError,
 )
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
-
 
 logger = get_logger(__name__)
 

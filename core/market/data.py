@@ -13,24 +13,17 @@ Responsibilities:
 
 from __future__ import annotations
 
-
 from datetime import datetime, timedelta
-
 
 import pandas as pd
 import yfinance as yf
 
-
 from core.infrastructure.exceptions import (
     MarketError,
 )
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
-
 
 logger = get_logger(__name__)
 

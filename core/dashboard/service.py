@@ -5,17 +5,11 @@ Dashboard Intelligence Service
 
 from __future__ import annotations
 
-
 from datetime import datetime
-
-
 
 from core.charts.service import (
     get_dashboard_charts,
 )
-
-
-
 from core.dashboard.cards import (
     get_ai_cards,
     get_committee_card,
@@ -23,52 +17,27 @@ from core.dashboard.cards import (
     get_summary_cards,
     get_watchlist_card,
 )
-
-
-
 from core.decision.service import (
     get_decision,
 )
-
-
-
 from core.infrastructure.exceptions import (
     DashboardError,
 )
-
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
-
-
 from core.market.service import (
     get_market_status,
 )
-
-
-
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
-
 from core.portfolio.dashboard_data import (
     get_dashboard_stats,
 )
-
-
-
 from core.portfolio.service import (
     get_portfolio_analysis,
 )
-
-
-
-
 
 logger = get_logger(__name__)
 
@@ -213,7 +182,7 @@ def get_dashboard() -> DashboardModel:
 
             committee=
 
-                decision,
+                decision.committee,
 
 
             decision=

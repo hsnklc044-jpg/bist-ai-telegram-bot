@@ -5,55 +5,32 @@ AI Scoring Engine
 
 from __future__ import annotations
 
-
 from core.config.ai import (
-
     BASE_SCORE,
-
     BREADTH_NEGATIVE_SCORE,
     BREADTH_NEUTRAL_SCORE,
     BREADTH_POSITIVE_SCORE,
-
     CRITICAL_RISK_SCORE,
-
     FEAR_SCORE,
-
     GRADE_A_SCORE,
     GRADE_B_SCORE,
     GRADE_C_SCORE,
     GRADE_D_SCORE,
-
     GREED_SCORE,
-
     HIGH_RISK_SCORE,
-
     LOW_RISK_SCORE,
-
     MARKET_NEUTRAL_SCORE,
-
     MAX_SCORE,
-    MIN_SCORE,
-
     MEDIUM_RISK_SCORE,
-
+    MIN_SCORE,
     NO_REBALANCE_BONUS,
-
     REBALANCE_PENALTY,
-
     RISK_OFF_SCORE,
-
     RISK_ON_SCORE,
-
 )
-
-
 from core.infrastructure.logger import get_logger
-
 from core.market.models import MarketStatus
-
 from core.portfolio.models import PortfolioAnalysis
-
-
 
 logger = get_logger(__name__)
 

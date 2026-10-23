@@ -1,28 +1,5 @@
 """
-QuantBIST RC7
-Reports Package
+QuantBIST core package.
 """
 
-from __future__ import annotations
-
-
-from core.reports.summary import (
-    generate_summary_report,
-)
-
-
-from core.reports.service import (
-    generate_report,
-)
-
-
-
-
-
-__all__ = [
-
-    "generate_summary_report",
-
-    "generate_report",
-
-]
+__version__ = "0.8.0"

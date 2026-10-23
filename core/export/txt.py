@@ -10,7 +10,6 @@ import json
 from core.models.dashboard import DashboardModel
 from core.reports.service import generate_report
 
-
 # =====================================================
 # PUBLIC API
 # =====================================================
@@ -27,7 +26,7 @@ def export_txt(
     lines: list[str] = []
 
     lines.append("=" * 80)
-    lines.append("QUANTBIST RC7 REPORT")
+    lines.append("QUANTBIST REPORT")
     lines.append("=" * 80)
     lines.append("")
 

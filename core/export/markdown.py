@@ -7,22 +7,14 @@ Markdown report generator.
 
 from __future__ import annotations
 
-
 import json
-
 
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
 from core.reports.service import (
     generate_report,
 )
-
-
-
-
 
 # =====================================================
 # PUBLIC API
@@ -61,7 +53,7 @@ def export_markdown(
 
 
     lines.append(
-        "# QUANTBIST RC7 REPORT"
+        "# QUANTBIST REPORT"
     )
 
 

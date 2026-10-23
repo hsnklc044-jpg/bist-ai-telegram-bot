@@ -5,6 +5,12 @@ AI Signal Scoring Engine
 
 from __future__ import annotations
 
+from core.config.thresholds import (
+    SIGNAL_BUY,
+    SIGNAL_SELL,
+    SIGNAL_STRONG_BUY,
+    SIGNAL_STRONG_SELL,
+)
 
 # =====================================================
 # SCORING ENGINE
@@ -211,28 +217,28 @@ def calculate_score(
 
 
 
-    if score >= 85:
+    if score >= SIGNAL_STRONG_BUY:
 
         signal = "STRONG BUY"
 
         trend = "BULLISH"
 
 
-    elif score >= 70:
+    elif score >= SIGNAL_BUY:
 
         signal = "BUY"
 
         trend = "BULLISH"
 
 
-    elif score <= 20:
+    elif score <= SIGNAL_STRONG_SELL:
 
         signal = "STRONG SELL"
 
         trend = "BEARISH"
 
 
-    elif score <= 35:
+    elif score <= SIGNAL_SELL:
 
         signal = "SELL"
 

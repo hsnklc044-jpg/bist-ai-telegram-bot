@@ -1,104 +1,93 @@
 """
-QuantBIST RC4
+QuantBIST
 Watchlist Commands
 """
 
 from __future__ import annotations
 
+import asyncio
+
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.common import reply
+from core.watchlist.scanner import generate_watchlist_scan
 from core.watchlist.service import (
     add_symbol,
-    remove_symbol,
     get_watchlist,
-)
-
-from core.watchlist.scanner import (
-    generate_watchlist_scan,
+    remove_symbol,
 )
 
 
 async def watchadd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-):
+) -> None:
+    """Handle /watchadd SYMBOL."""
 
     if not context.args:
-
-        await update.message.reply_text(
-            "Kullanım:\n/watchadd EREGL"
-        )
+        await reply(update, "Kullanım:\n/watchadd EREGL")
         return
 
-    symbol = context.args[0]
+    try:
+        symbol = add_symbol(update.effective_chat.id, context.args[0])
+    except ValueError as exc:
+        await reply(update, str(exc))
+        return
 
-    add_symbol(
-        update.effective_chat.id,
-        symbol,
-    )
-
-    await update.message.reply_text(
-        f"✅ {symbol.upper().replace('.IS','')}.IS watchlist'e eklendi."
-    )
+    await reply(update, f"✅ {symbol} watchlist'e eklendi.")
 
 
 async def watchremove(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-):
+) -> None:
+    """Handle /watchremove SYMBOL."""
 
     if not context.args:
-
-        await update.message.reply_text(
-            "Kullanım:\n/watchremove EREGL"
-        )
+        await reply(update, "Kullanım:\n/watchremove EREGL")
         return
 
-    symbol = context.args[0]
+    try:
+        removed = remove_symbol(update.effective_chat.id, context.args[0])
+    except ValueError as exc:
+        await reply(update, str(exc))
+        return
 
-    remove_symbol(
-        update.effective_chat.id,
-        symbol,
-    )
-
-    await update.message.reply_text(
-        f"❌ {symbol.upper().replace('.IS','')}.IS watchlist'ten kaldırıldı."
-    )
+    if removed:
+        await reply(update, "❌ Watchlist'ten kaldırıldı.")
+    else:
+        await reply(update, "Bu hisse watchlist'te yok.")
 
 
 async def watchlist(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-):
+) -> None:
+    """Handle /watchlist."""
 
-    symbols = get_watchlist(
-        update.effective_chat.id
-    )
+    symbols = get_watchlist(update.effective_chat.id)
 
     if not symbols:
-
-        await update.message.reply_text(
-            "📌 Watchlist boş."
-        )
+        await reply(update, "📌 Watchlist boş.")
         return
 
-    message = "📌 WATCHLIST\n\n"
+    lines = ["📌 WATCHLIST", ""] + [f"• {symbol}" for symbol in symbols]
 
-    for symbol in symbols:
-
-        message += f"• {symbol}\n"
-
-    await update.message.reply_text(message)
+    await reply(update, "\n".join(lines))
 
 
 async def watchscan(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-):
+) -> None:
+    """Handle /watchscan."""
 
-    report = generate_watchlist_scan(
-        update.effective_chat.id
+    await reply(update, "⏳ Watchlist taranıyor...")
+
+    report = await asyncio.to_thread(
+        generate_watchlist_scan,
+        update.effective_chat.id,
     )
 
-    await update.message.reply_text(report)
+    await reply(update, report)

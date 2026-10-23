@@ -5,17 +5,12 @@ Market Analyzer
 
 from __future__ import annotations
 
-
 from core.analytics.scoring import calculate_score
-
 from core.infrastructure.logger import get_logger
-
 from core.market.data import load_price_history
-
 from core.market.indicators import (
     generate_indicator_snapshot,
 )
-
 
 logger = get_logger(__name__)
 
@@ -235,7 +230,7 @@ def analyze_stock(
 
 
 
-        score = score_data.get(
+        score_data.get(
             "score",
             0,
         )

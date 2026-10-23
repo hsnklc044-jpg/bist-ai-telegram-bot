@@ -5,13 +5,9 @@ Summary Report
 
 from __future__ import annotations
 
-
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
-
 
 
 def generate_summary_report(
@@ -30,9 +26,7 @@ def generate_summary_report(
 
     decision = dashboard.decision
 
-    portfolio = dashboard.portfolio
 
-    market = dashboard.market
 
 
 
@@ -47,7 +41,7 @@ def generate_summary_report(
 
 
     return f"""
-📊 QUANTBIST RC7 SUMMARY
+📊 QUANTBIST SUMMARY
 
 ════════════════════
 

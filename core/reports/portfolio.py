@@ -7,14 +7,9 @@ Portfolio intelligence reporting layer.
 
 from __future__ import annotations
 
-
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
-
-
 
 # =====================================================
 # PUBLIC API
@@ -73,7 +68,7 @@ def generate_portfolio_report(
 
 
     return f"""
-💼 QUANTBIST RC7 PORTFOLIO REPORT
+💼 QUANTBIST PORTFOLIO REPORT
 
 ════════════════════
 

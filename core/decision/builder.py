@@ -7,26 +7,17 @@ Build final AI investment decision.
 
 from __future__ import annotations
 
-
 from datetime import datetime
 from uuid import uuid4
-
 
 from core.ai.scoring import (
     calculate_score,
 )
-
-
+from core.config.thresholds import action_for_score
 from core.decision.models import (
     Decision,
-    DecisionAction,
     PriorityLevel,
-    RiskLevel,
 )
-
-
-
-
 
 # =====================================================
 # HELPERS
@@ -70,42 +61,7 @@ def _action(
     score: int,
 ) -> str:
 
-
-    if score >= 90:
-
-        return DecisionAction.STRONG_BUY.value
-
-
-    if score >= 75:
-
-        return DecisionAction.BUY.value
-
-
-    if score >= 60:
-
-        return DecisionAction.ACCUMULATE.value
-
-
-    if score >= 45:
-
-        return DecisionAction.HOLD.value
-
-
-    if score >= 30:
-
-        return DecisionAction.REDUCE.value
-
-
-    if score >= 15:
-
-        return DecisionAction.SELL.value
-
-
-    return DecisionAction.STRONG_SELL.value
-
-
-
-
+    return action_for_score(score)
 
 
 

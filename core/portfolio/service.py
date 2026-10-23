@@ -5,24 +5,19 @@ Portfolio Intelligence Service
 
 from __future__ import annotations
 
-
 from core.infrastructure.exceptions import (
     PortfolioError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.portfolio.analyzer import (
     analyze_portfolio,
 )
-
 from core.portfolio.models import (
     PortfolioAnalysis,
     PortfolioStats,
 )
-
 
 logger = get_logger(__name__)
 

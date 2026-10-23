@@ -5,7 +5,6 @@ Central Exception Definitions
 
 from __future__ import annotations
 
-
 # =====================================================
 # BASE
 # =====================================================

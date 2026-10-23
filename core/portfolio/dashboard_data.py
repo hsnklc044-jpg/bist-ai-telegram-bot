@@ -7,27 +7,18 @@ Dashboard data preparation layer.
 
 from __future__ import annotations
 
-
-from core.infrastructure.logger import (
-    get_logger,
-)
-
-
 from core.infrastructure.exceptions import (
     PortfolioError,
 )
-
-
+from core.infrastructure.logger import (
+    get_logger,
+)
 from core.portfolio.models import (
     PortfolioStats,
 )
-
-
 from core.portfolio.repository import (
     load_portfolio,
 )
-
-
 
 logger = get_logger(__name__)
 

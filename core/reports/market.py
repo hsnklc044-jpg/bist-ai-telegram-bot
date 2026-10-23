@@ -5,11 +5,7 @@ Market Intelligence Report
 
 from __future__ import annotations
 
-
-
 from core.models.dashboard import DashboardModel
-
-
 
 
 def generate_market_report(
@@ -33,7 +29,7 @@ def generate_market_report(
     if market is None:
 
         return """
-📈 QUANTBIST RC7 MARKET REPORT
+📈 QUANTBIST MARKET REPORT
 
 No market data available.
 """
@@ -84,7 +80,7 @@ No market data available.
 
 
     return f"""
-📈 QUANTBIST RC7 MARKET REPORT
+📈 QUANTBIST MARKET REPORT
 
 
 ════════════════════

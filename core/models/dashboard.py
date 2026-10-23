@@ -5,32 +5,21 @@ Dashboard View Model
 
 from __future__ import annotations
 
-
 from dataclasses import dataclass, field
 from datetime import datetime
-
 
 from core.committee.models import (
     CommitteeResult,
 )
-
-
 from core.decision.models import (
     Decision,
 )
-
-
 from core.market.models import (
     MarketStatus,
 )
-
-
 from core.portfolio.models import (
     PortfolioAnalysis,
 )
-
-
-
 
 
 @dataclass(slots=True)

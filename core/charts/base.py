@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import plotly.graph_objects as go
 
-
 DEFAULT_LAYOUT = {
 
     "template": "plotly_dark",

@@ -8,34 +8,21 @@ for all report generation.
 
 from __future__ import annotations
 
-
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
-from core.reports.summary import (
-    generate_summary_report,
-)
-
-
-from core.reports.portfolio import (
-    generate_portfolio_report,
-)
-
-
-from core.reports.market import (
-    generate_market_report,
-)
-
-
 from core.reports.decision import (
     generate_decision_report,
 )
-
-
-
-
+from core.reports.market import (
+    generate_market_report,
+)
+from core.reports.portfolio import (
+    generate_portfolio_report,
+)
+from core.reports.summary import (
+    generate_summary_report,
+)
 
 # =====================================================
 # PUBLIC API

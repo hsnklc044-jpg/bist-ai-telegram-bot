@@ -8,34 +8,21 @@ for Decision Engine.
 
 from __future__ import annotations
 
-
 from core.committee.service import (
     get_committee_decision,
 )
-
-
 from core.decision.builder import (
     build_decision,
 )
-
-
 from core.decision.models import (
     Decision,
 )
-
-
 from core.infrastructure.exceptions import (
     DecisionError,
 )
-
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
-
-
-
 
 logger = get_logger(__name__)
 
@@ -175,6 +162,8 @@ def get_decision(
         # doğrudan Decision içine taşıyoruz.
         #
 
+
+        decision.committee = committee
 
         if committee:
 

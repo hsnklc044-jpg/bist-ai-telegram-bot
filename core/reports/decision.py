@@ -7,14 +7,9 @@ AI decision explanation layer.
 
 from __future__ import annotations
 
-
 from core.decision.models import (
     Decision,
 )
-
-
-
-
 
 # =====================================================
 # PUBLIC API
@@ -78,7 +73,7 @@ def generate_decision_report(
 
 
     return f"""
-🤖 QUANTBIST RC7 AI DECISION REPORT
+🤖 QUANTBIST AI DECISION REPORT
 
 ════════════════════
 

@@ -5,8 +5,6 @@ Equity Curve Chart
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -14,7 +12,7 @@ from core.charts.base import (
     apply_layout,
     to_html,
 )
-
+from core.config.paths import EQUITY_FILE
 from core.infrastructure.logger import (
     get_logger,
 )
@@ -25,9 +23,6 @@ logger = get_logger(__name__)
 # CONFIG
 # =====================================================
 
-EQUITY_FILE = Path(
-    "data/equity_curve.csv"
-)
 
 # =====================================================
 # HELPERS

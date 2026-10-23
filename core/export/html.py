@@ -7,23 +7,15 @@ HTML report generator.
 
 from __future__ import annotations
 
-
 import html
 import json
-
 
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
 from core.reports.service import (
     generate_report,
 )
-
-
-
-
 
 # =====================================================
 # PUBLIC API

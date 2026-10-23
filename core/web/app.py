@@ -5,24 +5,15 @@ Web Dashboard
 
 from __future__ import annotations
 
-
 from fastapi import FastAPI, Request
-
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-
 from fastapi.templating import Jinja2Templates
 
-from fastapi.responses import JSONResponse
-
-
+from core import __version__
 from core.api import get_dashboard
-
-
+from core.config.paths import WEB_STATIC_DIR, WEB_TEMPLATES_DIR
 from core.infrastructure.logger import get_logger
-
-
-
-
 
 logger = get_logger(__name__)
 
@@ -39,7 +30,7 @@ app = FastAPI(
 
     title="QuantBIST API",
 
-    version="RC7",
+    version=__version__,
 
 )
 
@@ -60,7 +51,7 @@ app.mount(
 
     StaticFiles(
 
-        directory="core/web/static"
+        directory=str(WEB_STATIC_DIR)
 
     ),
 
@@ -81,7 +72,7 @@ app.mount(
 
 templates = Jinja2Templates(
 
-    directory="core/web/templates"
+    directory=str(WEB_TEMPLATES_DIR)
 
 )
 
@@ -110,7 +101,7 @@ def root():
 
         "version":
 
-            "RC7",
+            __version__,
 
 
 
@@ -262,6 +253,6 @@ if __name__ == "__main__":
 
         port=8000,
 
-        reload=True,
+        reload=False,
 
     )

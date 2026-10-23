@@ -7,19 +7,12 @@ Dashboard API facade.
 
 from __future__ import annotations
 
-
 from core.dashboard.service import (
     get_dashboard as _get_dashboard,
 )
-
-
 from core.models.dashboard import (
     DashboardModel,
 )
-
-
-
-
 
 # =====================================================
 # PUBLIC API

@@ -5,7 +5,6 @@ Investment Committee Engine
 
 from __future__ import annotations
 
-
 from core.committee.models import (
     CommitteeMember,
     CommitteeResult,
@@ -13,31 +12,25 @@ from core.committee.models import (
     PriorityLevel,
     Vote,
 )
-
 from core.committee.scoring import (
     generate_scorecard,
 )
-
 from core.committee.voting import (
     conduct_vote,
 )
-
+from core.config.thresholds import action_for_score
 from core.infrastructure.exceptions import (
     DecisionError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.market.models import (
     MarketStatus,
 )
-
 from core.portfolio.models import (
     PortfolioAnalysis,
 )
-
 
 logger = get_logger(__name__)
 
@@ -118,47 +111,7 @@ def _score_to_vote(
     Convert intelligence score to vote.
     """
 
-
-    if score >= 90:
-
-        return Vote.STRONG_BUY
-
-
-
-    if score >= 75:
-
-        return Vote.BUY
-
-
-
-    if score >= 60:
-
-        return Vote.ACCUMULATE
-
-
-
-    if score >= 45:
-
-        return Vote.HOLD
-
-
-
-    if score >= 30:
-
-        return Vote.REDUCE
-
-
-
-    if score >= 15:
-
-        return Vote.SELL
-
-
-
-    return Vote.STRONG_SELL
-
-
-
+    return Vote(action_for_score(score))
 
 
 

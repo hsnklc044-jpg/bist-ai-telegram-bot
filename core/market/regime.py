@@ -5,33 +5,26 @@ Market Regime Engine
 
 from __future__ import annotations
 
-
 from core.infrastructure.exceptions import (
     MarketError,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
 from core.market.breadth import (
     calculate_market_breadth,
 )
-
 from core.market.indicators import (
     generate_indicator_snapshot,
 )
-
 from core.market.models import (
     MarketRegime,
     MarketRegimeType,
     MarketTrend,
 )
-
 from core.market.sentiment import (
     calculate_market_sentiment,
 )
-
 
 logger = get_logger(__name__)
 

@@ -1,21 +1,21 @@
 """
-QuantBIST RC5
-Application Entry Point
+QuantBIST
+Web dashboard (Flask).
+
+    python app.py
 """
 
 from __future__ import annotations
 
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template
 
 from core.dashboard.service import (
     get_dashboard,
 )
-
 from core.infrastructure.logger import (
     get_logger,
 )
-
+from core.infrastructure.settings import settings
 
 logger = get_logger(__name__)
 
@@ -48,7 +48,9 @@ def health():
 
         "status": "OK",
 
-        "application": "QuantBIST RC5",
+        "application": settings.app_name,
+
+        "version": settings.version,
 
     }
 
@@ -56,7 +58,9 @@ def health():
 if __name__ == "__main__":
 
     logger.info(
-        "QuantBIST RC5 started."
+        "%s v%s web dashboard started.",
+        settings.app_name,
+        settings.version,
     )
 
     app.run(
@@ -65,6 +69,6 @@ if __name__ == "__main__":
 
         port=5000,
 
-        debug=True,
+        debug=settings.debug,
 
     )
