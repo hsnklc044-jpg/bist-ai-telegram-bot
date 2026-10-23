@@ -1,0 +1,19 @@
+[project]
+name = "quantbist"
+version = "0.8.0"
+description = "BIST hisse analizi, sinyal ve raporlama botu"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["reports", "logs", "data"]
+
+[tool.ruff.lint]
+select = ["E9", "F", "I", "E402", "B006", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "bot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,14 @@
+# Runtime dependencies. After a successful install run
+#   pip freeze > requirements.lock
+# and commit the lock file to pin exact versions.
+pandas>=2.2
+numpy>=1.26
+yfinance>=0.2.50
+ta>=0.11.0
+plotly>=5.20
+python-dotenv>=1.0
+python-telegram-bot>=21.0
+flask>=3.0
+fastapi>=0.110
+uvicorn>=0.29
+jinja2>=3.1
