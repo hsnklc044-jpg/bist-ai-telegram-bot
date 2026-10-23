@@ -45,3 +45,4 @@ class DashboardTest(unittest.TestCase):
             html = render_template("dashboard.html", dashboard=self.dashboard)
 
         self.assertIn(self.dashboard.decision.action, html)
+        self.assertNotIn("MarketRegimeType.", html)
