@@ -31,6 +31,20 @@ def _format_signals(signals: list[dict]) -> str:
     return "\n".join(lines)
 
 
+BUY_SIGNALS = ("STRONG BUY", "BUY")
+
+
+def _trade_levels(result: dict) -> str:
+    if result["signal"] not in BUY_SIGNALS:
+        return "📍 İşlem seviyesi yok (alım sinyali değil)"
+
+    return f"""📍 Entry : {result["entry_price"]}
+🛑 Stop Loss : {result["stop_loss"]}
+
+🎯 Target 1 : {result["target_1"]}
+🎯 Target 2 : {result["target_2"]}"""
+
+
 def _format_analysis(result: dict) -> str:
     return f"""📊 {result["symbol"]}
 
@@ -40,22 +54,18 @@ def _format_analysis(result: dict) -> str:
 📈 Score : {result["score"]}
 📊 Trend : {result["trend"]}
 
-⚡ RSI : {result["rsi"]}
-📉 MACD : {result["macd"]}
+⚡ RSI : {result["rsi"]:.1f}
+📉 MACD : {result["macd"]:.2f}
 
 📦 Volume Ratio : {result["volume_ratio"]}
-🌊 Volatility : {result["volatility"]}
+🌊 Volatility (ATR/fiyat) : %{result["volatility"] * 100:.2f}
 
 🛡 Confidence : {result["confidence"]}%
 
-📍 Entry : {result["entry_price"]}
-🛑 Stop Loss : {result["stop_loss"]}
+{_trade_levels(result)}
 
-🎯 Target 1 : {result["target_1"]}
-🎯 Target 2 : {result["target_2"]}
-
-📈 EMA20 : {result["ma20"]}
-📈 EMA50 : {result["ma50"]}"""
+📈 EMA20 : {result["ma20"]:.2f}
+📈 EMA50 : {result["ma50"]:.2f}"""
 
 
 async def top(

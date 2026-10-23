@@ -38,3 +38,31 @@ class HandlerRegistrationTest(unittest.TestCase):
 
         for handler in handlers:
             self.assertEqual(handler.filters.chat_ids, frozenset({777}))
+
+
+class AnalysisFormatTest(unittest.TestCase):
+    def _result(self, signal):
+        return {
+            "symbol": "THYAO.IS", "price": 259.0, "signal": signal, "score": 20,
+            "trend": "BEARISH", "rsi": 31.0968, "macd": -7.5677, "volume_ratio": 1.04,
+            "volatility": 0.0304, "confidence": 25, "entry_price": 259.0,
+            "stop_loss": 243.26, "target_1": 274.74, "target_2": 290.48,
+            "ma20": 279.3522, "ma50": 290.0099,
+        }
+
+    def test_sell_signal_has_no_long_targets(self):
+        from bot.analysis import _format_analysis
+
+        text = _format_analysis(self._result("STRONG SELL"))
+
+        self.assertNotIn("Target", text)
+        self.assertNotIn("Stop Loss", text)
+        self.assertIn("%3.04", text)
+
+    def test_buy_signal_shows_levels(self):
+        from bot.analysis import _format_analysis
+
+        text = _format_analysis(self._result("BUY"))
+
+        self.assertIn("Stop Loss : 243.26", text)
+        self.assertIn("Target 2 : 290.48", text)
