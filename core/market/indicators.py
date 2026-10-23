@@ -1,1037 +1,247 @@
-﻿"""
-QuantBIST RC8
+"""
+QuantBIST
 Market Indicator Engine
 
-Technical Intelligence Layer
+EMA trend, RSI, MACD, ATR, Bollinger Bands.
 
-- EMA Trend
-- RSI Momentum
-- MACD
-- ATR
-- Bollinger Bands
-- Technical Score
+Values that cannot be computed (too little history) are None, never
+0.0: a missing RSI must not look like an oversold stock.
 """
 
 from __future__ import annotations
 
+import math
+
 import pandas as pd
 from ta.momentum import RSIIndicator
-from ta.trend import (
-    MACD,
-    EMAIndicator,
-    SMAIndicator,
-)
-from ta.volatility import (
-    AverageTrueRange,
-    BollingerBands,
-)
+from ta.trend import MACD, EMAIndicator, SMAIndicator
+from ta.volatility import AverageTrueRange, BollingerBands
 
-from core.infrastructure.exceptions import (
-    MarketError,
-)
-from core.infrastructure.logger import (
-    get_logger,
-)
-from core.market.data import (
-    load_price_history,
-)
-from core.market.models import (
-    IndicatorSnapshot,
-    MarketTrend,
-)
+from core.infrastructure.exceptions import MarketError
+from core.infrastructure.logger import get_logger
+from core.market.data import load_price_history
+from core.market.models import IndicatorSnapshot, MarketTrend
 
 logger = get_logger(__name__)
 
+MIN_HISTORY_LENGTH = 60
+LONG_TERM_WINDOW = 200
 
 
-
-
-
-
-# =====================================================
-# CONFIG
-# =====================================================
-
-
-MIN_HISTORY_LENGTH = 50
-
-
-
-
-
-
-
-# =====================================================
-# HELPERS
-# =====================================================
-
-
-def _last(
-    series: pd.Series,
-) -> float:
-
-
+def _last(series: pd.Series) -> float | None:
     series = series.dropna()
 
-
     if series.empty:
+        return None
 
-        return 0.0
+    value = float(series.iloc[-1])
 
+    if math.isnan(value) or math.isinf(value):
+        return None
 
+    return round(value, 4)
 
-    return round(
 
-        float(series.iloc[-1]),
+def _ema(close: pd.Series, window: int) -> float | None:
+    if len(close) < window:
+        return None
 
-        4,
+    return _last(EMAIndicator(close, window=window).ema_indicator())
 
-    )
 
+def _sma(close: pd.Series, window: int) -> float | None:
+    if len(close) < window:
+        return None
 
-
-
-
-
-
-def _ema(
-    close: pd.Series,
-    window: int,
-) -> float:
-
-
-    return _last(
-
-        EMAIndicator(
-
-            close,
-
-            window=window,
-
-        )
-
-        .ema_indicator()
-
-    )
-
-
-
-
-
-
-
-def _sma(
-    close: pd.Series,
-    window: int,
-) -> float:
-
-
-    return _last(
-
-        SMAIndicator(
-
-            close,
-
-            window=window,
-
-        )
-
-        .sma_indicator()
-
-    )
-
-
-
-
-
-
-
-def _rsi(
-    close: pd.Series,
-) -> float:
-
-
-    return _last(
-
-        RSIIndicator(
-
-            close,
-
-            window=14,
-
-        )
-
-        .rsi()
-
-    )
-
-
-
-
-
-
-
-def _macd(
-    close: pd.Series,
-):
-
-
-    indicator = MACD(
-
-        close
-
-    )
-
-
-    return (
-
-        _last(
-
-            indicator.macd()
-
-        ),
-
-
-        _last(
-
-            indicator.macd_signal()
-
-        ),
-
-
-        _last(
-
-            indicator.macd_diff()
-
-        ),
-
-    )
-
-
-
-
-
-
-
-def _atr(
-    high,
-    low,
-    close,
-):
-
-
-    return _last(
-
-        AverageTrueRange(
-
-            high,
-
-            low,
-
-            close,
-
-            window=14,
-
-        )
-
-        .average_true_range()
-
-    )
-
-
-
-
-
-
-
-def _bollinger(
-    close,
-):
-
-
-    bb = BollingerBands(
-
-        close,
-
-        window=20,
-
-        window_dev=2,
-
-    )
-
-
-    return (
-
-        _last(
-
-            bb.bollinger_hband()
-
-        ),
-
-
-        _last(
-
-            bb.bollinger_mavg()
-
-        ),
-
-
-        _last(
-
-            bb.bollinger_lband()
-
-        ),
-
-    )
-
-
-
-
-
-
-
-# =====================================================
-# ADAPTIVE LONG TERM EMA
-# =====================================================
-
-
-def _long_term_ema(
-    close: pd.Series,
-    candles: int,
-) -> float:
-
-
-    if candles >= 200:
-
-        return _ema(
-
-            close,
-
-            200,
-
-        )
-
-
-    if candles >= 100:
-
-        return _ema(
-
-            close,
-
-            100,
-
-        )
-
-
-    return _ema(
-
-        close,
-
-        50,
-
-    )
-
-
-
-
-
-
-
-
-# =====================================================
-# TREND ENGINE
-# =====================================================
+    return _last(SMAIndicator(close, window=window).sma_indicator())
 
 
 def _trend(
     ema20: float,
     ema50: float,
-    long_term: float,
+    long_term: float | None,
 ) -> MarketTrend:
+    """
+    BULLISH: EMA20 > EMA50 (> EMA200 when available).
+    BEARISH: EMA20 < EMA50 (< EMA200 when available).
+    """
 
-
-    if (
-
-        ema20 > ema50
-
-        and
-
-        ema50 > long_term
-
-    ):
-
+    if ema20 > ema50 and (long_term is None or ema50 > long_term):
         return MarketTrend.BULLISH
 
-
-
-
-
-    if (
-
-        ema20 < ema50
-
-        and
-
-        ema50 < long_term
-
-    ):
-
+    if ema20 < ema50 and (long_term is None or ema50 < long_term):
         return MarketTrend.BEARISH
-
-
-
-
 
     return MarketTrend.NEUTRAL
 
 
-
-
-
-
-
-# =====================================================
-# MOMENTUM
-# =====================================================
-
-
-def _momentum(
-    rsi: float,
-    histogram: float,
-) -> str:
-
-
+def _momentum(rsi: float, histogram: float) -> str:
     if rsi >= 70:
-
         return "OVERBOUGHT"
-
-
-
     if rsi <= 30:
-
         return "OVERSOLD"
-
-
-
     if histogram > 0:
-
         return "POSITIVE"
-
-
-
     if histogram < 0:
-
         return "NEGATIVE"
-
-
-
     return "NEUTRAL"
-
-
-
-
-
-
-
-
-# =====================================================
-# SNAPSHOT
-# =====================================================
 
 
 def generate_indicator_snapshot(
     symbol: str,
+    df: pd.DataFrame | None = None,
 ) -> IndicatorSnapshot:
+    """
+    Indicators on the latest closed candle.
 
+    Pass `df` when the caller already loaded the history.
+    """
 
-    logger.info(
-
-        "Generating indicator snapshot | %s",
-
-        symbol,
-
-    )
-
+    logger.debug("Generating indicator snapshot | %s", symbol)
 
     try:
-
-
-
-        df = load_price_history(
-
-            symbol,
-
-        )
-
-
-
+        if df is None:
+            df = load_price_history(symbol)
 
         if df.empty:
+            raise MarketError(f"No market data: {symbol}")
 
-            raise MarketError(
-
-                f"No market data: {symbol}"
-
-            )
-
-
-
-
-
-        required_columns = {
-
-            "close",
-
-            "high",
-
-            "low",
-
-            "volume",
-
-        }
-
-
-
-        if not required_columns.issubset(
-
-            df.columns
-
-        ):
-
-            raise MarketError(
-
-                "Missing OHLCV columns."
-
-            )
-
-
-
-
+        if not {"close", "high", "low", "volume"}.issubset(df.columns):
+            raise MarketError("Missing OHLCV columns.")
 
         candles = len(df)
 
-
-
         if candles < MIN_HISTORY_LENGTH:
-
-            raise MarketError(
-
-                f"Insufficient history: {candles}"
-
-            )
-
-
-
-
-
-
-        if candles < 200:
-
-            logger.warning(
-
-                "Short history | %s | candles=%d | adaptive EMA active",
-
-                symbol,
-
-                candles,
-
-            )
-
-
-
-
-
-
+            raise MarketError(f"Insufficient history: {symbol} ({candles} candles)")
 
         close = df["close"]
-
         high = df["high"]
-
         low = df["low"]
 
-        volume = df["volume"]
-
-
-
-
-
-
-        ema20 = _ema(
-
-            close,
-
-            20,
-
-        )
-
-
-
-        ema50 = _ema(
-
-            close,
-
-            50,
-
-        )
-
-
-
-        long_term = _long_term_ema(
-
-            close,
-
-            candles,
-
-        )
-
-
-
-
-
-
-
-        sma20 = _sma(
-
-            close,
-
-            20,
-
-        )
-
-
-        sma50 = _sma(
-
-            close,
-
-            50,
-
-        )
-
-
-        sma200 = _sma(
-
-            close,
-
-            200,
-
-        )
-
-
-
-
-
-
-
-        rsi = _rsi(
-
-            close,
-
-        )
-
-
-
-
-
-        macd, signal, histogram = _macd(
-
-            close,
-
-        )
-
-
-
-
-
-        atr = _atr(
-
-            high,
-
-            low,
-
-            close,
-
-        )
-
-
-
-
-
-        bb_upper, bb_middle, bb_lower = _bollinger(
-
-            close,
-
-        )
-
-
-
-
-
-
-
-        trend = _trend(
-
-            ema20,
-
-            ema50,
-
-            long_term,
-
-        )
-
-
-
-
-
-        momentum = _momentum(
-
-            rsi,
-
-            histogram,
-
-        )
-
-
-
-
-
-
-
+        macd = MACD(close)
+        bands = BollingerBands(close, window=20, window_dev=2)
+
+        values = {
+            "price": _last(close),
+            "volume": _last(df["volume"]),
+            "ema20": _ema(close, 20),
+            "ema50": _ema(close, 50),
+            "ema200": _ema(close, LONG_TERM_WINDOW),
+            "sma20": _sma(close, 20),
+            "sma50": _sma(close, 50),
+            "sma200": _sma(close, LONG_TERM_WINDOW),
+            "rsi": _last(RSIIndicator(close, window=14).rsi()),
+            "atr": _last(AverageTrueRange(high, low, close, window=14).average_true_range()),
+            "macd": _last(macd.macd()),
+            "macd_signal": _last(macd.macd_signal()),
+            "macd_histogram": _last(macd.macd_diff()),
+            "bollinger_upper": _last(bands.bollinger_hband()),
+            "bollinger_middle": _last(bands.bollinger_mavg()),
+            "bollinger_lower": _last(bands.bollinger_lband()),
+        }
+
+        optional = {"ema200", "sma200"}
+        missing = [k for k, v in values.items() if v is None and k not in optional]
+
+        if missing:
+            raise MarketError(f"Indicators unavailable for {symbol}: {missing}")
+
+        if values["ema200"] is None:
+            logger.info(
+                "EMA200 unavailable | %s | candles=%d",
+                symbol,
+                candles,
+            )
+
+        trend = _trend(values["ema20"], values["ema50"], values["ema200"])
 
         snapshot = IndicatorSnapshot(
-
-
             symbol=symbol,
-
-
-            price=_last(close),
-
-
-            volume=_last(volume),
-
-
-
-            ema20=ema20,
-
-
-            ema50=ema50,
-
-
-            ema200=long_term,
-
-
-
-            sma20=sma20,
-
-
-            sma50=sma50,
-
-
-            sma200=sma200,
-
-
-
-            rsi=rsi,
-
-
-            atr=atr,
-
-
-
-            macd=macd,
-
-
-            macd_signal=signal,
-
-
-            macd_histogram=histogram,
-
-
-
-            bollinger_upper=bb_upper,
-
-
-            bollinger_middle=bb_middle,
-
-
-            bollinger_lower=bb_lower,
-
-
-
             trend=trend,
-
-
-
-            momentum=momentum,
-
+            momentum=_momentum(values["rsi"], values["macd_histogram"]),
+            **values,
         )
 
-
-
-
-
-
-        logger.info(
-
-            "Indicator completed | %s | Trend=%s",
-
-            symbol,
-
-            trend.value,
-
-        )
-
-
-
-
+        logger.debug("Indicator completed | %s | Trend=%s", symbol, trend.value)
 
         return snapshot
 
-
-
-
-
-
     except MarketError:
-
         raise
-
-
-
-
-
-
     except Exception as exc:
+        logger.exception("Indicator calculation failed | %s", symbol)
+        raise MarketError(str(exc)) from exc
 
 
-        logger.exception(
-
-            "Indicator calculation failed."
-
-        )
-
-
-        raise MarketError(
-
-            str(exc)
-
-        ) from exc
-
-
-
-
-
-
-
-# =====================================================
-# SIGNAL HELPERS
-# =====================================================
-
-
-def is_bullish(
-    snapshot: IndicatorSnapshot,
-) -> bool:
-
-
+def is_bullish(snapshot: IndicatorSnapshot) -> bool:
     return snapshot.trend is MarketTrend.BULLISH
 
 
-
-
-
-
-
-def is_bearish(
-    snapshot: IndicatorSnapshot,
-) -> bool:
-
-
+def is_bearish(snapshot: IndicatorSnapshot) -> bool:
     return snapshot.trend is MarketTrend.BEARISH
 
 
-
-
-
-
-
-def is_neutral(
-    snapshot: IndicatorSnapshot,
-) -> bool:
-
-
+def is_neutral(snapshot: IndicatorSnapshot) -> bool:
     return snapshot.trend is MarketTrend.NEUTRAL
 
 
+def above_long_term(snapshot: IndicatorSnapshot) -> bool | None:
+    """Price above EMA200; None when EMA200 is unavailable."""
+
+    if snapshot.ema200 is None:
+        return None
+
+    return snapshot.price > snapshot.ema200
 
 
-
-
-
-def strong_buy_signal(
-    snapshot: IndicatorSnapshot,
-) -> bool:
-
-
+def strong_buy_signal(snapshot: IndicatorSnapshot) -> bool:
     return (
-
         snapshot.trend is MarketTrend.BULLISH
-
-        and
-
-        snapshot.rsi < 70
-
-        and
-
-        snapshot.macd > snapshot.macd_signal
-
+        and snapshot.rsi < 70
+        and snapshot.macd > snapshot.macd_signal
     )
 
 
-
-
-
-
-
-def strong_sell_signal(
-    snapshot: IndicatorSnapshot,
-) -> bool:
-
-
+def strong_sell_signal(snapshot: IndicatorSnapshot) -> bool:
     return (
-
         snapshot.trend is MarketTrend.BEARISH
-
-        and
-
-        snapshot.rsi > 30
-
-        and
-
-        snapshot.macd < snapshot.macd_signal
-
+        and snapshot.rsi > 30
+        and snapshot.macd < snapshot.macd_signal
     )
 
 
-
-
-
-
-
-# =====================================================
-# SCORE
-# =====================================================
-
-
-def indicator_score(
-    snapshot: IndicatorSnapshot,
-) -> float:
-
-
+def indicator_score(snapshot: IndicatorSnapshot) -> float:
     score = 50.0
 
-
-
-
     if snapshot.trend is MarketTrend.BULLISH:
-
         score += 20
-
-
-
     elif snapshot.trend is MarketTrend.BEARISH:
-
         score -= 20
 
-
-
-
-
-
     if snapshot.rsi < 30:
-
         score += 10
-
-
-
     elif snapshot.rsi > 70:
-
         score -= 10
 
+    score += 10 if snapshot.macd > snapshot.macd_signal else -10
 
-
-
-
-
-    if snapshot.macd > snapshot.macd_signal:
-
+    long_term = above_long_term(snapshot)
+    if long_term is True:
         score += 10
-
-
-
-    else:
-
+    elif long_term is False:
         score -= 10
 
-
-
-
-
-
-    if snapshot.price > snapshot.ema200:
-
-        score += 10
-
-
-
-    else:
-
-        score -= 10
-
-
-
-
-
-
-    return round(
-
-        max(
-
-            0,
-
-            min(
-
-                100,
-
-                score,
-
-            ),
-
-        ),
-
-        2,
-
-    )
-
-
-
-
-
-
+    return round(max(0.0, min(100.0, score)), 2)
 
 
 __all__ = [
-
+    "MIN_HISTORY_LENGTH",
     "generate_indicator_snapshot",
-
     "indicator_score",
-
+    "above_long_term",
     "is_bullish",
-
     "is_bearish",
-
     "is_neutral",
-
     "strong_buy_signal",
-
     "strong_sell_signal",
-
 ]

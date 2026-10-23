@@ -34,6 +34,23 @@ python app.py                     # Web paneli (Flask)  → http://127.0.0.1:500
 python -m core.web.app            # Web paneli (FastAPI) → http://127.0.0.1:8000/dashboard
 ```
 
+## Fiyat verisi
+
+Fiyatlar `data/market.db` (SQLite) dosyasında 5 yıllık günlük mum olarak tutulur.
+İlk çalıştırmada tamamı indirilir, sonra sadece eksik günler gelir. Yahoo'ya
+ulaşılamazsa sistem son kayıtlı veriyle çalışmaya devam eder.
+
+```bash
+python -m core.market.update          # veriyi güncelle + kalite raporu
+python -m core.market.update --full   # 5 yılı baştan indir
+python -m core.market.quality         # sadece kalite raporu
+```
+
+- Taranan hisseler `data/universe.csv` dosyasında; satır ekleyerek listeyi genişletebilirsiniz.
+- Seans bitmeden (18:15'ten önce) o günün mumu kullanılmaz; sinyaller sadece kapanmış mumlardan üretilir.
+- Kalite raporu eksik günleri, bayat veriyi, sıfır hacimli günleri ve ±%10 tavan/taban limitini
+  aşan sıçramaları (genelde bölünme/bedelsiz veya veri hatası) gösterir.
+
 ## Telegram komutları
 
 | Komut | İş |
@@ -73,7 +90,7 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 ## Yol haritası
 
 0. Temizlik ve güvenlik ✅
-1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği
+1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği ✅
 2. Strateji ve backtest motoru
 3. Risk ve pozisyon boyutu, işlem defteri
 4. Zamanlayıcı ile otomatik tarama ve bildirim

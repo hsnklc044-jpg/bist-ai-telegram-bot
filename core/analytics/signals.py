@@ -15,49 +15,10 @@ from core.config.thresholds import (
 from core.infrastructure.logger import (
     get_logger,
 )
+from core.market.data import preload
+from core.market.universe import load_universe
 
 logger = get_logger(__name__)
-
-
-
-
-
-# =====================================================
-# DEFAULT SYMBOLS
-# =====================================================
-
-
-DEFAULT_SYMBOLS = [
-
-    "SASA.IS",
-
-    "SISE.IS",
-
-    "THYAO.IS",
-
-    "TUPRS.IS",
-
-    "ASELS.IS",
-
-    "KCHOL.IS",
-
-    "YKBNK.IS",
-
-    "BIMAS.IS",
-
-    "HEKTS.IS",
-
-    "PETKM.IS",
-
-    "TCELL.IS",
-
-    "GARAN.IS",
-
-    "AKBNK.IS",
-
-    "EREGL.IS",
-
-]
 
 
 
@@ -161,7 +122,9 @@ def get_top_signals(
 
     if symbols is None:
 
-        symbols = DEFAULT_SYMBOLS
+        symbols = load_universe()
+
+    preload(symbols)
 
 
 

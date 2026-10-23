@@ -191,6 +191,7 @@ def analyze_stock(
 
         snapshot = generate_indicator_snapshot(
             symbol,
+            df,
         )
 
 

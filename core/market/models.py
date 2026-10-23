@@ -135,14 +135,14 @@ class IndicatorSnapshot:
 
     ema50: float
 
-    ema200: float
+    ema200: float | None
 
 
     sma20: float
 
     sma50: float
 
-    sma200: float
+    sma200: float | None
 
 
     rsi: float

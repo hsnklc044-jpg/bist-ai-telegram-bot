@@ -1,20 +1,24 @@
 """
-Test helpers: synthetic price data and a patched market data provider.
+Test helpers: synthetic price data and an offline market.
 
-Tests never touch the network. `offline_market()` replaces
-yfinance.download with a deterministic random walk per symbol.
+Tests never touch the network. `offline_market()` swaps the price
+provider for a deterministic random walk per symbol and points the
+price store at a temporary database.
 """
 
 from __future__ import annotations
 
+import tempfile
 import zlib
 from contextlib import contextmanager
-from unittest import mock
+from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-PERIOD_ROWS = {"5d": 5, "1mo": 21, "6mo": 125, "1y": 250, "2y": 500}
+HISTORY_ROWS = 600
+LAST_DAY = "2026-10-23"
 
 
 def make_ohlcv(
@@ -22,37 +26,73 @@ def make_ohlcv(
     seed: int = 0,
     drift: float = 0.0005,
     vol: float = 0.02,
+    end: str = LAST_DAY,
 ) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     close = 100 * np.exp(np.cumsum(rng.normal(drift, vol, rows)))
     spread = np.abs(rng.normal(0, vol / 2, rows))
-    index = pd.bdate_range(end="2026-10-23", periods=rows)
+    index = pd.bdate_range(end=end, periods=rows)
 
     return pd.DataFrame(
         {
-            "Open": close * (1 + rng.normal(0, vol / 4, rows)),
-            "High": close * (1 + spread),
-            "Low": close * (1 - spread),
-            "Close": close,
-            "Volume": rng.integers(1_000_000, 5_000_000, rows),
+            "open": close * (1 + rng.normal(0, vol / 4, rows)),
+            "high": close * (1 + spread),
+            "low": close * (1 - spread),
+            "close": close,
+            "volume": rng.integers(1_000_000, 5_000_000, rows).astype(float),
         },
         index=index,
     )
 
 
-def fake_download(symbol, period="6mo", interval="1d", **kwargs):
-    rows = PERIOD_ROWS.get(period, 125)
-    full = make_ohlcv(rows=500, seed=zlib.crc32(symbol.encode()))
-    return full.iloc[-rows:]
+class FakeProvider:
+    """Deterministic prices; records every request."""
+
+    name = "fake"
+
+    def __init__(self, rows: int = HISTORY_ROWS, fail: bool = False):
+        self.rows = rows
+        self.fail = fail
+        self.calls: list[tuple[tuple[str, ...], date]] = []
+        self.overrides: dict[str, pd.DataFrame] = {}
+
+    def frame(self, symbol: str) -> pd.DataFrame:
+        if symbol in self.overrides:
+            return self.overrides[symbol]
+
+        return make_ohlcv(rows=self.rows, seed=zlib.crc32(symbol.encode()))
+
+    def fetch(self, symbols, start):
+        self.calls.append((tuple(symbols), start))
+
+        if self.fail:
+            raise ConnectionError("provider offline")
+
+        result = {}
+        for symbol in symbols:
+            df = self.frame(symbol)
+            result[symbol] = df[df.index >= pd.Timestamp(start)]
+
+        return result
 
 
 @contextmanager
-def offline_market():
-    from core.market import data
+def offline_market(provider: FakeProvider | None = None):
+    from core.market import data, store
+    from core.market import provider as provider_module
 
-    data._PRICE_CACHE.clear()
+    provider = provider or FakeProvider()
+    previous_provider = provider_module.get_provider()
+    previous_db = store._db_path
 
-    with mock.patch.object(data.yf, "download", side_effect=fake_download):
-        yield
+    with tempfile.TemporaryDirectory() as tmp:
+        store.configure(Path(tmp) / "market.db")
+        provider_module.set_provider(provider)
+        data.clear_cache()
 
-    data._PRICE_CACHE.clear()
+        try:
+            yield provider
+        finally:
+            provider_module.set_provider(previous_provider)
+            store.configure(previous_db)
+            data.clear_cache()

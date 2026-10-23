@@ -1,709 +1,179 @@
 """
-QuantBIST RC8
-Market Data Provider
+QuantBIST
+Market Data
 
-Responsibilities:
-
-- Yahoo Finance OHLCV provider
-- Data normalization
-- Market cache layer
-- Snapshot generation
-- Data quality information
+Public entry point for price history. Reads from the local store
+(core.market.store), refreshing it from the provider when needed,
+and only ever returns final (closed) daily candles.
 """
 
 from __future__ import annotations
 
-import warnings
+import threading
 from datetime import datetime, timedelta
 
 import pandas as pd
-import yfinance as yf
 
-from core.infrastructure.exceptions import (
-    MarketError,
-)
-from core.infrastructure.logger import (
-    get_logger,
-)
+from core.infrastructure.exceptions import MarketError
+from core.infrastructure.logger import get_logger
+from core.market import store
+from core.market.calendar import drop_open_candle
 
 logger = get_logger(__name__)
 
-# yfinance still uses pandas' deprecated inplace=True internally; those
-# warnings come from the library, not from QuantBIST, and flood the console.
-warnings.filterwarnings(
-    "ignore",
-    message=".*inplace keyword.*",
-    module=r"yfinance(\..*)?",
-)
-
-
-
-
-
-# =====================================================
-# CONFIG
-# =====================================================
-
-
-DEFAULT_PERIOD = "6mo"
-
-DEFAULT_INTERVAL = "1d"
-
-
+DEFAULT_PERIOD = "2y"
 CACHE_MINUTES = 5
 
+PERIOD_DAYS = {
+    "5d": 7,
+    "1mo": 31,
+    "3mo": 92,
+    "6mo": 183,
+    "1y": 366,
+    "2y": 731,
+    "5y": 1827,
+    "max": 365 * 50,
+}
+
+_cache: dict[str, tuple[datetime, pd.DataFrame]] = {}
+_cache_lock = threading.Lock()
 
 
+def clear_cache() -> None:
+    with _cache_lock:
+        _cache.clear()
 
 
-# =====================================================
-# CACHE
-# =====================================================
+def _history(symbol: str) -> pd.DataFrame:
+    """Full stored history of closed candles, refreshed if stale."""
 
+    now = datetime.now()
 
-_PRICE_CACHE: dict[str, dict] = {}
+    with _cache_lock:
+        item = _cache.get(symbol)
+        if item and now - item[0] < timedelta(minutes=CACHE_MINUTES):
+            return item[1]
 
-
-
-
-
-def _cache_valid(
-    symbol: str,
-) -> bool:
-
-
-    item = _PRICE_CACHE.get(symbol)
-
-
-    if not item:
-
-        return False
-
-
-
-    age = (
-
-        datetime.now()
-
-        -
-
-        item["time"]
-
-    )
-
-
-
-    return (
-
-        age
-
-        <
-
-        timedelta(
-
-            minutes=CACHE_MINUTES
-
-        )
-
-    )
-
-
-
-
-
-
-
-# =====================================================
-# NORMALIZER
-# =====================================================
-
-
-def _normalize_dataframe(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
-
+    status = store.update([symbol], now=now).get(symbol)
+    df = drop_open_candle(store.read(symbol))
 
     if df.empty:
+        raise MarketError(f"No price data: {symbol} ({status})")
 
-        return pd.DataFrame()
-
-
-
-    try:
-
-
-        if isinstance(
-
-            df.columns,
-
-            pd.MultiIndex,
-
-        ):
-
-
-            df = pd.DataFrame(
-
-                {
-
-                    "close":
-                        df["Close"].iloc[:,0],
-
-
-                    "high":
-                        df["High"].iloc[:,0],
-
-
-                    "low":
-                        df["Low"].iloc[:,0],
-
-
-                    "volume":
-                        df["Volume"].iloc[:,0],
-
-                }
-
-            )
-
-
-        else:
-
-
-            df = pd.DataFrame(
-
-                {
-
-                    "close":
-                        df["Close"],
-
-
-                    "high":
-                        df["High"],
-
-
-                    "low":
-                        df["Low"],
-
-
-                    "volume":
-                        df.get(
-                            "Volume",
-                            0,
-                        ),
-
-                }
-
-            )
-
-
-
-
-        df["volume"] = (
-
-            pd.to_numeric(
-
-                df["volume"],
-
-                errors="coerce",
-
-            )
-
-            .fillna(0)
-
+    if status == "failed":
+        logger.warning(
+            "Using stored data, provider unavailable | %s | last=%s",
+            symbol,
+            df.index[-1].date(),
         )
 
+    with _cache_lock:
+        _cache[symbol] = (now, df)
 
-
-        return (
-
-            df
-
-            .dropna()
-
-            .sort_index()
-
-        )
-
-
-
-    except Exception as exc:
-
-
-        raise MarketError(
-
-            f"Normalization failed: {exc}"
-
-        ) from exc
-
-
-
-
-
-
-
-# =====================================================
-# DATA QUALITY
-# =====================================================
-
-
-def get_data_quality(
-    df: pd.DataFrame,
-) -> dict:
-
-
-    candles = len(df)
-
-
-
-    if candles >= 200:
-
-        reliability = 100
-
-
-    elif candles >= 100:
-
-        reliability = 85
-
-
-    elif candles >= 50:
-
-        reliability = 70
-
-
-    else:
-
-        reliability = 50
-
-
-
-
-    return {
-
-
-        "candles":
-
-            candles,
-
-
-        "reliability":
-
-            reliability,
-
-
-        "ema200_available":
-
-            candles >= 200,
-
-
-        "updated":
-
-            datetime.now(),
-
-    }
-
-
-
-
-
-
-
-# =====================================================
-# HISTORY
-# =====================================================
+    return df
 
 
 def load_price_history(
     symbol: str,
     period: str = DEFAULT_PERIOD,
-    interval: str = DEFAULT_INTERVAL,
+    interval: str = "1d",
 ) -> pd.DataFrame:
+    """
+    Daily closed candles: columns open, high, low, close, volume.
 
+    The returned frame is a copy; callers may modify it.
+    """
 
-    cache_key = (
+    if interval != "1d":
+        raise MarketError("Only daily candles are supported.")
 
-        f"{symbol}_{period}_{interval}"
+    if period not in PERIOD_DAYS:
+        raise MarketError(f"Unknown period: {period}")
 
-    )
+    df = _history(symbol)
+    start = df.index[-1] - pd.Timedelta(days=PERIOD_DAYS[period])
 
+    return df[df.index > start].copy()
 
 
-    if _cache_valid(cache_key):
+def preload(symbols: list[str]) -> dict[str, str]:
+    """Update many symbols in one provider request (faster than one by one)."""
 
+    status = store.update(symbols)
+    clear_cache()
 
-        logger.debug(
+    return status
 
-            "Cache hit | %s",
 
-            symbol,
+def load_last_price(symbol: str) -> float:
+    df = load_price_history(symbol, period="5d")
 
-        )
+    return round(float(df["close"].iloc[-1]), 2)
 
 
-        return _PRICE_CACHE[cache_key]["data"]
+def get_data_quality(df: pd.DataFrame) -> dict:
+    candles = len(df)
 
-
-
-
-
-    logger.info(
-
-        "Loading market data | %s",
-
-        symbol,
-
-    )
-
-
-
-    try:
-
-
-
-        df = yf.download(
-
-            symbol,
-
-            period=period,
-
-            interval=interval,
-
-            auto_adjust=True,
-
-            progress=False,
-
-            threads=False,
-
-        )
-
-
-
-
-        df = _normalize_dataframe(
-
-            df,
-
-        )
-
-
-
-
-        if df.empty:
-
-
-            raise MarketError(
-
-                f"No price data: {symbol}"
-
-            )
-
-
-
-
-
-        _PRICE_CACHE[cache_key] = {
-
-
-            "data":
-
-                df,
-
-
-            "time":
-
-                datetime.now(),
-
-
-        }
-
-
-
-
-
-        logger.info(
-
-            "Market loaded | %s | candles=%d",
-
-            symbol,
-
-            len(df),
-
-        )
-
-
-
-        return df
-
-
-
-
-    except MarketError:
-
-        raise
-
-
-
-    except Exception as exc:
-
-
-        logger.exception(
-
-            "Market download failed."
-
-        )
-
-
-        raise MarketError(
-
-            str(exc)
-
-        ) from exc
-
-
-
-
-
-
-
-# =====================================================
-# LAST PRICE
-# =====================================================
-
-
-def load_last_price(
-    symbol: str,
-) -> float:
-
-
-    df = load_price_history(
-
-        symbol,
-
-        period="5d",
-
-    )
-
-
-    return round(
-
-        float(
-
-            df["close"].iloc[-1]
-
-        ),
-
-        2,
-
-    )
-
-
-
-
-
-
-
-
-# =====================================================
-# SNAPSHOT
-# =====================================================
-
-
-def load_snapshot(
-    symbol: str,
-) -> dict:
-
-
-    df = load_price_history(
-
-        symbol,
-
-        period="1mo",
-
-    )
-
-
-
-    if len(df) < 2:
-
-        raise MarketError(
-
-            f"Insufficient data: {symbol}"
-
-        )
-
-
-
-    close = float(
-
-        df["close"].iloc[-1]
-
-    )
-
-
-    previous = float(
-
-        df["close"].iloc[-2]
-
-    )
-
-
-
-    change = 0.0
-
-
-
-    if previous:
-
-        change = round(
-
-            (
-
-                (close - previous)
-
-                /
-
-                previous
-
-            )
-
-            *
-
-            100,
-
-            2,
-
-        )
-
-
-
-
+    if candles >= 200:
+        reliability = 100
+    elif candles >= 100:
+        reliability = 85
+    elif candles >= 50:
+        reliability = 70
+    else:
+        reliability = 50
 
     return {
-
-
-        "symbol":
-
-            symbol,
-
-
-        "price":
-
-            round(
-
-                close,
-
-                2,
-
-            ),
-
-
-        "change":
-
-            change,
-
-
-        "volume":
-
-            float(
-
-                df["volume"].iloc[-1]
-
-            ),
-
-
-        "quality":
-
-            get_data_quality(
-
-                df
-
-            ),
-
-
-        "updated":
-
-            datetime.now(),
-
+        "candles": candles,
+        "reliability": reliability,
+        "ema200_available": candles >= 200,
+        "last_candle": df.index[-1].date() if candles else None,
+        "updated": datetime.now(),
     }
 
 
+def load_snapshot(symbol: str) -> dict:
+    df = load_price_history(symbol)
+
+    if len(df) < 2:
+        raise MarketError(f"Insufficient data: {symbol}")
+
+    close = float(df["close"].iloc[-1])
+    previous = float(df["close"].iloc[-2])
+    change = round((close - previous) / previous * 100, 2) if previous else 0.0
+
+    return {
+        "symbol": symbol,
+        "price": round(close, 2),
+        "change": change,
+        "volume": float(df["volume"].iloc[-1]),
+        "quality": get_data_quality(df),
+        "updated": datetime.now(),
+    }
 
 
-
-
-
-
-
-# =====================================================
-# MULTI SYMBOL
-# =====================================================
-
-
-def load_market(
-    symbols: list[str],
-) -> dict[str,pd.DataFrame]:
-
+def load_market(symbols: list[str]) -> dict[str, pd.DataFrame]:
+    preload(symbols)
 
     result = {}
 
-
-
     for symbol in symbols:
-
-
         try:
-
-
-            result[symbol] = load_price_history(
-
-                symbol,
-
-            )
-
-
-
-        except Exception as exc:
-
-
-            logger.warning(
-
-                "Skipping %s | %s",
-
-                symbol,
-
-                exc,
-
-            )
-
-
+            result[symbol] = load_price_history(symbol)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Skipping %s | %s", symbol, exc)
 
     return result
 
 
-
-
-
-
-
-# =====================================================
-# EXPORTS
-# =====================================================
-
-
 __all__ = [
-
-
+    "DEFAULT_PERIOD",
+    "PERIOD_DAYS",
+    "clear_cache",
     "load_price_history",
-
-
+    "preload",
     "load_last_price",
-
-
     "load_snapshot",
-
-
     "load_market",
-
-
     "get_data_quality",
-
-
 ]

@@ -19,6 +19,8 @@ REPORTS_DIR = ROOT_DIR / "reports" / "output"
 PORTFOLIO_FILE = DATA_DIR / "portfolio_model.csv"
 WATCHLIST_FILE = DATA_DIR / "watchlist.json"
 EQUITY_FILE = DATA_DIR / "equity_curve.csv"
+MARKET_DB = DATA_DIR / "market.db"
+UNIVERSE_FILE = DATA_DIR / "universe.csv"
 
 WEB_DIR = ROOT_DIR / "core" / "web"
 WEB_STATIC_DIR = WEB_DIR / "static"
@@ -32,6 +34,8 @@ __all__ = [
     "PORTFOLIO_FILE",
     "WATCHLIST_FILE",
     "EQUITY_FILE",
+    "MARKET_DB",
+    "UNIVERSE_FILE",
     "WEB_DIR",
     "WEB_STATIC_DIR",
     "WEB_TEMPLATES_DIR",
