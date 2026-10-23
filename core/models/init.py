@@ -1,4 +1,0 @@
-"""
-QuantBIST Framework
-Shared Models
-"""
