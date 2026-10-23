@@ -13,6 +13,7 @@ Responsibilities:
 
 from __future__ import annotations
 
+import warnings
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -26,6 +27,14 @@ from core.infrastructure.logger import (
 )
 
 logger = get_logger(__name__)
+
+# yfinance still uses pandas' deprecated inplace=True internally; those
+# warnings come from the library, not from QuantBIST, and flood the console.
+warnings.filterwarnings(
+    "ignore",
+    message=".*inplace keyword.*",
+    module=r"yfinance(\..*)?",
+)
 
 
 
