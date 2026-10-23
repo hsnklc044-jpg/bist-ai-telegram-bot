@@ -134,11 +134,11 @@ def _normalize_columns(
     ]
 
 
-    df.rename(
+    df = df.rename(
+
 
         columns=COLUMN_ALIASES,
 
-        inplace=True,
 
     )
 
