@@ -16,6 +16,8 @@ HELP_TEXT = f"""🚀 {settings.app_name} v{settings.version}
 Komutlar:
 /top – en güçlü sinyaller
 /analyze THYAO – tek hisse analizi
+/backtest – sinyalin 5 yıllık geçmiş testi
+/backtest THYAO – tek hisse için geçmiş test
 /summary – portföy ve piyasa özeti
 /watchlist – takip listesi
 /watchadd EREGL – listeye ekle
@@ -23,7 +25,7 @@ Komutlar:
 /watchscan – takip listesini tara
 /help – bu mesaj
 
-⚠️ Sinyaller henüz backtest edilmedi; yatırım tavsiyesi değildir."""
+⚠️ Geçmiş performans geleceği garanti etmez; yatırım tavsiyesi değildir."""
 
 
 async def start(
