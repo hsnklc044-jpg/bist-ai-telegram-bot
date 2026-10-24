@@ -66,3 +66,25 @@ class AnalysisFormatTest(unittest.TestCase):
 
         self.assertIn("Stop Loss : 243.26", text)
         self.assertIn("Target 2 : 290.48", text)
+
+
+class SummaryWithoutDataTest(unittest.TestCase):
+    def test_summary_explains_missing_data(self):
+        import asyncio
+        from types import SimpleNamespace
+
+        from bot.reports import NO_DATA_MESSAGE, summary
+        from tests.helpers import FakeProvider, offline_market
+
+        sent: list[str] = []
+
+        async def reply_text(text, **kwargs):
+            sent.append(text)
+
+        message = SimpleNamespace(reply_text=reply_text)
+        update = SimpleNamespace(message=message, effective_message=message)
+
+        with offline_market(FakeProvider(fail=True)):
+            asyncio.run(summary(update, SimpleNamespace(args=[])))
+
+        self.assertEqual(sent[-1], NO_DATA_MESSAGE)

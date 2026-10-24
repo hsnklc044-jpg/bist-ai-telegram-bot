@@ -46,3 +46,14 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn(self.dashboard.decision.action, html)
         self.assertNotIn("MarketRegimeType.", html)
+
+
+class DashboardWithoutDataTest(unittest.TestCase):
+    def test_flask_returns_503(self):
+        from app import app
+        from tests.helpers import FakeProvider
+
+        with offline_market(FakeProvider(fail=True)):
+            response = app.test_client().get("/")
+
+        self.assertEqual(response.status_code, 503)

@@ -12,6 +12,7 @@ from flask import Flask, render_template
 from core.dashboard.service import (
     get_dashboard,
 )
+from core.infrastructure.exceptions import DashboardError
 from core.infrastructure.logger import (
     get_logger,
 )
@@ -30,7 +31,14 @@ def dashboard():
         "Dashboard requested."
     )
 
-    data = get_dashboard()
+    try:
+        data = get_dashboard()
+    except DashboardError:
+        return (
+            "Panel hazırlanamadı: fiyat verisi yok. "
+            "python -m core.market.update çalıştırıp sayfayı yenileyin.",
+            503,
+        )
 
     return render_template(
 
