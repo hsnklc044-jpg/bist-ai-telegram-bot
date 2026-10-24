@@ -9,8 +9,12 @@ Checks every stored symbol against the benchmark's trading days:
 - missing    trading days the benchmark has but the stock does not
 - stale      last candle older than the benchmark's last candle
 - zero_volume days without trades
-- jumps      daily moves beyond BIST's ±10% price limit; usually a
-             corporate action (split, rights issue) or a data error
+- jumps      moves beyond what BIST's ±10% daily price limit allows
+             between two candles; usually an unadjusted corporate
+             action (split, bonus issue) or a data error. After a
+             market closure (e.g. February 2023) the limit compounds
+             over the business days in between, so reopening moves
+             are not flagged.
 - bad_ohlc   high below low, or close outside the high-low range
 """
 
@@ -18,6 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import numpy as np
 import pandas as pd
 
 from core.market import store
@@ -25,6 +30,21 @@ from core.market.calendar import drop_open_candle
 from core.market.universe import BENCHMARK, load_universe
 
 DAILY_LIMIT = 0.105
+
+
+def suspicious_jumps(df: pd.DataFrame) -> pd.Series:
+    """Close-to-close returns the daily price limit cannot explain."""
+
+    if len(df) < 2:
+        return pd.Series(dtype=float)
+
+    returns = df["close"].pct_change().iloc[1:]
+    days = df.index.values.astype("datetime64[D]")
+    sessions = np.maximum(np.busday_count(days[:-1], days[1:]), 1)
+    allowed_up = (1 + DAILY_LIMIT) ** sessions - 1
+    allowed_down = 1 - (1 - DAILY_LIMIT) ** sessions
+
+    return returns[(returns > allowed_up) | (returns < -allowed_down)]
 
 
 @dataclass
@@ -46,6 +66,7 @@ class SymbolQuality:
             and self.missing == 0
             and self.stale_days == 0
             and self.bad_ohlc == 0
+            and not self.jumps
         )
 
 
@@ -75,8 +96,7 @@ def check_symbol(
 
     result.zero_volume = int((df["volume"] <= 0).sum())
 
-    returns = df["close"].pct_change().dropna()
-    big = returns[returns.abs() > DAILY_LIMIT]
+    big = suspicious_jumps(df)
     result.jumps = [f"{d.date()} {r:+.1%}" for d, r in big.items()]
 
     bad = (df["high"] < df["low"]) | (df["close"] > df["high"] * 1.001) | (
@@ -132,6 +152,7 @@ if __name__ == "__main__":
 __all__ = [
     "SymbolQuality",
     "check_symbol",
+    "suspicious_jumps",
     "build_report",
     "format_report",
 ]

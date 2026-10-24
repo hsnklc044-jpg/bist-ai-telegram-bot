@@ -15,6 +15,7 @@ on:
     paths:
       - ".github/workflows/backtest.yml"
       - "core/backtest/**"
+      - "core/market/quality.py"
       - "core/analytics/scoring.py"
       - "core/config/thresholds.py"
 
@@ -36,7 +37,12 @@ jobs:
           ARGS: ${{ github.event.inputs.args }}
         run: |
           python -m core.backtest $ARGS | tee backtest.txt
+          python -m core.backtest --compare | tee compare.txt
           {
+            echo '## Kural seti karşılaştırması'
+            echo '```'
+            cat compare.txt
+            echo '```'
             echo '## Backtest'
             echo '```'
             cat backtest.txt
@@ -53,3 +59,4 @@ jobs:
           path: |
             update.txt
             backtest.txt
+            compare.txt

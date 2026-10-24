@@ -59,8 +59,13 @@ Her gün için skor, sadece o güne kadar kapanmış mumlarla yeniden hesaplanı
 ```bash
 python -m core.backtest                  # tüm evren, eşit ağırlıklı portföy
 python -m core.backtest THYAO EREGL      # seçili hisseler + işlem listesi
+python -m core.backtest --compare        # hazır kural setlerini yan yana karşılaştır
+python -m core.backtest --no-target --trailing-atr 3 --hold-in-uptrend
 python -m core.backtest --stop-atr 1.5 --target-atr 3 --max-hold 20 --commission 0.001
 ```
+
+Bilgisayar yoksa: GitHub'da **Actions → Backtest → Run workflow**. Fiyatlar orada indirilir,
+sonuç çalıştırmanın özet sayfasında görünür.
 
 Kurallar (sadece alış yönlü, `core/backtest/engine.py`):
 
@@ -69,7 +74,15 @@ Kurallar (sadece alış yönlü, `core/backtest/engine.py`):
   Aynı mum ikisine de değerse stop önce sayılır; açılışta boşlukla geçilirse açılıştan dolar.
 - Skor ≤ 35 (SELL) veya 40 gün dolunca ertesi açılışta satılır.
 - Her alış ve satışta %0,2 komisyon ve %0,1 kayma düşülür.
-- Portföy: sermaye başta hisselere eşit bölünür, yeniden dengelenmez. Kıyas: XU100 al-tut.
+- Portföy: sermaye başta hisselere eşit bölünür, yeniden dengelenmez.
+  Kıyas: aynı hisselerin eşit ağırlıklı al-tutu ve XU100. Getiri ayrıca USD bazında
+  (USD/TRY, `TRY=X`) gösterilir; TL getirisi enflasyon yüzünden tek başına yanıltıcıdır.
+- Dönem ikiye bölünür (1. yarı / 2. yarı): iki yarıda da tutarlı olmayan kural şansa bağlıdır.
+- İsteğe bağlı: `--no-target` (sabit hedef yok), `--trailing-atr 3` (en yüksek kapanışı izleyen
+  stop), `--hold-in-uptrend` (XU100 200 günlük ortalamanın üstündeyken sat sinyali ve süre
+  çıkışı yok sayılır), `--cash-rate 0.40` (boştaki nakde yıllık faiz).
+- Günlük fiyat limitinin (±%10, kapalı geçen seanslarla bileşik) açıklayamadığı sıçrama içeren
+  hisseler (genelde fiyata yansıtılmamış bedelsiz) dışarıda bırakılır; `--keep-jumps` ile dahil edilir.
 
 ## Telegram komutları
 

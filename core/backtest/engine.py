@@ -11,11 +11,17 @@ Rules (BacktestConfig holds the numbers):
   produced the signal: that price was not tradable any more.
 - Stop and target are fixed at entry from the signal day's ATR, the
   same levels /analyze shows (stop = entry - 2 ATR, target_2 = +4 ATR).
+  target_atr=None removes the target. With trailing_atr the stop
+  follows the highest close (highest close - trailing_atr x entry ATR);
+  it only ever moves up and takes effect from the next candle.
 - Stop and target are checked on every candle, the entry day included.
   A gap through a level fills at the open. When one candle touches
   both, the stop is assumed to come first.
 - A SELL score (or the holding limit) closes the position at the next
-  open. A position still open on the last candle is closed at its close.
+  open. With hold_in_uptrend these two exits are skipped while the
+  market is in an uptrend (the `uptrend` series, known at that close).
+  A position still open on the last candle is closed at its close.
+- Idle cash earns cash_rate (annual), compounded per trading day.
 - Every fill pays commission and slippage.
 """
 
@@ -37,10 +43,13 @@ class BacktestConfig:
     commission: float = 0.002
     slippage: float = 0.001
     stop_atr: float = 2.0
-    target_atr: float = 4.0
+    target_atr: float | None = 4.0
+    trailing_atr: float | None = None
     max_hold_days: int = 40
+    hold_in_uptrend: bool = False
     entry_score: float = SIGNAL_BUY
     exit_score: float = SIGNAL_SELL
+    cash_rate: float = 0.0
 
 
 @dataclass
@@ -50,6 +59,8 @@ class Trade:
     entry_price: float
     stop: float
     target: float
+    atr: float = 0.0
+    highest: float = 0.0
     exit_date: pd.Timestamp | None = None
     exit_price: float | None = None
     reason: str = ""
@@ -95,11 +106,25 @@ def simulate(
     df: pd.DataFrame,
     config: BacktestConfig | None = None,
     signals: pd.DataFrame | None = None,
+    uptrend: pd.Series | None = None,
 ) -> SymbolResult:
-    """Run the strategy on one symbol. Equity starts at 1.0."""
+    """
+    Run the strategy on one symbol. Equity starts at 1.0.
+
+    `uptrend` is a boolean market-regime series; only used with
+    config.hold_in_uptrend. Missing days count as no uptrend.
+    """
 
     config = config or BacktestConfig()
     signals = score_history(df) if signals is None else signals
+
+    if uptrend is None:
+        rising = [False] * len(df)
+    else:
+        rising = uptrend.reindex(df.index).ffill().fillna(False).astype(bool).tolist()
+
+    daily_rate = (1 + config.cash_rate) ** (1 / TRADING_DAYS) - 1
+    target_atr = config.target_atr if config.target_atr else math.inf
 
     opens = df["open"].to_numpy(dtype=float)
     highs = df["high"].to_numpy(dtype=float)
@@ -130,6 +155,9 @@ def simulate(
         trade = None
 
     for i in range(len(df)):
+        if i > 0:
+            cash *= 1 + daily_rate
+
         if trade is not None and pending_exit:
             close_trade(i, opens[i], pending_exit)
         pending_exit = None
@@ -143,7 +171,9 @@ def simulate(
                 entry_date=dates[i],
                 entry_price=fill,
                 stop=fill - config.stop_atr * pending_entry_atr,
-                target=fill + config.target_atr * pending_entry_atr,
+                target=fill + target_atr * pending_entry_atr,
+                atr=pending_entry_atr,
+                highest=fill,
             )
         pending_entry_atr = None
 
@@ -162,13 +192,19 @@ def simulate(
         if trade is not None:
             in_market += 1
 
+            if config.trailing_atr:
+                trade.highest = max(trade.highest, closes[i])
+                trade.stop = max(trade.stop, trade.highest - config.trailing_atr * trade.atr)
+
         equity.append(cash + shares * closes[i])
 
         if i == len(df) - 1 or math.isnan(scores[i]):
             continue
 
         if trade is not None:
-            if scores[i] <= config.exit_score:
+            if config.hold_in_uptrend and rising[i]:
+                pass
+            elif scores[i] <= config.exit_score:
                 pending_exit = "signal"
             elif trade.days >= config.max_hold_days:
                 pending_exit = "time"

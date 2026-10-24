@@ -120,6 +120,82 @@ class EngineRulesTest(unittest.TestCase):
         pd.testing.assert_series_equal(full.equity.iloc[:499], part.equity.iloc[:499])
 
 
+class ExitVariantsTest(unittest.TestCase):
+    def test_trailing_stop_follows_highest_close(self):
+        df = _frame(
+            [(10, 10, 10, 10), (10, 12, 10, 12), (12, 14, 12, 14), (14, 14, 12.5, 13)]
+        )
+        config = BacktestConfig(commission=0.0, slippage=0.0, target_atr=None, trailing_atr=1.0)
+        trade = simulate("X", df, config, _signals(df, [80, 50, 50, 50])).trades[0]
+
+        # highest close 14 after day 2 -> stop 13, hit on day 3 (low 12.5)
+        self.assertEqual((trade.reason, trade.exit_price), ("stop", 13))
+
+    def test_no_target_lets_winners_run(self):
+        df = _frame([(10, 10, 10, 10), (10, 30, 10, 30), (30, 30, 30, 30)])
+        config = BacktestConfig(commission=0.0, slippage=0.0, target_atr=None)
+        trade = simulate("X", df, config, _signals(df, [80, 50, 50])).trades[0]
+
+        self.assertEqual((trade.reason, trade.exit_price), ("end", 30))
+
+    def test_uptrend_ignores_sell_signal(self):
+        df = _frame([(10, 10, 10, 10), (10, 10.5, 9.5, 10), (10, 10.5, 9.5, 10)])
+        signals = _signals(df, [80, 30, 50])
+        config = BacktestConfig(commission=0.0, slippage=0.0, hold_in_uptrend=True)
+
+        held = simulate("X", df, config, signals, pd.Series(True, index=df.index))
+        sold = simulate("X", df, config, signals, pd.Series(False, index=df.index))
+
+        self.assertEqual(held.trades[0].reason, "end")
+        self.assertEqual(sold.trades[0].reason, "signal")
+
+    def test_idle_cash_earns_interest(self):
+        df = _frame([(10, 10, 10, 10)] * 253)
+        config = BacktestConfig(cash_rate=0.5)
+        result = simulate("X", df, config, _signals(df, [50] * 253))
+
+        self.assertAlmostEqual(result.equity.iloc[-1], 1.5)
+        self.assertEqual(result.trades, [])
+
+
+class JumpDetectionTest(unittest.TestCase):
+    def test_limit_compounds_over_market_closures(self):
+        from core.market.quality import suspicious_jumps
+
+        index = pd.to_datetime(["2023-02-06", "2023-02-07", "2023-02-15", "2024-09-06",
+                                "2024-09-09"])
+        df = pd.DataFrame({"close": [100, 100, 122, 120, 42]}, index=index)
+
+        jumps = suspicious_jumps(df)
+
+        self.assertEqual(list(jumps.index), [pd.Timestamp("2024-09-09")])
+
+    def test_universe_leaves_out_unadjusted_stock(self):
+        from core.backtest.runner import load_dataset
+
+        fake = FakeProvider()
+        broken = make_ohlcv(rows=600, seed=8)
+        broken.iloc[400:, :4] *= 0.35
+        fake.overrides["HEKTS.IS"] = broken
+
+        with offline_market(fake):
+            data = load_dataset(["THYAO.IS", "HEKTS.IS"])
+
+        self.assertEqual(list(data.prices), ["THYAO.IS"])
+        self.assertIn("sıçrama", data.skipped["HEKTS.IS"])
+
+    def test_compare_uses_same_data_for_every_variant(self):
+        from core.backtest.runner import VARIANTS, compare, format_comparison, load_dataset
+
+        with offline_market():
+            results = compare(load_dataset(["THYAO.IS", "EREGL.IS"]))
+
+        self.assertEqual(list(results), list(VARIANTS))
+        starts = {r.equity.index[0] for r in results.values()}
+        self.assertEqual(len(starts), 1)
+        self.assertIn("XU100 al-tut", format_comparison(results))
+
+
 class RunnerTest(unittest.TestCase):
     def test_universe_report(self):
         from core.backtest.runner import format_portfolio, format_symbol, run_universe
@@ -131,7 +207,7 @@ class RunnerTest(unittest.TestCase):
             result = run_universe(["THYAO.IS", "EREGL.IS", "EMPTY.IS"])
 
         self.assertEqual([r.symbol for r in result.results], ["THYAO.IS", "EREGL.IS"])
-        self.assertEqual(result.skipped, ["EMPTY.IS"])
+        self.assertEqual(result.skipped, {"EMPTY.IS": "veri yok"})
         self.assertIsNotNone(result.benchmark_return)
         self.assertAlmostEqual(result.equity.iloc[0], 1.0)
 
