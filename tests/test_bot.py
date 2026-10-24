@@ -55,8 +55,9 @@ class AnalysisFormatTest(unittest.TestCase):
 
         text = _format_analysis(self._result("STRONG SELL"))
 
-        self.assertNotIn("Target", text)
-        self.assertNotIn("Stop Loss", text)
+        self.assertNotIn("Hedef", text)
+        self.assertNotIn("Stop", text)
+        self.assertIn("Güçlü negatif", text)
         self.assertIn("%3.04", text)
 
     def test_buy_signal_shows_levels(self):
@@ -64,8 +65,9 @@ class AnalysisFormatTest(unittest.TestCase):
 
         text = _format_analysis(self._result("BUY"))
 
-        self.assertIn("Stop Loss : 243.26", text)
-        self.assertIn("Target 2 : 290.48", text)
+        self.assertIn("Stop : 243.26", text)
+        self.assertIn("Hedef 2 : 290.48", text)
+        self.assertNotIn("BUY", text)
 
 
 class SummaryWithoutDataTest(unittest.TestCase):

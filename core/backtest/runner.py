@@ -174,7 +174,7 @@ def _period_return(curve: pd.Series) -> float:
     return float(curve.iloc[-1] / curve.iloc[0] - 1) if len(curve) > 1 else 0.0
 
 
-def _usd_return(curve: pd.Series, usdtry: pd.Series | None) -> float | None:
+def usd_return(curve: pd.Series, usdtry: pd.Series | None) -> float | None:
     """Return of a TL curve measured in dollars."""
 
     if usdtry is None or usdtry.empty:
@@ -240,7 +240,7 @@ def run_portfolio(data: Dataset, config: BacktestConfig | None = None) -> Portfo
         bench = bench[bench.index >= start]
         if len(bench) > 1:
             benchmark_return = _period_return(bench)
-            benchmark_usd = _usd_return(bench, data.usdtry)
+            benchmark_usd = usd_return(bench, data.usdtry)
 
     return PortfolioResult(
         config=config,
@@ -252,7 +252,7 @@ def run_portfolio(data: Dataset, config: BacktestConfig | None = None) -> Portfo
         max_drawdown=drawdown,
         sharpe=sharpe,
         benchmark_return=benchmark_return,
-        usd_return=_usd_return(equity, data.usdtry),
+        usd_return=usd_return(equity, data.usdtry),
         benchmark_usd_return=benchmark_usd,
         halves=_halves(equity),
         skipped=data.skipped,
@@ -462,7 +462,7 @@ def format_comparison(lines: list[Line], data: Dataset) -> str:
         h1, h2 = _halves(line.equity)
         trades = "-" if line.trades is None else str(line.trades)
         out.append(
-            f"{line.name:<28} {_pct(total):>8} {_pct(_usd_return(line.equity, data.usdtry)):>7} "
+            f"{line.name:<28} {_pct(total):>8} {_pct(usd_return(line.equity, data.usdtry)):>7} "
             f"{_pct(cagr):>7} {_pct(drawdown):>7} {sharpe:>6.2f} {trades:>5} "
             f"{_pct(line.exposure):>6} {_pct(h1):>7} {_pct(h2):>7}"
         )
@@ -471,7 +471,8 @@ def format_comparison(lines: list[Line], data: Dataset) -> str:
     out += [
         "",
         "Zamanlama: skor ≥ 70 al / ≤ 35 sat (bkz. python -m core.backtest).",
-        "Rotasyon: her 21 seansta en iyi N hisse eşit ağırlıkla tutulur; skor = /analyze skoru,",
+        "Rotasyon: her ayın ilk seansının kapanışında sıralanır, en iyi N hisse ertesi açılışta",
+        "eşit ağırlıkla alınır; skor = /analyze skoru,",
         "momentum = 126 seanslık getiri, karma = ikisinin sıra ortalaması,",
         "trend = XU100 200 günlük ortalamanın altındayken nakit.",
         "Not: Birçok kural denendiğinde en iyisi şans eseri iyi görünebilir;",
@@ -514,4 +515,5 @@ __all__ = [
     "run_portfolio",
     "run_symbol",
     "run_universe",
+    "usd_return",
 ]

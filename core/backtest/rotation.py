@@ -2,9 +2,9 @@
 QuantBIST
 Rotation strategy.
 
-Always invested: every `rebalance_days` sessions the stocks are ranked
-after the close and the top `top_n` are held in equal weight from the
-next session's open. Unlike the timing strategy in engine.py there is
+Always invested: after the close of the first session of every month
+(or every `rebalance_days` sessions, if set) the stocks are ranked and
+the top `top_n` are held in equal weight from the next session's open. Unlike the timing strategy in engine.py there is
 no waiting in cash (unless `regime_filter` is on and XU100 is below its
 200-day average).
 
@@ -35,7 +35,7 @@ RANKINGS = ("score", "momentum", "blend")
 class RotationConfig:
     top_n: int = 5
     ranking: str = "blend"
-    rebalance_days: int = 21
+    rebalance_days: int | None = None
     momentum_days: int = 126
     regime_filter: bool = False
     commission: float = BacktestConfig.commission
@@ -76,6 +76,15 @@ class RotationResult:
     @property
     def holdings(self) -> list[str]:
         return self.rebalances[-1].holdings if self.rebalances else []
+
+
+def is_rebalance_day(dates: pd.DatetimeIndex, i: int, config: RotationConfig) -> bool:
+    """Ranking happens after this session's close (only past dates are used)."""
+
+    if config.rebalance_days:
+        return i % config.rebalance_days == 0
+
+    return i == 0 or dates[i].month != dates[i - 1].month
 
 
 def rank_table(
@@ -161,7 +170,7 @@ def rotate(
 
         equity.append(cash + sum(n * closes.at[day, s] for s, n in shares.items()))
 
-        if i % config.rebalance_days or i == len(dates) - 1:
+        if i == len(dates) - 1 or not is_rebalance_day(dates, i, config):
             continue
 
         if config.regime_filter and not rising.iloc[i]:
@@ -206,6 +215,7 @@ __all__ = [
     "RotationConfig",
     "RotationResult",
     "current_picks",
+    "is_rebalance_day",
     "rank_table",
     "rotate",
 ]

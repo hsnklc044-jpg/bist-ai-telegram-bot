@@ -64,8 +64,8 @@ python -m core.backtest --no-target --trailing-atr 3 --hold-in-uptrend
 python -m core.backtest --stop-atr 1.5 --target-atr 3 --max-hold 20 --commission 0.001
 ```
 
-**Rotasyon** (`core/backtest/rotation.py`): hep yatırımda kalır. Her 21 seansta hisseler
-sıralanır, en iyi N tanesi ertesi açılışta eşit ağırlıkla alınır. Sıralama: `/analyze` skoru,
+**Rotasyon** (`core/backtest/rotation.py`): hep yatırımda kalır. Her ayın ilk seansının kapanışında
+hisseler sıralanır, en iyi N tanesi ertesi açılışta eşit ağırlıkla alınır. Sıralama: `/analyze` skoru,
 126 seanslık momentum veya ikisinin sıra ortalaması (karma). İsteğe bağlı trend filtresi
 XU100 200 günlük ortalamanın altındayken nakde geçer. Sadece el değiştiren tutar için
 komisyon ve kayma ödenir.
@@ -94,14 +94,29 @@ Kurallar (sadece alış yönlü, `core/backtest/engine.py`):
 
 | Komut | İş |
 | --- | --- |
-| `/top` | En güçlü 10 sinyal |
-| `/analyze THYAO` | Tek hisse analizi |
+| `/rotasyon` | Momentum rotasyonu: bu ayın 5 hissesi, sıradakiler, backtest özeti |
+| `/top` | Teknik skoru en yüksek 10 hisse |
+| `/analyze THYAO` | Tek hisse teknik özeti |
 | `/backtest`, `/backtest THYAO` | Sinyalin 5 yıllık geçmiş testi |
 | `/summary` | Portföy, piyasa ve karar özeti |
 | `/watchlist`, `/watchadd EREGL`, `/watchremove EREGL`, `/watchscan` | Takip listesi |
 | `/help` | Komut listesi |
 
 Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir.
+
+Hafta içi her gün 18:45'te (İstanbul) bot rotasyonu kontrol eder. Son kapanış ayın ilk
+seansıysa `CHAT_ID` sohbetine giren / çıkan / kalan hisseleri bir kez bildirir. Önceki liste
+`data/rotation_state.json` dosyasında tutulur.
+
+`/top` ve `/analyze` teknik skoru "Güçlü pozitif … Güçlü negatif" diye gösterir. Bu skor tek
+başına backtestte al-tutu geçemediği için al-sat sinyali olarak sunulmaz.
+
+## Strateji
+
+`/rotasyon` backtestte ayakta kalan kuralı uygular (`core/rotation/service.py`): her ayın ilk
+seansının kapanışında hisseler 126 seanslık (≈6 ay) getiriye göre sıralanır, en iyi 5 tanesi
+ertesi açılışta eşit ağırlıkla tutulur. Backtest sonuçları al-tuttan yüksek ama düşüşler daha
+derin; hisse listesi bugünün büyük şirketleri olduğu için sonuçlar iyimserdir.
 
 ## Geliştirme
 
@@ -120,6 +135,7 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 | `bot/` | Telegram komutları |
 | `core/market/` | Fiyat verisi (yfinance), indikatörler, piyasa rejimi |
 | `core/analytics/` | Hisse bazında skor ve sinyaller |
+| `core/rotation/` | Canlı momentum rotasyonu ve aylık bildirim |
 | `core/backtest/` | Sinyal geçmişi, zamanlama ve rotasyon simülasyonu, backtest raporu |
 | `core/portfolio/` | Portföy sağlığı, risk, dağılım (`data/portfolio_model.csv`) |
 | `core/committee/`, `core/decision/`, `core/ai/` | Portföy düzeyinde karar |
@@ -134,7 +150,7 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği ✅
 2. Strateji ve backtest motoru ✅
 3. Risk ve pozisyon boyutu, işlem defteri
-4. Zamanlayıcı ile otomatik tarama ve bildirim
+4. Zamanlayıcı ile otomatik tarama ve bildirim ✅ (aylık rotasyon bildirimi)
 5. Sanal işlem (paper trading)
 6. Tek web paneli, Docker, operasyon
 7. Aracı kurum üzerinden emir (isteğe bağlı)

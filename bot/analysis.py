@@ -12,60 +12,69 @@ from telegram.ext import ContextTypes
 
 from bot.common import reply
 from core.analytics.analyzer import analyze_stock
+from core.analytics.scoring import describe_signal
 from core.analytics.signals import get_top_signals
 from core.watchlist.service import normalize_symbol
 
+NOTE = (
+    "ℹ️ Teknik skor tek başına backtestte al-tutu geçemedi; al-sat sinyali değildir.\n"
+    "Test edilmiş strateji için: /rotasyon"
+)
+
 
 def _format_signals(signals: list[dict]) -> str:
-    lines = ["📈 QUANTBIST TOP SIGNALS", ""]
+    lines = ["📈 TEKNİK SKORU EN YÜKSEK HİSSELER", ""]
 
     for item in signals[:10]:
         lines += [
             f"🏷 {item['symbol']}",
-            f"🎯 Signal : {item['signal']}",
-            f"📊 Score : {item['score']}",
+            f"🎯 Görünüm : {describe_signal(item['signal'])}",
+            f"📊 Skor : {item['score']}",
             f"📈 Trend : {item['trend']}",
             "",
         ]
 
+    lines.append(NOTE)
+
     return "\n".join(lines)
 
 
-BUY_SIGNALS = ("STRONG BUY", "BUY")
+POSITIVE = ("STRONG BUY", "BUY")
 
 
 def _trade_levels(result: dict) -> str:
-    if result["signal"] not in BUY_SIGNALS:
-        return "📍 İşlem seviyesi yok (alım sinyali değil)"
+    if result["signal"] not in POSITIVE:
+        return "📐 ATR seviyesi yok (görünüm pozitif değil)"
 
-    return f"""📍 Entry : {result["entry_price"]}
-🛑 Stop Loss : {result["stop_loss"]}
+    return f"""📐 ATR seviyeleri (bilgi amaçlı):
+📍 Fiyat : {result["entry_price"]}
+🛑 Stop : {result["stop_loss"]}
 
-🎯 Target 1 : {result["target_1"]}
-🎯 Target 2 : {result["target_2"]}"""
+🎯 Hedef 1 : {result["target_1"]}
+🎯 Hedef 2 : {result["target_2"]}"""
 
 
 def _format_analysis(result: dict) -> str:
     return f"""📊 {result["symbol"]}
 
-💰 Price : {result["price"]}
+💰 Fiyat : {result["price"]}
 
-🎯 Signal : {result["signal"]}
-📈 Score : {result["score"]}
+🎯 Teknik görünüm : {describe_signal(result["signal"])}
+📈 Skor : {result["score"]}
 📊 Trend : {result["trend"]}
 
 ⚡ RSI : {result["rsi"]:.1f}
 📉 MACD : {result["macd"]:.2f}
 
-📦 Volume Ratio : {result["volume_ratio"]}
-🌊 Volatility (ATR/fiyat) : %{result["volatility"] * 100:.2f}
-
-🛡 Confidence : {result["confidence"]}%
+📦 Hacim oranı : {result["volume_ratio"]}
+🌊 Volatilite (ATR/fiyat) : %{result["volatility"] * 100:.2f}
 
 {_trade_levels(result)}
 
 📈 EMA20 : {result["ma20"]:.2f}
-📈 EMA50 : {result["ma50"]:.2f}"""
+📈 EMA50 : {result["ma50"]:.2f}
+
+{NOTE}"""
 
 
 async def top(
@@ -79,7 +88,7 @@ async def top(
     signals = await asyncio.to_thread(get_top_signals)
 
     if not signals:
-        await reply(update, "Uygun sinyal bulunamadı.")
+        await reply(update, "Skoru yeterli hisse bulunamadı.")
         return
 
     await reply(update, _format_signals(signals))

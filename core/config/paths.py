@@ -21,6 +21,7 @@ WATCHLIST_FILE = DATA_DIR / "watchlist.json"
 EQUITY_FILE = DATA_DIR / "equity_curve.csv"
 MARKET_DB = DATA_DIR / "market.db"
 UNIVERSE_FILE = DATA_DIR / "universe.csv"
+ROTATION_STATE_FILE = DATA_DIR / "rotation_state.json"
 
 WEB_DIR = ROOT_DIR / "core" / "web"
 WEB_STATIC_DIR = WEB_DIR / "static"
@@ -36,6 +37,7 @@ __all__ = [
     "EQUITY_FILE",
     "MARKET_DB",
     "UNIVERSE_FILE",
+    "ROTATION_STATE_FILE",
     "WEB_DIR",
     "WEB_STATIC_DIR",
     "WEB_TEMPLATES_DIR",

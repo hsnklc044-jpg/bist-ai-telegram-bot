@@ -76,3 +76,4 @@ htmlcov/
 cache/
 data/*.db
 data/*.parquet
+data/rotation_state.json

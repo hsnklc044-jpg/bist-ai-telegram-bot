@@ -321,8 +321,27 @@ def calculate_score(
 
 
 
+# Signals are shown as a technical view, not as buy/sell advice: on
+# their own they did not beat buy & hold in the backtest.
+SIGNAL_VIEW = {
+    "STRONG BUY": "Güçlü pozitif",
+    "BUY": "Pozitif",
+    "WATCH": "Nötr",
+    "SELL": "Negatif",
+    "STRONG SELL": "Güçlü negatif",
+}
+
+
+def describe_signal(signal: str) -> str:
+    return SIGNAL_VIEW.get(signal, signal)
+
+
 __all__ = [
 
+    "SIGNAL_VIEW",
+
     "calculate_score",
+
+    "describe_signal",
 
 ]

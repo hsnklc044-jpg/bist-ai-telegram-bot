@@ -92,6 +92,19 @@ class RotationTest(unittest.TestCase):
             [(r.date, r.holdings) for r in part.rebalances if r.date <= cut["S0"].index[398]],
         )
 
+    def test_monthly_rebalance_after_first_session_of_month(self):
+        index = pd.bdate_range("2026-01-26", "2026-03-06")
+        prices = {"A": pd.DataFrame({"open": 10.0, "close": 10.0}, index=index)}
+        signals = {"A": pd.DataFrame({"score": 90.0}, index=index)}
+        config = RotationConfig(top_n=1, ranking="score", **NO_COSTS)
+
+        result = rotate(prices, signals, config)
+
+        self.assertEqual(
+            [r.date for r in result.rebalances],
+            [pd.Timestamp(d) for d in ("2026-01-27", "2026-02-03", "2026-03-03")],
+        )
+
     def test_current_picks_ranked(self):
         prices = _prices({"A": [10, 10], "B": [10, 10]})
         signals = _scores(prices, {"A": [40, 40], "B": [80, 80]})
