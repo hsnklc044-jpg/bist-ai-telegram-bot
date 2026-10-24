@@ -194,8 +194,12 @@ def current_picks(
     prices: dict[str, pd.DataFrame],
     signals: dict[str, pd.DataFrame],
     config: RotationConfig | None = None,
+    as_of: pd.Timestamp | None = None,
 ) -> pd.Series:
-    """Today's ranking (best first), as the rotation would rebalance now."""
+    """
+    Ranking (best first) after the close of `as_of` (default: the last
+    day), as the rotation would rebalance then.
+    """
 
     config = config or RotationConfig()
 
@@ -205,6 +209,9 @@ def current_picks(
     )
     candles = closes_raw.notna()
     ranks = rank_table(closes_raw.ffill(), scores, candles, config)
+
+    if as_of is not None:
+        ranks = ranks[ranks.index <= as_of]
 
     return ranks.iloc[-1].dropna().sort_values(ascending=False)
 

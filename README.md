@@ -34,6 +34,37 @@ python app.py                     # Web paneli (Flask)  → http://127.0.0.1:500
 python -m core.web.app            # Web paneli (FastAPI) → http://127.0.0.1:8000/dashboard
 ```
 
+## Sunucusuz kullanım (GitHub Actions)
+
+Bilgisayar ya da sunucu gerekmez; bildirimleri GitHub'ın sunucuları gönderir.
+
+1. Telegram'da `@BotFather` → botun token'ı. `@userinfobot`'a yazın → size `Id` (CHAT_ID) verir.
+   Kendi botunuza bir kez `/start` yazın (bot size ancak böyle mesaj atabilir).
+2. GitHub'da depo → **Settings → Secrets and variables → Actions → New repository secret**:
+   `BOT_TOKEN` ve `CHAT_ID` ekleyin. Token'ı hiçbir dosyaya veya sohbete yazmayın.
+3. **Actions → Telegram notices → Run workflow**: rotasyon raporu hemen Telegram'a gelir.
+
+Sonrası otomatik (`.github/workflows/notify.yml`): hafta içi 18:50'de ayın ilk seansıysa dengeleme
+bildirimi, cuma günleri haftalık rotasyon raporu. Bu yolda bot komutlara (`/rotasyon` vb.) cevap
+vermez; onun için botun sürekli çalıştığı bir sunucu gerekir.
+
+## Sunucuda 7/24 (Docker)
+
+Herhangi bir Linux sunucuda (ör. aylık ~5 $'lık VPS):
+
+```bash
+curl -fsSL https://get.docker.com | sh
+git clone https://github.com/hsnklc044-jpg/bist-ai-telegram-bot.git && cd bist-ai-telegram-bot
+cp .env.example .env && nano .env      # BOT_TOKEN ve CHAT_ID
+docker compose run --rm bot python -m core.market.update   # ilk veri indirme
+docker compose up -d --build
+docker compose logs -f                  # çıkmak için Ctrl+C (bot çalışmaya devam eder)
+```
+
+Güncelleme: `git pull && docker compose up -d --build`. `data/` klasörü (fiyatlar, takip listesi)
+güncellemelerde korunur. Sunucuda bot çalışıyorsa GitHub Actions bildirimlerini kapatın
+(**Actions → Telegram notices → Disable workflow**), yoksa bildirimler iki kez gelir.
+
 ## Fiyat verisi
 
 Fiyatlar `data/market.db` (SQLite) dosyasında 5 yıllık günlük mum olarak tutulur.
@@ -152,5 +183,5 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 3. Risk ve pozisyon boyutu, işlem defteri
 4. Zamanlayıcı ile otomatik tarama ve bildirim ✅ (aylık rotasyon bildirimi)
 5. Sanal işlem (paper trading)
-6. Tek web paneli, Docker, operasyon
+6. Tek web paneli, Docker ✅, operasyon (GitHub Actions bildirimleri ✅)
 7. Aracı kurum üzerinden emir (isteğe bağlı)

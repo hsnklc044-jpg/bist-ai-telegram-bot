@@ -1,0 +1,13 @@
+# Runs the bot 24/7 and restarts it after crashes or reboots.
+#   cp .env.example .env   # fill BOT_TOKEN and CHAT_ID
+#   docker compose up -d --build
+#   docker compose logs -f
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # prices (market.db), watchlist and rotation state survive updates
+      - ./data:/app/data
+      - ./logs:/app/logs

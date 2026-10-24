@@ -208,9 +208,6 @@ def format_rebalance(report: RotationReport, previous: list[str]) -> str:
         f"Yeni liste (her biri %{100 / max(len(new), 1):.0f}): {codes(new)}",
     ]
 
-    if not previous:
-        lines += ["", "İlk bildirim: önceki liste kayıtlı değildi."]
-
     lines += ["", "Ayrıntı: /rotasyon", f"⚠️ {DISCLAIMER}"]
 
     return "\n".join(lines)
@@ -239,23 +236,44 @@ def save_state(as_of: date, holdings: list[str]) -> None:
     )
 
 
+def previous_holdings(data: Dataset, before: date) -> list[str]:
+    """
+    What the strategy held before `before`: the top N ranked at the
+    previous first-session-of-month close. Derived from prices, so it
+    needs no saved state (GitHub Actions runs start empty).
+    """
+
+    calendar = pd.concat([df["close"] for df in data.prices.values()], axis=1).sort_index().index
+    firsts = [
+        day
+        for i, day in enumerate(calendar)
+        if i > 0 and day.month != calendar[i - 1].month and day.date() < before
+    ]
+
+    if not firsts:
+        return []
+
+    ranking = current_picks(data.prices, data.signals, STRATEGY, as_of=firsts[-1])
+
+    return list(ranking.index[: STRATEGY.top_n])
+
+
 def check_rebalance(data: Dataset | None = None) -> str | None:
     """
     The rebalance notice when the latest candle is the first session of
-    a month and it has not been sent yet; otherwise None.
+    a month and it has not been sent from this machine yet; otherwise None.
     """
 
+    data = data or load_dataset()
     report = build_report(data, with_backtest=False)
 
     if not report.rebalance_today:
         return None
 
-    state = load_state()
-
-    if state.get("as_of") == report.as_of.isoformat():
+    if load_state().get("as_of") == report.as_of.isoformat():
         return None
 
-    message = format_rebalance(report, state.get("holdings", []))
+    message = format_rebalance(report, previous_holdings(data, report.as_of))
     save_state(report.as_of, report.symbols)
 
     return message
@@ -270,4 +288,5 @@ __all__ = [
     "format_rebalance",
     "format_report",
     "next_rebalance_day",
+    "previous_holdings",
 ]

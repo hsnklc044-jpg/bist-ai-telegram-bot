@@ -6,6 +6,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
+import pandas as pd
+
 from core.backtest.runner import Dataset
 from core.backtest.signals import score_history
 from core.rotation import service
@@ -52,9 +54,20 @@ class RotationServiceTest(unittest.TestCase):
         again = service.check_rebalance(data)
 
         self.assertIn("AYLIK DENGELEME", first)
-        self.assertIn("İlk bildirim", first)
+        self.assertIn("➕ Giren", first)
         self.assertIsNone(again)
         self.assertEqual(service.load_state()["as_of"], "2026-11-02")
+
+    def test_previous_holdings_come_from_last_month_ranking(self):
+        from core.backtest.rotation import current_picks
+
+        data = _dataset("2026-11-02")
+        previous = service.previous_holdings(data, date(2026, 11, 2))
+        october_first = current_picks(
+            data.prices, data.signals, service.STRATEGY, as_of=pd.Timestamp("2026-10-01")
+        )
+
+        self.assertEqual(previous, list(october_first.index[:5]))
 
     def test_notice_lists_changes(self):
         report = service.build_report(_dataset("2026-11-02"), with_backtest=False)
