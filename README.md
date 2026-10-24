@@ -59,10 +59,16 @@ Her gün için skor, sadece o güne kadar kapanmış mumlarla yeniden hesaplanı
 ```bash
 python -m core.backtest                  # tüm evren, eşit ağırlıklı portföy
 python -m core.backtest THYAO EREGL      # seçili hisseler + işlem listesi
-python -m core.backtest --compare        # hazır kural setlerini yan yana karşılaştır
+python -m core.backtest --compare        # zamanlama + rotasyon + al-tut, aynı dönemde yan yana
 python -m core.backtest --no-target --trailing-atr 3 --hold-in-uptrend
 python -m core.backtest --stop-atr 1.5 --target-atr 3 --max-hold 20 --commission 0.001
 ```
+
+**Rotasyon** (`core/backtest/rotation.py`): hep yatırımda kalır. Her 21 seansta hisseler
+sıralanır, en iyi N tanesi ertesi açılışta eşit ağırlıkla alınır. Sıralama: `/analyze` skoru,
+126 seanslık momentum veya ikisinin sıra ortalaması (karma). İsteğe bağlı trend filtresi
+XU100 200 günlük ortalamanın altındayken nakde geçer. Sadece el değiştiren tutar için
+komisyon ve kayma ödenir.
 
 Bilgisayar yoksa: GitHub'da **Actions → Backtest → Run workflow**. Fiyatlar orada indirilir,
 sonuç çalıştırmanın özet sayfasında görünür.
@@ -114,7 +120,7 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 | `bot/` | Telegram komutları |
 | `core/market/` | Fiyat verisi (yfinance), indikatörler, piyasa rejimi |
 | `core/analytics/` | Hisse bazında skor ve sinyaller |
-| `core/backtest/` | Sinyal geçmişi, işlem simülasyonu, backtest raporu |
+| `core/backtest/` | Sinyal geçmişi, zamanlama ve rotasyon simülasyonu, backtest raporu |
 | `core/portfolio/` | Portföy sağlığı, risk, dağılım (`data/portfolio_model.csv`) |
 | `core/committee/`, `core/decision/`, `core/ai/` | Portföy düzeyinde karar |
 | `core/dashboard/`, `core/charts/`, `core/reports/`, `core/export/` | Panel, grafik, rapor, dışa aktarma |

@@ -34,7 +34,7 @@ def main(argv: list[str] | None = None) -> None:
 
     parser = argparse.ArgumentParser(description="Backtest the QuantBIST signal.")
     parser.add_argument("symbols", nargs="*", help="hisse kodları (boşsa tüm evren)")
-    parser.add_argument("--compare", action="store_true", help="hazır kural setlerini karşılaştır")
+    parser.add_argument("--compare", action="store_true", help="zamanlama ve rotasyon kural setlerini karşılaştır")
     parser.add_argument("--commission", type=float, default=defaults.commission)
     parser.add_argument("--slippage", type=float, default=defaults.slippage)
     parser.add_argument("--stop-atr", type=float, default=defaults.stop_atr)
@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         if args.compare:
-            print(format_comparison(compare(data)))
+            print(format_comparison(compare(data), data))
             return
 
         result = run_portfolio(data, config)

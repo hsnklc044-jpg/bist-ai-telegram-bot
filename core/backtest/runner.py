@@ -6,8 +6,9 @@ Runs the engine over the universe from the local price store. The
 portfolio splits capital equally across the symbols at the start and
 never rebalances, so it is the average of the per-symbol curves.
 
-Prices are loaded once into a Dataset, so several rule sets can be
-compared on exactly the same data (python -m core.backtest --compare).
+Prices are loaded once into a Dataset, so several rule sets, including
+the rotation strategy (rotation.py), can be compared on exactly the same
+data and period (python -m core.backtest --compare).
 """
 
 from __future__ import annotations
@@ -25,9 +26,11 @@ from core.backtest.engine import (
     simulate,
     trade_stats,
 )
+from core.backtest.rotation import RotationConfig, rotate
 from core.backtest.signals import score_history
 from core.infrastructure.logger import get_logger
 from core.market.data import load_price_history, preload
+from core.market.indicators import MIN_HISTORY_LENGTH
 from core.market.quality import suspicious_jumps
 from core.market.universe import BENCHMARK, load_universe
 
@@ -49,6 +52,14 @@ VARIANTS: dict[str, BacktestConfig] = {
     "İzleyen stop 3 ATR": TRAILING,
     "İzleyen 3 ATR + trendde tut": replace(TRAILING, hold_in_uptrend=True),
     "İzleyen 4 ATR + trendde tut": replace(TRAILING, trailing_atr=4.0, hold_in_uptrend=True),
+}
+
+ROTATIONS: dict[str, RotationConfig] = {
+    "Rotasyon skor, ilk 5": RotationConfig(ranking="score"),
+    "Rotasyon momentum, ilk 5": RotationConfig(ranking="momentum"),
+    "Rotasyon karma, ilk 5": RotationConfig(),
+    "Rotasyon karma, ilk 10": RotationConfig(top_n=10),
+    "Rotasyon karma 5 + trend": RotationConfig(regime_filter=True),
 }
 
 
@@ -183,6 +194,21 @@ def _halves(curve: pd.Series) -> tuple[float, float]:
     return _period_return(curve.iloc[: middle + 1]), _period_return(curve.iloc[middle:])
 
 
+def buy_hold_curve(data: Dataset, start: pd.Timestamp) -> pd.Series:
+    """
+    Equal-weight buy & hold from `start`, never rebalanced.
+
+    Only stocks that already trade on `start` are bought; a later
+    listing cannot be bought at a price it did not have yet.
+    """
+
+    closes = pd.concat([df["close"] for df in data.prices.values()], axis=1).sort_index()
+    closes = closes[closes.index >= start].ffill()
+    closes = closes.loc[:, closes.iloc[0].notna()]
+
+    return (closes / closes.iloc[0]).mean(axis=1)
+
+
 def run_portfolio(data: Dataset, config: BacktestConfig | None = None) -> PortfolioResult:
     config = config or BacktestConfig()
 
@@ -204,9 +230,7 @@ def run_portfolio(data: Dataset, config: BacktestConfig | None = None) -> Portfo
     equity = curves[curves.index >= start].ffill().fillna(1.0).mean(axis=1)
     equity = equity / equity.iloc[0]
 
-    closes = pd.concat([df["close"] for df in data.prices.values()], axis=1).sort_index()
-    closes = closes[closes.index >= start].ffill().bfill()
-    buy_hold = (closes / closes.iloc[0]).mean(axis=1)
+    buy_hold = buy_hold_curve(data, start)
 
     total, cagr, drawdown, sharpe = curve_stats(equity)
 
@@ -247,11 +271,63 @@ def run_symbol(symbol: str, config: BacktestConfig | None = None) -> SymbolResul
     return simulate(symbol, load_price_history(symbol, period=PERIOD), config)
 
 
+@dataclass
+class Line:
+    """One row of a comparison: an equity curve plus optional trade facts."""
+
+    name: str
+    equity: pd.Series
+    trades: int | None = None
+    exposure: float | None = None
+
+
+def comparison_start(data: Dataset, rotations: dict[str, RotationConfig]) -> pd.Timestamp:
+    """First day every strategy in the comparison can already act on."""
+
+    calendar = pd.concat([df["close"] for df in data.prices.values()], axis=1).sort_index().index
+    warm_up = max([MIN_HISTORY_LENGTH] + [c.momentum_days for c in rotations.values()])
+
+    return calendar[min(warm_up, len(calendar) - 2)]
+
+
 def compare(
     data: Dataset,
     variants: dict[str, BacktestConfig] | None = None,
-) -> dict[str, PortfolioResult]:
-    return {name: run_portfolio(data, config) for name, config in (variants or VARIANTS).items()}
+    rotations: dict[str, RotationConfig] | None = None,
+) -> list[Line]:
+    """
+    Every rule set on the same data, rebased to one common start so
+    the rows are comparable. Ends with the two buy & hold benchmarks.
+    """
+
+    if not data.prices:
+        raise ValueError("Backtest için fiyat verisi olan hisse yok.")
+
+    variants = VARIANTS if variants is None else variants
+    rotations = ROTATIONS if rotations is None else rotations
+    start = comparison_start(data, rotations)
+    uptrend = data.uptrend
+
+    lines = []
+
+    for name, config in variants.items():
+        r = run_portfolio(data, config)
+        lines.append(Line(name, r.equity, len(r.trades), r.exposure))
+
+    for name, config in rotations.items():
+        r = rotate(data.prices, data.signals, config, uptrend, start)
+        lines.append(Line(name, r.equity, r.trades, r.exposure))
+
+    lines.append(Line("Aynı hisseler al-tut", buy_hold_curve(data, start), exposure=1.0))
+
+    if data.benchmark is not None:
+        lines.append(Line("XU100 al-tut", data.benchmark["close"], exposure=1.0))
+
+    for line in lines:
+        curve = line.equity[line.equity.index >= start].dropna()
+        line.equity = curve / curve.iloc[0]
+
+    return lines
 
 
 # =====================================================
@@ -367,52 +443,45 @@ def format_portfolio(result: PortfolioResult, top: int | None = None) -> str:
     return "\n".join(lines)
 
 
-def format_comparison(results: dict[str, PortfolioResult]) -> str:
-    any_result = next(iter(results.values()))
+def format_comparison(lines: list[Line], data: Dataset) -> str:
+    first = lines[0].equity.index
     header = (
-        f"{'Kural seti':<28} {'TL':>8} {'USD':>7} {'CAGR':>7} {'MaxDD':>7} "
+        f"{'Strateji':<28} {'TL':>8} {'USD':>7} {'CAGR':>7} {'MaxDD':>7} "
         f"{'Sharpe':>6} {'İşlem':>5} {'Piyasa':>6} {'1.yarı':>7} {'2.yarı':>7}"
     )
 
-    lines = [
-        "🧪 KURAL SETİ KARŞILAŞTIRMASI",
-        f"📅 {any_result.equity.index[0].date()} → {any_result.equity.index[-1].date()}"
-        f" | {len(any_result.results)} hisse",
+    out = [
+        "🧪 STRATEJİ KARŞILAŞTIRMASI",
+        f"📅 {first[0].date()} → {first[-1].date()} | {len(data.prices)} hisse",
         "",
         header,
     ]
 
-    for name, r in results.items():
-        lines.append(
-            f"{name:<28} {_pct(r.total_return):>8} {_pct(r.usd_return):>7} "
-            f"{_pct(r.cagr):>7} {_pct(r.max_drawdown):>7} {r.sharpe:>6.2f} "
-            f"{len(r.trades):>5} {_pct(r.exposure):>6} "
-            f"{_pct(r.halves[0]):>7} {_pct(r.halves[1]):>7}"
+    for line in lines:
+        total, cagr, drawdown, sharpe = curve_stats(line.equity)
+        h1, h2 = _halves(line.equity)
+        trades = "-" if line.trades is None else str(line.trades)
+        out.append(
+            f"{line.name:<28} {_pct(total):>8} {_pct(_usd_return(line.equity, data.usdtry)):>7} "
+            f"{_pct(cagr):>7} {_pct(drawdown):>7} {sharpe:>6.2f} {trades:>5} "
+            f"{_pct(line.exposure):>6} {_pct(h1):>7} {_pct(h2):>7}"
         )
 
-    bh = any_result.buy_hold_equity
-    bh_total, bh_cagr, bh_dd, bh_sharpe = curve_stats(bh)
-    bh_halves = _halves(bh)
-    lines.append(
-        f"{'Aynı hisseler al-tut':<28} {_pct(bh_total):>8} "
-        f"{_pct(_usd_return(bh, any_result.usdtry)):>7} {_pct(bh_cagr):>7} {_pct(bh_dd):>7} "
-        f"{bh_sharpe:>6.2f} {'-':>5} {'%100.0':>6} {_pct(bh_halves[0]):>7} {_pct(bh_halves[1]):>7}"
-    )
-    lines.append(
-        f"{'XU100 al-tut':<28} {_pct(any_result.benchmark_return):>8} "
-        f"{_pct(any_result.benchmark_usd_return):>7}"
-    )
-
-    lines += _skipped(any_result.skipped)
-    lines += [
+    out += _skipped(data.skipped)
+    out += [
         "",
-        "Not: Birkaç kural seti denendiğinde en iyisi şans eseri iyi görünebilir;",
-        "iki yarıda da tutarlı olan kural seti daha güvenilirdir.",
+        "Zamanlama: skor ≥ 70 al / ≤ 35 sat (bkz. python -m core.backtest).",
+        "Rotasyon: her 21 seansta en iyi N hisse eşit ağırlıkla tutulur; skor = /analyze skoru,",
+        "momentum = 126 seanslık getiri, karma = ikisinin sıra ortalaması,",
+        "trend = XU100 200 günlük ortalamanın altındayken nakit.",
+        "Not: Birçok kural denendiğinde en iyisi şans eseri iyi görünebilir;",
+        "iki yarıda da tutarlı olan daha güvenilirdir. Hisse listesi bugünün",
+        "büyük şirketlerinden oluşur; bu, al-tut dahil her satırı iyimser gösterir.",
         "",
         f"⚠️ {DISCLAIMER}",
     ]
 
-    return "\n".join(lines)
+    return "\n".join(out)
 
 
 def format_trades(result: SymbolResult, limit: int = 20) -> str:
@@ -429,8 +498,12 @@ def format_trades(result: SymbolResult, limit: int = 20) -> str:
 
 __all__ = [
     "DISCLAIMER",
+    "ROTATIONS",
     "VARIANTS",
     "Dataset",
+    "Line",
+    "buy_hold_curve",
+    "comparison_start",
     "PortfolioResult",
     "compare",
     "format_comparison",

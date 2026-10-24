@@ -185,15 +185,25 @@ class JumpDetectionTest(unittest.TestCase):
         self.assertIn("sıçrama", data.skipped["HEKTS.IS"])
 
     def test_compare_uses_same_data_for_every_variant(self):
-        from core.backtest.runner import VARIANTS, compare, format_comparison, load_dataset
+        from core.backtest.runner import (
+            ROTATIONS,
+            VARIANTS,
+            compare,
+            format_comparison,
+            load_dataset,
+        )
 
         with offline_market():
-            results = compare(load_dataset(["THYAO.IS", "EREGL.IS"]))
+            data = load_dataset(["THYAO.IS", "EREGL.IS", "GARAN.IS"])
+            lines = compare(data)
 
-        self.assertEqual(list(results), list(VARIANTS))
-        starts = {r.equity.index[0] for r in results.values()}
-        self.assertEqual(len(starts), 1)
-        self.assertIn("XU100 al-tut", format_comparison(results))
+        names = [line.name for line in lines]
+        self.assertEqual(
+            names, [*VARIANTS, *ROTATIONS, "Aynı hisseler al-tut", "XU100 al-tut"]
+        )
+        self.assertEqual(len({line.equity.index[0] for line in lines}), 1)
+        self.assertTrue(all(line.equity.iloc[0] == 1.0 for line in lines))
+        self.assertIn("XU100 al-tut", format_comparison(lines, data))
 
 
 class RunnerTest(unittest.TestCase):
