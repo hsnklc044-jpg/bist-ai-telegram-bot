@@ -76,4 +76,15 @@ htmlcov/
 cache/
 data/*.db
 data/*.parquet
-data/rotation_state.json
+
+# ==========================================
+# Personal records (never shipped in a release zip)
+# ==========================================
+data/ledger.csv
+data/paper_orders.csv
+data/alerts_log.csv
+data/signal_log.csv
+data/equity_log.csv
+
+# Per-user watchlists (contain Telegram chat ids)
+data/watchlist.json

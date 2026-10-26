@@ -55,9 +55,10 @@ class AnalysisFormatTest(unittest.TestCase):
 
         text = _format_analysis(self._result("STRONG SELL"))
 
-        self.assertNotIn("Hedef", text)
-        self.assertNotIn("Stop", text)
+        self.assertNotIn("ATR üstü", text)
+        self.assertNotIn("STRONG", text)
         self.assertIn("Güçlü negatif", text)
+        self.assertNotIn("Confidence", text)
         self.assertIn("%3.04", text)
 
     def test_buy_signal_shows_levels(self):
@@ -65,28 +66,6 @@ class AnalysisFormatTest(unittest.TestCase):
 
         text = _format_analysis(self._result("BUY"))
 
-        self.assertIn("Stop : 243.26", text)
-        self.assertIn("Hedef 2 : 290.48", text)
-        self.assertNotIn("BUY", text)
-
-
-class SummaryWithoutDataTest(unittest.TestCase):
-    def test_summary_explains_missing_data(self):
-        import asyncio
-        from types import SimpleNamespace
-
-        from bot.reports import NO_DATA_MESSAGE, summary
-        from tests.helpers import FakeProvider, offline_market
-
-        sent: list[str] = []
-
-        async def reply_text(text, **kwargs):
-            sent.append(text)
-
-        message = SimpleNamespace(reply_text=reply_text)
-        update = SimpleNamespace(message=message, effective_message=message)
-
-        with offline_market(FakeProvider(fail=True)):
-            asyncio.run(summary(update, SimpleNamespace(args=[])))
-
-        self.assertEqual(sent[-1], NO_DATA_MESSAGE)
+        self.assertIn("2 ATR altı : 243.26", text)
+        self.assertIn("4 ATR üstü : 290.48", text)
+        self.assertIn("tahmin gücü bulunmadı", text)

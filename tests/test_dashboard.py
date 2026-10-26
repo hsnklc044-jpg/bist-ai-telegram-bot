@@ -36,24 +36,43 @@ class DashboardTest(unittest.TestCase):
             with self.subTest(fmt=fmt):
                 self.assertTrue(export_report(self.dashboard, fmt))
 
-    def test_flask_template_renders(self):
-        from app import app
+    def test_panel_template_renders(self):
+        from jinja2 import Environment, FileSystemLoader
 
-        with app.test_request_context():
-            from flask import render_template
+        from core.config.paths import WEB_TEMPLATES_DIR
 
-            html = render_template("dashboard.html", dashboard=self.dashboard)
+        env = Environment(loader=FileSystemLoader(str(WEB_TEMPLATES_DIR)), autoescape=True)
+        html = env.get_template("dashboard.html").render(
+            dashboard=self.dashboard, portfolio_source="işlem defteri (sanal hesap)"
+        )
 
         self.assertIn(self.dashboard.decision.action, html)
         self.assertNotIn("MarketRegimeType.", html)
+        self.assertIn("getiri tahmin gücü bulunmadı", html)
+        self.assertIn("Portföy kaynağı: işlem defteri (sanal hesap)", html)
 
 
-class DashboardWithoutDataTest(unittest.TestCase):
-    def test_flask_returns_503(self):
-        from app import app
-        from tests.helpers import FakeProvider
+class WebPanelTest(unittest.TestCase):
+    """FastAPI panel end to end (needs fastapi + httpx, installed from requirements.lock)."""
 
-        with offline_market(FakeProvider(fail=True)):
-            response = app.test_client().get("/")
+    def test_routes(self):
+        try:
+            from fastapi.testclient import TestClient
+        except ImportError:
+            self.skipTest("fastapi not installed")
 
-        self.assertEqual(response.status_code, 503)
+        from core import __version__
+        from core.web.app import app
+
+        client = TestClient(app)
+        with offline_market():
+            self.assertEqual(client.get("/health").json()["version"], __version__)
+            page = client.get("/dashboard")
+            css = client.get("/static/css/style.css")
+            root = client.get("/", follow_redirects=False)
+
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("getiri tahmin gücü bulunmadı", page.text)
+        self.assertIn("Portföy kaynağı", page.text)
+        self.assertEqual(css.status_code, 200)
+        self.assertEqual(root.headers["location"], "/dashboard")

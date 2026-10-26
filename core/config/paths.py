@@ -21,7 +21,13 @@ WATCHLIST_FILE = DATA_DIR / "watchlist.json"
 EQUITY_FILE = DATA_DIR / "equity_curve.csv"
 MARKET_DB = DATA_DIR / "market.db"
 UNIVERSE_FILE = DATA_DIR / "universe.csv"
-ROTATION_STATE_FILE = DATA_DIR / "rotation_state.json"
+
+# Stage 2: trade ledger, paper orders and logs (plain CSV, append-only)
+LEDGER_FILE = DATA_DIR / "ledger.csv"
+PAPER_ORDERS_FILE = DATA_DIR / "paper_orders.csv"
+ALERTS_LOG_FILE = DATA_DIR / "alerts_log.csv"
+SIGNAL_LOG_FILE = DATA_DIR / "signal_log.csv"
+EQUITY_LOG_FILE = DATA_DIR / "equity_log.csv"
 
 WEB_DIR = ROOT_DIR / "core" / "web"
 WEB_STATIC_DIR = WEB_DIR / "static"
@@ -37,7 +43,11 @@ __all__ = [
     "EQUITY_FILE",
     "MARKET_DB",
     "UNIVERSE_FILE",
-    "ROTATION_STATE_FILE",
+    "LEDGER_FILE",
+    "PAPER_ORDERS_FILE",
+    "ALERTS_LOG_FILE",
+    "SIGNAL_LOG_FILE",
+    "EQUITY_LOG_FILE",
     "WEB_DIR",
     "WEB_STATIC_DIR",
     "WEB_TEMPLATES_DIR",

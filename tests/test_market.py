@@ -106,7 +106,8 @@ class QualityTest(unittest.TestCase):
         self.assertEqual(q.missing, 3)
         self.assertEqual(q.stale_days, 2)
         self.assertEqual(q.zero_volume, 1)
-        self.assertTrue(any("+50" in j for j in q.jumps))
+        self.assertTrue(any("+50" in str(j) for j in q.jumps))
+        self.assertAlmostEqual(q.jumps[0].suggested_factor, 1.5, places=2)
         self.assertFalse(q.ok)
 
     def test_clean_series_is_ok(self):
@@ -140,3 +141,33 @@ class UniverseTest(unittest.TestCase):
 
         self.assertGreaterEqual(len(symbols), 10)
         self.assertTrue(all(s.endswith(".IS") for s in symbols))
+
+
+class ApplySuggestionsTest(unittest.TestCase):
+    def test_writes_rows_once(self):
+        import pathlib
+        import tempfile
+
+        from core.market.corrections import load_corporate_actions
+        from core.market.quality import apply_suggestions, check_symbol
+
+        df = make_ohlcv(rows=100, seed=2, vol=0.005)
+        df.loc[df.index[60]:, ["open", "high", "low", "close"]] /= 3  # unadjusted 1:3
+        report = [check_symbol(df, "X.IS")]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "ca.csv"
+            self.assertEqual(apply_suggestions(report, path), 1)
+            self.assertEqual(apply_suggestions(report, path), 0)
+            actions = load_corporate_actions(path)
+
+        self.assertEqual(len(actions), 1)
+        self.assertAlmostEqual(actions[0].factor, 1 / 3, places=2)
+
+    def test_ten_to_twenty_percent_moves_not_flagged(self):
+        from core.market.quality import check_symbol
+
+        df = make_ohlcv(rows=100, seed=3, vol=0.005)
+        df.loc[df.index[50]:, ["open", "high", "low", "close"]] *= 1.15
+
+        self.assertEqual(check_symbol(df, "Y.IS").jumps, [])

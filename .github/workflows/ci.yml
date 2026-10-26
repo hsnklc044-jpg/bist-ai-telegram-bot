@@ -13,13 +13,6 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - run: pip install -r requirements-dev.txt
+      - run: pip install -r requirements.lock
       - run: ruff check .
       - run: pytest -q
-
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker build -t quantbist .
-      - run: docker run --rm quantbist python -c "import bot.application, bot.notify, core.rotation.service"

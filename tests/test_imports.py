@@ -24,5 +24,5 @@ class ImportTest(unittest.TestCase):
         self.assertEqual(failures, [])
 
     def test_entry_points_import(self):
-        for module in ("app", "main", "core.web.app"):
+        for module in ("main", "core.web.app"):
             importlib.import_module(module)

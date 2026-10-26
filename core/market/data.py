@@ -18,6 +18,7 @@ from core.infrastructure.exceptions import MarketError
 from core.infrastructure.logger import get_logger
 from core.market import store
 from core.market.calendar import drop_open_candle
+from core.market.corrections import clean
 
 logger = get_logger(__name__)
 
@@ -55,7 +56,7 @@ def _history(symbol: str) -> pd.DataFrame:
             return item[1]
 
     status = store.update([symbol], now=now).get(symbol)
-    df = drop_open_candle(store.read(symbol))
+    df = drop_open_candle(clean(store.read(symbol), symbol))
 
     if df.empty:
         raise MarketError(f"No price data: {symbol} ({status})")

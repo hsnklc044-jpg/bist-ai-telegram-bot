@@ -1,6 +1,11 @@
 """
 QuantBIST
 Analysis Commands
+
+The technical score is shown as a "view", not as a buy/sell call:
+the v0.10.0 backtest found no predictive power in it (see
+core/backtest/run.py). Wording changes when a strategy passes the
+backtest.
 """
 
 from __future__ import annotations
@@ -12,46 +17,49 @@ from telegram.ext import ContextTypes
 
 from bot.common import reply
 from core.analytics.analyzer import analyze_stock
-from core.analytics.scoring import describe_signal
 from core.analytics.signals import get_top_signals
+from core.config.thresholds import SIGNAL_VIEW_LABELS
+from core.signals_log import log_analysis
 from core.watchlist.service import normalize_symbol
 
-NOTE = (
-    "ℹ️ Teknik skor tek başına backtestte al-tutu geçemedi; al-sat sinyali değildir.\n"
-    "Test edilmiş strateji için: /rotasyon"
+VIEW_LABELS = SIGNAL_VIEW_LABELS
+
+POSITIVE = ("STRONG BUY", "BUY")
+
+DISCLAIMER = (
+    "ℹ️ Bu teknik skorun 2022–2026 backtest'inde getiri tahmin gücü "
+    "bulunmadı. Bilgi amaçlıdır, yatırım tavsiyesi değildir."
 )
 
 
+def view_label(signal: str) -> str:
+    return VIEW_LABELS.get(signal, signal)
+
+
 def _format_signals(signals: list[dict]) -> str:
-    lines = ["📈 TEKNİK SKORU EN YÜKSEK HİSSELER", ""]
+    lines = ["📈 Teknik görünümü en güçlü hisseler", ""]
 
     for item in signals[:10]:
         lines += [
             f"🏷 {item['symbol']}",
-            f"🎯 Görünüm : {describe_signal(item['signal'])}",
-            f"📊 Skor : {item['score']}",
+            f"📊 Görünüm : {view_label(item['signal'])} (skor {item['score']})",
             f"📈 Trend : {item['trend']}",
             "",
         ]
 
-    lines.append(NOTE)
+    lines.append(DISCLAIMER)
 
     return "\n".join(lines)
 
 
-POSITIVE = ("STRONG BUY", "BUY")
-
-
-def _trade_levels(result: dict) -> str:
+def _levels(result: dict) -> str:
     if result["signal"] not in POSITIVE:
-        return "📐 ATR seviyesi yok (görünüm pozitif değil)"
+        return "📍 Seviye gösterilmiyor (görünüm pozitif değil)"
 
-    return f"""📐 ATR seviyeleri (bilgi amaçlı):
-📍 Fiyat : {result["entry_price"]}
-🛑 Stop : {result["stop_loss"]}
-
-🎯 Hedef 1 : {result["target_1"]}
-🎯 Hedef 2 : {result["target_2"]}"""
+    return f"""📍 ATR seviyeleri (bilgi amaçlı)
+🛑 2 ATR altı : {result["stop_loss"]}
+⬆️ 2 ATR üstü : {result["target_1"]}
+⬆️ 4 ATR üstü : {result["target_2"]}"""
 
 
 def _format_analysis(result: dict) -> str:
@@ -59,9 +67,8 @@ def _format_analysis(result: dict) -> str:
 
 💰 Fiyat : {result["price"]}
 
-🎯 Teknik görünüm : {describe_signal(result["signal"])}
-📈 Skor : {result["score"]}
-📊 Trend : {result["trend"]}
+📊 Görünüm : {view_label(result["signal"])} (skor {result["score"]})
+📈 Trend : {result["trend"]}
 
 ⚡ RSI : {result["rsi"]:.1f}
 📉 MACD : {result["macd"]:.2f}
@@ -69,12 +76,12 @@ def _format_analysis(result: dict) -> str:
 📦 Hacim oranı : {result["volume_ratio"]}
 🌊 Volatilite (ATR/fiyat) : %{result["volatility"] * 100:.2f}
 
-{_trade_levels(result)}
+{_levels(result)}
 
 📈 EMA20 : {result["ma20"]:.2f}
 📈 EMA50 : {result["ma50"]:.2f}
 
-{NOTE}"""
+{DISCLAIMER}"""
 
 
 async def top(
@@ -88,8 +95,11 @@ async def top(
     signals = await asyncio.to_thread(get_top_signals)
 
     if not signals:
-        await reply(update, "Skoru yeterli hisse bulunamadı.")
+        await reply(update, "Teknik görünümü pozitif hisse bulunamadı.")
         return
+
+    for item in signals[:10]:
+        await asyncio.to_thread(log_analysis, "top", item, view_label(item["signal"]))
 
     await reply(update, _format_signals(signals))
 
@@ -115,5 +125,7 @@ async def analyze(
     if result is None:
         await reply(update, f"{symbol} için analiz yapılamadı.")
         return
+
+    await asyncio.to_thread(log_analysis, "analyze", result, view_label(result["signal"]))
 
     await reply(update, _format_analysis(result))

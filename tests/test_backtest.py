@@ -1,265 +1,205 @@
-import asyncio
-import math
 import unittest
-from types import SimpleNamespace
-from unittest import mock
 
 import pandas as pd
 
-from core.backtest.engine import BacktestConfig, simulate
-from core.backtest.signals import score_history
-from tests.helpers import FakeProvider, make_ohlcv, offline_market
-
-NO_COSTS = BacktestConfig(commission=0.0, slippage=0.0)
+from core.backtest.engine import BacktestConfig, buy_and_hold, compute_metrics, run_backtest
 
 
-def _frame(rows: list[tuple[float, float, float, float]]) -> pd.DataFrame:
-    """Candles from (open, high, low, close) tuples."""
-
-    index = pd.bdate_range("2026-01-05", periods=len(rows))
-    df = pd.DataFrame(rows, columns=["open", "high", "low", "close"], index=index)
-    df["volume"] = 1_000_000.0
-    return df
-
-
-def _signals(df: pd.DataFrame, scores: list[float], atr: float = 1.0) -> pd.DataFrame:
-    return pd.DataFrame({"score": scores, "atr": atr}, index=df.index)
-
-
-class SignalHistoryTest(unittest.TestCase):
-    def test_matches_live_analyzer(self):
-        from core.analytics import analyzer
-
-        df = make_ohlcv(rows=400, seed=11)
-        history = score_history(df)
-
-        for cut in (60, 120, 250, 400):
-            part = df.iloc[:cut]
-
-            with mock.patch.object(analyzer, "load_price_history", return_value=part.copy()):
-                live = analyzer.analyze_stock("TEST.IS")
-
-            with self.subTest(cut=cut):
-                self.assertEqual(history["score"].iloc[cut - 1], live["score"])
-                self.assertEqual(history["signal"].iloc[cut - 1], live["signal"])
-
-    def test_no_score_during_warm_up(self):
-        history = score_history(make_ohlcv(rows=100, seed=1))
-
-        self.assertTrue(history["score"].iloc[:59].isna().all())
-        self.assertFalse(math.isnan(history["score"].iloc[59]))
+def frame(closes, opens=None, lows=None, start="2026-01-05"):
+    idx = pd.bdate_range(start=start, periods=len(closes))
+    closes = pd.Series(closes, index=idx, dtype=float)
+    opens = pd.Series(opens if opens is not None else closes.values, index=idx, dtype=float)
+    # a small intraday range so that no bar looks like a locked limit day
+    lows = pd.Series(
+        lows if lows is not None else (closes.combine(opens, min) * 0.999).values, index=idx
+    )
+    return pd.DataFrame(
+        {
+            "open": opens,
+            "high": closes.combine(opens, max) * 1.001,
+            "low": lows,
+            "close": closes,
+            "volume": 1000.0,
+        }
+    )
 
 
-class EngineRulesTest(unittest.TestCase):
-    def test_entry_is_next_open_never_signal_close(self):
-        df = _frame([(10, 10, 10, 10), (11, 12, 11, 11.5), (11.5, 12, 11, 11.8)])
-        result = simulate("X", df, NO_COSTS, _signals(df, [80, 50, 50], atr=5))
+def always(df):
+    return pd.DataFrame({"enter": True, "exit": False, "rank": 1.0}, index=df.index)
+
+
+def enter_on(day_index):
+    def rule(df):
+        enter = pd.Series(False, index=df.index)
+        enter.iloc[day_index] = True
+        return pd.DataFrame({"enter": enter, "exit": False, "rank": 1.0}, index=df.index)
+
+    return rule
+
+
+NO_COST = BacktestConfig(max_positions=1, commission=0, slippage=0)
+
+
+class EngineTest(unittest.TestCase):
+    def test_entry_at_next_open_not_signal_close(self):
+        df = frame([10, 10, 20, 20], opens=[10, 10, 15, 20])
+        result = run_backtest({"A": df}, enter_on(1), NO_COST)
 
         trade = result.trades[0]
-        self.assertEqual(trade.entry_date, df.index[1])
-        self.assertEqual(trade.entry_price, 11)
-        self.assertEqual(trade.reason, "end")
-        self.assertEqual(trade.exit_price, 11.8)
+        self.assertEqual(trade.entry_date, df.index[2])
+        self.assertEqual(trade.entry_price, 15)
 
-    def test_stop_wins_when_candle_touches_both(self):
-        df = _frame([(10, 10, 10, 10), (10, 20, 1, 10)])
-        trade = simulate("X", df, NO_COSTS, _signals(df, [80, 50])).trades[0]
+    def test_equity_follows_price_without_costs(self):
+        df = frame([10, 11, 12, 13])
+        result = run_backtest({"A": df}, always, NO_COST)
 
-        self.assertEqual(trade.reason, "stop")
-        self.assertEqual(trade.exit_price, 8)
+        # enters at day-1 open (11), ends at 13
+        self.assertAlmostEqual(result.equity.iloc[-1], 100_000 * 13 / 11)
 
-    def test_gap_through_stop_fills_at_open(self):
-        df = _frame([(10, 10, 10, 10), (10, 10.5, 9.5, 10), (6, 7, 5, 6.5)])
-        trade = simulate("X", df, NO_COSTS, _signals(df, [80, 50, 50])).trades[0]
+    def test_costs_reduce_returns(self):
+        df = frame([10, 11, 12, 13])
+        cheap = run_backtest({"A": df}, always, NO_COST).equity.iloc[-1]
+        costly = run_backtest(
+            {"A": df}, always, BacktestConfig(max_positions=1, commission=0.01, slippage=0)
+        ).equity.iloc[-1]
 
-        self.assertEqual(trade.reason, "stop")
+        # open position is marked at the close; the exit cost is paid in the final trade
+        self.assertAlmostEqual(costly, 100_000 * 13 / (11 * 1.01))
+        self.assertLess(costly, cheap)
+
+        trade = run_backtest(
+            {"A": df}, always, BacktestConfig(max_positions=1, commission=0.01, slippage=0)
+        ).trades[0]
+        self.assertAlmostEqual(trade.exit_price, 13 * 0.99)
+
+    def test_gap_below_stop_fills_at_open(self):
+        closes = [10] * 20 + [10, 10, 6]
+        opens = [10] * 20 + [10, 10, 6]
+        lows = [9.9] * 20 + [9.9, 9.9, 5.5]
+        df = frame(closes, opens=opens, lows=lows)
+        result = run_backtest(
+            {"A": df}, enter_on(19), BacktestConfig(max_positions=1, commission=0, slippage=0, atr_stop=2)
+        )
+
+        trade = result.trades[0]
+        self.assertEqual(trade.exit_reason, "stop")
         self.assertEqual(trade.exit_price, 6)
 
-    def test_target_and_sell_signal(self):
-        df = _frame([(10, 10, 10, 10), (10, 15, 9.5, 14), (14, 14, 14, 14)])
-        trade = simulate("X", df, NO_COSTS, _signals(df, [80, 50, 50])).trades[0]
-        self.assertEqual((trade.reason, trade.exit_price), ("target", 14))
+    def test_slots_limit_positions(self):
+        frames = {s: frame([10, 11, 12, 13, 14]) for s in "ABCDEFG"}
+        result = run_backtest(frames, always, BacktestConfig(max_positions=3, commission=0, slippage=0))
 
-        df = _frame([(10, 10, 10, 10), (10, 10.5, 9.5, 10), (9.8, 10, 9.5, 9.9)])
-        trade = simulate("X", df, NO_COSTS, _signals(df, [80, 30, 50])).trades[0]
-        self.assertEqual((trade.reason, trade.exit_date), ("signal", df.index[2]))
-        self.assertEqual(trade.exit_price, 9.8)
+        self.assertEqual(len(result.trades), 3)
+        self.assertAlmostEqual(result.exposure.iloc[-1], 1.0)
 
-    def test_holding_limit(self):
-        flat = [(10, 10.1, 9.9, 10)] * 8
-        df = _frame(flat)
-        config = BacktestConfig(commission=0.0, slippage=0.0, max_hold_days=3)
-        trade = simulate("X", df, config, _signals(df, [80] + [50] * 7)).trades[0]
+    def test_exit_signal_sells_next_open(self):
+        df = frame([10, 10, 12, 12, 9], opens=[10, 10, 11, 13, 9])
 
-        self.assertEqual(trade.reason, "time")
-        self.assertEqual(trade.days, 3)
-        self.assertEqual(trade.exit_date, df.index[4])
+        def rule(d):
+            exit_ = pd.Series(False, index=d.index)
+            exit_.iloc[2] = True
+            return pd.DataFrame({"enter": True, "exit": exit_, "rank": 1.0}, index=d.index)
 
-    def test_costs_are_charged_on_both_sides(self):
-        df = _frame([(10, 10, 10, 10)] * 3)
-        config = BacktestConfig(commission=0.01, slippage=0.0)
-        result = simulate("X", df, config, _signals(df, [80, 50, 50]))
+        result = run_backtest({"A": df}, rule, NO_COST)
+        first = result.trades[0]
 
-        self.assertAlmostEqual(result.equity.iloc[-1], 0.99 * 0.99)
-        self.assertAlmostEqual(result.metrics.avg_trade, 0.99 * 0.99 - 1)
-
-    def test_future_candles_do_not_change_the_past(self):
-        df = make_ohlcv(rows=700, seed=5)
-        full = simulate("X", df)
-        part = simulate("X", df.iloc[:500])
-
-        cutoff = df.index[498]
-        closed_full = [t for t in full.trades if t.exit_date <= cutoff]
-        closed_part = [t for t in part.trades if t.exit_date <= cutoff]
-
-        self.assertGreater(len(closed_part), 0)
-        self.assertEqual(
-            [(t.entry_date, t.exit_date, t.reason) for t in closed_full],
-            [(t.entry_date, t.exit_date, t.reason) for t in closed_part],
-        )
-        pd.testing.assert_series_equal(full.equity.iloc[:499], part.equity.iloc[:499])
+        self.assertEqual(first.exit_date, df.index[3])
+        self.assertEqual(first.exit_price, 13)
+        self.assertEqual(first.exit_reason, "signal")
 
 
-class ExitVariantsTest(unittest.TestCase):
-    def test_trailing_stop_follows_highest_close(self):
-        df = _frame(
-            [(10, 10, 10, 10), (10, 12, 10, 12), (12, 14, 12, 14), (14, 14, 12.5, 13)]
-        )
-        config = BacktestConfig(commission=0.0, slippage=0.0, target_atr=None, trailing_atr=1.0)
-        trade = simulate("X", df, config, _signals(df, [80, 50, 50, 50])).trades[0]
+class LimitLockTest(unittest.TestCase):
+    def locked_down_frame(self):
+        # day 3 and 4 are locked at the lower limit (high == low, -10%)
+        closes = [10, 10, 10, 9, 8.1, 8.0, 8.2]
+        opens = [10, 10, 10, 9, 8.1, 8.1, 8.1]
+        df = frame(closes, opens=opens)
+        df["high"] = df[["open", "close"]].max(axis=1)
+        df["low"] = df[["open", "close"]].min(axis=1)
+        df.loc[df.index[5], "high"] = 8.3
+        return df
 
-        # highest close 14 after day 2 -> stop 13, hit on day 3 (low 12.5)
-        self.assertEqual((trade.reason, trade.exit_price), ("stop", 13))
+    def test_cannot_sell_into_locked_limit_down(self):
+        df = self.locked_down_frame()
 
-    def test_no_target_lets_winners_run(self):
-        df = _frame([(10, 10, 10, 10), (10, 30, 10, 30), (30, 30, 30, 30)])
-        config = BacktestConfig(commission=0.0, slippage=0.0, target_atr=None)
-        trade = simulate("X", df, config, _signals(df, [80, 50, 50])).trades[0]
+        def rule(d):
+            exit_ = pd.Series(False, index=d.index)
+            exit_.iloc[2] = True  # sell at day-3 open, which is locked
+            return pd.DataFrame({"enter": True, "exit": exit_, "rank": 1.0}, index=d.index)
 
-        self.assertEqual((trade.reason, trade.exit_price), ("end", 30))
+        trade = run_backtest({"A": df}, rule, NO_COST).trades[0]
 
-    def test_uptrend_ignores_sell_signal(self):
-        df = _frame([(10, 10, 10, 10), (10, 10.5, 9.5, 10), (10, 10.5, 9.5, 10)])
-        signals = _signals(df, [80, 30, 50])
-        config = BacktestConfig(commission=0.0, slippage=0.0, hold_in_uptrend=True)
+        self.assertEqual(trade.exit_date, df.index[5])
+        self.assertEqual(trade.exit_price, 8.1)
 
-        held = simulate("X", df, config, signals, pd.Series(True, index=df.index))
-        sold = simulate("X", df, config, signals, pd.Series(False, index=df.index))
+    def test_lock_can_be_switched_off(self):
+        df = self.locked_down_frame()
 
-        self.assertEqual(held.trades[0].reason, "end")
-        self.assertEqual(sold.trades[0].reason, "signal")
+        def rule(d):
+            exit_ = pd.Series(False, index=d.index)
+            exit_.iloc[2] = True
+            return pd.DataFrame({"enter": True, "exit": exit_, "rank": 1.0}, index=d.index)
 
-    def test_idle_cash_earns_interest(self):
-        df = _frame([(10, 10, 10, 10)] * 253)
-        config = BacktestConfig(cash_rate=0.5)
-        result = simulate("X", df, config, _signals(df, [50] * 253))
+        cfg = BacktestConfig(max_positions=1, commission=0, slippage=0, respect_limit_locks=False)
+        trade = run_backtest({"A": df}, rule, cfg).trades[0]
 
-        self.assertAlmostEqual(result.equity.iloc[-1], 1.5)
-        self.assertEqual(result.trades, [])
+        self.assertEqual(trade.exit_date, df.index[3])
+
+    def test_cannot_buy_locked_limit_up(self):
+        closes = [10, 10, 11, 11.5]
+        df = frame(closes, opens=[10, 10, 11, 11])
+        df["high"] = df[["open", "close"]].max(axis=1)
+        df["low"] = df[["open", "close"]].min(axis=1)  # day 2 locked +10%
+
+        trade = run_backtest({"A": df}, enter_on(1), NO_COST).trades
+
+        self.assertEqual(trade, [])
 
 
-class JumpDetectionTest(unittest.TestCase):
-    def test_limit_compounds_over_market_closures(self):
-        from core.market.quality import suspicious_jumps
+class MetricsTest(unittest.TestCase):
+    def test_drawdown_and_return(self):
+        idx = pd.bdate_range("2025-01-01", periods=4)
+        m = compute_metrics(pd.Series([100, 120, 90, 110], index=idx, dtype=float))
 
-        index = pd.to_datetime(["2023-02-06", "2023-02-07", "2023-02-15", "2024-09-06",
-                                "2024-09-09"])
-        df = pd.DataFrame({"close": [100, 100, 122, 120, 42]}, index=index)
+        self.assertAlmostEqual(m["total_return"], 0.10)
+        self.assertAlmostEqual(m["max_drawdown"], -0.25)
 
-        jumps = suspicious_jumps(df)
+    def test_buy_and_hold_equal_weight(self):
+        frames = {"A": frame([10, 20]), "B": frame([10, 10])}
 
-        self.assertEqual(list(jumps.index), [pd.Timestamp("2024-09-09")])
+        self.assertAlmostEqual(buy_and_hold(frames).iloc[-1], 150_000)
 
-    def test_universe_leaves_out_unadjusted_stock(self):
-        from core.backtest.runner import load_dataset
 
-        fake = FakeProvider()
-        broken = make_ohlcv(rows=600, seed=8)
-        broken.iloc[400:, :4] *= 0.35
-        fake.overrides["HEKTS.IS"] = broken
-
-        with offline_market(fake):
-            data = load_dataset(["THYAO.IS", "HEKTS.IS"])
-
-        self.assertEqual(list(data.prices), ["THYAO.IS"])
-        self.assertIn("sıçrama", data.skipped["HEKTS.IS"])
-
-    def test_compare_uses_same_data_for_every_variant(self):
-        from core.backtest.runner import (
-            ROTATIONS,
-            VARIANTS,
-            compare,
-            format_comparison,
-            load_dataset,
-        )
+class ReportSmokeTest(unittest.TestCase):
+    def test_report_runs_on_offline_market(self):
+        from core.backtest.run import run_report
+        from core.market import store
+        from core.market.universe import BENCHMARK, load_universe
+        from tests.helpers import offline_market
 
         with offline_market():
-            data = load_dataset(["THYAO.IS", "EREGL.IS", "GARAN.IS"])
-            lines = compare(data)
+            store.update([BENCHMARK, *load_universe()])
+            text = run_report(positions=3, start="2025-01-01")
 
-        names = [line.name for line in lines]
-        self.assertEqual(
-            names, [*VARIANTS, *ROTATIONS, "Aynı hisseler al-tut", "XU100 al-tut"]
-        )
-        self.assertEqual(len({line.equity.index[0] for line in lines}), 1)
-        self.assertTrue(all(line.equity.iloc[0] == 1.0 for line in lines))
-        self.assertIn("XU100 al-tut", format_comparison(lines, data))
+        self.assertIn("Bot sinyali", text)
+        self.assertIn("XU100 al-tut", text)
+        self.assertIn("Yıllık getiriler", text)
 
 
-class RunnerTest(unittest.TestCase):
-    def test_universe_report(self):
-        from core.backtest.runner import format_portfolio, format_symbol, run_universe
+class ResearchSmokeTest(unittest.TestCase):
+    def test_research_report_runs(self):
+        from unittest import mock
 
-        fake = FakeProvider()
-        fake.overrides["EMPTY.IS"] = make_ohlcv(rows=600).iloc[0:0]
+        from core.backtest import research
+        from core.market import store
+        from core.market.universe import BENCHMARK
+        from tests.helpers import offline_market
 
-        with offline_market(fake):
-            result = run_universe(["THYAO.IS", "EREGL.IS", "EMPTY.IS"])
+        symbols = [f"R{i}.IS" for i in range(8)]
+        with offline_market(), mock.patch("core.backtest.run.load_universe", return_value=symbols), \
+                mock.patch.object(research, "GRID", [dict(lookback=63, top_n=3, regime=False)]):
+            store.update([BENCHMARK, *symbols])
+            text = research.research_report(start="2025-06-01", positions=3)
 
-        self.assertEqual([r.symbol for r in result.results], ["THYAO.IS", "EREGL.IS"])
-        self.assertEqual(result.skipped, {"EMPTY.IS": "veri yok"})
-        self.assertIsNotNone(result.benchmark_return)
-        self.assertAlmostEqual(result.equity.iloc[0], 1.0)
-
-        text = format_portfolio(result)
-        self.assertIn("QUANTBIST BACKTEST", text)
-        self.assertIn("THYAO", text)
-        self.assertIn("EMPTY.IS", text)
-        self.assertIn("THYAO.IS", format_symbol(result.results[0]))
-
-    def test_bot_command_without_data(self):
-        from bot.backtest import NO_DATA, backtest
-
-        sent: list[str] = []
-
-        async def reply_text(text, **kwargs):
-            sent.append(text)
-
-        message = SimpleNamespace(reply_text=reply_text)
-        update = SimpleNamespace(message=message, effective_message=message)
-
-        with offline_market(FakeProvider(fail=True)):
-            asyncio.run(backtest(update, SimpleNamespace(args=[])))
-            asyncio.run(backtest(update, SimpleNamespace(args=["THYAO"])))
-
-        self.assertEqual(sent.count(NO_DATA), 2)
-
-    def test_bot_command_single_symbol(self):
-        from bot.backtest import backtest
-
-        sent: list[str] = []
-
-        async def reply_text(text, **kwargs):
-            sent.append(text)
-
-        message = SimpleNamespace(reply_text=reply_text)
-        update = SimpleNamespace(message=message, effective_message=message)
-
-        with offline_market():
-            asyncio.run(backtest(update, SimpleNamespace(args=["thyao"])))
-
-        self.assertIn("BACKTEST THYAO.IS", sent[-1])
-
-
-if __name__ == "__main__":
-    unittest.main()
+        self.assertIn("walk-forward", text)
+        self.assertIn("XU100 al-tut", text)

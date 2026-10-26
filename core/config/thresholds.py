@@ -31,6 +31,17 @@ MIN_SIGNAL_SCORE = 50
 MIN_SIGNAL_CONFIDENCE = 50
 
 
+# How a technical signal is worded to users. The score has not passed a
+# backtest, so it is presented as a technical view, not a buy/sell call.
+SIGNAL_VIEW_LABELS = {
+    "STRONG BUY": "Güçlü pozitif",
+    "BUY": "Pozitif",
+    "WATCH": "Nötr",
+    "SELL": "Negatif",
+    "STRONG SELL": "Güçlü negatif",
+}
+
+
 def action_for_score(score: float) -> str:
     """Map a 0-100 score onto ACTION_LADDER."""
 
@@ -50,5 +61,6 @@ __all__ = [
     "SIGNAL_STRONG_SELL",
     "MIN_SIGNAL_SCORE",
     "MIN_SIGNAL_CONFIDENCE",
+    "SIGNAL_VIEW_LABELS",
     "action_for_score",
 ]

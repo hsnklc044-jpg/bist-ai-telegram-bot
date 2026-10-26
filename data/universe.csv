@@ -1,36 +1,119 @@
-symbol,name
-AKBNK.IS,Akbank
-AEFES.IS,Anadolu Efes
-AGHOL.IS,AG Anadolu Grubu Holding
-ALARK.IS,Alarko Holding
-ARCLK.IS,Arçelik
-ASELS.IS,Aselsan
-ASTOR.IS,Astor Enerji
-BIMAS.IS,BİM
-CCOLA.IS,Coca-Cola İçecek
-DOAS.IS,Doğuş Otomotiv
-EKGYO.IS,Emlak Konut GYO
-ENKAI.IS,Enka İnşaat
-EREGL.IS,Ereğli Demir Çelik
-FROTO.IS,Ford Otosan
-GARAN.IS,Garanti BBVA
-GUBRF.IS,Gübre Fabrikaları
-HEKTS.IS,Hektaş
-ISCTR.IS,İş Bankası (C)
-KCHOL.IS,Koç Holding
-KRDMD.IS,Kardemir (D)
-MGROS.IS,Migros
-OYAKC.IS,Oyak Çimento
-PETKM.IS,Petkim
-PGSUS.IS,Pegasus
-SAHOL.IS,Sabancı Holding
-SASA.IS,SASA Polyester
-SISE.IS,Şişecam
-TAVHL.IS,TAV Havalimanları
-TCELL.IS,Turkcell
-THYAO.IS,Türk Hava Yolları
-TOASO.IS,Tofaş
-TTKOM.IS,Türk Telekom
-TUPRS.IS,Tüpraş
-ULKER.IS,Ülker
-YKBNK.IS,Yapı Kredi
+symbol,source
+ADESE.IS,btcturk-2026-07
+AEFES.IS,btcturk-2026-07
+AFYON.IS,btcturk-2026-07
+AGHOL.IS,bist100-q4-2026-eklenen
+AGROT.IS,btcturk-2026-07
+AHGAZ.IS,btcturk-2026-07
+AKBNK.IS,btcturk-2026-07
+AKCNS.IS,btcturk-2026-07
+AKFGY.IS,btcturk-2026-07
+AKFYE.IS,btcturk-2026-07
+AKSA.IS,btcturk-2026-07
+AKSEN.IS,btcturk-2026-07
+ALARK.IS,btcturk-2026-07
+ALBRK.IS,btcturk-2026-07
+ALFAS.IS,btcturk-2026-07
+ALGYO.IS,btcturk-2026-07
+ANELE.IS,btcturk-2026-07
+ANHYT.IS,bist100-q4-2026-eklenen
+ANSGR.IS,btcturk-2026-07
+ARCLK.IS,btcturk-2026-07
+ASELS.IS,btcturk-2026-07
+ASTOR.IS,btcturk-2026-07
+AYGAZ.IS,bist100-q4-2026-eklenen
+BERA.IS,btcturk-2026-07
+BFREN.IS,btcturk-2026-07
+BIENY.IS,btcturk-2026-07
+BIMAS.IS,btcturk-2026-07
+BINHO.IS,bist100-q4-2026-eklenen
+BRSAN.IS,btcturk-2026-07
+BRYAT.IS,btcturk-2026-07
+BSOKE.IS,btcturk-2026-07
+BTCIM.IS,btcturk-2026-07
+BUCIM.IS,btcturk-2026-07
+CANTE.IS,btcturk-2026-07
+CCOLA.IS,btcturk-2026-07
+CIMSA.IS,btcturk-2026-07
+CONSE.IS,btcturk-2026-07
+CWENE.IS,btcturk-2026-07
+DOAS.IS,btcturk-2026-07
+DOHOL.IS,btcturk-2026-07
+ECILC.IS,btcturk-2026-07
+ECZYT.IS,btcturk-2026-07
+EGEEN.IS,btcturk-2026-07
+EGGUB.IS,bist100-q4-2026-eklenen
+EKGYO.IS,btcturk-2026-07
+ENJSA.IS,btcturk-2026-07
+ENKAI.IS,btcturk-2026-07
+ENTRA.IS,bist100-q4-2026-eklenen
+EREGL.IS,btcturk-2026-07
+ESEN.IS,btcturk-2026-07
+EUPWR.IS,btcturk-2026-07
+FROTO.IS,btcturk-2026-07
+GARAN.IS,btcturk-2026-07
+GENIL.IS,btcturk-2026-07
+GESAN.IS,btcturk-2026-07
+GLYHO.IS,bist100-q4-2026-eklenen
+GUBRF.IS,btcturk-2026-07
+GWIND.IS,btcturk-2026-07
+HEKTS.IS,btcturk-2026-07
+IEYHO.IS,btcturk-2026-07
+TRENJ.IS,btcturk-2026-07 (eski kod IPEKE; 24.11.2025 kod değişikliği; https://www.politikam.com/bist-kozal-kozaa-ipeke-islem-kodu-degisikligi-tralt-trmet-trenj)
+ISCTR.IS,btcturk-2026-07
+ISDMR.IS,bist100-q4-2026-eklenen
+ISGYO.IS,btcturk-2026-07
+ISMEN.IS,btcturk-2026-07
+IZMDC.IS,btcturk-2026-07
+KARSN.IS,bist100-q4-2026-eklenen
+KATMR.IS,bist100-q4-2026-eklenen
+KAYSE.IS,btcturk-2026-07
+KCAER.IS,bist100-q4-2026-eklenen
+KCHOL.IS,btcturk-2026-07
+KENT.IS,btcturk-2026-07
+KONTR.IS,btcturk-2026-07
+KORDS.IS,btcturk-2026-07
+TRMET.IS,btcturk-2026-07 (eski kod KOZAA; 24.11.2025 kod değişikliği; https://www.politikam.com/bist-kozal-kozaa-ipeke-islem-kodu-degisikligi-tralt-trmet-trenj)
+TRALT.IS,btcturk-2026-07 (eski kod KOZAL; 24.11.2025 kod değişikliği; https://www.politikam.com/bist-kozal-kozaa-ipeke-islem-kodu-degisikligi-tralt-trmet-trenj)
+KPOWR.IS,btcturk-2026-07 (Yahoo'da bulunamadı; kaynak araştırması sonuçsuz - teyit bekliyor)
+KRDMD.IS,btcturk-2026-07
+LMKDC.IS,btcturk-2026-07
+MAVI.IS,btcturk-2026-07
+MGROS.IS,btcturk-2026-07
+MIATK.IS,btcturk-2026-07
+NETAS.IS,btcturk-2026-07
+ODAS.IS,btcturk-2026-07
+ODINE.IS,btcturk-2026-07
+OTKAR.IS,btcturk-2026-07
+OYAKC.IS,btcturk-2026-07
+PEKGY.IS,btcturk-2026-07
+PETKM.IS,btcturk-2026-07
+PGSUS.IS,btcturk-2026-07
+QUAGR.IS,btcturk-2026-07
+RGYAS.IS,bist100-q4-2026-eklenen
+RYSAS.IS,bist100-q4-2026-eklenen
+SAHOL.IS,btcturk-2026-07
+SASA.IS,btcturk-2026-07
+SAYAS.IS,btcturk-2026-07
+SDTTR.IS,btcturk-2026-07
+SISE.IS,btcturk-2026-07
+SKBNK.IS,btcturk-2026-07
+SMRTG.IS,btcturk-2026-07
+SNGYO.IS,bist100-q4-2026-eklenen
+SOKM.IS,btcturk-2026-07
+TABGD.IS,bist100-q4-2026-eklenen
+TAVHL.IS,btcturk-2026-07
+TCELL.IS,btcturk-2026-07
+TCKRC.IS,bist100-q4-2026-eklenen
+THYAO.IS,btcturk-2026-07
+TKFEN.IS,btcturk-2026-07
+TOASO.IS,btcturk-2026-07
+TRGYO.IS,bist100-q4-2026-eklenen
+TSKB.IS,btcturk-2026-07
+TTKOM.IS,btcturk-2026-07
+TTRAK.IS,bist100-q4-2026-eklenen
+TUPRS.IS,btcturk-2026-07
+TURSG.IS,btcturk-2026-07
+ULKER.IS,btcturk-2026-07
+VESTL.IS,btcturk-2026-07
+YKBNK.IS,btcturk-2026-07

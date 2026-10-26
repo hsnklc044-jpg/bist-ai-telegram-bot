@@ -353,9 +353,50 @@ def _validate_values(
 # =====================================================
 
 
+def _ledger_portfolio(ledger_path=None, prices=None) -> pd.DataFrame | None:
+    """
+    Open positions from the trade ledger (real account first, else paper),
+    valued at the last final close. None when the ledger has no open position,
+    so the dashboard keeps working with the sample CSV.
+    """
+
+    try:
+        from core.ledger import load_ledger, open_positions
+
+        entries = load_ledger(ledger_path)
+    except Exception as exc:  # noqa: BLE001 - a broken ledger must not break the dashboard
+        logger.warning("Ledger not used for the dashboard | %s", exc)
+        return None
+
+    for account in ("real", "paper"):
+        positions = open_positions(entries, account)
+        if not positions:
+            continue
+        if prices is None:
+            from core.reports.daily import raw_bars
+
+            def price_of(symbol):
+                bars = raw_bars(symbol)
+                return float(bars["close"].iloc[-1]) if not bars.empty else float("nan")
+        else:
+            price_of = prices.get
+        rows = []
+        for p in positions:
+            price = price_of(p.symbol)
+            rows.append({"symbol": p.symbol, "price": price, "quantity": p.quantity, "value": p.quantity * price})
+        df = pd.DataFrame(rows).dropna(subset=["price"])
+        if df.empty:
+            continue
+        df.attrs["source"] = f"işlem defteri ({'gerçek' if account == 'real' else 'sanal'} hesap)"
+        return df
+    return None
+
+
 def load_portfolio() -> pd.DataFrame:
     """
-    Load and validate portfolio dataframe.
+    Load and validate the portfolio: open positions from the trade ledger when
+    there are any, otherwise the sample file data/portfolio_model.csv.
+    df.attrs["source"] says which one was used.
     """
 
 
@@ -367,41 +408,20 @@ def load_portfolio() -> pd.DataFrame:
 
     try:
 
+        df = _ledger_portfolio()
 
-        if not PORTFOLIO_FILE.exists():
+        if df is None:
 
+            if not PORTFOLIO_FILE.exists():
+                raise PortfolioRepositoryError(f"Portfolio file not found: {PORTFOLIO_FILE}")
 
-            raise PortfolioRepositoryError(
+            df = pd.read_csv(PORTFOLIO_FILE, encoding="utf-8")
+            df.attrs["source"] = "örnek (data/portfolio_model.csv)"
 
-                f"Portfolio file not found: {PORTFOLIO_FILE}"
+            if df.empty:
+                raise PortfolioValidationError("Portfolio file is empty.")
 
-            )
-
-
-
-
-        df = pd.read_csv(
-
-            PORTFOLIO_FILE,
-
-            encoding="utf-8",
-
-        )
-
-
-
-        if df.empty:
-
-
-            raise PortfolioValidationError(
-
-                "Portfolio file is empty."
-
-            )
-
-
-
-
+        source = df.attrs.get("source", "")
 
         df = _normalize_columns(df)
 
@@ -440,7 +460,9 @@ def load_portfolio() -> pd.DataFrame:
 
 
 
-        return df.copy()
+        out = df.copy()
+        out.attrs["source"] = source
+        return out
 
 
 

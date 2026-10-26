@@ -5,8 +5,6 @@ Watchlist Intelligence Service
 
 from __future__ import annotations
 
-import re
-
 from core.analytics.analyzer import (
     analyze_stock,
 )
@@ -14,6 +12,7 @@ from core.infrastructure.logger import (
     get_logger,
 )
 from core.infrastructure.settings import settings
+from core.market.symbols import normalize_symbol
 from core.watchlist.repository import (
     load_watchlist,
     save_watchlist,
@@ -29,35 +28,8 @@ logger = get_logger(__name__)
 
 MAX_WATCHLIST_SIZE = 30
 
-_SYMBOL_PATTERN = re.compile(r"^[A-Z0-9]{2,10}$")
-
-
 def _default_user_id() -> str:
     return str(settings.chat_id)
-
-
-def normalize_symbol(
-    symbol: str,
-) -> str:
-    """
-    Convert user input into a Yahoo Finance BIST ticker.
-
-    "eregl" -> "EREGL.IS", "THYAO.IS" -> "THYAO.IS"
-    """
-
-    code = (
-        str(symbol)
-        .strip()
-        .upper()
-        .removesuffix(".IS")
-    )
-
-    if not _SYMBOL_PATTERN.match(code):
-        raise ValueError(
-            f"Geçersiz hisse kodu: {symbol!r}"
-        )
-
-    return f"{code}.IS"
 
 
 def add_symbol(

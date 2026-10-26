@@ -4,47 +4,54 @@ Price data quality report.
 
     python -m core.market.quality
 
-Checks every stored symbol against the benchmark's trading days:
+Trading days are decided by majority: a date is a session if at least
+half of the checked symbols have a candle with volume on it. (Using
+only XU100 is not enough; Yahoo's index series skips some sessions,
+for example 25 December.)
 
-- missing    trading days the benchmark has but the stock does not
-- stale      last candle older than the benchmark's last candle
-- zero_volume days without trades
-- jumps      moves beyond what BIST's ±10% daily price limit allows
-             between two candles; usually an unadjusted corporate
-             action (split, bonus issue) or a data error. After a
-             market closure (e.g. February 2023) the limit compounds
-             over the business days in between, so reopening moves
-             are not flagged.
-- bad_ohlc   high below low, or close outside the high-low range
+Per symbol:
+
+- missing     sessions the majority traded but the symbol has no candle
+- stale       sessions after the symbol's last candle
+- zero_volume candles with zero volume (Yahoo volume gaps)
+- jumps       daily moves larger than ±20% that are not market-wide.
+              BIST's daily price limit is ±10% of the base price, so
+              such a move is almost always an unadjusted bonus/rights
+              issue or split (or a data error). Moves of 10-20% do occur
+              in Yahoo's adjusted data (dividend adjustment, base price
+              rules) and are not flagged. A suggested factor for
+              data/corporate_actions.csv is printed for each jump;
+              `--apply-suggestions` writes them to the file.
+- bad_ohlc    high below low, or close outside the high-low range
+
+Cancelled sessions and corporate actions (core.market.corrections)
+are applied before checking.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import numpy as np
 import pandas as pd
 
 from core.market import store
 from core.market.calendar import drop_open_candle
+from core.market.corrections import clean
 from core.market.universe import BENCHMARK, load_universe
 
-DAILY_LIMIT = 0.105
+DAILY_LIMIT = 0.20
+MARKET_WIDE_SHARE = 0.5
+ZERO_VOLUME_LIMIT = 0.02
 
 
-def suspicious_jumps(df: pd.DataFrame) -> pd.Series:
-    """Close-to-close returns the daily price limit cannot explain."""
+@dataclass
+class Jump:
+    date: str
+    change: float
+    suggested_factor: float
 
-    if len(df) < 2:
-        return pd.Series(dtype=float)
-
-    returns = df["close"].pct_change().iloc[1:]
-    days = df.index.values.astype("datetime64[D]")
-    sessions = np.maximum(np.busday_count(days[:-1], days[1:]), 1)
-    allowed_up = (1 + DAILY_LIMIT) ** sessions - 1
-    allowed_down = 1 - (1 - DAILY_LIMIT) ** sessions
-
-    return returns[(returns > allowed_up) | (returns < -allowed_down)]
+    def __str__(self) -> str:
+        return f"{self.date} {self.change:+.1%} (factor≈{self.suggested_factor:.4f})"
 
 
 @dataclass
@@ -56,24 +63,74 @@ class SymbolQuality:
     missing: int = 0
     stale_days: int = 0
     zero_volume: int = 0
-    jumps: list[str] = field(default_factory=list)
+    jumps: list[Jump] = field(default_factory=list)
     bad_ohlc: int = 0
 
     @property
+    def zero_volume_share(self) -> float:
+        return self.zero_volume / self.candles if self.candles else 0.0
+
+    @property
+    def problems(self) -> list[str]:
+        result = []
+        if self.candles < 200:
+            result.append("kısa geçmiş")
+        if self.missing > 2:
+            result.append("eksik gün")
+        if self.stale_days:
+            result.append("bayat")
+        if self.bad_ohlc:
+            result.append("hatalı OHLC")
+        if self.jumps:
+            result.append("düzeltilmemiş sıçrama")
+        if self.zero_volume_share > ZERO_VOLUME_LIMIT:
+            result.append("hacim eksik")
+        return result
+
+    @property
     def ok(self) -> bool:
-        return (
-            self.candles >= 200
-            and self.missing == 0
-            and self.stale_days == 0
-            and self.bad_ohlc == 0
-            and not self.jumps
-        )
+        return not self.problems
+
+
+def trading_calendar(frames: dict[str, pd.DataFrame]) -> pd.DatetimeIndex:
+    """Dates on which at least half of the symbols traded."""
+
+    traded = [df.index[df["volume"] > 0] for df in frames.values() if not df.empty]
+
+    if not traded:
+        return pd.DatetimeIndex([])
+
+    counts = pd.Series(1, index=traded[0]).groupby(level=0).sum()
+    for idx in traded[1:]:
+        counts = counts.add(pd.Series(1, index=idx), fill_value=0)
+
+    days = counts[counts >= len(traded) * MARKET_WIDE_SHARE].index
+
+    return pd.DatetimeIndex(sorted(days))
+
+
+def market_wide_moves(frames: dict[str, pd.DataFrame]) -> set[pd.Timestamp]:
+    """Dates on which most symbols moved beyond the daily limit together."""
+
+    flags = []
+    for df in frames.values():
+        if len(df) > 1:
+            flags.append((df["close"].pct_change().abs() > DAILY_LIMIT).rename(None))
+
+    if not flags:
+        return set()
+
+    table = pd.concat(flags, axis=1, sort=True).fillna(False)
+    share = table.mean(axis=1)
+
+    return set(share[share >= MARKET_WIDE_SHARE].index)
 
 
 def check_symbol(
     df: pd.DataFrame,
     symbol: str,
     trading_days: pd.DatetimeIndex | None = None,
+    market_wide: set[pd.Timestamp] | None = None,
 ) -> SymbolQuality:
     if df.empty:
         return SymbolQuality(symbol=symbol, candles=0, first=None, last=None)
@@ -86,21 +143,30 @@ def check_symbol(
     )
 
     if trading_days is not None and len(trading_days):
-        window = trading_days[
-            (trading_days >= df.index[0]) & (trading_days <= df.index[-1])
-        ]
+        window = trading_days[(trading_days >= df.index[0]) & (trading_days <= df.index[-1])]
         result.missing = int(len(window.difference(df.index)))
-
-        newer = trading_days[trading_days > df.index[-1]]
-        result.stale_days = int(len(newer))
+        result.stale_days = int(len(trading_days[trading_days > df.index[-1]]))
 
     result.zero_volume = int((df["volume"] <= 0).sum())
 
-    big = suspicious_jumps(df)
-    result.jumps = [f"{d.date()} {r:+.1%}" for d, r in big.items()]
+    returns = df["close"].pct_change().dropna()
+    big = returns[returns.abs() > DAILY_LIMIT]
 
-    bad = (df["high"] < df["low"]) | (df["close"] > df["high"] * 1.001) | (
-        df["close"] < df["low"] * 0.999
+    for day, change in big.items():
+        if market_wide and day in market_wide:
+            continue
+        result.jumps.append(
+            Jump(
+                date=day.date().isoformat(),
+                change=float(change),
+                suggested_factor=round(1 + float(change), 4),
+            )
+        )
+
+    bad = (
+        (df["high"] < df["low"])
+        | (df["close"] > df["high"] * 1.001)
+        | (df["close"] < df["low"] * 0.999)
     )
     result.bad_ohlc = int(bad.sum())
 
@@ -108,41 +174,97 @@ def check_symbol(
 
 
 def build_report(symbols: list[str] | None = None) -> list[SymbolQuality]:
-    symbols = symbols or load_universe()
+    symbols = [BENCHMARK, *(symbols or load_universe())]
 
-    benchmark = drop_open_candle(store.read(BENCHMARK))
-    trading_days = benchmark.index if not benchmark.empty else None
+    frames = {s: drop_open_candle(clean(store.read(s), s)) for s in symbols}
+    stocks = {s: df for s, df in frames.items() if s != BENCHMARK}
 
-    report = [check_symbol(benchmark, BENCHMARK)]
+    calendar = trading_calendar(frames)
+    market_wide = market_wide_moves(stocks)
 
-    for symbol in symbols:
-        df = drop_open_candle(store.read(symbol))
-        report.append(check_symbol(df, symbol, trading_days))
-
-    return report
+    return [check_symbol(frames[s], s, calendar, market_wide) for s in symbols]
 
 
 def format_report(report: list[SymbolQuality]) -> str:
     lines = [
         f"{'Sembol':<10} {'Mum':>5} {'İlk':>10} {'Son':>10} "
-        f"{'Eksik':>5} {'Bayat':>5} {'0 hacim':>7} {'Hatalı':>6}  Durum / sıçramalar",
+        f"{'Eksik':>5} {'Bayat':>5} {'0 hacim':>7} {'Hatalı':>6}  Durum",
     ]
 
     for q in report:
-        state = "OK" if q.ok else "KONTROL"
-        jumps = ", ".join(q.jumps[:3]) + (" ..." if len(q.jumps) > 3 else "")
+        state = "OK" if q.ok else "KONTROL: " + ", ".join(q.problems)
 
         lines.append(
             f"{q.symbol:<10} {q.candles:>5} {q.first or '-':>10} {q.last or '-':>10} "
-            f"{q.missing:>5} {q.stale_days:>5} {q.zero_volume:>7} {q.bad_ohlc:>6}  "
-            f"{state}{'  ' + jumps if jumps else ''}"
+            f"{q.missing:>5} {q.stale_days:>5} {q.zero_volume:>7} {q.bad_ohlc:>6}  {state}"
         )
+
+    jumps = [(q.symbol, j) for q in report for j in q.jumps]
+
+    if jumps:
+        lines += [
+            "",
+            "±%20'yi aşan düzeltilmemiş sıçramalar (sermaye artırımı/bölünme). KAP'tan doğrulayıp",
+            "data/corporate_actions.csv dosyasına ekleyin ya da --apply-suggestions kullanın:",
+        ]
+        lines += [f"  {symbol},{j.date},{j.suggested_factor},{j.change:+.1%}" for symbol, j in jumps]
 
     return "\n".join(lines)
 
 
-def main() -> None:
-    print(format_report(build_report()))
+def apply_suggestions(report: list[SymbolQuality], path=None) -> int:
+    """Append suggested corporate-action rows for every flagged jump."""
+
+    from core.market.corrections import CORPORATE_ACTIONS_FILE, load_corporate_actions
+
+    path = path or CORPORATE_ACTIONS_FILE
+    existing = {(a.symbol, a.ex_date.isoformat()) for a in load_corporate_actions(path)}
+    header = "symbol,ex_date,kind,ratio,price,factor,source,note\n"
+    text = path.read_text(encoding="utf-8") if path.exists() else header
+    old_format = not text.splitlines()[0].startswith("symbol,ex_date,kind")
+
+    def row(symbol, jump) -> str:
+        note = f"otomatik öneri {jump.change:+.1%} (KAP ile doğrulanmadı)"
+        if old_format:
+            return f"{symbol},{jump.date},{jump.suggested_factor},{note}"
+        return f"{symbol},{jump.date},factor,,,{jump.suggested_factor},,{note}"
+
+    rows = [
+        row(q.symbol, j)
+        for q in report
+        for j in q.jumps
+        if (q.symbol, j.date) not in existing
+    ]
+
+    if not rows:
+        return 0
+
+    if not text.endswith("\n"):
+        text += "\n"
+    path.write_text(text + "\n".join(rows) + "\n", encoding="utf-8")
+
+    return len(rows)
+
+
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Price data quality report")
+    parser.add_argument(
+        "--apply-suggestions",
+        action="store_true",
+        help="write suggested factors for flagged jumps to data/corporate_actions.csv",
+    )
+    args = parser.parse_args(argv)
+
+    report = build_report()
+
+    if args.apply_suggestions:
+        added = apply_suggestions(report)
+        print(f"{added} satır data/corporate_actions.csv dosyasına eklendi.\n")
+        report = build_report()
+
+    print(format_report(report))
 
 
 if __name__ == "__main__":
@@ -151,8 +273,11 @@ if __name__ == "__main__":
 
 __all__ = [
     "SymbolQuality",
+    "Jump",
+    "trading_calendar",
+    "market_wide_moves",
     "check_symbol",
-    "suspicious_jumps",
     "build_report",
     "format_report",
+    "apply_suggestions",
 ]

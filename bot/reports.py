@@ -12,13 +12,7 @@ from telegram.ext import ContextTypes
 
 from bot.common import reply
 from core.dashboard.service import get_dashboard
-from core.infrastructure.exceptions import DashboardError
 from core.reports import generate_summary_report
-
-NO_DATA_MESSAGE = (
-    "⚠️ Özet hazırlanamadı: fiyat verisi yok.\n"
-    "Sunucuda python -m core.market.update çalıştırıp tekrar deneyin."
-)
 
 
 def _build_summary() -> str:
@@ -33,9 +27,6 @@ async def summary(
 
     await reply(update, "⏳ Özet hazırlanıyor...")
 
-    try:
-        text = await asyncio.to_thread(_build_summary)
-    except DashboardError:
-        text = NO_DATA_MESSAGE
+    text = await asyncio.to_thread(_build_summary)
 
     await reply(update, text)

@@ -14,9 +14,8 @@ from telegram.ext import (
 )
 
 from bot.analysis import analyze, top
-from bot.backtest import backtest
+from bot.portfolio import alerts, paper, portfolio, report, trade
 from bot.reports import summary
-from bot.rotation import rotation
 from bot.start import start
 from bot.watchlist import (
     watchadd,
@@ -34,12 +33,15 @@ COMMANDS = (
     ("summary", summary),
     ("top", top),
     ("analyze", analyze),
-    ("backtest", backtest),
-    ("rotasyon", rotation),
     ("watchadd", watchadd),
     ("watchremove", watchremove),
     ("watchlist", watchlist),
     ("watchscan", watchscan),
+    ("portfolio", portfolio),
+    ("trade", trade),
+    ("paper", paper),
+    ("alerts", alerts),
+    ("report", report),
 )
 
 

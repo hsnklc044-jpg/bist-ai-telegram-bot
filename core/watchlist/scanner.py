@@ -6,7 +6,7 @@ Watchlist Scanner
 from __future__ import annotations
 
 from core.analytics.analyzer import analyze_stock
-from core.analytics.scoring import describe_signal
+from core.config.thresholds import SIGNAL_VIEW_LABELS
 from core.watchlist.service import get_watchlist
 
 
@@ -28,8 +28,7 @@ def generate_watchlist_scan(chat_id: int) -> str:
 
         report += (
             f"📈 {symbol}\n"
-            f"⭐ Skor : {result['score']}\n"
-            f"🎯 Görünüm : {describe_signal(result['signal'])}\n"
+            f"📊 Görünüm : {SIGNAL_VIEW_LABELS.get(result['signal'], result['signal'])} (skor {result['score']})\n"
             f"📊 Trend : {result['trend']}\n\n"
         )
 

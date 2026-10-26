@@ -20,9 +20,18 @@ from core.market.universe import BENCHMARK, load_universe
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Update the QuantBIST price store.")
     parser.add_argument("--full", action="store_true", help="re-download full history")
+    parser.add_argument(
+        "--bist100-history",
+        action="store_true",
+        help="also download every stock that was in BIST 100 since 2022 (needs data/bist100_stable.csv)",
+    )
     args = parser.parse_args(argv)
 
     symbols = [BENCHMARK, *load_universe()]
+    if args.bist100_history:
+        from core.market.membership import ever_members
+
+        symbols += [s for s in ever_members() if s not in symbols]
 
     print(f"{len(symbols)} sembol güncelleniyor ({store.HISTORY_YEARS} yıl)...")
 
@@ -37,7 +46,7 @@ def main(argv: list[str] | None = None) -> None:
         print("İndirilemeyenler:", ", ".join(failed))
 
     print()
-    print(format_report(build_report()))
+    print(format_report(build_report([s for s in symbols if s != BENCHMARK])))
 
 
 if __name__ == "__main__":

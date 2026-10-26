@@ -5,6 +5,8 @@ Market Analyzer
 
 from __future__ import annotations
 
+import pandas as pd
+
 from core.analytics.scoring import calculate_score
 from core.infrastructure.logger import get_logger
 from core.market.data import load_price_history
@@ -24,54 +26,21 @@ def _calculate_volume_ratio(
     df,
 ) -> float:
     """
-    Calculate volume ratio.
+    Latest volume / 20-day average volume.
 
-    Current volume /
-    Average volume
+    Days with zero volume are treated as missing (Yahoo has gaps in
+    BIST volume data). Without usable volume the ratio is neutral (1.0).
     """
 
-    try:
+    volume = df["volume"].where(df["volume"] > 0)
 
-        if len(df) < 20:
+    current = volume.iloc[-1]
+    average = volume.tail(21).iloc[:-1].mean()
 
-            return 1.0
-
-
-        average_volume = (
-            df["volume"]
-            .rolling(20)
-            .mean()
-            .iloc[-1]
-        )
-
-
-        current_volume = (
-            df["volume"]
-            .iloc[-1]
-        )
-
-
-        if average_volume <= 0:
-
-            return 1.0
-
-
-        return round(
-
-            current_volume /
-            average_volume,
-
-            2,
-
-        )
-
-
-    except Exception:
-
+    if pd.isna(current) or pd.isna(average) or average <= 0:
         return 1.0
 
-
-
+    return round(float(current / average), 2)
 
 
 def _generate_reason(

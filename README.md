@@ -3,19 +3,36 @@
 Borsa İstanbul hisseleri için teknik analiz, sinyal, portföy değerlendirmesi ve raporlama.
 Telegram botu ve web paneli aynı çekirdeği (`core/`) kullanır.
 
-> ⚠️ Backtest sonuçları geçmiş performanstır, geleceği garanti etmez. Yatırım tavsiyesi değildir.
+> ⚠️ Sinyaller henüz backtest edilmedi. Yatırım tavsiyesi değildir.
 
 ## Kurulum
 
-Python 3.11 veya üstü gerekir.
+Python 3.11 gerekir. Paket sürümleri `requirements.lock` ile sabitlenmiştir;
+böylece her kurulum aynı sonuçları üretir.
+
+Windows'ta tek komut (sanal ortamı kurar, sabit sürümleri yükler, ruff ve
+testleri çalıştırır, sonucu `logs\setup_report.txt` dosyasına yazar):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+copy .env.example .env
+```
+
+Yalnızca kontrol (kurulum yapmadan): `scripts\setup.ps1 -CheckOnly`.
+
+Elle kurulum:
 
 ```bash
-python -m venv .venv
+py -3.11 -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # macOS / Linux
-pip install -r requirements-dev.txt
+pip install -r requirements.lock
 copy .env.example .env          # Windows  (macOS/Linux: cp .env.example .env)
 ```
+
+Paket yükseltmesi bilinçli yapılır: yükselt, testleri çalıştır, geçerse
+`pip freeze | Out-File -Encoding ascii requirements.lock` ile kilidi yenile
+(PowerShell'de `>` dosyayı UTF-16 yazar, bu yüzden kullanılmaz).
 
 `.env` dosyasını doldurun:
 
@@ -23,47 +40,15 @@ copy .env.example .env          # Windows  (macOS/Linux: cp .env.example .env)
 | --- | --- |
 | `BOT_TOKEN` | BotFather'dan alınan token |
 | `CHAT_ID` | Botun cevap vereceği tek Telegram sohbetinin id'si |
-| `QUANTBIST_DEBUG` | `1` ise Flask debug modu açılır (sadece yerelde) |
+| `QUANTBIST_DEBUG` | `1` ise web paneli kod değişince kendini yeniden başlatır (sadece yerelde) |
 | `LOG_LEVEL` | `INFO` (varsayılan), `DEBUG`, `WARNING` |
 
 ## Çalıştırma
 
 ```bash
 python main.py                    # Telegram botu
-python app.py                     # Web paneli (Flask)  → http://127.0.0.1:5000
-python -m core.web.app            # Web paneli (FastAPI) → http://127.0.0.1:8000/dashboard
+python -m core.web.app            # Web paneli → http://127.0.0.1:8000/dashboard  (API belgeleri: /docs)
 ```
-
-## Sunucusuz kullanım (GitHub Actions)
-
-Bilgisayar ya da sunucu gerekmez; bildirimleri GitHub'ın sunucuları gönderir.
-
-1. Telegram'da `@BotFather` → botun token'ı. `@userinfobot`'a yazın → size `Id` (CHAT_ID) verir.
-   Kendi botunuza bir kez `/start` yazın (bot size ancak böyle mesaj atabilir).
-2. GitHub'da depo → **Settings → Secrets and variables → Actions → New repository secret**:
-   `BOT_TOKEN` ve `CHAT_ID` ekleyin. Token'ı hiçbir dosyaya veya sohbete yazmayın.
-3. **Actions → Telegram notices → Run workflow**: rotasyon raporu hemen Telegram'a gelir.
-
-Sonrası otomatik (`.github/workflows/notify.yml`): hafta içi 18:50'de ayın ilk seansıysa dengeleme
-bildirimi, cuma günleri haftalık rotasyon raporu. Bu yolda bot komutlara (`/rotasyon` vb.) cevap
-vermez; onun için botun sürekli çalıştığı bir sunucu gerekir.
-
-## Sunucuda 7/24 (Docker)
-
-Herhangi bir Linux sunucuda (ör. aylık ~5 $'lık VPS):
-
-```bash
-curl -fsSL https://get.docker.com | sh
-git clone https://github.com/hsnklc044-jpg/bist-ai-telegram-bot.git && cd bist-ai-telegram-bot
-cp .env.example .env && nano .env      # BOT_TOKEN ve CHAT_ID
-docker compose run --rm bot python -m core.market.update   # ilk veri indirme
-docker compose up -d --build
-docker compose logs -f                  # çıkmak için Ctrl+C (bot çalışmaya devam eder)
-```
-
-Güncelleme: `git pull && docker compose up -d --build`. `data/` klasörü (fiyatlar, takip listesi)
-güncellemelerde korunur. Sunucuda bot çalışıyorsa GitHub Actions bildirimlerini kapatın
-(**Actions → Telegram notices → Disable workflow**), yoksa bildirimler iki kez gelir.
 
 ## Fiyat verisi
 
@@ -78,76 +63,69 @@ python -m core.market.quality         # sadece kalite raporu
 ```
 
 - Taranan hisseler `data/universe.csv` dosyasında; satır ekleyerek listeyi genişletebilirsiniz.
+  Mevcut liste yaklaşık BIST100'dür: BtcTurk'ün Temmuz 2026 BIST100 listesi + Ekim 2026
+  revizyonunda eklenen hisseler (endeksten çıkanlar da araştırma için bırakıldı). Resmî güncel
+  bileşen listesi değildir.
 - Seans bitmeden (18:15'ten önce) o günün mumu kullanılmaz; sinyaller sadece kapanmış mumlardan üretilir.
+- 8 Şubat 2023 (deprem sonrası iptal edilen seans) verilerden çıkarılır.
+- Yahoo'nun düzeltmediği bedelsiz/bedelli/bölünme etkileri `data/corporate_actions.csv` ile düzeltilir;
+  kalite raporu şüpheli sıçramalar için önerilen satırı yazdırır (KAP'tan doğrulayıp ekleyin).
 - Kalite raporu eksik günleri, bayat veriyi, sıfır hacimli günleri ve ±%10 tavan/taban limitini
   aşan sıçramaları (genelde bölünme/bedelsiz veya veri hatası) gösterir.
 
 ## Backtest
 
-Canlı sinyalin (`/analyze`'ın gösterdiği skor) geçmişte nasıl çalıştığını ölçer.
-Her gün için skor, sadece o güne kadar kapanmış mumlarla yeniden hesaplanır.
-
 ```bash
-python -m core.backtest                  # tüm evren, eşit ağırlıklı portföy
-python -m core.backtest THYAO EREGL      # seçili hisseler + işlem listesi
-python -m core.backtest --compare        # zamanlama + rotasyon + al-tut, aynı dönemde yan yana
-python -m core.backtest --no-target --trailing-atr 3 --hold-in-uptrend
-python -m core.backtest --stop-atr 1.5 --target-atr 3 --max-hold 20 --commission 0.001
+python -m core.backtest.run                  # 5 pozisyon, %0.10 komisyon + %0.05 kayma
+python -m core.backtest.run --positions 3 --start 2023-01-01
 ```
 
-**Rotasyon** (`core/backtest/rotation.py`): hep yatırımda kalır. Her ayın ilk seansının kapanışında
-hisseler sıralanır, en iyi N tanesi ertesi açılışta eşit ağırlıkla alınır. Sıralama: `/analyze` skoru,
-126 seanslık momentum veya ikisinin sıra ortalaması (karma). İsteğe bağlı trend filtresi
-XU100 200 günlük ortalamanın altındayken nakde geçer. Sadece el değiştiren tutar için
-komisyon ve kayma ödenir.
+Botun canlı sinyalini (`core/strategy/score.py`, canlı skorla birebir aynı) gerçek
+veride test eder; trend kuralı, eşit ağırlık al-tut ve XU100 ile karşılaştırır.
+İşlemler sinyal gününün kapanışında değil, ertesi günün açılışında yapılır.
 
-Bilgisayar yoksa: GitHub'da **Actions → Backtest → Run workflow**. Fiyatlar orada indirilir,
-sonuç çalıştırmanın özet sayfasında görünür.
+### Strateji araştırması
 
-Kurallar (sadece alış yönlü, `core/backtest/engine.py`):
+```bash
+python -m core.backtest.research             # bot sinyali, trend, momentum, walk-forward, al-tut, XU100
+```
 
-- Skor ≥ 70 (BUY) olunca **ertesi seansın açılışında** alınır; sinyali üreten kapanıştan işlem yapılmaz.
-- Stop = giriş − 2 ATR, hedef = giriş + 4 ATR (`/analyze`'daki stop ve hedef 2 ile aynı).
-  Aynı mum ikisine de değerse stop önce sayılır; açılışta boşlukla geçilirse açılıştan dolar.
-- Skor ≤ 35 (SELL) veya 40 gün dolunca ertesi açılışta satılır.
-- Her alış ve satışta %0,2 komisyon ve %0,1 kayma düşülür.
-- Portföy: sermaye başta hisselere eşit bölünür, yeniden dengelenmez.
-  Kıyas: aynı hisselerin eşit ağırlıklı al-tutu ve XU100. Getiri ayrıca USD bazında
-  (USD/TRY, `TRY=X`) gösterilir; TL getirisi enflasyon yüzünden tek başına yanıltıcıdır.
-- Dönem ikiye bölünür (1. yarı / 2. yarı): iki yarıda da tutarlı olmayan kural şansa bağlıdır.
-- İsteğe bağlı: `--no-target` (sabit hedef yok), `--trailing-atr 3` (en yüksek kapanışı izleyen
-  stop), `--hold-in-uptrend` (XU100 200 günlük ortalamanın üstündeyken sat sinyali ve süre
-  çıkışı yok sayılır), `--cash-rate 0.40` (boştaki nakde yıllık faiz).
-- Günlük fiyat limitinin (±%10, kapalı geçen seanslarla bileşik) açıklayamadığı sıçrama içeren
-  hisseler (genelde fiyata yansıtılmamış bedelsiz) dışarıda bırakılır; `--keep-jumps` ile dahil edilir.
+Walk-forward: parametreler önceki 24 ayda seçilir, sonraki 6 ayda (görülmemiş veride)
+işlem yapılır; raporda sadece bu test dönemleri birleştirilir.
 
 ## Telegram komutları
 
 | Komut | İş |
 | --- | --- |
-| `/rotasyon` | Momentum rotasyonu: bu ayın 5 hissesi, sıradakiler, backtest özeti |
-| `/top` | Teknik skoru en yüksek 10 hisse |
-| `/analyze THYAO` | Tek hisse teknik özeti |
-| `/backtest`, `/backtest THYAO` | Sinyalin 5 yıllık geçmiş testi |
+| `/top` | En güçlü 10 sinyal |
+| `/analyze THYAO` | Tek hisse analizi |
 | `/summary` | Portföy, piyasa ve karar özeti |
 | `/watchlist`, `/watchadd EREGL`, `/watchremove EREGL`, `/watchscan` | Takip listesi |
+| `/portfolio` | Pozisyonlar ve kâr/zarar (gerçek ve sanal hesap) |
+| `/trade al THYAO 100 285,50 [komisyon] [GG.AA.YYYY]` | Gerçekleşmiş işlemi deftere yaz (`sat`, `bedelsiz`, `bedelli` de olur) |
+| `/paper al THYAO 100`, `/paper sat THYAO 50`, `/paper iptal 3`, `/paper` | Sanal emir; bir sonraki açılıştan dolar (09:40'tan önce verilirse aynı günün açılışından) |
+| `/alerts` | Açık risk uyarıları |
+| `/report` | Günlük raporu şimdi üret |
 | `/help` | Komut listesi |
 
-Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir.
+Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman gerçek emir göndermez.
 
-Hafta içi her gün 18:45'te (İstanbul) bot rotasyonu kontrol eder. Son kapanış ayın ilk
-seansıysa `CHAT_ID` sohbetine giren / çıkan / kalan hisseleri bir kez bildirir. Önceki liste
-`data/rotation_state.json` dosyasında tutulur.
+## Portföy, sanal işlem ve günlük rapor
 
-`/top` ve `/analyze` teknik skoru "Güçlü pozitif … Güçlü negatif" diye gösterir. Bu skor tek
-başına backtestte al-tutu geçemediği için al-sat sinyali olarak sunulmaz.
+- **Defter** `data/ledger.csv`: tek kayıt kaynağı. Satırlar silinmez; hata ters işlemle düzeltilir.
+  Pozisyon, ortalama maliyet ve gerçekleşen kâr/zarar FIFO ile defterden hesaplanır.
+  Elde tutulan hissede bedelsiz/bedelli olursa `/trade bedelsiz` ya da `/trade bedelli` ile girin;
+  girilmezse rapor uyarır.
+- **Sanal hesap** 100.000 TL nakitle başlar. Emirler `data/paper_orders.csv` dosyasında bekler.
+- **Risk uyarıları** (eşikler `core/config/alerts.py`): iz süren ATR stop, kilitli taban, parabolik
+  yükseliş, likidite, yoğunlaşma, hesap düşüşü, veri sorunları. Durum değişiklikleri
+  `data/alerts_log.csv` dosyasına yazılır; aynı uyarı her gün tekrar gönderilmez.
+- **Sinyal kaydı** `data/signal_log.csv`: `/analyze` ve `/top` çıktıları veri tarihiyle kaydedilir.
+- **Günlük rapor**: `python -m core.reports.daily [--send] [--no-update]`. Hafta içi 18:30'da otomatik
+  göndermek için bir kez: `powershell -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1`
+  (kaldırmak için `-Remove`). Çıktılar `logs\daily_<tarih>.log`.
 
-## Strateji
-
-`/rotasyon` backtestte ayakta kalan kuralı uygular (`core/rotation/service.py`): her ayın ilk
-seansının kapanışında hisseler 126 seanslık (≈6 ay) getiriye göre sıralanır, en iyi 5 tanesi
-ertesi açılışta eşit ağırlıkla tutulur. Backtest sonuçları al-tuttan yüksek ama düşüşler daha
-derin; hisse listesi bugünün büyük şirketleri olduğu için sonuçlar iyimserdir.
+Bu dosyalar kişiseldir; `.gitignore` içindedir ve sürüm zip'leri bunların üzerine yazmaz.
 
 ## Geliştirme
 
@@ -166,22 +144,19 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 | `bot/` | Telegram komutları |
 | `core/market/` | Fiyat verisi (yfinance), indikatörler, piyasa rejimi |
 | `core/analytics/` | Hisse bazında skor ve sinyaller |
-| `core/rotation/` | Canlı momentum rotasyonu ve aylık bildirim |
-| `core/backtest/` | Sinyal geçmişi, zamanlama ve rotasyon simülasyonu, backtest raporu |
 | `core/portfolio/` | Portföy sağlığı, risk, dağılım (`data/portfolio_model.csv`) |
 | `core/committee/`, `core/decision/`, `core/ai/` | Portföy düzeyinde karar |
 | `core/dashboard/`, `core/charts/`, `core/reports/`, `core/export/` | Panel, grafik, rapor, dışa aktarma |
 | `core/config/` | Yollar (`paths.py`), eşikler (`thresholds.py`), ağırlıklar |
-| `templates/`, `static/` | Flask paneli |
-| `core/web/` | FastAPI paneli |
+| `core/web/` | Web paneli (FastAPI; sayfa `templates/`, stil `static/`) |
 
 ## Yol haritası
 
 0. Temizlik ve güvenlik ✅
 1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği ✅
-2. Strateji ve backtest motoru ✅
+2. Strateji ve backtest motoru
 3. Risk ve pozisyon boyutu, işlem defteri
-4. Zamanlayıcı ile otomatik tarama ve bildirim ✅ (aylık rotasyon bildirimi)
+4. Zamanlayıcı ile otomatik tarama ve bildirim
 5. Sanal işlem (paper trading)
-6. Tek web paneli, Docker ✅, operasyon (GitHub Actions bildirimleri ✅)
+6. Tek web paneli, Docker, operasyon
 7. Aracı kurum üzerinden emir (isteğe bağlı)
