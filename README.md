@@ -136,6 +136,8 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
   yükseliş, likidite, yoğunlaşma, hesap düşüşü, veri sorunları. Durum değişiklikleri
   `data/alerts_log.csv` dosyasına yazılır; aynı uyarı her gün tekrar gönderilmez.
 - **Sinyal kaydı** `data/signal_log.csv`: `/analyze` ve `/top` çıktıları veri tarihiyle kaydedilir.
+  Günlük kayıtlar denetlenir (`/durum`, `/performans` "Kayıt sağlığı"): tekrar kayıt, okunamayan satır,
+  kaydı olmayan seans (tatiller hariç) ve yeni kapanış varken eski veriyle yazılmış gün.
 - **Günlük rapor**: `python -m core.reports.daily [--send] [--no-update]`. Hafta içi 18:30'da otomatik
   göndermek için bir kez: `powershell -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1`
   (kaldırmak için `-Remove`). Çıktılar `logs\daily_<tarih>.log`.

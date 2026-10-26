@@ -83,19 +83,21 @@ class DataChecksTest(unittest.TestCase):
 
     def test_signal_log_counts_and_duplicates(self):
         path = self.root / "signal_log.csv"
-        self.assertEqual(health.signal_check(path).state, health.UNKNOWN)
+        self.assertEqual(health.signal_check(path, MONDAY_NOON).state, health.UNKNOWN)
 
-        for day in (date(2026, 10, 22), date(2026, 10, 23)):
+        for day, logged in ((date(2026, 10, 22), _at(22, 18, 30)), (date(2026, 10, 23), _at(23, 18, 30))):
             for symbol in ("AAA.IS", "BBB.IS"):
-                log_signal("daily", symbol, 50, "Nötr", day, path=path)
-        log_signal("analyze", "AAA.IS", 50, "Nötr", date(2026, 10, 23), path=path)
+                log_signal("daily", symbol, 50, "Nötr", day, path=path, now=logged)
+        log_signal("analyze", "AAA.IS", 50, "Nötr", date(2026, 10, 23), path=path, now=_at(23, 19))
 
-        check = health.signal_check(path)
-        self.assertEqual(check.state, health.OK)
-        self.assertIn("2 gün, 4 kayıt; son veri 23.10.2026", check.text)
+        check = health.signal_check(path, MONDAY_NOON)
+        self.assertEqual(check.state, health.OK, check.text)
+        self.assertIn("2 gün, 4 kayıt; 22.10.2026 – 23.10.2026", check.text)
 
-        log_signal("daily", "AAA.IS", 50, "Nötr", date(2026, 10, 23), path=path)
-        self.assertIn("1 tekrar kayıt", health.signal_check(path).text)
+        log_signal("daily", "AAA.IS", 50, "Nötr", date(2026, 10, 23), path=path, now=_at(23, 19))
+        check = health.signal_check(path, MONDAY_NOON)
+        self.assertEqual(check.state, health.WARN)
+        self.assertIn("1 tekrar kayıt", check.text)
 
     def test_equity(self):
         path = self.root / "equity_log.csv"

@@ -37,7 +37,7 @@ from core.config.thresholds import SIGNAL_VIEW_LABELS
 from core.infrastructure.logger import get_logger
 from core.market.universe import BENCHMARK
 from core.reports.daily import DISCLAIMER, adjusted_bars, pct, read_equity
-from core.signals_log import log_signal
+from core.signals_log import audit_log, log_signal
 from core.strategy.score import score_frame
 
 logger = get_logger(__name__)
@@ -277,6 +277,14 @@ def forward_report(
             f"/top ve /analyze kayıtları: {matured} olgun kayıt (sadece sorulan hisseler; "
             "yanlı örnek, karar için kullanılmaz).",
         ]
+
+    try:
+        audit = audit_log(signal_path)
+        lines += ["", f"{'⚠️' if audit.problems else '🧾'} Kayıt sağlığı: {audit.text()}"]
+        if audit.missing:
+            lines.append("  Kaydı olmayan seanslar örneklemi küçültür; sonuçlar düzeltilmez.")
+    except (OSError, ValueError) as exc:
+        lines += ["", f"⚠️ Kayıt sağlığı denetlenemedi: {exc}"]
 
     paper = paper_vs_market(equity_path, bars=bars)
     lines += ["", "💼 Sanal hesap"]

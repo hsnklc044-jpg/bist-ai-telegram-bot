@@ -33,6 +33,7 @@ from core.market.calendar import (
 from core.market.universe import BENCHMARK
 from core.reports import runs as run_log
 from core.reports.daily import adjusted_bars, tr
+from core.signals_log import audit_log
 
 OK, WARN, UNKNOWN = "✅", "⚠️", "❔"
 
@@ -128,28 +129,19 @@ def calendar_check(now: datetime) -> Check:
     return Check("Tatil takvimi", OK, f"{until} sonuna kadar{soon}")
 
 
-def signal_check(path: Path | str | None = None) -> Check:
+def signal_check(path: Path | str | None = None, now: datetime | None = None) -> Check:
     path = Path(path or SIGNAL_LOG_FILE)
     if not path.exists():
         return Check("Canlı ölçüm kaydı", UNKNOWN, "signal_log.csv yok")
 
     try:
-        with open(path, encoding="utf-8", newline="") as fh:
-            rows = [r for r in csv.DictReader(fh) if r.get("source") == "daily"]
+        audit = audit_log(path, now)
     except (OSError, csv.Error) as exc:
         return Check("Canlı ölçüm kaydı", WARN, f"okunamadı ({exc})")
 
-    if not rows:
-        return Check("Canlı ölçüm kaydı", UNKNOWN, "günlük kayıt yok")
-
-    keys = [(r["symbol"], r["data_date"]) for r in rows]
-    days = sorted({d for _, d in keys})
-    duplicates = len(keys) - len(set(keys))
-    text = f"{len(days)} gün, {len(rows)} kayıt; son veri {_date(date.fromisoformat(days[-1]))}"
-
-    if duplicates:
-        return Check("Canlı ölçüm kaydı", WARN, f"{text}; {duplicates} tekrar kayıt")
-    return Check("Canlı ölçüm kaydı", OK, text)
+    if not audit.days:
+        return Check("Canlı ölçüm kaydı", UNKNOWN, audit.text())
+    return Check("Canlı ölçüm kaydı", WARN if audit.problems else OK, audit.text())
 
 
 def equity_check(path: Path | str | None = None) -> Check:
@@ -195,7 +187,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars) -> list[Check
     return [
         report_check(now),
         price_check(now, bars),
-        signal_check(),
+        signal_check(now=now),
         equity_check(),
         backup_check(now),
         calendar_check(now),
