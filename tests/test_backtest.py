@@ -229,3 +229,57 @@ class ResearchSmokeTest(unittest.TestCase):
         self.assertNotIn("Eşit ağırlık", texts["pit"])
         self.assertIn("BUGÜNKÜ liste", texts["today"])
         self.assertIn("Eşit ağırlık", texts["today"])
+        for text in texts.values():
+            self.assertIn("Sağlamlık", text)
+
+    def test_robustness_reruns_without_the_best_stocks(self):
+        from unittest import mock
+
+        import pandas as pd
+
+        from core.backtest import research
+        from core.market import store
+        from core.market.universe import BENCHMARK
+        from tests.helpers import offline_market
+
+        symbols = [f"R{i}.IS" for i in range(10)]
+        seen = []
+        original = research.run_backtest
+
+        def spy(frames, *args, **kwargs):
+            seen.append(set(frames))
+            return original(frames, *args, **kwargs)
+
+        with offline_market(), mock.patch("core.backtest.run.load_universe", return_value=symbols), \
+                mock.patch("core.market.membership.ever_members", return_value=symbols), \
+                mock.patch("core.market.membership.membership_panel",
+                           side_effect=lambda index, names, **_: pd.DataFrame(True, index=index, columns=names)), \
+                mock.patch.object(research, "GRID", [dict(lookback=63, top_n=2, regime=False)]), \
+                mock.patch.object(research, "run_backtest", side_effect=spy):
+            store.update([BENCHMARK, *symbols])
+            text = research.research_report(start="2025-06-01", positions=2)
+
+        smaller = [s for s in seen if len(s) < len(symbols)]
+        self.assertTrue(smaller, "no rerun without the best stocks")
+        self.assertTrue(all(len(s) >= len(symbols) - research.TOP_EXCLUDED for s in smaller))
+        section = text.split("Sağlamlık")[1].split("Walk-forward")[0]
+        self.assertIn("XU100", section)
+        self.assertIn("Bot sinyali", section)
+
+    def test_fragile_strategy_is_flagged(self):
+        import pandas as pd
+
+        from core.backtest import research
+
+        idx = pd.bdate_range("2025-01-01", "2026-06-30")
+        equity = pd.Series(range(len(idx)), index=idx, dtype=float) + 100
+        lines = research._robustness_lines(
+            [("A", equity, ["X.IS"], {"cagr": -0.05}), ("B", equity, ["Y.IS"], {"cagr": 0.30}),
+             ("C", equity, [], None)],
+            equity, 0.10,
+        )
+        text = "\n".join(lines)
+        self.assertIn("XU100'ün altında: A.", text)
+        self.assertNotIn("B.", text.split("altında:")[1])
+        self.assertIn("2025", text)
+        self.assertIn("2026", text)

@@ -17,6 +17,11 @@ The default universe is point-in-time BIST 100 membership: on each day
 only that day's members can be bought. Each strategy's daily excess
 return over XU100 gets a block-bootstrap confidence interval, widened
 for the number of strategies tested (core/backtest/stats.py).
+
+Robustness, below the table: each fixed-rule strategy per calendar year
+against XU100, and the same strategy rerun without the TOP_EXCLUDED
+stocks that made it the most money. A result that disappears without a
+handful of stocks is a bet on those stocks, not a repeatable rule.
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ import pandas as pd
 
 from core.backtest.cash import parse_cash_option
 from core.backtest.engine import BacktestConfig, buy_and_hold, compute_metrics, run_backtest
+from core.backtest.reliability import contribution, yearly_returns
 from core.backtest.run import load_frames, tradable_symbols
 from core.backtest.stats import bonferroni_level, bootstrap_excess, excess_returns
 from core.backtest.walkforward import walk_forward
@@ -45,6 +51,7 @@ from core.strategy.rules import (
 DEFAULT_START = "2023-08-01"
 # above this share of former members without prices the point-in-time result is flagged
 MAX_MISSING_SHARE = 0.10
+TOP_EXCLUDED = 5  # robustness: rerun without the stocks that made the most money
 
 GRID = [
     dict(lookback=lb, top_n=top, regime=rg)
@@ -102,20 +109,31 @@ def research_report(
 
     base = BacktestConfig(max_positions=positions, cash=cash)
     rows: list[tuple[str, pd.Series, dict]] = []
+    robust: list[tuple[str, pd.Series, list[str], dict | None]] = []
 
-    def add(name, signals, top=positions):
-        cfg = BacktestConfig(**{**base.__dict__, "max_positions": top})
-        res = run_backtest(frames, gate(signals), cfg, start=start, end=end)
+    def add(name, build):
+        """build(frames, eligible) -> signals; rebuilt without the best stocks for the robustness check."""
+
+        res = run_backtest(frames, gate(build(frames, eligible)), base, start=start, end=end)
         rows.append((name, res.equity, res.metrics))
+        best = list(contribution(res.trades).index[:TOP_EXCLUDED])
+        rest = {s: df for s, df in frames.items() if s not in best}
+        without = None
+        if best and len(rest) > positions:
+            rest_eligible = eligible[[c for c in eligible.columns if c in rest]] if eligible is not None else None
+            signals = build(rest, rest_eligible)
+            if rest_eligible is not None:
+                signals = apply_eligibility(signals, rest_eligible)
+            without = run_backtest(rest, signals, base, start=start, end=end).metrics
+        robust.append((name, res.equity, best, without))
 
-    add("Bot sinyali", apply_rule(score_rule(70, 70), frames))
-    add("Bot sinyali + rejim filtresi", with_regime(apply_rule(score_rule(70, 70), frames), regime))
-    add("Trend kuralı", apply_rule(trend_rule(), frames))
-    add(f"Momentum 6 ay, en iyi {positions}", momentum_signals(frames, 126, top_n=positions, eligible=eligible))
-    add(
-        f"Momentum 6 ay, en iyi {positions} + rejim",
-        momentum_signals(frames, 126, top_n=positions, regime=regime, eligible=eligible),
-    )
+    add("Bot sinyali", lambda fr, el: apply_rule(score_rule(70, 70), fr))
+    add("Bot sinyali + rejim filtresi", lambda fr, el: with_regime(apply_rule(score_rule(70, 70), fr), regime))
+    add("Trend kuralı", lambda fr, el: apply_rule(trend_rule(), fr))
+    add(f"Momentum 6 ay, en iyi {positions}",
+        lambda fr, el: momentum_signals(fr, 126, top_n=positions, eligible=el))
+    add(f"Momentum 6 ay, en iyi {positions} + rejim",
+        lambda fr, el: momentum_signals(fr, 126, top_n=positions, regime=regime, eligible=el))
 
     wf = walk_forward(
         frames,
@@ -209,6 +227,10 @@ def research_report(
         f"Bonferroni düzeltmeli (%{level * 100:.1f}). Aralık tamamen sıfırın üstünde değilse "
         "strateji XU100'ü geçmiş sayılmaz.",
         "",
+    ]
+    lines += _robustness_lines(robust, xu, compute_metrics(xu / xu.iloc[0] * base.initial_capital).get("cagr"))
+    lines += [
+        "",
         "Walk-forward adımları (24 ay eğitim → 6 ay test):",
     ]
     for s in wf.steps:
@@ -233,6 +255,33 @@ def research_report(
         )
 
     return "\n".join(lines)
+
+
+def _robustness_lines(robust, xu: pd.Series, xu_cagr) -> list[str]:
+    xu_years = yearly_returns(xu)
+    years = list(xu_years.index)
+    lines = [
+        f"Sağlamlık: yıllara göre getiri ve en kârlı {TOP_EXCLUDED} hisse olmadan yıllık getiri "
+        f"(XU100 yıllık {_pct(xu_cagr)})",
+        f"  {'Strateji':<40} " + " ".join(f"{y:>7}" for y in years) + f"  {'5 hisse hariç':>13}  en kârlı hisseler",
+        f"  {'XU100':<40} " + " ".join(f"{_pct(xu_years.get(y)):>7}" for y in years),
+    ]
+    fragile = []
+    for name, equity, best, without in robust:
+        by_year = yearly_returns(equity)
+        cagr = without.get("cagr") if without else None
+        if cagr is not None and xu_cagr is not None and cagr <= xu_cagr:
+            fragile.append(name)
+        lines.append(
+            f"  {name:<40} " + " ".join(f"{_pct(by_year.get(y)):>7}" for y in years)
+            + f"  {_pct(cagr):>13}  {', '.join(s.removesuffix('.IS') for s in best)}"
+        )
+    if fragile:
+        lines.append(
+            f"  ⚠️ En kârlı {TOP_EXCLUDED} hisse olmadan XU100'ün altında: {', '.join(fragile)}. "
+            "Sonuç birkaç hisseye bağlı; tekrarlanabilir bir kural kanıtı değil."
+        )
+    return lines
 
 
 def main(argv: list[str] | None = None) -> None:
