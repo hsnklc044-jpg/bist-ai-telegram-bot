@@ -55,6 +55,44 @@ class SummaryTest(unittest.TestCase):
         self.assertFalse(stats.mature)
         self.assertIn("henüz karar yok (2/20 gün)", forward._verdict(stats))
 
+    def test_overlapping_horizons_do_not_make_noise_significant(self):
+        # No real difference: each day's 20-session result shares 19 sessions with the next day's.
+        # A 95% interval may call it significant about 5% of the time; counting the overlapping
+        # days as independent did so 71% of the time (5 sessions: 38%).
+        import numpy as np
+
+        rng = np.random.default_rng(0)
+        for h in (5, 20):
+            for days in (60, 120):
+                with self.subTest(horizon=h, days=days):
+                    hits = 0
+                    for _ in range(300):
+                        r = rng.normal(0, 0.02, days + h + 1)
+                        rows = pd.DataFrame({"view": "Pozitif", "day": range(days), "horizon": h,
+                                             "excess": [r[t + 1:t + 1 + h].sum() for t in range(days)]})
+                        stats = forward.summarize(rows)
+                        hits += stats.low > 0 or stats.high < 0
+                    self.assertLess(hits / 300, 0.10)
+
+    def test_a_real_difference_is_still_found(self):
+        import numpy as np
+
+        rng = np.random.default_rng(1)
+        r = rng.normal(0.004, 0.01, 260)  # +0,4% a session over XU100
+        rows = pd.DataFrame({"view": "Pozitif", "day": range(250), "horizon": 5,
+                             "excess": [r[t + 1:t + 6].sum() for t in range(250)]})
+        stats = forward.summarize(rows)
+        self.assertGreater(stats.low, 0)
+        self.assertEqual(stats.periods, 50)  # 250 days, every 5th: no shared sessions
+        self.assertIn("geçiyor", forward._verdict(stats))
+
+    def test_too_few_independent_periods_is_no_verdict(self):
+        rows = pd.DataFrame({"view": "Pozitif", "day": range(60), "horizon": 20, "excess": 0.05})
+        stats = forward.summarize(rows)
+        self.assertEqual(stats.periods, 3)
+        self.assertIn("henüz karar yok", forward._verdict(stats))
+        self.assertIn("bağımsız dönem", forward._verdict(stats))
+
     def test_verdicts_when_mature(self):
         up = forward.ViewStats("Pozitif", 400, 20, 0.02, 0.01, 0.03, 0.6)
         flat = forward.ViewStats("Nötr", 400, 20, 0.0, -0.01, 0.01, 0.5)

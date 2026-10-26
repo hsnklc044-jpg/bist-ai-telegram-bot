@@ -14,7 +14,10 @@ recorded before the outcome was known.
    Each record is scored as if bought at the next session's open and
    held for 5, 20 or 60 sessions, minus XU100 over the same sessions.
    Records from the same day move together, so the confidence interval
-   is computed over days (day averages), not over single records.
+   is computed over days (day averages), not over single records. Days
+   closer than the holding period share sessions (two 20-session results
+   a day apart share 19), so the interval uses only days at least that
+   far apart; the mean still uses every day.
 
 2. Paper account. Its recorded value against XU100 over the same days.
 
@@ -44,6 +47,11 @@ logger = get_logger(__name__)
 
 HORIZONS = (5, 20, 60)
 MIN_DAYS = 20
+MIN_PERIODS = 10  # non-overlapping holding periods before a verdict
+# two-sided 95% Student t values by degrees of freedom; above 30, 1.96
+T95 = (12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.160, 2.145,
+       2.131, 2.120, 2.110, 2.101, 2.093, 2.086, 2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048,
+       2.045, 2.042)
 VIEW_ORDER = tuple(SIGNAL_VIEW_LABELS.values())
 SYSTEMATIC = "daily"
 
@@ -135,22 +143,35 @@ class ViewStats:
     low: float
     high: float
     hit_rate: float
+    periods: int | None = None  # days used for the interval: no two share a session
 
     @property
     def mature(self) -> bool:
-        return self.days >= MIN_DAYS
+        periods = self.days if self.periods is None else self.periods
+        return self.days >= MIN_DAYS and periods >= MIN_PERIODS
 
 
 def summarize(rows: pd.DataFrame) -> ViewStats | None:
-    """rows: columns day, excess (one row per record)."""
+    """
+    rows: columns day, excess, and horizon (sessions held; 1 when missing), one row per record.
+    The mean is over all days; the 95% interval only over days `horizon` records apart, counted
+    back from the latest, so that no two of them share a session (Student t for few periods).
+    """
 
     if rows.empty:
         return None
 
-    daily = rows.groupby("day")["excess"].mean()
+    horizon = int(rows["horizon"].iloc[0]) if "horizon" in rows else 1
+    daily = rows.groupby("day")["excess"].mean().sort_index()
     n = len(daily)
     mean = float(daily.mean())
-    half = 1.96 * float(daily.std(ddof=1)) / math.sqrt(n) if n > 1 else float("nan")
+    apart = daily.iloc[::-1].iloc[::horizon]
+    k = len(apart)
+    if k > 1:
+        t = T95[k - 2] if k - 1 <= len(T95) else 1.96
+        half = t * float(apart.std(ddof=1)) / math.sqrt(k)
+    else:
+        half = float("nan")
 
     return ViewStats(
         view=str(rows["view"].iloc[0]),
@@ -160,6 +181,7 @@ def summarize(rows: pd.DataFrame) -> ViewStats | None:
         low=mean - half,
         high=mean + half,
         hit_rate=float((rows["excess"] > 0).mean()),
+        periods=k,
     )
 
 
@@ -232,8 +254,10 @@ def paper_vs_market(path: Path | str | None = None, bars=adjusted_bars) -> Paper
 
 
 def _verdict(stats: ViewStats) -> str:
-    if not stats.mature:
+    if stats.days < MIN_DAYS:
         return f"henüz karar yok ({stats.days}/{MIN_DAYS} gün)"
+    if not stats.mature:
+        return f"henüz karar yok ({stats.periods}/{MIN_PERIODS} bağımsız dönem)"
     if stats.low > 0:
         return "XU100'ü anlamlı şekilde geçiyor"
     if stats.high < 0:
@@ -278,7 +302,8 @@ def forward_report(
                 ref = reference.get((view, int(h)))
                 lines.append(
                     f"  {view:<14} {pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
-                    f"| {stats.records} kayıt, {stats.days} gün, isabet %{stats.hit_rate * 100:.0f} "
+                    f"| {stats.records} kayıt, {stats.days} gün ({stats.periods} bağımsız dönem), "
+                    f"isabet %{stats.hit_rate * 100:.0f} "
                     f"→ {_verdict(stats)}"
                     + (f" | geçmiş {pct(ref['mean'])}, isabet %{ref['hit_rate'] * 100:.0f}" if ref else "")
                 )
@@ -331,12 +356,18 @@ def weekly_line(
         horizon = 20 if (systematic["horizon"] == 20).any() else int(systematic["horizon"].min())
         part = systematic[systematic["horizon"] == horizon]
         days = part["day"].nunique()
-        views = []
+        views, computed = [], []
         for view in (VIEW_ORDER[0], VIEW_ORDER[-1]):
             stats = summarize(part[part["view"] == view])
             if stats is not None:
                 views.append(f"{view} {pct(stats.mean)}")
-        state = "karar verilebilir" if days >= MIN_DAYS else f"{days}/{MIN_DAYS} gün"
+                computed.append(stats)
+        if computed and all(st.mature for st in computed):
+            state = "karar verilebilir"
+        elif days < MIN_DAYS:
+            state = f"{days}/{MIN_DAYS} gün"
+        else:
+            state = f"{min(st.periods for st in computed)}/{MIN_PERIODS} bağımsız dönem"
         lines = [
             f"📏 Canlı ölçüm ({horizon} seans, XU100'e göre): {'; '.join(views) or '-'} "
             f"({state}; ayrıntı /performans)"
