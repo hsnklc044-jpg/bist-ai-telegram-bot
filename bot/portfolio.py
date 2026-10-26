@@ -56,9 +56,14 @@ def _daily_text() -> str:
     from core.market import store
     from core.market.universe import BENCHMARK, load_universe
     from core.reports.daily import build_daily
+    from core.reports.runs import ReportBusy, report_lock
 
-    store.update([BENCHMARK, *load_universe()])
-    return build_daily().text
+    try:
+        with report_lock():
+            store.update([BENCHMARK, *load_universe()])
+            return build_daily().text
+    except ReportBusy as exc:
+        return f"⏳ {exc} Birkaç dakika sonra tekrar deneyin."
 
 
 async def report(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

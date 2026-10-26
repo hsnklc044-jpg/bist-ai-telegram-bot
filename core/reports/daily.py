@@ -34,9 +34,10 @@ from core.infrastructure.logger import get_logger
 from core.ledger import cash_balance, load_ledger, open_positions
 from core.ledger.paper import fill_pending
 from core.market import store
-from core.market.calendar import drop_open_candle, last_final_session_date
+from core.market.calendar import drop_open_candle, last_final_session_date, now_istanbul
 from core.market.corrections import clean, drop_cancelled_sessions, load_corporate_actions
 from core.market.universe import BENCHMARK, load_universe
+from core.reports.runs import ReportBusy, already_sent, record_run, report_lock
 
 logger = get_logger(__name__)
 
@@ -181,6 +182,7 @@ class DailyResult:
     text: str
     events: list = field(default_factory=list)
     fills: list = field(default_factory=list)
+    status: str = "built"  # built | sent | skipped (this data day was already sent)
 
 
 def build_daily(paths: Paths | None = None, universe: list[str] | None = None, today: date | None = None) -> DailyResult:
@@ -406,6 +408,11 @@ def _notify_failure(error: Exception, log_name: str) -> None:
 
 
 def _run(args) -> DailyResult:
+    with report_lock():
+        return _run_locked(args)
+
+
+def _run_locked(args) -> DailyResult:
     if not args.no_update:
         status = store.update([BENCHMARK, *load_universe()])
         failed = [s for s, v in status.items() if v in ("failed", "empty")]
@@ -414,6 +421,13 @@ def _run(args) -> DailyResult:
 
     result = build_daily()
     _record_scores()
+
+    if args.send and not args.force and already_sent(result.day):
+        # a holiday (no new candle) or a second scheduler: never send twice
+        result.status = "skipped"
+        logger.info("Daily report for %s was already sent; not sending again", result.day)
+        return result
+
     result.text = _with_weekly_line(result.text, result.day)
     result.text = _with_backup_line(result.text)
 
@@ -423,6 +437,7 @@ def _run(args) -> DailyResult:
 
         s = require_bot_settings()
         send_telegram(result.text, s.bot_token, s.chat_id)
+        result.status = "sent"
         logger.info("Daily report sent to Telegram | %s", result.day)
     return result
 
@@ -444,7 +459,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--send", action="store_true", help="send the report to Telegram")
     parser.add_argument("--no-update", action="store_true", help="do not download prices")
     parser.add_argument("--log-dir", default=None, help="write logs/daily_<date>.log here")
+    parser.add_argument("--force", action="store_true", help="send even if this data day was already sent")
     args = parser.parse_args(argv)
+
+    started = now_istanbul()
 
     log_file = None
     if args.log_dir:
@@ -458,19 +476,27 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         result = _run(args)
+    except ReportBusy as exc:
+        # another run is doing the work right now; not a failure
+        logger.warning("%s", exc)
+        write_log(f"ATLANDI: {exc}")
+        record_run(started, "busy", detail=str(exc))
+        print(exc)
+        return 0
     except Exception as exc:  # noqa: BLE001 - the scheduled run must leave a trace
         error = traceback.format_exc()
         logger.error("Daily report failed\n%s", error)
         write_log("HATA\n" + error)
+        record_run(started, "failed", detail=f"{type(exc).__name__}: {exc}")
         print(error, file=sys.stderr)
         if args.send:
             _notify_failure(exc, str(log_file or "logs/quantbist.log"))
         return 1
 
-    write_log(result.text + ("\n\nTelegram'a gönderildi." if args.send else ""))
-    print(result.text)
-    if args.send:
-        print("\nTelegram'a gönderildi.")
+    record_run(started, result.status, result.day)
+    notes = {"sent": "\n\nTelegram'a gönderildi.", "skipped": "\n\nBu veri günü zaten gönderilmişti; tekrar gönderilmedi."}
+    write_log(result.text + notes.get(result.status, ""))
+    print(result.text + notes.get(result.status, ""))
     return 0
 
 

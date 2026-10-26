@@ -6,7 +6,9 @@ On a server the bot itself sends the after-close report, so one process
 owns data/ (no second program writing the ledger at the same time).
 It is off unless DAILY_REPORT_AT is set, because on a Windows PC the
 scheduled task (scripts/register_daily_task.ps1) already sends it and
-the report would arrive twice.
+the report would arrive twice. If both are on anyway, the report lock
+and logs/runs.csv (core/reports/runs.py) keep it to one run and one
+message per data day.
 
     DAILY_REPORT_AT=18:30     # Istanbul time, weekdays
 """

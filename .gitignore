@@ -86,6 +86,7 @@ data/alerts_log.csv
 data/signal_log.csv
 data/equity_log.csv
 data/backups/
+data/.daily.lock
 
 # Per-user watchlists (contain Telegram chat ids)
 data/watchlist.json
