@@ -44,10 +44,12 @@ class ScenarioTest(unittest.TestCase):
                 seen.append(len(acts if acts is not None else corrections._actions_override or actions))
                 return original(df, symbol, acts)
 
+            robust: dict = {}
             with mock.patch.object(corrections, "apply_corporate_actions", side_effect=spy):
-                results = scenarios.run_scenarios(fixes, start="2025-06-01", positions=3)
+                results = scenarios.run_scenarios(fixes, start="2025-06-01", positions=3, robustness=robust)
             lines = scenarios.format_scenarios(results)
             candle = scenarios.candle_check(fixes)
+            robust_text = "\n".join(scenarios.format_robustness(robust, store.read(BENCHMARK)["close"]))
 
         self.assertEqual(list(results), ["A", "B", "C", "D"])
         self.assertEqual(set(seen), {1, 2})  # A/C without the datacheck row, B/D with it
@@ -57,6 +59,28 @@ class ScenarioTest(unittest.TestCase):
         self.assertIn("Bot sinyali", text)
         self.assertIn("Kazanma", text)
         self.assertIn("1 gün", "\n".join(candle))
+        self.assertEqual(list(robust), ["A", "B", "C", "D"])
+        row = robust["A"]["Bot sinyali"]
+        self.assertLessEqual(len(row["best"]), scenarios.TOP)
+        self.assertIn("2025", robust_text)
+        self.assertIn("XU100", robust_text)
+
+    def test_ohlcv_check_counts_impossible_candles(self):
+        idx = pd.date_range("2026-01-01", periods=4)
+        good = pd.DataFrame({"open": 10.0, "high": 11.0, "low": 9.0, "close": 10.5, "volume": 100.0}, index=idx)
+        bad = good.copy()
+        bad.iloc[0, bad.columns.get_loc("high")] = 8.0  # high < low, open and close outside
+        bad.iloc[1, bad.columns.get_loc("close")] = 12.0  # close above high
+        bad.iloc[2, bad.columns.get_loc("volume")] = 0.0
+        bad.iloc[3, bad.columns.get_loc("volume")] = float("nan")
+        text = "\n".join(scenarios.ohlcv_check({"A.IS": good, "B.IS": bad}))
+        self.assertIn("gün: 8", text)
+        self.assertIn("en yüksek < en düşük: 1", text)
+        self.assertIn("kapanış aralık dışında: 2", text)
+        self.assertIn("açılış aralık dışında: 1", text)
+        self.assertIn("hacim 0: 1", text)
+        self.assertIn("hacim boş: 1", text)
+        self.assertIn("B 2", text)
 
     def test_without_fixes_only_a_and_b(self):
         with offline_market(), \
