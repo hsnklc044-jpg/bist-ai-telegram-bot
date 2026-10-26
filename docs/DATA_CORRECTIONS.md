@@ -17,8 +17,10 @@ Katsayı hesabı:
 
 ### KCAER.IS — 28.11.2024, katsayı 0,8650
 
-- **Olay:** %191,22 bedelsiz sermaye artırımı (SPK onayı 21.11.2024). KAP'a doğrudan erişilemedi; doğrulama duyurunun ikincil kopyalarından yapıldı.
-- **Yahoo:** o gün −%13,7. Yahoo katsayıyı 1/2,5178 almış; olması gereken 1/2,9122. Yani yalnız %151,78'lik kısmı uygulamış.
+- **Olay:** %191,22 bedelsiz; sermaye 657,57 milyondan 1.915 milyon TL'ye. SPK onayı 21.11.2024 (bülten 2024/53), bölünme 28.11.2024.
+- **Bileşenler:** Borsa İstanbul fiyat düzeltmesine göre %151,784 iç kaynaklardan, %39,440 kâr payından bedelsiz. Bölünme sonrası teorik fiyat 14,182 TL, yani önceki kapanış 41,30 TL.
+- **Kaynaklar:** ikincil haber kopyaları (Midas, Rota Borsa, Borsanın Gündemi). KAP'taki özgün metne doğrudan erişilemedi.
+- **Yahoo:** o gün −%13,7. Yahoo katsayıyı 1/2,5178 almış; olması gereken 1/2,9122. Yani yalnız iç kaynak kısmını (%151,78) uygulamış, kâr payından gelen %39,44'ü atlamış.
 - **İş Yatırım:** o gün −%0,2.
 - **Teorik kalan düzeltme:** 2,5178 / 2,9122 = **0,8646**.
 - **Uygulanan katsayı:** 0,8650. Gözlenen getirilerden hesaplandı: 0,8633 / 0,998.
@@ -29,12 +31,14 @@ Katsayı hesabı:
 
 - **Yahoo:** −%15,9. Bu, günlük ±%10 fiyat sınırını aşar; dolayısıyla gerçek piyasa hareketi değildir.
 - **İş Yatırım:** %0,0.
-- **Olay:** %42,86 bedelli (1 TL). Kamuya açık hak kullanım başlangıcı 03.02.2026.
-- **Katsayı kontrolü:** 23.01 kapanışı P = 2,08 TL ile teorik bedelli katsayısı (2,08 + 0,4286) / (1,4286 × 2,08) = **0,8442**. Uygulanan **0,8408**, iki kaynağın 26.01 farkından hesaplandı. Fark %0,4. Değiştirilmedi.
+- **Olay:** %42,857 bedelli, 1 TL; sermaye 7 milyardan 10 milyar TL'ye. SPK onayı 29.01.2026 bülteninde. Hak kullanımı 03.02–17.02.2026 (KAP bildirimi, haberlerle doğrulandı).
+- **Sonuç:** SPK onayı 29.01'de, yani 26.01'de hak kullanımı başlamış olamaz. Yahoo'nun 26.01'deki düşüşü veri hatası: düzeltme 6 işlem günü erken uygulanmış.
+- **Katsayı kontrolü:** gerçek hak kullanım günü 03.02 alınırsa, teorik katsayı son hak içeren kapanışa (02.02) göre hesaplanmalı. Yahoo'nun 02.02 değeri 1,791 / 0,8408 = 2,130 TL'lik bir işlem fiyatına karşılık gelir. Bu fiyatla teorik katsayı (2,130 + 0,4286) / (1,4286 × 2,130) = **0,8408**, uygulanan katsayıyla aynı. 23.01 kapanışı (2,08 TL) kullanılırsa 0,8442 çıkar; o gün hak kullanım öncesi son gün olmadığı için doğru referans değildir.
+- **Sınır:** 02.02'deki işlem fiyatı (2,130) ham veriden görülmedi, katsayıdan geri hesaplandı. Bu yüzden katsayı teoriyle *tutarlı*, ama bağımsız olarak kanıtlanmış değil.
 - **Seviye karşılaştırması:** düzeltmeden sonra 19–23.01 kapanışları İş Yatırım ile birebir aynı (ör. 23.01: 1,749 / 1,749). Ancak İş Yatırım fiyatları da düzeltilmiş fiyatlardır, bu yüzden iki kaynak bağımsız sayılmaz. 26.01–02.02 arasındaki gerçek işlem fiyatı her iki seride de görülmüyor.
 - **Düzeltmenin gerekçesi:** sonraki bedelli işlem değil, sınır ihlali ve iki kaynak arasındaki fark. Bedelli işlem yalnız büyüklüğün tutarlı olduğunu gösterir.
-- **Belirsizlik:** Yahoo düzeltmeyi neden 26.01'e koyduğu bilinmiyor. 26.01–02.02 arasındaki fiyat seviyeleri tartışmalı.
-- **Durum:** miktar doğrulandı, tarih belirsiz.
+- **Tarih:** satır 26.01'de duruyor, gerçek tarih 03.02. Yahoo 26.01–02.02 fiyatlarını zaten düzeltilmiş seviyede verdiği için düzeltilmiş getiri serisi her iki tarihte de aynı çıkar. Satırı 03.02'ye taşımak bu günlere ikinci kez katsayı uygular; bu yüzden tarih değiştirilmemeli.
+- **Durum:** olay ve tarih KAP ile doğrulandı; katsayı teoriyle tutarlı. Satırın 26.01'de durması Yahoo'nun hatasını telafi ediyor.
 
 ## Tek gün kapanış düzeltmeleri (635 satır) — uygulanmadı
 
