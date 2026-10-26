@@ -338,6 +338,39 @@ def utf8_output(stream=None) -> None:
         pass
 
 
+def _with_backup_line(text: str) -> str:
+    """Back up the personal records; a failed backup is reported, never fatal."""
+
+    from core.backup import create_backup
+
+    try:
+        backup = create_backup()
+        line = backup.line() if backup else "💾 Yedeklenecek kişisel dosya yok."
+    except Exception as exc:  # noqa: BLE001 - the report must still go out
+        logger.exception("Backup failed")
+        line = f"⚠️ Yedek alınamadı: {exc}"
+
+    head, sep, tail = text.rpartition(DISCLAIMER)
+    return f"{head}{line}\n\n{sep}{tail}" if sep else f"{text}\n\n{line}"
+
+
+def _notify_failure(error: Exception, log_name: str) -> None:
+    """Tell the user in Telegram that the scheduled report did not come out."""
+
+    try:
+        from core.infrastructure.settings import require_bot_settings
+
+        s = require_bot_settings()
+        send_telegram(
+            f"⚠️ QuantBIST günlük rapor hazırlanamadı.\n{type(error).__name__}: {error}\n"
+            f"Ayrıntı: {log_name}",
+            s.bot_token,
+            s.chat_id,
+        )
+    except Exception:  # noqa: BLE001 - nothing more can be done; the log has it
+        logger.exception("Failure notice could not be sent")
+
+
 def _run(args) -> DailyResult:
     if not args.no_update:
         status = store.update([BENCHMARK, *load_universe()])
@@ -346,6 +379,7 @@ def _run(args) -> DailyResult:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
 
     result = build_daily()
+    result.text = _with_backup_line(result.text)
 
     # send first: a problem while printing must never stop the report
     if args.send:
@@ -388,11 +422,13 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         result = _run(args)
-    except Exception:  # noqa: BLE001 - the scheduled run must leave a trace
+    except Exception as exc:  # noqa: BLE001 - the scheduled run must leave a trace
         error = traceback.format_exc()
         logger.error("Daily report failed\n%s", error)
         write_log("HATA\n" + error)
         print(error, file=sys.stderr)
+        if args.send:
+            _notify_failure(exc, str(log_file or "logs/quantbist.log"))
         return 1
 
     write_log(result.text + ("\n\nTelegram'a gönderildi." if args.send else ""))

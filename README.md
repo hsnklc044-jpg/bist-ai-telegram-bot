@@ -127,6 +127,19 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
 
 Bu dosyalar kişiseldir; `.gitignore` içindedir ve sürüm zip'leri bunların üzerine yazmaz.
 
+**Yedekleme:** günlük rapor her çalıştığında bu kişisel dosyaları tarihli bir zip'e yedekler
+(`data\backups\quantbist_<tarih>.zip`, son 30 gün; her yedek SHA-256 ile doğrulanır) ve raporun
+sonuna "💾 Yedek" satırını ekler. Disk arızasına karşı `.env` içinde `BACKUP_DIR` ile senkronize
+bir klasör (ör. OneDrive) gösterin. Rapor hazırlanamazsa Telegram'a ayrıca uyarı gelir.
+
+```bash
+python -m core.backup                     # şimdi yedekle
+python -m core.backup --list              # yedekleri listele ve doğrula
+python -m core.backup --restore data\backups\quantbist_2026-10-26.zip   # geri yükle
+```
+Geri yükleme önce yedeği doğrular, sonra mevcut dosyaların ayrı bir yedeğini alır; böylece
+yanlış yedek seçilse bile önceki hâle dönülebilir.
+
 ## Sunucuda 7/24 (Docker)
 
 Bilgisayar kapalıyken de botun komutlara cevap vermesi ve günlük raporun gelmesi için
