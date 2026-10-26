@@ -3,15 +3,15 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Doğrulanmış durum (v0.21.0, 26.10.2026)
+## Doğrulanmış durum (v0.22.1, 26.10.2026)
 
 | Bileşen | Durum | Kanıt |
 |---|---|---|
-| Kod ve bağımlılıklar | Doğrulandı | CI yeşil (5f447b0); kullanıcı PC'sinde `setup.ps1 -CheckOnly`: 238 test, paketler kilitle aynı |
-| Telegram botu | Doğrulandı | `/help` yalnızca v0.21.0 yanıtlıyor (26.10 14:11) |
-| Bot içi zamanlayıcı | Kuruldu, henüz çalışmadı | Açılış günlüğü: "Daily report scheduled for 18:30" |
+| Kod ve bağımlılıklar | Doğrulandı | CI yeşil; kullanıcı PC'sinde `setup.ps1 -CheckOnly` 14:42: v0.22.1, 249 test, paketler kilitle aynı |
+| Telegram botu | Doğrulandı | `/help` tek sürüm yanıtlıyor (26.10 14:11); v0.22.1 14:43'te başladı |
+| Zamanlayıcı | Windows görevi "QuantBIST Gunluk Rapor" (tek) | Son çalışma 26.10 06:47, sonuç 0 (kaçırılan 23.10 raporu); `DAILY_REPORT_AT` kaldırıldı |
 | Günlük rapor teslimi | **Doğrulanmadı** | İlk zamanlanmış çalışma 26.10 18:30 |
-| `data/signal_log.csv` | **Henüz yok** | Rapor ilk kez çalışınca oluşmalı |
+| `data/signal_log.csv` | Doğrulandı | Elle çalıştırma 26.10 14:42: "Daily scores recorded \| 117 stocks", dosya oluştu; `runs.csv` satırı `built` |
 | Cuma canlı ölçüm satırı | **Doğrulanmadı** | İlk görülme hedefi 30.10.2026 |
 | Cumartesi araştırma iş akışı | Elle çalıştırma doğrulandı; zamanlanmış çalışma doğrulanmadı | Run 40286151701 başarılı; ilk zamanlanmış çalışma 31.10 |
 | Test kapsamı | %86 satır (core + bot) | `coverage run -m pytest` |
