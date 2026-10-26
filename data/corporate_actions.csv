@@ -13,3 +13,5 @@ KONTR.IS,2025-12-01,rights,1,1,,https://fintables.com/sirketler/KONTR/sermaye-ar
 PEKGY.IS,2025-06-30,rights,1,1,,https://fintables.com/sirketler/PEKGY/sermaye-artirimlari-temettuler,%100 bedelli (kaynak tarihi 09.07.2025); Yahoo verisindeki sıçrama günü
 SKBNK.IS,2024-06-04,rights,0.3441,1,,https://fintables.com/sirketler/SKBNK/sermaye-artirimlari-temettuler,"%34,41 bedelli (kaynak tarihi 13.06.2024); Yahoo verisindeki sıçrama günü"
 SKBNK.IS,2026-10-22,rights,0.4,1,,https://fintables.com/sirketler/SKBNK/sermaye-artirimlari-temettuler,"%40 bedelli; kaynakta 'onay bekliyor' görünüyor, fiyat verisi bu oranla tutarlı (KAP ile teyit edilmeli)"
+KCAER.IS,2024-11-28,factor,,,0.8650,İş Yatırım fiyat geçmişi (datacheck 2026-10-27_00-08),"%191,22 bedelsiz (SPK 21.11.2024). Yahoo düzeltmesi eksik: o gün Yahoo −%13,7, İş Yatırım −%0,2; oran = 0,8633 / 0,998"
+CANTE.IS,2026-01-26,factor,,,0.8408,İş Yatırım fiyat geçmişi (datacheck 2026-10-27_00-08),"Yahoo 26.01.2026'da −%15,9, İş Yatırım %0,0. %42,86 bedelli (1 TL) hak kullanımı 03.02.2026'da başladı; Yahoo düzeltmeyi erken tarihe koymuş. oran = 1 − 0,1592"

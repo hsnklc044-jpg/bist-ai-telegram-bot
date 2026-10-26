@@ -87,5 +87,25 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
 - **Bulgu 4 — eksik günler:** 09.04.2024 (Ramazan arifesi, yarım gün) çoğu hissede Yahoo'da yok;
   bazı yeni halka arzların ilk 25–164 günü Yahoo'da yok.
 - **Karar (şimdilik):** sinyal üretimi için yanlış kapanış günlerinin etkisi ölçülmeden veri
-  değiştirilmeyecek. Tüm hisseler için yeni sınıflandırmalı tarama (çalışma 40376057569) bitince
-  sonuç ve düzeltme önerisi buraya eklenecek.
+  değiştirilmeyecek. Tüm hisseler için tam tarama sonucu aşağıda.
+
+---
+
+## 2026-10-27 — Tam fiyat taraması sonucu (2022 – bugün, 202 hisse)
+
+- **Kaynak:** Data check çalışması 40377105196; rapor ve düzeltme dosyası `research-results` dalında
+  `datacheck/2026-10-27_00-08*`. 218.752 hisse-gün karşılaştırıldı.
+- **XU100:** 1202 günün hepsinde tutarlı.
+- **Tek gün yanlış kapanış (Yahoo, ertesi gün düzelen):** 635 hisse-gün. Çok hissede aynı gün:
+  10.05.2022 (77), 27.06.2022 (61), 16.12.2022 (86), 05.01.2023 (158), 08.05.2025 (55).
+  Düzeltme oranları `datacheck/latest_price_fixes.csv`'de (635 satır); etkileri araştırmada ayrıca ölçülür.
+- **Hisseye özgü hatalar:** 33 gün. %20'yi aşanlar (ADEL, BJKAS, CVKMD, EUREN, FENER, GSRAY, TSPOR,
+  TUKAS, ASUZU) zaten araştırma dışında; dışlama kuralı tam olarak bu hisseleri yakalıyor.
+  Araştırmaya giren ve kalıcı seviye hatası yaratan iki hisse düzeltildi (`data/corporate_actions.csv`):
+  - KCAER 28.11.2024: %191,22 bedelsiz; Yahoo −%13,7, İş Yatırım −%0,2 → oran 0,8650.
+  - CANTE 26.01.2026: Yahoo −%15,9, İş Yatırım %0,0; bedelli (03.02.2026) Yahoo'da erken tarihe
+    konmuş → oran 0,8408.
+  Kalan farklar 1–4 puanlık tek günlük farklar (çoğu tavan/taban günlerinde yuvarlama); düzeltilmedi.
+- **Yahoo'da eksik günler:** 09.04.2024 (yarım gün) çoğu hissede yok; ASGYO (164), BINHO (87), AVPGY (65)
+  gün gibi yeni halka arzların ilk dönemleri yok.
+- **Kontrol edilemedi:** CEMAS, GESAN, HEKTS (İş Yatırım geçersiz yanıt), KERVT (veri yok).
