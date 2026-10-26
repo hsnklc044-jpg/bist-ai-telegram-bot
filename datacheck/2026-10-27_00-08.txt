@@ -1,0 +1,157 @@
+2026-10-26 18:58:49,495 | WARNING | __main__ | Second source failed | CEMAS.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 19:23:56,563 | WARNING | __main__ | Second source failed | GESAN.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 19:31:38,739 | WARNING | __main__ | Second source failed | HEKTS.IS | Expecting value: line 1 column 1 (char 0)
+İkinci kaynak kontrolü (İş Yatırım, 01.01.2022 – bugün, düzeltilmiş seri, günlük getiri farkı > 1 puan): 202 hisse | tutarlı 60, fark var 138, kontrol edilemedi 4 | karşılaştırılan 218752 hisse-gün
+Hisseye özgü açıklanamayan fark 33 gün; olası düzeltme günü (temettü/bedelsiz/bölünme) 23 gün; tek gün kapanış hatası (ertesi gün düzelen) 635
+Çok hissede aynı gün yanlış kapanış (Yahoo):
+  10.05.2022: 77 hisse
+  27.06.2022: 61 hisse
+  16.12.2022: 86 hisse
+  05.01.2023: 158 hisse
+  08.05.2025: 55 hisse
+XU100 (İş Yatırım'ın BIST 100 değeriyle, 1202 gün): tutarlı
+Hisseye özgü farklar (piyasa geneli günler hariç):
+  ADEL: 28.09.2022 Yahoo -2.7% / İş -1.0%; 02.01.2024 Yahoo -90.8% / İş +0.8%
+  AHGAZ: yalnız İş Yatırım'da 3 gün: 22.12.2022, 23.12.2022, 09.04.2024
+  AKBNK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AKCNS: 15.04.2024 Yahoo -3.9% / İş +0.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AKFGY: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AKSEN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALARK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALBRK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALFAS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ANHYT: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ANSGR: 08.12.2022 Yahoo +2.4% / İş +3.4%
+  ARCLK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ARDYZ: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ASELS: 12.12.2022 Yahoo +9.0% / İş +10.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ASGYO: yalnız İş Yatırım'da 164 gün: 03.08.2023, 04.08.2023, 07.08.2023, 08.08.2023, 09.08.2023 (+159)
+  ASTOR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ASUZU: 27.06.2022 Yahoo -1.7% / İş +9.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AVPGY: yalnız İş Yatırım'da 65 gün: 21.12.2023, 22.12.2023, 25.12.2023, 26.12.2023, 27.12.2023 (+60)
+  AYDEM: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AYGAZ: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BAGFS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BERA: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BFREN: 15.06.2022 Yahoo -0.3% / İş +0.7%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BIENY: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BINHO: yalnız İş Yatırım'da 87 gün: 20.11.2023, 21.11.2023, 22.11.2023, 23.11.2023, 24.11.2023 (+82)
+  BJKAS: 03.07.2024 Yahoo -76.7% / İş +4.0%; 07.04.2025 Yahoo -27.3% / İş -1.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BRISA: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BRSAN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BRYAT: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BSOKE: 18.11.2022 Yahoo +7.5% / İş +8.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BUCIM: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CANTE: 26.01.2026 Yahoo -15.9% / İş +0.0%
+  CCOLA: 18.05.2022 Yahoo -2.9% / İş -1.2%; 22.05.2023 Yahoo -1.6% / İş -0.5%
+  CEMAS: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  CEMTS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CIMSA: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CLEBI: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CVKMD: 03.08.2026 Yahoo -61.9% / İş -1.4%
+  CWENE: yalnız İş Yatırım'da 3 gün: 05.05.2023, 08.05.2023, 09.05.2023
+  DEVA: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  DOAS: 18.11.2022 Yahoo +1.5% / İş +2.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  DOHOL: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ECILC: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ECZYT: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EGEEN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EGGUB: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EKGYO: 10.11.2022 Yahoo +5.3% / İş +6.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ENJSA: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ENKAI: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ERBOS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EUREN: 02.12.2024 Yahoo -63.5% / İş +0.7%
+  FENER: 09.12.2024 Yahoo -59.5% / İş -5.9%; 17.12.2024 Yahoo -5.2% / İş +1.6%; 23.06.2025 Yahoo -78.6% / İş -1.3%; 29.12.2025 Yahoo -63.7% / İş -2.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GARAN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GENIL: yalnız İş Yatırım'da 1 gün: 06.04.2023
+  GESAN: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  GOLTS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GOZDE: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GRTHO: yalnız İş Yatırım'da 230 gün: 26.04.2023, 27.04.2023, 28.04.2023, 02.05.2023, 03.05.2023 (+225)
+  GSDHO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GSRAY: 23.12.2024 Yahoo -67.8% / İş -1.5%; 30.06.2025 Yahoo -22.8% / İş +2.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GUBRF: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GWIND: yalnız İş Yatırım'da 2 gün: 12.04.2022, 09.04.2024
+  HALKB: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  HEKTS: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  IEYHO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  INDES: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  INVES: yalnız İş Yatırım'da 509 gün: 01.03.2022, 02.03.2022, 03.03.2022, 04.03.2022, 07.03.2022 (+504)
+  ISCTR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISDMR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISFIN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISGYO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISMEN: 10.11.2022 Yahoo +3.3% / İş +4.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  IZMDC: 18.11.2022 Yahoo +4.8% / İş +5.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KARSN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KARTN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KATMR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KCAER: 28.11.2024 Yahoo -13.7% / İş -0.2%
+  KCHOL: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KERVT: kontrol edilemedi (ikinci kaynakta veri yok)
+  KLRHO: yalnız İş Yatırım'da 428 gün: 07.07.2022, 08.07.2022, 13.07.2022, 14.07.2022, 18.07.2022 (+423)
+  KLSER: yalnız İş Yatırım'da 4 gün: 27.07.2023, 28.07.2023, 31.07.2023, 09.04.2024
+  KMPUR: yalnız İş Yatırım'da 1 gün: 06.04.2023
+  KONYA: 30.11.2022 Yahoo +9.0% / İş +10.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KRDMD: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KTLEV: yalnız İş Yatırım'da 198 gün: 12.06.2023, 13.06.2023, 14.06.2023, 15.06.2023, 16.06.2023 (+193)
+  KUTPO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  LMKDC: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  LOGO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  MAGEN: 19.12.2022 Yahoo +4.0% / İş +5.0%
+  MGROS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  MIATK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  MPARK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  NTHOL: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  NUGYO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ODAS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ODINE: yalnız İş Yatırım'da 25 gün: 21.03.2024, 22.03.2024, 25.03.2024, 26.03.2024, 27.03.2024 (+20)
+  OTKAR: yalnız İş Yatırım'da 3 gün: 09.04.2024, 19.08.2024, 20.08.2024
+  PARSN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  PASEU: yalnız İş Yatırım'da 196 gün: 14.06.2023, 15.06.2023, 16.06.2023, 19.06.2023, 20.06.2023 (+191)
+  PATEK: yalnız İş Yatırım'da 1 gün: 13.02.2024
+  PEKGY: 10.11.2022 Yahoo -1.3% / İş -0.3%
+  PENTA: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  PETKM: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  PRKAB: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  QUAGR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  REEDR: yalnız İş Yatırım'da 130 gün: 21.09.2023, 22.09.2023, 25.09.2023, 26.09.2023, 27.09.2023 (+125)
+  RGYAS: yalnız İş Yatırım'da 3 gün: 26.04.2024, 29.04.2024, 30.04.2024
+  SAHOL: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SAYAS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SELEC: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SISE: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SKBNK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SOKM: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TABGD: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TAVHL: 19.12.2022 Yahoo +3.8% / İş +4.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TCELL: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TCKRC: yalnız İş Yatırım'da 3 gün: 21.08.2024, 22.08.2024, 23.08.2024
+  THYAO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TKNSA: 09.09.2024 Yahoo -0.9% / İş +0.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TMSN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TOASO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRALT: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRENJ: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRGYO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRILC: yalnız İş Yatırım'da 1 gün: 15.03.2024
+  TRMET: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TSKB: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TSPOR: 09.09.2024 Yahoo -28.1% / İş -2.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TTKOM: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TTRAK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TUKAS: 03.02.2025 Yahoo -67.4% / İş -0.5%
+  TUPRS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ULKER: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VAKBN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VERUS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VESBE: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VESTL: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  YATAS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  YKBNK: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  YYLGD: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ZOREN: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ZRGYO: yalnız İş Yatırım'da 1 gün: 09.04.2024
+Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir.
+635 günlük kapanış düzeltmesi yazıldı: price_fixes.csv
