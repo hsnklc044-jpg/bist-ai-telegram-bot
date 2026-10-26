@@ -109,3 +109,24 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
 - **Yahoo'da eksik günler:** 09.04.2024 (yarım gün) çoğu hissede yok; ASGYO (164), BINHO (87), AVPGY (65)
   gün gibi yeni halka arzların ilk dönemleri yok.
 - **Kontrol edilemedi:** CEMAS, GESAN, HEKTS (İş Yatırım geçersiz yanıt), KERVT (veri yok).
+
+---
+
+## 2026-10-27 — Fiyat düzeltmelerinin araştırma sonuçlarına etkisi
+
+- **Soru:** 635 tek günlük yanlış kapanış ve KCAER/CANTE düzeltmeleri sonuçları değiştiriyor mu?
+- **Yöntem:** aynı çalışmada araştırma tablosu düzeltmesiz (`research.txt`) ve 635 kapanış
+  düzeltmesiyle (`research_fixed.txt`) hesaplandı (Research çalışması 40402066393,
+  `runs/2026-10-27_00-10/`). KCAER/CANTE satırları her iki tabloda da uygulanmış durumda.
+- **Sonuç:** kapanış düzeltmeleri bot sinyalini +%12,4'ten +%13,5'e çıkarıyor (XU100'e göre −1,5 → −0,6
+  puan); diğer stratejiler ±0,1 puan. Hiçbir karar değişmiyor: hepsi "anlamlı değil". Aday kural
+  kapıları da aynı (weekly_trend ve dryup_breakout 1. ve 3. kapıyı geçiyor, 2. kapıda kalıyor).
+  KCAER/CANTE düzeltmesi tabloyu ölçülebilir biçimde değiştirmedi.
+- **Karar:** tek günlük kapanış hataları araştırma sonuçlarını değiştirmiyor; varsayılan veriye
+  uygulanmayacak (düzeltme katmanı kapalı kalır, haftalık çalışma etkiyi izlemeye devam eder).
+  Eksiksiz bir backtest verisinin kanıtı bu tarama değil, iki kaynaktaki tutarlılıktır: XU100 ve
+  hisse getirileri 2022'den beri, bilinen ve ölçülmüş istisnalar dışında, İş Yatırım ile örtüşüyor.
+- **Gözlem:** 27.10.2026 00:10'daki çalışmada Yahoo 26.10 gününü döndürmedi (21:22'deki çalışma
+  döndürmüştü); son 30 günlük ikinci kaynak kontrolü bunu "yalnız İş Yatırım'da: 26.10" olarak
+  yakaladı. Gece yarısı civarı Yahoo verisi geçici olarak eksik olabilir; cumartesi 07:17 çalışması
+  bundan etkilenmez.
