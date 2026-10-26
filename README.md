@@ -127,6 +127,30 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
 
 Bu dosyalar kişiseldir; `.gitignore` içindedir ve sürüm zip'leri bunların üzerine yazmaz.
 
+## Sunucuda 7/24 (Docker)
+
+Bilgisayar kapalıyken de botun komutlara cevap vermesi ve günlük raporun gelmesi için
+herhangi bir Linux sunucuda (ör. aylık ~5 $'lık VPS):
+
+```bash
+curl -fsSL https://get.docker.com | sh
+git clone https://github.com/hsnklc044-jpg/bist-ai-telegram-bot.git && cd bist-ai-telegram-bot
+cp .env.example .env && nano .env        # BOT_TOKEN, CHAT_ID, DAILY_REPORT_AT=18:30
+docker compose run --rm bot python -m core.market.update   # ilk veri indirme
+docker compose up -d --build
+docker compose logs -f                   # çıkmak için Ctrl+C (bot çalışmaya devam eder)
+```
+
+- Sunucuda günlük raporu bot kendisi gönderir (`DAILY_REPORT_AT`, hafta içi, İstanbul saati);
+  böylece `data/` klasörüne tek bir program yazar.
+- **Kişisel kayıtları taşıyın:** bilgisayardaki `data\ledger.csv`, `paper_orders.csv`,
+  `watchlist.json`, `alerts_log.csv`, `signal_log.csv`, `equity_log.csv` dosyalarını sunucudaki
+  `data/` klasörüne kopyalayın (ör. Windows'tan `scp`). `data/` içindeki diğer dosyalar depodan gelir.
+- **Aynı anda tek bot:** sunucu çalışırken bilgisayardaki `python main.py`'yi kapatın ve
+  zamanlanmış görevi kaldırın (`scripts\register_daily_task.ps1 -Remove`). İki bot aynı token'la
+  çalışırsa Telegram "Conflict" hatası verir; iki zamanlayıcı raporu iki kez gönderir.
+- Güncelleme: `git pull && docker compose up -d --build`. `data/` ve `logs/` korunur.
+
 ## Geliştirme
 
 ```bash

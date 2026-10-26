@@ -5,6 +5,7 @@
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
+APScheduler==3.11.3
 beautifulsoup4==4.15.0
 certifi==2026.10.23
 cffi==2.1.1
@@ -50,6 +51,7 @@ ta==0.11.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0
 tzdata==2026.5
+tzlocal==5.4.5
 urllib3==2.8.0
 uvicorn==0.54.0
 websockets==17.3
