@@ -171,3 +171,58 @@ class RealAccountFlowsTest(unittest.TestCase):
         self.assertIn("Günlük değişim -%0,05", real)
         self.assertNotIn("hesap_dusus", [a.rule for _, a in result.events if hasattr(a, "rule")])
         self.assertNotIn("zirvesinden", result.text)
+
+
+class HeldOutsideUniverseTest(unittest.TestCase):
+    """A stock held (or ordered) that is not in the BIST 100 list must still be priced with fresh data."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        d = Path(tmp.name)
+        self.paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+        append_entry(Entry(date(2026, 6, 1), "real", "XYZ", "buy", 10, 20.0, 0.0), self.paths.ledger)
+        place_order("QQQ", "buy", 5, now=datetime(2026, 10, 20, 12, tzinfo=ISTANBUL),
+                    orders_path=self.paths.orders, ledger_path=self.paths.ledger)
+
+    def test_daily_update_covers_held_and_ordered_symbols(self):
+        from core.reports import daily
+
+        symbols = daily.symbols_to_update(self.paths, ["AAA.IS"])
+        self.assertEqual(symbols[:2], [BENCHMARK, "AAA.IS"])
+        self.assertIn("XYZ.IS", symbols)
+        self.assertIn("QQQ.IS", symbols)
+
+    def test_run_prices_a_held_stock_at_its_latest_close(self):
+        from types import SimpleNamespace
+        from unittest import mock
+
+        from core.reports import daily
+
+        provider = FakeProvider()
+        old = flat(20.0, 20.0)
+        provider.overrides.update({"AAA.IS": flat(10.0, 10.0), BENCHMARK: flat(10_000.0, 10_000.0),
+                                   "XYZ.IS": old.iloc[:-10], "QQQ.IS": flat(30.0, 30.0)})
+        with offline_market(provider):
+            store.update(["XYZ.IS"], now=NOW.replace(tzinfo=None))  # naive, as in production; stored days ago (before the 15-minute refresh window), 10 sessions behind
+            fresh = old.copy()
+            fresh.iloc[-1, fresh.columns.get_loc("close")] = 25.0
+            provider.overrides["XYZ.IS"] = fresh
+            # only the price update and the report itself: no backup, score log or health lines
+            with mock.patch.object(daily, "Paths", lambda: self.paths), \
+                    mock.patch.object(daily, "load_universe", return_value=["AAA.IS"]), \
+                    mock.patch.object(daily, "_record_scores"), \
+                    mock.patch.object(daily, "_with_backup_line", side_effect=lambda t: t), \
+                    mock.patch.object(daily, "_with_health_warnings", side_effect=lambda t: t):
+                result = daily._run_locked(SimpleNamespace(no_update=False, send=False, force=False))
+        self.assertIn("XYZ: 10 adet × 25,00 = 250 TL", result.text)
+        self.assertNotIn("Güncel olmayan", result.text)
+
+    def test_stale_held_stock_is_named(self):
+        provider = FakeProvider()
+        provider.overrides.update({"AAA.IS": flat(10.0, 10.0), BENCHMARK: flat(10_000.0, 10_000.0),
+                                   "XYZ.IS": flat(20.0, 20.0).iloc[:-10]})
+        with offline_market(provider):
+            store.update([BENCHMARK, "AAA.IS", "XYZ.IS"], now=NOW)
+            text = build_daily(self.paths, ["AAA.IS"]).text
+        self.assertIn("Güncel olmayan: XYZ", text)

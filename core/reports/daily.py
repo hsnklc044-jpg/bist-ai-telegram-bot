@@ -238,6 +238,20 @@ class DailyResult:
     note: str = ""
 
 
+def symbols_to_update(paths: Paths | None = None, universe: list[str] | None = None) -> list[str]:
+    """
+    XU100, the universe, and every stock held or waiting in a paper order: a holding
+    outside the BIST 100 list would otherwise keep its old price (and its order never fill).
+    """
+
+    from core.ledger.paper import load_orders
+
+    paths = paths or Paths()
+    held = [p.symbol for p in open_positions(load_ledger(paths.ledger))]
+    ordered = [o.symbol for o in load_orders(paths.orders) if o.status == "pending"]
+    return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered]))
+
+
 def build_daily(paths: Paths | None = None, universe: list[str] | None = None, today: date | None = None) -> DailyResult:
     paths = paths or Paths()
     universe = universe or load_universe()
@@ -353,6 +367,13 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
                 lines.append(f"  #{o.id} {o.symbol.removesuffix('.IS')} reddedildi: {o.note}")
 
     stale = [s for s, df in frames.items() if (pd.Timestamp(day) - df.index[-1]).days > alert_cfg.STALE_DAYS]
+    for account in ACCOUNTS:  # holdings outside the universe are priced too: name them when old
+        for p in open_positions(entries, account):
+            raw = raw_bars(p.symbol)
+            if p.symbol not in frames and p.symbol not in stale and (
+                raw.empty or (pd.Timestamp(day) - raw.index[-1]).days > alert_cfg.STALE_DAYS
+            ):
+                stale.append(p.symbol)
     missing = [s for s in universe if s not in frames]
     if stale or missing or damaged:
         lines += ["", "🔎 Veri notları"]
@@ -569,7 +590,7 @@ def _run(args) -> DailyResult:
 
 def _run_locked(args) -> DailyResult:
     if not args.no_update:
-        status = store.update([BENCHMARK, *load_universe()])
+        status = store.update(symbols_to_update())
         failed = [s for s, v in status.items() if v in ("failed", "empty")]
         if failed:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
