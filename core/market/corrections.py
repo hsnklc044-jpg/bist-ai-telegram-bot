@@ -140,7 +140,8 @@ def apply_corporate_actions(
     if df.empty:
         return df
 
-    actions = load_corporate_actions() if actions is None else actions
+    if actions is None:
+        actions = _actions_override if _actions_override is not None else load_corporate_actions()
     relevant = [a for a in actions if a.symbol == symbol]
 
     if not relevant:
@@ -162,6 +163,14 @@ def apply_corporate_actions(
 
 
 _price_fixes: dict[str, dict[pd.Timestamp, float]] | None = None
+_actions_override: list[CorporateAction] | None = None
+
+
+def use_corporate_actions(actions: list[CorporateAction] | None) -> None:
+    """Experiments only (core.backtest.scenarios): replace the corporate action list; None restores the file."""
+
+    global _actions_override
+    _actions_override = actions
 
 
 def load_price_fixes(path) -> dict[str, dict[pd.Timestamp, float]]:
@@ -220,4 +229,5 @@ __all__ = [
     "apply_price_fixes",
     "load_price_fixes",
     "use_price_fixes",
+    "use_corporate_actions",
 ]

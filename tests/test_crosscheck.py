@@ -84,12 +84,18 @@ class CompareTest(unittest.TestCase):
         self.assertIn("tek gün kapanış hatası (ertesi gün düzelen) 1", text)
         self.assertIn("yalnız Yahoo'da 1 gün: 15.10.2026", text)
 
-    def test_dividend_only_is_consistent(self):
+    def test_gap_is_explained_only_by_a_recorded_corporate_action(self):
+        # both sources are adjusted series: a one-sided gap is NOT assumed to be a dividend
         ours = frame([100.0, 101.0, 102.0, 103.0, 104.0, 105.0])
         theirs = frame([100.0, 101.0, 102.0, 98.0, 98.0 * 104 / 103, 98.0 * 105 / 103])
-        result = crosscheck.compare("X.IS", ours, theirs)
-        self.assertEqual(result.state, "tutarlı")
-        self.assertEqual(len(result.explained), 1)
+
+        unknown = crosscheck.compare("X.IS", ours, theirs)
+        self.assertEqual(unknown.state, "fark var")
+        self.assertEqual([d for d, *_ in unknown.unexplained], [date(2026, 10, 15)])
+
+        recorded = crosscheck.compare("X.IS", ours, theirs, actions={date(2026, 10, 15)})
+        self.assertEqual(recorded.state, "tutarlı")
+        self.assertEqual(len(recorded.explained), 1)
 
     def test_unreachable_is_not_consistent(self):
         def broken(*a, **k):

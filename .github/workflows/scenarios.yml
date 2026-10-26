@@ -1,0 +1,58 @@
+name: Data scenarios (A-D)
+
+# Isolated experiment: the research rules under four data scenarios
+# (original / + new corporate actions / + one-day close fixes / both),
+# plus KCAER and CANTE case studies. Reads only; the report is saved on
+# the research-results branch under scenarios/.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # push to the research-results branch only
+
+concurrency:
+  group: scenarios
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  scenarios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - name: Results branch (price fixes)
+        run: |
+          git fetch --depth=1 origin research-results
+          git worktree add -B research-results results FETCH_HEAD
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download prices
+        run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+      - name: Scenarios
+        run: python -m core.backtest.scenarios --price-fixes results/datacheck/latest_price_fixes.csv 2>&1 | tee scenarios.txt
+      - name: Save report
+        if: always()
+        run: |
+          stamp=$(TZ=Europe/Istanbul date '+%Y-%m-%d_%H-%M')
+          mkdir -p results/scenarios
+          cp scenarios.txt "results/scenarios/$stamp.txt" 2>/dev/null || exit 0
+          cd results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Scenarios $stamp (${GITHUB_SHA::7})" || exit 0
+          git push origin research-results
+      - name: Summary
+        if: always()
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat scenarios.txt >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"

@@ -10,17 +10,17 @@ with İş Yatırım's public price history (the HisseTekil data behind its
 website; free, no key, unofficial: it may change or stop, and it is
 used here only to check our data, about one request per stock).
 
-Yahoo's closes are adjusted for dividends and splits, İş Yatırım's
-HGDG_KAPANIS is the price as traded, so the levels differ by a constant
-factor. The check therefore compares DAILY RETURNS on the days both
-sources have:
-- a return difference above RETURN_TOLERANCE on one day is listed. When
-  our (adjusted) return is HIGHER than the traded one, the traded price
-  fell by something the adjusted series removes: a dividend, bonus issue
-  or split ("olası düzeltme günü"; also when the day is in
-  data/corporate_actions.csv). When it is LOWER, nothing explains it:
-  "açıklanamayan", a data error to check on KAP. A wrong spike up in our
-  data is caught on the day it reverses;
+Both series are adjusted, but not necessarily the same way or from the
+same date: Yahoo adjusts for dividends and splits; İş Yatırım's
+HGDG_KAPANIS is adjusted for bonus issues (KCAER, 28.11.2024, a 191%
+bonus issue: İş Yatırım -0.2%) and showed no dividend gaps on large
+payers. Levels can therefore differ by a factor; the check compares
+DAILY RETURNS on the days both sources have:
+- a return difference above RETURN_TOLERANCE on one day is listed as
+  unexplained, unless the day is a recorded corporate action in
+  data/corporate_actions.csv. (An earlier version counted every day where
+  our return was higher as a likely dividend; that assumed İş Yatırım
+  was unadjusted, which the KCAER case disproved.);
 - a gap undone the next session (opposite signs, summing to about zero)
   is ONE wrong close in our data: counted as "tek gün kapanış hatası";
   it does not change long-run returns but distorts that day's close;
@@ -199,7 +199,7 @@ def compare(
     for day, row in returns.iterrows():
         gap = gaps.loc[day]
         if abs(gap) > tolerance and day not in paired:
-            explained = day.date() in actions or gap > 0
+            explained = day.date() in actions
             result.differences.append((day.date(), float(row["ours"]), float(row["theirs"]), explained))
     return result
 
@@ -252,8 +252,8 @@ def format_report(results: list[CrossCheck], period: str, show_explained: bool =
         f"{RETURN_TOLERANCE * 100:.0f} puan): {len(results)} hisse | "
         + ", ".join(f"{k} {v}" for k, v in counts.items())
         + f" | karşılaştırılan {sum(r.days for r in results)} hisse-gün",
-        f"Hisseye özgü açıklanamayan fark {sum(len(r.unexplained) for r in results)} gün; olası düzeltme günü "
-        f"(temettü/bedelsiz/bölünme) {sum(len(r.explained) for r in results)} gün; "
+        f"Hisseye özgü açıklanamayan fark {sum(len(r.unexplained) for r in results)} gün; kayıtlı şirket işlemi "
+        f"günü {sum(len(r.explained) for r in results)}; "
         f"tek gün kapanış hatası (ertesi gün düzelen) {sum(len(r.close_errors) for r in results)}",
     ]
     wrong_closes: dict[date, int] = {}
@@ -295,8 +295,8 @@ def format_report(results: list[CrossCheck], period: str, show_explained: bool =
         if parts:
             lines.append(f"  {code}: " + "; ".join(parts))
     lines.append(
-        "Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme "
-        "kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir."
+        "Not: iki kaynak da düzeltilmiş fiyat verir ama düzeltme yöntemleri aynı olmayabilir; açıklanamayan "
+        "farklar ve tek kaynakta olan günler KAP ve üçüncü bir kaynaktan kontrol edilmeden düzeltilmez."
     )
     return "\n".join(lines)
 
