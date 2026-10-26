@@ -14,10 +14,18 @@ Yahoo's closes are adjusted for dividends and splits, İş Yatırım's
 HGDG_KAPANIS is the price as traded, so the levels differ by a constant
 factor. The check therefore compares DAILY RETURNS on the days both
 sources have:
-- a return difference above RETURN_TOLERANCE on one day is listed; on an
-  ex-dividend or split day it is expected (marked when the day is in
-  data/corporate_actions.csv), on any other day it points to a data error;
+- a return difference above RETURN_TOLERANCE on one day is listed. When
+  our (adjusted) return is HIGHER than the traded one, the traded price
+  fell by something the adjusted series removes: a dividend, bonus issue
+  or split ("olası düzeltme günü"; also when the day is in
+  data/corporate_actions.csv). When it is LOWER, nothing explains it:
+  "açıklanamayan", a data error to check on KAP. A wrong spike up in our
+  data is caught on the day it reverses;
 - sessions present in one source only are listed.
+
+    python -m core.market.crosscheck --start 2022-01-01 --universe pit --adjusted
+checks the full history the backtests use (former BIST 100 members,
+corporate actions applied); about 12 seconds per stock.
 A stock whose second-source data cannot be fetched is reported as
 "kontrol edilemedi", never as consistent.
 """
@@ -81,12 +89,17 @@ class CrossCheck:
     days: int = 0  # sessions both sources have
     only_ours: list[date] = field(default_factory=list)
     only_theirs: list[date] = field(default_factory=list)
-    differences: list[tuple[date, float, float, bool]] = field(default_factory=list)  # day, ours, theirs, known action
+    # day, our return, their return, explained (adjustment day or recorded corporate action)
+    differences: list[tuple[date, float, float, bool]] = field(default_factory=list)
     error: str = ""
 
     @property
     def unexplained(self) -> list[tuple[date, float, float, bool]]:
         return [d for d in self.differences if not d[3]]
+
+    @property
+    def explained(self) -> list[tuple[date, float, float, bool]]:
+        return [d for d in self.differences if d[3]]
 
     @property
     def state(self) -> str:
@@ -121,8 +134,10 @@ def compare(
     returns = both.pct_change().dropna()
     actions = actions or set()
     for day, row in returns.iterrows():
-        if abs(row["ours"] - row["theirs"]) > tolerance:
-            result.differences.append((day.date(), float(row["ours"]), float(row["theirs"]), day.date() in actions))
+        gap = row["ours"] - row["theirs"]
+        if abs(gap) > tolerance:
+            explained = day.date() in actions or gap > 0
+            result.differences.append((day.date(), float(row["ours"]), float(row["theirs"]), explained))
     return result
 
 
@@ -130,13 +145,20 @@ def _pct(x: float) -> str:
     return f"{x * 100:+.1f}%"
 
 
-def format_report(results: list[CrossCheck], days: int) -> str:
+def _days(days: list[date], limit: int = 5) -> str:
+    shown = ", ".join(f"{d:%d.%m.%Y}" for d in days[:limit])
+    return shown + (f" (+{len(days) - limit})" if len(days) > limit else "")
+
+
+def format_report(results: list[CrossCheck], period: str) -> str:
     counts = {s: sum(r.state == s for r in results) for s in ("tutarlı", "fark var", "kontrol edilemedi")}
     lines = [
-        f"İkinci kaynak kontrolü (İş Yatırım, son {days} gün, günlük getiri farkı > "
+        f"İkinci kaynak kontrolü (İş Yatırım, {period}, günlük getiri farkı > "
         f"{RETURN_TOLERANCE * 100:.0f} puan): {len(results)} hisse | "
         + ", ".join(f"{k} {v}" for k, v in counts.items())
         + f" | karşılaştırılan {sum(r.days for r in results)} hisse-gün",
+        f"Açıklanamayan fark {sum(len(r.unexplained) for r in results)} gün; olası düzeltme günü "
+        f"(temettü/bedelsiz/bölünme) {sum(len(r.explained) for r in results)} gün",
     ]
     for r in results:
         if r.state == "tutarlı":
@@ -145,29 +167,38 @@ def format_report(results: list[CrossCheck], days: int) -> str:
         if r.error:
             lines.append(f"  {code}: kontrol edilemedi ({r.error})")
             continue
-        parts = []
-        for day, a, b, known in r.differences:
-            parts.append(f"{day:%d.%m} Yahoo {_pct(a)} / İş {_pct(b)}{' (kayıtlı şirket işlemi)' if known else ''}")
+        parts = [
+            f"{day:%d.%m.%Y} Yahoo {_pct(a)} / İş {_pct(b)}" for day, a, b, _ in r.unexplained[:5]
+        ]
+        if len(r.unexplained) > 5:
+            parts.append(f"+{len(r.unexplained) - 5} gün daha")
         if r.only_ours:
-            parts.append("yalnız Yahoo'da: " + ", ".join(f"{d:%d.%m}" for d in r.only_ours))
+            parts.append(f"yalnız Yahoo'da {len(r.only_ours)} gün: {_days(r.only_ours)}")
         if r.only_theirs:
-            parts.append("yalnız İş Yatırım'da: " + ", ".join(f"{d:%d.%m}" for d in r.only_theirs))
+            parts.append(f"yalnız İş Yatırım'da {len(r.only_theirs)} gün: {_days(r.only_theirs)}")
         lines.append(f"  {code}: " + "; ".join(parts))
     lines.append(
-        "Not: temettü ve bölünme günlerinde fark beklenir (Yahoo fiyatları düzeltilmiş, İş Yatırım işlem "
-        "fiyatı); başka günlerdeki fark veri hatasına işaret eder ve KAP'tan kontrol edilmelidir."
+        "Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme "
+        "kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir."
     )
     return "\n".join(lines)
 
 
-def run(symbols: list[str], days: int, today: date | None = None, get=None, bars=None) -> list[CrossCheck]:
+def run(
+    symbols: list[str],
+    days: int = 30,
+    today: date | None = None,
+    get=None,
+    bars=None,
+    start: date | None = None,
+) -> list[CrossCheck]:
     from core.market.corrections import load_corporate_actions
 
     if bars is None:
         from core.reports.daily import raw_bars as bars
 
     today = today or date.today()
-    start = today - timedelta(days=days)
+    start = start or today - timedelta(days=days)
     actions: dict[str, set[date]] = {}
     for a in load_corporate_actions():
         actions.setdefault(a.symbol, set()).add(a.ex_date)
@@ -190,11 +221,31 @@ def main(argv: list[str] | None = None) -> None:
 
     parser = argparse.ArgumentParser(description="Compare stored closes with İş Yatırım's price history.")
     parser.add_argument("--days", type=int, default=30)
+    parser.add_argument("--start", type=date.fromisoformat, default=None, help="YYYY-MM-DD (instead of --days)")
     parser.add_argument("--symbols", nargs="*", help="codes (default: data/universe.csv)")
+    parser.add_argument("--universe", choices=("today", "pit"), default="today",
+                        help="pit: every BIST 100 member since 2022 (the research universe)")
+    parser.add_argument("--adjusted", action="store_true",
+                        help="check the corporate-action adjusted series the backtests use")
     args = parser.parse_args(argv)
 
-    symbols = [s if s.endswith(".IS") else f"{s.upper()}.IS" for s in args.symbols] if args.symbols else load_universe()
-    print(format_report(run(symbols, args.days), args.days))
+    if args.symbols:
+        symbols = [s if s.endswith(".IS") else f"{s.upper()}.IS" for s in args.symbols]
+    elif args.universe == "pit":
+        from core.market.membership import ever_members
+
+        symbols = ever_members()
+    else:
+        symbols = load_universe()
+
+    if args.adjusted:
+        from core.reports.daily import adjusted_bars as bars
+    else:
+        from core.reports.daily import raw_bars as bars
+
+    period = f"{args.start:%d.%m.%Y} – bugün" if args.start else f"son {args.days} gün"
+    results = run(symbols, args.days, bars=bars, start=args.start)
+    print(format_report(results, period + (", düzeltilmiş seri" if args.adjusted else "")))
 
 
 if __name__ == "__main__":

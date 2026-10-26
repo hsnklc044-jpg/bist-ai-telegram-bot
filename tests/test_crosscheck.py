@@ -60,7 +60,7 @@ class CompareTest(unittest.TestCase):
         theirs = frame([100.0, 101.0, 102.0, 103.0, 104.0])
         result = crosscheck.compare("THYAO.IS", ours, theirs)
         self.assertEqual((result.state, result.days), ("tutarlı", 5))
-        self.assertIn("karşılaştırılan 5 hisse-gün", crosscheck.format_report([result], 30))
+        self.assertIn("karşılaştırılan 5 hisse-gün", crosscheck.format_report([result], "son 30 gün"))
 
     def test_wrong_day_missing_day_and_known_action(self):
         ours = frame([100.0, 108.0, 102.0, 103.0, 103.0, 104.0, 105.0])  # 13.10 wrong
@@ -69,16 +69,25 @@ class CompareTest(unittest.TestCase):
         theirs = theirs.drop(pd.Timestamp("2026-10-15"))
 
         result = crosscheck.compare("THYAO.IS", ours, theirs, actions={date(2026, 10, 16)})
-        days = [d for d, *_ in result.differences]
-        self.assertIn(date(2026, 10, 13), days)
+        unexplained = [d for d, *_ in result.unexplained]
+        explained = [d for d, *_ in result.explained]
+        # the wrong spike (13.10, up) is caught on the day it reverses (14.10, down)
+        self.assertEqual(unexplained, [date(2026, 10, 14)])
+        self.assertIn(date(2026, 10, 16), explained)  # dividend: traded price fell, adjusted did not
         self.assertEqual(result.only_ours, [date(2026, 10, 15)])
-        self.assertTrue(any(known for *_, known in result.differences))
         self.assertEqual(result.state, "fark var")
 
-        text = crosscheck.format_report([result], 30)
-        self.assertIn("13.10 Yahoo", text)
-        self.assertIn("kayıtlı şirket işlemi", text)
-        self.assertIn("yalnız Yahoo'da: 15.10", text)
+        text = crosscheck.format_report([result], "son 30 gün")
+        self.assertIn("Açıklanamayan fark 1 gün", text)
+        self.assertIn("14.10.2026 Yahoo", text)
+        self.assertIn("yalnız Yahoo'da 1 gün: 15.10.2026", text)
+
+    def test_dividend_only_is_consistent(self):
+        ours = frame([100.0, 101.0, 102.0, 103.0, 104.0, 105.0])
+        theirs = frame([100.0, 101.0, 102.0, 98.0, 98.0 * 104 / 103, 98.0 * 105 / 103])
+        result = crosscheck.compare("X.IS", ours, theirs)
+        self.assertEqual(result.state, "tutarlı")
+        self.assertEqual(len(result.explained), 1)
 
     def test_unreachable_is_not_consistent(self):
         def broken(*a, **k):
@@ -86,7 +95,7 @@ class CompareTest(unittest.TestCase):
 
         results = crosscheck.run(["THYAO.IS"], 30, today=date(2026, 10, 23), get=broken, bars=lambda s: frame([1.0]))
         self.assertEqual(results[0].state, "kontrol edilemedi")
-        self.assertIn("kontrol edilemedi 1", crosscheck.format_report(results, 30))
+        self.assertIn("kontrol edilemedi 1", crosscheck.format_report(results, "son 30 gün"))
 
     def test_no_common_days_is_not_consistent(self):
         ours = frame([1.0, 2.0, 3.0], start="2026-09-01")
