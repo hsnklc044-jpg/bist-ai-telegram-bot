@@ -27,7 +27,7 @@ jobs:
           cache: pip
       - run: pip install -r requirements.lock
       - name: Download prices
-        run: python -m core.market.update 2>&1 | tee update.txt || true
+        run: python -m core.market.update --bist100-history 2>&1 | tee update.txt || true
       - name: Strategy research
         env:
           START: ${{ inputs.start }}

@@ -43,6 +43,8 @@ from core.strategy.rules import (
 )
 
 DEFAULT_START = "2023-08-01"
+# above this share of former members without prices the point-in-time result is flagged
+MAX_MISSING_SHARE = 0.10
 
 GRID = [
     dict(lookback=lb, top_n=top, regime=rg)
@@ -152,7 +154,13 @@ def research_report(
     ]
     if skipped:
         lines.append(f"Verisi yetersiz, dışarıda ({len(skipped)}): {', '.join(skipped)}")
-        if eligible is not None:
+        share = len(skipped) / (len(skipped) + len(frames))
+        if eligible is not None and share > MAX_MISSING_SHARE:
+            lines.append(
+                f"⚠️ Eski üyelerin %{share * 100:.0f}'i verisiz: sonuçlar survivorship bias taşır, güvenilir değil. "
+                "Önce: python -m core.market.update --bist100-history"
+            )
+        elif eligible is not None:
             lines.append("  (işlemden kalkmış eski üyelerin verisi yoksa sonuçlar hâlâ biraz iyimserdir)")
 
     lines += [
