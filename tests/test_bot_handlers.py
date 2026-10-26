@@ -68,10 +68,12 @@ class WatchlistCommandsTest(TempFiles):
 
         self.assertIn("boş", run(watchscan))
         run(watchadd, ["THYAO"])
-        with offline_market(), PrivateFiles():
+        with offline_market(), PrivateFiles() as files:
             store.update([BENCHMARK, "THYAO.IS"])
             text = run(watchscan)
+            logged = files.paths["signals"].read_text(encoding="utf-8")
 
+        self.assertIn("watchscan,THYAO.IS", logged)  # recorded like /top and /analyze
         self.assertIn("THYAO.IS", text)
         self.assertIn("Görünüm", text)
 

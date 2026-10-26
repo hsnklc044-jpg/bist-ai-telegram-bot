@@ -110,7 +110,7 @@ class RecordingAndReportTest(unittest.TestCase):
         self.assertIn("Güçlü pozitif", text)
         self.assertIn("6 kayıt, 3 gün", text)
         self.assertIn("henüz karar yok (3/20 gün)", text)
-        self.assertIn("/top ve /analyze kayıtları: 1 olgun kayıt", text)
+        self.assertIn("/top, /analyze ve /watchscan kayıtları: 1 olgun kayıt", text)
 
     def test_empty_log_and_paper(self):
         text = forward.forward_report(self.log, self.equity, bars=self.bars)

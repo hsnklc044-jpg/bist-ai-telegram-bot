@@ -274,7 +274,7 @@ def forward_report(
         matured = int((asked["horizon"] == asked["horizon"].min()).sum())
         lines += [
             "",
-            f"/top ve /analyze kayıtları: {matured} olgun kayıt (sadece sorulan hisseler; "
+            f"/top, /analyze ve /watchscan kayıtları: {matured} olgun kayıt (sadece sorulan hisseler; "
             "yanlı örnek, karar için kullanılmaz).",
         ]
 

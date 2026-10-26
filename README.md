@@ -148,7 +148,7 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
   hesabın ≥ %35'i), etkin pozisyon sayısı ve fiyatı olmayan pozisyon. Günlük rapor ve `/portfolio`
   "Risk:" satırını gösterir; hesaplanamazsa nedenini yazar. Durum değişiklikleri
   `data/alerts_log.csv` dosyasına yazılır; aynı uyarı her gün tekrar gönderilmez.
-- **Sinyal kaydı** `data/signal_log.csv`: `/analyze` ve `/top` çıktıları veri tarihiyle kaydedilir.
+- **Sinyal kaydı** `data/signal_log.csv`: `/analyze`, `/top` ve `/watchscan` çıktıları veri tarihiyle kaydedilir.
   Günlük kayıtlar denetlenir (`/durum`, `/performans` "Kayıt sağlığı"): tekrar kayıt, okunamayan satır,
   kaydı olmayan seans (tatiller hariç) ve yeni kapanış varken eski veriyle yazılmış gün.
 - **Günlük rapor**: `python -m core.reports.daily [--send] [--no-update]`. Hafta içi 18:30'da otomatik

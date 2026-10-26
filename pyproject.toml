@@ -1,6 +1,6 @@
 [project]
 name = "quantbist"
-version = "0.31.0"
+version = "0.31.1"
 description = "BIST hisse analizi, sinyal ve raporlama botu"
 requires-python = ">=3.11,<3.12"  # tested on 3.11; see requirements.lock
 
@@ -17,3 +17,8 @@ known-first-party = ["core", "bot"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = [
+    # starlette's TestClient (tests only) prefers the new httpx2 package; the bot itself
+    # uses httpx through python-telegram-bot, so no extra dependency is added for this.
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated:UserWarning",
+]
