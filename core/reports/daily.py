@@ -394,8 +394,17 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
 
 
 def split_text(text: str, limit: int = 4000) -> list[str]:
+    """Parts of at most `limit` characters, cut at line ends; a longer line is cut inside.
+    The bot's replies use the same function (bot/common.py)."""
+
     parts, current = [], ""
     for line in text.splitlines(keepends=True):
+        while len(line) > limit:
+            if current:
+                parts.append(current)
+                current = ""
+            parts.append(line[:limit])
+            line = line[limit:]
         if len(current) + len(line) > limit and current:
             parts.append(current)
             current = ""

@@ -182,3 +182,17 @@ class ScoreRecordingFailureTest(unittest.TestCase):
         self.assertIn("disk dolu", result.text)
         head, _, tail = result.text.rpartition(daily.DISCLAIMER)
         self.assertIn("Canlı ölçüm kaydı yazılamadı", head)  # before the closing disclaimer
+
+
+class SplitLongLineTest(unittest.TestCase):
+    def test_a_line_longer_than_the_limit_is_cut(self):
+        text = "başlık\n" + "x" * 9000 + "\nson\n"
+        parts = split_text(text, limit=4000)
+        self.assertTrue(all(len(p) <= 4000 for p in parts))
+        self.assertEqual("".join(parts), text)
+
+    def test_bot_and_report_split_the_same_way(self):
+        from bot.common import split_message
+
+        text = "\n".join(f"satır {i} " + "y" * (i * 37 % 300) for i in range(400)) + "\n" + "z" * 5000
+        self.assertEqual(split_message(text, 4000), split_text(text, 4000))

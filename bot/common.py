@@ -16,33 +16,12 @@ def split_message(
 ) -> list[str]:
     """
     Split long text on line boundaries so each part fits
-    into a single Telegram message.
+    into a single Telegram message (same rule as the daily report).
     """
 
-    if len(text) <= limit:
-        return [text]
+    from core.reports.daily import split_text
 
-    parts: list[str] = []
-    current = ""
-
-    for line in text.splitlines(keepends=True):
-        while len(line) > limit:
-            if current:
-                parts.append(current)
-                current = ""
-            parts.append(line[:limit])
-            line = line[limit:]
-
-        if len(current) + len(line) > limit:
-            parts.append(current)
-            current = ""
-
-        current += line
-
-    if current:
-        parts.append(current)
-
-    return parts
+    return split_text(text, limit) or [text]
 
 
 async def reply(
