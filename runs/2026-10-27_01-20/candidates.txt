@@ -1,0 +1,13 @@
+190 hisse | 10 pozisyon | komisyon+kayma %0,15 her yön | nakit %0
+
+Aday                2022→ ilk5 hariç   XU100    2023→ ilk5 hariç   XU100      WF   XU100  Kapılar
+breakout           +45.5%     +22.1%  +44.0%   +11.0%      -9.5%  +19.4%  +18.7%  +14.4%  ✗ ✗ ✓
+weekly_trend       +49.1%     +14.9%  +44.0%   +32.5%      -4.2%  +19.4%  +29.7%  +14.4%  ✓ ✗ ✓
+dryup_breakout     +50.8%     +10.5%  +44.0%   +19.9%      -8.2%  +19.4%  +16.0%  +14.4%  ✓ ✗ ✓
+grouped_score      +39.3%     +21.4%  +44.0%   +31.6%     +10.7%  +19.4%   -2.1%  +14.4%  ✗ ✗ ✗
+
+Yıllık getiriler. Kapılar: 1 iki başlangıçta XU100'ü geçer; 2 ilk 5 hisse hariç de geçer; 3 walk-forward test dönemlerinde geçer.
+  breakout: walk-forward seçimleri [{'entry_days': 55, 'exit_days': 20}, {'entry_days': 100, 'exit_days': 40}, {'entry_days': 55, 'exit_days': 20}, {'entry_days': 100, 'exit_days': 40}, {'entry_days': 100, 'exit_days': 40}, {'entry_days': 100, 'exit_days': 40}]
+  weekly_trend: walk-forward seçimleri [{'fast': 5, 'slow': 20}, {'fast': 5, 'slow': 20}, {'fast': 10, 'slow': 30}, {'fast': 10, 'slow': 30}, {'fast': 13, 'slow': 40}, {'fast': 10, 'slow': 30}]
+  dryup_breakout: walk-forward seçimleri [{'dry_ratio': 0.6}, {'dry_ratio': 0.8}, {'dry_ratio': 0.8}, {'dry_ratio': 0.8}, {'dry_ratio': 0.8}, {'dry_ratio': 0.6}]
+  grouped_score: walk-forward seçimleri [{'enter_at': 3, 'exit_at': 1}, {'enter_at': 3, 'exit_at': 2}, {'enter_at': 3, 'exit_at': 1}, {'enter_at': 3, 'exit_at': 1}, {'enter_at': 2, 'exit_at': 0}, {'enter_at': 2, 'exit_at': 0}]
