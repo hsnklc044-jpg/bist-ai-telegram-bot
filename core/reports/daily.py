@@ -350,8 +350,30 @@ def _with_backup_line(text: str) -> str:
         logger.exception("Backup failed")
         line = f"⚠️ Yedek alınamadı: {exc}"
 
+    return _before_disclaimer(text, line)
+
+
+def _before_disclaimer(text: str, line: str) -> str:
     head, sep, tail = text.rpartition(DISCLAIMER)
     return f"{head}{line}\n\n{sep}{tail}" if sep else f"{text}\n\n{line}"
+
+
+FRIDAY = 4
+
+
+def _with_weekly_line(text: str, day: date) -> str:
+    """On Fridays add the live-measurement summary; never fatal."""
+
+    if day.weekday() != FRIDAY:
+        return text
+
+    from core.reports.forward import weekly_line
+
+    try:
+        return _before_disclaimer(text, weekly_line())
+    except Exception:  # noqa: BLE001 - the report must still go out
+        logger.exception("Weekly summary failed")
+        return text
 
 
 def _record_scores() -> None:
@@ -392,6 +414,7 @@ def _run(args) -> DailyResult:
 
     result = build_daily()
     _record_scores()
+    result.text = _with_weekly_line(result.text, result.day)
     result.text = _with_backup_line(result.text)
 
     # send first: a problem while printing must never stop the report

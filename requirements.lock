@@ -1,4 +1,4 @@
-# Exact versions verified on 2026-10-26 (Windows, Python 3.11): 84 tests passed.
+# Exact versions verified on Windows and in CI (Python 3.11); CI runs the full test suite.
 # Install with:  pip install -r requirements.lock
 # Regenerate after an intended upgrade (PowerShell writes UTF-16 with ">", so use):
 #   pip freeze | Out-File -Encoding ascii requirements.lock

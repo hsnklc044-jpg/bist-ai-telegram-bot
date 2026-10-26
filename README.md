@@ -166,6 +166,8 @@ docker compose logs -f                   # çıkmak için Ctrl+C (bot çalışma
 
 - Sunucuda günlük raporu bot kendisi gönderir (`DAILY_REPORT_AT`, hafta içi, İstanbul saati);
   böylece `data/` klasörüne tek bir program yazar.
+- Cuma raporunun sonunda canlı ölçüm özeti (XU100'e göre ileri getiri ve sanal hesap) yer alır;
+  ayrıntı `/performans` komutundadır.
 - **Kişisel kayıtları taşıyın:** bilgisayardaki `data\ledger.csv`, `paper_orders.csv`,
   `watchlist.json`, `alerts_log.csv`, `signal_log.csv`, `equity_log.csv` dosyalarını sunucudaki
   `data/` klasörüne kopyalayın (ör. Windows'tan `scp`). `data/` içindeki diğer dosyalar depodan gelir.
@@ -202,9 +204,10 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 
 0. Temizlik ve güvenlik ✅
 1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği ✅
-2. Strateji ve backtest motoru
-3. Risk ve pozisyon boyutu, işlem defteri
-4. Zamanlayıcı ile otomatik tarama ve bildirim
-5. Sanal işlem (paper trading)
-6. Tek web paneli, Docker, operasyon
-7. Aracı kurum üzerinden emir (isteğe bağlı)
+2. Backtest motoru (walk-forward, BIST100 üyelik geçmişi, maliyet) ✅ — kanıtlanmış strateji henüz yok
+3. Risk ve pozisyon boyutu, işlem defteri ✅
+4. Zamanlayıcı ile günlük rapor ve bildirim ✅
+5. Sanal işlem (paper trading) ✅
+6. Tek web paneli, Docker, yedekleme, operasyon ✅
+7. Canlı ölçüm: görünümlerin XU100'e göre ileri getirisi (`/performans`, Cuma özeti) — veri birikiyor
+8. Aracı kurum üzerinden emir (isteğe bağlı; yalnızca canlı ölçüm bir kuralı kanıtlarsa ve açık onayla)

@@ -133,6 +133,49 @@ class RecordingAndReportTest(unittest.TestCase):
         self.assertEqual(stats.days, 2)
 
 
+class WeeklyLineTest(RecordingAndReportTest):
+    def test_empty(self):
+        line = forward.weekly_line(self.log, self.equity, bars=self.bars)
+        self.assertIn("kayıtlar birikiyor", line)
+        self.assertNotIn("Sanal hesap", line)
+
+    def test_with_matured_records_and_paper(self):
+        index = self.frames["AAA.IS"].index
+        for i in (200, 210, 220):
+            log_signal("daily", "AAA.IS", 80, "Güçlü pozitif", index[i].date(), path=self.log)
+        with open(self.equity, "w", encoding="utf-8", newline="") as fh:
+            fh.write("date,account,value,cash,invested,positions\n")
+            fh.write(f"{index[-10].date()},paper,100000,100000,0,0\n")
+            fh.write(f"{index[-1].date()},paper,110000,10000,100000,1\n")
+
+        line = forward.weekly_line(self.log, self.equity, bars=self.bars)
+        self.assertIn("20 seans", line)
+        self.assertIn("Güçlü pozitif", line)
+        self.assertIn("3/20 gün", line)
+        self.assertIn("Sanal hesap", line)
+
+
+class DailyWeeklyTest(unittest.TestCase):
+    def _text(self, day):
+        from core.reports import daily
+
+        with mock.patch.object(forward, "weekly_line", return_value="HAFTALIK"):
+            return daily._with_weekly_line(f"rapor\n\n{daily.DISCLAIMER}", day)
+
+    def test_only_on_fridays_and_before_disclaimer(self):
+        from core.reports import daily
+
+        friday = self._text(date(2026, 10, 30))
+        self.assertLess(friday.index("HAFTALIK"), friday.index(daily.DISCLAIMER))
+        self.assertNotIn("HAFTALIK", self._text(date(2026, 10, 29)))
+
+    def test_failure_keeps_report(self):
+        from core.reports import daily
+
+        with mock.patch.object(forward, "weekly_line", side_effect=OSError("disk")):
+            self.assertEqual(daily._with_weekly_line("rapor", date(2026, 10, 30)), "rapor")
+
+
 class DailyRecordingTest(unittest.TestCase):
     def test_recording_failure_never_stops_the_report(self):
         from core.reports import daily

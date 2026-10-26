@@ -293,6 +293,40 @@ def forward_report(
     return "\n".join(lines)
 
 
+def weekly_line(
+    signal_path: Path | str | None = None,
+    equity_path: Path | str | None = None,
+    bars=adjusted_bars,
+) -> str:
+    """One or two lines for the Friday report; details stay in /performans."""
+
+    scored = score_log(signal_path, bars=bars)
+    systematic = scored[scored["source"] == SYSTEMATIC]
+
+    if systematic.empty:
+        lines = ["📏 Canlı ölçüm: kayıtlar birikiyor; ilk sonuç 5 seans sonra (/performans)."]
+    else:
+        horizon = 20 if (systematic["horizon"] == 20).any() else int(systematic["horizon"].min())
+        part = systematic[systematic["horizon"] == horizon]
+        days = part["day"].nunique()
+        views = []
+        for view in (VIEW_ORDER[0], VIEW_ORDER[-1]):
+            stats = summarize(part[part["view"] == view])
+            if stats is not None:
+                views.append(f"{view} {pct(stats.mean)}")
+        state = "karar verilebilir" if days >= MIN_DAYS else f"{days}/{MIN_DAYS} gün"
+        lines = [
+            f"📏 Canlı ölçüm ({horizon} seans, XU100'e göre): {'; '.join(views) or '-'} "
+            f"({state}; ayrıntı /performans)"
+        ]
+
+    paper = paper_vs_market(equity_path, bars=bars)
+    if paper is not None:
+        lines.append(f"💼 Sanal hesap {pct(paper.account)}, XU100 {pct(paper.market)} ({paper.days} gün)")
+
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     argparse.ArgumentParser(description="QuantBIST live performance").parse_args(argv)
     print(forward_report())
@@ -312,4 +346,5 @@ __all__ = [
     "paper_vs_market",
     "score_log",
     "summarize",
+    "weekly_line",
 ]
