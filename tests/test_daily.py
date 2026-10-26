@@ -156,3 +156,29 @@ class MainTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ScoreRecordingFailureTest(unittest.TestCase):
+    """A day missing from the live measurement must be said in that day's report, not only logged."""
+
+    def test_failure_is_shown_in_the_report(self):
+        from types import SimpleNamespace
+        from unittest import mock
+
+        from core.reports import daily
+
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+            with offline_market(), \
+                    mock.patch.object(daily, "Paths", lambda: paths), \
+                    mock.patch.object(daily, "load_universe", return_value=UNIVERSE), \
+                    mock.patch("core.reports.forward.log_daily_scores", side_effect=OSError("disk dolu")), \
+                    mock.patch.object(daily, "_with_backup_line", side_effect=lambda t: t), \
+                    mock.patch.object(daily, "_with_health_warnings", side_effect=lambda t: t):
+                store.update([BENCHMARK, *UNIVERSE], now=NOW)
+                result = daily._run_locked(SimpleNamespace(no_update=True, send=False, force=False))
+        self.assertIn("Canlı ölçüm kaydı yazılamadı", result.text)
+        self.assertIn("disk dolu", result.text)
+        head, _, tail = result.text.rpartition(daily.DISCLAIMER)
+        self.assertIn("Canlı ölçüm kaydı yazılamadı", head)  # before the closing disclaimer

@@ -541,16 +541,18 @@ def _with_weekly_line(text: str, day: date) -> str:
         return text
 
 
-def _record_scores() -> None:
-    """Record every stock's view for the live measurement; never fatal."""
+def _record_scores() -> str:
+    """Record every stock's view for the live measurement; never fatal. Returns a warning line or ""."""
 
     from core.reports.forward import log_daily_scores
 
     try:
         written = log_daily_scores(load_universe())
         logger.info("Daily scores recorded | %d stocks", written)
-    except Exception:  # noqa: BLE001 - the report must still go out
+        return ""
+    except Exception as exc:  # noqa: BLE001 - the report must still go out, and say what is missing
         logger.exception("Daily score recording failed")
+        return f"⚠️ Canlı ölçüm kaydı yazılamadı ({type(exc).__name__}: {exc}); bu gün ölçümden eksik kalır"
 
 
 def _notify_failure(error: Exception, log_name: str) -> None:
@@ -597,7 +599,7 @@ def _run_locked(args) -> DailyResult:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
 
     result = build_daily()
-    _record_scores()
+    score_warning = _record_scores()
 
     if args.send and not args.force and already_sent(result.day):
         # never send the same data day twice; say why in logs/runs.csv
@@ -606,6 +608,8 @@ def _run_locked(args) -> DailyResult:
         return result
 
     result.text = _with_weekly_line(result.text, result.day)
+    if score_warning:
+        result.text = _before_disclaimer(result.text, score_warning)
     result.text = _with_backup_line(result.text)
     result.text = _with_health_warnings(result.text)
 
