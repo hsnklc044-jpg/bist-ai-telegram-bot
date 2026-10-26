@@ -3,24 +3,22 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.45.0)
+## Kaldığım yer (27.10.2026, kod v0.45.3)
 
-- **Son sürüm:** v0.45.0 (CI #69, sunucu denemesi #1). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45 PC'de doğrulanmadı.
-- **Kullanıcının verdiği sıra (27.10):**
-  1. Aşama 2: ✅ kodda tamam.
-  2. Test ve dayanıklılık denetimi: ✅ v0.44.0.
-  3. Sunucu hazırlığı: ✅ v0.45.0, docs/SERVER.md. Sunucu kiralama kullanıcıda.
-  4. Dışarıdan izleme: **kullanıcı kararı bekleniyor** (hesap gerekir).
-  5. Her sürümde özet mesaj.
-- **Süren iş:** araştırma çalışması 40415685951 (v0.44.0, başlangıç tarihi elle verildi, `history.csv`'ye yazılmaz). Bittiğinde:
-  1. `view_expectations.csv` dosyasını kontrol et ve `data/` içine ekle.
-  2. Sonucu docs/RESEARCH_LOG.md'ye yaz.
+- **Son sürüm:** v0.45.3 (CI #74). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45.3 PC'de doğrulanmadı.
+- **Bağımsız denetim (27.10):**
+  - Kritik bulgu yok.
+  - 3 yüksek bulgu düzeltildi: D1 v0.45.1, D2 v0.45.2, D3 v0.45.3.
+  - Orta ve düşük bulgular aşağıdaki tabloda açık.
+  - Satır satır kaynak tablosu: docs/RAKAMLAR.md.
+- **Hazır bekleyen:** `view_expectations.csv` (`research-results` dalı, `runs/2026-10-27_01-52/`). `/performans`'taki "geçmiş" sütununu açar. Yeni özellik sayıldığı için kullanıcı onayı bekleniyor.
 - **Kullanıcıdan beklenen:**
-  - v0.45.0 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`. Mesaj şablonu: docs/MESAJLAR.md §2.
-  - KCAER katsayısı kararı (0,8650 → 0,8646).
-  - Kapanış düzeltmeleri kapalı kalsın mı (öneri: kalsın).
-  - Dışarıdan izleme için servis seçimi ve hesap.
+  - v0.45.3 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
+  - KCAER katsayısı kararı.
+  - Kapanış düzeltmeleri kapalı kalsın mı.
+  - Dışarıdan izleme için servis seçimi.
   - Sunucu kiralansın mı.
+  - D13 (temettü kaydı) için defter şeması değişikliğine onay.
 - **Aşama 3** (yeni sinyal araştırması), PC doğrulaması tamamlanmadan başlamaz.
 
 ## Bağımsız denetim (27.10.2026, v0.45.0 üzerinde)
