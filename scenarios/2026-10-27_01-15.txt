@@ -1,0 +1,128 @@
+Veri: fiyat deposu son gün 2026-10-23; corporate_actions.csv sha256 ccfdbf7e38f5; fiyat düzeltmeleri results/datacheck/latest_price_fixes.csv sha256 a00110e71d2e
+Dönem 2023-08-01 – son | geçmiş BIST 100 üyeliği | 10 pozisyon | komisyon+kayma %0,15 her yön
+A orijinal | B + KCAER/CANTE şirket işlemi satırları | C A + tek gün kapanış düzeltmeleri | D B + C
+
+Bot sinyali
+        Toplam   Yıllık    MaxDD Sharpe  İşlem  Kazanma  Beklenti  A'ya göre işlem farkı
+  A     +45.9%   +12.4%   -45.6%   0.57    315   +33.7%     +2.4%  -
+  B     +45.9%   +12.4%   -45.6%   0.57    315   +33.7%     +2.4%  aynı
+  C     +50.3%   +13.5%   -44.8%   0.61    313   +33.9%     +2.6%  +5 / −7 (AHGAZ, BSOKE, BTCIM, DOAS, RALYH, SKBNK, TABGD, TKFEN …)
+  D     +50.3%   +13.5%   -44.8%   0.61    313   +33.9%     +2.6%  +5 / −7 (AHGAZ, BSOKE, BTCIM, DOAS, RALYH, SKBNK, TABGD, TKFEN …)
+
+Trend kuralı
+        Toplam   Yıllık    MaxDD Sharpe  İşlem  Kazanma  Beklenti  A'ya göre işlem farkı
+  A    +161.0%   +34.6%   -48.5%   1.16    119   +32.8%    +14.5%  -
+  B    +161.0%   +34.6%   -48.5%   1.16    119   +32.8%    +14.5%  aynı
+  C    +161.7%   +34.7%   -48.5%   1.16    119   +32.8%    +14.5%  +1 / −1 (TAVHL)
+  D    +161.7%   +34.7%   -48.5%   1.16    119   +32.8%    +14.5%  +1 / −1 (TAVHL)
+
+Momentum 6 ay, en iyi 10
+        Toplam   Yıllık    MaxDD Sharpe  İşlem  Kazanma  Beklenti  A'ya göre işlem farkı
+  A     -44.3%   -16.6%   -83.9%  -0.33    133   +42.1%     +2.5%  -
+  B     -44.3%   -16.6%   -83.9%  -0.33    133   +42.1%     +2.5%  aynı
+  C     -44.3%   -16.6%   -83.9%  -0.34    133   +42.1%     +2.5%  aynı
+  D     -44.3%   -16.6%   -83.9%  -0.34    133   +42.1%     +2.5%  aynı
+
+Sağlamlık: yıllara göre getiri, en kârlı 5 hissenin payı, onlar olmadan yıllık getiri
+  A Bot sinyali
+     yıllar   2023: -4.5%  2024: +34.6%  2025: +46.2%  2026: -22.4%
+     en kârlı 5: MAGEN, KTLEV, ASELS, YEOTK, TUPRS — kârlı işlemlerden gelen kârın %59'i; net kâr 45,684 TL'nin 124,787 TL'si
+     yıllık +12.4% → bu 5 hisse olmadan -2.9%
+  A Trend kuralı
+     yıllar   2023: +2.0%  2024: +35.7%  2025: +62.4%  2026: +16.1%
+     en kârlı 5: KTLEV, PASEU, MAGEN, ASELS, BRSAN — kârlı işlemlerden gelen kârın %71'i; net kâr 160,677 TL'nin 242,509 TL'si
+     yıllık +34.6% → bu 5 hisse olmadan -5.2%
+  A Momentum 6 ay, en iyi 10
+     yıllar   2023: -2.8%  2024: +12.6%  2025: +88.1%  2026: -72.9%
+     en kârlı 5: PASEU, MAGEN, ASELS, BRSAN, EFOR — kârlı işlemlerden gelen kârın %57'i; net kâr -44,404 TL'nin 79,108 TL'si
+     yıllık -16.6% → bu 5 hisse olmadan -21.3%
+  B Bot sinyali
+     yıllar   2023: -4.5%  2024: +34.6%  2025: +46.2%  2026: -22.4%
+     en kârlı 5: MAGEN, KTLEV, ASELS, YEOTK, TUPRS — kârlı işlemlerden gelen kârın %59'i; net kâr 45,684 TL'nin 124,787 TL'si
+     yıllık +12.4% → bu 5 hisse olmadan -2.9%
+  B Trend kuralı
+     yıllar   2023: +2.0%  2024: +35.7%  2025: +62.4%  2026: +16.1%
+     en kârlı 5: KTLEV, PASEU, MAGEN, ASELS, BRSAN — kârlı işlemlerden gelen kârın %71'i; net kâr 160,677 TL'nin 242,509 TL'si
+     yıllık +34.6% → bu 5 hisse olmadan -5.2%
+  B Momentum 6 ay, en iyi 10
+     yıllar   2023: -2.8%  2024: +12.6%  2025: +88.1%  2026: -72.9%
+     en kârlı 5: PASEU, MAGEN, ASELS, BRSAN, EFOR — kârlı işlemlerden gelen kârın %57'i; net kâr -44,404 TL'nin 79,108 TL'si
+     yıllık -16.6% → bu 5 hisse olmadan -21.3%
+  C Bot sinyali
+     yıllar   2023: -4.5%  2024: +34.6%  2025: +45.1%  2026: -19.4%
+     en kârlı 5: MAGEN, KTLEV, ASELS, YEOTK, TUPRS — kârlı işlemlerden gelen kârın %57'i; net kâr 50,090 TL'nin 123,935 TL'si
+     yıllık +13.5% → bu 5 hisse olmadan -3.2%
+  C Trend kuralı
+     yıllar   2023: +2.0%  2024: +36.1%  2025: +62.4%  2026: +16.1%
+     en kârlı 5: KTLEV, PASEU, MAGEN, ASELS, BRSAN — kârlı işlemlerden gelen kârın %71'i; net kâr 161,346 TL'nin 243,125 TL'si
+     yıllık +34.7% → bu 5 hisse olmadan -5.1%
+  C Momentum 6 ay, en iyi 10
+     yıllar   2023: -2.8%  2024: +12.6%  2025: +88.1%  2026: -72.9%
+     en kârlı 5: PASEU, MAGEN, ASELS, BRSAN, EFOR — kârlı işlemlerden gelen kârın %57'i; net kâr -44,404 TL'nin 79,108 TL'si
+     yıllık -16.6% → bu 5 hisse olmadan -21.3%
+  D Bot sinyali
+     yıllar   2023: -4.5%  2024: +34.6%  2025: +45.1%  2026: -19.4%
+     en kârlı 5: MAGEN, KTLEV, ASELS, YEOTK, TUPRS — kârlı işlemlerden gelen kârın %57'i; net kâr 50,090 TL'nin 123,935 TL'si
+     yıllık +13.5% → bu 5 hisse olmadan -3.2%
+  D Trend kuralı
+     yıllar   2023: +2.0%  2024: +36.1%  2025: +62.4%  2026: +16.1%
+     en kârlı 5: KTLEV, PASEU, MAGEN, ASELS, BRSAN — kârlı işlemlerden gelen kârın %71'i; net kâr 161,346 TL'nin 243,125 TL'si
+     yıllık +34.7% → bu 5 hisse olmadan -5.1%
+  D Momentum 6 ay, en iyi 10
+     yıllar   2023: -2.8%  2024: +12.6%  2025: +88.1%  2026: -72.9%
+     en kârlı 5: PASEU, MAGEN, ASELS, BRSAN, EFOR — kârlı işlemlerden gelen kârın %57'i; net kâr -44,404 TL'nin 79,108 TL'si
+     yıllık -16.6% → bu 5 hisse olmadan -21.3%
+  XU100    2023: +4.2%  2024: +31.6%  2025: +14.6%  2026: -1.3%
+
+Mum tutarlılığı (düzeltmeler uygulanmış depo, 190 hisse):
+  gün: 217,560
+  fiyat ≤ 0 / boş: 0
+  en yüksek < en düşük: 0
+  açılış aralık dışında: 0
+  kapanış aralık dışında: 6
+  hacim boş: 0
+  hacim 0: 240
+  en çok imkânsız mum: BASGZ 1, BIOEN 1, BOBET 1, KRVGD 1, MIATK 1, PSGYO 1
+
+KCAER 20.11.2024 – 06.12.2024 (kapanış / günlük getiri)
+  Tarih            Depo (Yahoo)      Eski düzeltme      Yeni düzeltme         İş Yatırım
+  20.11.2024     14.485       -     14.485       -     12.529       -     12.523       -
+  21.11.2024     15.234   +5.2%     15.234   +5.2%     13.177   +5.2%     13.171   +5.2%
+  22.11.2024     15.523   +1.9%     15.523   +1.9%     13.427   +1.9%     13.421   +1.9%
+  25.11.2024     15.640   +0.8%     15.640   +0.8%     13.529   +0.8%     13.522   +0.8%
+  26.11.2024     15.882   +1.5%     15.882   +1.5%     13.738   +1.5%     13.731   +1.5%
+  27.11.2024     16.116   +1.5%     16.116   +1.5%     13.940   +1.5%     13.933   +1.5%
+  28.11.2024     13.912  -13.7%     13.912  -13.7%     13.912   -0.2%     13.912   -0.2%
+  29.11.2024     14.001   +0.6%     14.001   +0.6%     14.001   +0.6%     14.001   +0.6%
+  02.12.2024     14.001   +0.0%     14.001   +0.0%     14.001   +0.0%     14.001   +0.0%
+  03.12.2024     14.148   +1.1%     14.148   +1.1%     14.148   +1.1%     14.148   +1.1%
+  04.12.2024     14.060   -0.6%     14.060   -0.6%     14.060   -0.6%     14.060   -0.6%
+  05.12.2024     14.148   +0.6%     14.148   +0.6%     14.148   +0.6%     14.148   +0.6%
+  06.12.2024     14.128   -0.1%     14.128   -0.1%     14.128   -0.1%     14.128   -0.1%
+
+CANTE 19.01.2026 – 10.02.2026 (kapanış / günlük getiri)
+  Tarih            Depo (Yahoo)      Eski düzeltme      Yeni düzeltme         İş Yatırım
+  19.01.2026      2.110       -      2.110       -      1.774       -      1.774       -
+  20.01.2026      2.090   -0.9%      2.090   -0.9%      1.757   -0.9%      1.757   -0.9%
+  21.01.2026      2.060   -1.4%      2.060   -1.4%      1.732   -1.4%      1.732   -1.4%
+  22.01.2026      2.080   +1.0%      2.080   +1.0%      1.749   +1.0%      1.749   +1.0%
+  23.01.2026      2.080   +0.0%      2.080   +0.0%      1.749   +0.0%      1.749   +0.0%
+  26.01.2026      1.749  -15.9%      1.749  -15.9%      1.749   +0.0%      1.749   +0.0%
+  27.01.2026      1.741   -0.5%      1.741   -0.5%      1.741   -0.5%      1.740   -0.5%
+  28.01.2026      1.799   +3.4%      1.799   +3.4%      1.799   +3.4%      1.799   +3.4%
+  29.01.2026      1.917   +6.5%      1.917   +6.5%      1.917   +6.5%      1.917   +6.5%
+  30.01.2026      1.766   -7.9%      1.766   -7.9%      1.766   -7.9%      1.766   -7.9%
+  02.02.2026      1.791   +1.4%      1.791   +1.4%      1.791   +1.4%      1.791   +1.4%
+  03.02.2026      1.960   +9.4%      1.960   +9.4%      1.960   +9.4%      1.960   +9.4%
+  04.02.2026      1.880   -4.1%      1.880   -4.1%      1.880   -4.1%      1.880   -4.1%
+  05.02.2026      1.800   -4.3%      1.800   -4.3%      1.800   -4.3%      1.800   -4.3%
+  06.02.2026      1.790   -0.6%      1.790   -0.6%      1.790   -0.6%      1.790   -0.6%
+  09.02.2026      1.820   +1.7%      1.820   +1.7%      1.820   +1.7%      1.820   +1.7%
+  10.02.2026      1.800   -1.1%      1.800   -1.1%      1.800   -1.1%      1.800   -1.1%
+
+Kapanış düzeltmesi ile mum yapısı (635 gün, 0 gün depoda yok):
+  düzeltilmiş kapanış o günün depodaki en düşük–en yüksek aralığında: 187
+  aralık dışında (düzeltme mumu genişletir, yapay mum): 448
+  depodaki kapanış zaten kendi aralığının dışında: 1
+
+Fiyat deposu sha256 önce 04d00b31294b, sonra 04d00b31294b: değişmedi
