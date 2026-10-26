@@ -239,6 +239,8 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 
 Ayrıntılı durum, açık sorunlar ve öncelikler: [docs/ROADMAP.md](docs/ROADMAP.md).
 
+Kurulum doğrulaması tek komutla: `powershell -ExecutionPolicy Bypass -File scripts\verify.ps1` (çıktı `logs\verify_report.txt`, token ve chat id gizli). İşletim ve kurtarma: [docs/OPERATIONS.md](docs/OPERATIONS.md). Veri düzeltmeleri: [docs/DATA_CORRECTIONS.md](docs/DATA_CORRECTIONS.md). Geliştirme oturumu için hazır mesajlar: [docs/MESAJLAR.md](docs/MESAJLAR.md).
+
 
 0. Temizlik ve güvenlik ✅
 1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği ✅

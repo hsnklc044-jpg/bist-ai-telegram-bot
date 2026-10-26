@@ -3,16 +3,16 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.41.0)
+## Kaldığım yer (27.10.2026, kod v0.42.0)
 
-- **Son sürüm:** v0.41.0. CI yeşil. Kullanıcı PC'si v0.35.0'da; v0.36–v0.41 PC'de doğrulanmadı.
+- **Son sürüm:** v0.42.0. Kullanıcı PC'si v0.35.0'da; v0.36–v0.42 PC'de doğrulanmadı.
 - **Süren iş:** GitHub'da araştırma çalışması 40411662540 (v0.40.0, başlangıç tarihi elle verildi, `history.csv`'ye yazılmaz). Amaç sağlamlık bölümünü gerçek veride görmek.
 - **Sıradaki adımlar:**
   1. Bu çalışma bittikten sonra v0.41.0 ile bir araştırma çalışması daha başlat (başlangıç tarihi 2023-08-01).
   2. Çıkan `view_expectations.csv` dosyasını kontrol et ve `data/` içine ekle. Bu dosya yokken `/performans` "geçmiş" sütununu göstermez.
   3. Sonuçları docs/RESEARCH_LOG.md'ye yaz.
 - **Kullanıcıdan beklenen:**
-  - v0.41.0 kurulumu: 371 test, `--market-db`, `--test-restore`, `/durum`.
+  - v0.42.0 kurulumu: `scripts\verify.ps1` çıktısı (`logs\verify_report.txt`) ve `/durum`. Mesaj şablonu: docs/MESAJLAR.md §2.
   - KCAER katsayısı kararı (0,8650 → 0,8646).
   - Kapanış düzeltmeleri kapalı kalsın mı (öneri: kalsın).
 - **Aşama 3** (yeni sinyal araştırması), PC doğrulaması tamamlanmadan başlamaz.
