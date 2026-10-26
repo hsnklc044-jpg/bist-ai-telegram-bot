@@ -21,6 +21,9 @@ sources have:
   data/corporate_actions.csv). When it is LOWER, nothing explains it:
   "açıklanamayan", a data error to check on KAP. A wrong spike up in our
   data is caught on the day it reverses;
+- a gap undone the next session (opposite signs, summing to about zero)
+  is ONE wrong close in our data: counted as "tek gün kapanış hatası";
+  it does not change long-run returns but distorts that day's close;
 - sessions present in one source only are listed.
 
     python -m core.market.crosscheck --start 2022-01-01 --universe pit --adjusted
@@ -125,6 +128,7 @@ class CrossCheck:
     differences: list[tuple[date, float, float, bool]] = field(default_factory=list)
     error: str = ""
     market_days: set[date] = field(default_factory=set)  # source-level dates, set by format_report
+    close_errors: list[date] = field(default_factory=list)  # one wrong close, undone the next session
 
     @property
     def mismatched(self) -> list[tuple[date, float, float, bool]]:
@@ -173,10 +177,20 @@ def compare(
         result.error = f"ortak gün {result.days}; karşılaştırılamadı"
         return result
     returns = both.pct_change().dropna()
+    gaps = returns["ours"] - returns["theirs"]
     actions = actions or set()
+    days = list(returns.index)
+    paired: set = set()
+    # one wrong close: the gap on one day is undone the next session
+    for i in range(len(days) - 1):
+        a, b = gaps.iloc[i], gaps.iloc[i + 1]
+        if abs(a) > tolerance and abs(b) > tolerance and a * b < 0 and abs(a + b) <= tolerance:
+            if days[i] not in paired:
+                paired.update((days[i], days[i + 1]))
+                result.close_errors.append(days[i].date())
     for day, row in returns.iterrows():
-        gap = row["ours"] - row["theirs"]
-        if abs(gap) > tolerance:
+        gap = gaps.loc[day]
+        if abs(gap) > tolerance and day not in paired:
             explained = day.date() in actions or gap > 0
             result.differences.append((day.date(), float(row["ours"]), float(row["theirs"]), explained))
     return result
@@ -231,8 +245,17 @@ def format_report(results: list[CrossCheck], period: str, show_explained: bool =
         + ", ".join(f"{k} {v}" for k, v in counts.items())
         + f" | karşılaştırılan {sum(r.days for r in results)} hisse-gün",
         f"Hisseye özgü açıklanamayan fark {sum(len(r.unexplained) for r in results)} gün; olası düzeltme günü "
-        f"(temettü/bedelsiz/bölünme) {sum(len(r.explained) for r in results)} gün",
+        f"(temettü/bedelsiz/bölünme) {sum(len(r.explained) for r in results)} gün; "
+        f"tek gün kapanış hatası (ertesi gün düzelen) {sum(len(r.close_errors) for r in results)}",
     ]
+    wrong_closes: dict[date, int] = {}
+    for r in results:
+        for d in r.close_errors:
+            wrong_closes[d] = wrong_closes.get(d, 0) + 1
+    common = {d: n for d, n in sorted(wrong_closes.items()) if n >= max(3, MARKET_WIDE_SHARE * len(results))}
+    if common:
+        lines.append("Çok hissede aynı gün yanlış kapanış (Yahoo):")
+        lines += [f"  {d:%d.%m.%Y}: {n} hisse" for d, n in common.items()]
     if market:
         lines.append(
             f"Piyasa geneli farklar (kontrol edilen hisselerin en az %{MARKET_WIDE_SHARE * 100:.0f}'i aynı gün; "

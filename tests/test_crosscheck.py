@@ -72,15 +72,16 @@ class CompareTest(unittest.TestCase):
         result = crosscheck.compare("THYAO.IS", ours, theirs, actions={date(2026, 10, 16)})
         unexplained = [d for d, *_ in result.unexplained]
         explained = [d for d, *_ in result.explained]
-        # the wrong spike (13.10, up) is caught on the day it reverses (14.10, down)
-        self.assertEqual(unexplained, [date(2026, 10, 14)])
+        # the wrong spike on 13.10, undone on 14.10, is one wrong close
+        self.assertEqual(result.close_errors, [date(2026, 10, 13)])
+        self.assertEqual(unexplained, [])
         self.assertIn(date(2026, 10, 16), explained)  # dividend: traded price fell, adjusted did not
         self.assertEqual(result.only_ours, [date(2026, 10, 15)])
         self.assertEqual(result.state, "fark var")
 
         text = crosscheck.format_report([result], "son 30 gün")
-        self.assertIn("Hisseye özgü açıklanamayan fark 1 gün", text)
-        self.assertIn("14.10.2026 Yahoo", text)
+        self.assertIn("Hisseye özgü açıklanamayan fark 0 gün", text)
+        self.assertIn("tek gün kapanış hatası (ertesi gün düzelen) 1", text)
         self.assertIn("yalnız Yahoo'da 1 gün: 15.10.2026", text)
 
     def test_dividend_only_is_consistent(self):
@@ -156,6 +157,17 @@ class CompareTest(unittest.TestCase):
         self.assertIn("XU100 (İş Yatırım'ın BIST 100 değeriyle, 6 gün): 1 günde fark", text)
         self.assertIn("15.10.2026 Yahoo", text)
         self.assertIn(": 1 hisse |", text)  # the index is not counted as a stock
+
+    def test_one_wrong_close_undone_next_day(self):
+        theirs = frame([100.0, 90.0, 94.0, 95.0, 96.0, 97.0])  # real: -10% then +4.4%
+        ours = theirs.copy()
+        ours.iloc[1] = 96.0  # stored close taken before the drop, fixed the next day
+        result = crosscheck.compare("GARAN.IS", ours, theirs)
+
+        self.assertEqual(result.close_errors, [date(2026, 10, 13)])
+        self.assertEqual(result.differences, [])
+        self.assertEqual(result.state, "tutarlı")
+        self.assertIn("tek gün kapanış hatası (ertesi gün düzelen) 1", crosscheck.format_report([result], "t"))
 
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))
