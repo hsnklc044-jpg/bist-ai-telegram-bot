@@ -3,18 +3,24 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Doğrulanmış durum (v0.22.1, 26.10.2026)
+## Doğrulanmış durum (26.10.2026 akşamı; kod v0.33.1, kullanıcı PC'si v0.28)
 
 | Bileşen | Durum | Kanıt |
 |---|---|---|
-| Kod ve bağımlılıklar | Doğrulandı | CI yeşil; kullanıcı PC'sinde `setup.ps1 -CheckOnly` 14:42: v0.22.1, 249 test, paketler kilitle aynı |
-| Telegram botu | Doğrulandı | `/help` tek sürüm yanıtlıyor (26.10 14:11); v0.22.1 14:43'te başladı |
-| Zamanlayıcı | Windows görevi "QuantBIST Gunluk Rapor" (tek) | Son çalışma 26.10 06:47, sonuç 0 (kaçırılan 23.10 raporu); `DAILY_REPORT_AT` kaldırıldı |
-| Günlük rapor teslimi | **Doğrulanmadı** | İlk zamanlanmış çalışma 26.10 18:30 |
-| `data/signal_log.csv` | Doğrulandı | Elle çalıştırma 26.10 14:42: "Daily scores recorded \| 117 stocks", dosya oluştu; `runs.csv` satırı `built` |
+| Kod ve bağımlılıklar | Doğrulandı | CI yeşil (331 test, Windows kodlama ve dosya sızıntısı korumalı); PC'de son kontrol v0.28.0 |
+| Telegram botu | Doğrulandı | `/help` tek sürüm yanıtlıyor (26.10 14:11) |
+| Zamanlayıcı | Doğrulandı | Windows görevi tek zamanlayıcı; 26.10 18:30 raporu zamanında geldi |
+| Günlük rapor teslimi | Doğrulandı | 26.10.2026 kapanış raporu 18:30'da Telegram'a geldi, tek mesaj |
+| Sanal emir dolumu (v0.28 alanları) | Doğrulandı | #1 THYAO 10 adet: açılış 260,25 + %0,05 kayma = 260,38; komisyon 2,60 TL; hesap 97.394 + 2.582 = 99.976 TL |
+| Yedek | Doğrulandı | quantbist_2026-10-26.zip, 5 dosya, doğrulandı (OneDrive) |
+| `data/signal_log.csv` | Doğrulandı | 26.10 14:42 elle çalıştırma: 117 hisse kaydı |
+| `logs/runs.csv` `sent` satırı, `/durum`, 20:00 kontrolü | **Kullanıcıdan kanıt bekleniyor** | Rapor geldiği için büyük olasılıkla doğru; çıktı görülmedi |
+| Portföy "Risk:" satırı (v0.29) | **Doğrulanmadı** | PC'de v0.28 çalıştığı için raporda yok; güncelleme bekliyor |
+| Yarım gün / tatil davranışı | **Doğrulanmadı** | 28.10 yarım gün, 29.10 tatil |
 | Cuma canlı ölçüm satırı | **Doğrulanmadı** | İlk görülme hedefi 30.10.2026 |
-| Cumartesi araştırma iş akışı | Elle çalıştırma doğrulandı; zamanlanmış çalışma doğrulanmadı | Run 40286151701 başarılı; ilk zamanlanmış çalışma 31.10 |
-| Test kapsamı | %86 satır (core + bot) | `coverage run -m pytest` |
+| Cumartesi araştırma iş akışı | Elle doğrulandı (pipefail ile çıktı dosyaları kontrol edildi, run 40377109448); zamanlanmış çalışma doğrulanmadı | İlk zamanlanmış çalışma 31.10 |
+| İkinci kaynak kontrolü | Son 30 gün doğrulandı (116 tutarlı, XU100 tutarlı); 2022 sonrası tam tarama sürüyor | run 40377105196 |
+| Test kapsamı | %90 satır (core + bot) | `coverage run -m pytest` |
 
 ## Bulgular
 
