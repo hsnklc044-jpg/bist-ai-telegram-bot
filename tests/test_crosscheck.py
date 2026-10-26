@@ -96,7 +96,8 @@ class CompareTest(unittest.TestCase):
 
         results = crosscheck.run(["THYAO.IS"], 30, today=date(2026, 10, 23), get=broken, bars=lambda s: frame([1.0]),
                                   sleep=lambda s: None)
-        self.assertEqual(results[0].state, "kontrol edilemedi")
+        self.assertEqual([r.symbol for r in results], ["XU100.IS", "THYAO.IS"])
+        self.assertEqual([r.state for r in results], ["kontrol edilemedi"] * 2)
         self.assertIn("kontrol edilemedi 1", crosscheck.format_report(results, "son 30 gün"))
 
     def test_no_common_days_is_not_consistent(self):
@@ -136,6 +137,25 @@ class CompareTest(unittest.TestCase):
         self.assertEqual(starts[0], starts[1])  # the timed-out piece was retried
         self.assertEqual(len(set(starts)), 3)  # 2.5 years -> 3 pieces
         self.assertEqual(calls[-1][1], "30-06-2024")
+
+    def test_benchmark_from_index_values(self):
+        rows = [
+            {"HGDG_TARIH": f"{d:02d}-10-2026", "HGDG_KAPANIS": 100.0 + d, "HGDG_MAX": 0, "HGDG_MIN": 0,
+             "HGDG_AOF": 0, "HGDG_HACIM": 0, "END_DEGER": 1000.0 * (1.01 ** d)}
+            for d in (12, 13, 14, 15, 16, 19)
+        ]
+        index = pd.bdate_range("2026-10-12", periods=6)
+        stock = pd.DataFrame({"close": [100.0 + d for d in (12, 13, 14, 15, 16, 19)]}, index=index)
+        bench = pd.DataFrame({"close": [1000.0 * (1.01 ** d) for d in (12, 13, 14, 15, 16, 19)]}, index=index)
+        bench.iloc[3:] *= 0.96  # Yahoo's index misses a 4% move on 15.10
+
+        results = crosscheck.run(["AAA.IS"], 30, today=date(2026, 10, 19), get=fake_get(rows),
+                                 bars=lambda s: bench if s == "XU100.IS" else stock, sleep=lambda s: None)
+        text = crosscheck.format_report(results, "test")
+
+        self.assertIn("XU100 (İş Yatırım'ın BIST 100 değeriyle, 6 gün): 1 günde fark", text)
+        self.assertIn("15.10.2026 Yahoo", text)
+        self.assertIn(": 1 hisse |", text)  # the index is not counted as a stock
 
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))

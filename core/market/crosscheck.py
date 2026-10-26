@@ -75,7 +75,7 @@ def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None) -> 
 
     pieces = [p for p in pieces if not p.empty]
     if not pieces:
-        return pd.DataFrame(columns=["close", "high", "low", "vwap", "volume_tl"])
+        return pd.DataFrame(columns=["close", "high", "low", "vwap", "volume_tl", "index"])
     df = pd.concat(pieces)
     return df[~df.index.duplicated()].sort_index()
 
@@ -105,11 +105,13 @@ def _fetch_piece(code: str, start: date, end: date, get=None) -> pd.DataFrame:
             "low": float(r["HGDG_MIN"]),
             "vwap": float(r["HGDG_AOF"]),
             "volume_tl": float(r["HGDG_HACIM"]),
+            # BIST 100 on that day, sent with every row (END_ENDEKS_KODU 01)
+            "index": float(r["END_DEGER"]) if r.get("END_DEGER") is not None else float("nan"),
         }
         for r in payload.get("value") or []
     ]
     if not rows:
-        return pd.DataFrame(columns=["close", "high", "low", "vwap", "volume_tl"])
+        return pd.DataFrame(columns=["close", "high", "low", "vwap", "volume_tl", "index"])
     return pd.DataFrame(rows).set_index("date").sort_index()
 
 
@@ -201,7 +203,24 @@ def market_wide_days(results: list[CrossCheck]) -> dict[date, tuple[int, float]]
     return {d: (len(g), float(pd.Series(g).median())) for d, g in sorted(gaps.items()) if len(g) >= limit}
 
 
+def _benchmark_line(b: CrossCheck, market: dict) -> list[str]:
+    if b.error:
+        return [f"XU100: kontrol edilemedi ({b.error})"]
+    lines = [f"XU100 (İş Yatırım'ın BIST 100 değeriyle, {b.days} gün): "
+             + ("tutarlı" if not b.mismatched else f"{len(b.mismatched)} günde fark")]
+    for day, a, c, _ in b.mismatched[:10]:
+        tag = " — piyasa geneli farkla aynı gün" if day in market else ""
+        lines.append(f"  {day:%d.%m.%Y} Yahoo {_pct(a)} / İş {_pct(c)}{tag}")
+    if len(b.mismatched) > 10:
+        lines.append(f"  +{len(b.mismatched) - 10} gün daha")
+    return lines
+
+
 def format_report(results: list[CrossCheck], period: str) -> str:
+    from core.market.universe import BENCHMARK
+
+    benchmark = next((r for r in results if r.symbol == BENCHMARK), None)
+    results = [r for r in results if r.symbol != BENCHMARK]
     market = market_wide_days(results)
     for r in results:
         r.market_days = set(market)
@@ -220,6 +239,8 @@ def format_report(results: list[CrossCheck], period: str) -> str:
             "kaynak düzeyinde sorun, hisse hatası değil):"
         )
         lines += [f"  {d:%d.%m.%Y}: {n} hisse, medyan fark {_pct(g)} (Yahoo − İş)" for d, (n, g) in market.items()]
+    if benchmark is not None:
+        lines += _benchmark_line(benchmark, market)
     lines.append("Hisseye özgü farklar (piyasa geneli günler hariç):")
     for r in results:
         if r.state == "tutarlı":
@@ -266,6 +287,7 @@ def run(
         actions.setdefault(a.symbol, set()).add(a.ex_date)
 
     results = []
+    index_values: list[pd.Series] = []
     for symbol in symbols:
         code = symbol.removesuffix(".IS")
         try:
@@ -274,8 +296,20 @@ def run(
             logger.warning("Second source failed | %s | %s", symbol, exc)
             results.append(CrossCheck(symbol, error=f"{type(exc).__name__}: {str(exc)[:80]}"))
             continue
+        if "index" in theirs:
+            index_values.append(theirs["index"].dropna())
         results.append(compare(symbol, bars(symbol), theirs, actions.get(symbol) or actions.get(code)))
-    return results
+
+    # the benchmark: İş Yatırım sends BIST 100 with every stock row
+    from core.market.universe import BENCHMARK
+
+    index = pd.concat(index_values) if index_values else pd.Series(dtype=float)
+    index = index[~index.index.duplicated()].sort_index()
+    benchmark = compare(BENCHMARK, bars(BENCHMARK), index.to_frame("close")) if len(index) else CrossCheck(
+        BENCHMARK, error="ikinci kaynakta endeks değeri yok"
+    )
+    benchmark.differences = [(d, a, b, False) for d, a, b, _ in benchmark.differences]  # no adjustments on an index
+    return [benchmark, *results]
 
 
 def main(argv: list[str] | None = None) -> None:
