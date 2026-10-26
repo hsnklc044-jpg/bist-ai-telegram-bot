@@ -81,16 +81,98 @@ def schedule_daily_report(app: Application, at: time | None = None) -> bool:
     return True
 
 
+# what a problem means for the user and what to do, per check
+GUIDANCE = {
+    "Günlük rapor": ("günün raporu ve canlı ölçüm kaydı eksik kalır",
+                     "bilgisayar açık mı, Windows görevi çalıştı mı: logs/runs.csv ve logs/daily_<tarih>.log"),
+    "Fiyat verisi": ("rapor ve uyarılar eski fiyatlarla hesaplanır", "internet bağlantısı; ertesi gün kendiliğinden düzelir"),
+    "Fiyat veritabanı": ("fiyatlar okunamayabilir", "botu durdurup son market.db yedeğini geri yükleyin"),
+    "Canlı ölçüm kaydı": ("canlı ölçümün örneklemi bozulur", "/performans 'Kayıt sağlığı' satırına bakın"),
+    "Sanal hesap kaydı": ("sanal hesap izlenemez", "data/equity_log.csv dosyasını kontrol edin"),
+    "Veri şeması": ("kayıtlar bu sürümle okunamaz", "güncellemeyi geri alın; dosyaları değiştirmeyin"),
+    "Yedek": ("bir arızada kişisel kayıtlar kaybolabilir", "python -m core.backup ve BACKUP_DIR klasörü"),
+    "Disk": ("yedek ve kayıtlar yazılamayabilir", "diskte yer açın"),
+    "Tatil takvimi": ("tatil günleri eksik rapor sayılabilir", "data/bist_holidays.csv'yi güncelleyin"),
+    "GitHub araştırması": ("haftalık araştırma sonucu yok", "GitHub Actions > Research"),
+    "Telegram botu": ("komutlar ve 20:00 kontrolü çalışmaz", "python main.py ile botu başlatın"),
+}
+ALERT_STATE = "alerts_sent.json"
+ALERT_ON_UNKNOWN = {"Günlük rapor"}  # an unverifiable report is a problem; other unknowns only show in /durum
+REPEAT_AFTER_DAYS = 3
+
+
+def _alert_text(check, now) -> str:
+    from core.reports.health import LABELS
+
+    impact, action = GUIDANCE.get(check.name, ("", "/durum"))
+    return (
+        f"{check.state} {LABELS[check.state]} · {check.name}\n"
+        f"Tespit: {now:%d.%m.%Y %H:%M} · {check.text}\n"
+        f"Etkisi: {impact}\n"
+        f"Otomatik işlem: yok (bot yalnızca bildirir)\n"
+        f"Yapılacak: {action}"
+    )
+
+
+def due_alerts(checks, now, state_path) -> list:
+    """Problems to send now: new ones, or ones last sent REPEAT_AFTER_DAYS or more ago."""
+
+    import json
+    from pathlib import Path
+
+    from core.reports.health import CRIT, UNKNOWN, WARN
+
+    path = Path(state_path)
+    try:
+        sent = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError):
+        sent = {}
+    due = []
+    for check in checks:
+        if check.state not in (CRIT, WARN) and not (check.state == UNKNOWN and check.name in ALERT_ON_UNKNOWN):
+            continue
+        key = f"{check.name}|{check.state}"
+        last = sent.get(key)
+        if last is None or (now.date() - __import__("datetime").date.fromisoformat(last)).days >= REPEAT_AFTER_DAYS:
+            due.append(check)
+            sent[key] = now.date().isoformat()
+    # a solved problem may alert again as soon as it comes back
+    current = {f"{c.name}|{c.state}" for c in checks}
+    sent = {k: v for k, v in sent.items() if k in current}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(sent, indent=1), encoding="utf-8")
+    return due
+
+
 async def report_watch_job(context: ContextTypes.DEFAULT_TYPE) -> None:
-    from core.reports.health import OK, report_check
+    """Weekday 20:00: all health checks; each problem is sent once, repeated only after 3 days."""
 
-    check = await asyncio.to_thread(report_check, now_istanbul())
+    from core.config.paths import LOG_DIR
+    from core.reports.health import health_checks
 
-    if check.state != OK:
-        logger.warning("Report watch: %s", check.text)
-        await context.bot.send_message(
-            context.job.chat_id, f"{check.line()}\nAyrıntı: /durum, logs/runs.csv, logs/daily_<tarih>.log"
-        )
+    now = now_istanbul()
+    checks = await asyncio.to_thread(health_checks, now)
+    for check in due_alerts(checks, now, LOG_DIR / ALERT_STATE):
+        logger.warning("Health watch: %s | %s", check.name, check.text)
+        await context.bot.send_message(context.job.chat_id, _alert_text(check, now))
+
+
+HEARTBEAT_JOB = "heartbeat"
+
+
+async def heartbeat_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    from core.reports.health import write_heartbeat
+
+    await asyncio.to_thread(write_heartbeat)
+
+
+def schedule_heartbeat(app: Application) -> bool:
+    """Every 5 minutes the bot writes logs/heartbeat.txt; the daily report checks it."""
+
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_repeating(heartbeat_job, interval=300, first=5, name=HEARTBEAT_JOB)
+    return True
 
 
 def schedule_report_watch(app: Application, chat_id: int) -> bool:
@@ -103,4 +185,4 @@ def schedule_report_watch(app: Application, chat_id: int) -> bool:
     return True
 
 
-__all__ = ["ENV", "report_time", "schedule_daily_report", "schedule_report_watch"]
+__all__ = ["ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_report_watch"]

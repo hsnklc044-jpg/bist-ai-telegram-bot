@@ -1,0 +1,130 @@
+"""Operational health checks: database, disk, bot heartbeat, data schema, GitHub research."""
+
+import sqlite3
+import tempfile
+import unittest
+from collections import namedtuple
+from datetime import datetime, timedelta
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
+
+from core.market.calendar import ISTANBUL
+from core.reports import daily, health
+
+NOW = datetime(2026, 10, 26, 20, 0, tzinfo=ISTANBUL)
+
+
+class Temp(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+
+
+class DatabaseTest(Temp):
+    def test_ok_missing_and_corrupt(self):
+        db = self.root / "market.db"
+        self.assertEqual(health.database_check(db).state, health.UNKNOWN)
+
+        conn = sqlite3.connect(db)
+        conn.execute("CREATE TABLE t (x)")
+        conn.commit()
+        conn.close()
+        self.assertEqual(health.database_check(db).state, health.OK)
+
+        db.write_bytes(b"SQLite format 3\x00" + b"\x00" * 100 + b"bozuk" * 200)
+        self.assertEqual(health.database_check(db).state, health.CRIT)
+
+
+class DiskTest(Temp):
+    def test_thresholds(self):
+        usage = namedtuple("usage", "total used free")
+        for free, state in ((5e9, health.OK), (5e8, health.WARN), (1e8, health.CRIT)):
+            with self.subTest(free=free), mock.patch("shutil.disk_usage", return_value=usage(0, 0, int(free))):
+                self.assertEqual(health.disk_check(self.root).state, state)
+
+
+class HeartbeatTest(Temp):
+    def test_fresh_stale_missing(self):
+        beat = self.root / "heartbeat.txt"
+        self.assertEqual(health.bot_check(NOW, beat).state, health.UNKNOWN)
+
+        health.write_heartbeat(beat, NOW - timedelta(minutes=4))
+        self.assertEqual(health.bot_check(NOW, beat).state, health.OK)
+
+        health.write_heartbeat(beat, NOW - timedelta(hours=3))
+        check = health.bot_check(NOW, beat)
+        self.assertEqual(check.state, health.CRIT)
+        self.assertIn("3.0 saattir", check.text)
+
+
+class SchemaTest(Temp):
+    def test_required_columns(self):
+        ledger = self.root / "ledger.csv"
+        orders = self.root / "paper_orders.csv"
+        schemas = {ledger: health.SCHEMAS[health.LEDGER_FILE], orders: health.SCHEMAS[health.PAPER_ORDERS_FILE]}
+        self.assertEqual(health.schema_check(schemas).state, health.UNKNOWN)
+
+        ledger.write_text("id,date,account,symbol,side,quantity,price,fee,note\n", encoding="utf-8")
+        # a pre-v0.28 orders file (no extra columns) is still readable: OK
+        orders.write_text("id,created_at,symbol,side,quantity,status,fill_date,fill_price,note\n", encoding="utf-8")
+        self.assertEqual(health.schema_check(schemas).state, health.OK)
+
+        ledger.write_text("id,date,account,symbol\n", encoding="utf-8")
+        check = health.schema_check(schemas)
+        self.assertEqual(check.state, health.CRIT)
+        self.assertIn("ledger.csv eksik sütun", check.text)
+
+
+class ResearchTest(unittest.TestCase):
+    def _get(self, runs=None, fail=False):
+        def get(url, params=None, timeout=None):
+            if fail:
+                raise OSError("ağ yok")
+            return SimpleNamespace(raise_for_status=lambda: None, json=lambda: {"workflow_runs": runs})
+        return get
+
+    def run_(self, conclusion, days_ago):
+        started = (NOW - timedelta(days=days_ago)).astimezone(ISTANBUL).isoformat()
+        return {"status": "completed", "conclusion": conclusion, "run_started_at": started}
+
+    def test_states(self):
+        self.assertEqual(health.research_check(NOW, self._get([self.run_("success", 2)])).state, health.OK)
+        self.assertEqual(health.research_check(NOW, self._get([self.run_("failure", 2)])).state, health.WARN)
+        self.assertEqual(health.research_check(NOW, self._get([self.run_("success", 12)])).state, health.WARN)
+        self.assertEqual(health.research_check(NOW, self._get(fail=True)).state, health.UNKNOWN)
+        self.assertEqual(health.research_check(NOW, self._get([])).state, health.UNKNOWN)
+
+    def test_tests_never_reach_the_network(self):
+        self.assertEqual(health.research_check(NOW).state, health.UNKNOWN)
+
+
+class ReportWarningsTest(Temp):
+    def test_bot_down_shows_in_the_daily_report(self):
+        down = health.Check("Telegram botu", health.CRIT, "3.0 saattir yaşam sinyali yok")
+        ok = health.Check("X", health.OK, "")
+        with mock.patch.object(health, "bot_check", return_value=down), \
+                mock.patch.object(health, "database_check", return_value=ok), \
+                mock.patch.object(health, "disk_check", return_value=ok), \
+                mock.patch.object(health, "schema_check", return_value=ok):
+            text = daily._with_health_warnings(f"rapor\n\n{daily.DISCLAIMER}")
+        self.assertIn("KRİTİK · Telegram botu", text)
+        self.assertLess(text.index("Telegram botu"), text.index(daily.DISCLAIMER))
+
+    def test_nothing_added_when_healthy_or_unknown(self):
+        ok = health.Check("X", health.OK, "")
+        unknown = health.Check("Telegram botu", health.UNKNOWN, "")
+        with mock.patch.object(health, "bot_check", return_value=unknown), \
+                mock.patch.object(health, "database_check", return_value=ok), \
+                mock.patch.object(health, "disk_check", return_value=ok), \
+                mock.patch.object(health, "schema_check", return_value=ok):
+            self.assertEqual(daily._with_health_warnings("rapor"), "rapor")
+
+    def test_failure_never_stops_the_report(self):
+        with mock.patch.object(health, "bot_check", side_effect=RuntimeError("x")):
+            self.assertIn("Sağlık kontrolü yapılamadı", daily._with_health_warnings("rapor"))
+
+
+if __name__ == "__main__":
+    unittest.main()

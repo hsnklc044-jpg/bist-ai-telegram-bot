@@ -41,7 +41,7 @@ class ReportCheckTest(unittest.TestCase):
     def test_missing_report_is_flagged(self):
         self._record(_at(23, 18, 30), "sent", date(2026, 10, 23))
         check = health.report_check(MONDAY_EVENING)
-        self.assertEqual(check.state, health.WARN)
+        self.assertEqual(check.state, health.CRIT)
         self.assertIn("26.10.2026 kapanış raporu gitmedi", check.text)
 
     def test_not_due_before_the_evening(self):
@@ -58,7 +58,7 @@ class ReportCheckTest(unittest.TestCase):
         self._record(_at(23, 18, 30), "sent", date(2026, 10, 23))
         self._record(_at(26, 18, 30), "failed", detail="ConnectionError: Yahoo")
         check = health.report_check(MONDAY_EVENING)
-        self.assertEqual(check.state, health.WARN)
+        self.assertEqual(check.state, health.CRIT)
         self.assertIn("Yahoo", check.text)
 
 
@@ -127,13 +127,13 @@ class ReportTextTest(unittest.TestCase):
         with mock.patch.object(health, "health_checks", return_value=checks):
             text = health.health_report(MONDAY_EVENING)
 
-        self.assertIn("doğrulanamadı", text)
-        self.assertNotIn("Tüm kontroller geçti", text)
-        self.assertIn("❔ B: y", text)
+        self.assertIn("BİLİNMİYOR", text)
+        self.assertNotIn("SAĞLIKLI: tüm kontroller geçti", text)
+        self.assertIn("❔ BİLİNMİYOR · B: y", text)
 
     def test_all_ok(self):
         with mock.patch.object(health, "health_checks", return_value=[health.Check("A", health.OK, "x")]):
-            self.assertIn("Tüm kontroller geçti", health.health_report(MONDAY_EVENING))
+            self.assertIn("SAĞLIKLI: tüm kontroller geçti", health.health_report(MONDAY_EVENING))
 
 
 if __name__ == "__main__":

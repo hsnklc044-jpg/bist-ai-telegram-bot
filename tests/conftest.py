@@ -6,7 +6,7 @@ os.environ["QUANTBIST_LOG_FILE"] = ""
 import pytest  # noqa: E402
 
 from core.market import store  # noqa: E402
-from core.reports import runs  # noqa: E402
+from core.reports import health, runs  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -15,6 +15,11 @@ def _private_run_files(tmp_path, monkeypatch):
 
     monkeypatch.setattr(runs, "LOCK_FILE", tmp_path / ".daily.lock")
     monkeypatch.setattr(runs, "RUNS_FILE", tmp_path / "runs.csv")
+
+    def offline(*args, **kwargs):
+        raise RuntimeError("no network in tests")
+
+    monkeypatch.setattr(health, "_http_get", offline)
 
     previous = store._db_path
     store.configure(tmp_path / "market.db")

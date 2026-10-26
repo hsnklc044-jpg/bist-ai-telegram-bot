@@ -2,9 +2,13 @@
 QuantBIST
 System health (/durum): is the daily chain actually working?
 
-Every line is read from evidence on disk: logs/runs.csv, the price
-store, data/signal_log.csv, data/equity_log.csv and the backup folder.
-A check that cannot be made says "bilinmiyor" (unknown), never OK.
+Every line is read from evidence: logs/runs.csv, the price store and its
+SQLite integrity, data/signal_log.csv, data/equity_log.csv, the backup
+folder, the bot's heartbeat file, free disk space, the headers of the
+personal files and the last GitHub research run.
+
+States: SAĞLIKLI, UYARI, KRİTİK, BİLİNMİYOR. A check that cannot be made
+is BİLİNMİYOR, never SAĞLIKLI.
 
 The Windows scheduled task itself is not visible from here; its work
 shows up in logs/runs.csv.
@@ -20,7 +24,16 @@ from pathlib import Path
 import pandas as pd
 
 from core import __version__
-from core.config.paths import EQUITY_LOG_FILE, SIGNAL_LOG_FILE
+from core.config.paths import (
+    ALERTS_LOG_FILE,
+    DATA_DIR,
+    EQUITY_LOG_FILE,
+    LEDGER_FILE,
+    LOG_DIR,
+    MARKET_DB,
+    PAPER_ORDERS_FILE,
+    SIGNAL_LOG_FILE,
+)
 from core.market.calendar import (
     ISTANBUL,
     SESSION_FINAL,
@@ -35,7 +48,15 @@ from core.reports import runs as run_log
 from core.reports.daily import adjusted_bars, tr
 from core.signals_log import audit_log
 
-OK, WARN, UNKNOWN = "✅", "⚠️", "❔"
+OK, WARN, CRIT, UNKNOWN = "✅", "⚠️", "🛑", "❔"
+LABELS = {OK: "SAĞLIKLI", WARN: "UYARI", CRIT: "KRİTİK", UNKNOWN: "BİLİNMİYOR"}
+HEARTBEAT_FILE = LOG_DIR / "heartbeat.txt"
+HEARTBEAT_STALE = timedelta(minutes=20)  # the bot writes it every 5 minutes
+DISK_WARN, DISK_CRIT = 1_000_000_000, 200_000_000  # free bytes
+BACKUP_CRIT_AGE = timedelta(days=10)
+RESEARCH_MAX_AGE = timedelta(days=8)  # weekly on Saturdays
+_http_get = None  # tests replace it so that no test reaches the network
+RESEARCH_API = "https://api.github.com/repos/hsnklc044-jpg/bist-ai-telegram-bot/actions/workflows/research.yml/runs"
 
 # the scheduled report runs at 18:30; a session counts as due once this
 # much time has passed after its candle became final
@@ -50,7 +71,7 @@ class Check:
     text: str
 
     def line(self) -> str:
-        return f"{self.state} {self.name}: {self.text}"
+        return f"{self.state} {LABELS[self.state]} · {self.name}: {self.text}"
 
 
 def _date(day: date) -> str:
@@ -87,12 +108,12 @@ def report_check(now: datetime, path: Path | str | None = None) -> Check:
     covered = any(datetime.fromisoformat(r.started_at) >= _session_start(due) for r in done)
     failed = [r for r in rows if r.status == "failed"]
     if failed and (not done or failed[-1].started_at > done[-1].started_at):
-        return Check("Günlük rapor", WARN, f"{text}; son çalıştırma hata verdi: {failed[-1].detail}")
+        return Check("Günlük rapor", CRIT, f"{text}; son çalıştırma hata verdi: {failed[-1].detail}")
     stale = [r for r in rows if r.status == "stale" and datetime.fromisoformat(r.started_at) >= _session_start(due)]
     if not covered and stale:
         return Check("Günlük rapor", WARN, f"{text}; {_date(due)} kapanış verisi gelmedi ({stale[-1].detail})")
     if not covered:
-        return Check("Günlük rapor", WARN, f"{text}; {_date(due)} kapanış raporu gitmedi")
+        return Check("Günlük rapor", CRIT, f"{text}; {_date(due)} kapanış raporu gitmedi")
 
     return Check("Günlük rapor", OK, text)
 
@@ -177,34 +198,159 @@ def backup_check(now: datetime, target: Path | None = None) -> Check:
     taken = datetime.fromtimestamp(last.stat().st_mtime, tz=ISTANBUL)
     text = f"{last.name} ({taken:%d.%m %H:%M})"
 
+    if now - taken > BACKUP_CRIT_AGE:
+        return Check("Yedek", CRIT, f"{text}; {(now - taken).days} gündür yeni yedek yok")
     if now - taken > BACKUP_MAX_AGE:
         return Check("Yedek", WARN, f"{text}; {(now - taken).days} gündür yeni yedek yok")
     return Check("Yedek", OK, text)
 
 
-def health_checks(now: datetime | None = None, bars=adjusted_bars) -> list[Check]:
+def database_check(db: Path | None = None) -> Check:
+    import sqlite3
+
+    db = Path(db or MARKET_DB)
+    if not db.exists():
+        return Check("Fiyat veritabanı", UNKNOWN, f"{db.name} yok")
+    try:
+        conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=30)
+        try:
+            result = conn.execute("PRAGMA quick_check").fetchone()[0]
+        finally:
+            conn.close()
+    except sqlite3.Error as exc:
+        return Check("Fiyat veritabanı", CRIT, f"açılamadı ({exc})")
+    if result != "ok":
+        return Check("Fiyat veritabanı", CRIT, f"bütünlük hatası: {result}")
+    return Check("Fiyat veritabanı", OK, f"bütünlük ok ({db.stat().st_size / 1e6:.0f} MB)")
+
+
+def disk_check(folder: Path | None = None) -> Check:
+    import shutil
+
+    folder = Path(folder or DATA_DIR)
+    try:
+        free = shutil.disk_usage(folder).free
+    except OSError as exc:
+        return Check("Disk", UNKNOWN, f"okunamadı ({exc})")
+    text = f"{free / 1e9:.1f} GB boş"
+    if free < DISK_CRIT:
+        return Check("Disk", CRIT, f"{text}; yedek ve veri yazılamayabilir")
+    if free < DISK_WARN:
+        return Check("Disk", WARN, text)
+    return Check("Disk", OK, text)
+
+
+def write_heartbeat(path: Path | None = None, now: datetime | None = None) -> None:
+    path = Path(path or HEARTBEAT_FILE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text((now or now_istanbul()).isoformat(timespec="seconds"), encoding="utf-8")
+
+
+def bot_check(now: datetime, path: Path | None = None) -> Check:
+    path = Path(path or HEARTBEAT_FILE)
+    if not path.exists():
+        return Check("Telegram botu", UNKNOWN, "yaşam sinyali yok (bot v0.37.0 öncesi ya da hiç başlamadı)")
+    try:
+        beat = datetime.fromisoformat(path.read_text(encoding="utf-8").strip())
+    except (OSError, ValueError) as exc:
+        return Check("Telegram botu", UNKNOWN, f"yaşam sinyali okunamadı ({exc})")
+    age = now - beat
+    if age > HEARTBEAT_STALE:
+        hours = age.total_seconds() / 3600
+        return Check("Telegram botu", CRIT, f"{hours:.1f} saattir yaşam sinyali yok (son {beat:%d.%m %H:%M}); "
+                                            "komutlar ve 20:00 kontrolü çalışmıyor")
+    return Check("Telegram botu", OK, f"çalışıyor (son sinyal {beat:%H:%M})")
+
+
+SCHEMAS = {
+    LEDGER_FILE: ({"id", "date", "account", "symbol", "side", "quantity", "price", "fee", "note"},),
+    PAPER_ORDERS_FILE: ({"id", "created_at", "symbol", "side", "quantity", "status", "fill_date", "fill_price",
+                         "note"},),
+    SIGNAL_LOG_FILE: ({"logged_at", "source", "symbol", "score", "view", "data_date", "price", "details"},),
+    EQUITY_LOG_FILE: ({"date", "account", "value", "cash", "invested", "positions"},),
+}
+
+
+def schema_check(schemas: dict | None = None) -> Check:
+    """Every personal file must have at least the columns this version reads (extra columns are fine)."""
+
+    schemas = schemas or SCHEMAS
+    problems, seen = [], 0
+    for path, (required,) in schemas.items():
+        path = Path(path)
+        if not path.exists():
+            continue
+        seen += 1
+        try:
+            with open(path, encoding="utf-8-sig", newline="") as fh:
+                header = set(next(csv.reader(fh), []))
+        except (OSError, UnicodeDecodeError) as exc:
+            problems.append(f"{path.name} okunamadı ({exc})")
+            continue
+        missing = required - header
+        if missing:
+            problems.append(f"{path.name} eksik sütun: {', '.join(sorted(missing))}")
+    if problems:
+        return Check("Veri şeması", CRIT, "; ".join(problems))
+    if not seen:
+        return Check("Veri şeması", UNKNOWN, "kişisel dosya yok")
+    return Check("Veri şeması", OK, f"{seen} dosya bu sürümle uyumlu")
+
+
+def research_check(now: datetime, get=None) -> Check:
+    """Last GitHub research run (public API, no token)."""
+
+    try:
+        get = get or _http_get or __import__("httpx").get
+        response = get(RESEARCH_API, params={"per_page": 5}, timeout=10)
+        response.raise_for_status()
+        runs = [r for r in response.json().get("workflow_runs", []) if r.get("status") == "completed"]
+    except Exception as exc:  # noqa: BLE001 - offline or API change: unknown, never OK
+        return Check("GitHub araştırması", UNKNOWN, f"sorgulanamadı ({type(exc).__name__})")
+    if not runs:
+        return Check("GitHub araştırması", UNKNOWN, "tamamlanmış çalışma yok")
+    last = runs[0]
+    started = datetime.fromisoformat(last["run_started_at"].replace("Z", "+00:00")).astimezone(ISTANBUL)
+    text = f"son çalışma {started:%d.%m %H:%M}: {last.get('conclusion')}"
+    if last.get("conclusion") != "success":
+        return Check("GitHub araştırması", WARN, f"{text} (Actions sekmesinden bakın)")
+    if now - started > RESEARCH_MAX_AGE:
+        return Check("GitHub araştırması", WARN, f"{text}; haftalık çalışma gecikti")
+    return Check("GitHub araştırması", OK, text)
+
+
+def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool = True) -> list[Check]:
     now = now or now_istanbul()
-    return [
+    checks = [
+        bot_check(now),
         report_check(now),
         price_check(now, bars),
+        database_check(),
         signal_check(now=now),
         equity_check(),
+        schema_check(),
         backup_check(now),
+        disk_check(),
         calendar_check(now),
     ]
+    if online:
+        checks.append(research_check(now))
+    return checks
 
 
 def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
     now = now or now_istanbul()
     checks = health_checks(now, bars)
-    states = {c.state for c in checks}
+    states = [c.state for c in checks]
 
-    if WARN in states:
-        verdict = f"{WARN} Dikkat gereken bileşen var"
+    if CRIT in states:
+        verdict = f"{CRIT} KRİTİK: {states.count(CRIT)} açık kritik sorun"
+    elif WARN in states:
+        verdict = f"{WARN} UYARI: dikkat gereken bileşen var"
     elif UNKNOWN in states:
-        verdict = f"{UNKNOWN} Bazı bileşenler doğrulanamadı"
+        verdict = f"{UNKNOWN} BİLİNMİYOR: bazı bileşenler doğrulanamadı"
     else:
-        verdict = f"{OK} Tüm kontroller geçti"
+        verdict = f"{OK} SAĞLIKLI: tüm kontroller geçti"
 
     return "\n".join([
         f"🩺 QuantBIST v{__version__} durum – {now:%d.%m.%Y %H:%M}",
@@ -216,4 +362,4 @@ def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
     ])
 
 
-__all__ = ["Check", "due_session", "health_checks", "health_report"]
+__all__ = ["Check", "LABELS", "due_session", "health_checks", "health_report", "write_heartbeat"]

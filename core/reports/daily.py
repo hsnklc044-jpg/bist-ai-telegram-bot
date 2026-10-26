@@ -399,6 +399,24 @@ def _with_backup_line(text: str) -> str:
     return _before_disclaimer(text, line + (f"\n{weekly}" if weekly else ""))
 
 
+def _with_health_warnings(text: str) -> str:
+    """
+    The report runs from the Windows task, so it can see what the bot
+    cannot report about itself (the bot being down) and local problems.
+    Only problems are added; never fatal.
+    """
+
+    from core.reports.health import OK, UNKNOWN, bot_check, database_check, disk_check, schema_check
+
+    try:
+        checks = [bot_check(now_istanbul()), database_check(), disk_check(), schema_check()]
+        lines = [c.line() for c in checks if c.state not in (OK, UNKNOWN)]
+    except Exception as exc:  # noqa: BLE001 - the report must still go out
+        logger.exception("Health warnings failed")
+        lines = [f"⚠️ Sağlık kontrolü yapılamadı: {exc}"]
+    return _before_disclaimer(text, "\n".join(lines)) if lines else text
+
+
 WEEKLY_BACKUP_DAYS = 6
 
 
@@ -512,6 +530,7 @@ def _run_locked(args) -> DailyResult:
 
     result.text = _with_weekly_line(result.text, result.day)
     result.text = _with_backup_line(result.text)
+    result.text = _with_health_warnings(result.text)
 
     # send first: a problem while printing must never stop the report
     if args.send:

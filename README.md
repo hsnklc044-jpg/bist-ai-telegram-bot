@@ -125,7 +125,7 @@ python -m core.backtest.research --universe today  # karşılaştırma: bugünk�
 | `/alerts` | Açık risk uyarıları |
 | `/report` | Günlük raporu şimdi üret |
 | `/performans` | Kayıtlı teknik görünümlerin ve sanal hesabın canlı sonucu, XU100'e karşı |
-| `/durum` | Sistem sağlığı: son rapor, fiyat verisi, canlı kayıt, sanal hesap kaydı, yedek. Doğrulanamayan bileşen "❔" görünür, asla "✅" değil. Bot açıksa hafta içi 20:00'de raporun gidip gitmediğini kendisi kontrol eder; sorun varsa mesaj atar |
+| `/durum` | Sistem sağlığı, dört seviye (SAĞLIKLI / UYARI / KRİTİK / BİLİNMİYOR): Telegram botu (5 dakikalık yaşam sinyali), son rapor, fiyat verisi, fiyat veritabanı bütünlüğü, canlı kayıt, sanal hesap, veri şeması, yedek, disk, tatil takvimi, son GitHub araştırması. Doğrulanamayan bileşen asla SAĞLIKLI görünmez. Bot açıksa hafta içi 20:00'de sorunları bildirir; aynı sorun 3 günde bir kez. Bot kapalıysa uyarıyı günlük rapor verir |
 | `/help` | Komut listesi |
 
 Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman gerçek emir göndermez.
