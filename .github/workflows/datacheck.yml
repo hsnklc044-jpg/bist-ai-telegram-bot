@@ -2,7 +2,7 @@ name: Data check (full history)
 
 # One-off / occasional: compares the full price history the backtests use
 # (former BIST 100 members, corporate actions applied) with İş Yatırım's
-# traded prices. About 12 seconds per stock (~45 minutes). The report is
+# traded prices, year by year (a few hours for ~200 stocks). The report is
 # saved on the research-results branch under datacheck/.
 
 on:
@@ -23,7 +23,7 @@ concurrency:
 jobs:
   datacheck:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 330  # ~200 stocks x 5 yearly requests; GitHub allows 360
     env:
       START: ${{ inputs.start }}
     steps:
