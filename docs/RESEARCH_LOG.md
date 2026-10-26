@@ -130,3 +130,46 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
   döndürmüştü); son 30 günlük ikinci kaynak kontrolü bunu "yalnız İş Yatırım'da: 26.10" olarak
   yakaladı. Gece yarısı civarı Yahoo verisi geçici olarak eksik olabilir; cumartesi 07:17 çalışması
   bundan etkilenmez.
+
+---
+
+## 2026-10-27 — Senaryolar A–D, yoğunlaşma ve mum tutarlılığı (v0.39.0)
+
+- **Soru:** Veri düzeltmeleri sonuçları değiştiriyor mu? Sonuçlar az sayıda hisseye mi bağlı?
+- **Yöntem:**
+  - Senaryolar çalışması 40410635317, sonuçlar `research-results` dalında `scenarios/2026-10-27_01-15.txt`.
+  - Dönem 2023-08-01 – 2026-10-23, geçmiş BIST 100 üyeliği, 10 pozisyon, komisyon + kayma %0,15 her yön.
+  - Fiyat deposunun SHA-256 özeti çalışmadan önce ve sonra aynı (04d00b31294b): deney depoyu değiştirmedi.
+- **Senaryolar:**
+  - B, A ile aynı: KCAER/CANTE satırları bu stratejilerde hiçbir işlemi değiştirmiyor.
+  - C/D'de bot sinyali yıllık +%12,4'ten +%13,5'e çıkıyor (+5 / −7 işlem). Trend kuralında 1 işlem değişiyor. Momentum aynı kalıyor.
+- **Yoğunlaşma (A):** üç stratejide de en kârlı 5 hisse çıkarılınca sonuç negatife dönüyor.
+
+  | Strateji | Yıllık | En kârlı 5 hisse olmadan |
+  |---|---|---|
+  | Bot sinyali | +%12,4 | −%2,9 |
+  | Trend kuralı | +%34,6 | −%5,2 |
+  | Momentum | −%16,6 | −%21,3 |
+
+  En kârlı 5 hisse kârlı işlemlerden gelen kârın %57–71'ini oluşturuyor. MAGEN, KTLEV ve ASELS üç stratejinin listesinde de var.
+- **Yıllar:**
+
+  | Strateji | 2023 (Ağu–Ara) | 2024 | 2025 | 2026 |
+  |---|---|---|---|---|
+  | Bot sinyali | −%4,5 | +%34,6 | +%46,2 | −%22,4 |
+  | Trend kuralı | +%2,0 | +%35,7 | +%62,4 | +%16,1 |
+  | Momentum | −%2,8 | +%12,6 | +%88,1 | −%72,9 |
+  | XU100 | +%4,2 | +%31,6 | +%14,6 | −%1,3 |
+
+  Trend kuralı 2024–2026'da XU100'ün üstünde, 2023'te altında. Bu fark birkaç hissenin getirisinden geliyor.
+- **Mum tutarlılığı:** düzeltmeler uygulanmış depoda (190 hisse, 217.560 gün):
+  - 6 gün kapanış o günün aralığı dışında;
+  - imkânsız mum (en yüksek < en düşük ya da açılış aralık dışında) yok;
+  - 240 gün hacim 0.
+
+  Yahoo mumları kendi içinde tutarlı. Yanlış kapanış günlerinde mumun tamamı yanlış. Bu yüzden yalnız kapanışı düzeltmek, 635 düzeltmenin 448'inde yapay mum üretir.
+- **Karar:**
+  - Kapanış düzeltmeleri kapalı kalır.
+  - Hiçbir strateji sinyal olarak sunulmaz.
+  - Sonuçlar bağımsız bir dönemde (canlı ölçüm) tekrar etmeden "çalışıyor" denmez.
+  - Yeni kurallar en az "en kârlı 5 hisse hariç" kapısını geçmelidir. Aday kurallarda bu kapı zaten var; ana tablodaki stratejilerin hiçbiri bu kapıyı geçmiyor.
