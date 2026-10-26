@@ -34,7 +34,13 @@ from core.infrastructure.logger import get_logger
 from core.ledger import cash_balance, load_ledger, open_positions
 from core.ledger.paper import fill_pending
 from core.market import store
-from core.market.calendar import drop_open_candle, last_final_session_date, now_istanbul
+from core.market.calendar import (
+    drop_open_candle,
+    holiday,
+    is_session_day,
+    last_final_session_date,
+    now_istanbul,
+)
 from core.market.corrections import clean, drop_cancelled_sessions, load_corporate_actions
 from core.market.universe import BENCHMARK, load_universe
 from core.reports.runs import ReportBusy, already_sent, record_run, report_lock
@@ -182,7 +188,9 @@ class DailyResult:
     text: str
     events: list = field(default_factory=list)
     fills: list = field(default_factory=list)
-    status: str = "built"  # built | sent | skipped (this data day was already sent)
+    # built | sent | skipped (second run) | holiday (no session today) | stale (no new candle)
+    status: str = "built"
+    note: str = ""
 
 
 def build_daily(paths: Paths | None = None, universe: list[str] | None = None, today: date | None = None) -> DailyResult:
@@ -407,6 +415,20 @@ def _notify_failure(error: Exception, log_name: str) -> None:
         logger.exception("Failure notice could not be sent")
 
 
+def _not_sent_reason(day: date, now=None) -> tuple[str, str]:
+    """Why a run found its data day already sent."""
+
+    now = now or now_istanbul()
+    today = now.date()
+    if not is_session_day(today):
+        h = holiday(today)
+        return "holiday", h.name if h else "hafta sonu"
+    expected = last_final_session_date(now)
+    if day < expected:
+        return "stale", f"beklenen {expected:%d.%m.%Y} kapanışı, veri {day:%d.%m.%Y}"
+    return "skipped", "bu veri günü zaten gönderilmişti"
+
+
 def _run(args) -> DailyResult:
     with report_lock():
         return _run_locked(args)
@@ -423,9 +445,9 @@ def _run_locked(args) -> DailyResult:
     _record_scores()
 
     if args.send and not args.force and already_sent(result.day):
-        # a holiday (no new candle) or a second scheduler: never send twice
-        result.status = "skipped"
-        logger.info("Daily report for %s was already sent; not sending again", result.day)
+        # never send the same data day twice; say why in logs/runs.csv
+        result.status, result.note = _not_sent_reason(result.day)
+        logger.info("Daily report for %s was already sent (%s); not sending again", result.day, result.status)
         return result
 
     result.text = _with_weekly_line(result.text, result.day)
@@ -493,10 +515,12 @@ def main(argv: list[str] | None = None) -> int:
             _notify_failure(exc, str(log_file or "logs/quantbist.log"))
         return 1
 
-    record_run(started, result.status, result.day)
-    notes = {"sent": "\n\nTelegram'a gönderildi.", "skipped": "\n\nBu veri günü zaten gönderilmişti; tekrar gönderilmedi."}
-    write_log(result.text + notes.get(result.status, ""))
-    print(result.text + notes.get(result.status, ""))
+    record_run(started, result.status, result.day, result.note)
+    note = "\n\nTelegram'a gönderildi." if result.status == "sent" else (
+        f"\n\nTelegram'a gönderilmedi ({result.status}: {result.note})." if result.note else ""
+    )
+    write_log(result.text + note)
+    print(result.text + note)
     return 0
 
 

@@ -72,7 +72,7 @@ class DataChecksTest(unittest.TestCase):
         self.assertEqual(health.price_check(MONDAY_EVENING, _bench("2026-10-26")).state, health.OK)
         behind = health.price_check(MONDAY_EVENING, _bench("2026-10-22"))
         self.assertEqual(behind.state, health.WARN)
-        self.assertIn("2 iş günü geride", behind.text)
+        self.assertIn("2 seans geride", behind.text)
 
     def test_prices_unreadable_is_unknown(self):
         def broken(symbol):

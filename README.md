@@ -141,7 +141,12 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
   (kaldırmak için `-Remove`). Çıktılar `logs\daily_<tarih>.log`.
   Aynı anda tek rapor çalışır; aynı veri günü Telegram'a bir kez gider (tatilde tekrar gönderilmez,
   yeniden göndermek için `--force`). Her çalıştırma `logs\runs.csv` dosyasına yazılır:
-  `sent` gönderildi, `skipped` zaten gönderilmişti, `busy` başka bir çalıştırma sürüyordu, `failed` hata.
+  `sent` gönderildi, `skipped` zaten gönderilmişti, `holiday` bugün seans yok (tatil), `stale` beklenen
+  kapanışın verisi gelmedi, `busy` başka bir çalıştırma sürüyordu, `failed` hata.
+- **Tatil takvimi** `data/bist_holidays.csv`: Borsa İstanbul'un tam gün tatilleri ve yarım günleri (arifeler;
+  pay piyasası ~12:40'ta kapanır). Yeni yılın tarihleri Borsa İstanbul'un Aralık duyurusundan eklenir;
+  `/durum` eksik yılı ve yaklaşan tatilleri gösterir, haftalık araştırma dosyayı XU100 mumlarıyla karşılaştırır
+  (`python -m core.market.calendar`).
 
 Bu dosyalar kişiseldir; `.gitignore` içindedir ve sürüm zip'leri bunların üzerine yazmaz.
 

@@ -21,7 +21,15 @@ import pandas as pd
 
 from core import __version__
 from core.config.paths import EQUITY_LOG_FILE, SIGNAL_LOG_FILE
-from core.market.calendar import ISTANBUL, SESSION_FINAL, last_final_session_date, now_istanbul
+from core.market.calendar import (
+    ISTANBUL,
+    SESSION_FINAL,
+    covered_until,
+    holidays,
+    last_final_session_date,
+    now_istanbul,
+    sessions_between,
+)
 from core.market.universe import BENCHMARK
 from core.reports import runs as run_log
 from core.reports.daily import adjusted_bars, tr
@@ -60,7 +68,7 @@ def due_session(now: datetime) -> date:
 
 def report_check(now: datetime, path: Path | str | None = None) -> Check:
     rows = run_log.read_runs(path)
-    done = [r for r in rows if r.status in (run_log.SENT, "skipped")]
+    done = [r for r in rows if r.status in (run_log.SENT, "skipped", "holiday")]
     sent = [r for r in rows if r.status == run_log.SENT]
 
     if not done:
@@ -79,8 +87,11 @@ def report_check(now: datetime, path: Path | str | None = None) -> Check:
     failed = [r for r in rows if r.status == "failed"]
     if failed and (not done or failed[-1].started_at > done[-1].started_at):
         return Check("Günlük rapor", WARN, f"{text}; son çalıştırma hata verdi: {failed[-1].detail}")
+    stale = [r for r in rows if r.status == "stale" and datetime.fromisoformat(r.started_at) >= _session_start(due)]
+    if not covered and stale:
+        return Check("Günlük rapor", WARN, f"{text}; {_date(due)} kapanış verisi gelmedi ({stale[-1].detail})")
     if not covered:
-        return Check("Günlük rapor", WARN, f"{text}; {_date(due)} kapanış raporu gitmedi (tatil değilse)")
+        return Check("Günlük rapor", WARN, f"{text}; {_date(due)} kapanış raporu gitmedi")
 
     return Check("Günlük rapor", OK, text)
 
@@ -96,13 +107,25 @@ def price_check(now: datetime, bars=adjusted_bars) -> Check:
 
     last = bench.index[-1].date()
     expected = last_final_session_date(now)
-    behind = len(pd.bdate_range(last, expected)) - 1
+    behind = sessions_between(last, expected)
 
     if behind <= 0:
         return Check("Fiyat verisi", OK, f"XU100 son kapanış {_date(last)}")
-    return Check(
-        "Fiyat verisi", WARN, f"XU100 son kapanış {_date(last)}; {behind} iş günü geride (tatil olabilir)"
-    )
+    return Check("Fiyat verisi", WARN, f"XU100 son kapanış {_date(last)}; {behind} seans geride")
+
+
+def calendar_check(now: datetime) -> Check:
+    until = covered_until()
+    upcoming = [h for d, h in sorted(holidays().items()) if now.date() <= d <= now.date() + timedelta(days=14)]
+    soon = "; yaklaşan: " + ", ".join(
+        f"{h.day:%d.%m} {h.name}{' (yarım gün)' if h.kind == 'half' else ''}" for h in upcoming
+    ) if upcoming else ""
+
+    if until is None or until < now.year:
+        return Check("Tatil takvimi", UNKNOWN, f"{now.year} yılı tatilleri data/bist_holidays.csv'de yok")
+    if until == now.year and now.month == 12:
+        return Check("Tatil takvimi", WARN, f"{until + 1} tatilleri henüz eklenmedi{soon}")
+    return Check("Tatil takvimi", OK, f"{until} sonuna kadar{soon}")
 
 
 def signal_check(path: Path | str | None = None) -> Check:
@@ -175,6 +198,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars) -> list[Check
         signal_check(),
         equity_check(),
         backup_check(now),
+        calendar_check(now),
     ]
 
 
