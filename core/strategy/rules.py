@@ -93,6 +93,7 @@ def momentum_signals(
     skip: int = 21,
     top_n: int = 5,
     regime: pd.Series | None = None,
+    eligible: pd.DataFrame | None = None,
 ) -> dict[str, pd.DataFrame]:
     """
     Hold the `top_n` stocks with the best return over `lookback` days,
@@ -100,10 +101,15 @@ def momentum_signals(
     The ranking is refreshed on the last session of each month.
 
     With `regime`, positions are only held while regime is True.
+    With `eligible` (dates x symbols, e.g. point-in-time index membership),
+    only stocks eligible on the rebalance day are ranked.
     """
 
     closes = _closes(frames)
     momentum = closes.shift(skip) / closes.shift(skip + lookback) - 1
+    if eligible is not None:
+        ok = eligible.reindex(index=closes.index, columns=closes.columns).ffill().fillna(False).astype(bool)
+        momentum = momentum.where(ok)
 
     month_end = closes.index.to_series().groupby(closes.index.to_period("M")).max()
     rebalance = closes.index.isin(month_end.values)

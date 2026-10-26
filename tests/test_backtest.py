@@ -190,16 +190,33 @@ class ResearchSmokeTest(unittest.TestCase):
     def test_research_report_runs(self):
         from unittest import mock
 
+        import pandas as pd
+
         from core.backtest import research
         from core.market import store
         from core.market.universe import BENCHMARK
         from tests.helpers import offline_market
 
         symbols = [f"R{i}.IS" for i in range(8)]
+
+        def panel(index, names, **_):
+            return pd.DataFrame(True, index=index, columns=names)
+
+        texts = {}
         with offline_market(), mock.patch("core.backtest.run.load_universe", return_value=symbols), \
+                mock.patch("core.market.membership.ever_members", return_value=symbols), \
+                mock.patch("core.market.membership.membership_panel", side_effect=panel), \
                 mock.patch.object(research, "GRID", [dict(lookback=63, top_n=3, regime=False)]):
             store.update([BENCHMARK, *symbols])
-            text = research.research_report(start="2025-06-01", positions=3)
+            for universe in ("pit", "today"):
+                texts[universe] = research.research_report(start="2025-06-01", positions=3, universe=universe)
 
-        self.assertIn("walk-forward", text)
-        self.assertIn("XU100 al-tut", text)
+        for text in texts.values():
+            self.assertIn("walk-forward", text)
+            self.assertIn("XU100 al-tut", text)
+            self.assertIn("Bonferroni", text)
+            self.assertIn("XU100'ü geçen pencere", text)
+        self.assertIn("geçmiş BIST 100 üyeliği", texts["pit"])
+        self.assertNotIn("Eşit ağırlık", texts["pit"])
+        self.assertIn("BUGÜNKÜ liste", texts["today"])
+        self.assertIn("Eşit ağırlık", texts["today"])

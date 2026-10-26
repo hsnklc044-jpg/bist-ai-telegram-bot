@@ -32,6 +32,10 @@ jobs:
         env:
           START: ${{ inputs.start }}
         run: python -m core.backtest.research ${START:+--start "$START"} 2>&1 | tee research.txt
+      - name: Strategy research, today's list (survivorship-biased comparison)
+        env:
+          START: ${{ inputs.start }}
+        run: python -m core.backtest.research --universe today ${START:+--start "$START"} 2>&1 | tee research_today.txt
       - name: Candidate rules, point-in-time BIST 100
         run: python -m core.backtest.candidates --pit 2>&1 | tee candidates.txt
       - name: Drawdown diagnosis (momentum)
@@ -39,7 +43,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          for f in update research candidates diagnose; do
+          for f in update research research_today candidates diagnose; do
             echo "## $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"

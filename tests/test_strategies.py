@@ -23,6 +23,23 @@ class MomentumTest(unittest.TestCase):
         held = {t.symbol for t in result.trades}
         self.assertTrue(held <= {"S5", "S6", "S7"}, held)
 
+    def test_ranks_only_eligible_stocks(self):
+        frames = universe()
+        index = frames["S0"].index
+        eligible = pd.DataFrame(True, index=index, columns=list(frames))
+        eligible["S7"] = False  # strongest, but not an index member
+        eligible.loc[index[300]:, "S6"] = False  # leaves the index
+
+        result = run_backtest(
+            frames, momentum_signals(frames, lookback=126, top_n=3, eligible=eligible), BacktestConfig(max_positions=3)
+        )
+
+        held = {t.symbol for t in result.trades}
+        self.assertNotIn("S7", held)
+        self.assertTrue(held <= {"S3", "S4", "S5", "S6"}, held)  # S3 replaces S6 once it leaves
+        late = [t for t in result.trades if t.symbol == "S6" and t.entry_date > index[302]]
+        self.assertEqual(late, [])
+
     def test_rebalances_only_at_month_end(self):
         frames = universe()
         sig = momentum_signals(frames, lookback=63, top_n=3)["S7"]
