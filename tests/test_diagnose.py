@@ -29,6 +29,9 @@ class ImpossibleMoveTest(unittest.TestCase):
         moves = impossible_moves(df, market_wide=set())
         self.assertEqual(list(moves.index), [pd.Timestamp("2024-01-04"), index[4], index[5]])
 
+        limit_day = pd.DataFrame({"close": [100.0, 110.4, 99.0]}, index=index[:3])
+        self.assertTrue(impossible_moves(limit_day, set()).empty)  # tick-rounded limit moves
+
         moves = impossible_moves(df, market_wide={index[4]})
         self.assertNotIn(index[4], moves.index)
         self.assertNotIn(index[3], moves.index)  # +26% over 5 sessions is allowed

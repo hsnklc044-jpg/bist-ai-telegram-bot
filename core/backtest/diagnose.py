@@ -30,7 +30,9 @@ from core.backtest.run import load_frames, tradable_symbols
 from core.market.quality import market_wide_moves
 from core.strategy.rules import momentum_signals
 
-SESSION_LIMIT = 0.10
+# BIST's limit is ±10% of the base price, rounded to the price tick, so a
+# real limit-up/limit-down close can land slightly beyond 10%.
+SESSION_LIMIT = 0.105
 
 
 @dataclass
