@@ -45,9 +45,9 @@ class HistoryTest(unittest.TestCase):
 
     def test_appends_without_rewriting(self):
         history.append_records([_record("A", 0.1, "")], self.path, run_date="2026-10-24")
-        first = self.path.read_text()
+        first = self.path.read_text(encoding="utf-8")
         history.append_records([_record("A", 0.2, "")], self.path, run_date="2026-10-31")
-        self.assertTrue(self.path.read_text().startswith(first))
+        self.assertTrue(self.path.read_text(encoding="utf-8").startswith(first))
 
 
 if __name__ == "__main__":

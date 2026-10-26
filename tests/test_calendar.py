@@ -49,7 +49,7 @@ class CheckAgainstCandlesTest(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         path = Path(tmp.name) / "h.csv"
-        path.write_text("date,kind,name\n2026-01-01,full,Yılbaşı\n2026-01-05,full,Yanlış\n2026-12-31,half,x\n")
+        path.write_text("date,kind,name\n2026-01-01,full,Yılbaşı\n2026-01-05,full,Yanlış\n2026-12-31,half,x\n", encoding="utf-8")
 
         days = pd.bdate_range("2026-01-02", "2026-01-09")
         days = days.drop([pd.Timestamp("2026-01-07")])  # unknown gap
@@ -63,7 +63,7 @@ class CheckAgainstCandlesTest(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         path = Path(tmp.name) / "h.csv"
-        path.write_text("date,kind,name\n2026-01-01,full,Yılbaşı\n")
+        path.write_text("date,kind,name\n2026-01-01,full,Yılbaşı\n", encoding="utf-8")
         days = pd.bdate_range("2026-01-02", "2026-01-30")
         self.assertEqual(calendar.check_against_candles(days, path), [])
 
@@ -71,7 +71,7 @@ class CheckAgainstCandlesTest(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         path = Path(tmp.name) / "h.csv"
-        path.write_text("date,kind,name\n2026-01-01,closed,x\n")
+        path.write_text("date,kind,name\n2026-01-01,closed,x\n", encoding="utf-8")
         with self.assertRaises(ValueError):
             calendar.holidays(path)
 

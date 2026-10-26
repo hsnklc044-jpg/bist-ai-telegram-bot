@@ -100,7 +100,7 @@ class DataChecksTest(unittest.TestCase):
     def test_equity(self):
         path = self.root / "equity_log.csv"
         self.assertEqual(health.equity_check(path).state, health.UNKNOWN)
-        path.write_text("date,account,value,cash,invested,positions\n2026-10-23,paper,100000.00,100000.00,0.00,0\n")
+        path.write_text("date,account,value,cash,invested,positions\n2026-10-23,paper,100000.00,100000.00,0.00,0\n", encoding="utf-8")
         check = health.equity_check(path)
         self.assertEqual(check.state, health.OK)
         self.assertIn("23.10.2026: 100.000 TL", check.text)

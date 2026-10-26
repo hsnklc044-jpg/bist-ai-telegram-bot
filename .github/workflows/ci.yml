@@ -15,7 +15,9 @@ jobs:
           cache: pip
       - run: pip install -r requirements.lock
       - run: ruff check .
-      - run: pytest -q
+      # Windows reads and writes files as cp1254 unless told otherwise: any
+      # open()/read_text()/write_text() without encoding= fails here.
+      - run: python -X warn_default_encoding -W error::EncodingWarning -m pytest -q
 
   docker:
     runs-on: ubuntu-latest

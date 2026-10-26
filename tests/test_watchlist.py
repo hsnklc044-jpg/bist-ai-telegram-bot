@@ -30,7 +30,7 @@ class WatchlistTest(unittest.TestCase):
         service.add_symbol(42, "thyao")
 
         self.assertEqual(service.get_watchlist(42), ["EREGL.IS", "THYAO.IS"])
-        self.assertEqual(json.loads(self.file.read_text())["42"], ["EREGL.IS", "THYAO.IS"])
+        self.assertEqual(json.loads(self.file.read_text(encoding="utf-8"))["42"], ["EREGL.IS", "THYAO.IS"])
 
         self.assertTrue(service.remove_symbol(42, "eregl"))
         self.assertFalse(service.remove_symbol(42, "eregl"))

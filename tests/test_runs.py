@@ -30,7 +30,7 @@ class LockTest(unittest.TestCase):
         self.assertFalse(runs.LOCK_FILE.exists())
 
     def test_stale_lock_from_a_killed_run_expires(self):
-        runs.LOCK_FILE.write_text("123 eski\n")
+        runs.LOCK_FILE.write_text("123 eski\n", encoding="utf-8")
         old = time.time() - runs.STALE_AFTER.total_seconds() - 60
         os.utime(runs.LOCK_FILE, (old, old))
 
