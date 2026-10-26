@@ -1,6 +1,11 @@
-import pytest
+import os
 
-from core.reports import runs
+# before any QuantBIST import configures logging
+os.environ["QUANTBIST_LOG_FILE"] = ""
+
+import pytest  # noqa: E402
+
+from core.reports import runs  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
