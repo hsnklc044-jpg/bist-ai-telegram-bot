@@ -32,7 +32,7 @@ Kod baştan okundu. Aranan sorun türleri:
 - aynı işi iki kez yapan kod,
 - ölü kod.
 
-Kritik bulgu yok. Yüksek önemli bulgular sırayla düzeltilir; her biri önce başarısız bir testle gösterilir.
+Kritik bulgu yok. Satır satır kaynak ve risk tablosu: docs/RAKAMLAR.md. Yüksek önemli bulgular sırayla düzeltilir; her biri önce başarısız bir testle gösterilir.
 
 | # | Önem | Bulgu | Etki | Durum |
 |---|---|---|---|---|
@@ -48,6 +48,8 @@ Kritik bulgu yok. Yüksek önemli bulgular sırayla düzeltilir; her biri önce 
 | D10 | DÜŞÜK | Saat dilimi belirtilmemiş zamanlar: fiyat deposunun eşitleme zamanı, veri önbelleği, log dosyası adı | PC ve sunucu İstanbul saatinde olduğu için bugün doğru. Başka bir saat diliminde 15 dakikalık yenileme ve log adı kayar | açık |
 | D11 | DÜŞÜK | Telegram mesaj sınırı UTF-16 birimiyle sayılıyor, kod Python karakteri sayıyor | 96'dan fazla emoji içeren bir parça sınırı aşabilir; bugünkü raporlarda olmuyor | açık |
 | D12 | DÜŞÜK | `/report` elle çalıştırılınca yeni uyarıları kayda geçiriyor. Aynı gün 18:30 raporu onları "🆕" olarak yeniden göstermiyor | Kullanıcı uyarıyı `/report` çıktısında zaten görmüş oluyor | açık |
+| D13 | ORTA | Temettü kaydı yok. Defterde temettü satırı (`dividend`) bulunmuyor; temettü günü ham fiyat düşüyor ama nakde bir şey eklenmiyor | Sanal ve gerçek hesap getirisi temettü kadar eksik görünüyor; temettü günü "Günlük değişim" kayıp gösteriyor. Backtest (temettüye göre düzeltilmiş fiyat) ile sanal hesap tutarsız | açık (defter şeması değişir, onay gerekir) |
+| D14 | DÜŞÜK | "Günlük değişim" son hesap kaydına göre hesaplanıyor. PC bir veya birkaç gün kapalı kaldıysa satır birkaç günün toplamını gösteriyor ama "günlük" yazıyor | Yanıltıcı etiket; hesabın kendisi doğru | açık |
 
 ## Aşama 2: tamamlandı (kodda; PC doğrulaması bekliyor)
 
