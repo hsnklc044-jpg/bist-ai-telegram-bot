@@ -5,6 +5,8 @@ Backups of the personal records.
     python -m core.backup                     # back up now
     python -m core.backup --list              # list backups
     python -m core.backup --restore FILE.zip  # restore (current files are backed up first)
+    python -m core.backup --test-restore      # restore the newest backups into a temporary folder and read them
+    python -m core.backup --market-db         # snapshot data/market.db now
 
 The personal records (ledger, paper orders, watchlist and the logs) exist
 only on this machine and are not in git. The daily report backs them up
@@ -14,7 +16,17 @@ backups are kept (default 30).
 
 Backups go to data/backups, or to BACKUP_DIR from .env: point it at a
 synced folder (e.g. OneDrive) so a disk failure does not take the
-backups with it.
+backups with it. .env (the bot token) is never backed up.
+
+The price store (data/market.db) is re-downloadable only for the last
+five years, so it is snapshotted weekly as well (quantbist_marketdb_*.zip,
+newest MARKET_DB_KEEP kept) with SQLite's online backup API, which gives
+a consistent copy even while the bot is reading or writing it.
+
+test_restore() restores the newest backups into a temporary folder,
+checks every hash and reads every file with the code that uses it
+(ledger, paper orders, signal log, equity, alerts, watchlist, SQLite
+integrity_check). It never touches the live files.
 """
 
 from __future__ import annotations
@@ -33,6 +45,7 @@ from core.config.paths import (
     DATA_DIR,
     EQUITY_LOG_FILE,
     LEDGER_FILE,
+    MARKET_DB,
     PAPER_ORDERS_FILE,
     SIGNAL_LOG_FILE,
     WATCHLIST_FILE,
@@ -53,6 +66,8 @@ PERSONAL_FILES = (
 MANIFEST = "manifest.json"
 PREFIX = "quantbist_"
 DEFAULT_KEEP = 30
+MARKET_DB_PREFIX = f"{PREFIX}marketdb_"
+MARKET_DB_KEEP = 4
 
 
 class BackupError(Exception):
@@ -152,6 +167,108 @@ def list_backups(target: Path | None = None) -> list[Path]:
     return sorted(target.glob(f"{PREFIX}*.zip")) if target.exists() else []
 
 
+def daily_backups(target: Path | None = None) -> list[Path]:
+    """Dated backups of the personal records, oldest first."""
+
+    target = Path(target or backup_dir())
+    return _daily_backups(target) if target.exists() else []
+
+
+def market_db_backups(target: Path | None = None) -> list[Path]:
+    target = Path(target or backup_dir())
+    return sorted(target.glob(f"{MARKET_DB_PREFIX}????-??-??.zip")) if target.exists() else []
+
+
+def backup_market_db(db: Path | None = None, target: Path | None = None, keep: int = MARKET_DB_KEEP) -> Backup | None:
+    """Consistent SQLite snapshot (online backup API), zipped with a manifest."""
+
+    import sqlite3
+    import tempfile
+
+    db = Path(db or MARKET_DB)
+    if not db.exists():
+        return None
+    target = Path(target or backup_dir())
+    target.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmp:
+        copy = Path(tmp) / db.name
+        source = sqlite3.connect(db, timeout=60)
+        dest = sqlite3.connect(copy)
+        try:
+            source.backup(dest)
+        finally:
+            dest.close()
+            source.close()
+        backup = create_backup([copy], target=target, name=f"{MARKET_DB_PREFIX}{date.today():%Y-%m-%d}.zip")
+    for old in market_db_backups(target)[:-keep] if keep > 0 else []:
+        old.unlink()
+    return backup
+
+
+def _check_file(path: Path) -> str:
+    """Read one restored file with the code that uses it; returns a short description."""
+
+    import csv as _csv
+    import sqlite3
+
+    name = path.name
+    if name == LEDGER_FILE.name:
+        from core.ledger.book import load_ledger, replay
+
+        entries = load_ledger(path)
+        replay(entries)  # books must still balance (no sale above holdings)
+        return f"defter {len(entries)} satır"
+    if name == PAPER_ORDERS_FILE.name:
+        from core.ledger.paper import load_orders
+
+        return f"sanal emir {len(load_orders(path))}"
+    if name == WATCHLIST_FILE.name:
+        return f"takip listesi {len(json.loads(path.read_text(encoding='utf-8')))} kullanıcı"
+    if name == MARKET_DB.name:
+        conn = sqlite3.connect(path)
+        try:
+            result = conn.execute("PRAGMA integrity_check").fetchone()[0]
+            if result != "ok":
+                raise BackupError(f"{name}: SQLite bütünlük kontrolü: {result}")
+            tables = conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+        finally:
+            conn.close()
+        return f"fiyat veritabanı bütünlük ok ({tables} tablo)"
+    with open(path, encoding="utf-8", newline="") as fh:
+        rows = list(_csv.DictReader(fh))
+    return f"{path.stem} {len(rows)} satır"
+
+
+def test_restore(paths: list[Path] | None = None) -> list[str]:
+    """
+    Restore backups into a temporary folder and read every file back.
+    Default: the newest daily backup and the newest price store snapshot.
+    Raises BackupError on any problem; returns one line per checked file.
+    """
+
+    import tempfile
+
+    if paths is None:
+        paths = [p for p in (daily_backups()[-1:] + market_db_backups()[-1:])]
+    if not paths:
+        raise BackupError("test edilecek yedek yok")
+    lines = []
+    for path in paths:
+        names = verify(path)
+        with tempfile.TemporaryDirectory() as tmp:
+            with zipfile.ZipFile(path) as zf:
+                for name in names:
+                    (Path(tmp) / name).write_bytes(zf.read(name))
+            for name in sorted(names):
+                try:
+                    lines.append(f"{path.name}: {_check_file(Path(tmp) / name)}")
+                except BackupError:
+                    raise
+                except Exception as exc:  # noqa: BLE001 - any unreadable file fails the test
+                    raise BackupError(f"{path.name}: {name} geri yüklendi ama okunamadı: {exc}") from exc
+    return lines
+
+
 def restore_backup(path: Path, data_dir: Path = DATA_DIR) -> tuple[list[str], Backup | None]:
     """
     Restore a backup into data_dir. The backup is verified first, and the
@@ -182,6 +299,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Back up / restore QuantBIST personal records")
     parser.add_argument("--list", action="store_true", help="yedekleri listele")
     parser.add_argument("--restore", metavar="ZIP", help="bu yedeği geri yükle")
+    parser.add_argument("--test-restore", action="store_true", help="son yedekleri geçici klasöre açıp oku")
+    parser.add_argument("--market-db", action="store_true", help="fiyat veritabanını şimdi yedekle")
     args = parser.parse_args(argv)
 
     try:
@@ -190,6 +309,17 @@ def main(argv: list[str] | None = None) -> int:
             for p in backups:
                 print(f"{p.name}  {len(verify(p))} dosya")
             print(f"{len(backups)} yedek, klasör: {backup_dir()}")
+            return 0
+
+        if args.test_restore:
+            for line in test_restore():
+                print(line)
+            print("Geri yükleme testi başarılı (canlı dosyalara dokunulmadı).")
+            return 0
+
+        if args.market_db:
+            backup = backup_market_db()
+            print(backup.line() + f"\n{backup.path}" if backup else "Fiyat veritabanı yok.")
             return 0
 
         if args.restore:
@@ -216,8 +346,12 @@ __all__ = [
     "Backup",
     "BackupError",
     "backup_dir",
+    "backup_market_db",
     "create_backup",
+    "daily_backups",
     "list_backups",
+    "market_db_backups",
+    "test_restore",
     "restore_backup",
     "verify",
 ]

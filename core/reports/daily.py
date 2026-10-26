@@ -328,20 +328,43 @@ def split_text(text: str, limit: int = 4000) -> list[str]:
     return parts
 
 
-def send_telegram(text: str, token: str, chat_id: int, post=None) -> None:
-    """Send with the Bot HTTP API. `post` is injectable for tests."""
+SEND_ATTEMPTS = 3
+SEND_PAUSES = (5, 20)  # seconds between attempts
 
-    if post is None:
-        import httpx
 
-        post = httpx.post
+def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None) -> None:
+    """
+    Send with the Bot HTTP API. A network error, a 5xx or a 429 is retried
+    (SEND_ATTEMPTS times); a 4xx such as a wrong token is not. Each part is
+    retried on its own, so a part that went out is never sent twice.
+    `post` and `sleep` are injectable for tests.
+    """
+
+    import time
+
+    import httpx
+
+    post = post or httpx.post
+    sleep = sleep or time.sleep
+    retryable = (ConnectionError, OSError, TimeoutError, httpx.TransportError)
     for part in split_text(text):
-        response = post(
-            f"https://api.telegram.org/bot{token}/sendMessage",
-            json={"chat_id": chat_id, "text": part},
-            timeout=30,
-        )
-        response.raise_for_status()
+        for attempt in range(SEND_ATTEMPTS):
+            try:
+                response = post(
+                    f"https://api.telegram.org/bot{token}/sendMessage",
+                    json={"chat_id": chat_id, "text": part},
+                    timeout=30,
+                )
+                status = getattr(response, "status_code", 200)
+                if status == 429 or status >= 500:
+                    raise ConnectionError(f"Telegram HTTP {status}")
+                response.raise_for_status()
+                break
+            except retryable as exc:
+                if attempt == SEND_ATTEMPTS - 1:
+                    raise
+                logger.warning("Telegram send failed, retrying | %s", exc)
+                sleep(SEND_PAUSES[min(attempt, len(SEND_PAUSES) - 1)])
 
 
 def utf8_output(stream=None) -> None:
@@ -372,7 +395,32 @@ def _with_backup_line(text: str) -> str:
         logger.exception("Backup failed")
         line = f"⚠️ Yedek alınamadı: {exc}"
 
-    return _before_disclaimer(text, line)
+    weekly = _weekly_backup_check()
+    return _before_disclaimer(text, line + (f"\n{weekly}" if weekly else ""))
+
+
+WEEKLY_BACKUP_DAYS = 6
+
+
+def _weekly_backup_check(today: date | None = None) -> str:
+    """
+    Once a week: snapshot the price store and restore the newest backups
+    into a temporary folder (the live files are not touched). Never fatal.
+    """
+
+    from core.backup import backup_market_db, market_db_backups, test_restore
+
+    today = today or date.today()
+    try:
+        latest = market_db_backups()[-1:]
+        if latest and (today - date.fromisoformat(latest[0].stem[-10:])).days < WEEKLY_BACKUP_DAYS:
+            return ""
+        backup_market_db()
+        checked = test_restore()
+        return f"🔁 Haftalık geri yükleme testi başarılı: {len(checked)} dosya okundu (fiyat veritabanı dahil)"
+    except Exception as exc:  # noqa: BLE001 - the report must still go out
+        logger.exception("Weekly backup check failed")
+        return f"⚠️ Haftalık yedek/geri yükleme testi başarısız: {exc}"
 
 
 def _before_disclaimer(text: str, line: str) -> str:

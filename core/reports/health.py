@@ -162,7 +162,7 @@ def equity_check(path: Path | str | None = None) -> Check:
 
 
 def backup_check(now: datetime, target: Path | None = None) -> Check:
-    from core.backup import backup_dir, list_backups
+    from core.backup import backup_dir, daily_backups as list_backups
 
     target = Path(target or backup_dir())
     try:

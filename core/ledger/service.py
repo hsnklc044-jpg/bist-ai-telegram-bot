@@ -23,7 +23,33 @@ from core.reports.daily import ACCOUNT_NAMES, adjusted_bars, pct, raw_bars, tr
 SIDE_NAMES = {"buy": "alış", "sell": "satış", "bonus": "bedelsiz", "rights": "bedelli"}
 
 
+def _exclusive():
+    """
+    The ledger and the paper orders are read, checked and rewritten. The
+    daily report does the same while filling orders, so commands take the
+    same lock: a write can never overwrite another one.
+    """
+
+    from core.reports.runs import report_lock
+
+    return report_lock()
+
+
+def _busy_text(exc) -> str:
+    return f"⏳ {exc} İşleminiz kaydedilmedi; birkaç dakika sonra tekrar deneyin."
+
+
 def record_trade(cmd: TradeCommand, ledger_path: Path | str | None = None, today: date | None = None) -> str:
+    from core.reports.runs import ReportBusy
+
+    try:
+        with _exclusive():
+            return _record_trade(cmd, ledger_path, today)
+    except ReportBusy as exc:
+        return _busy_text(exc)
+
+
+def _record_trade(cmd: TradeCommand, ledger_path: Path | str | None = None, today: date | None = None) -> str:
     today = today or now_istanbul().date()
     fee = cmd.fee
     if fee is None:
@@ -89,6 +115,29 @@ def paper_action(
     now=None,
 ) -> str:
     orders_path = orders_path or PAPER_ORDERS_FILE
+    if cmd.action in ("cancel", "order"):
+        from core.reports.runs import ReportBusy
+
+        try:
+            with _exclusive():
+                return _paper_write(cmd, orders_path, ledger_path, now)
+        except ReportBusy as exc:
+            return _busy_text(exc)
+    pending = [o for o in load_orders(orders_path) if o.status == "pending"]
+    if not pending:
+        return "Bekleyen sanal emir yok.\n\n" + _usage()
+    lines = ["⏳ Bekleyen sanal emirler"]
+    for o in pending:
+        verb = "al" if o.side == "buy" else "sat"
+        lines.append(f"  #{o.id} {verb} {o.symbol.removesuffix('.IS')} {tr(o.quantity)} adet ({o.created_at:%d.%m.%Y %H:%M})")
+        if o.reason:
+            lines.append(f"     gerekçe: {o.reason}")
+        if o.fill_log:
+            lines.append(f"     {o.fill_log}")
+    return "\n".join(lines)
+
+
+def _paper_write(cmd: PaperCommand, orders_path, ledger_path, now) -> str:
     if cmd.action == "cancel":
         o = cancel_order(cmd.order_id, orders_path)
         return f"🗑 Sanal emir #{o.id} iptal edildi."
@@ -104,18 +153,7 @@ def paper_action(
             "kilitli tavan/taban gününde beklenir. Gerçek emir gönderilmez.\n\n"
             + order_record_text(o)
         )
-    pending = [o for o in load_orders(orders_path) if o.status == "pending"]
-    if not pending:
-        return "Bekleyen sanal emir yok.\n\n" + _usage()
-    lines = ["⏳ Bekleyen sanal emirler"]
-    for o in pending:
-        verb = "al" if o.side == "buy" else "sat"
-        lines.append(f"  #{o.id} {verb} {o.symbol.removesuffix('.IS')} {tr(o.quantity)} adet ({o.created_at:%d.%m.%Y %H:%M})")
-        if o.reason:
-            lines.append(f"     gerekçe: {o.reason}")
-        if o.fill_log:
-            lines.append(f"     {o.fill_log}")
-    return "\n".join(lines)
+    raise ValueError(cmd.action)
 
 
 def _paper_value(ledger_path) -> float | None:
