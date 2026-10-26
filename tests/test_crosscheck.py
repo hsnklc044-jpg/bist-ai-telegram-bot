@@ -169,6 +169,25 @@ class CompareTest(unittest.TestCase):
         self.assertEqual(result.state, "tutarlı")
         self.assertIn("tek gün kapanış hatası (ertesi gün düzelen) 1", crosscheck.format_report([result], "t"))
 
+    def test_no_stored_prices(self):
+        result = crosscheck.compare("KPOWR.IS", pd.DataFrame(), frame([1.0, 2.0, 3.0]))
+        self.assertEqual(result.state, "kontrol edilemedi")
+        self.assertIn("veri yok", result.error)
+
+    def test_a_crashing_stock_does_not_stop_the_run(self):
+        rows = [{"HGDG_TARIH": "12-10-2026", "HGDG_KAPANIS": 1.0, "HGDG_MAX": 1, "HGDG_MIN": 1,
+                 "HGDG_AOF": 1, "HGDG_HACIM": 1}]
+
+        def bars(symbol):
+            if symbol == "BAD.IS":
+                raise RuntimeError("bozuk")
+            return frame([1.0])
+
+        results = crosscheck.run(["BAD.IS", "OK.IS"], 30, today=date(2026, 10, 23), get=fake_get(rows),
+                                 bars=bars, sleep=lambda s: None)
+        self.assertEqual([r.symbol for r in results[1:]], ["BAD.IS", "OK.IS"])
+        self.assertIn("karşılaştırma hatası", results[1].error)
+
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))
         self.assertEqual(result.state, "kontrol edilemedi")

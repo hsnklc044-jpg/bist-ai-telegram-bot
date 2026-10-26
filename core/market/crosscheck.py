@@ -167,6 +167,9 @@ def compare(
     if theirs.empty:
         result.error = "ikinci kaynakta veri yok"
         return result
+    if ours is None or ours.empty or not isinstance(ours.index, pd.DatetimeIndex):
+        result.error = "Yahoo'da (depoda) veri yok"
+        return result
 
     window = ours[(ours.index >= theirs.index[0]) & (ours.index <= theirs.index[-1])]
     result.only_ours = [d.date() for d in window.index.difference(theirs.index)]
@@ -344,7 +347,11 @@ def run(
             continue
         if "index" in theirs:
             index_values.append(theirs["index"].dropna())
-        results.append(compare(symbol, bars(symbol), theirs, actions.get(symbol) or actions.get(code)))
+        try:
+            results.append(compare(symbol, bars(symbol), theirs, actions.get(symbol) or actions.get(code)))
+        except Exception as exc:  # noqa: BLE001 - one bad stock must not stop a long run
+            logger.exception("Comparison failed | %s", symbol)
+            results.append(CrossCheck(symbol, error=f"karşılaştırma hatası: {type(exc).__name__}: {str(exc)[:80]}"))
 
     # the benchmark: İş Yatırım sends BIST 100 with every stock row
     from core.market.universe import BENCHMARK

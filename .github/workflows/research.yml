@@ -27,6 +27,12 @@ concurrency:
   group: research
   cancel-in-progress: false
 
+# A command piped into tee must fail its step when it fails (steps that
+# may fail on purpose say "|| true").
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
 jobs:
   research:
     runs-on: ubuntu-latest
@@ -56,6 +62,7 @@ jobs:
       - name: Strategy research, today's list (survivorship-biased comparison)
         run: python -m core.backtest.research --universe today ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research_today.txt
       - name: Strategy research with one-day close fixes (effect only, not recorded)
+        continue-on-error: true  # experimental; its failure must not hide the rest
         run: |
           if [ -f results/datacheck/latest_price_fixes.csv ]; then
             python -m core.backtest.research ${START:+--start "$START"} \

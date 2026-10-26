@@ -25,6 +25,12 @@ concurrency:
   group: datacheck-${{ inputs.symbols != '' && 'symbols' || 'full' }}
   cancel-in-progress: false
 
+# A command piped into tee must fail its step when it fails (steps that
+# may fail on purpose say "|| true").
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
 jobs:
   datacheck:
     runs-on: ubuntu-latest
