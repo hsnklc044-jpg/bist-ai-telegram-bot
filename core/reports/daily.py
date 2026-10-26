@@ -354,6 +354,18 @@ def _with_backup_line(text: str) -> str:
     return f"{head}{line}\n\n{sep}{tail}" if sep else f"{text}\n\n{line}"
 
 
+def _record_scores() -> None:
+    """Record every stock's view for the live measurement; never fatal."""
+
+    from core.reports.forward import log_daily_scores
+
+    try:
+        written = log_daily_scores(load_universe())
+        logger.info("Daily scores recorded | %d stocks", written)
+    except Exception:  # noqa: BLE001 - the report must still go out
+        logger.exception("Daily score recording failed")
+
+
 def _notify_failure(error: Exception, log_name: str) -> None:
     """Tell the user in Telegram that the scheduled report did not come out."""
 
@@ -379,6 +391,7 @@ def _run(args) -> DailyResult:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
 
     result = build_daily()
+    _record_scores()
     result.text = _with_backup_line(result.text)
 
     # send first: a problem while printing must never stop the report

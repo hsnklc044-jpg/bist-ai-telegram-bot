@@ -11,6 +11,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from bot.common import reply
+from core.reports.forward import forward_report
 from core.reports.overview import build_overview
 
 
@@ -27,5 +28,18 @@ async def summary(
     await reply(update, "⏳ Özet hazırlanıyor...")
 
     text = await asyncio.to_thread(_build_summary)
+
+    await reply(update, text)
+
+
+async def performance(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /performans (live results of recorded views and the paper account)."""
+
+    await reply(update, "⏳ Kayıtlar puanlanıyor...")
+
+    text = await asyncio.to_thread(forward_report)
 
     await reply(update, text)

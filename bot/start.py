@@ -29,6 +29,7 @@ Portföy ve risk:
 /paper – bekleyen sanal emirler, /paper iptal 3
 /alerts – açık risk uyarıları
 /report – günlük raporu şimdi üret
+/performans – kayıtlı görünümlerin ve sanal hesabın canlı sonucu (XU100'e karşı)
 /help – bu mesaj
 
 ℹ️ Teknik skorun backtest'te getiri tahmin gücü bulunmadı;

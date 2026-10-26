@@ -30,7 +30,7 @@ class PrivateFiles:
 
     def __enter__(self):
         self._tmp = tempfile.TemporaryDirectory()
-        root = Path(self._tmp.name)
+        root = self.root = Path(self._tmp.name)
         self.paths = {
             "ledger": root / "ledger.csv",
             "alerts": root / "alerts_log.csv",
@@ -40,6 +40,8 @@ class PrivateFiles:
             mock.patch.object(overview, "LEDGER_FILE", self.paths["ledger"]),
             mock.patch.object(overview, "ALERTS_LOG_FILE", self.paths["alerts"]),
             mock.patch("core.signals_log.SIGNAL_LOG_FILE", self.paths["signals"]),
+            mock.patch("core.reports.forward.SIGNAL_LOG_FILE", self.paths["signals"]),
+            mock.patch("core.reports.forward.EQUITY_LOG_FILE", self.root / "equity_log.csv"),
         ]
         for p in self._patches:
             p.start()
@@ -95,7 +97,7 @@ class NoTradeCallsTest(unittest.TestCase):
 
     def test_bot_commands(self):
         from bot.analysis import analyze, top
-        from bot.reports import summary
+        from bot.reports import performance, summary
         from bot.start import start
 
         with offline_market(), PrivateFiles():
@@ -105,6 +107,7 @@ class NoTradeCallsTest(unittest.TestCase):
                 "/summary": self._run(summary),
                 "/top": self._run(top),
                 "/analyze": self._run(analyze, ["THYAO"]),
+                "/performans": self._run(performance),
             }
 
         for command, text in outputs.items():

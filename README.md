@@ -106,6 +106,7 @@ işlem yapılır; raporda sadece bu test dönemleri birleştirilir.
 | `/paper al THYAO 100`, `/paper sat THYAO 50`, `/paper iptal 3`, `/paper` | Sanal emir; bir sonraki açılıştan dolar (09:40'tan önce verilirse aynı günün açılışından) |
 | `/alerts` | Açık risk uyarıları |
 | `/report` | Günlük raporu şimdi üret |
+| `/performans` | Kayıtlı teknik görünümlerin ve sanal hesabın canlı sonucu, XU100'e karşı |
 | `/help` | Komut listesi |
 
 Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman gerçek emir göndermez.
@@ -126,6 +127,13 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
   (kaldırmak için `-Remove`). Çıktılar `logs\daily_<tarih>.log`.
 
 Bu dosyalar kişiseldir; `.gitignore` içindedir ve sürüm zip'leri bunların üzerine yazmaz.
+
+**Canlı performans** (`python -m core.reports.forward`, Telegram'da `/performans`): günlük rapor her
+akşam tüm hisselerin teknik görünümünü `data/signal_log.csv` dosyasına kaydeder. Her kayıt, ertesi
+açılışta alınıp 5, 20 ve 60 seans tutulmuş gibi XU100'e karşı puanlanır. Aynı günün kayıtları birlikte
+hareket ettiği için %95 aralık günler üzerinden hesaplanır; 20 işlem gününden önce sonuç "henüz karar
+yok" olarak gösterilir. Sanal hesabın değeri de aynı günlerde XU100 ile karşılaştırılır. Geçmişe
+uydurulamayan tek ölçüm budur: sadece sonuç bilinmeden önce yazılmış kayıtları puanlar.
 
 **Yedekleme:** günlük rapor her çalıştığında bu kişisel dosyaları tarihli bir zip'e yedekler
 (`data\backups\quantbist_<tarih>.zip`, son 30 gün; her yedek SHA-256 ile doğrulanır) ve raporun
