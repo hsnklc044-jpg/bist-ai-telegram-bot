@@ -70,8 +70,10 @@ python -m core.market.quality         # sadece kalite raporu
 - 8 Şubat 2023 (deprem sonrası iptal edilen seans) verilerden çıkarılır.
 - Yahoo'nun düzeltmediği bedelsiz/bedelli/bölünme etkileri `data/corporate_actions.csv` ile düzeltilir;
   kalite raporu şüpheli sıçramalar için önerilen satırı yazdırır (KAP'tan doğrulayıp ekleyin).
-- Kalite raporu eksik günleri, bayat veriyi, sıfır hacimli günleri ve ±%10 tavan/taban limitini
-  aşan sıçramaları (genelde bölünme/bedelsiz veya veri hatası) gösterir.
+- Kalite raporu eksik günleri, bayat veriyi, sıfır hacimli günleri ve ±%20'yi aşan sıçramaları
+  (düzeltme önerisiyle; bu hisseler backtest'ten dışlanır) gösterir. Ayrıca bilgi olarak ±%10
+  günlük limitle açıklanamayan %20 altı hareketleri listeler; bunlar hisseyi dışlamaz. Düşüşler
+  temettü düzeltmesiyle açıklanamadığı için önce listelenir (fiyata yansımamış bedelli olabilir).
 
 ## Backtest
 

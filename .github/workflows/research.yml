@@ -36,7 +36,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          for f in research candidates diagnose; do
+          for f in update research candidates diagnose; do
             echo "## $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"

@@ -21,18 +21,13 @@ import argparse
 from collections import defaultdict
 from dataclasses import dataclass
 
-import numpy as np
 import pandas as pd
 
 from core.backtest.engine import BacktestConfig, BacktestResult, Trade, run_backtest
 from core.backtest.research import DEFAULT_START
 from core.backtest.run import load_frames, tradable_symbols
-from core.market.quality import market_wide_moves
+from core.market.quality import limit_breaches, market_wide_moves
 from core.strategy.rules import momentum_signals
-
-# BIST's limit is ±10% of the base price, rounded to the price tick, so a
-# real limit-up/limit-down close can land slightly beyond 10%.
-SESSION_LIMIT = 0.105
 
 
 @dataclass
@@ -48,23 +43,6 @@ def deepest_drawdown(equity: pd.Series) -> Drawdown:
     peak = equity.loc[:trough].idxmax()
 
     return Drawdown(peak=peak, trough=trough, depth=float(drawdown.min()))
-
-
-def impossible_moves(df: pd.DataFrame, market_wide: set[pd.Timestamp]) -> pd.Series:
-    """Close-to-close moves the daily price limit cannot explain."""
-
-    if len(df) < 2:
-        return pd.Series(dtype=float)
-
-    returns = df["close"].pct_change().iloc[1:]
-    days = df.index.values.astype("datetime64[D]")
-    sessions = np.maximum(np.busday_count(days[:-1], days[1:]), 1)
-    up = (1 + SESSION_LIMIT) ** sessions - 1
-    down = 1 - (1 - SESSION_LIMIT) ** sessions
-
-    flagged = returns[(returns > up) | (returns < -down)]
-
-    return flagged[~flagged.index.isin(list(market_wide))]
 
 
 def _overlaps(trade: Trade, start: pd.Timestamp, end: pd.Timestamp) -> bool:
@@ -119,7 +97,7 @@ def diagnose(
     for trade in sorted(result.trades, key=lambda t: t.gross_return)[:worst]:
         df = frames[trade.symbol]
         held = df.loc[trade.entry_date : trade.exit_date or df.index[-1]]
-        bad = impossible_moves(held, market_wide)
+        bad = limit_breaches(held, market_wide)
         flagged_total += len(bad)
         note = "  ⚠ " + ", ".join(f"{d.date()} {r:+.0%}" for d, r in bad.items()) if len(bad) else ""
         exit_text = str(trade.exit_date.date()) if trade.exit_date else "açık"
@@ -129,7 +107,7 @@ def diagnose(
         )
 
     all_bad = {
-        s: impossible_moves(df, market_wide) for s, df in frames.items()
+        s: limit_breaches(df, market_wide) for s, df in frames.items()
     }
     all_bad = {s: b for s, b in all_bad.items() if len(b)}
 

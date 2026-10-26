@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from core.backtest.diagnose import deepest_drawdown, diagnose, impossible_moves
+from core.backtest.diagnose import deepest_drawdown, diagnose
 from core.backtest.engine import BacktestConfig, BacktestResult, Trade, run_backtest
 from core.strategy.rules import momentum_signals
 from tests.helpers import make_ohlcv
@@ -17,24 +17,6 @@ class DrawdownTest(unittest.TestCase):
 
         self.assertEqual((dd.peak, dd.trough), (index[1], index[3]))
         self.assertAlmostEqual(dd.depth, -0.5)
-
-
-class ImpossibleMoveTest(unittest.TestCase):
-    def test_limit_compounds_over_gaps_and_ignores_market_wide_days(self):
-        index = pd.to_datetime(
-            ["2024-01-02", "2024-01-03", "2024-01-04", "2024-01-11", "2024-01-12", "2024-01-15"]
-        )
-        df = pd.DataFrame({"close": [100, 109, 95, 120, 60, 50]}, index=index)
-
-        moves = impossible_moves(df, market_wide=set())
-        self.assertEqual(list(moves.index), [pd.Timestamp("2024-01-04"), index[4], index[5]])
-
-        limit_day = pd.DataFrame({"close": [100.0, 110.4, 99.0]}, index=index[:3])
-        self.assertTrue(impossible_moves(limit_day, set()).empty)  # tick-rounded limit moves
-
-        moves = impossible_moves(df, market_wide={index[4]})
-        self.assertNotIn(index[4], moves.index)
-        self.assertNotIn(index[3], moves.index)  # +26% over 5 sessions is allowed
 
 
 class DiagnoseTest(unittest.TestCase):

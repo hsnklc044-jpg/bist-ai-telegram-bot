@@ -22,6 +22,12 @@ Per symbol:
               rules) and are not flagged. A suggested factor for
               data/corporate_actions.csv is printed for each jump;
               `--apply-suggestions` writes them to the file.
+- breaches    (information only) moves beyond the ±10% limit, compounded
+              over the business days since the previous candle, that
+              stay under ±20% and are not market-wide. They never mark
+              a symbol for exclusion. Drops are listed first: a dividend
+              adjustment cannot explain a drop, an unadjusted rights
+              issue (bedelli) can, so those are worth checking on KAP.
 - bad_ohlc    high below low, or close outside the high-low range
 
 Cancelled sessions and corporate actions (core.market.corrections)
@@ -32,6 +38,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import numpy as np
 import pandas as pd
 
 from core.market import store
@@ -40,6 +47,9 @@ from core.market.corrections import clean
 from core.market.universe import BENCHMARK, load_universe
 
 DAILY_LIMIT = 0.20
+# BIST's limit is ±10% of the base price rounded to the price tick, so a
+# real limit-up/limit-down close can land slightly beyond 10%.
+SESSION_LIMIT = 0.105
 MARKET_WIDE_SHARE = 0.5
 ZERO_VOLUME_LIMIT = 0.02
 
@@ -65,6 +75,7 @@ class SymbolQuality:
     zero_volume: int = 0
     jumps: list[Jump] = field(default_factory=list)
     bad_ohlc: int = 0
+    breaches: list[Jump] = field(default_factory=list)
 
     @property
     def zero_volume_share(self) -> float:
@@ -126,6 +137,28 @@ def market_wide_moves(frames: dict[str, pd.DataFrame]) -> set[pd.Timestamp]:
     return set(share[share >= MARKET_WIDE_SHARE].index)
 
 
+def limit_breaches(df: pd.DataFrame, market_wide: set[pd.Timestamp] | None = None) -> pd.Series:
+    """
+    Close-to-close moves the daily price limit cannot produce: beyond
+    SESSION_LIMIT compounded over the business days since the previous
+    candle (so a reopening after a closure is not flagged), and not on a
+    market-wide day.
+    """
+
+    if len(df) < 2:
+        return pd.Series(dtype=float)
+
+    returns = df["close"].pct_change().iloc[1:]
+    days = df.index.values.astype("datetime64[D]")
+    sessions = np.maximum(np.busday_count(days[:-1], days[1:]), 1)
+    up = (1 + SESSION_LIMIT) ** sessions - 1
+    down = 1 - (1 - SESSION_LIMIT) ** sessions
+
+    flagged = returns[(returns > up) | (returns < -down)]
+
+    return flagged[~flagged.index.isin(list(market_wide or ()))]
+
+
 def check_symbol(
     df: pd.DataFrame,
     symbol: str,
@@ -156,6 +189,18 @@ def check_symbol(
         if market_wide and day in market_wide:
             continue
         result.jumps.append(
+            Jump(
+                date=day.date().isoformat(),
+                change=float(change),
+                suggested_factor=round(1 + float(change), 4),
+            )
+        )
+
+    jumped = {j.date for j in result.jumps}
+    for day, change in limit_breaches(df, market_wide).items():
+        if day.date().isoformat() in jumped:
+            continue
+        result.breaches.append(
             Jump(
                 date=day.date().isoformat(),
                 change=float(change),
@@ -208,6 +253,26 @@ def format_report(report: list[SymbolQuality]) -> str:
             "data/corporate_actions.csv dosyasına ekleyin ya da --apply-suggestions kullanın:",
         ]
         lines += [f"  {symbol},{j.date},{j.suggested_factor},{j.change:+.1%}" for symbol, j in jumps]
+
+    breaches = [(q.symbol, b) for q in report for b in q.breaches]
+    drops = sorted((x for x in breaches if x[1].change < 0), key=lambda x: x[1].change)
+    rises = sorted((x for x in breaches if x[1].change > 0), key=lambda x: -x[1].change)
+
+    if breaches:
+        lines += [
+            "",
+            f"Bilgi: ±%10 günlük limitle açıklanamayan, %20 altı hareketler ({len(breaches)}; "
+            "hisseler dışlanmaz).",
+        ]
+        if drops:
+            lines.append(
+                "  Düşüşler: temettü düzeltmesiyle açıklanamaz; fiyata yansımamış bedelli olabilir, "
+                "KAP'tan kontrol edin:"
+            )
+            lines += [f"    {s},{b.date},{b.suggested_factor},{b.change:+.1%}" for s, b in drops]
+        if rises:
+            lines.append("  Yükselişler: çoğunlukla Yahoo'nun temettü/baz fiyat düzeltmesi:")
+            lines += [f"    {s},{b.date},{b.change:+.1%}" for s, b in rises]
 
     return "\n".join(lines)
 
@@ -276,6 +341,7 @@ __all__ = [
     "Jump",
     "trading_calendar",
     "market_wide_moves",
+    "limit_breaches",
     "check_symbol",
     "build_report",
     "format_report",

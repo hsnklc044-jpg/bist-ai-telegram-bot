@@ -1,8 +1,11 @@
 import unittest
 
+import pandas as pd
+
 from core.infrastructure.exceptions import MarketError
 from core.market.indicators import generate_indicator_snapshot
 from core.market.models import MarketTrend
+from core.market.quality import limit_breaches
 from tests.helpers import FakeProvider, make_ohlcv, offline_market
 
 
@@ -84,6 +87,54 @@ class QualityTest(unittest.TestCase):
         q = check_symbol(make_ohlcv(rows=300, seed=2, vol=0.01), "Y.IS", bench.index)
 
         self.assertTrue(q.ok, q)
+
+
+class LimitBreachTest(unittest.TestCase):
+    def test_limit_compounds_over_gaps_and_ignores_market_wide_days(self):
+        index = pd.to_datetime(
+            ["2024-01-02", "2024-01-03", "2024-01-04", "2024-01-11", "2024-01-12", "2024-01-15"]
+        )
+        df = pd.DataFrame({"close": [100, 109, 95, 120, 60, 50]}, index=index)
+
+        moves = limit_breaches(df, market_wide=set())
+        self.assertEqual(list(moves.index), [pd.Timestamp("2024-01-04"), index[4], index[5]])
+
+        limit_day = pd.DataFrame({"close": [100.0, 110.4, 99.0]}, index=index[:3])
+        self.assertTrue(limit_breaches(limit_day, set()).empty)  # tick-rounded limit moves
+
+        moves = limit_breaches(df, market_wide={index[4]})
+        self.assertNotIn(index[4], moves.index)
+        self.assertNotIn(index[3], moves.index)  # +26% over 5 sessions is allowed
+
+
+    def test_breaches_are_reported_but_never_exclude(self):
+        from core.market.quality import check_symbol, format_report
+
+        df = make_ohlcv(rows=100, seed=3, vol=0.005)
+        df.loc[df.index[50]:, ["open", "high", "low", "close"]] *= 1.15
+        df.loc[df.index[80]:, ["open", "high", "low", "close"]] *= 0.86
+
+        q = check_symbol(df, "Y.IS")
+        text = format_report([q])
+
+        self.assertEqual(q.jumps, [])
+        self.assertEqual(len(q.breaches), 2)
+        self.assertAlmostEqual(q.breaches[0].change, 0.15, delta=0.02)
+        self.assertAlmostEqual(q.breaches[1].change, -0.14, delta=0.02)
+        self.assertNotIn("sıçrama", ", ".join(q.problems))
+        self.assertLess(text.index("Düşüşler"), text.index("Y.IS,"))
+        self.assertIn(f"Y.IS,{df.index[80].date()},", text)
+
+    def test_jump_is_not_counted_twice(self):
+        from core.market.quality import check_symbol
+
+        df = make_ohlcv(rows=100, seed=2, vol=0.005)
+        df.loc[df.index[60]:, ["open", "high", "low", "close"]] /= 3
+
+        q = check_symbol(df, "X.IS")
+
+        self.assertEqual(len(q.jumps), 1)
+        self.assertEqual(q.breaches, [])
 
 
 class UniverseTest(unittest.TestCase):
