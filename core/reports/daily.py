@@ -131,6 +131,37 @@ def read_equity(path: Path, account: str) -> pd.Series:
     return series.sort_index()
 
 
+def performance_index(equity: pd.Series, entries, account: str) -> pd.Series:
+    """
+    The account's growth with money moved in or out left out (1.0 at the first record).
+
+    The real account's value is the market value of its shares: a buy raises it and a sale
+    lowers it with no gain or loss. Between two records the return is
+        (value now − money put in since the last record) / value at the last record − 1,
+    money put in = what was paid for buys and rights minus what sales brought (after fees).
+    The paper account's value includes its cash, so its trades move nothing in or out.
+    """
+
+    if len(equity) < 2:
+        return pd.Series(1.0, index=equity.index, dtype=float)
+    flows = pd.Series(0.0, index=equity.index)
+    if account == "real":
+        for e in entries:
+            if e.account != account or e.side == "bonus":
+                continue
+            # trades after the first record, credited to the first record on or after their date
+            later = equity.index[equity.index >= pd.Timestamp(e.date)]
+            if len(later) and later[0] > equity.index[0]:
+                flows[later[0]] += -e.amount
+    values = equity.to_numpy(dtype=float)
+    growth = [1.0]
+    for i in range(1, len(values)):
+        previous = values[i - 1]
+        r = (values[i] - flows.iloc[i]) / previous - 1 if previous > 0 else 0.0
+        growth.append(growth[-1] * (1 + r))
+    return pd.Series(growth, index=equity.index, dtype=float)
+
+
 def record_equity(path: Path, day: date, account: str, value: float, cash: float, invested: float, n: int):
     """One row per (date, account); a rerun on the same day replaces that row."""
 
@@ -262,8 +293,9 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
         else:
             lines.append(f"Hisse değeri {tr(invested)} TL")
         equity = guarded(lambda: read_equity(paths.equity, account), pd.Series(dtype=float))
-        if len(equity) >= 2:
-            lines.append(f"Günlük değişim {pct(equity.iloc[-1] / equity.iloc[-2] - 1, 2)}")
+        growth = performance_index(equity, entries, account)  # buys and sales are not gains or losses
+        if len(growth) >= 2:
+            lines.append(f"Günlük değişim {pct(growth.iloc[-1] / growth.iloc[-2] - 1, 2)}")
         for p, price, value in rows:
             pnl = value - p.cost
             ret = pnl / p.cost if p.cost else 0.0
@@ -289,7 +321,7 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
             )
             lines.append(risk.line())
             alerts += evaluate_portfolio(account, risk, day)
-        alerts += evaluate_account(account, equity)
+        alerts += evaluate_account(account, growth)
 
     events = guarded(lambda: update_alert_log(alerts, day, paths.alerts), [])
     lines += ["", "⚠️ Risk uyarıları"]

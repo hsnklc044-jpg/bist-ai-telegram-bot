@@ -164,7 +164,10 @@ def evaluate_position(
 
 
 def evaluate_account(account: str, equity: pd.Series, as_of: date | None = None) -> list[Alert]:
-    """Account-level alerts from the recorded daily account values (equity log)."""
+    """
+    Account-level alerts. `equity`: the account's growth with buys and sales left out
+    (core.reports.daily.performance_index); for the paper account that is its value.
+    """
 
     if as_of is not None:
         equity = equity[equity.index <= pd.Timestamp(as_of)]
@@ -174,7 +177,7 @@ def evaluate_account(account: str, equity: pd.Series, as_of: date | None = None)
     if dd < -cfg.ACCOUNT_DRAWDOWN:
         return [
             Alert(account, "HESAP", "hesap_dusus", 3, dd, -cfg.ACCOUNT_DRAWDOWN, equity.index[-1].date(),
-                  f"hesap değeri zirvesinden %{_n(-dd * 100, 1)} aşağıda")
+                  f"hesap zirvesinden %{_n(-dd * 100, 1)} aşağıda (alım ve satışlar kâr/zarar sayılmadan)")
         ]
     return []
 

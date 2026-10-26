@@ -36,7 +36,7 @@ Kritik bulgu yok. Yüksek önemli bulgular sırayla düzeltilir; her biri önce 
 
 | # | Önem | Bulgu | Etki | Durum |
 |---|---|---|---|---|
-| D1 | YÜKSEK | Gerçek hesabın "Günlük değişim" satırı ve "zirveden düşüş" uyarısı, hisse alımını kazanç, satışı kayıp sayıyor. Değer yalnız hisselerin piyasa değeri; arada para giriş-çıkışı ayrılmıyor | Yeni alım gününde "+%20" gibi sahte bir değişim görünüyor. Yarı satışta yanlış "hesap zirvesinden %50 aşağıda" uyarısı (yüksek önem) çıkıyor | düzeltilecek |
+| D1 | YÜKSEK | Gerçek hesabın "Günlük değişim" satırı ve "zirveden düşüş" uyarısı, hisse alımını kazanç, satışı kayıp sayıyor. Değer yalnız hisselerin piyasa değeri; arada para giriş-çıkışı ayrılmıyor | Yeni alım gününde "+%20" gibi sahte bir değişim görünüyor. Yarı satışta yanlış "hesap zirvesinden %50 aşağıda" uyarısı (yüksek önem) çıkıyor | ✅ v0.45.1 (`test_report_numbers.RealAccountFlowsTest`) |
 | D2 | YÜKSEK | Rapor yalnız BIST 100 listesindeki hisselerin fiyatını güncelliyor. Listede olmayan bir hisseyi tutunca değer ve kâr/zarar eski fiyattan hesaplanıyor. Bekleyen bir sanal emir hiç dolmuyor ve bunu söylemiyor | Değer ve uyarılar eski fiyata dayanıyor. Uyarı ancak 5 gün sonra çıkıyor | düzeltilecek |
 | D3 | YÜKSEK | `/performans`'taki güven aralığı 20 ve 60 seanslık getirilerin üst üste bindiğini hesaba katmıyor. Ardışık günlerin 20 günlük getirileri neredeyse aynı ama bağımsız sayılıyor | Aralık olması gerekenden çok dar; "XU100'ü anlamlı şekilde geçiyor" kararı yanlışlıkla çıkabilir | düzeltilecek |
 | D4 | ORTA | `data/corporate_actions.csv` içindeki bozuk bir satır yalnız log'a yazılıp atlanıyor | O hissenin geçmiş fiyatları düzeltilmeden kullanılıyor ve kimse fark etmiyor | açık |

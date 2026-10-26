@@ -124,3 +124,50 @@ class ReportByHandTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RealAccountFlowsTest(unittest.TestCase):
+    """
+    The real account's value is the market value of its shares, so buying shares raises it and
+    selling lowers it without any gain or loss. Daily change and drawdown must leave those out:
+    return = (value today − money put in since the last record) / value at the last record − 1.
+    """
+
+    def run_report(self, d, entries, previous_value):
+        paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+        paths.equity.write_text(
+            "date,account,value,cash,invested,positions\n"
+            f"2026-10-22,real,{previous_value:.2f},0.00,{previous_value:.2f},1\n",
+            encoding="utf-8",
+        )
+        for e in entries:
+            append_entry(e, paths.ledger, today=date(2026, 10, 24))
+        provider = FakeProvider()
+        provider.overrides.update({"AAA.IS": flat(50.0, 50.0), BENCHMARK: flat(10_000.0, 10_000.0)})
+        with offline_market(provider):
+            store.update([BENCHMARK, "AAA.IS"], now=NOW)
+            result = build_daily(paths, ["AAA.IS"])
+        real = result.text.split("💼 Gerçek hesap")[1].split("💼")[0]
+        return real, result
+
+    def test_buying_more_is_not_a_gain(self):
+        # 22.10: 100 AAA = 5.000 TL. 23.10: 100 more bought at 50 (+5 TL fee); price still 50.
+        # value 10.000; money in 5.005 → (10.000 − 5.005) / 5.000 − 1 = −0,10% (the fee), not +100%
+        with tempfile.TemporaryDirectory() as tmp:
+            real, _ = self.run_report(Path(tmp), [
+                Entry(date(2026, 6, 1), "real", "AAA", "buy", 100, 50.0, 0.0),
+                Entry(date(2026, 10, 23), "real", "AAA", "buy", 100, 50.0, 5.0),
+            ], previous_value=5000.0)
+        self.assertIn("Günlük değişim -%0,10", real)
+
+    def test_selling_half_is_not_a_drawdown(self):
+        # 22.10: 200 AAA = 10.000 TL. 23.10: 100 sold at 50 (5 TL fee) → value 5.000, money out 4.995
+        # → (5.000 + 4.995) / 10.000 − 1 = −0,05%; no "hesap zirvesinden %50 aşağıda" alert
+        with tempfile.TemporaryDirectory() as tmp:
+            real, result = self.run_report(Path(tmp), [
+                Entry(date(2026, 6, 1), "real", "AAA", "buy", 200, 50.0, 0.0),
+                Entry(date(2026, 10, 23), "real", "AAA", "sell", 100, 50.0, 5.0),
+            ], previous_value=10000.0)
+        self.assertIn("Günlük değişim -%0,05", real)
+        self.assertNotIn("hesap_dusus", [a.rule for _, a in result.events if hasattr(a, "rule")])
+        self.assertNotIn("zirvesinden", result.text)
