@@ -205,6 +205,9 @@ def backup_check(now: datetime, target: Path | None = None) -> Check:
     return Check("Yedek", OK, text)
 
 
+DB_TIMEOUT = 30  # seconds to wait for a writer before reporting the store as locked
+
+
 def database_check(db: Path | None = None) -> Check:
     import sqlite3
 
@@ -212,11 +215,15 @@ def database_check(db: Path | None = None) -> Check:
     if not db.exists():
         return Check("Fiyat veritabanı", UNKNOWN, f"{db.name} yok")
     try:
-        conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=30)
+        conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=DB_TIMEOUT)
         try:
             result = conn.execute("PRAGMA quick_check").fetchone()[0]
         finally:
             conn.close()
+    except sqlite3.OperationalError as exc:
+        if "locked" in str(exc):  # another process is writing; temporary, the data is not damaged
+            return Check("Fiyat veritabanı", WARN, f"kilitli, kontrol edilemedi ({exc}); başka bir işlem yazıyor olabilir")
+        return Check("Fiyat veritabanı", CRIT, f"açılamadı ({exc})")
     except sqlite3.Error as exc:
         return Check("Fiyat veritabanı", CRIT, f"açılamadı ({exc})")
     if result != "ok":

@@ -3,7 +3,9 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Doğrulanmış durum (27.10.2026; kod v0.36.1, kullanıcı PC'si v0.35.0)
+## Doğrulanmış durum (27.10.2026; kod v0.38.0, kullanıcı PC'si v0.35.0)
+
+İşletim, yedek ve kurtarma: docs/OPERATIONS.md.
 
 | Bileşen | Durum | Kanıt |
 |---|---|---|

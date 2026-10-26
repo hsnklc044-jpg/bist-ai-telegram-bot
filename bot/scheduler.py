@@ -96,6 +96,24 @@ GUIDANCE = {
     "GitHub araştırması": ("haftalık araştırma sonucu yok", "GitHub Actions > Research"),
     "Telegram botu": ("komutlar ve 20:00 kontrolü çalışmaz", "python main.py ile botu başlatın"),
 }
+# severity of a KRİTİK state per check; a UYARI is one level lower
+SEVERITY = {
+    "Fiyat veritabanı": "KRİTİK", "Veri şeması": "KRİTİK", "Günlük rapor": "YÜKSEK", "Yedek": "YÜKSEK",
+    "Canlı ölçüm kaydı": "YÜKSEK", "Telegram botu": "YÜKSEK", "Disk": "YÜKSEK", "Fiyat verisi": "ORTA",
+    "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK",
+}
+LEVELS = ["KRİTİK", "YÜKSEK", "ORTA", "DÜŞÜK"]
+
+
+def severity(check) -> str:
+    from core.reports.health import CRIT
+
+    level = SEVERITY.get(check.name, "ORTA")
+    if check.state != CRIT:
+        level = LEVELS[min(LEVELS.index(level) + 1, len(LEVELS) - 1)]
+    return level
+
+
 ALERT_STATE = "alerts_sent.json"
 ALERT_ON_UNKNOWN = {"Günlük rapor"}  # an unverifiable report is a problem; other unknowns only show in /durum
 REPEAT_AFTER_DAYS = 3
@@ -106,7 +124,7 @@ def _alert_text(check, now) -> str:
 
     impact, action = GUIDANCE.get(check.name, ("", "/durum"))
     return (
-        f"{check.state} {LABELS[check.state]} · {check.name}\n"
+        f"{check.state} {LABELS[check.state]} · {check.name} · önem: {severity(check)}\n"
         f"Tespit: {now:%d.%m.%Y %H:%M} · {check.text}\n"
         f"Etkisi: {impact}\n"
         f"Otomatik işlem: yok (bot yalnızca bildirir)\n"

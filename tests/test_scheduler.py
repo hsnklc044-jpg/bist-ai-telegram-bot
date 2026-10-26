@@ -1,6 +1,6 @@
 import asyncio
 import unittest
-from datetime import time
+from datetime import datetime, time
 from types import SimpleNamespace
 from unittest import mock
 
@@ -139,3 +139,16 @@ class AlertDedupTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SeverityTest(unittest.TestCase):
+    def test_levels(self):
+        from bot import scheduler
+        from core.reports.health import CRIT, WARN, Check
+
+        self.assertEqual(scheduler.severity(Check("Fiyat veritabanı", CRIT, "")), "KRİTİK")
+        self.assertEqual(scheduler.severity(Check("Fiyat veritabanı", WARN, "")), "YÜKSEK")
+        self.assertEqual(scheduler.severity(Check("GitHub araştırması", WARN, "")), "DÜŞÜK")
+        self.assertEqual(scheduler.severity(Check("Bilinmeyen", CRIT, "")), "ORTA")
+        self.assertTrue(set(scheduler.SEVERITY) <= set(scheduler.GUIDANCE))
+        self.assertIn("önem: KRİTİK", scheduler._alert_text(Check("Veri şeması", CRIT, "x"), datetime(2026, 10, 26, 20)))

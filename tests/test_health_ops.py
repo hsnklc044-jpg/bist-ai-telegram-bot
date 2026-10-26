@@ -36,6 +36,20 @@ class DatabaseTest(Temp):
         db.write_bytes(b"SQLite format 3\x00" + b"\x00" * 100 + b"bozuk" * 200)
         self.assertEqual(health.database_check(db).state, health.CRIT)
 
+    def test_locked_by_a_writer_is_a_warning_not_damage(self):
+        db = self.root / "market.db"
+        conn = sqlite3.connect(db)
+        conn.execute("CREATE TABLE t (x)")
+        conn.commit()
+        conn.execute("BEGIN EXCLUSIVE")  # a writer holds the store
+        self.addCleanup(conn.close)
+        with mock.patch.object(health, "DB_TIMEOUT", 0.1):
+            check = health.database_check(db)
+        self.assertEqual(check.state, health.WARN)
+        self.assertIn("kilitli", check.text)
+        conn.rollback()
+        self.assertEqual(health.database_check(db).state, health.OK)
+
 
 class DiskTest(Temp):
     def test_thresholds(self):
