@@ -264,7 +264,8 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
     bench = adjusted_bars(BENCHMARK)
     day = (bench.index[-1].date() if not bench.empty else None) or today or last_final_session_date()
     ranks = liquidity_ranks(frames)
-    actions = load_corporate_actions()
+    action_problems: list[str] = []
+    actions = load_corporate_actions(problems=action_problems)
     unconfirmed = {
         a.symbol: a.note
         for a in actions
@@ -375,9 +376,9 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
             ):
                 stale.append(p.symbol)
     missing = [s for s in universe if s not in frames]
-    if stale or missing or damaged:
+    if stale or missing or damaged or action_problems:
         lines += ["", "🔎 Veri notları"]
-        lines += [f"  ⚠️ {text}" for text in damaged]
+        lines += [f"  ⚠️ {text}" for text in damaged + action_problems]
         if missing:
             lines.append(f"  Verisi olmayan: {', '.join(s.removesuffix('.IS') for s in missing)}")
         if stale:

@@ -163,3 +163,42 @@ class CorporateActionKindsTest(unittest.TestCase):
         self.assertEqual(len(actions), len(rows), "a row in data/corporate_actions.csv is invalid")
         for row in rows:
             self.assertTrue(row["source"].strip(), f"no source: {row}")
+
+
+class BadCorporateActionRowTest(unittest.TestCase):
+    """A row that cannot be read leaves that stock's history unadjusted: it must be visible, never silent."""
+
+    def test_bad_row_is_reported_and_shown_in_the_daily_report(self):
+        import tempfile
+        from datetime import date
+        from pathlib import Path
+        from unittest import mock
+
+        from core.ledger import Entry, append_entry
+        from core.market import store
+        from core.market.universe import BENCHMARK
+        from core.reports.daily import Paths, build_daily
+        from tests.helpers import offline_market
+
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            bad = d / "corporate_actions.csv"
+            bad.write_text(
+                "symbol,ex_date,kind,ratio,price,factor,source,note\n"
+                "AAA.IS,2026-05-01,factor,,,0.5,test,iyi satır\n"
+                "BBB.IS,2026-13-01,factor,,,0.5,test,yanlış tarih\n",
+                encoding="utf-8",
+            )
+            problems: list[str] = []
+            actions = corrections.load_corporate_actions(bad, problems=problems)
+            self.assertEqual([a.symbol for a in actions], ["AAA.IS"])
+            self.assertEqual(len(problems), 1)
+            self.assertIn("satır 3", problems[0])
+            self.assertIn("BBB.IS", problems[0])
+
+            paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+            append_entry(Entry(date(2026, 6, 1), "real", "AAA", "buy", 1, 10.0, 0.0), paths.ledger)
+            with mock.patch.object(corrections, "CORPORATE_ACTIONS_FILE", bad), offline_market():
+                store.update([BENCHMARK, "AAA.IS"])
+                text = build_daily(paths, ["AAA.IS"]).text
+        self.assertIn("corporate_actions.csv satır 3 okunamadı", text)

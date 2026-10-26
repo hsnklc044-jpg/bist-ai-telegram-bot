@@ -89,13 +89,19 @@ def _number(value) -> float | None:
     return float(value) if value else None
 
 
-def load_corporate_actions(path=None) -> list[CorporateAction]:
+def load_corporate_actions(path=None, problems: list[str] | None = None) -> list[CorporateAction]:
+    """
+    Valid rows. An unreadable row is skipped (its stock's history stays unadjusted) and, when
+    `problems` is given, described there so the daily report can show it.
+    """
+
     path = path or CORPORATE_ACTIONS_FILE
     actions: list[CorporateAction] = []
 
     try:
         with open(path, encoding="utf-8-sig", newline="") as fh:
-            for row in csv.DictReader(fh):
+            reader = csv.DictReader(fh)
+            for row in reader:
                 try:
                     kind = (row.get("kind") or "factor").strip().lower()
                     action = CorporateAction(
@@ -115,8 +121,13 @@ def load_corporate_actions(path=None) -> list[CorporateAction]:
                     if kind in ("bonus", "rights") and not action.ratio:
                         raise ValueError(f"kind={kind} needs a ratio")
                     actions.append(action)
-                except (KeyError, ValueError) as exc:
+                except (KeyError, ValueError, AttributeError) as exc:
                     logger.warning("Bad corporate action row %s | %s", row, exc)
+                    if problems is not None:
+                        problems.append(
+                            f"corporate_actions.csv satır {reader.line_num} okunamadı "
+                            f"({(row.get('symbol') or '?').strip()}: {exc}); bu hissenin geçmiş fiyatları düzeltilmedi"
+                        )
     except FileNotFoundError:
         pass
 
