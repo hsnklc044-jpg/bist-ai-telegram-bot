@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/bist-ai-telegram-bot/bist-ai-telegram-bot/core/market/crosscheck.py", line 377, in <module>
+    main()
+  File "/home/runner/work/bist-ai-telegram-bot/bist-ai-telegram-bot/core/market/crosscheck.py", line 372, in main
+    results = run(symbols, args.days, bars=bars, start=args.start)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/bist-ai-telegram-bot/bist-ai-telegram-bot/core/market/crosscheck.py", line 328, in run
+    results.append(compare(symbol, bars(symbol), theirs, actions.get(symbol) or actions.get(code)))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/bist-ai-telegram-bot/bist-ai-telegram-bot/core/market/crosscheck.py", line 170, in compare
+    window = ours[(ours.index >= theirs.index[0]) & (ours.index <= theirs.index[-1])]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pandas/core/ops/common.py", line 140, in new_method
+    return method(self, other)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pandas/core/arraylike.py", line 65, in __ge__
+    return self._cmp_method(other, operator.ge)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pandas/core/indexes/range.py", line 1468, in _cmp_method
+    return super()._cmp_method(other, op)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pandas/core/indexes/base.py", line 7782, in _cmp_method
+    result = ops.comparison_op(self._values, other, op)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/pandas/core/ops/array_ops.py", line 344, in comparison_op
+    res_values = op(lvalues, rvalues)
+                 ^^^^^^^^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'numpy.ndarray' and 'Timestamp'
