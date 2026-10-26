@@ -50,7 +50,8 @@ class FetchTest(unittest.TestCase):
 
     def test_service_error_raises(self):
         with self.assertRaises(ValueError):
-            crosscheck.fetch_isyatirim("THYAO", date(2026, 10, 12), date(2026, 10, 14), get=fake_get(ok=False))
+            crosscheck.fetch_isyatirim("THYAO", date(2026, 10, 12), date(2026, 10, 14), get=fake_get(ok=False),
+                                      sleep=lambda s: None)
 
 
 class CompareTest(unittest.TestCase):
@@ -78,7 +79,7 @@ class CompareTest(unittest.TestCase):
         self.assertEqual(result.state, "fark var")
 
         text = crosscheck.format_report([result], "son 30 gün")
-        self.assertIn("Açıklanamayan fark 1 gün", text)
+        self.assertIn("Hisseye özgü açıklanamayan fark 1 gün", text)
         self.assertIn("14.10.2026 Yahoo", text)
         self.assertIn("yalnız Yahoo'da 1 gün: 15.10.2026", text)
 
@@ -93,7 +94,8 @@ class CompareTest(unittest.TestCase):
         def broken(*a, **k):
             raise ConnectionError("kapalı")
 
-        results = crosscheck.run(["THYAO.IS"], 30, today=date(2026, 10, 23), get=broken, bars=lambda s: frame([1.0]))
+        results = crosscheck.run(["THYAO.IS"], 30, today=date(2026, 10, 23), get=broken, bars=lambda s: frame([1.0]),
+                                  sleep=lambda s: None)
         self.assertEqual(results[0].state, "kontrol edilemedi")
         self.assertIn("kontrol edilemedi 1", crosscheck.format_report(results, "son 30 gün"))
 
@@ -103,6 +105,37 @@ class CompareTest(unittest.TestCase):
         result = crosscheck.compare("X.IS", ours, theirs)
         self.assertEqual(result.state, "kontrol edilemedi")
         self.assertIn("ortak gün 0", result.error)
+
+    def test_market_wide_days_are_separated(self):
+        theirs = frame([100.0, 101.0, 102.0, 103.0, 104.0, 105.0])
+        ours = theirs.copy()
+        ours.iloc[3:] *= 0.97  # every stock 3% lower from the 4th day: a source-level issue
+        results = [crosscheck.compare(f"S{i}.IS", ours, theirs) for i in range(5)]
+        odd = ours.copy()
+        odd.iloc[4:] *= 0.9  # one stock also has its own error
+        results.append(crosscheck.compare("ODD.IS", odd, theirs))
+
+        text = crosscheck.format_report(results, "test")
+        self.assertIn("15.10.2026: 6 hisse", text)
+        self.assertEqual([r.state for r in results[:5]], ["tutarlı"] * 5)
+        self.assertEqual(results[5].state, "fark var")
+        self.assertIn("ODD: 16.10.2026", text)
+
+    def test_long_range_in_yearly_pieces_with_retry(self):
+        calls, failures = [], [1]
+
+        def get(url, params=None, headers=None, timeout=None):
+            calls.append((params["startdate"], params["enddate"]))
+            if failures:
+                failures.pop()
+                raise TimeoutError("yavaş")
+            return FakeResponse({"ok": True, "value": []})
+
+        crosscheck.fetch_isyatirim("THYAO", date(2022, 1, 1), date(2024, 6, 30), get=get, sleep=lambda s: None)
+        starts = [c[0] for c in calls]
+        self.assertEqual(starts[0], starts[1])  # the timed-out piece was retried
+        self.assertEqual(len(set(starts)), 3)  # 2.5 years -> 3 pieces
+        self.assertEqual(calls[-1][1], "30-06-2024")
 
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))

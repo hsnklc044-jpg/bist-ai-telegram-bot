@@ -44,13 +44,43 @@ logger = get_logger(__name__)
 
 URL = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil"
 RETURN_TOLERANCE = 0.01  # 1 percentage point
+MARKET_WIDE_SHARE = 0.20  # a date where this share of checked stocks differ is a source-level issue
+RETRIES = 3
+CHUNK_DAYS = 370  # long ranges are fetched year by year (the service times out on long ones)
 MIN_COMMON_DAYS = 5  # fewer sessions in both sources: not checked
 TIMEOUT = 60
 
 
-def fetch_isyatirim(code: str, start: date, end: date, get=None) -> pd.DataFrame:
-    """Daily close / high / low / VWAP / TL volume, as traded, oldest first."""
+def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None) -> pd.DataFrame:
+    """Daily close / high / low / VWAP / TL volume, as traded, oldest first.
 
+    Fetched in yearly pieces, each retried up to RETRIES times with a growing pause.
+    """
+
+    import time
+
+    sleep = sleep or time.sleep
+    pieces, piece_start = [], start
+    while piece_start <= end:
+        piece_end = min(piece_start + timedelta(days=CHUNK_DAYS - 1), end)
+        for attempt in range(RETRIES):
+            try:
+                pieces.append(_fetch_piece(code, piece_start, piece_end, get))
+                break
+            except Exception:  # noqa: BLE001 - retried, then raised
+                if attempt == RETRIES - 1:
+                    raise
+                sleep(5 * (attempt + 1))
+        piece_start = piece_end + timedelta(days=1)
+
+    pieces = [p for p in pieces if not p.empty]
+    if not pieces:
+        return pd.DataFrame(columns=["close", "high", "low", "vwap", "volume_tl"])
+    df = pd.concat(pieces)
+    return df[~df.index.duplicated()].sort_index()
+
+
+def _fetch_piece(code: str, start: date, end: date, get=None) -> pd.DataFrame:
     if get is None:
         import requests
 
@@ -92,10 +122,19 @@ class CrossCheck:
     # day, our return, their return, explained (adjustment day or recorded corporate action)
     differences: list[tuple[date, float, float, bool]] = field(default_factory=list)
     error: str = ""
+    market_days: set[date] = field(default_factory=set)  # source-level dates, set by format_report
+
+    @property
+    def mismatched(self) -> list[tuple[date, float, float, bool]]:
+        """Differences no adjustment explains (market-wide days included)."""
+
+        return [d for d in self.differences if not d[3]]
 
     @property
     def unexplained(self) -> list[tuple[date, float, float, bool]]:
-        return [d for d in self.differences if not d[3]]
+        """Stock-specific: not explained and not on a market-wide date."""
+
+        return [d for d in self.mismatched if d[0] not in self.market_days]
 
     @property
     def explained(self) -> list[tuple[date, float, float, bool]]:
@@ -150,16 +189,38 @@ def _days(days: list[date], limit: int = 5) -> str:
     return shown + (f" (+{len(days) - limit})" if len(days) > limit else "")
 
 
+def market_wide_days(results: list[CrossCheck]) -> dict[date, tuple[int, float]]:
+    """Dates where many stocks differ the same day: {day: (stocks, median gap)}."""
+
+    checked = [r for r in results if not r.error]
+    gaps: dict[date, list[float]] = {}
+    for r in checked:
+        for day, a, b, _ in r.mismatched:
+            gaps.setdefault(day, []).append(a - b)
+    limit = max(3, MARKET_WIDE_SHARE * len(checked))
+    return {d: (len(g), float(pd.Series(g).median())) for d, g in sorted(gaps.items()) if len(g) >= limit}
+
+
 def format_report(results: list[CrossCheck], period: str) -> str:
+    market = market_wide_days(results)
+    for r in results:
+        r.market_days = set(market)
     counts = {s: sum(r.state == s for r in results) for s in ("tutarlı", "fark var", "kontrol edilemedi")}
     lines = [
         f"İkinci kaynak kontrolü (İş Yatırım, {period}, günlük getiri farkı > "
         f"{RETURN_TOLERANCE * 100:.0f} puan): {len(results)} hisse | "
         + ", ".join(f"{k} {v}" for k, v in counts.items())
         + f" | karşılaştırılan {sum(r.days for r in results)} hisse-gün",
-        f"Açıklanamayan fark {sum(len(r.unexplained) for r in results)} gün; olası düzeltme günü "
+        f"Hisseye özgü açıklanamayan fark {sum(len(r.unexplained) for r in results)} gün; olası düzeltme günü "
         f"(temettü/bedelsiz/bölünme) {sum(len(r.explained) for r in results)} gün",
     ]
+    if market:
+        lines.append(
+            f"Piyasa geneli farklar (kontrol edilen hisselerin en az %{MARKET_WIDE_SHARE * 100:.0f}'i aynı gün; "
+            "kaynak düzeyinde sorun, hisse hatası değil):"
+        )
+        lines += [f"  {d:%d.%m.%Y}: {n} hisse, medyan fark {_pct(g)} (Yahoo − İş)" for d, (n, g) in market.items()]
+    lines.append("Hisseye özgü farklar (piyasa geneli günler hariç):")
     for r in results:
         if r.state == "tutarlı":
             continue
@@ -167,16 +228,16 @@ def format_report(results: list[CrossCheck], period: str) -> str:
         if r.error:
             lines.append(f"  {code}: kontrol edilemedi ({r.error})")
             continue
-        parts = [
-            f"{day:%d.%m.%Y} Yahoo {_pct(a)} / İş {_pct(b)}" for day, a, b, _ in r.unexplained[:5]
-        ]
-        if len(r.unexplained) > 5:
-            parts.append(f"+{len(r.unexplained) - 5} gün daha")
+        own = r.unexplained
+        parts = [f"{day:%d.%m.%Y} Yahoo {_pct(a)} / İş {_pct(b)}" for day, a, b, _ in own[:5]]
+        if len(own) > 5:
+            parts.append(f"+{len(own) - 5} gün daha")
         if r.only_ours:
             parts.append(f"yalnız Yahoo'da {len(r.only_ours)} gün: {_days(r.only_ours)}")
         if r.only_theirs:
             parts.append(f"yalnız İş Yatırım'da {len(r.only_theirs)} gün: {_days(r.only_theirs)}")
-        lines.append(f"  {code}: " + "; ".join(parts))
+        if parts:
+            lines.append(f"  {code}: " + "; ".join(parts))
     lines.append(
         "Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme "
         "kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir."
@@ -191,6 +252,7 @@ def run(
     get=None,
     bars=None,
     start: date | None = None,
+    sleep=None,
 ) -> list[CrossCheck]:
     from core.market.corrections import load_corporate_actions
 
@@ -207,7 +269,7 @@ def run(
     for symbol in symbols:
         code = symbol.removesuffix(".IS")
         try:
-            theirs = fetch_isyatirim(code, start, today, get=get)
+            theirs = fetch_isyatirim(code, start, today, get=get, sleep=sleep)
         except Exception as exc:  # noqa: BLE001 - one failed stock must not stop the check
             logger.warning("Second source failed | %s | %s", symbol, exc)
             results.append(CrossCheck(symbol, error=f"{type(exc).__name__}: {str(exc)[:80]}"))
