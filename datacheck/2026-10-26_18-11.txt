@@ -1,0 +1,226 @@
+2026-10-26 14:20:09,985 | WARNING | __main__ | Second source failed | ADESE.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:21:24,271 | WARNING | __main__ | Second source failed | AGHOL.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:22:33,163 | WARNING | __main__ | Second source failed | AKBNK.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:23:10,915 | WARNING | __main__ | Second source failed | AKCNS.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:26:10,305 | WARNING | __main__ | Second source failed | ANSGR.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:27:36,039 | WARNING | __main__ | Second source failed | ASUZU.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:29:13,840 | WARNING | __main__ | Second source failed | BAGFS.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:30:57,304 | WARNING | __main__ | Second source failed | BIOEN.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:32:04,155 | WARNING | __main__ | Second source failed | BRYAT.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:32:26,205 | WARNING | __main__ | Second source failed | BSOKE.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:34:07,090 | WARNING | __main__ | Second source failed | CCOLA.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:37:39,260 | WARNING | __main__ | Second source failed | EGEEN.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:39:33,591 | WARNING | __main__ | Second source failed | ENKAI.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:41:58,084 | WARNING | __main__ | Second source failed | GOLTS.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:42:35,269 | WARNING | __main__ | Second source failed | GRTHO.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:43:49,584 | WARNING | __main__ | Second source failed | GSRAY.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:45:15,629 | WARNING | __main__ | Second source failed | HALKB.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:46:48,064 | WARNING | __main__ | Second source failed | INDES.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:48:21,232 | WARNING | __main__ | Second source failed | IZMDC.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:50:25,027 | WARNING | __main__ | Second source failed | KCHOL.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 14:51:49,848 | WARNING | __main__ | Second source failed | KONTR.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:53:39,174 | WARNING | __main__ | Second source failed | KUTPO.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:56:29,272 | WARNING | __main__ | Second source failed | PENTA.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:57:00,479 | WARNING | __main__ | Second source failed | PGSUS.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 14:58:54,276 | WARNING | __main__ | Second source failed | RTALB.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 15:01:28,768 | WARNING | __main__ | Second source failed | SKBNK.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 15:02:55,311 | WARNING | __main__ | Second source failed | SOKM.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 15:06:43,207 | WARNING | __main__ | Second source failed | TRMET.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+2026-10-26 15:07:44,497 | WARNING | __main__ | Second source failed | TSKB.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
+İkinci kaynak kontrolü (İş Yatırım, 01.01.2022 – bugün, düzeltilmiş seri, günlük getiri farkı > 1 puan): 202 hisse | tutarlı 8, fark var 164, kontrol edilemedi 30 | karşılaştırılan 187828 hisse-gün
+Açıklanamayan fark 559 gün; olası düzeltme günü (temettü/bedelsiz/bölünme) 555 gün
+  ADEL: 27.06.2022 Yahoo -0.2% / İş +1.8%; 28.09.2022 Yahoo -2.7% / İş -1.0%; 06.01.2023 Yahoo -11.0% / İş -5.2%; 02.01.2024 Yahoo -90.8% / İş +0.8%
+  ADESE: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  AEFES: 18.11.2022 Yahoo +3.0% / İş +4.7%; 16.12.2022 Yahoo +0.9% / İş +2.2%; 06.01.2023 Yahoo +0.7% / İş +3.1%
+  AGHOL: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  AHGAZ: 06.01.2023 Yahoo +6.2% / İş +8.9%; yalnız İş Yatırım'da 3 gün: 22.12.2022, 23.12.2022, 09.04.2024
+  AKBNK: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  AKCNS: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  AKFGY: 27.06.2022 Yahoo -2.2% / İş +0.0%; 10.11.2022 Yahoo -3.0% / İş -2.0%; 30.11.2022 Yahoo -3.7% / İş -2.5%; 06.01.2023 Yahoo -1.8% / İş +2.9%; 09.09.2024 Yahoo -2.7% / İş -1.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AKFYE: 09.04.2024 Yahoo +0.0% / İş +2.2%; 08.05.2025 Yahoo +0.0% / İş +1.8%
+  AKSA: 27.06.2022 Yahoo -3.4% / İş -1.3%; 18.11.2022 Yahoo +2.3% / İş +3.6%; 06.01.2023 Yahoo -2.5% / İş +1.3%; 09.04.2024 Yahoo +0.0% / İş +1.6%; 09.09.2024 Yahoo +0.4% / İş +1.5%
+  AKSEN: 27.06.2022 Yahoo -1.7% / İş +0.4%; 06.01.2023 Yahoo -1.1% / İş +2.2%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALARK: 10.05.2022 Yahoo -0.4% / İş +2.9%; 27.06.2022 Yahoo -3.2% / İş -0.4%; 10.11.2022 Yahoo -8.2% / İş -3.3%; 06.01.2023 Yahoo +0.3% / İş +4.7%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALBRK: 06.01.2023 Yahoo +3.2% / İş +9.5%; 08.05.2025 Yahoo +2.8% / İş +5.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALFAS: 19.12.2022 Yahoo -9.2% / İş -7.5%; 08.05.2025 Yahoo +0.5% / İş +2.2%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ALGYO: 11.05.2022 Yahoo -4.9% / İş -3.5%; 27.06.2022 Yahoo -2.9% / İş +1.0%; 06.01.2023 Yahoo -0.3% / İş +3.1%; 09.04.2024 Yahoo +0.0% / İş +1.1%
+  ALKIM: 11.05.2022 Yahoo -4.0% / İş -2.3%; 28.06.2022 Yahoo -3.3% / İş -0.9%; 06.01.2023 Yahoo -1.6% / İş +2.3%; 09.04.2024 Yahoo +0.0% / İş +4.0%
+  ALTNY: 09.09.2024 Yahoo -0.6% / İş +0.5%
+  ANHYT: 10.05.2022 Yahoo +0.3% / İş +3.5%; 19.12.2022 Yahoo +7.9% / İş +9.8%; 06.01.2023 Yahoo +2.2% / İş +5.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ANSGR: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  ARASE: 10.05.2022 Yahoo +0.5% / İş +3.5%; 29.11.2022 Yahoo -1.3% / İş -0.3%; 06.01.2023 Yahoo -0.8% / İş +4.8%
+  ARCLK: 27.06.2022 Yahoo -2.8% / İş +0.6%; 16.12.2022 Yahoo +0.8% / İş +6.2%; 06.01.2023 Yahoo -3.7% / İş +0.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ARDYZ: 29.11.2022 Yahoo -0.6% / İş +6.6%; 16.12.2022 Yahoo -1.0% / İş +1.7%; 06.01.2023 Yahoo +1.6% / İş +5.9%; 08.05.2025 Yahoo +0.8% / İş +1.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ASELS: 10.05.2022 Yahoo +0.7% / İş +1.9%; 10.11.2022 Yahoo -0.5% / İş +0.8%; 18.11.2022 Yahoo -3.0% / İş -1.0%; 08.12.2022 Yahoo +3.3% / İş +4.5%; 12.12.2022 Yahoo +9.0% / İş +10.0%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ASGYO: yalnız İş Yatırım'da 164 gün: 03.08.2023, 04.08.2023, 07.08.2023, 08.08.2023, 09.08.2023 (+159)
+  ASTOR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ASUZU: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  AVPGY: 09.05.2025 Yahoo +0.7% / İş +2.1%; yalnız İş Yatırım'da 65 gün: 21.12.2023, 22.12.2023, 25.12.2023, 26.12.2023, 27.12.2023 (+60)
+  AYDEM: 11.05.2022 Yahoo -5.8% / İş -4.6%; 27.06.2022 Yahoo -2.4% / İş +0.9%; 12.12.2022 Yahoo +7.4% / İş +10.0%; 16.12.2022 Yahoo +0.3% / İş +6.1%; 06.01.2023 Yahoo +6.8% / İş +10.0%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  AYGAZ: 11.05.2022 Yahoo +1.6% / İş +2.7%; 27.06.2022 Yahoo -4.0% / İş +1.5%; 08.12.2022 Yahoo -2.2% / İş -0.1%; 16.12.2022 Yahoo +2.0% / İş +3.6%; 06.01.2023 Yahoo -2.2% / İş +1.8%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BAGFS: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  BASGZ: 11.05.2022 Yahoo -8.7% / İş -5.8%; 30.11.2022 Yahoo +2.2% / İş +3.4%; 06.01.2023 Yahoo +0.1% / İş +3.0%; 15.04.2024 Yahoo -0.5% / İş +1.0%
+  BERA: 27.06.2022 Yahoo -0.6% / İş +10.0%; 08.12.2022 Yahoo +2.0% / İş +3.5%; 06.01.2023 Yahoo -2.2% / İş +2.0%; 08.05.2025 Yahoo +1.2% / İş +2.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BFREN: 15.06.2022 Yahoo -0.3% / İş +0.7%; 28.06.2022 Yahoo -3.6% / İş -1.8%; 10.11.2022 Yahoo -2.6% / İş -0.3%; 09.09.2024 Yahoo +4.0% / İş +5.1%; 09.05.2025 Yahoo -4.3% / İş -1.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BIENY: 08.05.2025 Yahoo +0.2% / İş +1.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BIMAS: 10.05.2022 Yahoo +1.3% / İş +2.9%; 09.11.2022 Yahoo -6.2% / İş -4.5%; 16.12.2022 Yahoo +0.1% / İş +1.5%; 06.01.2023 Yahoo -1.6% / İş +1.6%; 09.09.2024 Yahoo +0.2% / İş +1.2%
+  BINHO: 09.04.2024 Yahoo +0.0% / İş +3.1%; yalnız İş Yatırım'da 87 gün: 20.11.2023, 21.11.2023, 22.11.2023, 23.11.2023, 24.11.2023 (+82)
+  BIOEN: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  BJKAS: 11.05.2022 Yahoo -4.1% / İş -2.9%; 16.12.2022 Yahoo +1.6% / İş +4.8%; 06.01.2023 Yahoo +2.0% / İş +4.6%; 03.07.2024 Yahoo -76.7% / İş +4.0%; 07.04.2025 Yahoo -27.3% / İş -1.8%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BOBET: 16.12.2022 Yahoo -1.1% / İş +0.9%; 06.01.2023 Yahoo +5.1% / İş +8.0%; 09.04.2024 Yahoo +0.0% / İş +1.9%; 08.05.2025 Yahoo +1.5% / İş +2.7%
+  BRISA: 11.05.2022 Yahoo -2.1% / İş -0.8%; 28.06.2022 Yahoo -4.4% / İş -2.9%; 16.12.2022 Yahoo -0.4% / İş +1.4%; 06.01.2023 Yahoo -2.6% / İş +1.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BRSAN: 27.06.2022 Yahoo -1.0% / İş +4.9%; 09.11.2022 Yahoo +2.5% / İş +3.8%; 30.11.2022 Yahoo +1.3% / İş +2.9%; 19.12.2022 Yahoo -2.4% / İş -1.0%; 06.01.2023 Yahoo -2.0% / İş +3.6%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  BRYAT: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  BSOKE: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  BTCIM: 13.12.2022 Yahoo -1.3% / İş +0.0%; 06.01.2023 Yahoo +6.5% / İş +10.0%
+  BUCIM: 11.05.2022 Yahoo -9.7% / İş -7.0%; 27.06.2022 Yahoo -2.4% / İş -1.2%; 09.11.2022 Yahoo -2.9% / İş -1.6%; 06.01.2023 Yahoo +1.5% / İş +4.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CANTE: 28.06.2022 Yahoo +0.5% / İş +2.5%; 10.11.2022 Yahoo -5.0% / İş -3.7%; 16.12.2022 Yahoo -0.9% / İş +4.7%; 06.01.2023 Yahoo -2.3% / İş +1.2%; 09.09.2024 Yahoo -2.9% / İş -1.2%; +1 gün daha
+  CCOLA: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  CEMAS: 11.05.2022 Yahoo -3.8% / İş -2.3%; 27.06.2022 Yahoo -3.1% / İş -0.8%; 13.12.2022 Yahoo -3.1% / İş -2.0%; 16.12.2022 Yahoo +0.0% / İş +1.2%; 06.01.2023 Yahoo -2.0% / İş +1.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CEMTS: 11.05.2022 Yahoo -4.1% / İş -2.7%; 27.06.2022 Yahoo -3.0% / İş +0.0%; 19.12.2022 Yahoo -1.7% / İş -0.6%; 06.01.2023 Yahoo +3.8% / İş +7.6%; 09.05.2025 Yahoo -11.1% / İş -10.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CIMSA: 27.06.2022 Yahoo -2.1% / İş -1.0%; 06.01.2023 Yahoo +0.0% / İş +4.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CLEBI: 27.06.2022 Yahoo -1.2% / İş +7.9%; 06.01.2023 Yahoo -0.5% / İş +3.0%; 08.05.2025 Yahoo -1.3% / İş +0.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  CVKMD: 09.04.2024 Yahoo +0.0% / İş +3.9%; 03.08.2026 Yahoo -61.9% / İş -1.4%
+  CWENE: yalnız İş Yatırım'da 3 gün: 05.05.2023, 08.05.2023, 09.05.2023
+  DAPGM: 11.05.2022 Yahoo -7.9% / İş -4.8%; 06.01.2023 Yahoo +2.6% / İş +6.9%; 09.04.2024 Yahoo +0.0% / İş +10.0%
+  DEVA: 17.11.2022 Yahoo +0.0% / İş +1.2%; 16.12.2022 Yahoo -2.8% / İş -1.5%; 06.01.2023 Yahoo -1.6% / İş +3.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  DOAS: 10.05.2022 Yahoo +0.8% / İş +3.8%; 28.06.2022 Yahoo -4.4% / İş -2.3%; 09.11.2022 Yahoo +1.8% / İş +3.7%; 18.11.2022 Yahoo +1.5% / İş +2.5%; 13.12.2022 Yahoo +7.6% / İş +8.7%; +3 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  DOHOL: 10.05.2022 Yahoo +1.1% / İş +4.1%; 27.06.2022 Yahoo -3.8% / İş -2.3%; 16.12.2022 Yahoo +0.1% / İş +1.7%; 06.01.2023 Yahoo -0.3% / İş +4.4%; 09.05.2025 Yahoo -4.2% / İş -2.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ECILC: 10.05.2022 Yahoo +1.8% / İş +9.9%; 09.11.2022 Yahoo +1.4% / İş +4.9%; 30.11.2022 Yahoo -2.2% / İş +1.2%; 09.12.2022 Yahoo +5.7% / İş +6.9%; 16.12.2022 Yahoo -1.7% / İş +1.9%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ECZYT: 10.05.2022 Yahoo +1.0% / İş +5.0%; 27.06.2022 Yahoo -1.9% / İş +2.1%; 09.11.2022 Yahoo -1.5% / İş +0.4%; 30.11.2022 Yahoo -6.7% / İş -0.4%; 16.12.2022 Yahoo -2.6% / İş +1.5%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EFOR: 08.05.2025 Yahoo -1.7% / İş +1.4%; 03.11.2025 Yahoo +0.0% / İş +1.4%
+  EGEEN: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  EGGUB: 09.12.2022 Yahoo -0.2% / İş +1.1%; 19.12.2022 Yahoo +0.0% / İş +1.2%; 06.01.2023 Yahoo +5.0% / İş +9.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EKGYO: 11.05.2022 Yahoo -2.8% / İş -0.7%; 27.06.2022 Yahoo -3.1% / İş -0.8%; 10.11.2022 Yahoo +5.3% / İş +6.3%; 18.11.2022 Yahoo +0.7% / İş +2.0%; 30.11.2022 Yahoo -3.6% / İş -1.4%; +2 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ENERY: 08.05.2025 Yahoo +0.5% / İş +2.7%
+  ENJSA: 10.05.2022 Yahoo +1.2% / İş +2.4%; 06.01.2023 Yahoo +0.7% / İş +4.2%; 09.09.2024 Yahoo -0.9% / İş +0.2%; 08.05.2025 Yahoo +0.0% / İş +1.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ENKAI: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  ERBOS: 30.11.2022 Yahoo -0.2% / İş +1.3%; 06.01.2023 Yahoo +0.1% / İş +4.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  EREGL: 10.05.2022 Yahoo +2.0% / İş +3.3%; 27.06.2022 Yahoo -2.6% / İş -0.1%; 19.12.2022 Yahoo +0.3% / İş +2.3%; 06.01.2023 Yahoo -0.2% / İş +3.9%
+  ESEN: 27.06.2022 Yahoo +1.8% / İş +3.9%; 10.11.2022 Yahoo -5.0% / İş -3.6%; 18.11.2022 Yahoo +2.4% / İş +3.5%; 19.12.2022 Yahoo +2.5% / İş +4.3%; 06.01.2023 Yahoo +1.6% / İş +6.2%; +1 gün daha
+  EUREN: 10.11.2022 Yahoo +1.0% / İş +3.6%; 19.12.2022 Yahoo -13.4% / İş -10.0%; 06.01.2023 Yahoo +5.2% / İş +7.4%; 02.12.2024 Yahoo -63.5% / İş +0.7%; 08.05.2025 Yahoo -1.2% / İş +0.5%
+  FENER: 11.05.2022 Yahoo -3.7% / İş -1.5%; 09.11.2022 Yahoo -2.4% / İş -0.6%; 29.11.2022 Yahoo -0.4% / İş +0.7%; 06.01.2023 Yahoo +5.4% / İş +9.9%; 09.12.2024 Yahoo -59.5% / İş -5.9%; +4 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  FROTO: 10.05.2022 Yahoo +0.5% / İş +2.1%; 16.12.2022 Yahoo +1.5% / İş +3.7%; 06.01.2023 Yahoo +0.0% / İş +2.9%
+  GARAN: 18.11.2022 Yahoo +1.4% / İş +2.8%; 13.12.2022 Yahoo -1.3% / İş +0.0%; 06.01.2023 Yahoo -2.4% / İş +4.5%; 09.09.2024 Yahoo -3.7% / İş -2.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GENIL: 10.05.2022 Yahoo -0.8% / İş +1.2%; 28.06.2022 Yahoo -4.2% / İş -3.2%; 06.01.2023 Yahoo +1.0% / İş +4.6%; 06.09.2024 Yahoo -2.5% / İş -1.4%; 08.05.2025 Yahoo +0.4% / İş +6.7%; yalnız İş Yatırım'da 1 gün: 06.04.2023
+  GESAN: 08.12.2022 Yahoo +5.8% / İş +6.9%; 13.12.2022 Yahoo -1.2% / İş +1.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GLYHO: 28.06.2022 Yahoo +0.0% / İş +1.1%; 06.01.2023 Yahoo +1.9% / İş +3.5%
+  GOLTS: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  GOZDE: 11.05.2022 Yahoo -2.9% / İş -1.8%; 06.01.2023 Yahoo +1.6% / İş +9.9%; 08.05.2025 Yahoo +2.1% / İş +5.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GRSEL: 10.11.2022 Yahoo -4.6% / İş -1.1%; 08.12.2022 Yahoo +4.5% / İş +5.8%; 16.12.2022 Yahoo -0.6% / İş +0.7%; 06.01.2023 Yahoo -2.9% / İş +1.7%
+  GRTHO: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  GSDHO: 11.05.2022 Yahoo -0.7% / İş +1.3%; 18.11.2022 Yahoo +2.4% / İş +4.6%; 13.12.2022 Yahoo -5.2% / İş -1.9%; 16.12.2022 Yahoo +3.7% / İş +4.8%; 06.01.2023 Yahoo +0.0% / İş +2.9%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GSRAY: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  GUBRF: 06.01.2023 Yahoo -2.9% / İş +0.4%; 08.05.2025 Yahoo +4.1% / İş +5.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GWIND: 11.05.2022 Yahoo -6.2% / İş -4.3%; 16.12.2022 Yahoo +1.1% / İş +4.5%; 06.01.2023 Yahoo +0.3% / İş +3.4%; yalnız İş Yatırım'da 2 gün: 12.04.2022, 09.04.2024
+  HALKB: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  HEKTS: 09.11.2022 Yahoo +8.7% / İş +10.0%; 30.11.2022 Yahoo -6.3% / İş -5.2%; 13.12.2022 Yahoo -4.5% / İş -2.0%; 16.12.2022 Yahoo -1.3% / İş +1.5%; 06.01.2023 Yahoo +6.5% / İş +8.7%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  IEYHO: 11.05.2022 Yahoo -4.7% / İş -2.4%; 17.11.2022 Yahoo +3.6% / İş +6.2%; 16.12.2022 Yahoo +1.0% / İş +2.4%; 06.01.2023 Yahoo +1.0% / İş +4.8%; 06.09.2024 Yahoo -1.8% / İş -0.6%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  IMASM: 08.12.2022 Yahoo -1.6% / İş -0.0%; 06.01.2023 Yahoo -0.8% / İş +0.8%; 09.05.2025 Yahoo +5.2% / İş +6.3%
+  INDES: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  INVES: yalnız İş Yatırım'da 509 gün: 01.03.2022, 02.03.2022, 03.03.2022, 04.03.2022, 07.03.2022 (+504)
+  ISCTR: 18.11.2022 Yahoo +1.3% / İş +2.7%; 13.12.2022 Yahoo -0.8% / İş +0.7%; 16.12.2022 Yahoo +0.9% / İş +2.3%; 06.01.2023 Yahoo +0.2% / İş +6.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISDMR: 10.05.2022 Yahoo +0.9% / İş +3.7%; 06.01.2023 Yahoo -1.1% / İş +3.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISFIN: 10.05.2022 Yahoo +0.5% / İş +3.5%; 18.11.2022 Yahoo +0.1% / İş +1.3%; 06.01.2023 Yahoo +0.1% / İş +4.2%; 09.09.2024 Yahoo -3.0% / İş -1.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISGYO: 16.12.2022 Yahoo +0.2% / İş +1.3%; 06.01.2023 Yahoo +5.0% / İş +8.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ISMEN: 11.05.2022 Yahoo -4.2% / İş -3.0%; 10.11.2022 Yahoo +3.3% / İş +4.3%; 19.12.2022 Yahoo -2.3% / İş -1.2%; 06.01.2023 Yahoo -0.7% / İş +2.7%; 08.05.2025 Yahoo +1.9% / İş +3.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  IZENR: 09.04.2024 Yahoo +0.0% / İş +1.0%
+  IZMDC: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  JANTS: 27.06.2022 Yahoo -4.1% / İş -1.7%; 19.12.2022 Yahoo +3.4% / İş +4.5%; 06.01.2023 Yahoo -0.5% / İş +3.6%; 09.04.2024 Yahoo +0.0% / İş +10.0%; 09.09.2024 Yahoo +0.9% / İş +3.0%; +1 gün daha
+  KARSN: 27.06.2022 Yahoo -2.7% / İş +1.1%; 09.11.2022 Yahoo +1.3% / İş +2.4%; 19.12.2022 Yahoo +1.9% / İş +3.1%; 06.01.2023 Yahoo +1.3% / İş +5.9%; 06.09.2024 Yahoo +5.4% / İş +6.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KARTN: 27.06.2022 Yahoo -2.3% / İş +4.3%; 06.01.2023 Yahoo -0.8% / İş +2.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KATMR: 11.05.2022 Yahoo -5.7% / İş -3.6%; 27.06.2022 Yahoo -2.2% / İş -0.7%; 06.01.2023 Yahoo +0.0% / İş +6.3%; 08.05.2025 Yahoo +0.7% / İş +2.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KAYSE: 15.04.2024 Yahoo -1.3% / İş +1.8%; 06.09.2024 Yahoo +0.1% / İş +3.5%
+  KCAER: 18.11.2022 Yahoo +5.5% / İş +6.5%; 16.12.2022 Yahoo -2.5% / İş -1.2%; 06.01.2023 Yahoo -1.0% / İş +3.6%; 09.04.2024 Yahoo +0.0% / İş +1.7%; 28.11.2024 Yahoo -13.7% / İş -0.2%; +1 gün daha
+  KCHOL: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  KERVT: kontrol edilemedi (ikinci kaynakta veri yok)
+  KLRHO: 09.04.2024 Yahoo +0.0% / İş +1.1%; yalnız İş Yatırım'da 428 gün: 07.07.2022, 08.07.2022, 13.07.2022, 14.07.2022, 18.07.2022 (+423)
+  KLSER: yalnız İş Yatırım'da 4 gün: 27.07.2023, 28.07.2023, 31.07.2023, 09.04.2024
+  KMPUR: 27.06.2022 Yahoo -1.6% / İş +0.2%; 13.12.2022 Yahoo -5.4% / İş -2.9%; 16.12.2022 Yahoo -3.5% / İş +1.8%; 06.01.2023 Yahoo +4.1% / İş +8.9%; 09.04.2024 Yahoo +0.0% / İş +2.1%; yalnız İş Yatırım'da 1 gün: 06.04.2023
+  KONTR: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  KONYA: 11.05.2022 Yahoo -4.5% / İş -3.2%; 27.06.2022 Yahoo -1.7% / İş -0.7%; 10.11.2022 Yahoo +0.9% / İş +2.3%; 30.11.2022 Yahoo +9.0% / İş +10.0%; 06.01.2023 Yahoo -1.6% / İş +2.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KORDS: 06.01.2023 Yahoo +0.6% / İş +4.9%
+  KRDMD: 27.06.2022 Yahoo -2.4% / İş +0.7%; 19.12.2022 Yahoo +0.8% / İş +3.2%; 06.01.2023 Yahoo +1.3% / İş +7.0%; 08.05.2025 Yahoo +2.5% / İş +3.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  KRVGD: 16.12.2022 Yahoo +4.8% / İş +6.0%; 06.01.2023 Yahoo +4.0% / İş +7.9%; 09.04.2024 Yahoo +0.0% / İş +2.4%; 09.07.2026 Yahoo -1.8% / İş -0.4%
+  KTLEV: 15.04.2024 Yahoo +5.8% / İş +10.0%; yalnız İş Yatırım'da 198 gün: 12.06.2023, 13.06.2023, 14.06.2023, 15.06.2023, 16.06.2023 (+193)
+  KUTPO: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  KUYAS: 10.05.2022 Yahoo -1.1% / İş +1.8%; 09.11.2022 Yahoo +3.3% / İş +4.4%; 13.12.2022 Yahoo +7.8% / İş +9.9%; 19.12.2022 Yahoo -7.9% / İş -3.4%; 06.01.2023 Yahoo +0.6% / İş +4.4%; +1 gün daha
+  KZBGY: 10.05.2022 Yahoo +2.2% / İş +4.2%; 16.12.2022 Yahoo -2.1% / İş +3.0%; 06.01.2023 Yahoo +4.7% / İş +7.7%
+  LIDER: 11.05.2022 Yahoo -4.2% / İş +0.2%; 27.06.2022 Yahoo -0.9% / İş +1.7%; 10.11.2022 Yahoo +2.1% / İş +4.0%; 06.01.2023 Yahoo +1.8% / İş +3.9%
+  LMKDC: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  LOGO: 18.11.2022 Yahoo +2.7% / İş +4.0%; 19.12.2022 Yahoo +0.9% / İş +2.0%; 06.01.2023 Yahoo -1.6% / İş +1.2%; 09.05.2025 Yahoo -2.5% / İş -0.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  MAGEN: 11.05.2022 Yahoo -5.2% / İş -3.9%; 27.06.2022 Yahoo -3.2% / İş -0.3%; 12.12.2022 Yahoo +8.8% / İş +10.0%; 19.12.2022 Yahoo +4.0% / İş +5.0%; 06.01.2023 Yahoo -1.3% / İş +2.1%; +2 gün daha
+  MAVI: 27.06.2022 Yahoo -1.6% / İş +2.7%; 06.01.2023 Yahoo +0.4% / İş +3.1%
+  MGROS: 28.06.2022 Yahoo -2.0% / İş +0.2%; 06.01.2023 Yahoo -1.5% / İş +1.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  MIATK: 30.11.2022 Yahoo -4.5% / İş -3.1%; 08.12.2022 Yahoo +8.6% / İş +9.9%; 13.12.2022 Yahoo -7.0% / İş -4.2%; 06.01.2023 Yahoo -1.3% / İş +1.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  MPARK: 11.05.2022 Yahoo -3.4% / İş -1.9%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  NTHOL: 06.01.2023 Yahoo -1.4% / İş +2.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  NUGYO: 11.05.2022 Yahoo -7.9% / İş -2.4%; 27.06.2022 Yahoo -1.1% / İş +1.3%; 06.01.2023 Yahoo -2.1% / İş +3.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ODAS: 27.06.2022 Yahoo -3.1% / İş -1.6%; 06.01.2023 Yahoo -1.4% / İş +2.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ODINE: yalnız İş Yatırım'da 25 gün: 21.03.2024, 22.03.2024, 25.03.2024, 26.03.2024, 27.03.2024 (+20)
+  OTKAR: 27.06.2022 Yahoo -1.7% / İş -0.2%; 09.11.2022 Yahoo +2.2% / İş +5.1%; 06.01.2023 Yahoo -0.1% / İş +3.0%; 09.09.2024 Yahoo -0.7% / İş +0.8%; yalnız İş Yatırım'da 3 gün: 09.04.2024, 19.08.2024, 20.08.2024
+  OYAKC: 11.05.2022 Yahoo -7.0% / İş -4.0%; 27.06.2022 Yahoo -2.3% / İş -0.5%; 16.12.2022 Yahoo -0.4% / İş +1.9%; 06.01.2023 Yahoo -0.3% / İş +4.6%
+  PAPIL: 27.06.2022 Yahoo -1.2% / İş +0.6%; 06.01.2023 Yahoo -2.6% / İş +1.7%; 09.04.2024 Yahoo +0.0% / İş +1.4%
+  PARSN: 10.05.2022 Yahoo -1.2% / İş +2.9%; 27.06.2022 Yahoo -2.6% / İş -0.3%; 06.01.2023 Yahoo -0.4% / İş +4.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  PASEU: 09.04.2024 Yahoo +0.0% / İş +5.4%; yalnız İş Yatırım'da 196 gün: 14.06.2023, 15.06.2023, 16.06.2023, 19.06.2023, 20.06.2023 (+191)
+  PATEK: 09.04.2024 Yahoo +0.0% / İş +4.8%; 09.05.2025 Yahoo -3.6% / İş -2.1%; yalnız İş Yatırım'da 1 gün: 13.02.2024
+  PEKGY: 27.06.2022 Yahoo -1.8% / İş +0.0%; 10.11.2022 Yahoo -1.3% / İş -0.3%; 06.01.2023 Yahoo +0.9% / İş +4.4%
+  PENTA: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  PETKM: 16.12.2022 Yahoo -0.6% / İş +5.5%; 06.01.2023 Yahoo +0.2% / İş +5.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  PGSUS: kontrol edilemedi (JSONDecodeError: Expecting value: line 1 column 1 (char 0))
+  PRKAB: 11.05.2022 Yahoo -12.4% / İş -7.5%; 28.06.2022 Yahoo -6.8% / İş -3.6%; 30.11.2022 Yahoo -5.4% / İş -3.5%; 12.12.2022 Yahoo +2.5% / İş +6.8%; 16.12.2022 Yahoo -1.7% / İş -0.7%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  PSGYO: 16.12.2022 Yahoo +3.9% / İş +5.7%; 06.01.2023 Yahoo +3.3% / İş +7.1%; 09.04.2024 Yahoo +0.0% / İş +1.5%
+  QUAGR: 10.05.2022 Yahoo -0.8% / İş +4.7%; 17.11.2022 Yahoo -3.5% / İş -1.0%; 06.01.2023 Yahoo +0.5% / İş +5.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  RALYH: 10.05.2022 Yahoo +0.4% / İş +1.8%; 27.06.2022 Yahoo -2.1% / İş +2.1%; 05.01.2023 Yahoo +0.0% / İş +1.5%; 09.04.2024 Yahoo +0.0% / İş +3.3%; 06.09.2024 Yahoo -4.8% / İş -0.3%; +1 gün daha
+  REEDR: yalnız İş Yatırım'da 130 gün: 21.09.2023, 22.09.2023, 25.09.2023, 26.09.2023, 27.09.2023 (+125)
+  RGYAS: yalnız İş Yatırım'da 3 gün: 26.04.2024, 29.04.2024, 30.04.2024
+  RTALB: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  RYGYO: 28.06.2022 Yahoo -1.5% / İş -0.2%; 09.11.2022 Yahoo +3.2% / İş +5.4%; 16.12.2022 Yahoo +3.0% / İş +10.0%; 06.01.2023 Yahoo +4.4% / İş +5.9%
+  RYSAS: 10.05.2022 Yahoo +1.6% / İş +5.3%; 09.11.2022 Yahoo +4.4% / İş +6.9%; 29.11.2022 Yahoo +7.8% / İş +9.9%; 08.12.2022 Yahoo -2.6% / İş -1.1%; 16.12.2022 Yahoo -2.5% / İş +2.4%; +3 gün daha
+  SAHOL: 10.05.2022 Yahoo +2.0% / İş +4.1%; 06.01.2023 Yahoo -0.5% / İş +2.5%; 09.09.2024 Yahoo -0.9% / İş +0.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SARKY: 16.12.2022 Yahoo +1.0% / İş +6.3%; 06.01.2023 Yahoo -0.7% / İş +2.9%; 09.04.2024 Yahoo +0.0% / İş +1.1%
+  SASA: 11.05.2022 Yahoo -3.4% / İş -1.8%; 16.12.2022 Yahoo -2.4% / İş -0.9%; 06.01.2023 Yahoo +1.7% / İş +4.0%; 09.04.2024 Yahoo +0.0% / İş +2.5%
+  SAYAS: 13.12.2022 Yahoo +1.5% / İş +3.4%; 16.12.2022 Yahoo +1.4% / İş +7.8%; 06.01.2023 Yahoo -4.9% / İş -0.0%; 09.05.2025 Yahoo +2.7% / İş +5.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SDTTR: 09.04.2024 Yahoo +0.0% / İş +1.3%
+  SELEC: 09.11.2022 Yahoo +1.4% / İş +4.5%; 06.01.2023 Yahoo +3.8% / İş +6.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SISE: 10.05.2022 Yahoo +1.9% / İş +4.0%; 06.01.2023 Yahoo +0.1% / İş +3.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  SKBNK: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  SMRTG: 10.05.2022 Yahoo -3.7% / İş -1.7%; 13.12.2022 Yahoo -9.3% / İş -6.3%; 16.12.2022 Yahoo -2.9% / İş -1.5%; 06.01.2023 Yahoo +6.7% / İş +8.5%
+  SNGYO: 17.11.2022 Yahoo -3.2% / İş -1.6%; 16.12.2022 Yahoo -1.7% / İş -0.3%; 06.01.2023 Yahoo +0.6% / İş +4.8%; 09.04.2024 Yahoo +0.0% / İş +1.8%; 08.05.2025 Yahoo -0.3% / İş +1.2%
+  SOKM: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  TABGD: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TATEN: 09.04.2024 Yahoo +0.0% / İş +6.7%
+  TAVHL: 11.05.2022 Yahoo -4.6% / İş -2.7%; 19.12.2022 Yahoo +3.8% / İş +4.8%; 06.01.2023 Yahoo +0.3% / İş +5.1%; 09.05.2025 Yahoo +5.0% / İş +6.2%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TCELL: 06.01.2023 Yahoo +0.6% / İş +5.0%; 09.09.2024 Yahoo -2.2% / İş -0.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TCKRC: yalnız İş Yatırım'da 3 gün: 21.08.2024, 22.08.2024, 23.08.2024
+  THYAO: 11.05.2022 Yahoo -1.2% / İş +0.0%; 29.11.2022 Yahoo +3.3% / İş +4.7%; 06.01.2023 Yahoo +0.5% / İş +5.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TKFEN: 11.05.2022 Yahoo -2.4% / İş -1.3%; 28.06.2022 Yahoo -4.3% / İş -3.3%; 19.12.2022 Yahoo -3.8% / İş +1.3%; 06.01.2023 Yahoo +0.5% / İş +5.4%; 08.05.2025 Yahoo +0.5% / İş +1.8%
+  TKNSA: 11.05.2022 Yahoo -4.5% / İş -2.5%; 09.11.2022 Yahoo -0.5% / İş +0.6%; 16.12.2022 Yahoo -2.6% / İş +2.8%; 06.01.2023 Yahoo +1.0% / İş +3.2%; 09.09.2024 Yahoo -0.9% / İş +0.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TMSN: 06.01.2023 Yahoo -0.9% / İş +3.2%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TOASO: 17.11.2022 Yahoo +0.7% / İş +2.1%; 29.11.2022 Yahoo +0.3% / İş +1.7%; 16.12.2022 Yahoo +0.6% / İş +4.2%; 06.01.2023 Yahoo -0.1% / İş +3.7%; 23.03.2026 Yahoo -2.2% / İş +5.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRALT: 11.05.2022 Yahoo -2.1% / İş -0.1%; 27.06.2022 Yahoo -3.4% / İş -0.1%; 30.11.2022 Yahoo +7.4% / İş +8.6%; 16.12.2022 Yahoo -3.2% / İş -0.4%; 06.01.2023 Yahoo +1.3% / İş +6.0%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRENJ: 11.05.2022 Yahoo -3.5% / İş -1.5%; 18.11.2022 Yahoo -3.6% / İş -2.3%; 13.12.2022 Yahoo -3.6% / İş -2.5%; 06.01.2023 Yahoo +2.3% / İş +6.2%; 25.11.2025 Yahoo -8.3% / İş -0.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRGYO: 11.05.2022 Yahoo -4.2% / İş -2.5%; 29.11.2022 Yahoo -2.3% / İş -1.1%; 16.12.2022 Yahoo +1.2% / İş +3.7%; 06.01.2023 Yahoo +2.0% / İş +6.4%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TRILC: 06.01.2023 Yahoo +1.3% / İş +3.6%; yalnız İş Yatırım'da 1 gün: 15.03.2024
+  TRMET: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  TSKB: kontrol edilemedi (ReadTimeout: HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (rea)
+  TSPOR: 11.05.2022 Yahoo -11.2% / İş -9.7%; 06.01.2023 Yahoo +2.3% / İş +4.4%; 09.09.2024 Yahoo -28.1% / İş -2.9%; 09.05.2025 Yahoo -1.1% / İş +0.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TTKOM: 10.11.2022 Yahoo +5.7% / İş +6.9%; 17.11.2022 Yahoo -1.0% / İş +0.1%; 30.11.2022 Yahoo -0.7% / İş +0.3%; 08.12.2022 Yahoo +0.9% / İş +2.3%; 06.01.2023 Yahoo +2.6% / İş +8.5%; +1 gün daha; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TTRAK: 06.01.2023 Yahoo -3.8% / İş +0.7%; 08.05.2025 Yahoo +0.6% / İş +2.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TUKAS: 10.05.2022 Yahoo +3.6% / İş +6.3%; 10.11.2022 Yahoo -2.3% / İş -1.1%; 19.12.2022 Yahoo -1.2% / İş +0.0%; 06.01.2023 Yahoo +6.2% / İş +10.0%; 09.04.2024 Yahoo +0.0% / İş +1.2%; +3 gün daha
+  TUPRS: 11.05.2022 Yahoo +0.6% / İş +2.6%; 06.01.2023 Yahoo +1.7% / İş +4.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  TUREX: 10.05.2022 Yahoo +0.3% / İş +1.5%; 10.11.2022 Yahoo -1.5% / İş +0.8%; 17.11.2022 Yahoo -2.5% / İş -1.4%; 12.12.2022 Yahoo +6.1% / İş +8.6%; 16.12.2022 Yahoo -0.8% / İş +3.8%; +1 gün daha
+  TURSG: 08.12.2022 Yahoo +7.0% / İş +8.5%; 06.01.2023 Yahoo +0.6% / İş +3.6%; 09.04.2024 Yahoo +0.0% / İş +2.3%
+  ULKER: 06.01.2023 Yahoo +1.9% / İş +6.8%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ULUUN: 10.05.2022 Yahoo +1.3% / İş +4.2%; 10.11.2022 Yahoo -7.3% / İş -5.8%; 19.12.2022 Yahoo -2.1% / İş -0.8%; 06.01.2023 Yahoo +1.4% / İş +6.1%; 09.04.2024 Yahoo +0.0% / İş +1.0%
+  VAKBN: 13.12.2022 Yahoo -2.9% / İş +0.0%; 16.12.2022 Yahoo +2.1% / İş +9.2%; 06.01.2023 Yahoo -3.8% / İş +3.2%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VERUS: 10.05.2022 Yahoo +0.8% / İş +2.4%; 06.01.2023 Yahoo +6.0% / İş +10.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VESBE: 18.11.2022 Yahoo -0.3% / İş +1.1%; 19.12.2022 Yahoo -0.8% / İş +0.4%; 06.01.2023 Yahoo +2.0% / İş +5.7%; 09.09.2024 Yahoo -2.0% / İş +0.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  VESTL: 29.11.2022 Yahoo +2.5% / İş +3.7%; 13.12.2022 Yahoo +3.8% / İş +5.4%; 19.12.2022 Yahoo -1.8% / İş +0.6%; 06.01.2023 Yahoo +0.2% / İş +4.8%; 09.09.2024 Yahoo -4.7% / İş -3.2%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  YATAS: 30.11.2022 Yahoo +2.7% / İş +4.0%; 08.12.2022 Yahoo +5.0% / İş +7.4%; 13.12.2022 Yahoo +2.3% / İş +3.3%; 19.12.2022 Yahoo -1.7% / İş -0.1%; 06.01.2023 Yahoo +0.7% / İş +5.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  YEOTK: 28.06.2022 Yahoo -1.7% / İş -0.4%; 13.12.2022 Yahoo -4.3% / İş -2.6%; 19.12.2022 Yahoo -5.8% / İş -3.1%; 06.01.2023 Yahoo +5.8% / İş +9.9%; 08.05.2025 Yahoo +0.9% / İş +2.1%
+  YKBNK: 13.12.2022 Yahoo -2.4% / İş -0.5%; 19.12.2022 Yahoo +8.0% / İş +9.5%; 06.01.2023 Yahoo -3.5% / İş +2.6%; 09.09.2024 Yahoo -4.5% / İş -3.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  YYLGD: 06.01.2023 Yahoo +3.2% / İş +7.6%; 06.09.2024 Yahoo -0.6% / İş +2.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ZOREN: 06.01.2023 Yahoo -0.3% / İş +2.1%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+  ZRGYO: 11.05.2022 Yahoo -4.4% / İş -2.9%; 18.11.2022 Yahoo +0.8% / İş +2.4%; 16.12.2022 Yahoo +1.7% / İş +4.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024
+Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir.
