@@ -1,0 +1,2 @@
+2026-10-26 16:47:31,942 | WARNING | __main__ | Second source failed | GESAN.IS | Expecting value: line 1 column 1 (char 0)
+2026-10-26 16:52:15,997 | WARNING | __main__ | Second source failed | GLYHO.IS | HTTPSConnectionPool(host='www.isyatirim.com.tr', port=443): Read timed out. (read timeout=60)
