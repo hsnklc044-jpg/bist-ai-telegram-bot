@@ -202,6 +202,9 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 
 ## Yol haritası
 
+Ayrıntılı durum, açık sorunlar ve öncelikler: [docs/ROADMAP.md](docs/ROADMAP.md).
+
+
 0. Temizlik ve güvenlik ✅
 1. Veri katmanı: uzun geçmiş, kalıcı cache, kapanmış mumlar, gerçek piyasa genişliği ✅
 2. Backtest motoru (walk-forward, BIST100 üyelik geçmişi, maliyet) ✅ — kanıtlanmış strateji henüz yok
