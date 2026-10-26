@@ -1,0 +1,3 @@
+İkinci kaynak kontrolü (İş Yatırım, son 30 gün, günlük getiri farkı > 1 puan): 118 hisse | tutarlı 117, fark var 0, kontrol edilemedi 1
+  KPOWR: kontrol edilemedi (ikinci kaynakta veri yok)
+Not: temettü ve bölünme günlerinde fark beklenir (Yahoo fiyatları düzeltilmiş, İş Yatırım işlem fiyatı); başka günlerdeki fark veri hatasına işaret eder ve KAP'tan kontrol edilmelidir.
