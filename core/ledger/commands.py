@@ -32,7 +32,10 @@ TRADE_USAGE = (
     "/trade bedelsiz THYAO 900\n"
     "/trade bedelli THYAO 100 [fiyat, varsayılan 1]"
 )
-PAPER_USAGE = "Kullanım:\n/paper al THYAO 100\n/paper sat THYAO 50\n/paper iptal 3\n/paper (bekleyen emirler)"
+PAPER_USAGE = (
+    "Kullanım:\n/paper al THYAO 100\n/paper al THYAO 100 gerekçeniz (isteğe bağlı, kayda geçer)\n"
+    "/paper sat THYAO 50\n/paper iptal 3\n/paper (bekleyen emirler)"
+)
 
 
 def parse_number(text: str) -> float:
@@ -104,6 +107,7 @@ class PaperCommand:
     symbol: str | None = None
     quantity: float | None = None
     order_id: int | None = None
+    reason: str = ""
 
 
 def parse_paper(args: list[str]) -> PaperCommand:
@@ -113,12 +117,12 @@ def parse_paper(args: list[str]) -> PaperCommand:
         if len(args) != 2 or not args[1].isdigit():
             raise LedgerError(PAPER_USAGE)
         return PaperCommand("cancel", order_id=int(args[1]))
-    if len(args) != 3:
+    if len(args) < 3:
         raise LedgerError(PAPER_USAGE)
     side = _side(args[0])
     if side not in ("buy", "sell"):
         raise LedgerError("sanal hesapta yalnız al ve sat emri verilir")
-    return PaperCommand("order", side, args[1], parse_number(args[2]))
+    return PaperCommand("order", side, args[1], parse_number(args[2]), reason=" ".join(args[3:]))
 
 
 __all__ = ["parse_number", "parse_date", "parse_trade", "parse_paper", "TradeCommand", "PaperCommand",

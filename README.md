@@ -116,7 +116,7 @@ python -m core.backtest.research --universe today  # karşılaştırma: bugünk�
 | `/watchlist`, `/watchadd EREGL`, `/watchremove EREGL`, `/watchscan` | Takip listesi |
 | `/portfolio` | Pozisyonlar ve kâr/zarar (gerçek ve sanal hesap) |
 | `/trade al THYAO 100 285,50 [komisyon] [GG.AA.YYYY]` | Gerçekleşmiş işlemi deftere yaz (`sat`, `bedelsiz`, `bedelli` de olur) |
-| `/paper al THYAO 100`, `/paper sat THYAO 50`, `/paper iptal 3`, `/paper` | Sanal emir; bir sonraki açılıştan dolar (09:40'tan önce verilirse aynı günün açılışından) |
+| `/paper al THYAO 100 [gerekçe]`, `/paper sat THYAO 50`, `/paper iptal 3`, `/paper` | Sanal emir; bir sonraki açılıştan dolar (09:40'tan önce verilirse aynı günün açılışından). Gerekçe isteğe bağlı, kayda geçer |
 | `/alerts` | Açık risk uyarıları |
 | `/report` | Günlük raporu şimdi üret |
 | `/performans` | Kayıtlı teknik görünümlerin ve sanal hesabın canlı sonucu, XU100'e karşı |
@@ -132,6 +132,10 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
   Elde tutulan hissede bedelsiz/bedelli olursa `/trade bedelsiz` ya da `/trade bedelli` ile girin;
   girilmezse rapor uyarır.
 - **Sanal hesap** 100.000 TL nakitle başlar. Emirler `data/paper_orders.csv` dosyasında bekler.
+  Her emirle birlikte kaydedilir: gerekçe, kullanılan veri (son kapanış tarihi ve fiyatı), teknik skor
+  (tahmin gücü kanıtlanmadı), tutar ve sanal hesaptaki payı, oynaklık (ATR/fiyat); dolumda açılış
+  fiyatı, kayma ve komisyon, dolamadığı tavan/taban günleri. Defterde kayıtlı bir dolum ikinci kez
+  yazılmaz. v0.28.0 öncesi dosya ilk yeniden yazımdan önce `paper_orders_before_v0.28.csv` olarak saklanır.
 - **Risk uyarıları** (eşikler `core/config/alerts.py`): iz süren ATR stop, kilitli taban, parabolik
   yükseliş, likidite, yoğunlaşma, hesap düşüşü, veri sorunları. Durum değişiklikleri
   `data/alerts_log.csv` dosyasına yazılır; aynı uyarı her gün tekrar gönderilmez.

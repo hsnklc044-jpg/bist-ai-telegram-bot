@@ -279,10 +279,13 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
         for o in fills:
             if o.status == "filled":
                 verb = "alındı" if o.side == "buy" else "satıldı"
+                cost = f", açılış {tr(o.fill_open, 2)} + kayma, komisyon {tr(o.fee, 2)} TL" if o.fill_open else ""
                 lines.append(
                     f"  #{o.id} {o.symbol.removesuffix('.IS')} {tr(o.quantity)} adet, {tr(o.fill_price, 2)} TL'den "
-                    f"{verb} ({o.fill_date:%d.%m.%Y})"
+                    f"{verb} ({o.fill_date:%d.%m.%Y}{cost})"
                 )
+                if o.fill_log:
+                    lines.append(f"     {o.fill_log}")
             else:
                 lines.append(f"  #{o.id} {o.symbol.removesuffix('.IS')} reddedildi: {o.note}")
 

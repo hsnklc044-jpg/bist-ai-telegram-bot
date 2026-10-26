@@ -15,9 +15,9 @@ from core.config.paths import ALERTS_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import COMMISSION
 from core.ledger.book import Entry, append_entry, cash_balance, load_ledger, open_positions
 from core.ledger.commands import PaperCommand, TradeCommand
-from core.ledger.paper import cancel_order, load_orders, place_order
+from core.ledger.paper import cancel_order, load_orders, order_snapshot, place_order
 from core.market.calendar import now_istanbul
-from core.reports.daily import ACCOUNT_NAMES, pct, raw_bars, tr
+from core.reports.daily import ACCOUNT_NAMES, adjusted_bars, pct, raw_bars, tr
 
 SIDE_NAMES = {"buy": "alış", "sell": "satış", "bonus": "bedelsiz", "rights": "bedelli"}
 
@@ -86,13 +86,16 @@ def paper_action(
         o = cancel_order(cmd.order_id, orders_path)
         return f"🗑 Sanal emir #{o.id} iptal edildi."
     if cmd.action == "order":
+        ledger_path = ledger_path or LEDGER_FILE
+        snapshot = order_snapshot(cmd.symbol, raw_bars, adjusted_bars, _paper_value(ledger_path))
         o = place_order(cmd.symbol, cmd.side, cmd.quantity, now=now, orders_path=orders_path,
-                        ledger_path=ledger_path or LEDGER_FILE)
+                        ledger_path=ledger_path, reason=cmd.reason, snapshot=snapshot)
         verb = "alış" if o.side == "buy" else "satış"
         return (
             f"📝 Sanal {verb} emri #{o.id}: {o.symbol.removesuffix('.IS')} {tr(o.quantity)} adet.\n"
             "Bir sonraki açılış fiyatından (09:40 öncesi verilen emir aynı gün; komisyon ve kayma dahil) dolacak; "
-            "kilitli tavan/taban gününde beklenir. Gerçek emir gönderilmez."
+            "kilitli tavan/taban gününde beklenir. Gerçek emir gönderilmez.\n\n"
+            + order_record_text(o)
         )
     pending = [o for o in load_orders(orders_path) if o.status == "pending"]
     if not pending:
@@ -101,6 +104,45 @@ def paper_action(
     for o in pending:
         verb = "al" if o.side == "buy" else "sat"
         lines.append(f"  #{o.id} {verb} {o.symbol.removesuffix('.IS')} {tr(o.quantity)} adet ({o.created_at:%d.%m.%Y %H:%M})")
+        if o.reason:
+            lines.append(f"     gerekçe: {o.reason}")
+        if o.fill_log:
+            lines.append(f"     {o.fill_log}")
+    return "\n".join(lines)
+
+
+def _paper_value(ledger_path) -> float | None:
+    """Paper account value at the last closes (None if it cannot be priced)."""
+
+    try:
+        entries = load_ledger(ledger_path)
+        value = cash_balance(entries, "paper")
+        for p in open_positions(entries, "paper"):
+            bars = raw_bars(p.symbol)
+            if bars.empty:
+                return None
+            value += p.quantity * float(bars["close"].iloc[-1])
+        return value
+    except Exception:  # noqa: BLE001 - only used for a share shown to the user
+        return None
+
+
+def order_record_text(o) -> str:
+    """What was recorded with the order (data, size, risk, reason)."""
+
+    lines = ["🗂 Kayda geçen:"]
+    if o.data_date:
+        lines.append(f"  Veri: {o.data_date:%d.%m.%Y} kapanışı {tr(o.ref_close, 2)} TL")
+    else:
+        lines.append("  Veri: fiyat bulunamadı (alanlar boş kaydedildi)")
+    if o.est_value is not None:
+        share = f", sanal hesabın %{o.account_share * 100:.1f}'i" if o.account_share is not None else ""
+        lines.append(f"  Tutar: ~{tr(o.est_value)} TL{share}")
+    if o.atr_pct is not None:
+        lines.append(f"  Oynaklık: günlük ortalama aralık (ATR) fiyatın %{o.atr_pct * 100:.1f}'i")
+    if o.view:
+        lines.append(f"  Teknik görünüm: {o.view} (skor {o.score:.0f}; getiri tahmin gücü kanıtlanmadı)")
+    lines.append(f"  Gerekçe: {o.reason or '(yazılmadı)'}")
     return "\n".join(lines)
 
 
