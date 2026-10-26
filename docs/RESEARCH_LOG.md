@@ -62,3 +62,30 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
   ve getirilerin 1 puan içinde olduğunu gösterir (ortak gün yoksa artık "kontrol edilemedi" sayılır).
 - **Karar:** son 30 günde veri hatası bulunmadı. Kontrol her hafta tekrarlanır; daha uzun geçmiş
   (2022 sonrası) için ayrı bir tarama yapılabilir (hisse başına ~12 sn).
+
+---
+
+## 2026-10-26 — Uzun dönem fiyat kontrolü (2022 – bugün), ilk bulgular (v0.32.1)
+
+- **Soru:** Backtestlerin kullandığı fiyatlarda (Yahoo, şirket işlemi düzeltmeli) araştırma
+  sonuçlarını bozacak hata var mı?
+- **Yöntem:** İş Yatırım fiyat geçmişiyle günlük getiri karşılaştırması; bağımsız üçüncü kaynak
+  olarak haber ajansı kapanışları.
+- **Bulgu 1 — XU100 doğru:** Yahoo'nun XU100'ü, İş Yatırım'ın BIST 100 değeriyle 1202 günün hepsinde
+  tutarlı. AA'ya göre 06.01.2023'te BIST 100 +%4,41 (5.341,96); iki kaynak da bunu gösteriyor.
+- **Bulgu 2 — Yahoo'da tek günlük yanlış kapanışlar:** bazı günlerde hisse kapanışı yanlış
+  kaydedilmiş ve ertesi gün düzelmiş; iki günün toplam getirisi doğru. Örnek GARAN: 05.01.2023 Yahoo
+  −%3,6 (gerçek −%10, taban), 06.01.2023 Yahoo −%2,4 (gerçek +%4,5). Aynı gün çok hissede:
+  10.05.2022, 17.11.2022, 05.01.2023. 5 büyük hissede 2022'den beri 20 böyle gün.
+  - Etki: uzun dönem getiriler bozulmaz (seviye kayması yok); o günün kapanışından üretilen sinyal
+    ve göstergeler bozulabilir. Çoğu 2022 – Ocak 2023'te, yani araştırmanın test döneminden
+    (2023-08 sonrası) önce, ama walk-forward eğitimi ve 2022/2023 başlangıçlı aday testlerini etkiler.
+- **Bulgu 3 — düzeltilmemiş bölünme/bedelsizler:** ADEL, BJKAS, EUREN, CVKMD, TSPOR'da Yahoo'da
+  gerçekte olmayan %28–%91 düşüşler. %20 sıçrama kuralı bu hisseleri zaten araştırma dışı bırakıyor;
+  kural doğru çalışıyor. KCAER (28.11.2024, Yahoo −%13,7, gerçek −%0,2) eşiğin altında kalıp
+  araştırmaya giriyor: düzeltme adayı.
+- **Bulgu 4 — eksik günler:** 09.04.2024 (Ramazan arifesi, yarım gün) çoğu hissede Yahoo'da yok;
+  bazı yeni halka arzların ilk 25–164 günü Yahoo'da yok.
+- **Karar (şimdilik):** sinyal üretimi için yanlış kapanış günlerinin etkisi ölçülmeden veri
+  değiştirilmeyecek. Tüm hisseler için yeni sınıflandırmalı tarama (çalışma 40376057569) bitince
+  sonuç ve düzeltme önerisi buraya eklenecek.
