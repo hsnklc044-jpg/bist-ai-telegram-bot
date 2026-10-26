@@ -1,0 +1,7 @@
+İkinci kaynak kontrolü (İş Yatırım, son 30 gün, günlük getiri farkı > 1 puan): 118 hisse | tutarlı 116, fark var 0, kontrol edilemedi 2 | karşılaştırılan 2385 hisse-gün
+Hisseye özgü açıklanamayan fark 0 gün; olası düzeltme günü (temettü/bedelsiz/bölünme) 1 gün; tek gün kapanış hatası (ertesi gün düzelen) 0
+XU100 (İş Yatırım'ın BIST 100 değeriyle, 21 gün): tutarlı
+Hisseye özgü farklar (piyasa geneli günler hariç):
+  ALGYO: kontrol edilemedi (ikinci kaynakta veri yok)
+  KPOWR: kontrol edilemedi (ikinci kaynakta veri yok)
+Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir.
