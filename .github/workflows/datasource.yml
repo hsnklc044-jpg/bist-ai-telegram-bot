@@ -1,0 +1,23 @@
+name: Data source check
+
+# Compares stored prices with a second, independent source.
+# Manual only. First version: probe candidate sources and print samples.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe candidate sources
+        run: |
+          probe() { echo "=== $1"; curl -sS -m 30 -A "Mozilla/5.0" -o out.txt -w "HTTP %{http_code}, %{size_download} bytes\n" "$2" || true; head -c 1500 out.txt; echo; echo; }
+          probe "isyatirim HisseTekil" "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil?hisse=THYAO&startdate=13-10-2026&enddate=23-10-2026.json"
+          probe "isyatirim endeks" "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil?hisse=XU100&startdate=13-10-2026&enddate=23-10-2026.json"
+          probe "stooq" "https://stooq.com/q/d/l/?s=thyao.tr&i=d"
+          probe "yahoo chart" "https://query1.finance.yahoo.com/v8/finance/chart/THYAO.IS?range=10d&interval=1d"
