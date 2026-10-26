@@ -109,6 +109,7 @@ işlem yapılır; raporda sadece bu test dönemleri birleştirilir.
 | `/alerts` | Açık risk uyarıları |
 | `/report` | Günlük raporu şimdi üret |
 | `/performans` | Kayıtlı teknik görünümlerin ve sanal hesabın canlı sonucu, XU100'e karşı |
+| `/durum` | Sistem sağlığı: son rapor, fiyat verisi, canlı kayıt, sanal hesap kaydı, yedek. Doğrulanamayan bileşen "❔" görünür, asla "✅" değil. Bot açıksa hafta içi 20:00'de raporun gidip gitmediğini kendisi kontrol eder; sorun varsa mesaj atar |
 | `/help` | Komut listesi |
 
 Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman gerçek emir göndermez.

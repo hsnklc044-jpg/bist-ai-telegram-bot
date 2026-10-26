@@ -51,5 +51,38 @@ class ScheduleTest(unittest.TestCase):
         run.assert_called_once_with(["--send", "--log-dir", "logs"])
 
 
+class ReportWatchTest(unittest.TestCase):
+    def _run(self, state):
+        from core.reports import health
+
+        sent = []
+
+        async def send_message(chat_id, text):
+            sent.append((chat_id, text))
+
+        context = SimpleNamespace(bot=SimpleNamespace(send_message=send_message), job=SimpleNamespace(chat_id=777))
+        with mock.patch.object(health, "report_check", return_value=health.Check("Günlük rapor", state, "x")):
+            asyncio.run(scheduler.report_watch_job(context))
+        return sent
+
+    def test_registered_on_weekdays(self):
+        app = _app()
+        self.assertTrue(scheduler.schedule_report_watch(app, 777))
+        self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.WATCH_JOB)), 1)
+
+    def test_silent_when_report_went_out(self):
+        from core.reports import health
+
+        self.assertEqual(self._run(health.OK), [])
+
+    def test_warns_when_missing_or_unknown(self):
+        from core.reports import health
+
+        for state in (health.WARN, health.UNKNOWN):
+            sent = self._run(state)
+            self.assertEqual(sent[0][0], 777)
+            self.assertIn("Günlük rapor", sent[0][1])
+
+
 if __name__ == "__main__":
     unittest.main()

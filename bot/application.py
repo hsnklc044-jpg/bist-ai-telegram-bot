@@ -8,7 +8,7 @@ from __future__ import annotations
 from telegram.ext import Application, ApplicationBuilder
 
 from bot.handlers import register_handlers
-from bot.scheduler import schedule_daily_report
+from bot.scheduler import schedule_daily_report, schedule_report_watch
 from core.infrastructure.logger import get_logger
 from core.infrastructure.settings import require_bot_settings
 
@@ -22,6 +22,7 @@ def build_app() -> Application:
 
     register_handlers(app, config.chat_id)
     schedule_daily_report(app)
+    schedule_report_watch(app, config.chat_id)
 
     return app
 

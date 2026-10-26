@@ -12,6 +12,7 @@ from telegram.ext import ContextTypes
 
 from bot.common import reply
 from core.reports.forward import forward_report
+from core.reports.health import health_report
 from core.reports.overview import build_overview
 
 
@@ -43,3 +44,12 @@ async def performance(
     text = await asyncio.to_thread(forward_report)
 
     await reply(update, text)
+
+
+async def status(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /durum (system health from the records on disk)."""
+
+    await reply(update, await asyncio.to_thread(health_report))

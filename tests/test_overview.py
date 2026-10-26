@@ -42,6 +42,9 @@ class PrivateFiles:
             mock.patch("core.signals_log.SIGNAL_LOG_FILE", self.paths["signals"]),
             mock.patch("core.reports.forward.SIGNAL_LOG_FILE", self.paths["signals"]),
             mock.patch("core.reports.forward.EQUITY_LOG_FILE", self.root / "equity_log.csv"),
+            mock.patch("core.reports.health.SIGNAL_LOG_FILE", self.paths["signals"]),
+            mock.patch("core.reports.health.EQUITY_LOG_FILE", self.root / "equity_log.csv"),
+            mock.patch.dict("os.environ", {"BACKUP_DIR": str(root / "backups")}),
         ]
         for p in self._patches:
             p.start()
@@ -97,7 +100,7 @@ class NoTradeCallsTest(unittest.TestCase):
 
     def test_bot_commands(self):
         from bot.analysis import analyze, top
-        from bot.reports import performance, summary
+        from bot.reports import performance, status, summary
         from bot.start import start
 
         with offline_market(), PrivateFiles():
@@ -108,6 +111,7 @@ class NoTradeCallsTest(unittest.TestCase):
                 "/top": self._run(top),
                 "/analyze": self._run(analyze, ["THYAO"]),
                 "/performans": self._run(performance),
+                "/durum": self._run(status),
             }
 
         for command, text in outputs.items():

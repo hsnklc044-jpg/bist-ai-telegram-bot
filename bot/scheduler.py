@@ -22,13 +22,18 @@ from datetime import time
 from telegram.ext import Application, ContextTypes
 
 from core.infrastructure.logger import get_logger
-from core.market.calendar import ISTANBUL
+from core.market.calendar import ISTANBUL, now_istanbul
 
 logger = get_logger(__name__)
 
 ENV = "DAILY_REPORT_AT"
 WEEKDAYS = (1, 2, 3, 4, 5)  # python-telegram-bot: 0 = Sunday
 JOB_NAME = "daily_report"
+
+# After the report should have gone out (by either scheduler), check the
+# run log and tell the user if it did not. Silent when everything is fine.
+WATCH_AT = time(20, 0, tzinfo=ISTANBUL)
+WATCH_JOB = "report_watch"
 
 
 def report_time(raw: str | None = None) -> time | None:
@@ -76,4 +81,26 @@ def schedule_daily_report(app: Application, at: time | None = None) -> bool:
     return True
 
 
-__all__ = ["ENV", "report_time", "schedule_daily_report"]
+async def report_watch_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    from core.reports.health import OK, report_check
+
+    check = await asyncio.to_thread(report_check, now_istanbul())
+
+    if check.state != OK:
+        logger.warning("Report watch: %s", check.text)
+        await context.bot.send_message(
+            context.job.chat_id, f"{check.line()}\nAyrıntı: /durum, logs/runs.csv, logs/daily_<tarih>.log"
+        )
+
+
+def schedule_report_watch(app: Application, chat_id: int) -> bool:
+    """Weekday 20:00 check that today's report went out."""
+
+    if app.job_queue is None:
+        return False
+
+    app.job_queue.run_daily(report_watch_job, time=WATCH_AT, days=WEEKDAYS, name=WATCH_JOB, chat_id=chat_id)
+    return True
+
+
+__all__ = ["ENV", "report_time", "schedule_daily_report", "schedule_report_watch"]
