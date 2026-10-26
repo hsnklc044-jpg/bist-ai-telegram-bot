@@ -36,6 +36,7 @@ logger = get_logger(__name__)
 
 URL = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil"
 RETURN_TOLERANCE = 0.01  # 1 percentage point
+MIN_COMMON_DAYS = 5  # fewer sessions in both sources: not checked
 TIMEOUT = 60
 
 
@@ -114,6 +115,9 @@ def compare(
 
     both = pd.concat({"ours": window["close"], "theirs": theirs["close"]}, axis=1, sort=True).dropna()
     result.days = len(both)
+    if result.days < MIN_COMMON_DAYS:
+        result.error = f"ortak gün {result.days}; karşılaştırılamadı"
+        return result
     returns = both.pct_change().dropna()
     actions = actions or set()
     for day, row in returns.iterrows():
@@ -131,7 +135,8 @@ def format_report(results: list[CrossCheck], days: int) -> str:
     lines = [
         f"İkinci kaynak kontrolü (İş Yatırım, son {days} gün, günlük getiri farkı > "
         f"{RETURN_TOLERANCE * 100:.0f} puan): {len(results)} hisse | "
-        + ", ".join(f"{k} {v}" for k, v in counts.items()),
+        + ", ".join(f"{k} {v}" for k, v in counts.items())
+        + f" | karşılaştırılan {sum(r.days for r in results)} hisse-gün",
     ]
     for r in results:
         if r.state == "tutarlı":

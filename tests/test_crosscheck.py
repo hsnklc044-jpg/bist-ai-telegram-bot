@@ -56,16 +56,17 @@ class FetchTest(unittest.TestCase):
 class CompareTest(unittest.TestCase):
     def test_scaled_but_consistent(self):
         # dividend-adjusted Yahoo closes: same returns, different level
-        ours = frame([90.0, 90.9, 91.8])
-        theirs = frame([100.0, 101.0, 102.0])
+        ours = frame([90.0, 90.9, 91.8, 92.7, 93.6])
+        theirs = frame([100.0, 101.0, 102.0, 103.0, 104.0])
         result = crosscheck.compare("THYAO.IS", ours, theirs)
-        self.assertEqual((result.state, result.days), ("tutarlı", 3))
+        self.assertEqual((result.state, result.days), ("tutarlı", 5))
+        self.assertIn("karşılaştırılan 5 hisse-gün", crosscheck.format_report([result], 30))
 
     def test_wrong_day_missing_day_and_known_action(self):
-        ours = frame([100.0, 108.0, 102.0, 103.0, 103.0])  # 13.10 wrong
-        theirs = frame([100.0, 101.0, 102.0, 103.0]).drop(pd.Timestamp("2026-10-15"))
-        theirs.loc[pd.Timestamp("2026-10-16")] = [100.0]  # ex-dividend drop only in the traded price
-        theirs = theirs.sort_index()
+        ours = frame([100.0, 108.0, 102.0, 103.0, 103.0, 104.0, 105.0])  # 13.10 wrong
+        # traded price: 15.10 missing, 16.10 ex-dividend drop (Yahoo's adjusted series has none)
+        theirs = frame([100.0, 101.0, 102.0, 103.0, 98.0, 98.0 * 104 / 103, 98.0 * 105 / 103])
+        theirs = theirs.drop(pd.Timestamp("2026-10-15"))
 
         result = crosscheck.compare("THYAO.IS", ours, theirs, actions={date(2026, 10, 16)})
         days = [d for d, *_ in result.differences]
@@ -86,6 +87,13 @@ class CompareTest(unittest.TestCase):
         results = crosscheck.run(["THYAO.IS"], 30, today=date(2026, 10, 23), get=broken, bars=lambda s: frame([1.0]))
         self.assertEqual(results[0].state, "kontrol edilemedi")
         self.assertIn("kontrol edilemedi 1", crosscheck.format_report(results, 30))
+
+    def test_no_common_days_is_not_consistent(self):
+        ours = frame([1.0, 2.0, 3.0], start="2026-09-01")
+        theirs = frame([1.0, 2.0, 3.0], start="2026-10-12")
+        result = crosscheck.compare("X.IS", ours, theirs)
+        self.assertEqual(result.state, "kontrol edilemedi")
+        self.assertIn("ortak gün 0", result.error)
 
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))

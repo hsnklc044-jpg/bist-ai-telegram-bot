@@ -74,6 +74,11 @@ python -m core.market.quality         # sadece kalite raporu
   (düzeltme önerisiyle; bu hisseler backtest'ten dışlanır) gösterir. Ayrıca bilgi olarak ±%10
   günlük limitle açıklanamayan %20 altı hareketleri listeler; bunlar hisseyi dışlamaz. Düşüşler
   temettü düzeltmesiyle açıklanamadığı için önce listelenir (fiyata yansımamış bedelli olabilir).
+- **İkinci kaynak kontrolü** (`python -m core.market.crosscheck`, haftalık araştırmada otomatik):
+  son 30 günün kapanışları İş Yatırım'ın fiyat geçmişiyle günlük getiri bazında karşılaştırılır
+  (Yahoo fiyatları temettüye göre düzeltilmiş olduğu için seviye değil getiri). 1 puandan büyük
+  farklar, tek kaynakta olan günler ve kontrol edilemeyen hisseler raporlanır. İş Yatırım verisi
+  ücretsiz ama resmî olmayan bir web servisi; yalnızca kontrol için, hisse başına bir istekle kullanılır.
 
 ## Backtest
 

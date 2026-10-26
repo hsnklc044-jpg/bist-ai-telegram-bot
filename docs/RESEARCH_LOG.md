@@ -48,3 +48,17 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
 
 **Kalan sınırlar:** ~5 yıllık Yahoo verisi (yaklaşık 3 yıllık test dönemi), tek veri kaynağı,
 2022 öncesi üyelik yaklaşık (değişiklik listesi 2022'de başlıyor), nakit getirisi %0.
+
+---
+
+## 2026-10-26 — İkinci kaynakla fiyat kontrolü (v0.31.0)
+
+- **Soru:** Yahoo'dan gelen günlük kapanışlarda bağımsız bir kaynakla çelişen gün var mı?
+- **Yöntem:** son 30 gün, 118 hisse; İş Yatırım fiyat geçmişi (HisseTekil, işlem fiyatı) ile
+  günlük getiri karşılaştırması, eşik 1 puan. Seviye değil getiri karşılaştırılır, çünkü Yahoo
+  fiyatları temettüye göre düzeltilmiştir.
+- **Sonuç** (Research çalışması 40333047256): tutarlı 117, fark 0, kontrol edilemedi 1 (KPOWR:
+  iki kaynakta da veri yok). "Tutarlı" sonucu, İş Yatırım'daki her günün Yahoo'da da bulunduğunu
+  ve getirilerin 1 puan içinde olduğunu gösterir (ortak gün yoksa artık "kontrol edilemedi" sayılır).
+- **Karar:** son 30 günde veri hatası bulunmadı. Kontrol her hafta tekrarlanır; daha uzun geçmiş
+  (2022 sonrası) için ayrı bir tarama yapılabilir (hisse başına ~12 sn).
