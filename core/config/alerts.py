@@ -22,3 +22,12 @@ CONCENTRATION = 0.25  # one stock above 25% of the account
 ACCOUNT_DRAWDOWN = 0.15  # account value 15% below its peak
 
 STALE_DAYS = 5  # last candle older than this many calendar days
+
+# Portfolio level (core/alerts/portfolio.py)
+VAR_DAYS = 250  # history for the 1-day loss estimate
+VAR_MIN_DAYS = 60  # fewer common sessions: not computed (shown as unknown)
+VAR_LEVEL = 0.95
+VAR_LIMIT = 0.05  # 1-day 95% historical loss above 5% of the account
+CORR_DAYS = 60
+CORR_HIGH = 0.80  # two holdings moving together
+CORR_PAIR_WEIGHT = 0.35  # ... that together are this share of the account

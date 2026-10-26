@@ -137,7 +137,11 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
   fiyatı, kayma ve komisyon, dolamadığı tavan/taban günleri. Defterde kayıtlı bir dolum ikinci kez
   yazılmaz. v0.28.0 öncesi dosya ilk yeniden yazımdan önce `paper_orders_before_v0.28.csv` olarak saklanır.
 - **Risk uyarıları** (eşikler `core/config/alerts.py`): iz süren ATR stop, kilitli taban, parabolik
-  yükseliş, likidite, yoğunlaşma, hesap düşüşü, veri sorunları. Durum değişiklikleri
+  yükseliş, likidite, yoğunlaşma, hesap düşüşü, veri sorunları. Portföy düzeyinde
+  (`core/alerts/portfolio.py`): 1 günlük kayıp tahmini (%95 tarihsel, son 250 seans; hesabın %5'ini
+  aşarsa uyarı), birlikte hareket eden ağır hisse çiftleri (60 seans korelasyonu ≥ 0,80 ve ikisi
+  hesabın ≥ %35'i), etkin pozisyon sayısı ve fiyatı olmayan pozisyon. Günlük rapor ve `/portfolio`
+  "Risk:" satırını gösterir; hesaplanamazsa nedenini yazar. Durum değişiklikleri
   `data/alerts_log.csv` dosyasına yazılır; aynı uyarı her gün tekrar gönderilmez.
 - **Sinyal kaydı** `data/signal_log.csv`: `/analyze` ve `/top` çıktıları veri tarihiyle kaydedilir.
   Günlük kayıtlar denetlenir (`/durum`, `/performans` "Kayıt sağlığı"): tekrar kayıt, okunamayan satır,

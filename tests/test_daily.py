@@ -45,6 +45,7 @@ class DailyReportTest(unittest.TestCase):
         first = self.run_report()
         self.assertIn("Gerçek hesap", first.text)
         self.assertIn("AAA: 100 adet", first.text)
+        self.assertIn("Risk: 1 günlük kayıp", first.text)
         self.assertEqual(load_orders(self.paths.orders)[0].status, "filled")
         self.assertIn("Sanal emirler", first.text)
 

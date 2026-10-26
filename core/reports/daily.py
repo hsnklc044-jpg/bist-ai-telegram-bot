@@ -27,6 +27,7 @@ from pathlib import Path
 import pandas as pd
 
 from core.alerts import evaluate_account, evaluate_position, update_alert_log
+from core.alerts.portfolio import evaluate_portfolio, portfolio_risk
 from core.config import alerts as alert_cfg
 from core.config.paths import ALERTS_LOG_FILE, EQUITY_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import ACCOUNTS
@@ -258,6 +259,14 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
             )
         if not positions:
             lines.append("  Açık pozisyon yok.")
+        else:
+            risk = portfolio_risk(
+                {p.symbol: value for p, _, value in rows},
+                {p.symbol: adjusted_bars(p.symbol) for p, _, _ in rows},
+                total,
+            )
+            lines.append(risk.line())
+            alerts += evaluate_portfolio(account, risk, day)
         alerts += evaluate_account(account, equity)
 
     events = update_alert_log(alerts, day, paths.alerts)

@@ -10,6 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from core.alerts import open_alerts
+from core.alerts.portfolio import portfolio_risk
 from core.alerts.rules import SEVERITY
 from core.config.paths import ALERTS_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import COMMISSION
@@ -48,11 +49,13 @@ def portfolio_text(ledger_path: Path | str | None = None) -> str:
             continue
         invested = 0.0
         rows = []
+        values = {}
         for p in positions:
             bars = raw_bars(p.symbol)
             price = float(bars["close"].iloc[-1]) if not bars.empty else float("nan")
             value = p.quantity * price
-            invested += value
+            values[p.symbol] = value
+            invested += 0 if value != value else value  # NaN: reported by the risk line
             pnl = value - p.cost
             rows.append(
                 f"  {p.symbol.removesuffix('.IS')}: {tr(p.quantity)} adet, maliyet {tr(p.average_cost, 2)}, "
@@ -63,6 +66,10 @@ def portfolio_text(ledger_path: Path | str | None = None) -> str:
             cash = cash_balance(entries, "paper")
             lines.append(f"  Nakit {tr(cash)} TL, hisse {tr(invested)} TL, toplam {tr(cash + invested)} TL")
         lines += rows or ["  Açık pozisyon yok."]
+        if values:
+            total = invested + (cash_balance(entries, "paper") if account == "paper" else 0.0)
+            risk = portfolio_risk(values, {sym: adjusted_bars(sym) for sym in values}, total)
+            lines.append(f"  {risk.line()}")
         realized = sum(p.realized for (acc, _), p in _all(entries).items() if acc == account)
         if realized:
             lines.append(f"  Gerçekleşen kâr/zarar: {'+' if realized >= 0 else '-'}{tr(abs(realized))} TL")
