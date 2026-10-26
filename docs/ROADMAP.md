@@ -3,19 +3,52 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.42.0)
+## Kaldığım yer (27.10.2026, kod v0.43.0)
 
-- **Son sürüm:** v0.42.0. Kullanıcı PC'si v0.35.0'da; v0.36–v0.42 PC'de doğrulanmadı.
+- **Son sürüm:** v0.43.0 (CI #66). Kullanıcı PC'si v0.35.0'da; v0.36–v0.43 PC'de doğrulanmadı.
+- **Kullanıcının verdiği sıra (27.10):** 1) Aşama 2 ✅ kodda tamam 2) test ve dayanıklılık denetimi 3) sunucu hazırlığı 4) dışarıdan izleme 5) her sürümde özet mesaj.
 - **Süren iş:** GitHub'da araştırma çalışması 40411662540 (v0.40.0, başlangıç tarihi elle verildi, `history.csv`'ye yazılmaz). Amaç sağlamlık bölümünü gerçek veride görmek.
 - **Sıradaki adımlar:**
   1. Bu çalışma bittikten sonra v0.41.0 ile bir araştırma çalışması daha başlat (başlangıç tarihi 2023-08-01).
   2. Çıkan `view_expectations.csv` dosyasını kontrol et ve `data/` içine ekle. Bu dosya yokken `/performans` "geçmiş" sütununu göstermez.
   3. Sonuçları docs/RESEARCH_LOG.md'ye yaz.
 - **Kullanıcıdan beklenen:**
-  - v0.42.0 kurulumu: `scripts\verify.ps1` çıktısı (`logs\verify_report.txt`) ve `/durum`. Mesaj şablonu: docs/MESAJLAR.md §2.
+  - v0.43.0 kurulumu: `scripts\verify.ps1` çıktısı (`logs\verify_report.txt`) ve `/durum`. Mesaj şablonu: docs/MESAJLAR.md §2.
   - KCAER katsayısı kararı (0,8650 → 0,8646).
   - Kapanış düzeltmeleri kapalı kalsın mı (öneri: kalsın).
 - **Aşama 3** (yeni sinyal araştırması), PC doğrulaması tamamlanmadan başlamaz.
+
+## Aşama 2: tamamlandı (kodda; PC doğrulaması bekliyor)
+
+Yazılım tarafı bitti. Testler `tests/` içinde, CI numarası her maddenin yayınlandığı
+sürümün ana dalındaki çalışması. Son CI: **#66 (run 40413981373, 55e3384), 380 test**.
+"PC" sütunu, kullanıcının bilgisayarında görülmüş kanıtı gösterir.
+
+| Madde | Kanıt (test) | CI | PC |
+|---|---|---|---|
+| Envanter, arıza etkisi, kurtarma adımları | docs/OPERATIONS.md | #57 | — |
+| Günlük doğrulamalı yedek (SHA-256 manifest) | `test_backup.BackupTest.test_backup_contains_existing_files_and_verifies`, `test_corruption_is_detected`, `test_rotation_keeps_newest_daily_backups` | #54 | ✅ 5 dosya, OneDrive (26.10) |
+| Fiyat veritabanı anlık yedeği (SQLite backup API, bot yazarken) | `test_backup_restore.RestoreTest.test_snapshot_while_another_connection_writes`, `test_snapshot_rotation_and_daily_list_are_separate` | #54 | bekliyor |
+| İzole geri yükleme testi (haftalık, raporda) | `RestoreTest.test_restore_reads_every_file_and_leaves_live_files_alone`, `test_corrupt_backup_is_detected`, `test_unreadable_content_fails_the_test`, `WeeklyCheckInReportTest` | #54 | bekliyor (`verify.ps1`) |
+| Gerçek geri yükleme önce mevcut hâli yedekler | `test_backup.BackupTest.test_restore_round_trip_with_safety_copy` | #54 | ✅ kullanıcı provası, 5 dosya SHA-256 aynı (27.10) |
+| Yedek ayrı fiziksel hedefte | `test_health_ops.BackupLocationTest` (3 test) | #66 | bekliyor (`/durum` "Yedek") |
+| `.env` yedeklenmez, rapor çıktısında token/chat id gizli | `test_verify.RedactTest` | #64 | — |
+| Yazma kilidi (rapor ile `/paper`, `/trade` çakışmaz) | `test_write_safety.LockedWritesTest` (3 test) | #54 | bekliyor |
+| Tek çalıştırma, çift rapor yok, eski kilit 1 saatte düşer | `test_runs.LockTest`, `OncePerDataDayTest` | önceki sürümler | ✅ 26.10 tek mesaj |
+| Telegram yeniden deneme (ağ/5xx/429), yanlış token tekrar denenmez | `test_write_safety.SendRetryTest` (4 test) | #54 | — |
+| Sağlık seviyeleri; doğrulanamayan asla SAĞLIKLI değil | `test_health.ReportTextTest.test_verdict_never_ok_with_unknowns`, `ReportCheckTest.test_no_records_is_unknown_not_ok` | #56 | bekliyor |
+| Veritabanı bütünlüğü, kilitli veritabanı uyarı sayılır | `test_health_ops.DatabaseTest` (2 test) | #57 | bekliyor |
+| Disk, veri şeması (yanlış sürüm), yaşam sinyali | `DiskTest`, `SchemaTest`, `HeartbeatTest`, `ReportWarningsTest.test_bot_down_shows_in_the_daily_report` | #56 | bekliyor |
+| GitHub araştırma başarısızlığı uyarısı | `test_health_ops.ResearchTest.test_states` | #56 | — |
+| Eski veri uyarısı | `test_health.DataChecksTest.test_prices_current_and_behind` | önceki sürümler | — |
+| Başarısız rapor bildirimi | `test_backup.DailyIntegrationTest.test_failed_report_is_announced_in_telegram`, `test_runs.OncePerDataDayTest.test_failure_is_recorded` | önceki sürümler | — |
+| 20:00 kontrolü, önem seviyesi, tekrar etmeyen uyarı | `test_scheduler.ReportWatchTest`, `AlertDedupTest`, `SeverityTest` | #57 | bekliyor |
+| Tek komutla kurulum kanıtı | `test_verify` (6 test); `scripts/verify.ps1` Windows'ta denenmedi | #64 | bekliyor |
+| Testler ağa çıkmaz, gerçek `data/` ve `logs/`'a yazmaz | `test_health_ops.ResearchTest.test_tests_never_reach_the_network`; conftest oturum sonu kontrolü | #56 | — |
+
+**Açık (yazılım dışı):**
+- PC'de `verify.ps1` çıktısı ve `/durum` bekleniyor.
+- PC kapalıyken çalışma ancak sunucuyla mümkün (bkz. sunucu hazırlığı).
 
 ## Doğrulanmış durum (27.10.2026; kod v0.41.0, kullanıcı PC'si v0.35.0)
 
