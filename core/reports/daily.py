@@ -238,6 +238,33 @@ class DailyResult:
     note: str = ""
 
 
+@dataclass
+class Holding:
+    position: object  # core.ledger.book.Position
+    price: float  # last final raw close; NaN when the stock has no price
+    price_day: date | None
+    value: float  # quantity x price (NaN without a price)
+
+
+def value_holdings(entries, account: str, bars=None) -> tuple[list[Holding], float]:
+    """
+    Every open position of an account at its last final raw close, and the invested total
+    (positions without a price are left out of the total; the Risk line names them).
+    The daily report, /portfolio and the paper order snapshot all value holdings with this.
+    """
+
+    bars = bars or raw_bars
+    rows, invested = [], 0.0
+    for p in open_positions(entries, account):
+        raw = bars(p.symbol)
+        price = float(raw["close"].iloc[-1]) if not raw.empty else float("nan")
+        day = raw.index[-1].date() if not raw.empty else None
+        value = p.quantity * price
+        invested += 0 if pd.isna(value) else value
+        rows.append(Holding(p, price, day, value))
+    return rows, invested
+
+
 def symbols_to_update(paths: Paths | None = None, universe: list[str] | None = None) -> list[str]:
     """
     XU100, the universe, and every stock held or waiting in a paper order: a holding
@@ -289,14 +316,8 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
         positions = open_positions(entries, account)
         if account == "real" and not positions:
             continue
-        rows = []
-        invested = 0.0
-        for p in positions:
-            raw = raw_bars(p.symbol)
-            price = float(raw["close"].iloc[-1]) if not raw.empty else float("nan")
-            value = p.quantity * price
-            invested += 0 if pd.isna(value) else value
-            rows.append((p, price, value))
+        holdings, invested = value_holdings(entries, account)
+        rows = [(h.position, h.price, h.value) for h in holdings]
         cash = cash_balance(entries, account) if account == "paper" else 0.0
         total = cash + invested
         if positions or account == "paper":

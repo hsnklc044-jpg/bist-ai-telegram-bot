@@ -14,10 +14,11 @@ from core.alerts.portfolio import portfolio_risk
 from core.alerts.rules import SEVERITY
 from core.config.paths import ALERTS_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import COMMISSION
-from core.ledger.book import Entry, append_entry, cash_balance, load_ledger, open_positions
+from core.ledger.book import Entry, append_entry, cash_balance, load_ledger
 from core.ledger.commands import PaperCommand, TradeCommand
 from core.ledger.paper import cancel_order, load_orders, order_snapshot, place_order
 from core.market.calendar import now_istanbul
+from core.market.universe import BENCHMARK
 from core.reports.daily import ACCOUNT_NAMES, adjusted_bars, pct, raw_bars, tr
 
 SIDE_NAMES = {"buy": "alış", "sell": "satış", "bonus": "bedelsiz", "rights": "bedelli"}
@@ -67,25 +68,28 @@ def _record_trade(cmd: TradeCommand, ledger_path: Path | str | None = None, toda
 
 
 def portfolio_text(ledger_path: Path | str | None = None) -> str:
+    from core.reports.daily import value_holdings
+
     entries = load_ledger(ledger_path or LEDGER_FILE)
+    bench = raw_bars(BENCHMARK)
+    latest = bench.index[-1].date() if not bench.empty else None
     lines = ["💼 Portföy (son kapanış fiyatlarıyla)"]
     for account in ("real", "paper"):
-        positions = open_positions(entries, account)
-        if account == "real" and not positions:
+        holdings, invested = value_holdings(entries, account)
+        if account == "real" and not holdings:
             continue
-        invested = 0.0
         rows = []
         values = {}
-        for p in positions:
-            bars = raw_bars(p.symbol)
-            price = float(bars["close"].iloc[-1]) if not bars.empty else float("nan")
-            value = p.quantity * price
-            values[p.symbol] = value
-            invested += 0 if value != value else value  # NaN: reported by the risk line
-            pnl = value - p.cost
+        for h in holdings:
+            p = h.position
+            values[p.symbol] = h.value
+            pnl = h.value - p.cost
+            # an old price is named with its date, never shown as today's close
+            dated = f" ({h.price_day:%d.%m} tarihli)" if latest and h.price_day and h.price_day < latest else ""
             rows.append(
                 f"  {p.symbol.removesuffix('.IS')}: {tr(p.quantity)} adet, maliyet {tr(p.average_cost, 2)}, "
-                f"son {tr(price, 2)} → {'+' if pnl >= 0 else '-'}{tr(abs(pnl))} TL ({pct(pnl / p.cost if p.cost else 0)})"
+                f"son {tr(h.price, 2)}{dated} → {'+' if pnl >= 0 else '-'}{tr(abs(pnl))} TL "
+                f"({pct(pnl / p.cost if p.cost else 0)})"
             )
         lines += ["", ACCOUNT_NAMES[account]]
         if account == "paper":
@@ -159,15 +163,14 @@ def _paper_write(cmd: PaperCommand, orders_path, ledger_path, now) -> str:
 def _paper_value(ledger_path) -> float | None:
     """Paper account value at the last closes (None if it cannot be priced)."""
 
+    from core.reports.daily import value_holdings
+
     try:
         entries = load_ledger(ledger_path)
-        value = cash_balance(entries, "paper")
-        for p in open_positions(entries, "paper"):
-            bars = raw_bars(p.symbol)
-            if bars.empty:
-                return None
-            value += p.quantity * float(bars["close"].iloc[-1])
-        return value
+        holdings, invested = value_holdings(entries, "paper")
+        if any(h.price_day is None for h in holdings):
+            return None
+        return cash_balance(entries, "paper") + invested
     except Exception:  # noqa: BLE001 - only used for a share shown to the user
         return None
 

@@ -226,3 +226,28 @@ class HeldOutsideUniverseTest(unittest.TestCase):
             store.update([BENCHMARK, "AAA.IS", "XYZ.IS"], now=NOW)
             text = build_daily(self.paths, ["AAA.IS"]).text
         self.assertIn("Güncel olmayan: XYZ", text)
+
+
+class PortfolioCommandTest(unittest.TestCase):
+    """/portfolio and the daily report value holdings with one function; an old price says its date."""
+
+    def test_old_price_shows_its_date_and_values_match_the_report(self):
+        from core.ledger.service import portfolio_text
+
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+            append_entry(Entry(date(2026, 6, 1), "real", "XYZ", "buy", 10, 20.0, 0.0), paths.ledger)
+            append_entry(Entry(date(2026, 6, 1), "real", "AAA", "buy", 4, 10.0, 0.0), paths.ledger)
+            provider = FakeProvider()
+            provider.overrides.update({"AAA.IS": flat(10.0, 12.0), BENCHMARK: flat(10_000.0, 10_000.0),
+                                       "XYZ.IS": flat(20.0, 21.0).iloc[:-10]})
+            with offline_market(provider):
+                store.update([BENCHMARK, "AAA.IS", "XYZ.IS"], now=NOW)
+                text = portfolio_text(paths.ledger)
+                report = build_daily(paths, ["AAA.IS"]).text
+        old_day = flat(1.0, 1.0).index[-11]
+        self.assertIn(f"son 21,00 ({old_day:%d.%m} tarihli)", text)  # XYZ: 10 sessions behind XU100
+        self.assertIn("son 12,00 →", text)  # AAA: current, no date
+        self.assertIn("Hisse değeri 258 TL", report)  # 10 × 21 + 4 × 12, same prices in both
+        self.assertIn("XYZ: 10 adet × 21,00", report)
