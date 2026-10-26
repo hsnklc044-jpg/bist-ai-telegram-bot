@@ -178,13 +178,6 @@ class BackupLocationTest(Temp):
         self.assertEqual(health.backup_check(NOW, self.root / "OneDrive" / "QuantBIST", data_dir=data).state, health.OK)
 
         self._fresh_backup(self.root / "usb")
-        real_stat = health.os.stat
-
-        def stat(path, *a, **k):
-            result = real_stat(path, *a, **k)
-            if str(path).endswith("usb"):
-                return SimpleNamespace(st_dev=result.st_dev + 1, st_mtime=result.st_mtime)
-            return result
-
-        with mock.patch.object(health.os, "stat", side_effect=stat):
+        real = health._device
+        with mock.patch.object(health, "_device", side_effect=lambda p: real(p) + (1 if p.name == "usb" else 0)):
             self.assertEqual(health.backup_check(NOW, self.root / "usb", data_dir=data).state, health.OK)

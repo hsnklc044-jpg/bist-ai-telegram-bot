@@ -187,6 +187,10 @@ def equity_check(path: Path | str | None = None) -> Check:
 SYNCED_FOLDERS = ("onedrive", "dropbox", "google drive", "googledrive", "icloud")
 
 
+def _device(path: Path) -> int:
+    return os.stat(path).st_dev
+
+
 def _location_warning(target: Path, data_dir: Path) -> str | None:
     """A backup lost together with the data is not a backup: same folder tree or same disk."""
 
@@ -199,7 +203,7 @@ def _location_warning(target: Path, data_dir: Path) -> str | None:
     if any(name in part.lower() for part in target.parts for name in SYNCED_FOLDERS):
         return None  # synced to the cloud: a copy lives off this disk
     try:
-        same = os.stat(target).st_dev == os.stat(data_dir).st_dev
+        same = _device(target) == _device(data_dir)
     except OSError:
         return None
     if same:
