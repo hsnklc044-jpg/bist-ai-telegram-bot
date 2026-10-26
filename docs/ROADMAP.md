@@ -3,19 +3,24 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.43.0)
+## Kaldığım yer (27.10.2026, kod v0.45.0)
 
-- **Son sürüm:** v0.43.0 (CI #66). Kullanıcı PC'si v0.35.0'da; v0.36–v0.43 PC'de doğrulanmadı.
-- **Kullanıcının verdiği sıra (27.10):** 1) Aşama 2 ✅ kodda tamam 2) test ve dayanıklılık denetimi 3) sunucu hazırlığı 4) dışarıdan izleme 5) her sürümde özet mesaj.
-- **Süren iş:** GitHub'da araştırma çalışması 40411662540 (v0.40.0, başlangıç tarihi elle verildi, `history.csv`'ye yazılmaz). Amaç sağlamlık bölümünü gerçek veride görmek.
-- **Sıradaki adımlar:**
-  1. Bu çalışma bittikten sonra v0.41.0 ile bir araştırma çalışması daha başlat (başlangıç tarihi 2023-08-01).
-  2. Çıkan `view_expectations.csv` dosyasını kontrol et ve `data/` içine ekle. Bu dosya yokken `/performans` "geçmiş" sütununu göstermez.
-  3. Sonuçları docs/RESEARCH_LOG.md'ye yaz.
+- **Son sürüm:** v0.45.0 (CI #69, sunucu denemesi #1). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45 PC'de doğrulanmadı.
+- **Kullanıcının verdiği sıra (27.10):**
+  1. Aşama 2: ✅ kodda tamam.
+  2. Test ve dayanıklılık denetimi: ✅ v0.44.0.
+  3. Sunucu hazırlığı: ✅ v0.45.0, docs/SERVER.md. Sunucu kiralama kullanıcıda.
+  4. Dışarıdan izleme: **kullanıcı kararı bekleniyor** (hesap gerekir).
+  5. Her sürümde özet mesaj.
+- **Süren iş:** araştırma çalışması 40415685951 (v0.44.0, başlangıç tarihi elle verildi, `history.csv`'ye yazılmaz). Bittiğinde:
+  1. `view_expectations.csv` dosyasını kontrol et ve `data/` içine ekle.
+  2. Sonucu docs/RESEARCH_LOG.md'ye yaz.
 - **Kullanıcıdan beklenen:**
-  - v0.43.0 kurulumu: `scripts\verify.ps1` çıktısı (`logs\verify_report.txt`) ve `/durum`. Mesaj şablonu: docs/MESAJLAR.md §2.
+  - v0.45.0 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`. Mesaj şablonu: docs/MESAJLAR.md §2.
   - KCAER katsayısı kararı (0,8650 → 0,8646).
   - Kapanış düzeltmeleri kapalı kalsın mı (öneri: kalsın).
+  - Dışarıdan izleme için servis seçimi ve hesap.
+  - Sunucu kiralansın mı.
 - **Aşama 3** (yeni sinyal araştırması), PC doğrulaması tamamlanmadan başlamaz.
 
 ## Aşama 2: tamamlandı (kodda; PC doğrulaması bekliyor)
