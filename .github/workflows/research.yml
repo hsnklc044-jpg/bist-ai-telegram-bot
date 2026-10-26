@@ -4,6 +4,11 @@ name: Research
 # reports, so no local computer is needed. It runs every Saturday, or start
 # it from the Actions tab ("Run workflow"); the output is on the run's
 # summary page.
+#
+# Results are kept on the `research-results` branch (Actions logs expire
+# after 90 days): runs/<date>/*.txt and history.csv, one row per strategy
+# per run, compared with the previous run (core.backtest.history).
+# Runs with a custom --start are not added to the history.
 
 on:
   schedule:
@@ -15,12 +20,30 @@ on:
         required: false
         default: ""
 
+permissions:
+  contents: write  # push to the research-results branch only
+
+concurrency:
+  group: research
+  cancel-in-progress: false
+
 jobs:
   research:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
+    env:
+      START: ${{ inputs.start }}
     steps:
       - uses: actions/checkout@v5
+      - name: Results branch
+        run: |
+          echo "RUN_DATE=$(TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M')" >> "$GITHUB_ENV"
+          if git fetch --depth=1 origin research-results; then
+            git worktree add -B research-results results FETCH_HEAD
+          else
+            git worktree add --orphan -b research-results results
+          fi
+          if [ -z "$START" ]; then echo "RECORDS=--records results/history.csv" >> "$GITHUB_ENV"; fi
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -29,21 +52,32 @@ jobs:
       - name: Download prices
         run: python -m core.market.update --bist100-history 2>&1 | tee update.txt || true
       - name: Strategy research
-        env:
-          START: ${{ inputs.start }}
-        run: python -m core.backtest.research ${START:+--start "$START"} 2>&1 | tee research.txt
+        run: python -m core.backtest.research ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research.txt
       - name: Strategy research, today's list (survivorship-biased comparison)
-        env:
-          START: ${{ inputs.start }}
-        run: python -m core.backtest.research --universe today ${START:+--start "$START"} 2>&1 | tee research_today.txt
+        run: python -m core.backtest.research --universe today ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research_today.txt
       - name: Candidate rules, point-in-time BIST 100
         run: python -m core.backtest.candidates --pit 2>&1 | tee candidates.txt
       - name: Drawdown diagnosis (momentum)
         run: python -m core.backtest.diagnose 2>&1 | tee diagnose.txt
+      - name: Compare with the previous run
+        if: always()
+        run: python -m core.backtest.history results/history.csv 2>&1 | tee history.txt
+      - name: Save results
+        if: always()
+        run: |
+          folder="results/runs/$(echo "$RUN_DATE" | tr ' :' '_-')"
+          mkdir -p "$folder"
+          cp update.txt research.txt research_today.txt candidates.txt diagnose.txt history.txt "$folder"/ 2>/dev/null || true
+          cd results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Research run $RUN_DATE (${GITHUB_SHA::7})" || exit 0
+          git push origin research-results
       - name: Summary
         if: always()
         run: |
-          for f in update research research_today candidates diagnose; do
+          for f in history research research_today candidates diagnose update; do
             echo "## $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"

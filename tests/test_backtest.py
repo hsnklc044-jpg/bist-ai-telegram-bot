@@ -208,8 +208,17 @@ class ResearchSmokeTest(unittest.TestCase):
                 mock.patch("core.market.membership.membership_panel", side_effect=panel), \
                 mock.patch.object(research, "GRID", [dict(lookback=63, top_n=3, regime=False)]):
             store.update([BENCHMARK, *symbols])
+            records = []
             for universe in ("pit", "today"):
-                texts[universe] = research.research_report(start="2025-06-01", positions=3, universe=universe)
+                texts[universe] = research.research_report(
+                    start="2025-06-01", positions=3, universe=universe, records=records
+                )
+
+        # 6 strategies + XU100 (pit); + equal weight (today)
+        self.assertEqual(len(records), 15)
+        self.assertEqual({r["universe"] for r in records}, {"pit", "today"})
+        self.assertTrue(all(r["verdict"] for r in records if r["strategy"].startswith("Momentum")))
+        self.assertEqual([r["verdict"] for r in records if r["strategy"] == "XU100 al-tut"], ["", ""])
 
         for text in texts.values():
             self.assertIn("walk-forward", text)

@@ -100,6 +100,9 @@ python -m core.backtest.research --universe today  # karşılaştırma: bugünk�
 - **İstatistik:** her stratejinin XU100'e göre günlük fazla getirisi için blok bootstrap güven
   aralığı (21 seanslık bloklar), test edilen strateji sayısına göre Bonferroni ile genişletilir.
   Aralığın tamamı sıfırın üstünde değilse strateji "XU100'ü geçti" sayılmaz.
+- **Geçmiş:** GitHub'daki haftalık çalışma her raporu `research-results` dalına kaydeder
+  (`runs/<tarih>/`, `history.csv`) ve öncekiyle karşılaştırır (`python -m core.backtest.history`):
+  yıllık getiri değişimi, karar değişimi ve her stratejinin kaç çalışmada anlamlı çıktığı.
 - **Walk-forward:** parametreler önceki 24 ayda seçilir, sonraki 6 ayda (görülmemiş veride)
   işlem yapılır; her pencere XU100 ile yan yana, ayrıca medyan ve "en iyi pencere hariç" sonuç.
 

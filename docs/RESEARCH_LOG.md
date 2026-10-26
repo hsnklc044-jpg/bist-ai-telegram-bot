@@ -8,6 +8,9 @@ getirisinin blok bootstrap güven aralığı (Bonferroni düzeltmeli) tamamen s�
 "XU100'ü geçti" sayılır. Aday kurallar ayrıca üç kapıyı geçmelidir (iki başlangıç tarihi,
 en kârlı 5 hisse hariç, walk-forward).
 
+Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `research-results` dalında
+(`runs/<tarih>/`, `history.csv`). Bu dosyaya yalnızca yorum ve kararlar yazılır.
+
 ---
 
 ## 2026-10-26 — Araştırma tablosu, geçmiş BIST 100 üyeliğiyle (v0.24.0)

@@ -89,7 +89,10 @@ def research_report(
     cash=None,
     universe: str = "pit",
     seed: int = 0,
+    records: list[dict] | None = None,
 ) -> str:
+    """The report text; with `records`, one dict per table row is appended (for history.csv)."""
+
     frames, skipped, eligible = _universe(universe)
     bench = load_frames([BENCHMARK])[BENCHMARK]
     regime = regime_filter(bench)
@@ -183,6 +186,22 @@ def research_report(
             f"{name:<42} {_pct(m.get('total_return')):>9} {_pct(m.get('cagr')):>8} "
             f"{_pct(m.get('max_drawdown')):>8} {_num(m.get('sharpe')):>6} {m.get('trades', 0)!s:>6}  {test}"
         )
+        if records is not None:
+            records.append({
+                "universe": universe,
+                "period_start": window[0].date().isoformat(),
+                "period_end": window[-1].date().isoformat(),
+                "strategy": name,
+                "cagr": m.get("cagr"),
+                "max_drawdown": m.get("max_drawdown"),
+                "sharpe": m.get("sharpe"),
+                "trades": m.get("trades", 0),
+                "excess": stats.mean if stats else None,
+                "excess_low": stats.low if stats else None,
+                "excess_high": stats.high if stats else None,
+                "level": level if stats else None,
+                "verdict": stats.verdict if stats else "",
+            })
 
     lines += [
         "",
@@ -226,8 +245,11 @@ def main(argv: list[str] | None = None) -> None:
         "--universe", choices=("pit", "today"), default="pit",
         help="pit: point-in-time BIST 100 members (default); today: today's list (survivorship-biased)",
     )
+    parser.add_argument("--records", default=None, help="also append the table rows to this CSV (history)")
+    parser.add_argument("--run-date", default=None, help="label of this run in the history (default: now)")
     args = parser.parse_args(argv)
 
+    records: list[dict] = []
     print(
         research_report(
             start=args.start,
@@ -235,8 +257,13 @@ def main(argv: list[str] | None = None) -> None:
             positions=args.positions,
             cash=parse_cash_option(args.cash),
             universe=args.universe,
+            records=records,
         )
     )
+    if args.records:
+        from core.backtest.history import append_records
+
+        append_records(records, args.records, run_date=args.run_date)
 
 
 if __name__ == "__main__":
