@@ -216,7 +216,7 @@ def _benchmark_line(b: CrossCheck, market: dict) -> list[str]:
     return lines
 
 
-def format_report(results: list[CrossCheck], period: str) -> str:
+def format_report(results: list[CrossCheck], period: str, show_explained: bool = False) -> str:
     from core.market.universe import BENCHMARK
 
     benchmark = next((r for r in results if r.symbol == BENCHMARK), None)
@@ -257,6 +257,10 @@ def format_report(results: list[CrossCheck], period: str) -> str:
             parts.append(f"yalnız Yahoo'da {len(r.only_ours)} gün: {_days(r.only_ours)}")
         if r.only_theirs:
             parts.append(f"yalnız İş Yatırım'da {len(r.only_theirs)} gün: {_days(r.only_theirs)}")
+        if show_explained and r.explained:
+            parts.append("düzeltme günü sayılanlar: " + ", ".join(
+                f"{day:%d.%m.%Y} Yahoo {_pct(a)} / İş {_pct(b)}" for day, a, b, _ in r.explained
+            ))
         if parts:
             lines.append(f"  {code}: " + "; ".join(parts))
     lines.append(
@@ -321,6 +325,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--symbols", nargs="*", help="codes (default: data/universe.csv)")
     parser.add_argument("--universe", choices=("today", "pit"), default="today",
                         help="pit: every BIST 100 member since 2022 (the research universe)")
+    parser.add_argument("--show-explained", action="store_true",
+                        help="also list the days counted as dividend/bonus/split days")
     parser.add_argument("--adjusted", action="store_true",
                         help="check the corporate-action adjusted series the backtests use")
     args = parser.parse_args(argv)
@@ -341,7 +347,7 @@ def main(argv: list[str] | None = None) -> None:
 
     period = f"{args.start:%d.%m.%Y} – bugün" if args.start else f"son {args.days} gün"
     results = run(symbols, args.days, bars=bars, start=args.start)
-    print(format_report(results, period + (", düzeltilmiş seri" if args.adjusted else "")))
+    print(format_report(results, period + (", düzeltilmiş seri" if args.adjusted else ""), args.show_explained))
 
 
 if __name__ == "__main__":

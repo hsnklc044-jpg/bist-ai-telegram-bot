@@ -45,7 +45,7 @@ jobs:
         run: |
           if [ -n "$SYMBOLS" ]; then
             python -m core.market.update > update.txt 2>&1 || true
-            python -m core.market.crosscheck --start "${START:-2022-01-01}" --adjusted --symbols $SYMBOLS 2>&1 | tee datacheck.txt
+            python -m core.market.crosscheck --start "${START:-2022-01-01}" --adjusted --show-explained --symbols $SYMBOLS 2>&1 | tee datacheck.txt
           else
             python -m core.market.crosscheck --start "${START:-2022-01-01}" --universe pit --adjusted 2>&1 | tee datacheck.txt
           fi
