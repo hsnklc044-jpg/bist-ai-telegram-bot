@@ -1,0 +1,13 @@
+İkinci kaynak kontrolü (İş Yatırım, 01.01.2022 – bugün, düzeltilmiş seri, günlük getiri farkı > 1 puan): 5 hisse | tutarlı 0, fark var 5, kontrol edilemedi 0 | karşılaştırılan 6021 hisse-gün
+Hisseye özgü açıklanamayan fark 13 gün; olası düzeltme günü (temettü/bedelsiz/bölünme) 20 gün
+Piyasa geneli farklar (kontrol edilen hisselerin en az %20'i aynı gün; kaynak düzeyinde sorun, hisse hatası değil):
+  18.11.2022: 3 hisse, medyan fark -2.0% (Yahoo − İş)
+  06.01.2023: 5 hisse, medyan fark -5.5% (Yahoo − İş)
+XU100 (İş Yatırım'ın BIST 100 değeriyle, 1202 gün): tutarlı
+Hisseye özgü farklar (piyasa geneli günler hariç):
+  GARAN: 13.12.2022 Yahoo -1.3% / İş +0.0%; 09.09.2024 Yahoo -3.7% / İş -2.3%; yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 17.11.2022 Yahoo -5.1% / İş -6.4%, 12.12.2022 Yahoo +3.7% / İş +2.4%, 05.01.2023 Yahoo -3.6% / İş -10.0%, 06.09.2024 Yahoo -1.2% / İş -2.6%
+  THYAO: 11.05.2022 Yahoo -1.2% / İş +0.0%; 29.11.2022 Yahoo +3.3% / İş +4.7%; yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 10.05.2022 Yahoo +0.9% / İş -0.2%, 30.11.2022 Yahoo +0.9% / İş -0.4%, 05.01.2023 Yahoo -1.9% / İş -6.4%
+  EREGL: 10.05.2022 Yahoo +2.0% / İş +3.3%; 27.06.2022 Yahoo -2.6% / İş -0.1%; 19.12.2022 Yahoo +0.3% / İş +2.3%; düzeltme günü sayılanlar: 11.05.2022 Yahoo -0.2% / İş -1.4%, 28.06.2022 Yahoo +1.5% / İş -1.0%, 16.12.2022 Yahoo +0.7% / İş -1.3%, 05.01.2023 Yahoo -2.7% / İş -6.6%
+  AKBNK: 13.12.2022 Yahoo -0.6% / İş +0.7%; 09.09.2024 Yahoo -2.7% / İş -1.5%; yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 17.11.2022 Yahoo -4.8% / İş -6.7%, 12.12.2022 Yahoo +5.3% / İş +4.0%, 05.01.2023 Yahoo -3.0% / İş -8.1%, 06.09.2024 Yahoo -1.6% / İş -2.7%
+  ASELS: 10.05.2022 Yahoo +0.7% / İş +1.9%; 10.11.2022 Yahoo -0.5% / İş +0.8%; 08.12.2022 Yahoo +3.3% / İş +4.5%; 12.12.2022 Yahoo +9.0% / İş +10.0%; yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 11.05.2022 Yahoo -0.2% / İş -1.3%, 09.11.2022 Yahoo +5.6% / İş +4.3%, 17.11.2022 Yahoo +2.8% / İş +0.7%, 09.12.2022 Yahoo +4.9% / İş +3.7%, 05.01.2023 Yahoo -4.6% / İş -9.6%
+Not: düzeltilmiş seride getirinin işlem fiyatından yüksek olduğu günler temettü/bedelsiz/bölünme kaynaklı sayılır; açıklanamayan farklar ve tek kaynakta olan günler KAP'tan kontrol edilmelidir.
