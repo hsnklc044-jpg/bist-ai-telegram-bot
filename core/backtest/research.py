@@ -247,7 +247,14 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument("--records", default=None, help="also append the table rows to this CSV (history)")
     parser.add_argument("--run-date", default=None, help="label of this run in the history (default: now)")
+    parser.add_argument("--price-fixes", default=None,
+                        help="apply one-day close fixes from this CSV (core.market.crosscheck --export)")
     args = parser.parse_args(argv)
+
+    if args.price_fixes:
+        from core.market.corrections import use_price_fixes
+
+        print(f"Fiyat düzeltmeleri açık: {use_price_fixes(args.price_fixes)} gün ({args.price_fixes})\n")
 
     records: list[dict] = []
     print(

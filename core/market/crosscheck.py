@@ -129,6 +129,7 @@ class CrossCheck:
     error: str = ""
     market_days: set[date] = field(default_factory=set)  # source-level dates, set by format_report
     close_errors: list[date] = field(default_factory=list)  # one wrong close, undone the next session
+    fixes: list[tuple[date, float]] = field(default_factory=list)  # factor that makes our close right
 
     @property
     def mismatched(self) -> list[tuple[date, float, float, bool]]:
@@ -188,6 +189,10 @@ def compare(
             if days[i] not in paired:
                 paired.update((days[i], days[i + 1]))
                 result.close_errors.append(days[i].date())
+                # our close on that day should have moved like theirs from the previous close
+                previous = both["ours"].shift(1).loc[days[i]]
+                right = previous * (1 + returns["theirs"].iloc[i])
+                result.fixes.append((days[i].date(), float(right / both["ours"].loc[days[i]])))
     for day, row in returns.iterrows():
         gap = gaps.loc[day]
         if abs(gap) > tolerance and day not in paired:
@@ -293,6 +298,20 @@ def format_report(results: list[CrossCheck], period: str, show_explained: bool =
     return "\n".join(lines)
 
 
+def export_fixes(results: list[CrossCheck], path) -> int:
+    """Write the one-day wrong closes as price fixes (core.market.corrections)."""
+
+    import csv
+
+    rows = [(r.symbol, d, f) for r in results for d, f in r.fixes]
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        writer = csv.writer(fh, lineterminator="\n")
+        writer.writerow(["symbol", "date", "factor", "source", "note"])
+        for symbol, day, factor in rows:
+            writer.writerow([symbol, day.isoformat(), f"{factor:.6f}", "isyatirim", "tek gün kapanış hatası"])
+    return len(rows)
+
+
 def run(
     symbols: list[str],
     days: int = 30,
@@ -348,6 +367,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--symbols", nargs="*", help="codes (default: data/universe.csv)")
     parser.add_argument("--universe", choices=("today", "pit"), default="today",
                         help="pit: every BIST 100 member since 2022 (the research universe)")
+    parser.add_argument("--export", default=None, help="write one-day wrong closes as price fixes (CSV)")
     parser.add_argument("--show-explained", action="store_true",
                         help="also list the days counted as dividend/bonus/split days")
     parser.add_argument("--adjusted", action="store_true",
@@ -371,6 +391,8 @@ def main(argv: list[str] | None = None) -> None:
     period = f"{args.start:%d.%m.%Y} – bugün" if args.start else f"son {args.days} gün"
     results = run(symbols, args.days, bars=bars, start=args.start)
     print(format_report(results, period + (", düzeltilmiş seri" if args.adjusted else ""), args.show_explained))
+    if args.export:
+        print(f"{export_fixes(results, args.export)} günlük kapanış düzeltmesi yazıldı: {args.export}")
 
 
 if __name__ == "__main__":

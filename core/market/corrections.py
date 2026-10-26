@@ -19,6 +19,15 @@ Price corrections applied on top of the raw provider data.
    price before, without the market move). Prices before ex_date are
    multiplied by factor, volumes divided by it.
 
+3. Price fixes (optional, off by default)
+   One-day wrong closes found by the second-source check
+   (core.market.crosscheck --export): each row multiplies one day's close
+   by `factor`. Used only after use_price_fixes(path) - the research
+   report's --price-fixes option - so their effect can be measured
+   before anything changes by default.
+
+       symbol,date,factor,source,note
+
 The raw data in the store is never modified; corrections are applied
 when data is read, so a wrong row in the CSV can simply be removed.
 """
@@ -152,14 +161,52 @@ def apply_corporate_actions(
     return df
 
 
+_price_fixes: dict[str, dict[pd.Timestamp, float]] | None = None
+
+
+def load_price_fixes(path) -> dict[str, dict[pd.Timestamp, float]]:
+    fixes: dict[str, dict[pd.Timestamp, float]] = {}
+    with open(path, encoding="utf-8", newline="") as fh:
+        for row in csv.DictReader(fh):
+            factor = float(row["factor"])
+            if not 0.5 < factor < 2.0:
+                raise ValueError(f"{path}: {row['symbol']} {row['date']} factor {factor} looks wrong")
+            fixes.setdefault(row["symbol"].strip().upper(), {})[pd.Timestamp(row["date"])] = factor
+    return fixes
+
+
+def use_price_fixes(path=None) -> int:
+    """Turn price fixes on (path) or off (None). Returns the number of fixed days."""
+
+    global _price_fixes
+    _price_fixes = load_price_fixes(path) if path else None
+    return sum(len(v) for v in (_price_fixes or {}).values())
+
+
+def apply_price_fixes(df: pd.DataFrame, symbol: str, fixes=None) -> pd.DataFrame:
+    fixes = (_price_fixes or {}) if fixes is None else fixes
+    days = fixes.get(symbol.upper())
+    if df.empty or not days:
+        return df
+    df = df.copy()
+    for day, factor in days.items():
+        if day in df.index:
+            close = df.at[day, "close"] * factor
+            df.at[day, "close"] = close
+            df.at[day, "high"] = max(df.at[day, "high"], close)
+            df.at[day, "low"] = min(df.at[day, "low"], close)
+    return df
+
+
 def clean(
     df: pd.DataFrame,
     symbol: str,
     actions: list[CorporateAction] | None = None,
 ) -> pd.DataFrame:
-    """All corrections, in order."""
+    """All corrections, in order (price fixes only when turned on)."""
 
-    return apply_corporate_actions(drop_cancelled_sessions(df), symbol, actions)
+    df = apply_corporate_actions(drop_cancelled_sessions(df), symbol, actions)
+    return apply_price_fixes(df, symbol) if _price_fixes else df
 
 
 __all__ = [
@@ -170,4 +217,7 @@ __all__ = [
     "drop_cancelled_sessions",
     "apply_corporate_actions",
     "clean",
+    "apply_price_fixes",
+    "load_price_fixes",
+    "use_price_fixes",
 ]
