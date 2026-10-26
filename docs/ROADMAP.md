@@ -23,6 +23,32 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
   - Sunucu kiralansın mı.
 - **Aşama 3** (yeni sinyal araştırması), PC doğrulaması tamamlanmadan başlamaz.
 
+## Bağımsız denetim (27.10.2026, v0.45.0 üzerinde)
+
+Kod baştan okundu. Aranan sorun türleri:
+- hesap hatası,
+- sessizce yutulan hata,
+- tarih ve saat dilimi sorunu,
+- aynı işi iki kez yapan kod,
+- ölü kod.
+
+Kritik bulgu yok. Yüksek önemli bulgular sırayla düzeltilir; her biri önce başarısız bir testle gösterilir.
+
+| # | Önem | Bulgu | Etki | Durum |
+|---|---|---|---|---|
+| D1 | YÜKSEK | Gerçek hesabın "Günlük değişim" satırı ve "zirveden düşüş" uyarısı, hisse alımını kazanç, satışı kayıp sayıyor. Değer yalnız hisselerin piyasa değeri; arada para giriş-çıkışı ayrılmıyor | Yeni alım gününde "+%20" gibi sahte bir değişim görünüyor. Yarı satışta yanlış "hesap zirvesinden %50 aşağıda" uyarısı (yüksek önem) çıkıyor | düzeltilecek |
+| D2 | YÜKSEK | Rapor yalnız BIST 100 listesindeki hisselerin fiyatını güncelliyor. Listede olmayan bir hisseyi tutunca değer ve kâr/zarar eski fiyattan hesaplanıyor. Bekleyen bir sanal emir hiç dolmuyor ve bunu söylemiyor | Değer ve uyarılar eski fiyata dayanıyor. Uyarı ancak 5 gün sonra çıkıyor | düzeltilecek |
+| D3 | YÜKSEK | `/performans`'taki güven aralığı 20 ve 60 seanslık getirilerin üst üste bindiğini hesaba katmıyor. Ardışık günlerin 20 günlük getirileri neredeyse aynı ama bağımsız sayılıyor | Aralık olması gerekenden çok dar; "XU100'ü anlamlı şekilde geçiyor" kararı yanlışlıkla çıkabilir | düzeltilecek |
+| D4 | ORTA | `data/corporate_actions.csv` içindeki bozuk bir satır yalnız log'a yazılıp atlanıyor | O hissenin geçmiş fiyatları düzeltilmeden kullanılıyor ve kimse fark etmiyor | açık |
+| D5 | ORTA | Canlı ölçüm kaydı yazılamazsa hata yalnız log'a gidiyor, raporda görünmüyor | O gün ölçümden düşüyor; `/durum` bunu ancak sonraki günlerde "kaydı olmayan seans" olarak gösteriyor | açık |
+| D6 | ORTA | İki ayrı mesaj bölücü var (`bot/common.split_message`, `daily.split_text`). Günlük raporun bölücüsü 4.000 karakteri aşan tek bir satırı bölmüyor | Çok uzun bir satır Telegram'da hata verir ve rapor gitmez | açık |
+| D7 | ORTA | Hesap değerleme mantığı üç yerde ayrı ayrı yazılmış: `daily.build_daily`, `service.portfolio_text`, `service._paper_value`. `/portfolio` fiyatın tarihini göstermiyor | Bir düzeltme bir yerde kalıp diğerlerinde eksik kalabilir; eski fiyat "son kapanış" gibi görünebilir | açık |
+| D8 | DÜŞÜK | `/analyze` skoru 2 yıllık, günlük kayıt 5 yıllık geçmişle hesaplıyor (EMA/RSI başlangıç farkı) | Seyrek de olsa bir puanlık fark ve farklı görünüm çıkabilir | açık |
+| D9 | DÜŞÜK | Ölü kod: `market.data.load_last_price`, `load_snapshot`, `load_market`, `get_data_quality`; `indicators.is_bullish`, `is_bearish`, `is_neutral`, `strong_buy_signal`, `strong_sell_signal`, `indicator_score`; `watchlist.service.get_watchlist_details` | Bakım yükü; bu fonksiyonların hiçbiri çağrılmıyor | açık |
+| D10 | DÜŞÜK | Saat dilimi belirtilmemiş zamanlar: fiyat deposunun eşitleme zamanı, veri önbelleği, log dosyası adı | PC ve sunucu İstanbul saatinde olduğu için bugün doğru. Başka bir saat diliminde 15 dakikalık yenileme ve log adı kayar | açık |
+| D11 | DÜŞÜK | Telegram mesaj sınırı UTF-16 birimiyle sayılıyor, kod Python karakteri sayıyor | 96'dan fazla emoji içeren bir parça sınırı aşabilir; bugünkü raporlarda olmuyor | açık |
+| D12 | DÜŞÜK | `/report` elle çalıştırılınca yeni uyarıları kayda geçiriyor. Aynı gün 18:30 raporu onları "🆕" olarak yeniden göstermiyor | Kullanıcı uyarıyı `/report` çıktısında zaten görmüş oluyor | açık |
+
 ## Aşama 2: tamamlandı (kodda; PC doğrulaması bekliyor)
 
 Yazılım tarafı bitti. Testler `tests/` içinde, CI numarası her maddenin yayınlandığı
