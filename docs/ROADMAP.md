@@ -3,19 +3,19 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Doğrulanmış durum (26.10.2026 akşamı; kod v0.33.1, kullanıcı PC'si v0.28)
+## Doğrulanmış durum (27.10.2026; kod v0.36.1, kullanıcı PC'si v0.35.0)
 
 | Bileşen | Durum | Kanıt |
 |---|---|---|
-| Kod ve bağımlılıklar | Doğrulandı | CI yeşil (331 test, Windows kodlama ve dosya sızıntısı korumalı); PC'de son kontrol v0.28.0 |
+| Kod ve bağımlılıklar | Doğrulandı | CI yeşil; kullanıcı PC'sinde v0.35.0 ile 334 test (27.10) |
 | Telegram botu | Doğrulandı | `/help` tek sürüm yanıtlıyor (26.10 14:11) |
 | Zamanlayıcı | Doğrulandı | Windows görevi tek zamanlayıcı; 26.10 18:30 raporu zamanında geldi |
 | Günlük rapor teslimi | Doğrulandı | 26.10.2026 kapanış raporu 18:30'da Telegram'a geldi, tek mesaj |
 | Sanal emir dolumu (v0.28 alanları) | Doğrulandı | #1 THYAO 10 adet: açılış 260,25 + %0,05 kayma = 260,38; komisyon 2,60 TL; hesap 97.394 + 2.582 = 99.976 TL |
-| Yedek | Doğrulandı | quantbist_2026-10-26.zip, 5 dosya, doğrulandı (OneDrive) |
+| Yedek ve geri yükleme | Doğrulandı | Günlük yedek 5 dosya (OneDrive). Kullanıcı provası (27.10, kopya üzerinde): ledger.csv bozuldu, paper_orders.csv boşaltıldı; `--restore` sonrası 5 dosya SHA-256 ile birebir aynı |
 | `data/signal_log.csv` | Doğrulandı | 26.10 14:42 elle çalıştırma: 117 hisse kaydı |
 | `logs/runs.csv` `sent` satırı, `/durum`, 20:00 kontrolü | **Kullanıcıdan kanıt bekleniyor** | Rapor geldiği için büyük olasılıkla doğru; çıktı görülmedi |
-| Portföy "Risk:" satırı (v0.29) | **Doğrulanmadı** | PC'de v0.28 çalıştığı için raporda yok; güncelleme bekliyor |
+| Portföy "Risk:" satırı (v0.29) | Doğrulandı | Kullanıcı PC'si v0.35.0 raporunda görünüyor (27.10); etkin pozisyon sayısı hatası (1.498,7 yerine 1,0) kullanıcı tarafından bulundu, v0.36.1'de düzeltildi |
 | Yarım gün / tatil davranışı | **Doğrulanmadı** | 28.10 yarım gün, 29.10 tatil |
 | Cuma canlı ölçüm satırı | **Doğrulanmadı** | İlk görülme hedefi 30.10.2026 |
 | Cumartesi araştırma iş akışı | Elle doğrulandı (pipefail ile çıktı dosyaları kontrol edildi, run 40377109448); zamanlanmış çalışma doğrulanmadı | İlk zamanlanmış çalışma 31.10 |

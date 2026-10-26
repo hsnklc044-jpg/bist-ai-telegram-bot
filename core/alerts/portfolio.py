@@ -41,8 +41,12 @@ class PortfolioRisk:
 
     @property
     def effective_n(self) -> float | None:
+        # shares of the invested amount, not of the account: cash is not a position
         w = np.array(list(self.weights.values()))
-        return float(1 / (w**2).sum()) if len(w) and (w**2).sum() > 0 else None
+        if not len(w) or w.sum() <= 0:
+            return None
+        w = w / w.sum()
+        return float(1 / (w**2).sum())
 
     def line(self) -> str:
         if self.unpriced:

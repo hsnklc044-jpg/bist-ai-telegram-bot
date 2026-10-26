@@ -61,6 +61,14 @@ class PortfolioRiskTest(unittest.TestCase):
         self.assertIn("portfoy_risk", [a.rule for a in evaluate_portfolio("paper", risk, DAY)])
         self.assertAlmostEqual(risk.effective_n, 1.0)
 
+    def test_effective_n_ignores_cash(self):
+        one = portfolio_risk({"A.IS": 2_582.0}, {"A.IS": frame(self.noise[0])}, total=99_976)
+        self.assertAlmostEqual(one.effective_n, 1.0)
+        self.assertIn("etkin pozisyon sayısı 1,0", one.line())
+        two = portfolio_risk({"A.IS": 5_000.0, "B.IS": 5_000.0},
+                             {"A.IS": frame(self.noise[0]), "B.IS": frame(self.noise[1])}, 100_000)
+        self.assertAlmostEqual(two.effective_n, 2.0)
+
     def test_missing_price_is_reported_not_ignored(self):
         risk = portfolio_risk({"A.IS": float("nan"), "B.IS": 10_000.0}, {"B.IS": frame(self.noise[0])}, 50_000)
         self.assertIsNone(risk.var)
