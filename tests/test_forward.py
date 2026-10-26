@@ -112,6 +112,25 @@ class RecordingAndReportTest(unittest.TestCase):
         self.assertIn("henüz karar yok (3/20 gün)", text)
         self.assertIn("/top, /analyze ve /watchscan kayıtları: 1 olgun kayıt", text)
 
+    def test_reference_shown_next_to_live_result(self):
+        index = self.frames["AAA.IS"].index
+        for i in (200, 210):
+            log_signal("daily", "AAA.IS", 80, "Güçlü pozitif", index[i].date(), path=self.log)
+        ref = self.root / "exp.csv"
+        ref.write_text(
+            "view,horizon,mean,hit_rate,days,records,period_start,period_end,universe,generated\n"
+            "Güçlü pozitif,5,0.012300,0.5500,700,9000,2023-08-01,2026-10-16,pit,2026-10-27\n",
+            encoding="utf-8",
+        )
+        text = forward.forward_report(self.log, self.equity, bars=self.bars, expectations_path=ref)
+        line = next(x for x in text.splitlines() if "Güçlü pozitif" in x and "kayıt" in x)
+        self.assertIn("geçmiş +%1,2, isabet %55", line)
+        self.assertIn("2023-08 – 2026-10", text)
+        self.assertIn("referans, kanıt değil", text)
+
+        without = forward.forward_report(self.log, self.equity, bars=self.bars, expectations_path=self.root / "yok.csv")
+        self.assertNotIn("geçmiş", without)
+
     def test_empty_log_and_paper(self):
         text = forward.forward_report(self.log, self.equity, bars=self.bars)
 

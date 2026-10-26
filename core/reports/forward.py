@@ -243,8 +243,12 @@ def forward_report(
     signal_path: Path | str | None = None,
     equity_path: Path | str | None = None,
     bars=adjusted_bars,
+    expectations_path: Path | str | None = None,
 ) -> str:
+    from core.backtest.expectations import load as load_expectations
+
     scored = score_log(signal_path, bars=bars)
+    reference = load_expectations(expectations_path)
     lines = ["📏 Canlı performans (kayıttan sonra olanlar)", ""]
 
     systematic = scored[scored["source"] == SYSTEMATIC]
@@ -256,6 +260,12 @@ def forward_report(
         )
     else:
         lines.append("Teknik görünüm → sonraki getirinin XU100'den farkı (ortalama, %95 aralık)")
+        if reference:
+            any_ref = next(iter(reference.values()))
+            lines.append(
+                f"\"geçmiş\": aynı yöntemle {any_ref['period_start'][:7]} – {any_ref['period_end'][:7]} "
+                "(araştırma dönemi; referans, kanıt değil)"
+            )
         for h in sorted(systematic["horizon"].unique()):
             lines.append(f"{h} seans:")
             part = systematic[systematic["horizon"] == h]
@@ -263,10 +273,12 @@ def forward_report(
                 stats = summarize(part[part["view"] == view])
                 if stats is None:
                     continue
+                ref = reference.get((view, int(h)))
                 lines.append(
                     f"  {view:<14} {pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
                     f"| {stats.records} kayıt, {stats.days} gün, isabet %{stats.hit_rate * 100:.0f} "
                     f"→ {_verdict(stats)}"
+                    + (f" | geçmiş {pct(ref['mean'])}, isabet %{ref['hit_rate'] * 100:.0f}" if ref else "")
                 )
 
     asked = scored[scored["source"] != SYSTEMATIC]
