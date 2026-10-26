@@ -1,0 +1,25 @@
+Dönem: 2023-08-01 – 2026-10-23 | Evren: BUGÜNKÜ liste, 117 hisse (survivorship bias içerir; yalnızca karşılaştırma için)
+Komisyon %0.10 + kayma %0.05 (her yön) | nakit: faizsiz (%0)
+Verisi yetersiz, dışarıda (1): KPOWR.IS
+
+Strateji                                      Toplam   Yıllık    MaxDD Sharpe  İşlem  XU100'e göre fazla getiri (yıllık, %99.2 GA)
+Bot sinyali                                   +26.5%    +7.5%   -41.7%   0.41    292  -6.0% [-28.6%, +15.7%] anlamlı değil
+Bot sinyali + rejim filtresi                  +11.4%    +3.4%   -35.1%   0.26    293  -10.5% [-37.5%, +14.5%] anlamlı değil
+Trend kuralı                                  +66.1%   +17.0%   -79.5%   0.66    113  +4.0% [-87.9%, +71.0%] anlamlı değil
+Momentum 6 ay, en iyi 10                      -27.5%    -9.5%   -86.4%  -0.11    124  -20.8% [-135.3%, +60.9%] anlamlı değil
+Momentum 6 ay, en iyi 10 + rejim               -7.8%    -2.5%   -80.2%   0.08    199  -14.6% [-114.8%, +56.8%] anlamlı değil
+Momentum walk-forward (test dönemleri)        +80.2%   +20.0%   -70.6%   0.71    152  +7.4% [-85.9%, +79.5%] anlamlı değil
+Eşit ağırlık al-tut (aynı hisseler)           +60.3%   +15.8%   -53.2%   0.73      0  
+XU100 al-tut                                  +55.1%   +14.6%   -26.5%   0.67      0  
+
+GA: blok bootstrap güven aralığı (21 seanslık bloklar). 6 strateji test edildiği için Bonferroni düzeltmeli (%99.2). Aralık tamamen sıfırın üstünde değilse strateji XU100'ü geçmiş sayılmaz.
+
+Walk-forward adımları (24 ay eğitim → 6 ay test):
+  2023-08-01 – 2024-01-31: 63 gün, en iyi 5, rejim kapalı | eğitim Sharpe 3.86 | test +34.4% | XU100 +18.5%
+  2024-02-01 – 2024-07-31: 63 gün, en iyi 5, rejim kapalı | eğitim Sharpe 3.49 | test -4.2% | XU100 +23.0%
+  2024-08-01 – 2025-01-31: 63 gün, en iyi 10, rejim kapalı | eğitim Sharpe 2.48 | test -4.5% | XU100 -7.4%
+  2025-02-01 – 2025-07-31: 63 gün, en iyi 10, rejim kapalı | eğitim Sharpe 1.82 | test +25.9% | XU100 +9.9%
+  2025-08-01 – 2026-01-31: 126 gün, en iyi 5, rejim kapalı | eğitim Sharpe 1.52 | test +44.4% | XU100 +28.8%
+  2026-02-01 – 2026-07-31: 126 gün, en iyi 5, rejim kapalı | eğitim Sharpe 1.94 | test +140.1% | XU100 -1.2%
+  2026-08-01 – 2026-10-23: 63 gün, en iyi 5, rejim açık | eğitim Sharpe 3.27 | test -66.5% | XU100 -17.1%
+  XU100'ü geçen pencere 5/7 | medyan test +25.9% | en iyi pencere hariç toplam -25.0%
