@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantBIST Özet</title>
+<style>
+  :root { --bg: #0f172a; --panel: #1e293b; --border: #334155; --text: #f8fafc; --muted: #94a3b8; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 20px; margin: 8px 0 16px; }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+            padding: 12px 16px; margin-bottom: 12px; }
+  pre { margin: 0; white-space: pre-wrap; font: 14px/1.5 ui-monospace, Consolas, monospace; }
+  footer { color: var(--muted); font-size: 13px; margin: 16px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>{{ title }}</h1>
+  <section><pre>{{ overview.market | join("\n") }}</pre></section>
+  <section><pre>{{ overview.portfolio }}</pre></section>
+  <section><pre>{{ overview.alerts }}</pre></section>
+  <footer>{{ disclaimer }} · QuantBIST v{{ version }}</footer>
+</main>
+</body>
+</html>

@@ -11,19 +11,18 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from bot.common import reply
-from core.dashboard.service import get_dashboard
-from core.reports import generate_summary_report
+from core.reports.overview import build_overview
 
 
 def _build_summary() -> str:
-    return generate_summary_report(get_dashboard())
+    return build_overview().text
 
 
 async def summary(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ) -> None:
-    """Handle /summary."""
+    """Handle /summary (read-only: stored prices and personal records)."""
 
     await reply(update, "⏳ Özet hazırlanıyor...")
 

@@ -47,7 +47,7 @@ Paket yükseltmesi bilinçli yapılır: yükselt, testleri çalıştır, geçers
 
 ```bash
 python main.py                    # Telegram botu
-python -m core.web.app            # Web paneli → http://127.0.0.1:8000/dashboard  (API belgeleri: /docs)
+python -m core.web.app            # Web paneli (/summary ile aynı özet) → http://127.0.0.1:8000/dashboard
 ```
 
 ## Fiyat verisi
@@ -99,7 +99,7 @@ işlem yapılır; raporda sadece bu test dönemleri birleştirilir.
 | --- | --- |
 | `/top` | En güçlü 10 sinyal |
 | `/analyze THYAO` | Tek hisse analizi |
-| `/summary` | Portföy, piyasa ve karar özeti |
+| `/summary` | Piyasa, gerçek ve sanal hesap, açık risk uyarıları (salt okunur; AL/SAT kararı içermez) |
 | `/watchlist`, `/watchadd EREGL`, `/watchremove EREGL`, `/watchscan` | Takip listesi |
 | `/portfolio` | Pozisyonlar ve kâr/zarar (gerçek ve sanal hesap) |
 | `/trade al THYAO 100 285,50 [komisyon] [GG.AA.YYYY]` | Gerçekleşmiş işlemi deftere yaz (`sat`, `bedelsiz`, `bedelli` de olur) |
@@ -169,7 +169,7 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 | `core/market/` | Fiyat verisi (yfinance), indikatörler, piyasa rejimi |
 | `core/analytics/` | Hisse bazında skor ve sinyaller |
 | `core/portfolio/` | Portföy sağlığı, risk, dağılım (`data/portfolio_model.csv`) |
-| `core/committee/`, `core/decision/`, `core/ai/` | Portföy düzeyinde karar |
+| `core/committee/`, `core/decision/`, `core/ai/` | Eski "AI karar" katmanı: artık hiçbir çıktıda kullanılmıyor, kaldırılacak |
 | `core/dashboard/`, `core/charts/`, `core/reports/`, `core/export/` | Panel, grafik, rapor, dışa aktarma |
 | `core/config/` | Yollar (`paths.py`), eşikler (`thresholds.py`), ağırlıklar |
 | `core/web/` | Web paneli (FastAPI; sayfa `templates/`, stil `static/`) |

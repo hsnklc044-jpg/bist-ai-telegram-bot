@@ -72,7 +72,9 @@ class WebPanelTest(unittest.TestCase):
             root = client.get("/", follow_redirects=False)
 
         self.assertEqual(page.status_code, 200)
-        self.assertIn("getiri tahmin gücü bulunmadı", page.text)
-        self.assertIn("Portföy kaynağı", page.text)
+        self.assertIn("QuantBIST özet", page.text)
+        self.assertIn("Piyasa", page.text)
+        self.assertIn("Sanal hesap", page.text)
+        self.assertIn("AL/SAT önerisi vermez", page.text)
         self.assertEqual(css.status_code, 200)
         self.assertEqual(root.headers["location"], "/dashboard")
