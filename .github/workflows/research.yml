@@ -1,0 +1,47 @@
+name: Research
+
+# Downloads real prices on GitHub's servers and runs the research
+# reports, so no local computer is needed. Start it from the Actions tab
+# ("Run workflow"); the output is on the run's summary page.
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "core.backtest.research --start"
+        required: false
+        default: ""
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download prices
+        run: python -m core.market.update > update.txt 2>&1 || true
+      - name: Strategy research
+        env:
+          START: ${{ inputs.start }}
+        run: python -m core.backtest.research ${START:+--start "$START"} 2>&1 | tee research.txt
+      - name: Candidate rules, point-in-time BIST 100
+        run: python -m core.backtest.candidates --pit 2>&1 | tee candidates.txt
+      - name: Summary
+        if: always()
+        run: |
+          for f in research candidates; do
+            echo "## $f" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: research
+          path: "*.txt"
