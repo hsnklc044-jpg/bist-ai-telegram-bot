@@ -1,0 +1,67 @@
+name: Server smoke test (Docker)
+
+# The server setup end to end on a clean Linux machine, as in docs/SERVER.md:
+# build with docker compose, download prices, build the daily report (printed,
+# not sent: no token is used), take the backups and run the restore test, all
+# inside the container with data/, logs/ and backups/ on the host.
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ["Dockerfile", "docker-compose.yml", ".github/workflows/server-smoke.yml"]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Server folders and settings (no token)
+        run: |
+          printf 'BOT_TOKEN=\nCHAT_ID=\nDAILY_REPORT_AT=18:30\nBACKUP_DIR=/app/backups\n' > .env
+          mkdir -p logs backups
+          sudo chown -R 1000:1000 data logs backups
+      - name: Build
+        run: docker compose build
+      - name: Runs as uid 1000 on Istanbul time
+        run: |
+          docker compose run --rm bot sh -c 'id -u; date +%z' | tee who.txt
+          grep -qx 1000 who.txt
+          grep -qx +0300 who.txt
+      - name: First price download
+        run: docker compose run --rm bot python -m core.market.update 2>&1 | tail -5 | tee update.txt
+      - name: Daily report (printed, not sent)
+        run: |
+          docker compose run --rm bot python -m core.reports.daily --no-update --log-dir logs 2>&1 | tee report.txt
+          grep -q "QuantBIST günlük rapor" report.txt
+      - name: Backups and restore test
+        run: |
+          docker compose run --rm bot python -m core.backup 2>&1 | tee backup.txt
+          docker compose run --rm bot python -m core.backup --market-db 2>&1 | tee -a backup.txt
+          docker compose run --rm bot python -m core.backup --test-restore 2>&1 | tee -a backup.txt
+          grep -q "Geri yükleme testi başarılı" backup.txt
+          ls -la backups | tee -a backup.txt
+          ls backups/quantbist_marketdb_*.zip
+      - name: Health without the bot (heartbeat missing → exit 1)
+        run: |
+          set +e
+          docker compose run --rm bot python -m core.reports.health --heartbeat
+          code=$?
+          set -e
+          test "$code" -eq 1
+      - name: Summary
+        if: always()
+        run: |
+          for f in who update report backup; do
+            echo "## $f" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          done

@@ -16,9 +16,8 @@ shows up in logs/runs.csv.
 
 from __future__ import annotations
 
-import os
-
 import csv
+import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -184,6 +183,8 @@ def equity_check(path: Path | str | None = None) -> Check:
     )
 
 
+PULL_MARKER = "pulled.txt"  # written by scripts/pull_backups after copying the backups off a server
+PULL_MAX_AGE = timedelta(days=8)
 SYNCED_FOLDERS = ("onedrive", "dropbox", "google drive", "googledrive", "icloud")
 
 
@@ -212,7 +213,8 @@ def _location_warning(target: Path, data_dir: Path) -> str | None:
 
 
 def backup_check(now: datetime, target: Path | None = None, data_dir: Path | None = None) -> Check:
-    from core.backup import backup_dir, daily_backups as list_backups
+    from core.backup import backup_dir
+    from core.backup import daily_backups as list_backups
 
     target = Path(target or backup_dir())
     try:
@@ -233,7 +235,19 @@ def backup_check(now: datetime, target: Path | None = None, data_dir: Path | Non
         return Check("Yedek", WARN, f"{text}; {(now - taken).days} gündür yeni yedek yok")
     where = _location_warning(target, Path(data_dir or DATA_DIR))
     if where:
-        return Check("Yedek", WARN, f"{text}; yedek {where}")
+        marker = target / PULL_MARKER
+        if not marker.exists():
+            return Check("Yedek", WARN, f"{text}; yedek {where}")
+        try:
+            pulled = datetime.fromisoformat(marker.read_text(encoding="utf-8").strip())
+            if pulled.tzinfo is None:
+                pulled = pulled.replace(tzinfo=ISTANBUL)
+        except (OSError, ValueError):
+            return Check("Yedek", WARN, f"{text}; {PULL_MARKER} okunamadı, yedeğin başka yere alındığı doğrulanamıyor")
+        if now - pulled > PULL_MAX_AGE:
+            return Check("Yedek", WARN, f"{text}; yedek {(now - pulled).days} gündür sunucudan alınmadı "
+                                        "(scripts/pull_backups)")
+        return Check("Yedek", OK, f"{text}; PC'ye alındı {pulled:%d.%m %H:%M}")
     return Check("Yedek", OK, text)
 
 
@@ -439,6 +453,27 @@ def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
         "",
         "Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.",
     ])
+
+
+def main(argv: list[str] | None = None) -> int:
+    """python -m core.reports.health            the /durum text
+       python -m core.reports.health --heartbeat exit 0 if the bot wrote its heartbeat recently (Docker)"""
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description="QuantBIST health")
+    parser.add_argument("--heartbeat", action="store_true", help="exit 1 when the bot heartbeat is missing or old")
+    args = parser.parse_args(argv)
+    if args.heartbeat:
+        check = bot_check(now_istanbul())
+        print(check.line())
+        return 0 if check.state == OK else 1
+    print(health_report())
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
 
 
 __all__ = ["Check", "LABELS", "due_session", "health_checks", "health_report", "write_heartbeat"]

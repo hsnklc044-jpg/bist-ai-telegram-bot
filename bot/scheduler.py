@@ -29,6 +29,8 @@ logger = get_logger(__name__)
 ENV = "DAILY_REPORT_AT"
 WEEKDAYS = (1, 2, 3, 4, 5)  # python-telegram-bot: 0 = Sunday
 JOB_NAME = "daily_report"
+CATCHUP_JOB = "daily_report_catchup"
+CATCHUP_AFTER = 60  # seconds after start: a restart after 18:30 still sends the missed report
 
 # After the report should have gone out (by either scheduler), check the
 # run log and tell the user if it did not. Silent when everything is fine.
@@ -76,6 +78,9 @@ def schedule_daily_report(app: Application, at: time | None = None) -> bool:
         return False
 
     app.job_queue.run_daily(daily_report_job, time=at, days=WEEKDAYS, name=JOB_NAME)
+    # like the Windows task's StartWhenAvailable: one run at start; it sends nothing when the
+    # latest data day already went out, and is held off by the lock if a report is running
+    app.job_queue.run_once(daily_report_job, when=CATCHUP_AFTER, name=CATCHUP_JOB)
     logger.info("Daily report scheduled for %s (Istanbul), weekdays.", at.strftime("%H:%M"))
 
     return True
@@ -205,4 +210,4 @@ def schedule_report_watch(app: Application, chat_id: int) -> bool:
     return True
 
 
-__all__ = ["ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_report_watch"]
+__all__ = ["CATCHUP_JOB", "ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_report_watch"]

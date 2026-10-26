@@ -181,3 +181,58 @@ class BackupLocationTest(Temp):
         real = health._device
         with mock.patch.object(health, "_device", side_effect=lambda p: real(p) + (1 if p.name == "usb" else 0)):
             self.assertEqual(health.backup_check(NOW, self.root / "usb", data_dir=data).state, health.OK)
+
+
+class ContainerHealthTest(Temp):
+    """docker compose asks `python -m core.reports.health --heartbeat`: 0 alive, 1 not."""
+
+    def test_exit_code_follows_the_heartbeat(self):
+        path = self.root / "heartbeat.txt"
+        with mock.patch.object(health, "HEARTBEAT_FILE", path), \
+                mock.patch.object(health, "now_istanbul", return_value=NOW):
+            self.assertEqual(health.main(["--heartbeat"]), 1)  # no heartbeat yet
+            health.write_heartbeat(path, now=NOW - timedelta(minutes=3))
+            self.assertEqual(health.main(["--heartbeat"]), 0)
+            health.write_heartbeat(path, now=NOW - timedelta(hours=2))
+            self.assertEqual(health.main(["--heartbeat"]), 1)
+
+    def test_without_arguments_prints_the_report(self):
+        with mock.patch.object(health, "health_report", return_value="🩺 rapor") as report, \
+                mock.patch("builtins.print") as out:
+            self.assertEqual(health.main([]), 0)
+        report.assert_called_once()
+        out.assert_called_once_with("🩺 rapor")
+
+
+class PulledBackupTest(Temp):
+    """On a server the backups sit on the data disk; scripts/pull_backups copies them off and leaves pulled.txt."""
+
+    def setUp(self):
+        super().setUp()
+        self.data = self.root / "data"
+        self.data.mkdir()
+        self.target = self.root / "yedek"
+        BackupLocationTest._fresh_backup(self, self.target)
+
+    def check(self):
+        return health.backup_check(NOW, self.target, data_dir=self.data)
+
+    def test_recent_pull_counts_as_a_separate_copy(self):
+        (self.target / health.PULL_MARKER).write_text((NOW - timedelta(days=1)).isoformat(), encoding="utf-8")
+        check = self.check()
+        self.assertEqual(check.state, health.OK)
+        self.assertIn("PC'ye alındı", check.text)
+
+    def test_old_pull_is_a_warning(self):
+        (self.target / health.PULL_MARKER).write_text((NOW - timedelta(days=9)).isoformat(), encoding="utf-8")
+        check = self.check()
+        self.assertEqual(check.state, health.WARN)
+        self.assertIn("9 gündür", check.text)
+
+    def test_marker_without_time_zone_is_istanbul_time(self):
+        (self.target / health.PULL_MARKER).write_text("2026-10-26T08:00:00", encoding="utf-8")
+        self.assertEqual(self.check().state, health.OK)
+
+    def test_unreadable_marker_is_not_trusted(self):
+        (self.target / health.PULL_MARKER).write_text("dün", encoding="utf-8")
+        self.assertEqual(self.check().state, health.WARN)

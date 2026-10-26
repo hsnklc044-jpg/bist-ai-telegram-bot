@@ -93,5 +93,5 @@ Zip kişisel dosyaları içermez (`.gitignore`), bu yüzden kopyalama onları ez
 | Seçenek | Artı | Eksi |
 |---|---|---|
 | Bugünkü PC + Windows görevi | Ücretsiz, veriler sende | PC kapalıyken çalışmaz |
-| Küçük bulut sunucu (Docker hazır) | Kesintisiz | Aylık ücret, kişisel veriler sunucuda (onay gerekir) |
+| Küçük bulut sunucu (Docker hazır, adımlar docs/SERVER.md) | Kesintisiz; yeniden başlarsa kaçan raporu telafi eder | Aylık ücret, kişisel veriler sunucuda (onay gerekir); yedekler haftalık PC'ye alınmalı |
 | GitHub Actions'ta rapor | Ücretsiz | Kişisel dosyalar herkese açık depoda tutulamaz; **uygun değil** |

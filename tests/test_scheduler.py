@@ -44,6 +44,22 @@ class ScheduleTest(unittest.TestCase):
         jobs = app.job_queue.get_jobs_by_name(scheduler.JOB_NAME)
         self.assertEqual(len(jobs), 1)
 
+    def test_missed_report_is_caught_up_once_after_a_restart(self):
+        # a server restarting at 18:31 must not lose the day's report; the run itself
+        # sends nothing when that data day already went out (core/reports/runs.py)
+        app = _app()
+        with mock.patch.dict("os.environ", {scheduler.ENV: "18:30"}):
+            scheduler.schedule_daily_report(app)
+        catchup = app.job_queue.get_jobs_by_name(scheduler.CATCHUP_JOB)
+        self.assertEqual(len(catchup), 1)
+        self.assertIs(catchup[0].callback, scheduler.daily_report_job)
+
+    def test_no_catch_up_when_off(self):
+        app = _app()
+        with mock.patch.dict("os.environ", {scheduler.ENV: ""}):
+            scheduler.schedule_daily_report(app)
+        self.assertEqual(app.job_queue.jobs(), ())
+
     def test_job_runs_the_daily_report_and_sends(self):
         with mock.patch("core.reports.daily.main", return_value=0) as run:
             asyncio.run(scheduler.daily_report_job(SimpleNamespace()))

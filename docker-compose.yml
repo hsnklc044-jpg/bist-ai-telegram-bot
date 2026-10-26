@@ -1,17 +1,22 @@
-# Runs the bot 24/7 on a server and restarts it after crashes or reboots.
-# The daily report is sent by the bot itself (DAILY_REPORT_AT in .env).
+# Runs the bot 24/7 on a server; restarts it after crashes or reboots.
+# The bot itself sends the 18:30 report (DAILY_REPORT_AT in .env) and, after a
+# restart, catches up a missed one. Full steps: docs/SERVER.md
 #
-#   cp .env.example .env      # BOT_TOKEN, CHAT_ID, DAILY_REPORT_AT=18:30
-#   docker compose run --rm bot python -m core.market.update   # first download
+#   cp .env.example .env          # BOT_TOKEN, CHAT_ID, DAILY_REPORT_AT=18:30, BACKUP_DIR=/app/backups
+#   docker compose run --rm bot python -m core.market.update --bist100-history   # first download
 #   docker compose up -d --build
+#   docker compose ps             # STATUS shows (healthy) a few minutes after start
 #   docker compose logs -f
 services:
   bot:
     build: .
     restart: unless-stopped
     env_file: .env
+    environment:
+      TZ: Europe/Istanbul
     volumes:
-      # prices, ledger, paper orders, watchlist and logs live on the host
+      # prices, ledger, paper orders, watchlist, logs and backups live on the host
       # and survive rebuilds and updates
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./backups:/app/backups
