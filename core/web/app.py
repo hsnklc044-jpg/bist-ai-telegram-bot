@@ -14,11 +14,10 @@ from __future__ import annotations
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from core import __version__
-from core.config.paths import WEB_STATIC_DIR, WEB_TEMPLATES_DIR
+from core.config.paths import WEB_TEMPLATES_DIR
 from core.infrastructure.logger import get_logger
 from core.infrastructure.settings import settings
 from core.reports.daily import DISCLAIMER
@@ -27,7 +26,6 @@ from core.reports.overview import build_overview
 logger = get_logger(__name__)
 
 app = FastAPI(title="QuantBIST API", version=__version__)
-app.mount("/static", StaticFiles(directory=str(WEB_STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(WEB_TEMPLATES_DIR))
 
 

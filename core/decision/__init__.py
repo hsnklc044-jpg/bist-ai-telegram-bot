@@ -1,1 +1,0 @@
-"""QuantBIST decision package."""

@@ -1,21 +1,5 @@
 """
-QuantBIST RC7
-Reports Package
+QuantBIST
+Reports: daily after-close report (daily), read-only overview for
+/summary and the web panel (overview), live performance (forward).
 """
-
-from __future__ import annotations
-
-from core.reports.service import (
-    generate_report,
-)
-from core.reports.summary import (
-    generate_summary_report,
-)
-
-__all__ = [
-
-    "generate_summary_report",
-
-    "generate_report",
-
-]

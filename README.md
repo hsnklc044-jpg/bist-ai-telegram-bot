@@ -186,14 +186,15 @@ GitHub'a push edildiğinde `.github/workflows/ci.yml` aynı kontrolleri çalış
 
 | Klasör | İçerik |
 | --- | --- |
-| `bot/` | Telegram komutları |
-| `core/market/` | Fiyat verisi (yfinance), indikatörler, piyasa rejimi |
-| `core/analytics/` | Hisse bazında skor ve sinyaller |
-| `core/portfolio/` | Portföy sağlığı, risk, dağılım (`data/portfolio_model.csv`) |
-| `core/committee/`, `core/decision/`, `core/ai/` | Eski "AI karar" katmanı: artık hiçbir çıktıda kullanılmıyor, kaldırılacak |
-| `core/dashboard/`, `core/charts/`, `core/reports/`, `core/export/` | Panel, grafik, rapor, dışa aktarma |
-| `core/config/` | Yollar (`paths.py`), eşikler (`thresholds.py`), ağırlıklar |
-| `core/web/` | Web paneli (FastAPI; sayfa `templates/`, stil `static/`) |
+| `bot/` | Telegram komutları, sunucu modunda günlük rapor zamanlayıcısı |
+| `core/market/` | Fiyat verisi (yfinance), düzeltmeler, kalite raporu, BIST100 üyelikleri, indikatörler |
+| `core/analytics/`, `core/strategy/` | Teknik skor (canlı ve zaman serisi), aday kurallar |
+| `core/backtest/` | Backtest motoru, araştırma, güvenilirlik, walk-forward, düşüş teşhisi |
+| `core/ledger/`, `core/alerts/` | İşlem defteri, sanal emirler, risk uyarıları |
+| `core/reports/` | Günlük rapor (`daily`), özet (`overview`), canlı performans (`forward`) |
+| `core/backup.py`, `core/signals_log.py` | Kişisel kayıtların yedeği, görünüm kaydı |
+| `core/config/` | Yollar (`paths.py`), eşikler (`thresholds.py`), işlem ve uyarı ayarları |
+| `core/web/` | Web paneli (FastAPI; `/summary` ile aynı özet) |
 
 ## Yol haritası
 

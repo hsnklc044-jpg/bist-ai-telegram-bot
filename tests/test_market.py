@@ -57,39 +57,6 @@ class IndicatorTest(unittest.TestCase):
             self.assertIsNone(analyze_stock("IPO.IS"))
 
 
-class BreadthTest(unittest.TestCase):
-    def test_all_rising_stocks_give_positive_breadth(self):
-        from core.market.breadth import calculate_market_breadth
-        from core.market.models import BreadthStatus
-
-        fake = FakeProvider()
-        symbols = [f"UP{i}.IS" for i in range(6)]
-        for i, s in enumerate(symbols):
-            fake.overrides[s] = make_ohlcv(rows=300, seed=i, drift=0.01, vol=0.001)
-
-        with offline_market(fake):
-            breadth = calculate_market_breadth(symbols=symbols)
-
-        self.assertEqual(breadth.status, BreadthStatus.POSITIVE)
-        self.assertEqual(breadth.factors["above_sma50_pct"], 100.0)
-        self.assertEqual(breadth.factors["advancers"], 6)
-
-    def test_all_falling_stocks_give_negative_breadth(self):
-        from core.market.breadth import calculate_market_breadth
-        from core.market.models import BreadthStatus
-
-        fake = FakeProvider()
-        symbols = [f"DN{i}.IS" for i in range(6)]
-        for i, s in enumerate(symbols):
-            fake.overrides[s] = make_ohlcv(rows=300, seed=i, drift=-0.01, vol=0.001)
-
-        with offline_market(fake):
-            breadth = calculate_market_breadth(symbols=symbols)
-
-        self.assertEqual(breadth.status, BreadthStatus.NEGATIVE)
-        self.assertEqual(breadth.score, 0)
-
-
 class QualityTest(unittest.TestCase):
     def test_detects_gaps_jumps_and_staleness(self):
         from core.market.quality import check_symbol
