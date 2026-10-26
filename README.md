@@ -89,11 +89,19 @@ veride test eder; trend kuralı, eşit ağırlık al-tut ve XU100 ile karşıla�
 ### Strateji araştırması
 
 ```bash
-python -m core.backtest.research             # bot sinyali, trend, momentum, walk-forward, al-tut, XU100
+python -m core.market.update --bist100-history   # önce: 2022'den beri BIST 100'e girmiş her hissenin verisi
+python -m core.backtest.research                 # bot sinyali, trend, momentum, walk-forward, XU100
+python -m core.backtest.research --universe today  # karşılaştırma: bugünkü liste (survivorship bias'lı)
 ```
 
-Walk-forward: parametreler önceki 24 ayda seçilir, sonraki 6 ayda (görülmemiş veride)
-işlem yapılır; raporda sadece bu test dönemleri birleştirilir.
+- **Evren:** varsayılan olarak geçmiş BIST 100 üyeliği; her gün yalnızca o günkü üyeler alınabilir.
+  Bugünkü listeyle test, sonradan yükselen hisseleri baştan seçtiği için sonuçları şişirir.
+  Eski üyelerin %10'undan fazlası verisizse rapor sonucu "güvenilir değil" diye işaretler.
+- **İstatistik:** her stratejinin XU100'e göre günlük fazla getirisi için blok bootstrap güven
+  aralığı (21 seanslık bloklar), test edilen strateji sayısına göre Bonferroni ile genişletilir.
+  Aralığın tamamı sıfırın üstünde değilse strateji "XU100'ü geçti" sayılmaz.
+- **Walk-forward:** parametreler önceki 24 ayda seçilir, sonraki 6 ayda (görülmemiş veride)
+  işlem yapılır; her pencere XU100 ile yan yana, ayrıca medyan ve "en iyi pencere hariç" sonuç.
 
 ## Telegram komutları
 
