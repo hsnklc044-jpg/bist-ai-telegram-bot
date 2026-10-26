@@ -16,6 +16,8 @@ shows up in logs/runs.csv.
 
 from __future__ import annotations
 
+import os
+
 import csv
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
@@ -182,7 +184,30 @@ def equity_check(path: Path | str | None = None) -> Check:
     )
 
 
-def backup_check(now: datetime, target: Path | None = None) -> Check:
+SYNCED_FOLDERS = ("onedrive", "dropbox", "google drive", "googledrive", "icloud")
+
+
+def _location_warning(target: Path, data_dir: Path) -> str | None:
+    """A backup lost together with the data is not a backup: same folder tree or same disk."""
+
+    try:
+        target, data_dir = target.resolve(), data_dir.resolve()
+    except OSError:
+        return None
+    if target == data_dir or data_dir in target.parents:
+        return "proje klasöründe; disk arızasında verilerle birlikte kaybolur. .env'de BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın"
+    if any(name in part.lower() for part in target.parts for name in SYNCED_FOLDERS):
+        return None  # synced to the cloud: a copy lives off this disk
+    try:
+        same = os.stat(target).st_dev == os.stat(data_dir).st_dev
+    except OSError:
+        return None
+    if same:
+        return "verilerle aynı diskte; disk arızasında ikisi birlikte kaybolur. BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın"
+    return None
+
+
+def backup_check(now: datetime, target: Path | None = None, data_dir: Path | None = None) -> Check:
     from core.backup import backup_dir, daily_backups as list_backups
 
     target = Path(target or backup_dir())
@@ -202,6 +227,9 @@ def backup_check(now: datetime, target: Path | None = None) -> Check:
         return Check("Yedek", CRIT, f"{text}; {(now - taken).days} gündür yeni yedek yok")
     if now - taken > BACKUP_MAX_AGE:
         return Check("Yedek", WARN, f"{text}; {(now - taken).days} gündür yeni yedek yok")
+    where = _location_warning(target, Path(data_dir or DATA_DIR))
+    if where:
+        return Check("Yedek", WARN, f"{text}; yedek {where}")
     return Check("Yedek", OK, text)
 
 

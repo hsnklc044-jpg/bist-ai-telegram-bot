@@ -108,6 +108,10 @@ class DataChecksTest(unittest.TestCase):
         self.assertIn("23.10.2026: 100.000 TL", check.text)
 
     def test_backup_age(self):
+        # age only; where the backup lives is tested in test_health_ops.BackupLocationTest
+        patcher = mock.patch.object(health, "_location_warning", return_value=None)
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.assertEqual(health.backup_check(MONDAY_EVENING, self.root).state, health.UNKNOWN)
 
         zip_path = self.root / "quantbist_2026-10-26.zip"

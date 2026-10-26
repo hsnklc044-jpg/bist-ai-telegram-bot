@@ -142,3 +142,49 @@ class ReportWarningsTest(Temp):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BackupLocationTest(Temp):
+    """A backup on the same disk as the data is lost with it (Aşama 2: separate physical target)."""
+
+    def _fresh_backup(self, folder):
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / "quantbist_2026-10-26.zip"
+        path.write_bytes(b"x")
+        stamp = NOW.timestamp() - 3600
+        import os
+
+        os.utime(path, (stamp, stamp))
+
+    def test_inside_the_project_is_a_warning(self):
+        data = self.root / "data"
+        self._fresh_backup(data / "backups")
+        check = health.backup_check(NOW, data / "backups", data_dir=data)
+        self.assertEqual(check.state, health.WARN)
+        self.assertIn("BACKUP_DIR", check.text)
+
+    def test_same_disk_is_a_warning(self):
+        data = self.root / "data"
+        data.mkdir()
+        self._fresh_backup(self.root / "yedek")
+        check = health.backup_check(NOW, self.root / "yedek", data_dir=data)
+        self.assertEqual(check.state, health.WARN)
+        self.assertIn("aynı disk", check.text)
+
+    def test_synced_folder_or_other_disk_is_ok(self):
+        data = self.root / "data"
+        data.mkdir()
+        self._fresh_backup(self.root / "OneDrive" / "QuantBIST")
+        self.assertEqual(health.backup_check(NOW, self.root / "OneDrive" / "QuantBIST", data_dir=data).state, health.OK)
+
+        self._fresh_backup(self.root / "usb")
+        real_stat = health.os.stat
+
+        def stat(path, *a, **k):
+            result = real_stat(path, *a, **k)
+            if str(path).endswith("usb"):
+                return SimpleNamespace(st_dev=result.st_dev + 1, st_mtime=result.st_mtime)
+            return result
+
+        with mock.patch.object(health.os, "stat", side_effect=stat):
+            self.assertEqual(health.backup_check(NOW, self.root / "usb", data_dir=data).state, health.OK)
