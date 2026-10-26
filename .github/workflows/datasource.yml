@@ -17,7 +17,8 @@ jobs:
       - name: Probe candidate sources
         run: |
           probe() { echo "=== $1"; curl -sS -m 30 -A "Mozilla/5.0" -o out.txt -w "HTTP %{http_code}, %{size_download} bytes\n" "$2" || true; head -c 1500 out.txt; echo; echo; }
-          probe "isyatirim HisseTekil" "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil?hisse=THYAO&startdate=13-10-2026&enddate=23-10-2026.json"
-          probe "isyatirim endeks" "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil?hisse=XU100&startdate=13-10-2026&enddate=23-10-2026.json"
-          probe "stooq" "https://stooq.com/q/d/l/?s=thyao.tr&i=d"
-          probe "yahoo chart" "https://query1.finance.yahoo.com/v8/finance/chart/THYAO.IS?range=10d&interval=1d"
+          base="https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil"
+          probe "isyatirim dd-mm-yyyy" "$base?hisse=THYAO&startdate=13-10-2026&enddate=23-10-2026"
+          probe "isyatirim yyyy-mm-dd" "$base?hisse=THYAO&startdate=2026-10-13&enddate=2026-10-23"
+          probe "isyatirim XU100" "$base?hisse=XU100&startdate=13-10-2026&enddate=23-10-2026"
+          probe "isyatirim ASELS adjusted check" "$base?hisse=ASELS&startdate=01-10-2026&enddate=23-10-2026"
