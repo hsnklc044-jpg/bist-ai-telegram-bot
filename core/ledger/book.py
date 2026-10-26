@@ -12,6 +12,8 @@ from pathlib import Path
 
 from core.config.paths import LEDGER_FILE
 from core.config.trading import ACCOUNTS, PAPER_INITIAL_CAPITAL
+from core.infrastructure.csvfiles import read_rows
+from core.infrastructure.exceptions import PersonalFileError
 from core.market.symbols import normalize_symbol
 
 COLUMNS = ("id", "date", "account", "symbol", "side", "quantity", "price", "fee", "note")
@@ -21,6 +23,10 @@ EPS = 1e-9
 
 class LedgerError(ValueError):
     """A ledger row is invalid or would break the books (e.g. selling more than held)."""
+
+
+class LedgerFileError(PersonalFileError, LedgerError):
+    """ledger.csv itself cannot be read (damaged or cut-off row)."""
 
 
 @dataclass(frozen=True)
@@ -166,7 +172,7 @@ def cash_balance(entries: list[Entry], account: str = "paper", as_of: date | Non
 # ---------------------------------------------------------------------------
 
 
-def _parse(row: dict, line: int) -> Entry:
+def _parse(row: dict, line: int, path: Path) -> Entry:
     try:
         return Entry(
             id=int(row["id"]),
@@ -179,22 +185,19 @@ def _parse(row: dict, line: int) -> Entry:
             fee=float(row.get("fee") or 0),
             note=(row.get("note") or "").strip(),
         ).validate()
-    except (KeyError, ValueError, TypeError) as exc:
-        raise LedgerError(f"ledger satır {line}: {exc}") from exc
+    except (KeyError, ValueError, TypeError, AttributeError) as exc:
+        raise LedgerFileError(path, str(exc), line=line) from exc
 
 
 def load_ledger(path: Path | str | None = None) -> list[Entry]:
     """All rows; a bad row stops loading with its line number (never skipped silently)."""
 
     path = Path(path or LEDGER_FILE)
-    if not path.exists():
-        return []
-    with open(path, encoding="utf-8-sig", newline="") as fh:
-        reader = csv.DictReader(fh)
-        missing = set(COLUMNS) - set(reader.fieldnames or [])
-        if missing:
-            raise LedgerError(f"{path}: eksik sütunlar {sorted(missing)}")
-        entries = [_parse(row, i) for i, row in enumerate(reader, start=2)]
+    try:
+        rows = read_rows(path, COLUMNS)
+    except PersonalFileError as exc:
+        raise LedgerFileError(exc.path, exc.reason, exc.line) from exc
+    entries = [_parse(row, line, path) for line, row in rows]
     ids = [e.id for e in entries]
     if len(ids) != len(set(ids)):
         raise LedgerError(f"{path}: aynı id birden fazla kez geçiyor")

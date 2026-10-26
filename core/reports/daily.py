@@ -31,6 +31,8 @@ from core.alerts.portfolio import evaluate_portfolio, portfolio_risk
 from core.config import alerts as alert_cfg
 from core.config.paths import ALERTS_LOG_FILE, EQUITY_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import ACCOUNTS
+from core.infrastructure.csvfiles import read_rows
+from core.infrastructure.exceptions import PersonalFileError
 from core.infrastructure.logger import get_logger
 from core.ledger import cash_balance, load_ledger, open_positions
 from core.ledger.paper import fill_pending
@@ -108,21 +110,32 @@ def unrecorded_actions(position, entries, actions) -> list[str]:
 EQUITY_FIELDS = ("date", "account", "value", "cash", "invested", "positions")
 
 
+def _equity_rows(path: Path) -> list[tuple[int, dict]]:
+    rows = read_rows(path, EQUITY_FIELDS)
+    for line, r in rows:
+        try:
+            date.fromisoformat(r["date"])
+            float(r["value"])
+        except ValueError as exc:
+            raise PersonalFileError(path, str(exc), line=line) from exc
+    return rows
+
+
 def read_equity(path: Path, account: str) -> pd.Series:
-    if not path.exists():
+    rows = [r for _, r in _equity_rows(Path(path)) if r["account"] == account]
+    if not rows:
         return pd.Series(dtype=float)
-    df = pd.read_csv(path, parse_dates=["date"])
-    df = df[df["account"] == account]
-    return df.set_index("date")["value"].astype(float).sort_index()
+    series = pd.Series({pd.Timestamp(r["date"]): float(r["value"]) for r in rows}, dtype=float)
+    series.index.name = "date"
+    series.name = "value"
+    return series.sort_index()
 
 
 def record_equity(path: Path, day: date, account: str, value: float, cash: float, invested: float, n: int):
     """One row per (date, account); a rerun on the same day replaces that row."""
 
-    rows = []
-    if path.exists():
-        with open(path, encoding="utf-8", newline="") as fh:
-            rows = [r for r in csv.DictReader(fh) if not (r["date"] == day.isoformat() and r["account"] == account)]
+    # a damaged file raises here, before anything is rewritten
+    rows = [r for _, r in _equity_rows(path) if not (r["date"] == day.isoformat() and r["account"] == account)]
     rows.append(
         {"date": day.isoformat(), "account": account, "value": f"{value:.2f}", "cash": f"{cash:.2f}",
          "invested": f"{invested:.2f}", "positions": n}
@@ -215,6 +228,15 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
 
     lines = [f"🗓 QuantBIST günlük rapor – {day:%d.%m.%Y} kapanışı", ""]
     lines += market_section(frames, bench)
+    damaged: list[str] = []  # logs that could not be read; the report goes on without them
+
+    def guarded(step, fallback):
+        try:
+            return step()
+        except PersonalFileError as exc:
+            if str(exc) not in damaged:
+                damaged.append(str(exc))
+            return fallback
 
     alerts = []
     for account in ACCOUNTS:
@@ -232,14 +254,14 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
         cash = cash_balance(entries, account) if account == "paper" else 0.0
         total = cash + invested
         if positions or account == "paper":
-            record_equity(paths.equity, day, account, total, cash, invested, len(positions))
+            guarded(lambda: record_equity(paths.equity, day, account, total, cash, invested, len(positions)), None)
 
         lines += ["", f"💼 {ACCOUNT_NAMES[account]}"]
         if account == "paper":
             lines.append(f"Değer {tr(total)} TL (nakit {tr(cash)} TL, hisse {tr(invested)} TL)")
         else:
             lines.append(f"Hisse değeri {tr(invested)} TL")
-        equity = read_equity(paths.equity, account)
+        equity = guarded(lambda: read_equity(paths.equity, account), pd.Series(dtype=float))
         if len(equity) >= 2:
             lines.append(f"Günlük değişim {pct(equity.iloc[-1] / equity.iloc[-2] - 1, 2)}")
         for p, price, value in rows:
@@ -269,7 +291,7 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
             alerts += evaluate_portfolio(account, risk, day)
         alerts += evaluate_account(account, equity)
 
-    events = update_alert_log(alerts, day, paths.alerts)
+    events = guarded(lambda: update_alert_log(alerts, day, paths.alerts), [])
     lines += ["", "⚠️ Risk uyarıları"]
     if not alerts and not events:
         lines.append("Uyarı yok.")
@@ -300,8 +322,9 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
 
     stale = [s for s, df in frames.items() if (pd.Timestamp(day) - df.index[-1]).days > alert_cfg.STALE_DAYS]
     missing = [s for s in universe if s not in frames]
-    if stale or missing:
+    if stale or missing or damaged:
         lines += ["", "🔎 Veri notları"]
+        lines += [f"  ⚠️ {text}" for text in damaged]
         if missing:
             lines.append(f"  Verisi olmayan: {', '.join(s.removesuffix('.IS') for s in missing)}")
         if stale:

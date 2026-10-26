@@ -30,19 +30,16 @@ def _private_run_files(tmp_path, monkeypatch):
     store.configure(previous)
 
 
-# The whole run must leave the real data/ and logs/ folders as it found them.
+# The whole run must leave the real data/ and logs/ folders as it found them:
+# nothing created, changed or deleted (tests/write_guard.py, tests/test_write_guard.py).
 from core.config.paths import DATA_DIR, LOG_DIR  # noqa: E402
+from tests.write_guard import changes, snapshot  # noqa: E402
 
-
-def _listing() -> set[str]:
-    return {str(p) for folder in (DATA_DIR, LOG_DIR) if folder.exists() for p in folder.rglob("*")}
-
-
-_BEFORE = _listing()
+_BEFORE = snapshot([DATA_DIR, LOG_DIR])
 
 
 def pytest_sessionfinish(session, exitstatus):
-    created = sorted(_listing() - _BEFORE)
-    if created:
-        print("\nTests created files in the real data/ or logs/ folder:\n  " + "\n  ".join(created))
+    found = changes(_BEFORE, snapshot([DATA_DIR, LOG_DIR]))
+    if found:
+        print("\nTests touched the real data/ or logs/ folder:\n  " + "\n  ".join(found))
         session.exitstatus = 1

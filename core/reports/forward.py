@@ -174,7 +174,9 @@ def score_log(
     if records.empty:
         return pd.DataFrame(columns=["source", "view", "day", "horizon", "excess"])
 
-    records = records[(records["data_date"] != "") & (records["symbol"] != "")]
+    # unreadable rows (cut-off line, garbage) are skipped here and counted by audit_log (Kayıt sağlığı)
+    records["day"] = pd.to_datetime(records["data_date"], format="%Y-%m-%d", errors="coerce")
+    records = records[records["day"].notna() & records["symbol"].fillna("").astype(str).str.strip().ne("")]
     records = records.drop_duplicates(["source", "symbol", "data_date"], keep="last")
 
     bench = bars(BENCHMARK)
@@ -184,7 +186,7 @@ def score_log(
     for r in records.itertuples():
         if r.symbol not in cache:
             cache[r.symbol] = bars(r.symbol)
-        day = date.fromisoformat(r.data_date)
+        day = r.day.date()
         for h in horizons:
             excess = forward_excess(cache[r.symbol], bench, day, h)
             if excess is not None:

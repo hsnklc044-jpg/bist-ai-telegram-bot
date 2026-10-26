@@ -106,12 +106,15 @@ class LogAudit:
     days: list[date] = field(default_factory=list)
     missing: list[date] = field(default_factory=list)  # sessions without any record
     late: list[date] = field(default_factory=list)  # recorded after a newer close was available
+    empty_file: bool = False  # 0 bytes: a file this system wrote always has a header
 
     @property
     def problems(self) -> bool:
-        return bool(self.bad_rows or self.duplicates or self.missing or self.late)
+        return bool(self.bad_rows or self.duplicates or self.missing or self.late or self.empty_file)
 
     def text(self) -> str:
+        if self.empty_file:
+            return "signal_log.csv boş (0 bayt): dosya bozulmuş olabilir; yedekten geri yükleyin (python -m core.backup --list)"
         if not self.days:
             return "günlük kayıt yok"
         parts = [f"{len(self.days)} gün, {self.rows} kayıt; {self.days[0]:%d.%m.%Y} – {self.days[-1]:%d.%m.%Y}"]
@@ -144,9 +147,16 @@ def audit_log(
     result = LogAudit()
     if not path.exists():
         return result
+    if path.stat().st_size == 0:
+        result.empty_file = True
+        return result
 
     with open(path, encoding="utf-8", newline="") as fh:
-        rows = [r for r in csv.DictReader(fh) if r.get("source") == source]
+        all_rows = list(csv.DictReader(fh))
+    # a line cut off while writing has missing fields (often the source too): unreadable, not "another source"
+    cut = [r for r in all_rows if None in r or any(v is None for v in r.values())]
+    result.bad_rows += len(cut)
+    rows = [r for r in all_rows if r.get("source") == source and not (None in r or any(v is None for v in r.values()))]
 
     seen: set[tuple[str, date]] = set()
     days: set[date] = set()

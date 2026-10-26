@@ -16,16 +16,16 @@ from pathlib import Path
 
 from core.alerts.rules import Alert
 from core.config.paths import ALERTS_LOG_FILE
+from core.infrastructure.csvfiles import read_rows
 from core.market.calendar import now_istanbul
 
 FIELDS = ("logged_at", "data_date", "account", "symbol", "rule", "event", "severity", "value", "threshold", "message")
 
 
 def _read(path: Path) -> list[dict]:
-    if not path.exists():
-        return []
-    with open(path, encoding="utf-8-sig", newline="") as fh:
-        return list(csv.DictReader(fh))
+    """Rows of the alert log; a damaged file raises PersonalFileError and is not rewritten."""
+
+    return [row for _, row in read_rows(path, ("account", "symbol", "rule", "event"))]
 
 
 def open_alerts(path: Path | str | None = None) -> dict[tuple[str, str, str], dict]:

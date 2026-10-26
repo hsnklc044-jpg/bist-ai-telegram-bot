@@ -40,6 +40,8 @@ import pandas as pd
 from core.backtest.engine import LIMIT_MOVE
 from core.config.paths import LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import COMMISSION, SLIPPAGE
+from core.infrastructure.csvfiles import read_rows
+from core.infrastructure.exceptions import PersonalFileError
 from core.ledger.book import Entry, LedgerError, append_entry, load_ledger, replay
 from core.market.calendar import ISTANBUL, now_istanbul
 from core.market.symbols import normalize_symbol
@@ -82,30 +84,36 @@ def _float(text: str | None) -> float | None:
     return float(text) if text not in (None, "") else None
 
 
+def _order(r: dict) -> Order:
+    return Order(
+        id=int(r["id"]),
+        created_at=datetime.fromisoformat(r["created_at"]),
+        symbol=r["symbol"],
+        side=r["side"],
+        quantity=float(r["quantity"]),
+        status=r["status"],
+        fill_date=date.fromisoformat(r["fill_date"]) if r["fill_date"] else None,
+        fill_price=float(r["fill_price"]) if r["fill_price"] else None,
+        note=r.get("note") or "",
+        reason=r.get("reason") or "",
+        data_date=date.fromisoformat(r["data_date"]) if r.get("data_date") else None,
+        view=r.get("view") or "",
+        fill_log=r.get("fill_log") or "",
+        **{k: _float(r.get(k)) for k in FLOAT_FIELDS},
+    )
+
+
 def load_orders(path: Path | str | None = None) -> list[Order]:
+    """All orders; a damaged row stops reading with its line number (the file is left as it is)."""
+
     path = Path(path or PAPER_ORDERS_FILE)
-    if not path.exists():
-        return []
-    with open(path, encoding="utf-8-sig", newline="") as fh:
-        return [
-            Order(
-                id=int(r["id"]),
-                created_at=datetime.fromisoformat(r["created_at"]),
-                symbol=r["symbol"],
-                side=r["side"],
-                quantity=float(r["quantity"]),
-                status=r["status"],
-                fill_date=date.fromisoformat(r["fill_date"]) if r["fill_date"] else None,
-                fill_price=float(r["fill_price"]) if r["fill_price"] else None,
-                note=r.get("note") or "",
-                reason=r.get("reason") or "",
-                data_date=date.fromisoformat(r["data_date"]) if r.get("data_date") else None,
-                view=r.get("view") or "",
-                fill_log=r.get("fill_log") or "",
-                **{k: _float(r.get(k)) for k in FLOAT_FIELDS},
-            )
-            for r in csv.DictReader(fh)
-        ]
+    orders = []
+    for line, r in read_rows(path, ("id", "created_at", "symbol", "side", "quantity", "status")):
+        try:
+            orders.append(_order(r))
+        except (KeyError, ValueError, TypeError) as exc:
+            raise PersonalFileError(path, str(exc), line=line) from exc
+    return orders
 
 
 def _keep_old_format(path: Path) -> None:

@@ -163,7 +163,7 @@ def signal_check(path: Path | str | None = None, now: datetime | None = None) ->
         return Check("Canlı ölçüm kaydı", WARN, f"okunamadı ({exc})")
 
     if not audit.days:
-        return Check("Canlı ölçüm kaydı", UNKNOWN, audit.text())
+        return Check("Canlı ölçüm kaydı", WARN if audit.problems else UNKNOWN, audit.text())
     return Check("Canlı ölçüm kaydı", WARN if audit.problems else OK, audit.text())
 
 
@@ -301,6 +301,45 @@ def bot_check(now: datetime, path: Path | None = None) -> Check:
     return Check("Telegram botu", OK, f"çalışıyor (son sinyal {beat:%H:%M})")
 
 
+def _personal_readers() -> dict:
+    from core.alerts.log import open_alerts
+    from core.ledger import load_ledger
+    from core.ledger.paper import load_orders
+    from core.reports.daily import read_equity
+    from core.watchlist import repository
+
+    return {
+        LEDGER_FILE: load_ledger,
+        PAPER_ORDERS_FILE: load_orders,
+        EQUITY_LOG_FILE: lambda p: read_equity(p, "paper"),
+        ALERTS_LOG_FILE: open_alerts,
+        repository.WATCHLIST_FILE: lambda p: repository.load_watchlist(),
+    }
+
+
+def personal_files_check(readers: dict | None = None) -> Check:
+    """Every personal file must be readable to the last line; a damaged one is named with its line."""
+
+    from core.infrastructure.exceptions import PersonalFileError
+
+    readers = readers if readers is not None else _personal_readers()
+    problems, checked = [], 0
+    for path, read in readers.items():
+        path = Path(path)
+        if not path.exists():
+            continue
+        checked += 1
+        try:
+            read(path)
+        except PersonalFileError as exc:
+            problems.append(str(exc))
+        except Exception as exc:  # noqa: BLE001 - e.g. an impossible ledger history; shown, not hidden
+            problems.append(f"{path.name}: {exc}")
+    if problems:
+        return Check("Kişisel dosyalar", CRIT, " | ".join(problems))
+    return Check("Kişisel dosyalar", OK, f"{checked} dosya sonuna kadar okundu")
+
+
 SCHEMAS = {
     LEDGER_FILE: ({"id", "date", "account", "symbol", "side", "quantity", "price", "fee", "note"},),
     PAPER_ORDERS_FILE: ({"id", "created_at", "symbol", "side", "quantity", "status", "fill_date", "fill_price",
@@ -368,6 +407,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         signal_check(now=now),
         equity_check(),
         schema_check(),
+        personal_files_check(),
         backup_check(now),
         disk_check(),
         calendar_check(now),

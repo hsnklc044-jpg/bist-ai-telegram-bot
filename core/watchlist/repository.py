@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 
 from core.config.paths import WATCHLIST_FILE
+from core.infrastructure.exceptions import PersonalFileError
 from core.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
@@ -48,40 +49,19 @@ def load_watchlist() -> dict:
             )
 
 
-        data = json.loads(
-
-            WATCHLIST_FILE.read_text(
-                encoding="utf-8"
-            )
-
-        )
-
-
-        if not isinstance(
-            data,
-            dict,
-        ):
-
-            logger.warning(
-                "Invalid watchlist format."
-            )
-
-            return {}
-
-
+        text = WATCHLIST_FILE.read_text(encoding="utf-8")
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            # never replaced by an empty list: the next save would lose every symbol
+            raise PersonalFileError(WATCHLIST_FILE, f"JSON bozuk ({exc.msg})", line=exc.lineno) from exc
+        if not isinstance(data, dict):
+            raise PersonalFileError(WATCHLIST_FILE, "beklenen yapı değil (kullanıcı listesi olmalı)")
         return data
 
-
-
-    except json.JSONDecodeError:
-
-        logger.exception(
-            "Watchlist JSON corrupted."
-        )
-
-        return {}
-
-
+    except PersonalFileError:
+        logger.error("Watchlist file is damaged; left as it is.")
+        raise
 
     except Exception as exc:
 

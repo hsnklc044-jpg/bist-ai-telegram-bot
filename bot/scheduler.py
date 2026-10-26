@@ -90,6 +90,8 @@ GUIDANCE = {
     "Canlı ölçüm kaydı": ("canlı ölçümün örneklemi bozulur", "/performans 'Kayıt sağlığı' satırına bakın"),
     "Sanal hesap kaydı": ("sanal hesap izlenemez", "data/equity_log.csv dosyasını kontrol edin"),
     "Veri şeması": ("kayıtlar bu sürümle okunamaz", "güncellemeyi geri alın; dosyaları değiştirmeyin"),
+    "Kişisel dosyalar": ("portföy, emir veya takip listesi hesaplanamaz; dosyaya dokunulmaz",
+                         "mesajdaki satırı düzeltin ya da python -m core.backup --list ile yedekten geri yükleyin"),
     "Yedek": ("bir arızada kişisel kayıtlar kaybolabilir", "python -m core.backup ve BACKUP_DIR klasörü"),
     "Disk": ("yedek ve kayıtlar yazılamayabilir", "diskte yer açın"),
     "Tatil takvimi": ("tatil günleri eksik rapor sayılabilir", "data/bist_holidays.csv'yi güncelleyin"),
@@ -98,7 +100,7 @@ GUIDANCE = {
 }
 # severity of a KRİTİK state per check; a UYARI is one level lower
 SEVERITY = {
-    "Fiyat veritabanı": "KRİTİK", "Veri şeması": "KRİTİK", "Günlük rapor": "YÜKSEK", "Yedek": "YÜKSEK",
+    "Fiyat veritabanı": "KRİTİK", "Veri şeması": "KRİTİK", "Kişisel dosyalar": "KRİTİK", "Günlük rapor": "YÜKSEK", "Yedek": "YÜKSEK",
     "Canlı ölçüm kaydı": "YÜKSEK", "Telegram botu": "YÜKSEK", "Disk": "YÜKSEK", "Fiyat verisi": "ORTA",
     "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK",
 }

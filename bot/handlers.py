@@ -23,6 +23,7 @@ from bot.watchlist import (
     watchremove,
     watchscan,
 )
+from core.infrastructure.exceptions import PersonalFileError
 from core.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
@@ -59,6 +60,10 @@ async def on_error(
     )
 
     if isinstance(update, Update) and update.effective_message:
+        if isinstance(context.error, PersonalFileError):
+            # a damaged personal file: say which one and what to do
+            await update.effective_message.reply_text(f"⚠️ {context.error}")
+            return
         await update.effective_message.reply_text(
             "⚠️ Bir hata oluştu, ayrıntılar log dosyasında."
         )
