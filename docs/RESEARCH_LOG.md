@@ -259,3 +259,12 @@ Bu veri kamuya açık; hesap ya da ödeme gerekmiyor. Veri eklenemezse H2 ve H3 
   Kaynaklar ikincil: Ziraat Bankası vergilendirme tablosu, İş Portföy ve Oyak Portföy duyuruları, KPMG ve Fintables yazıları. Resmî Gazete metniyle doğrudan doğrulanamadı; bu ortamdan erişilemedi.
 - **Stopajın uygulanışı:** gerçekte oran, payın alındığı tarihe göre belirlenir. Backtest bunu, `core/backtest/cash.py`'nin yaklaşımıyla, o günkü oranın günlük kazanca uygulanması olarak hesaplar. Bu basitleştirme nakit getirisini biraz düşük gösterebilir; nakitte bekleyen kurallar için bu tutucu taraftadır.
 - **Duyarlılık:** sonuçlar ayrıca stopajsız (brüt) nakit getirisiyle de raporlanır. Karar birincil hesaba (stopajlı) göre verilir.
+
+### Nakit verisi alınamadı: H2 ve H3 test edilmiyor (27.10.2026)
+
+- **Deneme:** Cash data çalışması 40463364732. TEFAS'ın eski veri adresi (`/api/DB/BindHistoryInfo`) 404 döndü.
+- **Neden:** TEFAS Nisan 2026'da yeni bir altyapıya geçti. Yeni API (`/api/funds/...`) fon başına yalnız fiyat veriyor; **portföy büyüklüğünü artık yayımlamıyor**. Kaynaklar: tefas-crawler 0.6.0 kaynak kodu ve açıklaması, turkeyfundsdata, borsapy notları.
+- **Sonuç:** önceden yazılan fon seçim kuralı ("31.07.2023'teki en büyük para piyasası fonu") uygulanamıyor. Fonu getirisine bakarak seçmek, bu planın önlemeye çalıştığı seçim yanlılığını doğurur.
+- **Karar:** onaylanan plandaki hüküm gereği **H2 ve H3 test edilmiyor**. H1 her zaman hisselerde durduğu için nakit verisine ihtiyaç duymuyor; H1 planlandığı gibi test edilecek.
+- **Açık seçenek:** H2 ve H3, başka bir nakit kaynağıyla test edilebilir; örneğin TCMB politika faizi kararları, her biri kaynağıyla. Bu, planda değişiklik demektir; ancak kullanıcı onayıyla yapılır. Değişiklik, H1 sonucu görülmeden önce önerildi.
+- **Temizlik:** TEFAS indiricisi (`core/backtest/tefas.py`) ve `cashdata.yml` iş akışı kaldırıldı. Stopaj tablosu (`data/cash/withholding.csv`) kaynaklarıyla birlikte duruyor; başka bir nakit kaynağı onaylanırsa kullanılacak.
