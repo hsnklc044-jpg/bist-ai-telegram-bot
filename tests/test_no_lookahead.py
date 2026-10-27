@@ -19,6 +19,7 @@ from core.backtest.engine import BacktestConfig, run_backtest
 from core.strategy.filters import apply_eligibility, eligibility
 from core.strategy.rules import (
     apply_rule,
+    low_volatility_signals,
     momentum_signals,
     regime_filter,
     score_rule,
@@ -115,6 +116,10 @@ class NoLookaheadTest(unittest.TestCase):
             "momentum",
             truncation_ok=False,
         )
+
+    def test_low_volatility_scrambled(self):
+        # Aşama 3 H1; like momentum, a truncated history makes the cut day a month end
+        self.check_signals(lambda f, b: low_volatility_signals(f, 60, 4), "low_volatility", truncation_ok=False)
 
     def test_engine(self):
         config = BacktestConfig(max_positions=5, atr_stop=2.0, max_holding_days=40)

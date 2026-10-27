@@ -143,6 +143,47 @@ def momentum_signals(
     return result
 
 
+def low_volatility_signals(
+    frames: dict[str, pd.DataFrame],
+    window: int = 60,
+    top_n: int = 10,
+    eligible: pd.DataFrame | None = None,
+) -> dict[str, pd.DataFrame]:
+    """
+    Aşama 3 H1 (docs/RESEARCH_LOG.md, fixed before testing): on the last session of each
+    month, the `top_n` stocks with the lowest standard deviation of their last `window`
+    daily returns; held until the next month end. With `eligible`, only stocks eligible
+    on that day (point-in-time BIST 100 members) are ranked. Orders fill at the next
+    session's open (the first session of the month), as for every rule.
+    """
+
+    closes = _closes(frames)
+    volatility = closes.pct_change().rolling(window, min_periods=window).std()
+    if eligible is not None:
+        ok = eligible.reindex(index=closes.index, columns=closes.columns).ffill().fillna(False).astype(bool)
+        volatility = volatility.where(ok)
+
+    month_end = closes.index.to_series().groupby(closes.index.to_period("M")).max()
+    rebalance = closes.index.isin(month_end.values)
+
+    in_top = pd.DataFrame(index=closes.index, columns=closes.columns, dtype="float")
+    for day in closes.index[rebalance]:
+        chosen = set(volatility.loc[day].dropna().sort_values().index[:top_n])
+        in_top.loc[day] = [1.0 if s in chosen else 0.0 for s in closes.columns]
+    in_top = in_top.ffill().fillna(0.0).astype(bool)
+
+    result = {}
+    for symbol in closes.columns:
+        own = frames[symbol].index
+        hold = in_top[symbol].reindex(own).fillna(False)
+        result[symbol] = pd.DataFrame(
+            {"enter": hold, "exit": ~hold, "rank": -volatility[symbol].reindex(own).fillna(1.0)},
+            index=own,
+        )
+
+    return result
+
+
 def with_regime(
     signals: dict[str, pd.DataFrame],
     regime: pd.Series,
@@ -164,6 +205,7 @@ def apply_rule(rule, frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]
 __all__ += [
     "regime_filter",
     "momentum_signals",
+    "low_volatility_signals",
     "with_regime",
     "apply_rule",
 ]

@@ -30,7 +30,7 @@ FIELDS = (
     "sharpe", "trades", "excess", "excess_low", "excess_high", "level", "verdict",
 )
 SIGNIFICANT = "XU100'den anlamlı yüksek"
-UNIVERSE_NAMES = {"pit": "geçmiş üyelik", "today": "bugünkü liste"}
+UNIVERSE_NAMES = {"pit": "geçmiş üyelik", "today": "bugünkü liste", "a3": "Aşama 3 ön kayıtlı"}
 
 
 def _cell(value) -> str:

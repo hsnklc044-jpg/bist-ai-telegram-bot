@@ -61,6 +61,13 @@ jobs:
         run: python -m core.backtest.research ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research.txt
       - name: Strategy research, today's list (survivorship-biased comparison)
         run: python -m core.backtest.research --universe today ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research_today.txt
+      - name: Aşama 3 pre-registered hypotheses (docs/RESEARCH_LOG.md)
+        run: |
+          if [ -z "$START" ]; then
+            python -m core.backtest.phase3 $RECORDS --run-date "$RUN_DATE" 2>&1 | tee phase3.txt
+          else
+            echo "Aşama 3 yalnız ön kayıtlı başlangıçlarla çalışır (--start verildi)." | tee phase3.txt
+          fi
       - name: Strategy research with one-day close fixes (effect only, not recorded)
         continue-on-error: true  # experimental; its failure must not hide the rest
         run: |
@@ -88,7 +95,7 @@ jobs:
         run: |
           folder="results/runs/$(echo "$RUN_DATE" | tr ' :' '_-')"
           mkdir -p "$folder"
-          cp update.txt research.txt research_fixed.txt research_today.txt candidates.txt diagnose.txt calendar.txt crosscheck.txt history.txt expectations.txt view_expectations.csv "$folder"/ 2>/dev/null || true
+          cp update.txt research.txt research_fixed.txt research_today.txt phase3.txt candidates.txt diagnose.txt calendar.txt crosscheck.txt history.txt expectations.txt view_expectations.csv "$folder"/ 2>/dev/null || true
           cd results
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -98,7 +105,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          for f in history crosscheck research research_fixed research_today expectations candidates diagnose calendar update; do
+          for f in history phase3 crosscheck research research_fixed research_today expectations candidates diagnose calendar update; do
             echo "## $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
