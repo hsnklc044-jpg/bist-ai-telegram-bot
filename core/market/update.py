@@ -18,6 +18,9 @@ from core.market.universe import BENCHMARK, load_universe
 
 
 def main(argv: list[str] | None = None) -> None:
+    from core.infrastructure.console import utf8_output
+
+    utf8_output()  # Windows console / redirected output is cp1254
     parser = argparse.ArgumentParser(description="Update the QuantBIST price store.")
     parser.add_argument("--full", action="store_true", help="re-download full history")
     parser.add_argument(

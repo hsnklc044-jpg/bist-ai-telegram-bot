@@ -5,7 +5,11 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
 
 ## Kaldığım yer (27.10.2026, kod v0.46.0)
 
-- **Son sürüm:** v0.46.0. Kullanıcı PC'si v0.35.0'da; v0.36–v0.46.0 PC'de doğrulanmadı.
+- **Son sürüm:** v0.46.1.
+- **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
+- **Bulunan sorunlar:**
+  - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
+  - Bot açılırken bir `Telegram handler failed` satırı çıktı. Muhtemel sebep iki bot örneğinin aynı anda çalışması; kullanıcıdan log bekleniyor.
 - **Denetim:** D1–D14'ün hepsi kapandı (v0.45.1–v0.45.15).
 - **Kullanıcı kararları (27.10) uygulandı:**
   - KCAER katsayısı 0,8646 (v0.45.13).
@@ -52,7 +56,7 @@ Kritik bulgu yok. Satır satır kaynak ve risk tablosu: docs/RAKAMLAR.md. Yükse
 | D13 | ORTA | Temettü kaydı yok. Defterde temettü satırı (`dividend`) bulunmuyor; temettü günü ham fiyat düşüyor ama nakde bir şey eklenmiyor | Sanal ve gerçek hesap getirisi temettü kadar eksik görünüyor; temettü günü "Günlük değişim" kayıp gösteriyor. Backtest (temettüye göre düzeltilmiş fiyat) ile sanal hesap tutarsız | ✅ v0.45.15, kullanıcı onayıyla (`test_ledger.DividendTest`, `test_report_numbers.DividendReportTest`). Sanal hesaba otomatik temettü yazılmıyor: temettü verisi yok |
 | D14 | DÜŞÜK | "Günlük değişim" son hesap kaydına göre hesaplanıyor. PC bir veya birkaç gün kapalı kaldıysa satır birkaç günün toplamını gösteriyor ama "günlük" yazıyor | Yanıltıcı etiket; hesabın kendisi doğru | ✅ v0.45.12 (`test_report_numbers.ChangeLabelTest`) |
 
-## Aşama 2: tamamlandı (kodda; PC doğrulaması bekliyor)
+## Aşama 2: tamamlandı (PC'de doğrulandı, 27.10.2026)
 
 Yazılım tarafı bitti. Testler `tests/` içinde, CI numarası her maddenin yayınlandığı
 sürümün ana dalındaki çalışması. Son CI: **#66 (run 40413981373, 55e3384), 380 test**.
@@ -62,42 +66,42 @@ sürümün ana dalındaki çalışması. Son CI: **#66 (run 40413981373, 55e3384
 |---|---|---|---|
 | Envanter, arıza etkisi, kurtarma adımları | docs/OPERATIONS.md | #57 | — |
 | Günlük doğrulamalı yedek (SHA-256 manifest) | `test_backup.BackupTest.test_backup_contains_existing_files_and_verifies`, `test_corruption_is_detected`, `test_rotation_keeps_newest_daily_backups` | #54 | ✅ 5 dosya, OneDrive (26.10) |
-| Fiyat veritabanı anlık yedeği (SQLite backup API, bot yazarken) | `test_backup_restore.RestoreTest.test_snapshot_while_another_connection_writes`, `test_snapshot_rotation_and_daily_list_are_separate` | #54 | bekliyor |
-| İzole geri yükleme testi (haftalık, raporda) | `RestoreTest.test_restore_reads_every_file_and_leaves_live_files_alone`, `test_corrupt_backup_is_detected`, `test_unreadable_content_fails_the_test`, `WeeklyCheckInReportTest` | #54 | bekliyor (`verify.ps1`) |
+| Fiyat veritabanı anlık yedeği (SQLite backup API, bot yazarken) | `test_backup_restore.RestoreTest.test_snapshot_while_another_connection_writes`, `test_snapshot_rotation_and_daily_list_are_separate` | #54 | kod testli; PC'de çakışma gözlenmedi |
+| İzole geri yükleme testi (haftalık, raporda) | `RestoreTest.test_restore_reads_every_file_and_leaves_live_files_alone`, `test_corrupt_backup_is_detected`, `test_unreadable_content_fails_the_test`, `WeeklyCheckInReportTest` | #54 | ✅ PC, `verify_report` 27.10: 6 dosya geçici klasörde okundu |
 | Gerçek geri yükleme önce mevcut hâli yedekler | `test_backup.BackupTest.test_restore_round_trip_with_safety_copy` | #54 | ✅ kullanıcı provası, 5 dosya SHA-256 aynı (27.10) |
-| Yedek ayrı fiziksel hedefte | `test_health_ops.BackupLocationTest` (3 test) | #66 | bekliyor (`/durum` "Yedek") |
+| Yedek ayrı fiziksel hedefte | `test_health_ops.BackupLocationTest` (3 test) | #66 | ✅ PC, `verify_report` 27.10: OneDrive klasörü, "Yedek" SAĞLIKLI |
 | `.env` yedeklenmez, rapor çıktısında token/chat id gizli | `test_verify.RedactTest` | #64 | — |
-| Yazma kilidi (rapor ile `/paper`, `/trade` çakışmaz) | `test_write_safety.LockedWritesTest` (3 test) | #54 | bekliyor |
+| Yazma kilidi (rapor ile `/paper`, `/trade` çakışmaz) | `test_write_safety.LockedWritesTest` (3 test) | #54 | kod testli; PC'de çakışma gözlenmedi |
 | Tek çalıştırma, çift rapor yok, eski kilit 1 saatte düşer | `test_runs.LockTest`, `OncePerDataDayTest` | önceki sürümler | ✅ 26.10 tek mesaj |
 | Telegram yeniden deneme (ağ/5xx/429), yanlış token tekrar denenmez | `test_write_safety.SendRetryTest` (4 test) | #54 | — |
-| Sağlık seviyeleri; doğrulanamayan asla SAĞLIKLI değil | `test_health.ReportTextTest.test_verdict_never_ok_with_unknowns`, `ReportCheckTest.test_no_records_is_unknown_not_ok` | #56 | bekliyor |
-| Veritabanı bütünlüğü, kilitli veritabanı uyarı sayılır | `test_health_ops.DatabaseTest` (2 test) | #57 | bekliyor |
-| Disk, veri şeması (yanlış sürüm), yaşam sinyali | `DiskTest`, `SchemaTest`, `HeartbeatTest`, `ReportWarningsTest.test_bot_down_shows_in_the_daily_report` | #56 | bekliyor |
+| Sağlık seviyeleri; doğrulanamayan asla SAĞLIKLI değil | `test_health.ReportTextTest.test_verdict_never_ok_with_unknowns`, `ReportCheckTest.test_no_records_is_unknown_not_ok` | #56 | ✅ PC, `verify_report` 27.10 |
+| Veritabanı bütünlüğü, kilitli veritabanı uyarı sayılır | `test_health_ops.DatabaseTest` (2 test) | #57 | ✅ PC, `verify_report` 27.10 |
+| Disk, veri şeması (yanlış sürüm), yaşam sinyali | `DiskTest`, `SchemaTest`, `HeartbeatTest`, `ReportWarningsTest.test_bot_down_shows_in_the_daily_report` | #56 | ✅ PC, `verify_report` 27.10 |
 | GitHub araştırma başarısızlığı uyarısı | `test_health_ops.ResearchTest.test_states` | #56 | — |
 | Eski veri uyarısı | `test_health.DataChecksTest.test_prices_current_and_behind` | önceki sürümler | — |
 | Başarısız rapor bildirimi | `test_backup.DailyIntegrationTest.test_failed_report_is_announced_in_telegram`, `test_runs.OncePerDataDayTest.test_failure_is_recorded` | önceki sürümler | — |
-| 20:00 kontrolü, önem seviyesi, tekrar etmeyen uyarı | `test_scheduler.ReportWatchTest`, `AlertDedupTest`, `SeverityTest` | #57 | bekliyor |
-| Tek komutla kurulum kanıtı | `test_verify` (6 test); `scripts/verify.ps1` Windows'ta denenmedi | #64 | bekliyor |
+| 20:00 kontrolü, önem seviyesi, tekrar etmeyen uyarı | `test_scheduler.ReportWatchTest`, `AlertDedupTest`, `SeverityTest` | #57 | ✅ PC, `verify_report` 27.10 |
+| Tek komutla kurulum kanıtı | `test_verify` (6 test); `scripts/verify.ps1` Windows'ta denenmedi | #64 | ✅ PC, `verify_report` 27.10 (v0.46.1'de konsol düzeltmesi) |
 | Testler ağa çıkmaz, gerçek `data/` ve `logs/`'a yazmaz | `test_health_ops.ResearchTest.test_tests_never_reach_the_network`; conftest oturum sonu kontrolü | #56 | — |
 
 **Açık (yazılım dışı):**
 - PC'de `verify.ps1` çıktısı ve `/durum` bekleniyor.
 - PC kapalıyken çalışma ancak sunucuyla mümkün (bkz. sunucu hazırlığı).
 
-## Doğrulanmış durum (27.10.2026; kod v0.41.0, kullanıcı PC'si v0.35.0)
+## Doğrulanmış durum (27.10.2026; kod v0.46.1, kullanıcı PC'si v0.46.0)
 
 İşletim, yedek ve kurtarma: docs/OPERATIONS.md.
 
 | Bileşen | Durum | Kanıt |
 |---|---|---|
-| Kod ve bağımlılıklar | Doğrulandı | CI yeşil; kullanıcı PC'sinde v0.35.0 ile 334 test (27.10) |
+| Kod ve bağımlılıklar | Doğrulandı | CI yeşil; kullanıcı PC'sinde v0.46.0 ile 448 test, paketler `requirements.lock` ile aynı (27.10 09:09) |
 | Telegram botu | Doğrulandı | `/help` tek sürüm yanıtlıyor (26.10 14:11) |
 | Zamanlayıcı | Doğrulandı | Windows görevi tek zamanlayıcı; 26.10 18:30 raporu zamanında geldi |
 | Günlük rapor teslimi | Doğrulandı | 26.10.2026 kapanış raporu 18:30'da Telegram'a geldi, tek mesaj |
 | Sanal emir dolumu (v0.28 alanları) | Doğrulandı | #1 THYAO 10 adet: açılış 260,25 + %0,05 kayma = 260,38; komisyon 2,60 TL; hesap 97.394 + 2.582 = 99.976 TL |
 | Yedek ve geri yükleme | Doğrulandı | Günlük yedek 5 dosya (OneDrive). Kullanıcı provası (27.10, kopya üzerinde): ledger.csv bozuldu, paper_orders.csv boşaltıldı; `--restore` sonrası 5 dosya SHA-256 ile birebir aynı |
 | `data/signal_log.csv` | Doğrulandı | 26.10 14:42 elle çalıştırma: 117 hisse kaydı |
-| `logs/runs.csv` `sent` satırı, `/durum`, 20:00 kontrolü | **Kullanıcıdan kanıt bekleniyor** | Rapor geldiği için büyük olasılıkla doğru; çıktı görülmedi |
+| `logs/runs.csv` `sent` satırı, `/durum` | Doğrulandı | 26.10 18:30 `sent` satırı; `/durum` 12/12 SAĞLIKLI (verify_report 27.10). 20:00 kontrolü uyarı gerektiren bir durum olmadığı için henüz tetiklenmedi |
 | Portföy "Risk:" satırı (v0.29) | Doğrulandı | Kullanıcı PC'si v0.35.0 raporunda görünüyor (27.10); etkin pozisyon sayısı hatası (1.498,7 yerine 1,0) kullanıcı tarafından bulundu, v0.36.1'de düzeltildi |
 | Yarım gün / tatil davranışı | **Doğrulanmadı** | 28.10 yarım gün, 29.10 tatil |
 | Cuma canlı ölçüm satırı | **Doğrulanmadı** | İlk görülme hedefi 30.10.2026 |

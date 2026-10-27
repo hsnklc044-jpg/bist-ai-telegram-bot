@@ -296,6 +296,9 @@ def restore_backup(path: Path, data_dir: Path = DATA_DIR) -> tuple[list[str], Ba
 
 
 def main(argv: list[str] | None = None) -> int:
+    from core.infrastructure.console import utf8_output
+
+    utf8_output()  # Windows console / redirected output is cp1254
     parser = argparse.ArgumentParser(description="Back up / restore QuantBIST personal records")
     parser.add_argument("--list", action="store_true", help="yedekleri listele")
     parser.add_argument("--restore", metavar="ZIP", help="bu yedeği geri yükle")

@@ -381,6 +381,9 @@ def weekly_line(
 
 
 def main(argv: list[str] | None = None) -> int:
+    from core.infrastructure.console import utf8_output
+
+    utf8_output()  # Windows console / redirected output is cp1254
     argparse.ArgumentParser(description="QuantBIST live performance").parse_args(argv)
     print(forward_report())
     return 0

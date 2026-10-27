@@ -461,6 +461,9 @@ def main(argv: list[str] | None = None) -> int:
 
     import argparse
 
+    from core.infrastructure.console import utf8_output
+
+    utf8_output()  # Windows console / redirected output is cp1254
     parser = argparse.ArgumentParser(description="QuantBIST health")
     parser.add_argument("--heartbeat", action="store_true", help="exit 1 when the bot heartbeat is missing or old")
     args = parser.parse_args(argv)

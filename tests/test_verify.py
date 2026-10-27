@@ -87,3 +87,41 @@ class BackupSectionTest(unittest.TestCase):
             self.assertIn("bütünlük ok", text)
             self.assertTrue(list((root / "yedek").glob("quantbist_marketdb_*.zip")))
             self.assertEqual(db.read_bytes(), before)  # the live store is not touched
+
+
+class WindowsConsoleTest(unittest.TestCase):
+    """On the user's PC stdout is cp1254: printing the report's emoji crashed verify (27.10.2026)."""
+
+    def test_main_prints_emoji_on_a_cp1254_console(self):
+        import io
+
+        raw = io.BytesIO()
+        console = io.TextIOWrapper(raw, encoding="cp1254")
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(verify, "verify_report", return_value="🩺 durum ✅"), \
+                mock.patch("sys.stdout", console):
+            code = verify.main(["--no-backup", "--out", str(Path(tmp) / "r.txt")])
+            console.flush()
+        self.assertEqual(code, 0)
+        self.assertIn("🩺 durum ✅", raw.getvalue().decode("utf-8"))
+
+    def test_other_commands_run_on_the_pc_print_emoji_too(self):
+        import io
+
+        from core import backup
+        from core.reports import forward, health
+
+        cases = [
+            (health, "health_report", "🩺 SAĞLIKLI", lambda: health.main([])),
+            (forward, "forward_report", "📏 ölçüm", lambda: forward.main([])),
+            (backup, "backup_market_db", None, lambda: backup.main(["--market-db"])),
+        ]
+        for module, name, text, run in cases:
+            with self.subTest(module.__name__):
+                raw = io.BytesIO()
+                console = io.TextIOWrapper(raw, encoding="cp1254")
+                value = text if text is not None else backup.Backup(Path("quantbist_marketdb_x.zip"), ["market.db"])
+                with mock.patch.object(module, name, return_value=value), mock.patch("sys.stdout", console):
+                    run()
+                    console.flush()
+                self.assertTrue(any(ch in raw.getvalue().decode("utf-8") for ch in "🩺📏💾"))

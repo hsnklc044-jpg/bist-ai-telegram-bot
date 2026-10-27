@@ -32,6 +32,7 @@ from core.config import alerts as alert_cfg
 from core.config.paths import ALERTS_LOG_FILE, EQUITY_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import ACCOUNTS
 from core.infrastructure import ping
+from core.infrastructure.console import utf8_output
 from core.infrastructure.csvfiles import read_rows
 from core.infrastructure.exceptions import PersonalFileError
 from core.infrastructure.logger import get_logger
@@ -502,22 +503,6 @@ def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None) ->
                     raise
                 logger.warning("Telegram send failed, retrying | %s", exc)
                 sleep(SEND_PAUSES[min(attempt, len(SEND_PAUSES) - 1)])
-
-
-def utf8_output(stream=None) -> None:
-    """
-    Make printing safe when Windows redirects output to a file: Python then
-    uses the ANSI code page (cp1254), which has no emoji and crashed the
-    scheduled report before it was sent.
-    """
-
-    import sys
-
-    stream = stream or sys.stdout
-    try:
-        stream.reconfigure(encoding="utf-8", errors="replace")
-    except (AttributeError, ValueError):
-        pass
 
 
 def _with_backup_line(text: str) -> str:

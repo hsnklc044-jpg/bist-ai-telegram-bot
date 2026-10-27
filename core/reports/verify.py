@@ -102,6 +102,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=REPORT_FILE)
     args = parser.parse_args(argv)
 
+    import sys
+
+    from core.infrastructure.console import utf8_output
+
+    utf8_output(sys.stdout)  # a Windows console is cp1254: the report's emoji would crash the print
     text = verify_report(backup=not args.no_backup)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(text, encoding="utf-8")
