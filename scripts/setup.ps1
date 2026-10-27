@@ -9,7 +9,9 @@
 
 param([switch]$CheckOnly)
 
-$ErrorActionPreference = "Stop"
+# Windows PowerShell 5.1 turns any stderr line of a native program (git, pip, pytest) into a
+# terminating error under "Stop"; native results are judged by their exit codes instead.
+$ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 New-Item -ItemType Directory -Force -Path logs | Out-Null
@@ -20,16 +22,20 @@ if (-not $CheckOnly) {
     if (-not (Test-Path $python)) {
         Write-Host "Creating .venv with Python 3.11 ..."
         py -3.11 -m venv .venv
+        if ($LASTEXITCODE -ne 0) { Write-Host "Python 3.11 venv could not be created"; exit 1 }
     }
     & $python -m pip install --upgrade pip --quiet
+    if ($LASTEXITCODE -ne 0) { Write-Host "pip upgrade failed"; exit 1 }
     & $python -m pip install -r requirements.lock --quiet
+    if ($LASTEXITCODE -ne 0) { Write-Host "package install failed"; exit 1 }
 }
 
 $version = & $python --version
 $release = & $python -c "import core; print(core.__version__)"
 # releases are delivered as zips without git history; a commit shown here comes
 # from a local git folder and may not match the files
-$commit = (git rev-parse --short HEAD 2>$null)
+$commit = $null
+if (Test-Path (Join-Path $root ".git")) { $commit = (git rev-parse --short HEAD 2>$null) }
 if (-not $commit) { $commit = "(no git)" }
 
 $frozen = & $python -m pip freeze

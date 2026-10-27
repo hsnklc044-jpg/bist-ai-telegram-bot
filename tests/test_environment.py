@@ -71,3 +71,19 @@ class LocalWorkFoldersTest(unittest.TestCase):
             result = subprocess.run([sys.executable, "-m", "ruff", "check", "."], cwd=tmp,
                                     capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class SetupScriptTest(unittest.TestCase):
+    """DR drill 27.10 (run 40513818221): on a zip install (no .git) Windows PowerShell 5.1 turned
+    git's stderr into a terminating error under ErrorActionPreference=Stop and setup.ps1 stopped."""
+
+    def test_native_stderr_never_stops_setup(self):
+        text = (ROOT / "scripts" / "setup.ps1").read_text(encoding="utf-8")
+        first_redirect = min(text.index(m) for m in ("2>$null", "2>&1") if m in text)
+        relaxed = text.find('$ErrorActionPreference = "Continue"')
+        self.assertNotEqual(relaxed, -1, "native commands must run under Continue")
+        self.assertLess(relaxed, first_redirect)
+
+    def test_install_failures_still_stop(self):
+        text = (ROOT / "scripts" / "setup.ps1").read_text(encoding="utf-8")
+        self.assertGreaterEqual(text.count("if ($LASTEXITCODE -ne 0)"), 3)  # venv, pip, packages

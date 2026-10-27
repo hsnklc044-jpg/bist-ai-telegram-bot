@@ -35,7 +35,7 @@ Saat dilimi, sessiz hata yutma, belge-kod uyumu: bugün eklenen kod (slo, health
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.56.0 (izleme alarm tatbikatı aracı; felaket kurtarma tatbikatı iş akışı; MATURITY S1 kapandı).
+- **Son sürüm:** v0.56.1 (ilk felaket kurtarma tatbikatının bulduğu zip kurulum hatası düzeltildi).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

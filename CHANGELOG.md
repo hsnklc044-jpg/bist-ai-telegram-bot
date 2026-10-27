@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.56.1 – 27.10.2026
+- İlk felaket kurtarma tatbikatı gerçek bir hata buldu: belgedeki gibi zip olarak indirilen kodda `setup.ps1`, git klasörü olmadığı için Windows PowerShell'de duruyordu. Düzeltildi; kurulum adımları artık çıkış koduyla denetleniyor. Git'siz kopyada tüm testler geçti.
+
 ## v0.56.0 – 27.10.2026
 - İzleme alarm tatbikatı: `python -m core.infrastructure.ping --drill` bilerek bir alarm üretir, `--recover` geri alır; adres hiçbir yerde yazılmaz (OPERATIONS §7). Windows'ta aylık felaket kurtarma tatbikatı iş akışı (dr-drill.yml). Olgunluk merdiveni (docs/MATURITY.md): S1 kapandı.
 
