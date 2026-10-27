@@ -29,7 +29,7 @@ if ($LASTEXITCODE -ne 0) { Write-Host "HATA: scp basarisiz ($LASTEXITCODE)"; exi
 Write-Host "Kontrol ediliyor (gecici klasorde; canli dosyalara dokunulmaz) ..."
 $env:BACKUP_DIR = $Local
 Push-Location $root
-& $python -m core.backup --test-restore
+& $python -m core.backup --test-restore --no-record
 $ok = $LASTEXITCODE -eq 0
 Pop-Location
 if (-not $ok) { Write-Host "HATA: yedekler okunamadi; sunucuya pulled.txt yazilmadi"; exit 1 }

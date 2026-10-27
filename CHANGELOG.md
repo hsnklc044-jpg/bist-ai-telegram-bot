@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.56.3 – 27.10.2026
+- Felaket kurtarma tatbikatı temiz Windows makinesinde baştan sona başarılı (yedekten geri yüklenen dosyalar birebir aynı). Tatbikatın `/durum` çıktısı son bir eksik gösterdi: elle ya da aylık yapılan geri yükleme testi "Yedek" hedefine sayılmıyordu. Artık sayılıyor; başarısızlık da kaydediliyor. Sunucudan çekilen yedeklerin denetimi bu makinenin hedefine sayılmaz (`--no-record`).
+
 ## v0.56.2 – 27.10.2026
 - Felaket kurtarma tatbikatının 2. çalışması kurulumu geçti; 574 testten biri, Windows'ta WSL'in boş `bash` kabuğunu çalıştırmaya çalıştığı için düştü. Bu test Windows'ta artık atlanıyor (Windows'un kendi betiği `pull_backups.ps1`'dir).
 

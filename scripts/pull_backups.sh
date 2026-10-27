@@ -24,7 +24,7 @@ echo "Sunucudan alınıyor: $server:$remote → $local_dir"
 ${SCP:-scp} -q "$server:$remote/quantbist_*.zip" "$local_dir/"
 
 echo "Kontrol ediliyor (geçici klasörde; canlı dosyalara dokunulmaz) ..."
-(cd "$here" && BACKUP_DIR="$local_dir" "$python" -m core.backup --test-restore)
+(cd "$here" && BACKUP_DIR="$local_dir" "$python" -m core.backup --test-restore --no-record)
 
 ${SSH:-ssh} "$server" "date -Iseconds > '$remote/pulled.txt'"
 echo "Tamam: $(ls "$local_dir"/quantbist_*.zip | wc -l) yedek $local_dir içinde; sunucuya pulled.txt yazıldı."

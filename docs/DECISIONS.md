@@ -4,6 +4,10 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-20. Elle/aylık geri yükleme testi de Yedek SLO'suna sayılır.** 3. tatbikatın `/durum` çıktısı, hemen önce başarılı `--test-restore` çalıştığı hâlde "geri yükleme testi henüz kaydedilmedi" diyordu: komut satırı sonucu `restore_tests.csv`'ye yazmıyordu. Artık başarılı ve başarısız sonuç yazılır ("elle" notuyla). Alternatif (yalnız günlük rapordaki haftalık test) yerel otomasyonun aylık testini ve başarısızlıkları görünmez bırakıyordu. İstisna: `pull_backups` sunucudan çekilen kopyaları denetler, bu makinenin yedek zincirini değil; `--no-record` ile sayılmaz (ilk denemede testin alt süreci gerçek `logs/`a yazdı, yazma koruması yakaladı).
+
+**K-19. Kullanıcı kararları devretti ("kontroller sende, ben uygulayıcıyım").** Sorumu sormadan karar verip buraya yazıyorum. Sınırlar değişmedi: hesap, token, ödeme, .env ve sunucu kiralama BENİM ADIMLARIM'da; gerçek para, aracı kurum ve al/sat önerisi asla. Depodaki `fix/windows-dr-setup-and-test-clock` dalına dokunmuyorum: içeriği bu dalda (v0.56.0–v0.56.2) zaten var ve kuralım yalnız kendi dalıma yazmak. Silinmesi zararsız ama gerekmiyor.
+
 **K-18. S1 ÇALIŞIR kanıtla kapatıldı; S2'nin ilk işi Windows'ta felaket kurtarma tatbikatı.** Kanıtlar MATURITY.md'de (PC /durum gözlemleri, testler, CI #130/#131). S2 eksiklerinin puanı (etki×olasılık÷maliyet, bütünlük ×2): felaket kurtarma tatbikatı (kişisel kayıt bütünlüğü, ×2; şimdi yapılabilir; maliyet orta) en yüksek; izleme tatbikatı kullanıcının adreslerini bekliyor; 4 hafta SLO ve temiz öz-denetim zamana bağlı. Tatbikat GitHub'ın temiz Windows makinesinde, yapay kayıtlarla, aylık ve elle (`dr-drill.yml`); gerçek veri ve token kullanılmaz.
 
 **K-17. Dönem = takvim haftası; değerlendirme cumartesi araştırmasından sonra.** Döngü talimatı "koşulu oluşmuş iş kalmayınca dönem değerlendirmesi" diyor. Bir günlük dönemin SLO tablosu anlamsız olur (kayıtlar yeni başladı). İlk değerlendirme 31.10 araştırması bittikten sonra `docs/PERIODS/2026-10-31.md`'ye yazılır. O güne kadar koşulu oluşmuş iş yoksa döngü saatlik aralıklarla yalnız CI'ı ve gözlemleri kontrol eder.

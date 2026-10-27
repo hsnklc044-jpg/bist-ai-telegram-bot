@@ -103,5 +103,35 @@ class WeeklyCheckInReportTest(unittest.TestCase):
             self.assertIn("başarısız: disk dolu", daily._weekly_backup_check(date(2026, 10, 26)))
 
 
+class CommandLineRestoreTestIsRecordedTest(unittest.TestCase):
+    """DR drill 27.10 (run 40551266369): `--test-restore` passed, but the Yedek SLO still said
+    "geri yükleme testi sonucu henüz kaydedilmedi"; manual and monthly tests were never counted."""
+
+    def test_success_and_failure_are_recorded_for_the_slo(self):
+        from core.reports import slo
+
+        with mock.patch.object(backup, "test_restore", return_value=["a", "b"]):
+            self.assertEqual(backup.main(["--test-restore"]), 0)
+        with mock.patch.object(backup, "test_restore", side_effect=backup.BackupError("bozuk zip")):
+            self.assertEqual(backup.main(["--test-restore"]), 1)
+
+        rows = slo.RESTORE_FILE.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(rows[0], "at,ok,detail")
+        self.assertEqual([r.split(",")[1] for r in rows[1:]], ["1", "0"])
+        self.assertIn("bozuk zip", rows[2])
+
+    def test_pulled_server_copies_are_not_this_machines_backup_slo(self):
+        """pull_backups checks copies of the server's backups; they say nothing about this PC's chain
+        (and the test running the script in a subprocess wrote to the real logs/ - write guard)."""
+        from core.reports import slo
+
+        with mock.patch.object(backup, "test_restore", return_value=["a"]):
+            self.assertEqual(backup.main(["--test-restore", "--no-record"]), 0)
+        self.assertFalse(slo.RESTORE_FILE.exists())
+        root = Path(__file__).resolve().parents[1] / "scripts"
+        for script in ("pull_backups.sh", "pull_backups.ps1"):
+            self.assertIn("--test-restore --no-record", (root / script).read_text(encoding="utf-8"), script)
+
+
 if __name__ == "__main__":
     unittest.main()

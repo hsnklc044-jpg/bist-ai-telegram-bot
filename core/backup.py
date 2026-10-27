@@ -295,6 +295,17 @@ def restore_backup(path: Path, data_dir: Path = DATA_DIR) -> tuple[list[str], Ba
     return sorted(names), safety
 
 
+def _record_restore_test(ok: bool, detail: str) -> None:
+    """Manual and monthly tests count for the backup SLO like the weekly one in the daily report."""
+
+    from core.reports.slo import record_restore_test
+
+    try:
+        record_restore_test(ok, detail)
+    except OSError:
+        logger.exception("Restore test result not recorded")
+
+
 def main(argv: list[str] | None = None) -> int:
     from core.infrastructure.console import utf8_output
 
@@ -303,6 +314,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--list", action="store_true", help="yedekleri listele")
     parser.add_argument("--restore", metavar="ZIP", help="bu yedeği geri yükle")
     parser.add_argument("--test-restore", action="store_true", help="son yedekleri geçici klasöre açıp oku")
+    parser.add_argument("--no-record", action="store_true",
+                        help="sonucu Yedek hedefine yazma (sunucudan çekilen kopyalar)")
     parser.add_argument("--market-db", action="store_true", help="fiyat veritabanını şimdi yedekle")
     args = parser.parse_args(argv)
 
@@ -315,7 +328,15 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.test_restore:
-            for line in test_restore():
+            try:
+                checked = test_restore()
+            except BackupError as exc:
+                if not args.no_record:
+                    _record_restore_test(False, str(exc))
+                raise
+            if not args.no_record:
+                _record_restore_test(True, f"{len(checked)} dosya (elle)")
+            for line in checked:
                 print(line)
             print("Geri yükleme testi başarılı (canlı dosyalara dokunulmadı).")
             return 0
