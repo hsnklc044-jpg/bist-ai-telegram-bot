@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.55.2 – 27.10.2026
+- SLO'lar kaydın başladığı günden ölçülür: PC'de rapor ve yedek hedefi, kaydı olmayan eski günleri "eksik" sayıp %25 gösteriyordu. Hiç kaydedilmemiş geri yükleme testi artık "bilinmiyor".
+
 ## v0.55.1 – 27.10.2026
 - Bot açılışında tek bir DNS hatasının ardından bağlantı gelirse botun açılmaya devam ettiği, python-telegram-bot'un gerçek yeniden deneme döngüsüyle test edildi (eski ayarla aynı test başarısız olur). PC doğrulamaları (D13, v0.45.13–v0.46.0) ROADMAP'e işlendi.
 

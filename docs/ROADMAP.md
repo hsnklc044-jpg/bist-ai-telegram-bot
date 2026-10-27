@@ -22,9 +22,9 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 
 Öz-denetim (CHARTER §7): her 10 sürümde bir. Sayaç v0.50.0'dan başlar; ilk denetim v0.60.0 civarı.
 
-## Kaldığım yer (27.10.2026, kod v0.55.1)
+## Kaldığım yer (27.10.2026, kod v0.55.2)
 
-- **Son sürüm:** v0.55.1 (açılıştaki ağ hatası kütüphanenin gerçek döngüsüyle test edildi; PC doğrulamaları kaydedildi).
+- **Son sürüm:** v0.55.2 (SLO'lar kaydın başladığı günden ölçülür; PC'deki yanlış %25 alarmı).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

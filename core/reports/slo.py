@@ -67,6 +67,14 @@ def _sessions(now: datetime) -> list[date]:
     return [d for d in days if is_session_day(d)]
 
 
+def _since(sessions: list[date], first: date | None) -> tuple[list[date], str]:
+    """Sessions from the first record on: days before it were not measured, so they are no failures."""
+
+    if first is None or not sessions or first <= sessions[0]:
+        return sessions, ""
+    return [d for d in sessions if d >= first], f"ölçüm {first:%d.%m}'de başladı"
+
+
 def _deadline(day: date) -> datetime:
     return datetime.combine(day, DEADLINE, tzinfo=ISTANBUL)
 
@@ -97,11 +105,13 @@ def report_delivery(now: datetime, runs_path: Path) -> SloResult:
     name = "Rapor teslimi"
     if not Path(runs_path).exists():
         return SloResult(name, UNKNOWN, None, "runs.csv yok")
-    sessions = _sessions(now)
+    rows = _rows(Path(runs_path))
+    starts = [t.date() for r in rows if (t := _when(r["started_at"]))]
+    sessions, started = _since(_sessions(now), min(starts) if starts else None)
     if not sessions:
-        return SloResult(name, UNKNOWN, None, "pencerede seans yok")
+        return SloResult(name, UNKNOWN, None, "pencerede ölçülmüş seans yok" + (f"; {started}" if started else ""))
     sent: dict[str, list[datetime]] = {}
-    for r in _rows(Path(runs_path)):
+    for r in rows:
         if r["status"] == SENT and (finished := _when(r["finished_at"])):
             sent.setdefault(r["data_day"], []).append(finished)
     on_time, late, missing = [], [], []
@@ -118,6 +128,7 @@ def report_delivery(now: datetime, runs_path: Path) -> SloResult:
     notes += [f"eksik: {_days(missing)}"] if missing else []
     notes += [f"iki kez: {_days(sorted(twice))}"] if twice else []
     notes += [f"tatilde gönderim: {_days(sorted(closed))}"] if closed else []
+    notes += [started] if started else []
     ok = value >= 0.99 and not twice and not closed
     return SloResult(name, OK if ok else WARN, value, "; ".join(notes))
 
@@ -189,11 +200,13 @@ def freshness(now: datetime, path: Path) -> SloResult:
     path = Path(path)
     if not path.exists():
         return SloResult(name, UNKNOWN, None, "freshness.csv yok (ilk raporla başlar)")
-    sessions = _sessions(now)
+    rows = _rows(path)
+    firsts = [date.fromisoformat(r["date"]) for r in rows]
+    sessions, started = _since(_sessions(now), min(firsts) if firsts else None)
     if not sessions:
-        return SloResult(name, UNKNOWN, None, "pencerede seans yok")
+        return SloResult(name, UNKNOWN, None, "pencerede ölçülmüş seans yok" + (f"; {started}" if started else ""))
     by_day: dict[str, list[dict]] = {}
-    for r in _rows(path):
+    for r in rows:
         by_day.setdefault(r["date"], []).append(r)
     good, notes = 0, []
     for d in sessions:
@@ -210,7 +223,7 @@ def freshness(now: datetime, path: Path) -> SloResult:
         else:
             good += 1
     value = good / len(sessions)
-    text = f"{good}/{len(sessions)} seans" + (f"; {', '.join(notes)}" if notes else "")
+    text = f"{good}/{len(sessions)} seans" + (f"; {', '.join(notes)}" if notes else "") + (f"; {started}" if started else "")
     return SloResult(name, OK if value >= 0.99 else WARN, value, text)
 
 
@@ -232,15 +245,18 @@ def backup_slo(now: datetime, folder: Path, restores: Path) -> SloResult:
     from core.backup import PREFIX
 
     name = "Yedek"
-    sessions = _sessions(now)
     taken = {p.stem.removeprefix(PREFIX) for p in Path(folder).glob(f"{PREFIX}????-??-??.zip")} if Path(
         folder).exists() else set()
+    sessions, started = _since(_sessions(now), date.fromisoformat(min(taken)) if taken else None)
     have = [d for d in sessions if d.isoformat() in taken]
     missing = [d for d in sessions if d.isoformat() not in taken]
     notes = [f"{len(have)}/{len(sessions)} seans günü yedekli"] + ([f"eksik: {_days(missing)}"] if missing else [])
-    tests = []
-    if Path(restores).exists():
-        tests = [r for r in _rows(Path(restores)) if (t := _when(r["at"])) and now - WINDOW <= t <= now]
+    notes += [started] if started else []
+    if not Path(restores).exists():  # the record started with v0.51.0: not measured yet, never a failure
+        notes.append("geri yükleme testi sonucu henüz kaydedilmedi (haftalık test ilk çalışınca)")
+        state = WARN if missing or not sessions else UNKNOWN
+        return SloResult(name, state, len(have) / len(sessions) if sessions else None, "; ".join(notes))
+    tests = [r for r in _rows(Path(restores)) if (t := _when(r["at"])) and now - WINDOW <= t <= now]
     if not tests:
         notes.append("son 7 günde geri yükleme testi yok")
     elif tests[-1]["ok"] != "1":

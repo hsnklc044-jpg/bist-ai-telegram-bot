@@ -56,6 +56,36 @@ class ReportDeliveryTest(Temp):
         self.assertEqual(slo.report_delivery(NOW, self.dir / "yok.csv").state, UNKNOWN)
 
 
+class MeasurementStartTest(Temp):
+    """PC 27.10 16:19: runs.csv and dated backups began on 26.10, yet 21-23.10 were counted as missing.
+    Days before the first record were not measured: they are left out, not counted as failures."""
+
+    def test_report_delivery_starts_at_the_first_record(self):
+        r = slo.report_delivery(NOW, self.runs([(d, "18:32:00", "sent") for d in WEEK[3:]]))
+        self.assertEqual((r.state, r.value), (OK, 1.0))
+        self.assertIn("2/2", r.text)
+        self.assertIn("ölçüm 05.11'de başladı", r.text)
+
+    def test_backups_start_at_the_first_backup(self):
+        folder = self.dir / "yedek"
+        folder.mkdir()
+        for d in WEEK[3:]:
+            (folder / f"quantbist_{d.isoformat()}.zip").write_bytes(b"x")
+        restores = self.dir / "restore_tests.csv"
+        slo.record_restore_test(True, "ok", path=restores, now=NOW - timedelta(days=1))
+        r = slo.backup_slo(NOW, folder, restores)
+        self.assertEqual(r.state, OK, r.text)
+        self.assertIn("2/2", r.text)
+
+    def test_freshness_starts_at_the_first_record(self):
+        path = self.dir / "freshness.csv"
+        d = WEEK[4]
+        slo.record_freshness(d, 100, 100, xu100=True, path=path,
+                             now=datetime.combine(d, datetime.min.time(), ISTANBUL).replace(hour=18, minute=35))
+        r = slo.freshness(NOW, path)
+        self.assertEqual((r.state, r.value), (OK, 1.0))
+
+
 class BotUptimeTest(Temp):
     def log(self, beats):
         path = self.dir / "heartbeats.csv"
@@ -138,7 +168,12 @@ class BackupSloTest(Temp):
         for d in WEEK:
             (folder / f"quantbist_{d.isoformat()}.zip").write_bytes(b"x")
         restores = self.dir / "restore_tests.csv"
-        self.assertEqual(slo.backup_slo(NOW, folder, restores).state, WARN)  # no test in 7 days
+        # never recorded (the record started with v0.51.0): not measured, so unknown, never a failure
+        never = slo.backup_slo(NOW, folder, restores)
+        self.assertEqual(never.state, UNKNOWN)
+        self.assertIn("henüz kaydedilmedi", never.text)
+        slo.record_restore_test(True, "eski", path=restores, now=NOW - timedelta(days=10))
+        self.assertEqual(slo.backup_slo(NOW, folder, restores).state, WARN)  # recorded, but none in 7 days
         slo.record_restore_test(False, "zip bozuk", path=restores, now=NOW - timedelta(days=1))
         r = slo.backup_slo(NOW, folder, restores)
         self.assertEqual(r.state, WARN)
