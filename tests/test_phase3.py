@@ -53,5 +53,56 @@ class GatesTest(unittest.TestCase):
         self.assertAlmostEqual(row["level"], 1 - 0.05 / 3)
 
 
+
+def flat_cash(rate):
+    from core.backtest.cash import RateSeries
+
+    return RateSeries(pd.Series([rate], index=[pd.Timestamp("2020-01-01")]))
+
+
+def index_market(daily):
+    """XU100 with a given daily log return per calendar year: {2023: r, 2024: r, ...}."""
+
+    index = pd.bdate_range("2022-01-03", "2026-10-23")
+    rng = np.random.default_rng(1)
+    drift = np.array([daily[d.year] for d in index])
+    close = 100 * np.exp(np.cumsum(drift + rng.normal(0, 0.002, len(index))))
+    return _frame(pd.Series(close, index=index))
+
+
+class IndexRuleTest(unittest.TestCase):
+    """H2/H3 (plan change 1): cash at the policy rate; the verdict must also hold at the rate minus 3 points."""
+
+    def test_cash_beats_a_falling_index_and_strict_cash_is_checked(self):
+        bench = index_market({2022: 0.002, 2023: -0.002, 2024: -0.002, 2025: -0.002, 2026: -0.002})
+        result = phase3.evaluate_index(phase3.H2, bench, flat_cash(0.45), flat_cash(0.42))
+        self.assertTrue(all(result["gates"].values()), result["gates"])
+        self.assertTrue(all(result["strict_gates"].values()), result["strict_gates"])
+        self.assertEqual(result["years"], (4, 4))  # 2023 (from 1 Aug) … 2026
+        self.assertIn("KARAR: kabul", phase3.report_index(result))
+
+    def test_strict_cash_can_reject_alone(self):
+        bench = index_market({2022: 0.002, 2023: -0.002, 2024: -0.002, 2025: -0.002, 2026: -0.002})
+        result = phase3.evaluate_index(phase3.H2, bench, flat_cash(0.45), flat_cash(-2.0))  # cash loses money
+        self.assertTrue(all(result["gates"].values()))
+        self.assertFalse(all(result["strict_gates"].values()))
+        self.assertIn("KARAR: red", phase3.report_index(result))
+
+    def test_rising_index_rejects_turn_of_month(self):
+        bench = index_market({y: 0.003 for y in range(2022, 2027)})
+        result = phase3.evaluate_index(phase3.H3, bench, flat_cash(0.0), flat_cash(0.0))
+        self.assertFalse(result["gates"]["both_starts"])
+        self.assertIn("KARAR: red", phase3.report_index(result))
+
+    def test_records_name_the_cash(self):
+        bench = index_market({y: 0.0 for y in range(2022, 2027)})
+        result = phase3.evaluate_index(phase3.H3, bench, flat_cash(0.45), flat_cash(0.42), zero_cash_too=True)
+        self.assertIn("bilgi: nakit %0", phase3.report_index(result))
+        rows = phase3.index_records(result)
+        self.assertEqual([r["universe"] for r in rows], ["a3", "a3"])
+        self.assertEqual(rows[0]["strategy"], phase3.H3.name)
+        self.assertIn("−3 puan", rows[1]["strategy"])
+
+
 if __name__ == "__main__":
     unittest.main()

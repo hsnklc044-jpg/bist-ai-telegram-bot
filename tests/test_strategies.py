@@ -143,3 +143,68 @@ class LowVolatilityTest(unittest.TestCase):
         self.assertFalse(sig["S0.IS"]["enter"].any())
         self.assertTrue(sig["S1.IS"].at[march_end, "enter"])
         self.assertTrue(sig["S2.IS"].at[march_end, "enter"])
+
+
+
+def _index_frame(closes, start):
+    import pandas as pd
+
+    index = pd.bdate_range(start, periods=len(closes))
+    return pd.DataFrame({"open": closes, "high": closes, "low": closes, "close": closes, "volume": 1e9}, index=index)
+
+
+class IndexTrendTest(unittest.TestCase):
+    """Aşama 3 H2: at each month's last session, hold XU100 for the next month if it closes above its 200-session mean."""
+
+    def test_decided_on_the_last_session_of_the_month(self):
+        import pandas as pd
+
+        from core.strategy.rules import index_trend_signals
+
+        closes = [100.0] * 200 + [110.0] * 40  # above the mean from the 201st session (2025-10-08)
+        df = _index_frame(closes, "2025-01-01")
+        sig = index_trend_signals(df, window=200)
+        month_end = pd.Timestamp("2025-10-31")
+        self.assertFalse(sig.loc[:month_end - pd.Timedelta(days=1), "enter"].any())  # above the mean mid-month: wait
+        self.assertTrue(sig.loc[month_end:, "enter"].all())
+        self.assertTrue(sig.at[pd.Timestamp("2025-10-08"), "exit"])
+
+    def test_below_the_mean_is_cash(self):
+        from core.strategy.rules import index_trend_signals
+
+        closes = [100.0] * 200 + [90.0] * 40
+        sig = index_trend_signals(_index_frame(closes, "2025-01-01"), window=200)
+        self.assertFalse(sig["enter"].any())
+        self.assertTrue(sig["exit"].all())
+
+
+class TurnOfMonthTest(unittest.TestCase):
+    """Aşama 3 H3: hold XU100 over each month's last 3 and next month's first 3 sessions (orders fill next open)."""
+
+    def test_signal_days_by_hand(self):
+        import pandas as pd
+
+        from core.strategy.rules import turn_of_month_signals
+
+        df = _index_frame([100.0] * 45, "2025-09-01")  # 1 Sep – 31 Oct 2025; past sessions are the candles
+        sig = turn_of_month_signals(df, sessions=3)
+        held_at_close = set(sig.index[sig["enter"]].strftime("%m-%d"))
+        # September starts 1, 2, 3: held at the closes of 1 and 2.
+        # September ends 26, 29, 30: the signal comes at the close of 25 -> bought at the open of 26.
+        # October starts 1, 2, 3: still held at the close of 2 -> sold at the open of 6 (4th session).
+        # October ends 29, 30, 31: bought at the open of 29; held into November.
+        self.assertEqual(held_at_close, {"09-01", "09-02", "09-25", "09-26", "09-29", "09-30", "10-01", "10-02",
+                                         "10-28", "10-29", "10-30", "10-31"})
+        self.assertTrue(sig.at[pd.Timestamp("2025-10-03"), "exit"])
+
+    def test_future_sessions_come_from_the_holiday_calendar(self):
+        import pandas as pd
+
+        from core.strategy.rules import turn_of_month_signals
+
+        # October 2026: 29th is a full holiday, so the last sessions are 27, 28 (half day), 30.
+        index = pd.bdate_range("2026-10-01", "2026-10-27")  # the data ends before the window
+        df = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "volume": 1.0}, index=index)
+        sig = turn_of_month_signals(df, sessions=3)
+        self.assertTrue(sig.at[pd.Timestamp("2026-10-26"), "enter"])  # next session 27 = 3rd from last
+        self.assertFalse(sig.at[pd.Timestamp("2026-10-23"), "enter"])

@@ -184,6 +184,62 @@ def low_volatility_signals(
     return result
 
 
+def session_calendar(index: pd.DatetimeIndex, ahead_days: int = 45) -> pd.DatetimeIndex:
+    """
+    Past sessions are the candles themselves; after the last candle, the published
+    holiday calendar (weekdays that are not full holidays). Only dates are used,
+    never prices, so a rule timed by it does not look ahead.
+    """
+
+    from core.market.calendar import is_session_day
+
+    index = pd.DatetimeIndex(index).normalize()
+    future = pd.date_range(index[-1] + pd.Timedelta(days=1), periods=ahead_days, freq="D")
+    future = [d for d in future if is_session_day(d.date())]
+    return index.append(pd.DatetimeIndex(future)).unique().sort_values()
+
+
+def _month_last_sessions(calendar: pd.DatetimeIndex) -> pd.DatetimeIndex:
+    return pd.DatetimeIndex(calendar.to_series().groupby(calendar.to_period("M")).max().values)
+
+
+def index_trend_signals(benchmark: pd.DataFrame, window: int = 200) -> pd.DataFrame:
+    """
+    Aşama 3 H2 (docs/RESEARCH_LOG.md, fixed before testing): on each month's last
+    session, hold the index for the next month if it closes above its `window`-session
+    average; otherwise cash. Orders fill at the next open (the month's first session).
+    """
+
+    close = benchmark["close"]
+    above = close > close.rolling(window, min_periods=window).mean()
+    calendar = session_calendar(close.index)
+    last = close.index[close.index.normalize().isin(_month_last_sessions(calendar)[:-1])]
+    hold = pd.Series(float("nan"), index=close.index)
+    hold.loc[last] = above.loc[last].astype(float)
+    hold = hold.ffill().fillna(0.0).astype(bool)
+    return pd.DataFrame({"enter": hold, "exit": ~hold, "rank": 0.0}, index=close.index)
+
+
+def turn_of_month_signals(benchmark: pd.DataFrame, sessions: int = 3) -> pd.DataFrame:
+    """
+    Aşama 3 H3 (docs/RESEARCH_LOG.md, fixed before testing): hold the index over each
+    month's last `sessions` and the next month's first `sessions` sessions, cash
+    otherwise. The signal at a close is "the next session is in the window"; orders
+    fill at that next session's open.
+    """
+
+    calendar = session_calendar(benchmark.index)
+    series = calendar.to_series()
+    month = calendar.to_period("M")
+    from_start = series.groupby(month).cumcount() + 1
+    from_end = series.groupby(month).cumcount(ascending=False) + 1
+    in_window = pd.Series((from_start <= sessions).values | (from_end <= sessions).values, index=calendar)
+    next_in_window = in_window.shift(-1, fill_value=False)
+    hold = next_in_window.reindex(benchmark.index.normalize()).fillna(False).astype(bool)
+    hold.index = benchmark.index
+    return pd.DataFrame({"enter": hold, "exit": ~hold, "rank": 0.0}, index=benchmark.index)
+
+
 def with_regime(
     signals: dict[str, pd.DataFrame],
     regime: pd.Series,
@@ -206,6 +262,9 @@ __all__ += [
     "regime_filter",
     "momentum_signals",
     "low_volatility_signals",
+    "session_calendar",
+    "index_trend_signals",
+    "turn_of_month_signals",
     "with_regime",
     "apply_rule",
 ]
