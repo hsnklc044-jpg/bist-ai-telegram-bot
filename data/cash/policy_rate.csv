@@ -1,0 +1,25 @@
+# TCMB politika faizi (bir hafta vadeli repo ihale faizi), yalnız değişiklik olan kararlar.
+# effective_date = kararın açıklandığı günden sonraki iş günü (kararlar 14:00'te açıklanır).
+# Notlar: 20.03.2025 – 17.04.2025 arasında ve 01.03.2026 – Ağustos 2026 arasında bir hafta vadeli
+# repo ihalelerine ara verildi, fonlama gecelik borç verme faizinden yapıldı. Plan değişikliği 1
+# gereği yalnız açıklanan politika faizi kullanılır; bu dönemler ayrıca modellenmez.
+effective_date,rate,source
+2023-06-23,0.15,"TCMB PPK 22.06.2023: %8,5 -> %15 (Halkbank TCMB PPK Kararı Haziran 2023 raporu)"
+2023-07-21,0.175,"TCMB PPK 20.07.2023: %15 -> %17,5 (TCMB basın duyurusu 2023-25)"
+2023-08-25,0.25,"TCMB PPK 24.08.2023: %17,5 -> %25 (TCMB basın duyurusu 2023-32)"
+2023-09-22,0.30,"TCMB PPK 21.09.2023: %25 -> %30 (TCMB basın duyurusu 2023-39'daki önceki düzey)"
+2023-10-27,0.35,"TCMB PPK 26.10.2023: %30 -> %35 (TCMB basın duyurusu 2023-39)"
+2023-11-24,0.40,"TCMB PPK 23.11.2023: %35 -> %40 (TCMB basın duyurusu 2023-45)"
+2023-12-22,0.425,"TCMB PPK 21.12.2023: %40 -> %42,5 (TCMB basın duyurusu 2023-51)"
+2024-01-26,0.45,"TCMB PPK 25.01.2024: %42,5 -> %45 (TCMB basın duyurusu; NTV haberleri)"
+2024-03-22,0.50,"TCMB PPK 21.03.2024: %45 -> %50 (TCMB basın duyurusu; NTV haberleri)"
+2024-12-27,0.475,"TCMB PPK 26.12.2024: %50 -> %47,5 (TCMB basın duyurusu; hangikredi/hesapkurdu tabloları)"
+2025-01-24,0.45,"TCMB PPK 23.01.2025: %47,5 -> %45 (hangikredi/hesapkurdu tabloları)"
+2025-03-07,0.425,"TCMB PPK 06.03.2025: %45 -> %42,5 (hangikredi/hesapkurdu tabloları)"
+2025-04-18,0.46,"TCMB PPK 17.04.2025: %42,5 -> %46 (NTV; hangikredi/hesapkurdu tabloları)"
+2025-07-25,0.43,"TCMB PPK 24.07.2025: %46 -> %43 (hangikredi/hesapkurdu tabloları)"
+2025-09-12,0.405,"TCMB PPK 11.09.2025: %43 -> %40,5 (hangikredi/hesapkurdu tabloları)"
+2025-10-24,0.395,"TCMB PPK 23.10.2025: %40,5 -> %39,5 (hangikredi/hesapkurdu tabloları)"
+2025-12-12,0.38,"TCMB PPK 11.12.2025: %39,5 -> %38 (hangikredi/hesapkurdu tabloları)"
+2026-01-23,0.37,"TCMB PPK 22.01.2026: %38 -> %37; Mart–Eylül 2026 toplantılarında sabit (Habertürk, Uzmanpara)"
+2026-10-23,0.36,"TCMB PPK 22.10.2026: %37 -> %36 (Habertürk; TCMB PPK toplantı özeti 2026-42)"
