@@ -216,3 +216,48 @@ class SplitUtf16Test(unittest.TestCase):
         parts = split_text(text, limit=4000)
         self.assertTrue(all(self.units(p) <= 4000 for p in parts))
         self.assertEqual("".join(parts), text)
+
+
+class LateInternetTest(unittest.TestCase):
+    """After sleep the 18:30 task starts the moment the PC wakes; Wi-Fi may come a minute later.
+    When no symbol could be downloaded the report waits and tries again instead of giving up the day."""
+
+    def statuses(self, *rounds):
+        calls = []
+
+        def update(symbols):
+            calls.append(list(symbols))
+            return {s: rounds[min(len(calls), len(rounds)) - 1] for s in symbols}
+
+        return update, calls
+
+    def test_waits_for_the_network(self):
+        from core.reports import daily
+
+        update, calls = self.statuses("failed", "failed", "updated")
+        pauses = []
+        status = daily.update_prices(["A.IS", "B.IS"], update=update, sleep=pauses.append)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(pauses, list(daily.NETWORK_WAITS[:2]))
+        self.assertEqual(set(status.values()), {"updated"})
+
+    def test_gives_up_after_the_last_wait(self):
+        from core.reports import daily
+
+        update, calls = self.statuses("failed")
+        pauses = []
+        daily.update_prices(["A.IS"], update=update, sleep=pauses.append)
+        self.assertEqual(len(calls), len(daily.NETWORK_WAITS) + 1)
+        self.assertLessEqual(sum(pauses), 15 * 60)  # well inside the task's 30-minute limit
+
+    def test_one_failed_symbol_is_not_a_network_problem(self):
+        from core.reports import daily
+
+        calls = []
+
+        def update(symbols):
+            calls.append(1)
+            return {"A.IS": "failed", "B.IS": "updated"}
+
+        daily.update_prices(["A.IS", "B.IS"], update=update, sleep=lambda s: self.fail("waited"))
+        self.assertEqual(len(calls), 1)

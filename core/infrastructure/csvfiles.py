@@ -46,4 +46,23 @@ def read_rows(path: Path, required: Iterable[str] = (), encoding: str = "utf-8-s
         raise PersonalFileError(path, f"dosya okunamıyor: {exc}") from exc
 
 
-__all__ = ["read_rows"]
+def open_append(path: Path):
+    """(file, new_file) for appending rows. If the last row was cut off (power loss: no newline
+    at the end), a newline is added first, so the new row does not glue onto the broken one.
+    Existing bytes are never changed."""
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    new_file = not path.exists()
+    cut = False
+    if not new_file and path.stat().st_size > 0:
+        with open(path, "rb") as fh:
+            fh.seek(-1, 2)
+            cut = fh.read(1) != b"\n"
+    fh = open(path, "a", encoding="utf-8", newline="")
+    if cut:
+        fh.write("\n")
+    return fh, new_file
+
+
+__all__ = ["open_append", "read_rows"]

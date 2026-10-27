@@ -16,7 +16,7 @@ from pathlib import Path
 
 from core.alerts.rules import Alert
 from core.config.paths import ALERTS_LOG_FILE
-from core.infrastructure.csvfiles import read_rows
+from core.infrastructure.csvfiles import open_append, read_rows
 from core.market.calendar import now_istanbul
 
 FIELDS = ("logged_at", "data_date", "account", "symbol", "rule", "event", "severity", "value", "threshold", "message")
@@ -80,9 +80,8 @@ def update_alert_log(
             rows.append([now, data_date.isoformat(), *key, "close", row["severity"], "", "", "koşul ortadan kalktı"])
 
     if rows and write:
-        new_file = not path.exists()
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "a", encoding="utf-8", newline="") as fh:
+        fh, new_file = open_append(path)
+        with fh:
             writer = csv.writer(fh, lineterminator="\n")
             if new_file:
                 writer.writerow(FIELDS)

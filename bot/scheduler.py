@@ -37,6 +37,10 @@ CATCHUP_AFTER = 60  # seconds after start: a restart after 18:30 still sends the
 WATCH_AT = time(20, 0, tzinfo=ISTANBUL)
 WATCH_JOB = "report_watch"
 
+# python-telegram-bot lets a job start at most 1 second late; after sleep or a late internet the
+# day's run was skipped silently. A daily job may now start up to 4 hours late, once.
+LATE_START = {"misfire_grace_time": 4 * 3600, "coalesce": True}
+
 
 def report_time(raw: str | None = None) -> time | None:
     """DAILY_REPORT_AT as an Istanbul time; None when unset."""
@@ -77,7 +81,7 @@ def schedule_daily_report(app: Application, at: time | None = None) -> bool:
         )
         return False
 
-    app.job_queue.run_daily(daily_report_job, time=at, days=WEEKDAYS, name=JOB_NAME)
+    app.job_queue.run_daily(daily_report_job, time=at, days=WEEKDAYS, name=JOB_NAME, job_kwargs=LATE_START)
     # like the Windows task's StartWhenAvailable: one run at start; it sends nothing when the
     # latest data day already went out, and is held off by the lock if a report is running
     app.job_queue.run_once(daily_report_job, when=CATCHUP_AFTER, name=CATCHUP_JOB)
@@ -101,7 +105,8 @@ GUIDANCE = {
     "Disk": ("yedek ve kayıtlar yazılamayabilir", "diskte yer açın"),
     "Tatil takvimi": ("tatil günleri eksik rapor sayılabilir", "data/bist_holidays.csv'yi güncelleyin"),
     "GitHub araştırması": ("haftalık araştırma sonucu yok", "GitHub Actions > Research"),
-    "Telegram botu": ("komutlar ve 20:00 kontrolü çalışmaz", "python main.py ile botu başlatın"),
+    "Telegram botu": ("komutlar ve 20:00 kontrolü çalışmaz",
+                      "PowerShell: Start-ScheduledTask \"QuantBIST Bot\" (elle python main.py açmayın)"),
 }
 # severity of a KRİTİK state per check; a UYARI is one level lower
 SEVERITY = {
@@ -210,7 +215,8 @@ def schedule_report_watch(app: Application, chat_id: int) -> bool:
     if app.job_queue is None:
         return False
 
-    app.job_queue.run_daily(report_watch_job, time=WATCH_AT, days=WEEKDAYS, name=WATCH_JOB, chat_id=chat_id)
+    app.job_queue.run_daily(report_watch_job, time=WATCH_AT, days=WEEKDAYS, name=WATCH_JOB, chat_id=chat_id,
+                            job_kwargs=LATE_START)
     return True
 
 

@@ -168,3 +168,23 @@ class SeverityTest(unittest.TestCase):
         self.assertEqual(scheduler.severity(Check("Bilinmeyen", CRIT, "")), "ORTA")
         self.assertTrue(set(scheduler.SEVERITY) <= set(scheduler.GUIDANCE))
         self.assertIn("önem: KRİTİK", scheduler._alert_text(Check("Veri şeması", CRIT, "x"), datetime(2026, 10, 26, 20)))
+
+
+class SleepWakeTest(unittest.TestCase):
+    """PC asleep at 20:00 and awake at 20:30: python-telegram-bot's default allows a job only 1 second
+    of delay, so the 20:00 check (and the in-bot 18:30 report on a server) was silently skipped."""
+
+    def grace(self, app, name):
+        (job,) = app.job_queue.get_jobs_by_name(name)
+        return getattr(job.job, "misfire_grace_time", 1)  # unset: the scheduler default, 1 second
+
+    def test_report_watch_runs_after_a_late_wake_up(self):
+        app = _app()
+        scheduler.schedule_report_watch(app, 777)
+        self.assertGreaterEqual(self.grace(app, scheduler.WATCH_JOB), 3 * 3600)
+
+    def test_in_bot_report_runs_after_a_late_wake_up(self):
+        app = _app()
+        with mock.patch.dict("os.environ", {scheduler.ENV: "18:30"}):
+            scheduler.schedule_daily_report(app)
+        self.assertGreaterEqual(self.grace(app, scheduler.JOB_NAME), 3 * 3600)

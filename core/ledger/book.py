@@ -12,7 +12,7 @@ from pathlib import Path
 
 from core.config.paths import LEDGER_FILE
 from core.config.trading import ACCOUNTS, PAPER_INITIAL_CAPITAL
-from core.infrastructure.csvfiles import read_rows
+from core.infrastructure.csvfiles import open_append, read_rows
 from core.infrastructure.exceptions import PersonalFileError
 from core.market.symbols import normalize_symbol
 
@@ -227,9 +227,8 @@ def append_entry(entry: Entry, path: Path | str | None = None, today: date | Non
         if cash_balance([*entries, entry], "paper") < -EPS:
             raise LedgerError("sanal hesapta yeterli nakit yok")
 
-    new_file = not path.exists()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8", newline="") as fh:
+    fh, new_file = open_append(path)
+    with fh:
         writer = csv.writer(fh, lineterminator="\n")
         if new_file:
             writer.writerow(COLUMNS)

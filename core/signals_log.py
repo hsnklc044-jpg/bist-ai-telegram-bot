@@ -16,6 +16,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from core.config.paths import SIGNAL_LOG_FILE
+from core.infrastructure.csvfiles import open_append
 from core.infrastructure.logger import get_logger
 from core.market.calendar import (
     is_session_day,
@@ -44,9 +45,8 @@ def log_signal(
 
     path = Path(path or SIGNAL_LOG_FILE)
     try:
-        new_file = not path.exists()
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "a", encoding="utf-8", newline="") as fh:
+        fh, new_file = open_append(path)
+        with fh:
             writer = csv.writer(fh, lineterminator="\n")
             if new_file:
                 writer.writerow(FIELDS)

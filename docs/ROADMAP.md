@@ -3,9 +3,39 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.48.4)
+## Sürekli yol haritası (kullanıcı, 27.10.2026; tek kaynak, onaysız mod)
 
-- **Son sürüm:** v0.48.4 (bot açılışta ağ hatasını yeniden dener; ruff yerel çalışma klasörlerini taramaz).
+Kararları Claude verir ve gerekçesini docs/DECISIONS.md'ye tarihli yazar; kullanıcıya onay sorulmaz. Aşamalar sırayla ele alınır: koşulu oluşmuş olan yapılır, oluşmamışsa "bekliyor" işaretlenir ve sıradakine geçilir. Koşulu oluşmuş iş kalmadıysa bekleyenler listelenir ve durulur.
+
+**Roller**
+- Claude: kodu geliştirir, test eder, sürüm yayınlar, teknik kararları verir.
+- Yerel otomasyon (`C:\Projeler\QuantBIST_otomasyon`): yeni sürümü PC'ye kurar, ruff+pytest ile doğrular, botu "QuantBIST Bot" göreviyle yeniden başlatır, sonucu Telegram'a yazar. Kullanıcıya kurulum komutu verilmez.
+- Kullanıcı: yalnız hesap, token, ödeme ve .env işlemleri. Bunları gerektiren işlerde beklenmez; "BENİM ADIMLARIM" listesine yazılır.
+
+| Aşama | Konu | Koşul | Durum |
+|---|---|---|---|
+| A | Dayanıklılık: açılışta ağ hatası, uyku/uyanma, geç internet, kilitli dosya, yarım kayıt; OPERATIONS §8 tablosu | her zaman, öncelikli | v0.49.0 ile tamamlandı |
+| B | Dışarıdan izleme: OPERATIONS §7 değerleri; /durum'a izleme satırı (adres asla gösterilmez/loglanmaz); adresler girilip ping başarılıysa "doğrulandı" | kod hemen; aktivasyon .env ile | sırada |
+| C | Gerçek ortam gözlemleri (yarım gün, tatil, haftalık canlı ölçüm, araştırma, kaçan rapor, PC kapanması): kanıt GitHub'dan ya da otomasyon raporundan; doğrulandı/sorunlu; haftalık rapora sistem sağlığı özeti | olay gerçekleştiğinde | özet kodu hemen; gözlemler bekliyor |
+| D | Altyapı kararı: PC'de kalma riski, kaçan raporlar; gerekirse sunucu kodu+belge+paralel deneme planı | ≥1 haftalık gerçek kayıt ya da kesinti artışı | bekliyor (03.11 sonrası) |
+| E | Araştırma: önce RESEARCH_LOG'a hipotez/kural/ölçüt/dönem; gerçekçi maliyet ve en kötü senaryo; sonuca göre ayar yok; "işe yarıyor" = XU100'e karşı anlamlı fark + maliyet sonrası pozitif | yazılım ve dayanıklılık işi kalmadığında | bekliyor (veri 2015'e uzatma başlatılmıştı, durduruldu: DECISIONS 27.10) |
+| F | Canlı ölçüm kararı: gün sayısı, XU100 farkı, güven aralığı, sanal hesap; anlamlı/değil/yetersiz; backtest ile karşılaştırma; sonraki dönem planı | /performans yeterli bağımsız veri | bekliyor (Kasım sonu) |
+| G | Bakım: tek "aylar sonra açan biri" belgesi; haftalık/aylık/yıllık takvim; süresi dolacak her şey için /durum uyarısı | yazılım işi kalmadığında | bekliyor |
+
+**Güvenlik kuralları (onay yerine geçer)**
+- Her düzeltmeden önce hatayı gösteren başarısız test; CI yeşil olmadan sürüm yok; küçük sürümler.
+- Kişisel kayıt şeması değişecekse: geçiş testi + değişiklikten önce otomatik yedek + belgelenmiş geri dönüş. Üçü yoksa değişmez.
+- Kişisel kayıtlar asla silinmez ya da üzerine yazılmaz; düzeltme yeni satır ya da yeni dosyadır.
+- Testler gerçek data/, logs/ ve yerel çalışma klasörlerine (backups\, qb\, research_workspace\) bağımlı olmaz.
+- İki denemede çözülemeyen hata: değişiklik geri alınır, burada "açık" yazılır, başka işe geçilir.
+
+**Kesinlikle yapılmaz:** gerçek parayla emir, aracı kurum bağlantısı, gerçek hesaba işlem; ödeme, hesap açma, şifre/token girme ya da isteme; herhangi bir strateji için al/sat önerisi (olumlu sonuçta bile yalnız bulgu ve belirsizlik).
+
+**Raporlama:** her sürümden sonra tek mesaj: SÜRÜM / NE DEĞİŞTİ (≤5, sade) / VERDİĞİM KARARLAR / BENİM ADIMLARIM / SIRADAKİ İŞ. Koşulu oluşmuş iş yoksa açıkça söylenir ve durulur.
+
+## Kaldığım yer (27.10.2026, kod v0.49.0)
+
+- **Son sürüm:** v0.49.0 (Aşama A dayanıklılık: uyku/uyanma, geç internet, kilitli dosya, yarım kayıt).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

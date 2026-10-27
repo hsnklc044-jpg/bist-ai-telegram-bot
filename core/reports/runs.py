@@ -25,6 +25,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from core.config.paths import DATA_DIR, LOG_DIR
+from core.infrastructure.csvfiles import open_append
 from core.infrastructure.logger import get_logger
 from core.market.calendar import now_istanbul
 
@@ -101,9 +102,8 @@ def record_run(
 
     path = Path(path or RUNS_FILE)
     try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        new = not path.exists()
-        with open(path, "a", encoding="utf-8", newline="") as fh:
+        fh, new = open_append(path)
+        with fh:
             writer = csv.DictWriter(fh, FIELDS, lineterminator="\n")
             if new:
                 writer.writeheader()

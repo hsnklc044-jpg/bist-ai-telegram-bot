@@ -64,7 +64,8 @@ async def on_error(
             _conflict_reported = True
             logger.error(
                 "Bu token ile aynı anda iki bot çalışıyor; Telegram ikincisini reddediyor. "
-                "Yalnız bir 'python main.py' açık kalsın (diğer pencereyi kapatın)."
+                "Yalnız biri açık kalsın: elle açılan 'python main.py' penceresini kapatın, "
+                "botu 'QuantBIST Bot' görevi başlatsın."
             )
         return
 
@@ -77,6 +78,16 @@ async def on_error(
         if isinstance(context.error, PersonalFileError):
             # a damaged personal file: say which one and what to do
             await update.effective_message.reply_text(f"⚠️ {context.error}")
+            return
+        if isinstance(context.error, PermissionError):
+            # Windows: the file is open in another program (e.g. Excel); nothing was written
+            from pathlib import Path
+
+            name = Path(context.error.filename or "dosya").name
+            await update.effective_message.reply_text(
+                f"⚠️ {name} kilitli: Excel gibi bir programda açık olabilir. İşlem kaydedilmedi; "
+                "dosyayı kapatıp komutu yeniden gönderin."
+            )
             return
         await update.effective_message.reply_text(
             "⚠️ Bir hata oluştu, ayrıntılar log dosyasında."

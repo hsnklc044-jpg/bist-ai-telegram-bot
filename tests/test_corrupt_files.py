@@ -196,5 +196,107 @@ class HealthAndBotTest(Temp):
         self.assertIn("satır 7", replies[0])
 
 
+class LockedFileTest(Temp):
+    """Windows: a CSV open in Excel cannot be written (PermissionError). The report must still go out,
+    say which file was locked, and change nothing; the next run writes what was missed."""
+
+    def paths(self):
+        return DailyReportTest.paths(self)
+
+    def run_report(self, paths):
+        return DailyReportTest.run_report(self, paths)
+
+    def test_locked_equity_and_alert_logs(self):
+        paths = self.paths()
+        append_entry(Entry(date(2026, 6, 1), "real", "AAA", "buy", 100, 50.0, 5.0), paths.ledger)
+        real_replace = Path.replace
+
+        def locked(self_, target):
+            if Path(target).name in ("equity.csv", "alerts.csv"):
+                raise PermissionError(13, "The process cannot access the file", str(target))
+            return real_replace(self_, target)
+
+        with mock.patch.object(Path, "replace", locked), \
+                mock.patch("builtins.open", side_effect=_locked_append(("alerts.csv",))):
+            text = self.run_report(paths).text
+        self.assertIn("AAA: 100 adet", text)
+        self.assertIn("equity.csv kilitli", text)
+        self.assertIn("Excel", text)
+
+    def test_locked_paper_orders(self):
+        paths = self.paths()
+        paths.orders.write_text(ORDERS.replace("BBB.IS", "AAA.IS"), encoding="utf-8")
+        before = paths.orders.read_bytes()
+        real_replace = Path.replace
+
+        def locked(self_, target):
+            if Path(target).name == "orders.csv":
+                raise PermissionError(13, "The process cannot access the file", str(target))
+            return real_replace(self_, target)
+
+        with mock.patch.object(Path, "replace", locked):
+            text = self.run_report(paths).text
+        self.assertIn("orders.csv kilitli", text)
+        self.assertEqual(paths.orders.read_bytes(), before)  # still pending: filled on the next run
+
+
+_real_open = open
+
+
+def _locked_append(names):
+    def fake(file, mode="r", *a, **k):
+        if "a" in mode and Path(file).name in names:
+            raise PermissionError(13, "The process cannot access the file", str(file))
+        return _real_open(file, mode, *a, **k)
+    return fake
+
+
+class CutLastLineTest(Temp):
+    """Power cut while a row was being appended: the file ends without a newline. The next append
+    must start on its own line, or that good row is glued to the broken one and lost too."""
+
+    def test_run_log(self):
+        from datetime import datetime
+
+        from core.market.calendar import ISTANBUL
+        from core.reports import runs
+
+        path = self.write("runs.csv", "started_at,finished_at,data_day,status,detail\n"
+                                      "2026-10-26T18:30:01+03:00,2026-10-26T18:31:00+03:00,2026-10-26,sent,\n"
+                                      "2026-10-27T18:30:01+03:00,2026-10-2")
+        runs.record_run(datetime(2026, 10, 28, 18, 30, tzinfo=ISTANBUL), runs.SENT, date(2026, 10, 28), path=path)
+        self.assertTrue(runs.already_sent(date(2026, 10, 28), path))
+        self.assertEqual(runs.read_runs(path)[-1].data_day, "2026-10-28")
+
+    def test_signal_log(self):
+        from core.signals_log import log_signal
+
+        path = self.write("signal_log.csv", half(SIGNAL))
+        from datetime import datetime
+
+        from core.market.calendar import ISTANBUL
+
+        log_signal("daily", "AAA.IS", 75, "Pozitif", date(2026, 10, 2), price=11, path=path,
+                   now=datetime(2026, 10, 2, 18, 30, tzinfo=ISTANBUL))
+        last = path.read_text(encoding="utf-8").splitlines()[-1]
+        self.assertTrue(last.startswith("2026-10-02T18:30:00+03:00,daily,AAA.IS,75,"), last)
+
+    def test_bot_says_which_file_is_locked(self):
+        from bot import handlers
+
+        replies = []
+
+        async def reply_text(text):
+            replies.append(text)
+
+        update = mock.MagicMock(spec=handlers.Update)
+        update.effective_message = SimpleNamespace(reply_text=reply_text)
+        error = PermissionError(13, "The process cannot access the file", str(self.root / "ledger.csv"))
+        asyncio.run(handlers.on_error(update, SimpleNamespace(error=error)))
+        self.assertEqual(len(replies), 1)
+        self.assertIn("ledger.csv kilitli", replies[0])
+        self.assertIn("kaydedilmedi", replies[0])
+
+
 if __name__ == "__main__":
     unittest.main()

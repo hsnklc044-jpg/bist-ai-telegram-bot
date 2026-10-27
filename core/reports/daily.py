@@ -293,8 +293,22 @@ def build_daily(
 
     paths = paths or Paths()
     universe = universe or load_universe()
+    damaged: list[str] = []  # logs that could not be read or written; the report goes on without them
 
-    fills = fill_pending(raw_bars, paths.orders, paths.ledger)
+    def guarded(step, fallback):
+        try:
+            return step()
+        except PersonalFileError as exc:
+            note = str(exc)
+        except PermissionError as exc:  # Windows: the file is open in another program (e.g. Excel)
+            note = (f"{Path(exc.filename or '?').name} kilitli: Excel gibi bir programda açık olabilir. "
+                    "Bu çalışmada yazılmadı; dosya kapanınca sonraki çalışma yazar.")
+        if note not in damaged:
+            damaged.append(note)
+        return fallback
+
+    # an order whose fill was booked but not saved is recognised next time (fill_pending is idempotent)
+    fills = guarded(lambda: fill_pending(raw_bars, paths.orders, paths.ledger), [])
     entries = load_ledger(paths.ledger)
 
     frames = {s: adjusted_bars(s) for s in universe}
@@ -312,16 +326,6 @@ def build_daily(
 
     lines = [f"🗓 QuantBIST günlük rapor – {day:%d.%m.%Y} kapanışı", ""]
     lines += market_section(frames, bench)
-    damaged: list[str] = []  # logs that could not be read; the report goes on without them
-
-    def guarded(step, fallback):
-        try:
-            return step()
-        except PersonalFileError as exc:
-            if str(exc) not in damaged:
-                damaged.append(str(exc))
-            return fallback
-
     alerts = []
     for account in ACCOUNTS:
         positions = open_positions(entries, account)
@@ -631,6 +635,26 @@ def _not_sent_reason(day: date, now=None) -> tuple[str, str]:
     return "skipped", "bu veri günü zaten gönderilmişti"
 
 
+# After sleep the scheduled task starts as soon as the PC wakes, often before Wi-Fi is back.
+# When not a single symbol downloads, wait and try again (1 + 2 + 4 minutes) before giving up.
+NETWORK_WAITS = (60, 120, 240)
+
+
+def update_prices(symbols: list[str], update=None, sleep=None) -> dict[str, str]:
+    import time
+
+    update = update or store.update
+    sleep = sleep or time.sleep
+    status = update(symbols)
+    for pause in NETWORK_WAITS:
+        if not status or any(v != "failed" for v in status.values()):
+            break
+        logger.warning("No price could be downloaded (network?); trying again in %d s", pause)
+        sleep(pause)
+        status = update(symbols)
+    return status
+
+
 def _run(args) -> DailyResult:
     with report_lock():
         return _run_locked(args)
@@ -638,7 +662,7 @@ def _run(args) -> DailyResult:
 
 def _run_locked(args) -> DailyResult:
     if not args.no_update:
-        status = store.update(symbols_to_update())
+        status = update_prices(symbols_to_update())
         failed = [s for s, v in status.items() if v in ("failed", "empty")]
         if failed:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
