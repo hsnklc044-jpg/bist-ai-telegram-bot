@@ -197,7 +197,7 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
 
 ---
 
-## Aşama 3 planı — TASLAK, kullanıcı onayı bekliyor (27.10.2026)
+## Aşama 3 planı — ONAYLANDI (kullanıcı, 27.10.2026; değiştirilmez)
 
 Bu bölüm, **hiçbir test çalıştırılmadan önce** yazıldı. Onaylandıktan sonra hipotezler, parametreler ve başarı ölçütleri değiştirilmez. Sonuçlar ne çıkarsa çıksın bu bölümün altına eklenir; olumsuz sonuçlar da silinmez.
 
@@ -241,3 +241,21 @@ Bu veri kamuya açık; hesap ya da ödeme gerekmiyor. Veri eklenemezse H2 ve H3 
 2. H1–H3 kuralları eklenir. Her kural için ileriye bakmama testi (`test_no_lookahead`) ve el hesabıyla küçük bir örnek testi yazılır.
 3. Haftalık araştırma iş akışına ayrı bir tablo olarak eklenir. `history.csv`'ye ayrı bir aile adıyla yazılır.
 4. İlk sonuç buraya, olduğu gibi yazılır.
+
+### Nakit verisi: fon seçim kuralı ve stopaj (veri indirilmeden önce yazıldı, 27.10.2026)
+
+- **Fon seçimi:** 31.07.2023 tarihinde TEFAS'ta unvanında "PARA PİYASASI" geçen yatırım fonları arasından portföy büyüklüğü en yüksek olan fon. Bu kural sonuca bakmadan sabitlendi; seçilen fonun getirisi seçimde rol oynamaz. Seçilen fonun 2023-08-01'den sonraki her işlem gününde fiyatı yoksa, kurala göre bir sonraki en büyük fon alınır ve bu durum buraya yazılır.
+- **Fiyat:** TEFAS'ın günlük birim fiyatı. Fon yönetim ücreti fiyatın içindedir.
+- **Stopaj (gerçek kişi, para piyasası fonu):** dönemler ve oranlar aşağıda.
+
+  | Dönem | Oran |
+  |---|---|
+  | 23.12.2020 – 30.04.2024 | %0 |
+  | 01.05.2024 – 31.10.2024 | %7,5 |
+  | 01.11.2024 – 31.01.2025 | %10 |
+  | 01.02.2025 – 08.07.2025 | %15 |
+  | 09.07.2025 sonrası | %17,5 |
+
+  Kaynaklar ikincil: Ziraat Bankası vergilendirme tablosu, İş Portföy ve Oyak Portföy duyuruları, KPMG ve Fintables yazıları. Resmî Gazete metniyle doğrudan doğrulanamadı; bu ortamdan erişilemedi.
+- **Stopajın uygulanışı:** gerçekte oran, payın alındığı tarihe göre belirlenir. Backtest bunu, `core/backtest/cash.py`'nin yaklaşımıyla, o günkü oranın günlük kazanca uygulanması olarak hesaplar. Bu basitleştirme nakit getirisini biraz düşük gösterebilir; nakitte bekleyen kurallar için bu tutucu taraftadır.
+- **Duyarlılık:** sonuçlar ayrıca stopajsız (brüt) nakit getirisiyle de raporlanır. Karar birincil hesaba (stopajlı) göre verilir.
