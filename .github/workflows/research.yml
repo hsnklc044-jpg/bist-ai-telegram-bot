@@ -86,6 +86,8 @@ jobs:
       - name: Holiday calendar against XU100 candles
         run: python -m core.market.calendar 2>&1 | tee calendar.txt
       - name: Second source check (İş Yatırım closes, last 30 days)
+        timeout-minutes: 20  # a slow source must not use up the job's time before the results are saved
+        continue-on-error: true
         run: python -m core.market.crosscheck --days 30 2>&1 | tee crosscheck.txt || true
       - name: Compare with the previous run
         if: always()

@@ -52,6 +52,7 @@ RETRIES = 3
 CHUNK_DAYS = 370  # long ranges are fetched year by year (the service times out on long ones)
 MIN_COMMON_DAYS = 5  # fewer sessions in both sources: not checked
 TIMEOUT = 60
+SOURCE_DOWN_AFTER = 3  # this many stocks failing in a row: the source is down, the rest are not asked
 
 
 def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None) -> pd.DataFrame:
@@ -337,14 +338,20 @@ def run(
 
     results = []
     index_values: list[pd.Series] = []
+    failed_in_row = 0
     for symbol in symbols:
         code = symbol.removesuffix(".IS")
+        if failed_in_row >= SOURCE_DOWN_AFTER:
+            results.append(CrossCheck(symbol, error=f"ikinci kaynak yanıt vermiyor ({SOURCE_DOWN_AFTER} hisse üst üste)"))
+            continue
         try:
             theirs = fetch_isyatirim(code, start, today, get=get, sleep=sleep)
         except Exception as exc:  # noqa: BLE001 - one failed stock must not stop the check
             logger.warning("Second source failed | %s | %s", symbol, exc)
             results.append(CrossCheck(symbol, error=f"{type(exc).__name__}: {str(exc)[:80]}"))
+            failed_in_row += 1
             continue
+        failed_in_row = 0
         if "index" in theirs:
             index_values.append(theirs["index"].dropna())
         try:

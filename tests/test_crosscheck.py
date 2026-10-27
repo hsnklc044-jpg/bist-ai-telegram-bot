@@ -194,6 +194,38 @@ class CompareTest(unittest.TestCase):
         self.assertEqual([r.symbol for r in results[1:]], ["BAD.IS", "OK.IS"])
         self.assertIn("karşılaştırma hatası", results[1].error)
 
+    def test_source_down_stops_after_a_few_stocks(self):
+        """İş Yatırım unreachable: 3 failed stocks in a row end the check instead of retrying every stock for hours."""
+
+        calls = []
+
+        def broken(*a, **k):
+            calls.append(1)
+            raise ConnectionError("zaman aşımı")
+
+        symbols = [f"S{i}.IS" for i in range(100)]
+        results = crosscheck.run(symbols, 30, today=date(2026, 10, 23), get=broken, bars=lambda s: frame([1.0]),
+                                 sleep=lambda s: None)
+        self.assertEqual(len(calls), crosscheck.SOURCE_DOWN_AFTER * crosscheck.RETRIES)
+        self.assertEqual([r.symbol for r in results[1:]], symbols)  # every stock is still reported
+        self.assertTrue(all(r.state == "kontrol edilemedi" for r in results))
+        self.assertIn("ikinci kaynak yanıt vermiyor", results[-1].error)
+
+    def test_one_failed_stock_does_not_stop_the_check(self):
+        rows = [{"HGDG_TARIH": "12-10-2026", "HGDG_KAPANIS": 1.0, "HGDG_MAX": 1, "HGDG_MIN": 1,
+                 "HGDG_AOF": 1, "HGDG_HACIM": 1}]
+        ok = fake_get(rows)
+
+        def flaky(url, params=None, **k):
+            if params["hisse"] in ("A", "B"):
+                raise ConnectionError("zaman aşımı")
+            return ok(url, params, **k)
+
+        results = crosscheck.run(["A.IS", "B.IS", "C.IS", "D.IS", "E.IS"], 30, today=date(2026, 10, 23), get=flaky,
+                                 bars=lambda s: frame([1.0]), sleep=lambda s: None)
+        self.assertEqual(len(ok.calls), 3)  # C, D, E were all asked
+        self.assertNotIn("yanıt vermiyor", " ".join(r.error or "" for r in results))
+
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))
         self.assertEqual(result.state, "kontrol edilemedi")
