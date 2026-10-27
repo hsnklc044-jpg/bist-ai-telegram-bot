@@ -4,6 +4,8 @@ Amaç: bilgisayar kapalıyken de botun ve 18:30 raporunun çalışması. Her şe
 Aynı kurulum, Docker dosyaları her değiştiğinde (ve elle başlatılınca) GitHub'da temiz bir Linux makinede baştan sona denenir
 (`.github/workflows/server-smoke.yml`).
 
+**Ne zaman?** Karar ölçütü veriden önce yazıldı (DECISIONS K-23): 02.11–13.11 SLO'larında bot < %98 ya da rapor < %99 PC yüzündense, ya da haftada ≥ 1 PC kaynaklı bot alarmı varsa sunucu önerilir; karar 14.11. Ücretsiz seçenek: PC'yi 7/24 açık ve uykusuz tutmak.
+
 **Dur noktası:** sunucu kiralamak ödeme gerektirir. Bu adımı kullanıcı yapar; aşağıdaki
 adımlar sunucu hazır olduktan sonrası içindir.
 

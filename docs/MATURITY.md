@@ -31,7 +31,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 | 30 gün kullanıcı müdahalesi olmadan çalışma (yerel otomasyon kurulumları + haftalık raporlar) | ⏳ |
 | Süresi dolacak her şey için önceden uyarı (tatil takvimi, endeks listesi, paket sürümleri, token) | ✅ 27.10: tatil ✅, endeks ✅, Python ✅ (`test_health_ops.MaintenanceCalendarTest`, `QuarterlyReviewDateTest`); paket sürümleri (haftalık pip-audit) ✅; token ✅: Telegram token'ının süresi yok; iptal/sızma durumu [SPOF.md](SPOF.md) "Telegram token" ve DISASTER_RECOVERY §3'te (bot hemen durur, izleme alarmı) |
 | Tek arıza noktası analizi (PC, internet, Yahoo, Telegram, GitHub) ve B planları | ⚠️ analiz [SPOF.md](SPOF.md) (27.10, `test_disaster_recovery.SpofDocTest`); T-1 rapor metni diske ✅ v0.57.0; Y-1 ikinci kaynakla bilgi mesajı ✅ v0.58.0 (K-21). Kalan: PC'nin fark edilmesi izleme adreslerine bağlı |
-| Sunucu kararı SLO verisiyle, DECISIONS'ta | ⏳ (≥1 hafta veri) |
+| Sunucu kararı SLO verisiyle, DECISIONS'ta | ⏳ ölçüt önceden yazıldı (K-23, 27.10): pencere 02.11–13.11, karar 14.11. Not: bot hedefi 7/24; PC gece uyursa hedef tutmaz ve S2'nin 4 hafta SLO maddesi de kapanamaz |
 
 ## S4 KANITLI ÖLÇÜM — kapalı
 
