@@ -3,19 +3,19 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.45.12)
+## Kaldığım yer (27.10.2026, kod v0.45.15)
 
-- **Son sürüm:** v0.45.12 (CI #86). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45.12 PC'de doğrulanmadı.
-- **Denetim:** D1–D12 ve D14 kapandı (v0.45.1–v0.45.12). Kalan tek bulgu D13 (temettü); defterin dosya yapısını değiştirdiği için kullanıcı onayı gerekiyor.
-- **Yapılacak yazılım işi yok.** Kalan her iş bir kullanıcı kararına, PC kanıtına ya da gözleme bağlı.
-- **Hazır bekleyen:** `view_expectations.csv` (`/performans` "geçmiş" sütunu). Kullanıcı onayı bekleniyor.
+- **Son sürüm:** v0.45.15 (CI #90). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45.15 PC'de doğrulanmadı.
+- **Denetim:** D1–D14'ün hepsi kapandı (v0.45.1–v0.45.15).
+- **Kullanıcı kararları (27.10) uygulandı:**
+  - KCAER katsayısı 0,8646 (v0.45.13).
+  - `/performans` "geçmiş" sütunu (v0.45.14).
+  - Temettü kaydı (v0.45.15).
+  - Tek gün kapanış düzeltmeleri kapalı kalıyor.
 - **Kullanıcıdan beklenen:**
-  - v0.45.12 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
-  - D13 onayı.
-  - KCAER katsayısı.
-  - Kapanış düzeltmeleri kapalı kalsın mı.
-  - Dışarıdan izleme için servis seçimi.
-  - Sunucu kiralansın mı.
+  - v0.45.15 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
+  - Dışarıdan izleme için servis seçimi (hesap gerekir).
+  - Sunucu kiralansın mı (ödeme gerekir).
 - **Gözlem tarihleri:**
   - 28.10: yarım gün.
   - 29.10: tatil.
