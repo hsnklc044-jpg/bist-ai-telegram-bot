@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.59.0 – 27.10.2026
+- Araştırma programı (docs/RESEARCH_PROGRAM.md): deneme bütçesi, ön kayıt ve 02.11.2026'dan başlayan ileri holdout. Araştırma araçları artık 30.10.2026'dan sonraki fiyatları göremez; bu kodla zorunlu. Günlük rapor ve canlı ölçüm etkilenmez.
+
 ## v0.58.0 – 27.10.2026
 - Yahoo bir seansın verisini vermezse o gün sessiz geçmiyor: bir kez kısa mesajla XU100 ve elindeki hisselerin İş Yatırım'daki kapanışları gelir ("yalnız bilgi"). Bu veri fiyat deposuna yazılmaz; sanal emirler ve ölçüm Yahoo'yu bekler.
 

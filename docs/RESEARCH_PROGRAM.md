@@ -8,6 +8,7 @@ MATURITY S4 ("deneme bütçesi, holdout ve ön kayıtla en az bir tam döngü").
 
 - **Holdout = ileri veri: 02.11.2026 seansından itibaren.** Bu tarihten önce hiçbir kural bu dönemde değerlendirilmedi.
 - Holdout sonucu, bir kural için belirlenen tarihten önce **hesaplanmaz ve bakılmaz**. Haftalık araştırma yalnız tarama dönemini (aşağıda) yeniden hesaplar.
+- **Kodda zorunlu (v0.59.0):** bütün araştırma araçları fiyatı `core.backtest.run.load_frames` ile yükler; o fonksiyon veriyi 30.10.2026'da keser (`SCREEN_END`, `HOLDOUT_START`). Holdout'u yalnız ön kayıtlı bir holdout kararı `include_holdout=True` ile açar (`test_holdout`). Bu yüzden 02.11.2026'dan sonra haftalık araştırma sonuçları sabit kalır; değişirse nedeni veri düzeltmesidir. Günlük rapor ve canlı ölçüm etkilenmez.
 
 ## 2. Bir döngü
 

@@ -25,10 +25,17 @@ from core.market.universe import BENCHMARK, load_universe
 from core.strategy.rules import score_rule, trend_rule
 
 WARMUP_START = "2022-08-01"
+# docs/RESEARCH_PROGRAM.md (K-22): everything up to SCREEN_END was already looked at; prices from
+# HOLDOUT_START on are kept for holdout verdicts only and never enter screening.
+SCREEN_END = pd.Timestamp("2026-10-30")
+HOLDOUT_START = pd.Timestamp("2026-11-02")
 
 
-def load_frames(symbols: list[str]) -> dict[str, pd.DataFrame]:
-    return {s: drop_open_candle(clean(store.read(s), s)) for s in symbols}
+def load_frames(symbols: list[str], include_holdout: bool = False) -> dict[str, pd.DataFrame]:
+    frames = {s: drop_open_candle(clean(store.read(s), s)) for s in symbols}
+    if include_holdout:  # a pre-registered holdout verdict only
+        return frames
+    return {s: df.loc[:SCREEN_END] for s, df in frames.items()}
 
 
 def tradable_symbols(universe: list[str] | None = None) -> tuple[list[str], list[str]]:
