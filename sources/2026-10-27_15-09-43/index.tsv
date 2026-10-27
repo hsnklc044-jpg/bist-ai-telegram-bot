@@ -1,0 +1,6 @@
+001	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/duyuru/14347
+002	200	143779	sha256=6f622a96a4605ec6962c3534f976d1be3d8431e6255ab97cfa8ed3eef508f1a6	https://www.borsaistanbul.com/en/announcement/15483/bist-stock-indices-periodic-review
+003	ERROR ConnectionError	https://www.borsaistanbul.com/tr/duyurular
+004	200	82543	sha256=ecc6a6d9b6d1ba9e8710f905d6bbaa0db142692719b05964fdc35fd3a466cc64	https://www.borsaistanbul.com/en/index/index-data
+005	200	74708	sha256=07861e39960a5947d06603ee6e370badf0aec81f774c4bf0d9990f5dcd038694	https://www.borsaistanbul.com/en/indices/index-periodical-calendars
+006	200	132104	sha256=24736dc7aaa0cf4262ce9402b65f68016cb920446da3db94afe26913db567099	https://bigpara.hurriyet.com.tr/haberler/borsa-istanbul-haberleri/bist-endekslerinde-degisiklik-yapildi_ID1434990/
