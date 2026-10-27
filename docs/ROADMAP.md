@@ -23,6 +23,7 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
   - Dışarıdan izleme: Healthchecks.io kodu hazır (v0.46.0); adresler girilene kadar kapalı.
   - Sunucu: şimdilik PC'de kalınıyor; hazırlık docs/SERVER.md'de bekliyor.
 - **Kullanıcıdan beklenen:**
+  - **PC doğrulaması (27.10 14:26, v0.48.1):** 489 test geçti (2 atlandı), `/durum` 12/12 SAĞLIKLI, yedek alındı ve doğrulandı, bot görevle yeniden başlatıldı.
   - PC'deki elle değişiklikler (27.10) incelendi ve v0.48.1'de repoya alındı: onay kapısı `core/market/corrections.py`'de, onaylar `data/price_fix_approvals.csv`'de (şimdilik boş). PC'deki `research_workspace` kapısı artık kullanılmıyor; v0.48.1 kurulunca PC'deki üç dosya repodakiyle değişir.
   - Healthchecks.io hesabı ve iki adres (OPERATIONS.md §7).
 - **Gözlem tarihleri:**
