@@ -156,6 +156,53 @@ def calendar_check(now: datetime) -> Check:
     return Check("Tatil takvimi", OK, f"{until} sonuna kadar{soon}")
 
 
+PYTHON_END_OF_LIFE = date(2027, 10, 31)  # Python 3.11 security support ends (python.org)
+REVIEW_NOTICE = timedelta(days=14)  # Borsa İstanbul announces each quarterly review ~10 days ahead
+EOL_NOTICE = timedelta(days=120)
+
+
+def _next_quarter(day: date) -> date:
+    month = (day.month - 1) // 3 * 3 + 4
+    return date(day.year + (month > 12), (month - 1) % 12 + 1, 1)
+
+
+def _last_review() -> date | None:
+    """The latest quarterly (1st of Jan/Apr/Jul/Oct) BIST 100 change in data/bist100_changes.csv."""
+
+    try:
+        with open(DATA_DIR / "bist100_changes.csv", encoding="utf-8-sig", newline="") as fh:
+            days = [date.fromisoformat(r["effective_date"]) for r in csv.DictReader(fh)]
+    except (OSError, ValueError, KeyError):
+        return None
+    reviews = [d for d in days if d.day == 1 and d.month in (1, 4, 7, 10)]
+    return max(reviews) if reviews else None
+
+
+def maintenance_check(now: datetime, last_review: date | None = None) -> Check:
+    """CHARTER J3: the quarterly BIST 100 review and the Python version, announced before they expire."""
+
+    name = "Bakım takvimi"
+    last_review = last_review or _last_review()
+    if last_review is None:
+        return Check(name, UNKNOWN, "bist100_changes.csv okunamadı")
+    today = now.date()
+    review = _next_quarter(last_review)
+    notes, state = [], OK
+    if today >= review:
+        state = WARN
+        notes.append(f"BIST 100 {review:%d.%m.%Y} dönem değişiklikleri girilmedi: data/bist100_changes.csv ve "
+                     "universe.csv (Borsa İstanbul duyurusu)")
+    elif review - today <= REVIEW_NOTICE:
+        state = INFO
+        notes.append(f"BIST 100 dönem değişikliği {review:%d.%m.%Y}'de; duyuru çıkınca bist100_changes.csv'ye girilecek")
+    else:
+        notes.append(f"sonraki BIST 100 dönemi {review:%d.%m.%Y}")
+    if PYTHON_END_OF_LIFE - today <= EOL_NOTICE:
+        state = WARN
+        notes.append(f"Python 3.11 desteği {PYTHON_END_OF_LIFE:%d.%m.%Y}'de bitiyor: yeni sürüme geçiş planlanmalı")
+    return Check(name, state, "; ".join(notes))
+
+
 def signal_check(path: Path | str | None = None, now: datetime | None = None) -> Check:
     path = Path(path or SIGNAL_LOG_FILE)
     if not path.exists():
@@ -521,6 +568,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         backup_check(now),
         disk_check(),
         calendar_check(now),
+        maintenance_check(now),
         monitoring_check(now),
     ]
     if online:

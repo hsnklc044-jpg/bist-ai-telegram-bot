@@ -34,6 +34,19 @@ class DocumentedStepsTest(unittest.TestCase):
             self.assertTrue(f'"{name}"' in code, f"{name} is not read anywhere in core/")
 
 
+
+class HandbookLinksTest(unittest.TestCase):
+    """CHARTER J1: the handbook only points at documents that exist."""
+
+    def test_every_referenced_document_exists(self):
+        text = (ROOT / "docs" / "HANDBOOK.md").read_text(encoding="utf-8")
+        refs = set(re.findall(r"\b((?:docs/)?[A-Z_]+\.md)\b", text))
+        self.assertTrue(refs)
+        for ref in refs:
+            path = ROOT / ref if ref.startswith("docs/") or ref == "CHANGELOG.md" else ROOT / "docs" / ref
+            self.assertTrue(path.exists(), ref)
+
+
 class FreshMachineRestoreTest(unittest.TestCase):
     def test_restore_into_an_empty_data_folder(self):
         ledger = "id,date,account,symbol,side,quantity,price,fee,note\n1,2026-10-01,real,THYAO.IS,buy,10,100,1,\n"

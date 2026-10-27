@@ -283,3 +283,45 @@ class WeeklySystemSummaryTest(unittest.TestCase):
         self.assertNotIn("eksik", line)
         self.assertIn("açık uyarı yok", line)
         self.assertIn("izleme: açık", line)
+
+
+class MaintenanceCalendarTest(unittest.TestCase):
+    """CHARTER J3: things that expire are announced in /durum before they do."""
+
+    def check(self, day, last_review="2026-10-01"):
+        from datetime import date
+
+        from core.market.calendar import ISTANBUL
+        from core.reports import health
+
+        now = datetime(*day, 12, 0, tzinfo=ISTANBUL)
+        return health.maintenance_check(now, last_review=date.fromisoformat(last_review))
+
+    def test_quiet_mid_quarter(self):
+        from core.reports import health
+
+        c = self.check((2026, 11, 10))
+        self.assertEqual(c.state, health.OK)
+        self.assertIn("sonraki BIST 100 dönemi 01.01.2027", c.text)
+
+    def test_review_coming(self):
+        from core.reports import health
+
+        c = self.check((2026, 12, 20))
+        self.assertEqual(c.state, health.INFO)
+        self.assertIn("01.01.2027", c.text)
+
+    def test_review_started_but_not_entered(self):
+        from core.reports import health
+
+        c = self.check((2027, 1, 4))
+        self.assertEqual(c.state, health.WARN)
+        self.assertIn("girilmedi", c.text)
+        self.assertIn("bist100_changes.csv", c.text)
+
+    def test_python_end_of_life(self):
+        from core.reports import health
+
+        c = self.check((2027, 8, 10), last_review="2027-07-01")
+        self.assertEqual(c.state, health.WARN)
+        self.assertIn("Python 3.11", c.text)

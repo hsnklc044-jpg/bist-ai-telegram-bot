@@ -18,13 +18,13 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 | G | Araştırma | yazılım/dayanıklılık/veri işi bitince | bekliyor; veri 2015'e uzatma durduruldu (DECISIONS K-6) |
 | H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (Kasım sonu) |
 | I | Güvenlik ve bağımlılıklar | kod hemen | I1 haftalık pip-audit, I2 gizli bilgi testi v0.54.0; I3 kural DECISIONS'ta; kapsam kapısı %91 ve kalite SLO'su v0.54.1 — **tamam** |
-| J | Bakım ve devir | yazılım işi bitince | **sırada** |
+| J | Bakım ve devir | yazılım işi bitince | J1 HANDBOOK, J2 MAINTENANCE, J3 /durum 'Bakım takvimi', J4 CHANGELOG v0.55.0 — **tamam** |
 
 Öz-denetim (CHARTER §7): her 10 sürümde bir. Sayaç v0.50.0'dan başlar; ilk denetim v0.60.0 civarı.
 
-## Kaldığım yer (27.10.2026, kod v0.54.1)
+## Kaldığım yer (27.10.2026, kod v0.55.0)
 
-- **Son sürüm:** v0.54.1 (kapsam kapısı %91; kalite SLO'su CI'dan; v0.54.0'daki kırmızı test düzeltildi).
+- **Son sürüm:** v0.55.0 (bakım ve devir: el kitabı, bakım takvimi, /durum'da süresi dolacaklar, CHANGELOG).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
