@@ -31,7 +31,8 @@ cd "$FAKE_SERVER" && bash -c "${@: -1}"
 """
 
 
-@unittest.skipUnless(shutil.which("bash"), "bash is needed (Linux/macOS; Windows uses pull_backups.ps1)")
+# on Windows "bash" may be WSL's stub with no distribution installed (DR drill 27.10, run 40550012681)
+@unittest.skipUnless(os.name != "nt" and shutil.which("bash"), "bash is needed (Linux/macOS; Windows uses pull_backups.ps1)")
 class PullBackupsTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()

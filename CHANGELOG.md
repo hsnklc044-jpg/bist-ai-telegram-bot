@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.56.2 – 27.10.2026
+- Felaket kurtarma tatbikatının 2. çalışması kurulumu geçti; 574 testten biri, Windows'ta WSL'in boş `bash` kabuğunu çalıştırmaya çalıştığı için düştü. Bu test Windows'ta artık atlanıyor (Windows'un kendi betiği `pull_backups.ps1`'dir).
+
 ## v0.56.1 – 27.10.2026
 - İlk felaket kurtarma tatbikatı gerçek bir hata buldu: belgedeki gibi zip olarak indirilen kodda `setup.ps1`, git klasörü olmadığı için Windows PowerShell'de duruyordu. Düzeltildi; kurulum adımları artık çıkış koduyla denetleniyor. Git'siz kopyada tüm testler geçti.
 
