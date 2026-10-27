@@ -1,0 +1,134 @@
+KAP uç nokta denemesi 27.10.2026
+
+[ODA] konu sayısı: 13
+  {"disclosureClass": "ODA", "subject": "Bir Sonraki Yıla İlişkin Gerçekleşebilecek Tahmini Takip Farkı", "subjectOid": "4028328d537aad0a015383d773c44584"}
+  {"disclosureClass": "ODA", "subject": "Fon Kurucusuna, Yöneticisine, Portföy Saklayıcısına, Yetkilendirilmiş Katılımcıya İlişkin Açıklama", "subjectOid": "8aca490d51058254015105abe3790143"}
+  {"disclosureClass": "ODA", "subject": "Fon Ünvan Değişikliği (BYF)", "subjectOid": "8aca490d51458dcf0151480122af0464"}
+  {"disclosureClass": "ODA", "subject": "Fonun  Mali Yapısı", "subjectOid": "8aca490d51058254015105acab48014d"}
+  {"disclosureClass": "ODA", "subject": "Fonun İdari Yapısı ve Organizasyonu", "subjectOid": "8aca490d51058254015105ab2fc70139"}
+  {"disclosureClass": "ODA", "subject": "Fonun İşlem Esasları ve Birim Pay Değeri", "subjectOid": "8aca490d51058254015105aa434b012f"}
+  {"disclosureClass": "ODA", "subject": "Fonun Portföy Yapısı ve Yönetim Stratejisi", "subjectOid": "8aca490d51058254015105ad6d550157"}
+  {"disclosureClass": "ODA", "subject": "Fonun Sona Ermesi, Devri, Dönüştürülmesi, Birleştirilmesi, Kurucusunun Değiştirilmesi", "subjectOid": "8aca490d51058254015105ae28740161"}
+  {"disclosureClass": "ODA", "subject": "Fonun Takip Ettiği Endekse İlişkin Açıklama", "subjectOid": "8aca490d51058254015105aef2c8016b"}
+  {"disclosureClass": "ODA", "subject": "Gerçekleşen Takip Farkı ve Hatası", "subjectOid": "4028328d537aad0a015383d991db458e"}
+  {"disclosureClass": "ODA", "subject": "Özel Durum Açıklaması (Genel)", "subjectOid": "8aca490d51458dcf01514802e9ac0490"}
+  {"disclosureClass": "ODA", "subject": "Son Bir Yıllık Dönem İçin Öngörülen Tahmini Takip Hatası", "subjectOid": "4028328d537aad0a015383d6c89a457a"}
+  {"disclosureClass": "ODA", "subject": "01285 - Borsa Dışı Vaad Sözleşmesi", "subjectOid": "4028328c88c529ea0189548c120d30cd"}
+[ODA] son 7 gün bildirim sayısı (tüm şirketler): 1192
+  alanlar: ['attachmentCount', 'disclosureCategory', 'disclosureClass', 'disclosureIndex', 'disclosureType', 'fundCode', 'hasMultiLanguageSupport', 'isLate', 'isOldKap', 'kapTitle', 'modifyStatus', 'period', 'publishDate', 'relatedStocks', 'ruleType', 'stockCodes', 'subject', 'summary', 'year']
+  {"publishDate": "27.10.2026 23:00:05", "fundCode": null, "kapTitle": "EUROPEN ENDÜSTRİ İNŞAAT SANAYİ VE TİCARET A.Ş.", "isOldKap": false, "disclosureClass": "ODA", "disclosureType": "CA", "disclosureCategory": "STT", "summary": "Pay Geri Alım İşlemleri", "subject": "Payların Geri Alınmasına İlişkin Bildirim", "relatedStocks": null, "year": null, "ruleType": "-", "period": null, "disclosureIndex": 
+  {"publishDate": "27.10.2026 22:39:16", "fundCode": null, "kapTitle": "PC İLETİŞİM VE MEDYA HİZMETLERİ SANAYİ TİCARET A.Ş.", "isOldKap": false, "disclosureClass": "ODA", "disclosureType": "CA", "disclosureCategory": "STT", "summary": "27.10.2026 Tarihli Pay Geri Alım İşlemleri", "subject": "Payların Geri Alınmasına İlişkin Bildirim", "relatedStocks": null, "year": null, "ruleType": "-", "period": n
+  {"publishDate": "27.10.2026 22:27:35", "fundCode": null, "kapTitle": "KALYON GÜNEŞ TEKNOLOJİLERİ ÜRETİM A.Ş.", "isOldKap": false, "disclosureClass": "ODA", "disclosureType": "CA", "disclosureCategory": "STT", "summary": "Pay Geri Alım İşlemleri", "subject": "Payların Geri Alınmasına İlişkin Bildirim", "relatedStocks": null, "year": null, "ruleType": "-", "period": null, "disclosureIndex": 1688606,
+[ODA] konu dağılımı (subject: adet):
+   317  Payların Geri Alınmasına İlişkin Bildirim
+   280  Özel Durum Açıklaması (Genel)
+   176  Pay Dışında Sermaye Piyasası Aracı İşlemlerine İlişkin Bildirim (Faiz İçeren)
+   143  Pay Alım Satım Bildirimi
+    49  Kredi Derecelendirmesi
+    48  Pay Dışında Sermaye Piyasası Aracı İşlemlerine İlişkin Bildirim (Faizsiz)
+    28  Yatırım Kuruluşu Varant - Sertifika - Senetlerine İlişkin Bildirim
+    23  Genel Kurul İşlemlerine İlişkin Bildirim
+    20  İhraç Tavanına İlişkin Bildirim
+    15  Yeni İş İlişkisi
+    12  Kar Payı Dağıtım İşlemlerine İlişkin Bildirim
+    11  İhale Süreci / Sonucu
+    10  Sermaye Artırımı - Azaltımı İşlemlerine İlişkin Bildirim
+     7  Yönetim Kurulu Komiteleri
+     6  Bağımsız Denetim Kuruluşunun Belirlenmesi
+     4  Finansal Tablo ve-veya Dipnot Değişikliği
+     4  Kayıtlı Sermaye Tavanı İşlemlerine İlişkin Bildirim
+     4  Geleceğe Dönük Değerlendirmeler
+     4  Hak Kullanım Süreç İptal Bildirimi
+     3  Şirket Merkezi Değişikliği
+     3  Esas Sözleşme Tadili
+     3  Ortaklık Aleyhine Dava Açılması veya Davaya İlişkin Gelişmeler
+     3  Kurumsal Yönetim İlkelerine Uyum Derecelendirmesi
+     3  Genel Kurul Bildirimi
+     2  Finansal Duran Varlık Satışı
+     2  İlişkili Taraf İşlemleri
+     2  Finansal Duran Varlık Edinimi
+     2  Maddi Duran Varlık Alımı
+     2  Haber ve Söylentilere İlişkin Açıklama
+     2  Birleşme İşlemlerine İlişkin Bildirim
+     1  Ayrılma Hakkı Kullanımına İlişkin Bildirim
+     1  Teknik Yönetime İlişkin Açıklama
+     1  Fon Kurucusu Tarafından Yapılan Pay Alım Satım Bildirimi
+     1  Pay Dışı Sermaye Piyasası Aracı Alım Satım Bildirimi
+[ODA] stockCodes örnekleri: ['EUREN', 'PCILT', 'KLYPV', 'YYLGD', 'MARMR', 'MARMR', 'MARMR', 'METRO', 'LIDER', 'MARMR', 'AKCNS', 'MARMR', 'EKDMR', 'AGESA', 'AKGRT']
+
+[DG] konu sayısı: 41
+  {"disclosureClass": "DG", "subject": "Altı Aylık Rapor ", "subjectOid": "8aca490d51458dcf015147f9e6c203f2"}
+  {"disclosureClass": "DG", "subject": "Aracı Kuruma Ödenen Komisyon ve Varlık Alım Satım Bilgileri", "subjectOid": "8aca490d502dd03b01502dd9c9c60040"}
+  {"disclosureClass": "DG", "subject": "Borsa Dışı Repo - Ters Repo Sözleşmesi", "subjectOid": "8aca490d502dd03b01502ddc1678004d"}
+  {"disclosureClass": "DG", "subject": "Borsa Dışı Sözleşmelere İlişkin İlkeler", "subjectOid": "8aca490d502dd03b01502decce7600f6"}
+  {"disclosureClass": "DG", "subject": "BYF İç Tüzük ", "subjectOid": "8aca490d51067d0c0151068012540011"}
+  {"disclosureClass": "DG", "subject": "Fon Gider Bilgileri", "subjectOid": "8aca490d502dd03b01502dde122c0058"}
+  {"disclosureClass": "DG", "subject": "Fon İhraç Sözleşmesi", "subjectOid": "4028328d919f184b01930ac669ea2c91"}
+  {"disclosureClass": "DG", "subject": "Fon Sürekli Bilgilendirme Formu", "subjectOid": "4028328d53a8d2060153bce347f94a5d"}
+  {"disclosureClass": "DG", "subject": "Fon Tasfiye Duyurusu", "subjectOid": "8aca490d502dd03b01502de59b460090"}
+  {"disclosureClass": "DG", "subject": "Fon Toplam Gider Kesintisi Oranı Bilgileri ", "subjectOid": "8aca490d51458dcf015147f8cd8903e7"}
+  {"disclosureClass": "DG", "subject": "Fon Toplam Gider Oranı ve Fon Toplam Giderinin Dağılımı", "subjectOid": "4028328d537aad0a015383d09b184552"}
+  {"disclosureClass": "DG", "subject": "Fon Ünvan Değişikliği", "subjectOid": "8aca490d51458dcf015147eefdfd031d"}
+  {"disclosureClass": "DG", "subject": "Fona İlişkin Bilgiler", "subjectOid": "8aca490d51458dcf015147f7ca3a03b6"}
+  {"disclosureClass": "DG", "subject": "Genel Açıklama", "subjectOid": "8aca490d502dd03b01502de6916c009a"}
+  {"disclosureClass": "DG", "subject": "Herhangi Bir Otoriteye Mali Tablo Verilmesi", "subjectOid": "8aca490d51458dcf0151480237510479"}
+  {"disclosureClass": "DG", "subject": "Hizmet Sağlayıcının Faaliyetleri ve Fon Varlıklarının Mevcudiyetine İlişkin Rapor", "subjectOid": "8aca490d51458dcf015147fd29720414"}
+  {"disclosureClass": "DG", "subject": "İç Tüzük", "subjectOid": "8aca490d51458dcf015147f57fea039c"}
+  {"disclosureClass": "DG", "subject": "İç Tüzük (Değişiklik)", "subjectOid": "8aca490d51458dcf015147f6a7e303ac"}
+  {"disclosureClass": "DG", "subject": "İhraç Belgesi", "subjectOid": "8aca490d51458dcf015147feae1f0432"}
+  {"disclosureClass": "DG", "subject": "İzahname", "subjectOid": "8aca490d502dd03b01502deb982000e2"}
+  {"disclosureClass": "DG", "subject": "İzahname (Değişiklik) ", "subjectOid": "8aca490d51153da601511548b25900fb"}
+  {"disclosureClass": "DG", "subject": "Kesinleşen Portföy Bilgileri", "subjectOid": "4028328d537aad0a015383dac84945a2"}
+  {"disclosureClass": "DG", "subject": "Kredi Derecelendirme Notu", "subjectOid": "8aca490d51458dcf015147fa9e6903fc"}
+  {"disclosureClass": "DG", "subject": "Kredi Kullanımı", "subjectOid": "8aca490d51458dcf015147f49732037e"}
+  {"disclosureClass": "DG", "subject": "Performans Sunum Raporu", "subjectOid": "8aca490d502e18ef01502e2efff6006c"}
+  {"disclosureClass": "DG", "subject": "Performans Ücreti Hesaplama Esasları ve Örnekleri", "subjectOid": "4028328d8e21d0eb018f3e2d06300c84"}
+  {"disclosureClass": "DG", "subject": "Portföy Dağılım Raporu", "subjectOid": "8aca490d502e34b801502e380044002b"}
+  {"disclosureClass": "DG", "subject": "Risk Ölçüm Esasları", "subjectOid": "4028328c861839b2018683ab13e779a2"}
+  {"disclosureClass": "DG", "subject": "Risk Ölçüm ve Değerleme Esasları", "subjectOid": "4028328c861839b2018683ae4d9f79ce"}
+  {"disclosureClass": "DG", "subject": "Şemsiye Fon İç Tüzüğü", "subjectOid": "8aca490d51153da60151154412830097"}
+  {"disclosureClass": "DG", "subject": "Şemsiye Fon İç Tüzüğü (Değişiklik)", "subjectOid": "8aca490d51153da601511547a1b000ed"}
+  {"disclosureClass": "DG", "subject": "Tanıtım Formu", "subjectOid": "4028328d537aad0a015383d60baf4570"}
+  {"disclosureClass": "DG", "subject": "Tasarruf Sahipleri Sirküleri", "subjectOid": "8aca490d51458dcf015147fe02bd0425"}
+  {"disclosureClass": "DG", "subject": "Tertip İhraç Belgesi", "subjectOid": "8aca490d51458dcf015147ff8784043f"}
+  {"disclosureClass": "DG", "subject": "Türev Araç İşlemlerine İlişkin İlkeler", "subjectOid": "8aca490d502e34b801502e375fac0021"}
+  {"disclosureClass": "DG", "subject": "Varlık veya İhraççı Derecelendirme Notu", "subjectOid": "8aca490d51153da6015115464c9d00da"}
+  {"disclosureClass": "DG", "subject": "Yapılandırılmış Yatırım Araçları-İkraz İştirak Senetleri", "subjectOid": "8aca490d51458dcf015147f0b0af0345"}
+  {"disclosureClass": "DG", "subject": "Yatırım Fonu Bilgi Formu", "subjectOid": "8aca490d51458dcf015147f333b60361"}
+  {"disclosureClass": "DG", "subject": "Yatırımcı Bilgi Formu", "subjectOid": "8aca490d51153da6015115455c5f00b9"}
+  {"disclosureClass": "DG", "subject": "Yatırımcı Raporu", "subjectOid": "8aca490d51458dcf015147fb9add0406"}
+  {"disclosureClass": "DG", "subject": "01035 - YF-İç Tüzük", "subjectOid": "8aca490d502dd03b01502deab28500bc"}
+[DG] son 7 gün bildirim sayısı (tüm şirketler): 301
+  alanlar: ['attachmentCount', 'disclosureCategory', 'disclosureClass', 'disclosureIndex', 'disclosureType', 'fundCode', 'hasMultiLanguageSupport', 'isLate', 'isOldKap', 'kapTitle', 'modifyStatus', 'period', 'publishDate', 'relatedStocks', 'ruleType', 'stockCodes', 'subject', 'summary', 'year']
+  {"publishDate": "27.10.2026 22:13:05", "fundCode": null, "kapTitle": "MHR GAYRİMENKUL YATIRIM ORTAKLIĞI A.Ş.", "isOldKap": false, "disclosureClass": "DG", "disclosureType": "DG", "disclosureCategory": "STT", "summary": null, "subject": "Şirket Genel Bilgi Formu", "relatedStocks": null, "year": null, "ruleType": "-", "period": null, "disclosureIndex": 1688605, "isLate": false, "stockCodes": "MHRGY"
+  {"publishDate": "27.10.2026 21:24:21", "fundCode": null, "kapTitle": "KÖRFEZ GAYRİMENKUL YATIRIM ORTAKLIĞI A.Ş.", "isOldKap": false, "disclosureClass": "DG", "disclosureType": "DG", "disclosureCategory": "ODA", "summary": "Körfez GYO Portföy Sınırlamalarına Uyum Tablosu", "subject": "Portföy Sınırlamalarına Uyumun Kontrolü", "relatedStocks": null, "year": 2026, "ruleType": "9 Aylık", "period": 3, 
+  {"publishDate": "27.10.2026 21:23:48", "fundCode": null, "kapTitle": "MARMARA HOLDİNG A.Ş.", "isOldKap": false, "disclosureClass": "DG", "disclosureType": "DG", "disclosureCategory": "STT", "summary": null, "subject": "Şirket Genel Bilgi Formu", "relatedStocks": null, "year": null, "ruleType": "-", "period": null, "disclosureIndex": 1688585, "isLate": false, "stockCodes": "MARMR", "hasMultiLanguag
+[DG] konu dağılımı (subject: adet):
+   143  Şirket Genel Bilgi Formu
+    30  Piyasa Yapıcılığı Kapsamında Gerçekleştirilen İşlemler Bildirimi
+    17  Kurumsal Yönetim Bilgi Formu (Güncelleme) - Yönetim Kurulu-2
+    15  Finansal Takvim
+    13  İhraç Belgesi
+    11  Portföy Sınırlamalarına Uyumun Kontrolü
+    11  Likidite Sağlayıcılık Kapsamındaki İşlemler
+     9  Haftalık Rapor
+     9  Tertip İhraç Belgesi
+     8  Genel Açıklama
+     6  Esas Sözleşme
+     4  Pay  Satış Bilgi Formu
+     3  Herhangi Bir Otoriteye Mali Tablo Verilmesi
+     3  İzahname-Özet (SPK Tarafından Onaylanan)
+     3  İzahname-Sermaye Piyasası Aracı Notu (SPK Tarafından Onaylanan)
+     2  Portföy Sınırlamalarına, Finansal Borç ve Toplam Gider Sınırına Uyumun Kontrolü
+     2  Değerleme Raporu 
+     2  Sürdürülebilirlik Raporu
+     2  Kurumsal Yönetim Bilgi Formu (Güncelleme) - Yönetim Kurulu-1
+     1  Halka Arz Fiyatının Belirlenmesinde Esas Alınan Varsayımlara İlişkin Değerlendirme Raporu
+     1  Portföy Sınırlamalarına Uyumun Kontrolü / Münhasıran Altyapı Yatırım ve Hizmetlerinden Oluşan Portföyü İşleten Ortaklıklar
+     1  Sermaye Artırımından Elde Edilecek - Edilen Fonun Kullanımına İlişkin Rapor
+     1  Katılım Finansı İlkeleri Bilgi Formu 
+     1  Kurumsal Yönetim Uyum Raporu (Güncelleme)
+     1  Kurumsal Yönetim Bilgi Formu (Güncelleme) - Pay Sahipleri
+     1  İzahname (SPK Tarafından Onaylanan)
+     1  İzahname veya İzahnameyi Oluşturan Belgelerde Değişiklik - Ekleme
+[DG] stockCodes örnekleri: ['MHRGY', 'KRGYO', 'MARMR', 'AKCNS', 'ABO', 'GOZDE', 'PAHOL', 'OZRDN', 'HOROZ', 'ALGYO', 'NUGYO', 'OYA, OYYAT', 'MHRGY', 'YAT, YFMEN', 'QUICK']
