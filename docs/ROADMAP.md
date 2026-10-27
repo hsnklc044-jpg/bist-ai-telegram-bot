@@ -47,7 +47,7 @@ Kritik bulgu yok. Satır satır kaynak ve risk tablosu: docs/RAKAMLAR.md. Yükse
 | D11 | DÜŞÜK | Telegram mesaj sınırı UTF-16 birimiyle sayılıyor, kod Python karakteri sayıyor | 96'dan fazla emoji içeren bir parça sınırı aşabilir; bugünkü raporlarda olmuyor | ✅ v0.45.10 (`test_daily.SplitUtf16Test`) |
 | D12 | DÜŞÜK | `/report` elle çalıştırılınca yeni uyarıları kayda geçiriyor. Aynı gün 18:30 raporu onları "🆕" olarak yeniden göstermiyor | Kullanıcı uyarıyı `/report` çıktısında zaten görmüş oluyor | ✅ v0.45.11 (`test_report_numbers.ManualReportAlertsTest`) |
 | D13 | ORTA | Temettü kaydı yok. Defterde temettü satırı (`dividend`) bulunmuyor; temettü günü ham fiyat düşüyor ama nakde bir şey eklenmiyor | Sanal ve gerçek hesap getirisi temettü kadar eksik görünüyor; temettü günü "Günlük değişim" kayıp gösteriyor. Backtest (temettüye göre düzeltilmiş fiyat) ile sanal hesap tutarsız | açık (defter şeması değişir, onay gerekir) |
-| D14 | DÜŞÜK | "Günlük değişim" son hesap kaydına göre hesaplanıyor. PC bir veya birkaç gün kapalı kaldıysa satır birkaç günün toplamını gösteriyor ama "günlük" yazıyor | Yanıltıcı etiket; hesabın kendisi doğru | açık |
+| D14 | DÜŞÜK | "Günlük değişim" son hesap kaydına göre hesaplanıyor. PC bir veya birkaç gün kapalı kaldıysa satır birkaç günün toplamını gösteriyor ama "günlük" yazıyor | Yanıltıcı etiket; hesabın kendisi doğru | ✅ v0.45.12 (`test_report_numbers.ChangeLabelTest`) |
 
 ## Aşama 2: tamamlandı (kodda; PC doğrulaması bekliyor)
 

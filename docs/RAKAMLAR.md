@@ -1,6 +1,6 @@
 # Rapordaki ve /durum'daki her satır: nereden geliyor, nasıl yanlış olabilir
 
-Durum: v0.45.11. "Koruma" sütunu, hatayı yakalayan ya da görünür kılan mekanizmayı ve testini gösterir.
+Durum: v0.45.12. "Koruma" sütunu, hatayı yakalayan ya da görünür kılan mekanizmayı ve testini gösterir.
 
 Fiyat türleri:
 - **Ham (raw):** Yahoo'nun işlem fiyatı, iptal edilen seans çıkarılmış hâli (`daily.raw_bars`). Değer ve kâr/zarar bununla hesaplanır, çünkü defterdeki adetler bu fiyatlara karşılık gelir.
@@ -17,7 +17,7 @@ Fiyat türleri:
 | Katılım | En az 200 mumu olan liste hisseleri | 50 ve 200 günlük ortalamanın üstündeki hisselerin oranı | Bugünkü listeyle hesaplanır (geçmişte listeden çıkanlar yok). Eski fiyatlı bir hisse eski kapanışıyla sayılır. Düzeltilmemiş bir bölünme sahte "ortalamanın altında" sonucu verir | Bölünme ve sıçrama denetimi (`market.quality`); düzeltme kayıt defteri (DATA_CORRECTIONS.md) |
 | Sanal: "Değer X TL (nakit, hisse)" | Defter (`ledger.csv`, hesap `paper`) ve ham son kapanış | nakit = 100.000 + defterdeki tutarlar; hisse = Σ adet × son kapanış | Fiyatı olmayan hisse toplama girmez (Risk satırı "hesaplanamadı" der). Fiyat eskiyse "Güncel olmayan" satırında adı yazar. **Temettü nakde eklenmez (D13)** | `test_report_numbers.ReportByHandTest`; `HeldOutsideUniverseTest` (v0.45.2) |
 | Gerçek: "Hisse değeri" | Defter (`real`) ve ham son kapanış | Σ adet × son kapanış | Nakit izlenmez. Fiyat yok ya da eski olabilir (yukarıdaki gibi) | aynı testler |
-| "Günlük değişim" | `equity_log.csv` + defter | Gerçek hesap: (değer − aradaki alım/satım tutarı) / önceki kayıt − 1. Sanal hesap: değer / önceki − 1 | **Önceki kayıt dünden eskiyse (PC kapalıydı) birkaç günün toplamıdır ama "günlük" yazar (D14).** Temettü günü kayıp gibi görünür (D13) | `RealAccountFlowsTest` (v0.45.1) |
+| "Günlük değişim" | `equity_log.csv` + defter | Gerçek hesap: (değer − aradaki alım/satım tutarı) / önceki kayıt − 1. Sanal hesap: değer / önceki − 1 | Önceki kayıt bir seanstan eskiyse (PC kapalıydı) satır "DD.MM kaydından bu yana değişim (N seans)" yazar (v0.45.12). Temettü günü kayıp gibi görünür (D13) | `RealAccountFlowsTest` (v0.45.1) |
 | Pozisyon satırı "adet × fiyat = değer (maliyet; ±TL / ±%)" | Defter (FIFO lotlar) ve ham son kapanış | maliyet = alış tutarı + alış komisyonu; kâr = değer − maliyet; % = kâr / maliyet | Bedelsiz/bedelli deftere girilmemişse adet ve kâr yanlış görünür. Fiyat eskiyse kâr da eskidir | Defterde işlem satırı yoksa "defter_islem" uyarısı; `test_ledger` (FIFO, bedelsiz, bedelli) |
 | Risk: 1 günlük kayıp (%95 tarihsel) | Düzeltilmiş getiriler, son 250 ortak seans | Bugünkü ağırlıklarla geçmiş günlük sonuçların %5'lik dilimi; hesabın payı ve TL | Geçmiş 250 seans geleceği temsil etmeyebilir. 60'tan az ortak seans varsa "hesaplanamadı" yazar. Yeni halka arz hisseler ortak dönemi kısaltır | `RiskByHandTest` (el hesabı), `test_portfolio_risk` |
 | Etkin pozisyon sayısı | Pozisyon değerleri | 1 / Σ(pay²); paylar nakit hariç, yatırılan tutara göre | Fiyatı olmayan pozisyon varsa hesaplanmaz | `test_effective_n_ignores_cash`, `RiskByHandTest.test_equal_holdings` |

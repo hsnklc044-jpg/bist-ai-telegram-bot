@@ -275,3 +275,27 @@ class ManualReportAlertsTest(unittest.TestCase):
                 scheduled = build_daily(paths, ["AAA.IS"]).text
         self.assertIn("🆕 [orta] AAA: bu hissenin hesaptaki payı %100", manual)
         self.assertIn("🆕 [orta] AAA: bu hissenin hesaptaki payı %100", scheduled)
+
+
+class ChangeLabelTest(unittest.TestCase):
+    """After days without a record (PC off) the change covers them all and must say since when."""
+
+    def run_report(self, previous_day):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+            paths.equity.write_text("date,account,value,cash,invested,positions\n"
+                                    f"{previous_day},paper,99000.00,99000.00,0.00,0\n", encoding="utf-8")
+            provider = FakeProvider()
+            provider.overrides.update({BENCHMARK: flat(10_000.0, 10_000.0)})
+            with offline_market(provider):
+                store.update([BENCHMARK], now=NOW)
+                return build_daily(paths, [BENCHMARK]).text
+
+    def test_previous_session_is_a_daily_change(self):
+        self.assertIn("Günlük değişim +%1,01", self.run_report("2026-10-22"))  # Thu → Fri 23.10
+
+    def test_older_record_names_its_date(self):
+        text = self.run_report("2026-10-19")  # Mon → Fri: four sessions
+        self.assertNotIn("Günlük değişim", text)
+        self.assertIn("19.10 kaydından bu yana değişim +%1,01 (4 seans)", text)

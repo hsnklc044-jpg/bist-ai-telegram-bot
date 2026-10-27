@@ -43,6 +43,7 @@ from core.market.calendar import (
     is_session_day,
     last_final_session_date,
     now_istanbul,
+    sessions_between,
 )
 from core.market.corrections import clean, drop_cancelled_sessions, load_corporate_actions
 from core.market.universe import BENCHMARK, load_universe
@@ -339,7 +340,12 @@ def build_daily(
         equity = guarded(lambda: read_equity(paths.equity, account), pd.Series(dtype=float))
         growth = performance_index(equity, entries, account)  # buys and sales are not gains or losses
         if len(growth) >= 2:
-            lines.append(f"Günlük değişim {pct(growth.iloc[-1] / growth.iloc[-2] - 1, 2)}")
+            change = pct(growth.iloc[-1] / growth.iloc[-2] - 1, 2)
+            before, last = growth.index[-2].date(), growth.index[-1].date()
+            gap = sessions_between(before, last)
+            # a missing day (PC off) makes the change cover several sessions: say since when
+            lines.append(f"Günlük değişim {change}" if gap <= 1
+                         else f"{before:%d.%m} kaydından bu yana değişim {change} ({gap} seans)")
         for p, price, value in rows:
             pnl = value - p.cost
             ret = pnl / p.cost if p.cost else 0.0
