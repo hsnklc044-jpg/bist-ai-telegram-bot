@@ -40,3 +40,18 @@ class ScoreParityTest(unittest.TestCase):
         self.assertTrue(frame["score"].iloc[-1] >= 0)
 
 
+
+
+class HistoryLengthTest(unittest.TestCase):
+    """/analyze scores 2 years of history, the daily record 5: the last row must not depend on it."""
+
+    def test_two_and_five_years_give_the_same_view(self):
+        import pandas as pd
+
+        for seed in range(20):
+            with self.subTest(seed=seed):
+                df = make_ohlcv(rows=1260, seed=seed)
+                two_years = df[df.index > df.index[-1] - pd.Timedelta(days=731)]
+                full, short = score_frame(df).iloc[-1], score_frame(two_years).iloc[-1]
+                for column in ("ema20", "ema50", "rsi", "macd", "volatility", "score", "signal"):
+                    self.assertEqual(full[column], short[column], column)
