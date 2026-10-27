@@ -303,6 +303,11 @@ def build_daily(
         except PermissionError as exc:  # Windows: the file is open in another program (e.g. Excel)
             note = (f"{Path(exc.filename or '?').name} kilitli: Excel gibi bir programda açık olabilir. "
                     "Bu çalışmada yazılmadı; dosya kapanınca sonraki çalışma yazar.")
+        except OSError as exc:  # e.g. a full disk: sending the report needs no disk, so it still goes out
+            import errno
+
+            why = "disk dolu" if exc.errno == errno.ENOSPC else (exc.strerror or type(exc).__name__)
+            note = f"{Path(exc.filename or '?').name} yazılamadı: {why}. Sonraki çalışma yazar."
         if note not in damaged:
             damaged.append(note)
         return fallback

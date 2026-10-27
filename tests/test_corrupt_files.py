@@ -223,6 +223,23 @@ class LockedFileTest(Temp):
         self.assertIn("equity.csv kilitli", text)
         self.assertIn("Excel", text)
 
+    def test_full_disk(self):
+        import errno
+
+        paths = self.paths()
+        append_entry(Entry(date(2026, 6, 1), "real", "AAA", "buy", 100, 50.0, 5.0), paths.ledger)
+        real_replace = Path.replace
+
+        def full(self_, target):
+            if Path(target).name == "equity.csv":
+                raise OSError(errno.ENOSPC, "No space left on device", str(target))
+            return real_replace(self_, target)
+
+        with mock.patch.object(Path, "replace", full):
+            text = self.run_report(paths).text
+        self.assertIn("AAA: 100 adet", text)  # the report still goes out (sending needs no disk)
+        self.assertIn("equity.csv yazılamadı: disk dolu", text)
+
     def test_locked_paper_orders(self):
         paths = self.paths()
         paths.orders.write_text(ORDERS.replace("BBB.IS", "AAA.IS"), encoding="utf-8")

@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-10. Rapor diske yazamazsa da gider.** Disk dolunca (ENOSPC) kayıt yazılmaz, raporda "… yazılamadı: disk dolu" notu çıkar, gönderim yapılır (Telegram'a göndermek diske yazmayı gerektirmez). Kişisel dosyalara hiçbir şey yarım yazılmaz: yazma önce geçici dosyaya yapılır, sonra adı değiştirilir.
+
+**K-9. "Gelecekten" kalan rapor kilidi geçersiz sayılır.** Saat 5 dakikadan fazla geri alındıysa kilit dosyasının zamanı ileride görünür. Önceki kural yalnız 1 saatten eski kilidi kaldırıyordu; saat geri gidince her çalıştırma "başka bir çalıştırma var" diye duracaktı.
+
+**K-8. CHARTER, sürekli yol haritasının yerini aldı.** Aşama harfleri değişti (ör. araştırma artık G, bakım J). DECISIONS'taki önceki kararlar geçerli. K-6'daki "veriyi 2015'e uzatma" G'ye (araştırma) aittir ve G'nin koşulu oluşunca sürer.
+
 **K-7. İzleme kurulmamışsa /durum'da "BİLGİ" görünür, uyarı değil.** Kurulum kullanıcının adımı (hesap ve .env). UYARI olsaydı /durum hep "UYARI" der, 20:00 kontrolü her 3 günde bir mesaj atardı; asıl sorunlar bu gürültüde kaybolurdu. Bir adres eksikse, sinyal ulaşmıyorsa ya da bot sinyali 20 dakikadan eskiyse UYARI. Sinyal sonucu `logs/monitoring.json`'a adres olmadan yazılır.
 
 **K-6. Aşama E'deki "veriyi 2015'e uzatma" işi durduruldu.** Kullanıcı aynı gün bu yönü seçmişti; ardından gelen sürekli yol haritası araştırmayı (E) dayanıklılık ve izleme işleri bittikten sonraya koydu. Yapılan: kaynak sayfa arşivi iş akışı (`sources.yml`) ve ilk kaynak indirmesi; ikisi de durur, iş E sırasında kaldığı yerden sürer. Gerekçe: yol haritası tek kaynak.

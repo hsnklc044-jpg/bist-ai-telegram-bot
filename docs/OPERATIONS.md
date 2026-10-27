@@ -145,22 +145,24 @@ Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kim
 - Tatilde "tatil" kaydı başarılı sinyali sayılır, bu yüzden yanlış alarm çıkmaz.
 - Takvime girmemiş bir tatilde rapor "yeni veri yok" diyerek `/fail` gönderir. Bu durumda alarm doğrudur: `data/bist_holidays.csv` dosyasına bakılmalı.
 
-## 8. Kesintiler: ne olur, nasıl fark edilir, nasıl toparlanır
+## 8. Kesintiler: ne olur, nasıl fark edilir, nasıl toparlanır, kimin işi
 
-Her satırın arkasında bir test var. Sütunlar: kesinti; sistem kendisi ne yapar; sen nasıl fark edersin; toparlanma.
+Her satırın arkasında bir test var (parantez içinde). "Sistem" = kod kendiliğinden; "Otomasyon" = PC'deki yerel otomasyon; "Kullanıcı" = sen.
 
-| Kesinti | Sistem ne yapar | Nasıl fark edilir | Toparlanma |
-|---|---|---|---|
-| Bot açılırken internet yok (PC yeni uyandı, DNS hazır değil) | ~7 dakika artan aralıklarla yeniden dener (`bootstrap_retries=20`); yanlış token'da hemen durur | Log: "Failed run number N of 20"; hâlâ yoksa bot kapanır | Görev 5 dk arayla 3 kez yeniden başlatır. Hepsi başarısızsa `Start-ScheduledTask "QuantBIST Bot"` (`test_bot.StartupNetworkTest`) |
-| PC 18:30'da uykuda/kapalı | Windows görevi uyanınca çalışır (`StartWhenAvailable`) | Rapor geç gelir | Kendiliğinden (`OPERATIONS §3`) |
-| Uyanınca internet geç geliyor (rapor) | Hiçbir fiyat inmezse 1 + 2 + 4 dakika bekleyip yeniden dener | Log: "No price could be downloaded (network?)" | 7 dakikada da gelmezse rapor "yeni veri yok" der, Healthchecks `/fail` alır, 20:00 kontrolü uyarır; `Start-ScheduledTask "QuantBIST Gunluk Rapor"` (`test_daily.LateInternetTest`) |
-| PC 20:00'de uykuda | 20:00 kontrolü uyanınca, en fazla 4 saat gecikmeyle bir kez çalışır (önceden 1 saniye toleransla atlanıyordu) | Uyarı mesajı geç gelir | Kendiliğinden (`test_scheduler.SleepWakeTest`) |
-| Dosya Excel'de açık (kilitli) – rapor sırasında | Rapor yine gider; "… kilitli: Excel gibi bir programda açık olabilir" notu; o dosyaya yazılmaz | Raporun "Veri notları" bölümü | Dosyayı kapat; sonraki çalışma eksik kaydı yazar. Doldurulamayan sanal emir bekler, defter tekrar yazılmaz (`test_corrupt_files.LockedFileTest`) |
-| Dosya Excel'de açık – bot komutu (/trade, /sanal) | İşlem yazılmaz | Bot: "… kilitli … İşlem kaydedilmedi" | Dosyayı kapat, komutu yeniden gönder |
-| Elektrik kesildi, kayıt yarım kaldı (satır sonu yok) | Sonraki ekleme yeni satırdan başlar; yarım satır olduğu gibi kalır | Defter/emir/uyarı: dosya adı ve satır numarasıyla uyarı; canlı ölçüm: "Kayıt sağlığı" | Yarım satırı sil ya da `python -m core.backup --restore` (`test_corrupt_files.CutLastLineTest`) |
-| Rapor yazılırken PC kapandı | Kilit 1 saat sonra geçersiz sayılır; dolum tekrar yazılmaz | runs.csv'de o çalışma yok | Açılışta görev çalışır (`test_runs`) |
-| Telegram'a gönderilemedi | 3 deneme (5 ve 20 sn ara) | runs.csv `failed`, 20:00 uyarısı | Sonraki çalışma (`test_write_safety.SendRetryTest`) |
-| İki bot birden | Telegram ikincisini reddeder; log'a tek satır | Log: "aynı anda iki bot çalışıyor" | Elle açılan pencereyi kapat; botu yalnız görev başlatsın |
-| Yahoo erişilemez | Eski veriyle devam etmez; rapor veri tarihini yazar | `/durum` "Fiyat verisi" | Kendiliğinden, internet gelince |
-| İş Yatırım (ikinci kaynak) yanıt vermez | 3 hisse üst üste başarısızsa kontrol durur; adımın 20 dk sınırı var | Araştırma raporunda "ikinci kaynak yanıt vermiyor" | Gerekmez (`test_crosscheck`) |
-| Disk dolu | Kayıt yazılamaz | `/durum` "Disk" | Yer aç |
+| Kesinti | Ne olur (sistem ne yapar) | Nasıl fark edilir | Nasıl toparlanır | Kimin işi |
+|---|---|---|---|---|
+| Bot açılırken internet/DNS yok | ~7 dk artan aralıklarla yeniden dener (`bootstrap_retries=20`); yanlış token'da hemen durur (`test_bot.StartupNetworkTest`) | Log "Failed run number N of 20"; sonra bot kapanır | Görev 5 dk arayla 3 kez yeniden başlatır | Sistem; hepsi başarısızsa Otomasyon/Kullanıcı: `Start-ScheduledTask "QuantBIST Bot"` |
+| PC 18:30'da uykuda/kapalı | Görev uyanınca çalışır (`StartWhenAvailable`) | Rapor geç gelir | Kendiliğinden | Sistem |
+| Uyanınca internet geç (rapor) | Hiç fiyat inmezse 1+2+4 dk bekleyip dener (`test_daily.LateInternetTest`) | Log "No price could be downloaded (network?)" | 7 dk'da gelmezse "yeni veri yok", Healthchecks `/fail`, 20:00 uyarısı | Sistem; sonra Kullanıcı: `Start-ScheduledTask "QuantBIST Gunluk Rapor"` |
+| PC 20:00'de uykuda | 20:00 kontrolü uyanınca, en fazla 4 saat gecikmeyle bir kez çalışır (`test_scheduler.SleepWakeTest`) | Uyarı mesajı geç gelir | Kendiliğinden | Sistem |
+| Telegram 429 / 5xx / ağ hatası (rapor gönderimi) | 3 deneme (5 ve 20 sn ara) (`test_write_safety.SendRetryTest`) | runs.csv `failed`, 20:00 uyarısı | Sonraki çalışma | Sistem |
+| Dosya Excel'de açık (rapor sırasında) | Rapor gider; "… kilitli" notu; o dosyaya yazılmaz; doldurulamayan sanal emir bekler (`test_corrupt_files.LockedFileTest`) | Raporun "Veri notları" | Dosyayı kapat; sonraki çalışma yazar | Kullanıcı (dosyayı kapatmak) |
+| Dosya Excel'de açık (bot komutu) | İşlem yazılmaz | Bot: "… kilitli … İşlem kaydedilmedi" | Dosyayı kapat, komutu tekrar gönder | Kullanıcı |
+| Disk dolu | Rapor yine gider (gönderim diske yazmaz); "… yazılamadı: disk dolu" notu (`test_corrupt_files.LockedFileTest.test_full_disk`) | Rapor notu; `/durum` "Disk" | Yer aç; sonraki çalışma yazar | Kullanıcı |
+| Elektrik kesildi, kayıt yarım kaldı | Sonraki ekleme yeni satırdan başlar; yarım satır olduğu gibi kalır (`test_corrupt_files.CutLastLineTest`) | Dosya adı + satır numarasıyla uyarı; "Kayıt sağlığı" | Yarım satırı sil ya da `python -m core.backup --restore` | Kullanıcı |
+| Rapor yazılırken PC kapandı | Kilit 1 saat sonra geçersiz; dolum tekrar yazılmaz (`test_runs`) | runs.csv'de o çalışma yok | Açılışta görev çalışır | Sistem |
+| Saat geri alındı (saat eşitleme, yanlış saat dilimi) | "Gelecekten" kalan kilit geçersiz sayılır; tüm saatler İstanbul'a göre hesaplanır (`test_runs…clock_change`, `test_data_layer` saat dilimi) | — | Kendiliğinden | Sistem |
+| Aynı anda iki rapor çalıştırması | Kilit ikinciyi durdurur; aynı veri günü iki kez gönderilmez (`test_runs`, `test_write_safety`) | runs.csv `skipped` | Kendiliğinden | Sistem |
+| İki bot birden | Telegram ikincisini reddeder; log'a tek satır | Log "aynı anda iki bot çalışıyor" | Elle açılan pencereyi kapat | Kullanıcı/Otomasyon |
+| Yahoo erişilemez | Eski veri güncel gibi sunulmaz; rapor veri tarihini yazar | `/durum` "Fiyat verisi" | İnternet gelince kendiliğinden | Sistem |
+| İş Yatırım (ikinci kaynak) yanıt vermez | 3 hisse üst üste başarısızsa kontrol durur; adımın 20 dk sınırı (`test_crosscheck`) | Araştırma raporu "ikinci kaynak yanıt vermiyor" | Gerekmez | Sistem |

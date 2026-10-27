@@ -126,6 +126,22 @@ class ManualReportTest(unittest.TestCase):
 
         self.assertIn("başka bir çalıştırmada", text)
 
+    def test_lock_from_the_future_after_a_clock_change_expires(self):
+        """The PC clock moved back (sync, wrong time zone): a lock 'from the future' must not block every run."""
+
+        import os
+        import tempfile
+        import time
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            lock = Path(tmp) / "report.lock"
+            lock.write_text("1 x\n", encoding="utf-8")
+            future = time.time() + 3 * 3600
+            os.utime(lock, (future, future))
+            with runs.report_lock(lock):
+                pass
+
 
 if __name__ == "__main__":
     unittest.main()

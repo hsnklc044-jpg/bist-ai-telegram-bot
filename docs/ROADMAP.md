@@ -3,39 +3,28 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Sürekli yol haritası (kullanıcı, 27.10.2026; tek kaynak, onaysız mod)
+## Ana yönetim belgesine göre durum (docs/CHARTER.md, 27.10.2026)
 
-Kararları Claude verir ve gerekçesini docs/DECISIONS.md'ye tarihli yazar; kullanıcıya onay sorulmaz. Aşamalar sırayla ele alınır: koşulu oluşmuş olan yapılır, oluşmamışsa "bekliyor" işaretlenir ve sıradakine geçilir. Koşulu oluşmuş iş kalmadıysa bekleyenler listelenir ve durulur.
-
-**Roller**
-- Claude: kodu geliştirir, test eder, sürüm yayınlar, teknik kararları verir.
-- Yerel otomasyon (`C:\Projeler\QuantBIST_otomasyon`): yeni sürümü PC'ye kurar, ruff+pytest ile doğrular, botu "QuantBIST Bot" göreviyle yeniden başlatır, sonucu Telegram'a yazar. Kullanıcıya kurulum komutu verilmez.
-- Kullanıcı: yalnız hesap, token, ödeme ve .env işlemleri. Bunları gerektiren işlerde beklenmez; "BENİM ADIMLARIM" listesine yazılır.
+CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her turda karar algoritması (CHARTER §4) izlenir; kararlar DECISIONS.md'de.
 
 | Aşama | Konu | Koşul | Durum |
 |---|---|---|---|
-| A | Dayanıklılık: açılışta ağ hatası, uyku/uyanma, geç internet, kilitli dosya, yarım kayıt; OPERATIONS §8 tablosu | her zaman, öncelikli | v0.49.0 ile tamamlandı |
-| B | Dışarıdan izleme: OPERATIONS §7 değerleri; /durum'a izleme satırı (adres asla gösterilmez/loglanmaz); adresler girilip ping başarılıysa "doğrulandı" | kod hemen; aktivasyon .env ile | kod v0.49.1'de; doğrulama bekliyor (kullanıcı .env'e adresleri girince /durum'da ✅) |
-| C | Gerçek ortam gözlemleri (yarım gün, tatil, haftalık canlı ölçüm, araştırma, kaçan rapor, PC kapanması): kanıt GitHub'dan ya da otomasyon raporundan; doğrulandı/sorunlu; haftalık rapora sistem sağlığı özeti | olay gerçekleştiğinde | haftalık sistem özeti v0.49.3'te (cuma raporu); gözlemler bekliyor: 28.10 yarım gün, 29.10 tatil, 30.10 ilk özet ve canlı ölçüm, 31.10 araştırma |
-| D | Altyapı kararı: PC'de kalma riski, kaçan raporlar; gerekirse sunucu kodu+belge+paralel deneme planı | ≥1 haftalık gerçek kayıt ya da kesinti artışı | bekliyor (03.11 sonrası) |
-| E | Araştırma: önce RESEARCH_LOG'a hipotez/kural/ölçüt/dönem; gerçekçi maliyet ve en kötü senaryo; sonuca göre ayar yok; "işe yarıyor" = XU100'e karşı anlamlı fark + maliyet sonrası pozitif | yazılım ve dayanıklılık işi kalmadığında | bekliyor (veri 2015'e uzatma başlatılmıştı, durduruldu: DECISIONS 27.10) |
-| F | Canlı ölçüm kararı: gün sayısı, XU100 farkı, güven aralığı, sanal hesap; anlamlı/değil/yetersiz; backtest ile karşılaştırma; sonraki dönem planı | /performans yeterli bağımsız veri | bekliyor (Kasım sonu) |
-| G | Bakım: tek "aylar sonra açan biri" belgesi; haftalık/aylık/yıllık takvim; süresi dolacak her şey için /durum uyarısı | yazılım işi kalmadığında | bekliyor |
+| A | Dayanıklılık | her zaman | A1 v0.48.4; A2 (uyku/uyanma, geç internet, DNS, Telegram 429/5xx, kilitli dosya, yarım satır, disk dolu, saat değişimi, eşzamanlı çalıştırma) v0.49.0–v0.50.0; A3 OPERATIONS §8 (kimin işi sütunuyla) — **tamam** |
+| B | Gözlemlenebilirlik | kod hemen | B2 /durum izleme satırı v0.49.1 (aktivasyon: kullanıcının .env adımı); B1 SLO ölçümü ve B3 çalıştırma log satırı — **sırada** |
+| C | Veri bütünlüğü | kod hemen | C3 lookahead/survivorship testleri var (test_no_lookahead, geçmiş üyelik); C1 ikinci kaynak→SLO, C2 haftalık kurumsal işlem taraması — bekliyor (B'den sonra) |
+| D | Gerçek ortam gözlemleri | olay olunca | bekliyor: 28.10 yarım gün, 29.10 tatil, 30.10 canlı ölçüm + ilk haftalık sistem özeti, 31.10 araştırma |
+| E | Felaket kurtarma | kod hemen | bekliyor (C'den sonra) |
+| F | Altyapı kararı | ≥1 haftalık kayıt ya da SLO tutmazsa | bekliyor (03.11 sonrası) |
+| G | Araştırma | yazılım/dayanıklılık/veri işi bitince | bekliyor; veri 2015'e uzatma durduruldu (DECISIONS K-6) |
+| H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (Kasım sonu) |
+| I | Güvenlik ve bağımlılıklar | kod hemen | bekliyor (E'den sonra) |
+| J | Bakım ve devir | yazılım işi bitince | bekliyor |
 
-**Güvenlik kuralları (onay yerine geçer)**
-- Her düzeltmeden önce hatayı gösteren başarısız test; CI yeşil olmadan sürüm yok; küçük sürümler.
-- Kişisel kayıt şeması değişecekse: geçiş testi + değişiklikten önce otomatik yedek + belgelenmiş geri dönüş. Üçü yoksa değişmez.
-- Kişisel kayıtlar asla silinmez ya da üzerine yazılmaz; düzeltme yeni satır ya da yeni dosyadır.
-- Testler gerçek data/, logs/ ve yerel çalışma klasörlerine (backups\, qb\, research_workspace\) bağımlı olmaz.
-- İki denemede çözülemeyen hata: değişiklik geri alınır, burada "açık" yazılır, başka işe geçilir.
+Öz-denetim (CHARTER §7): her 10 sürümde bir. Sayaç v0.50.0'dan başlar; ilk denetim v0.60.0 civarı.
 
-**Kesinlikle yapılmaz:** gerçek parayla emir, aracı kurum bağlantısı, gerçek hesaba işlem; ödeme, hesap açma, şifre/token girme ya da isteme; herhangi bir strateji için al/sat önerisi (olumlu sonuçta bile yalnız bulgu ve belirsizlik).
+## Kaldığım yer (27.10.2026, kod v0.50.0)
 
-**Raporlama:** her sürümden sonra tek mesaj: SÜRÜM / NE DEĞİŞTİ (≤5, sade) / VERDİĞİM KARARLAR / BENİM ADIMLARIM / SIRADAKİ İŞ. Koşulu oluşmuş iş yoksa açıkça söylenir ve durulur.
-
-## Kaldığım yer (27.10.2026, kod v0.49.3)
-
-- **Son sürüm:** v0.49.3 (v0.49.2 bir test kırık halde yayımlanmıştı; düzeltildi).
+- **Son sürüm:** v0.50.0 (CHARTER kaydedildi; disk dolu ve saat değişimi senaryoları; OPERATIONS §8 'kimin işi').
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

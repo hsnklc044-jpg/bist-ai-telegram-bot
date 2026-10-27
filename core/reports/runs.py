@@ -34,6 +34,7 @@ logger = get_logger(__name__)
 LOCK_FILE = DATA_DIR / ".daily.lock"
 RUNS_FILE = LOG_DIR / "runs.csv"
 STALE_AFTER = timedelta(hours=1)
+CLOCK_SLACK = 300  # seconds; small differences between file and system clock are normal
 FIELDS = ("started_at", "finished_at", "data_day", "status", "detail")
 
 SENT = "sent"
@@ -55,7 +56,8 @@ def report_lock(path: Path | str | None = None, now: datetime | None = None):
             break
         except FileExistsError:
             age = now.timestamp() - path.stat().st_mtime
-            if attempt == 0 and age > STALE_AFTER.total_seconds():
+            # a lock "from the future" means the clock moved back since it was written
+            if attempt == 0 and (age > STALE_AFTER.total_seconds() or age < -CLOCK_SLACK):
                 logger.warning("Removing stale report lock (%.0f min old)", age / 60)
                 path.unlink(missing_ok=True)
                 continue
