@@ -8,7 +8,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 
 | Çıkış kanıtı | Kanıt |
 |---|---|
-| Günlük rapor çalışıyor | PC: 26.10 18:30 raporu gönderildi (`/durum` "Günlük rapor: son gönderilen 26.10.2026 kapanışı (26.10 18:30)", 27.10 16:19). Testler: `test_daily`, `test_report_numbers` (elle hesaplanan sayılar), `test_write_safety.SendRetryTest` |
+| Günlük rapor çalışıyor | PC: 27.10 18:30 raporu otomatik kurulan sürümle gitti, sayılar elle sağlandı (runs.csv 18:30:01→18:30:39). 26.10 18:30 raporu gönderildi (`/durum` "Günlük rapor: son gönderilen 26.10.2026 kapanışı (26.10 18:30)", 27.10 16:19). Testler: `test_daily`, `test_report_numbers` (elle hesaplanan sayılar), `test_write_safety.SendRetryTest` |
 | Bot çalışıyor | PC: tek bot, "QuantBIST Bot" görevi (27.10 10:15:20, iki süreç tek kopya); `/durum` "Telegram botu: çalışıyor (son sinyal 16:17)". Testler: `test_bot`, `test_bot_handlers`, `test_scheduler` |
 | Yedek alınıyor ve doğrulanıyor | PC: `quantbist_2026-10-27.zip` (27.10 14:24 "5 dosya, doğrulandı"; 16:11). Testler: `test_backup`, `test_backup_restore`, `test_disaster_recovery` |
 | /durum çalışıyor | PC: 27.10 14:26 (v0.48.1) ve 16:19 (v0.55.0) tüm kontroller SAĞLIKLI. Testler: `test_health`, `test_health_ops`, `test_slo` |
