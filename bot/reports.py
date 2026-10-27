@@ -57,6 +57,19 @@ async def resend(
     await reply(update, saved_report(" ".join(context.args or []) or None))
 
 
+async def yearly(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /yil [2026] [gerçek|sanal]: yearly statement of sales, dividends and fees (read-only)."""
+
+    from core.market.calendar import now_istanbul
+    from core.reports import annual
+
+    text = await asyncio.to_thread(annual.annual_text, list(context.args or []), now_istanbul().date())
+    await reply(update, text)
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

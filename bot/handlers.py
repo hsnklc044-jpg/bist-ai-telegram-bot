@@ -15,7 +15,7 @@ from telegram.ext import (
 
 from bot.analysis import analyze, top
 from bot.portfolio import alerts, paper, portfolio, report, trade
-from bot.reports import performance, resend, status, summary
+from bot.reports import performance, resend, status, summary, yearly
 from bot.start import start
 from bot.watchlist import (
     watchadd,
@@ -47,6 +47,7 @@ COMMANDS = (
     ("performans", performance),
     ("durum", status),
     ("rapor_tekrar", resend),
+    ("yil", yearly),
 )
 
 # Telegram's "Menu" list (set when the bot starts); /help is the same as /start
@@ -59,6 +60,7 @@ MENU = (
     ("performans", "canlı ölçüm ve sanal hesap"),
     ("rapor_tekrar", "kayıtlı günlük raporu yeniden gönder"),
     ("report", "günlük raporu şimdi üret"),
+    ("yil", "yıllık döküm: satışlar, temettü, komisyon"),
     ("top", "teknik görünümü en güçlü hisseler"),
     ("analyze", "tek hisse: /analyze THYAO"),
     ("watchlist", "takip listesi"),

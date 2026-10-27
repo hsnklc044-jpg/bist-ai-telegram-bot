@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.63.0 – 27.10.2026
+- `/yil [2026] [gerçek|sanal]`: yıllık döküm. Yıl içindeki satışların sonucu (FIFO maliyet, komisyon dahil), net temettüler ve ödenen komisyon. Defter dökümüdür, vergi danışmanlığı değildir.
+
 ## v0.62.1 – 27.10.2026
 - KAP takibinin ilk gerçek çalışmasında HEKTS'in *tahsisli* sermaye artırımı yanlışlıkla "kayıtta yok" çıktı; tahsisli artırım mevcut ortaklara hak vermez, fiyat düzeltmesi gerekmez. Artık "tahsisli: fiyat düzeltme gerekmez" yazıyor.
 
