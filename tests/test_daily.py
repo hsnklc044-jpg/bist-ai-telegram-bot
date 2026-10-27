@@ -196,3 +196,23 @@ class SplitLongLineTest(unittest.TestCase):
 
         text = "\n".join(f"satır {i} " + "y" * (i * 37 % 300) for i in range(400)) + "\n" + "z" * 5000
         self.assertEqual(split_message(text, 4000), split_text(text, 4000))
+
+
+class SplitUtf16Test(unittest.TestCase):
+    """Telegram counts a message in UTF-16 units: an emoji is 2, so parts are measured that way."""
+
+    @staticmethod
+    def units(text):
+        return len(text.encode("utf-16-le")) // 2
+
+    def test_emoji_heavy_text_stays_under_the_limit(self):
+        text = "".join(f"⚠️🟢 satır {i} 📈📉🛑\n" for i in range(600))
+        parts = split_text(text, limit=4000)
+        self.assertTrue(all(self.units(p) <= 4000 for p in parts), [self.units(p) for p in parts])
+        self.assertEqual("".join(parts), text)
+
+    def test_a_long_emoji_line_is_cut_between_characters(self):
+        text = "📈" * 3000 + "\n"
+        parts = split_text(text, limit=4000)
+        self.assertTrue(all(self.units(p) <= 4000 for p in parts))
+        self.assertEqual("".join(parts), text)

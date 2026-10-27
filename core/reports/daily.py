@@ -414,19 +414,34 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
 # ---------------------------------------------------------------------------
 
 
+def _units(text: str) -> int:
+    """Length as Telegram counts it: UTF-16 code units (an emoji outside the BMP is 2)."""
+
+    return len(text.encode("utf-16-le")) // 2
+
+
+def _cut(line: str, limit: int) -> tuple[str, str]:
+    """The longest head of `line` within `limit` units, never splitting a character."""
+
+    end = min(len(line), limit)
+    while _units(line[:end]) > limit:
+        end -= 1
+    return line[:end], line[end:]
+
+
 def split_text(text: str, limit: int = 4000) -> list[str]:
-    """Parts of at most `limit` characters, cut at line ends; a longer line is cut inside.
+    """Parts of at most `limit` UTF-16 units, cut at line ends; a longer line is cut inside.
     The bot's replies use the same function (bot/common.py)."""
 
     parts, current = [], ""
     for line in text.splitlines(keepends=True):
-        while len(line) > limit:
+        while _units(line) > limit:
             if current:
                 parts.append(current)
                 current = ""
-            parts.append(line[:limit])
-            line = line[limit:]
-        if len(current) + len(line) > limit and current:
+            head, line = _cut(line, limit)
+            parts.append(head)
+        if _units(current) + _units(line) > limit and current:
             parts.append(current)
             current = ""
         current += line
