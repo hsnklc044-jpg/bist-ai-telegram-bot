@@ -3,23 +3,25 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.45.3)
+## Kaldığım yer (27.10.2026, kod v0.45.12)
 
-- **Son sürüm:** v0.45.3 (CI #74). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45.3 PC'de doğrulanmadı.
-- **Bağımsız denetim (27.10):**
-  - Kritik bulgu yok.
-  - 3 yüksek bulgu düzeltildi: D1 v0.45.1, D2 v0.45.2, D3 v0.45.3.
-  - Orta ve düşük bulgular aşağıdaki tabloda açık.
-  - Satır satır kaynak tablosu: docs/RAKAMLAR.md.
-- **Hazır bekleyen:** `view_expectations.csv` (`research-results` dalı, `runs/2026-10-27_01-52/`). `/performans`'taki "geçmiş" sütununu açar. Yeni özellik sayıldığı için kullanıcı onayı bekleniyor.
+- **Son sürüm:** v0.45.12 (CI #86). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45.12 PC'de doğrulanmadı.
+- **Denetim:** D1–D12 ve D14 kapandı (v0.45.1–v0.45.12). Kalan tek bulgu D13 (temettü); defterin dosya yapısını değiştirdiği için kullanıcı onayı gerekiyor.
+- **Yapılacak yazılım işi yok.** Kalan her iş bir kullanıcı kararına, PC kanıtına ya da gözleme bağlı.
+- **Hazır bekleyen:** `view_expectations.csv` (`/performans` "geçmiş" sütunu). Kullanıcı onayı bekleniyor.
 - **Kullanıcıdan beklenen:**
-  - v0.45.3 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
-  - KCAER katsayısı kararı.
+  - v0.45.12 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
+  - D13 onayı.
+  - KCAER katsayısı.
   - Kapanış düzeltmeleri kapalı kalsın mı.
   - Dışarıdan izleme için servis seçimi.
   - Sunucu kiralansın mı.
-  - D13 (temettü kaydı) için defter şeması değişikliğine onay.
-- **Aşama 3** (yeni sinyal araştırması), PC doğrulaması tamamlanmadan başlamaz.
+- **Gözlem tarihleri:**
+  - 28.10: yarım gün.
+  - 29.10: tatil.
+  - 30.10: cuma canlı ölçüm satırı.
+  - 31.10: zamanlanmış cumartesi araştırması.
+  - Kasım sonu: canlı ölçüm kararı. 5 seanslık ufukta 10 bağımsız dönem yaklaşık 50 seans sürer.
 
 ## Bağımsız denetim (27.10.2026, v0.45.0 üzerinde)
 
