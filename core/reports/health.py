@@ -44,10 +44,13 @@ from core.market.calendar import (
     now_istanbul,
     sessions_between,
 )
+from core.infrastructure.logger import get_logger
 from core.market.universe import BENCHMARK
 from core.reports import runs as run_log
 from core.reports.daily import adjusted_bars, tr
 from core.signals_log import audit_log
+
+logger = get_logger(__name__)
 
 OK, WARN, CRIT, UNKNOWN = "✅", "⚠️", "🛑", "❔"
 INFO = "ℹ️"  # a fact, not a problem: never changes the verdict, never alerts
@@ -296,9 +299,18 @@ def disk_check(folder: Path | None = None) -> Check:
 
 
 def write_heartbeat(path: Path | None = None, now: datetime | None = None) -> None:
+    live = path is None
     path = Path(path or HEARTBEAT_FILE)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text((now or now_istanbul()).isoformat(timespec="seconds"), encoding="utf-8")
+    now = now or now_istanbul()
+    path.write_text(now.isoformat(timespec="seconds"), encoding="utf-8")
+    if live:  # the history behind the "bot ayakta kalma" objective (core/reports/slo.py)
+        from core.reports.slo import record_heartbeat
+
+        try:
+            record_heartbeat(now=now)
+        except OSError:
+            logger.exception("Heartbeat history not written")
 
 
 def bot_check(now: datetime, path: Path | None = None) -> Check:
@@ -519,12 +531,20 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
 def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
     now = now or now_istanbul()
     checks = health_checks(now, bars)
+    try:
+        from core.reports import slo
+
+        objectives = ["", *slo.lines(slo.measure(now))]
+    except Exception as exc:  # noqa: BLE001 - /durum must still answer
+        logger.exception("SLO measurement failed")
+        objectives = ["", f"{UNKNOWN} SLO ölçülemedi: {type(exc).__name__}"]
 
     return "\n".join([
         f"🩺 QuantBIST v{__version__} durum – {now:%d.%m.%Y %H:%M}",
         verdict(checks),
         "",
         *(c.line() for c in checks),
+        *objectives,
         "",
         "Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.",
     ])

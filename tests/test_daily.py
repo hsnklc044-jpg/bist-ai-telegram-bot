@@ -279,6 +279,7 @@ class FridaySystemLineTest(unittest.TestCase):
         self.assertIn("🩺 Bu hafta sistem", out)
         self.assertIn("📏 Canlı ölçüm", out)
         self.assertLess(out.index("🩺 Bu hafta"), out.index(daily.DISCLAIMER))
+        self.assertIn("📐 SLO (son 7 gün)", out)
 
         with mock.patch("core.reports.forward.weekly_line", return_value="📏 Canlı ölçüm: ..."), \
                 mock.patch.object(health, "health_checks", side_effect=OSError("disk")):

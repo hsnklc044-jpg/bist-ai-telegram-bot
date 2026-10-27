@@ -566,10 +566,21 @@ def _weekly_backup_check(today: date | None = None) -> str:
             return ""
         backup_market_db()
         checked = test_restore()
+        _restore_result(True, f"{len(checked)} dosya")
         return f"🔁 Haftalık geri yükleme testi başarılı: {len(checked)} dosya okundu (fiyat veritabanı dahil)"
     except Exception as exc:  # noqa: BLE001 - the report must still go out
         logger.exception("Weekly backup check failed")
+        _restore_result(False, str(exc))
         return f"⚠️ Haftalık yedek/geri yükleme testi başarısız: {exc}"
+
+
+def _restore_result(ok: bool, detail: str) -> None:
+    from core.reports.slo import record_restore_test
+
+    try:
+        record_restore_test(ok, detail)
+    except OSError:
+        logger.exception("Restore test result not recorded")
 
 
 def _before_disclaimer(text: str, line: str) -> str:
@@ -597,6 +608,12 @@ def _with_weekly_line(text: str, day: date) -> str:
         text = _before_disclaimer(text, health.weekly_summary(day, health.health_checks(online=False)))
     except Exception:  # noqa: BLE001 - the report must still go out
         logger.exception("Weekly system summary failed")
+    try:  # the service level objectives of docs/CHARTER.md §2, last 7 days
+        from core.reports import slo
+
+        text = _before_disclaimer(text, "\n".join(slo.lines(slo.measure(now_istanbul()))))
+    except Exception:  # noqa: BLE001 - the report must still go out
+        logger.exception("Weekly SLO table failed")
     return text
 
 
@@ -665,6 +682,21 @@ def update_prices(symbols: list[str], update=None, sleep=None) -> dict[str, str]
     return status
 
 
+def _record_freshness(universe: list[str] | None = None, now=None) -> None:
+    """How many universe stocks (and XU100) have the expected session's close: the 'veri tazeliği' objective."""
+
+    from core.reports.slo import record_freshness
+
+    try:
+        now = now or now_istanbul()
+        expected = last_final_session_date(now)
+        universe = universe or load_universe()
+        have = sum(store.last_date(s) == expected for s in universe)
+        record_freshness(expected, have, len(universe), store.last_date(BENCHMARK) == expected, now=now)
+    except Exception:  # noqa: BLE001 - measuring must never stop the report
+        logger.exception("Freshness not recorded")
+
+
 def _run(args) -> DailyResult:
     with report_lock():
         return _run_locked(args)
@@ -676,6 +708,7 @@ def _run_locked(args) -> DailyResult:
         failed = [s for s, v in status.items() if v in ("failed", "empty")]
         if failed:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
+        _record_freshness()
 
     result = build_daily()
     score_warning = _record_scores()

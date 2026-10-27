@@ -4,6 +4,8 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-11. SLO'lar yerel kayıtlardan ölçülür; ölçülemeyen "bilinmiyor".** Kaynaklar: rapor teslimi `runs.csv` (19:00'dan sonra biten gönderim "geç"); bot ayakta kalma yeni `logs/heartbeats.csv` (5 dakikada bir satır; aynı süreçte iki sinyal arasındaki boşluk "uyku/askı", süreç numarası değişirse "yeniden başlama"; en az 1 günlük kayıt yoksa bilinmiyor); veri tazeliği yeni `logs/freshness.csv` (raporun fiyat güncellemesinden hemen sonra, beklenen seansın kapanışına sahip hisse oranı ve XU100); yedek: o günün tarihli yedeği + son 7 günde başarılı geri yükleme testi (yeni `logs/restore_tests.csv`); kayıt bütünlüğü: signal_log denetimi + kişisel dosya kontrolü. Veri doğruluğu (C1) ve kalite (I) bu bilgisayardan ölçülemediği için şimdilik bilinmiyor. SLO'lar /durum'daki genel hükmü değiştirmez (o, bileşenlerin şu anki durumu); hedef tutmazsa CHARTER §4 gereği önce o düzeltilir. Bu dosyalar kişisel kayıt değildir; adres ya da kişisel veri içermez.
+
 **K-10. Rapor diske yazamazsa da gider.** Disk dolunca (ENOSPC) kayıt yazılmaz, raporda "… yazılamadı: disk dolu" notu çıkar, gönderim yapılır (Telegram'a göndermek diske yazmayı gerektirmez). Kişisel dosyalara hiçbir şey yarım yazılmaz: yazma önce geçici dosyaya yapılır, sonra adı değiştirilir.
 
 **K-9. "Gelecekten" kalan rapor kilidi geçersiz sayılır.** Saat 5 dakikadan fazla geri alındıysa kilit dosyasının zamanı ileride görünür. Önceki kural yalnız 1 saatten eski kilidi kaldırıyordu; saat geri gidince her çalıştırma "başka bir çalıştırma var" diye duracaktı.
