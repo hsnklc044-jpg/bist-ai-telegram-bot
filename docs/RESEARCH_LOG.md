@@ -26,7 +26,7 @@ Aşağıdaki kayıtların özeti; ayrıntı ve sayılar ilgili bölümlerde. 202
 | Endeks zamanlaması (H2 trend, H3 ay dönümü) | 200 günlük ortalama; ayın son/ilk 3 seansı | Aralıklar sıfırı içine alıyor; H3'ün kazancı neredeyse tamamen nakdin faizinden (%0 nakitle +1,4%) | Yüksek TL faizinde nakitte beklemek "zamanlama" gibi görünür; nakit getirisi ayrı ölçülmeli |
 | Veriyi düzelterek sonucu iyileştirmek | yalnız kapanış düzeltmeleri | 635 düzeltmenin 448'i yapay mum üretiyor; sonuç farkı küçük | Kapanış düzeltmeleri kapalı; düzeltme yalnız onaylı ve kaynaklı (`price_fix_approvals.csv`) |
 
-**Ortak sınır:** 3,2 yıllık veriyle güven aralıkları ±20–30 puan genişliğinde; yıllık 10 puanın altındaki gerçek bir üstünlük bu veriyle şanstan ayrılamaz. Daha uzun veri (2015'e uzatma) kaynak yokluğundan engelli (DECISIONS K-16). Bu yüzden yeni bir hipotez ancak yeni plan + kullanıcı onayı + holdout dönemiyle denenir; asıl bağımsız kanıt canlı ölçümdür (ilk karar Kasım sonu).
+**Ortak sınır:** 3,2 yıllık veriyle güven aralıkları ±20–30 puan genişliğinde; yıllık 10 puanın altındaki gerçek bir üstünlük bu veriyle şanstan ayrılamaz. Daha uzun veri (2015'e uzatma) kaynak yokluğundan engelli (DECISIONS K-16). Bu yüzden yeni bir hipotez ancak yeni plan + kullanıcı onayı + holdout dönemiyle denenir ([RESEARCH_PROGRAM](RESEARCH_PROGRAM.md): bütçe, ileri holdout); asıl bağımsız kanıt canlı ölçümdür (ilk karar Kasım sonu).
 
 ---
 
