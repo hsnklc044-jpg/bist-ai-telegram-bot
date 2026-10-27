@@ -3,9 +3,9 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.48.1)
+## Kaldığım yer (27.10.2026, kod v0.48.4)
 
-- **Son sürüm:** v0.48.3 (OHLC incelemesi İş Yatırım ile doğrulandı: 27.06.2022 Yahoo kaynaklı, sonuçlara etkisi yok).
+- **Son sürüm:** v0.48.4 (bot açılışta ağ hatasını yeniden dener; ruff yerel çalışma klasörlerini taramaz).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
@@ -14,6 +14,9 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
 - **Bot tek örnek (27.10 09:30):** arka plandaki eski bot (08:40) kapatıldı ve v0.46.1 ile yeniden başlatıldı. Başlangıçtan sonra `Conflict` satırı yok; yaşam sinyali 09:30:56'da yazıldı. Botu otomatik başlatan bir şey yoktu: bilgisayar yeniden başlarsa bot açılmayacaktı. Kullanıcı 27.10'da "QuantBIST Bot" görevini kurdu (oturum açılışında, tek kopya, çökerse yeniden başlatır); aynı ayarlar `scripts/register_bot_task.ps1` dosyasında.
 - **Bot görev üzerinden (27.10 10:15):** görev yeniden başlatılınca elle açılmış eski bot da çalışır durumdaydı (iki bot); eski kopya kapatıldı. Şimdi tek bot, "QuantBIST Bot" görevinin başlattığı. Bot artık yalnız görevle başlatılır/yeniden başlatılır.
 - **Aşama 3 kapandı:** H1, H2, H3'ün üçü de ön kayıtlı birincil ölçütü (Bonferroni %98,3 fazla getiri aralığı > 0) geçemedi, hepsi **red** (RESEARCH_LOG, 27.10). H2/H3 nakdi kullanıcı onaylı plan değişikliği 1 ile TCMB politika faizi. Haftalık araştırma üçünü kayıt için yeniden hesaplıyor; yeni hipotez yalnız yeni plan ve onayla.
+- **Kurulum rolü (kullanıcı, 27.10):** kodu Claude geliştirir; PC'deki yerel otomasyon (`C:\Projeler\QuantBIST_otomasyon\guncelle.py`) yalnız bu dalı indirir, yedek alır, deneme kopyasında ruff+pytest çalıştırır, geçerse kurar, bot açılmazsa eski sürüme döner ve botu "QuantBIST Bot" göreviyle yeniden başlatır. Telegram'daki "🤖 Otomasyon" mesajları ondan gelir. Kullanıcıya kurulum (robocopy) komutu verilmez.
+- **08:36 kurulum hatası (27.10):** Conflict değildi. Log: `getaddrinfo failed` (DNS) ve "Network Retry Loop (Bootstrap Initialize Application): Failed run number 0 of 0. Aborting." Bot açılışta tek ağ hatasında kapanıyordu. v0.48.4'te açılış yaklaşık 7 dakika yeniden dener (`bootstrap_retries=20`); yanlış token yine hemen durur.
+- **Yerel çalışma klasörleri:** canlı klasörde `backups\`, `qb\`, `research_workspace\` var, repoda yok. pytest yalnız `tests/`'i toplar. `ruff check .` (setup.ps1/verify.ps1) bunları v0.48.4'ten beri taramaz.
 - **Denetim:** D1–D14'ün hepsi kapandı (v0.45.1–v0.45.15).
 - **Kullanıcı kararları (27.10) uygulandı:**
   - KCAER katsayısı 0,8646 (v0.45.13).
@@ -25,7 +28,7 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
 - **Kullanıcıdan beklenen:**
   - **PC doğrulaması (27.10 14:26, v0.48.1):** 489 test geçti (2 atlandı), `/durum` 12/12 SAĞLIKLI, yedek alındı ve doğrulandı, bot görevle yeniden başlatıldı.
   - PC'deki elle değişiklikler (27.10) incelendi ve v0.48.1'de repoya alındı: onay kapısı `core/market/corrections.py`'de, onaylar `data/price_fix_approvals.csv`'de (şimdilik boş). PC'deki `research_workspace` kapısı artık kullanılmıyor; v0.48.1 kurulunca PC'deki üç dosya repodakiyle değişir.
-  - Healthchecks.io hesabı ve iki adres (OPERATIONS.md §7).
+  - Healthchecks.io hesabı ve iki adres (OPERATIONS.md §7: "QuantBIST rapor" Cron `35 18 * * 1-5` Europe/Istanbul, grace 1 saat; "QuantBIST bot" period 5 dk, grace 20 dk).
 - **Gözlem tarihleri:**
   - 28.10: yarım gün.
   - 29.10: tatil.

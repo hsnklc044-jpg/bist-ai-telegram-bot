@@ -50,3 +50,24 @@ class VersionTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LocalWorkFoldersTest(unittest.TestCase):
+    """The user keeps backups/, qb/ and research_workspace/ in the live folder (not in the repo).
+    setup.ps1/verify.ps1 run `ruff check .` there: those folders must not fail the check."""
+
+    def test_ruff_skips_local_work_folders(self):
+        import shutil
+        import subprocess
+        import tempfile
+
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            shutil.copy(root / "pyproject.toml", tmp)
+            for folder in ("backups", "qb", "research_workspace/ohlc_audit"):
+                (Path(tmp) / folder).mkdir(parents=True)
+                (Path(tmp) / folder / "x.py").write_text("from pathlib import Path\nimport os\nimport json\n",
+                                                         encoding="utf-8")  # unsorted, unused
+            result = subprocess.run([sys.executable, "-m", "ruff", "check", "."], cwd=tmp,
+                                    capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

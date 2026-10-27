@@ -93,3 +93,21 @@ class SecondInstanceTest(unittest.TestCase):
         record = logs.records[0]
         self.assertIn("aynı anda iki bot", record.getMessage())
         self.assertIsNone(record.exc_info)
+
+
+class StartupNetworkTest(unittest.TestCase):
+    """27.10 08:36 on the user's PC: one DNS failure (getaddrinfo) at start-up ended the bot
+    ('Failed run number 0 of 0. Aborting.'). Start-up must retry a network error."""
+
+    def test_start_up_retries_network_errors(self):
+        from unittest import mock
+
+        from bot import application
+
+        app = mock.MagicMock()
+        settings = mock.MagicMock(app_name="QuantBIST", version="test", chat_id=1)
+        with mock.patch.object(application, "build_app", return_value=app), \
+                mock.patch.object(application, "require_bot_settings", return_value=settings):
+            application.main()
+        retries = app.run_polling.call_args.kwargs.get("bootstrap_retries", 0)
+        self.assertGreaterEqual(retries, 10)  # about 2 minutes of back-off before giving up

@@ -1,13 +1,14 @@
 [project]
 name = "quantbist"
-version = "0.48.3"
+version = "0.48.4"
 description = "BIST hisse analizi, sinyal ve raporlama botu"
 requires-python = ">=3.11,<3.12"  # tested on 3.11; see requirements.lock
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = ["reports", "logs", "data"]
+# backups, qb, research_workspace: the user's local work folders in the live folder (not in the repo)
+extend-exclude = ["reports", "logs", "data", "backups", "qb", "research_workspace"]
 
 [tool.ruff.lint]
 select = ["E9", "F", "I", "E402", "B006", "B008"]
