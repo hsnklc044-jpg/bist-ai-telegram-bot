@@ -194,3 +194,50 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
   İsabet oranı %41–46. Pozitif görünümler XU100'ü geçmiyor; yalnız negatif görünümler daha kötü sonuç veriyor. Bu, mevcut "tahmin gücü kanıtlanmadı" kararıyla tutarlı.
 - **Karar:** dosya `data/view_expectations.csv` olarak eklendi (kullanıcı kararı, 27.10.2026). Bu değerler karşılaştırma için referanstır, kanıt değildir. Hiçbir kural bu sonuca göre ayarlanmadı.
 - **Not:** dosya KCAER katsayısı 0,8650 iken üretildi (v0.45.13'te 0,8646 oldu). Fark tek bir hissenin 28.11.2024 öncesi fiyatlarında %0,05; sonuçlar ölçülebilir biçimde değişmez. Dosya bir sonraki elle yenilemede güncellenecek.
+
+---
+
+## Aşama 3 planı — TASLAK, kullanıcı onayı bekliyor (27.10.2026)
+
+Bu bölüm, **hiçbir test çalıştırılmadan önce** yazıldı. Onaylandıktan sonra hipotezler, parametreler ve başarı ölçütleri değiştirilmez. Sonuçlar ne çıkarsa çıksın bu bölümün altına eklenir; olumsuz sonuçlar da silinmez.
+
+### Şu ana kadar bilinenler (yeni hipotezler bunlara göre seçildi)
+
+- Daha önce 6 kural test edildi: bot sinyali, bot sinyali + rejim, trend kuralı, 6 aylık momentum, momentum + rejim, momentum walk-forward. Hiçbiri XU100'ü istatistiksel olarak geçmedi.
+- Hepsinin kârı en kârlı 5 hisseye bağlı (RESEARCH_LOG, 27.10).
+- Bu kurallar ve onların türevleri (ör. 12-1 momentum) yeniden denenmeyecek; aynı veride tekrar tekrar test etmek veri gözetlemesi olur.
+
+### Hipotezler (3 adet; parametreler sabit, ayar yapılmayacak)
+
+| # | Hipotez | Kural | Neden aday |
+|---|---|---|---|
+| H1 | Düşük oynaklık | Her ayın ilk seansında, o gün BIST 100 üyesi olan hisselerden son 60 seans günlük getiri oynaklığı en düşük 10 hisse, eşit ağırlıkla alınır ve bir ay tutulur | Literatürde en dayanıklı anomalilerden biri; şimdiye kadar test edilen kuralların hiçbirine benzemiyor |
+| H2 | Endeks trendi (zaman serisi) | Her ayın ilk seansında XU100 son 200 seans ortalamasının üstündeyse endeks (XU100) tutulur, altındaysa nakit | Kayıpları sınırlamaya yönelik basit ve yaygın bir kural; tek hisse seçimine dayanmıyor, bu yüzden 5 hisse yoğunlaşma sorunu yok |
+| H3 | Ay dönümü | XU100 yalnız her ayın son 3 ve ilk 3 seansında tutulur; diğer günlerde nakit | Takvim etkisi; az işlem, tek parametre |
+
+### Ön koşul
+
+H2 ve H3 zamanın bir kısmında nakitte bekliyor. Nakit getirisi %0 alınırsa bu iki kural haksız yere kötü görünür, çünkü TL mevduat faizi yüksek. Bu yüzden testten önce:
+- `data/cash/` klasörüne bir para piyasası fonunun TEFAS birim fiyatları kaynağıyla eklenir.
+- Stopaj tablosu da eklenir.
+
+Bu veri kamuya açık; hesap ya da ödeme gerekmiyor. Veri eklenemezse H2 ve H3 test edilmez ve bunun nedeni buraya yazılır.
+
+### Ortak test kuralları
+
+- **Dönem ve evren:** 2023-08-01 – son kapanış, geçmiş BIST 100 üyeliği, mevcut veri ve düzeltmeler (kapanış düzeltmeleri kapalı).
+- **Maliyet:** her yönde komisyon %0,10 + kayma %0,05.
+- **Başarı ölçütü (birincil):** XU100'e göre fazla getirinin blok bootstrap güven aralığı (21 seanslık bloklar) tamamen sıfırın üstünde olmalı. Bonferroni düzeltmesi 3 hipotez için yapılır (%98,3). Daha önceki 6 test ayrı bir aile olarak kayıtlı.
+- **Sağlamlık kapıları:** üçü de geçilmeli.
+  1. İki başlangıç tarihinde de (2023-08-01 ve 2024-01-02) XU100'ü geçmeli.
+  2. H1 için: en kârlı 5 hisse çıkarılınca da XU100'ü geçmeli. H2 ve H3 endeks tuttuğu için bu kapı uygulanmaz; onun yerine dönemdeki 4 takvim yılının en az 3'ünde XU100'ü geçmeli.
+  3. En büyük düşüş (MaxDD) XU100'ünkinden kötü olmamalı.
+- **Kabul edilirse:** kural yalnız canlı ölçüme ve sanal hesaba alınır. Gerçek para ya da gerçek emir yok. Karar en erken 6 aylık canlı ölçümden sonra verilir.
+- **Kabul edilmezse:** sonuç buraya yazılır. Kural ayarlanıp yeniden denenmez.
+
+### Uygulama sırası (onaydan sonra)
+
+1. Nakit verisi (TEFAS) ve stopaj tablosu eklenir; testli.
+2. H1–H3 kuralları eklenir. Her kural için ileriye bakmama testi (`test_no_lookahead`) ve el hesabıyla küçük bir örnek testi yazılır.
+3. Haftalık araştırma iş akışına ayrı bir tablo olarak eklenir. `history.csv`'ye ayrı bir aile adıyla yazılır.
+4. İlk sonuç buraya, olduğu gibi yazılır.
