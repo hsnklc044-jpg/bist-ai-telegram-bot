@@ -255,6 +255,18 @@ class CompareTest(unittest.TestCase):
                                              bars=lambda s: ours, sleep=lambda s: None))
         self.assertIn("kapanış farklı (%+1.7)", text)
 
+    def test_inspect_missing_day_shows_only_its_neighbourhood(self):
+        """ADESE 08.02.2023 (cancelled session) is in neither source: show the days around it, not the whole history."""
+
+        index = pd.bdate_range("2021-10-25", "2023-02-17")
+        index = index[(index < "2023-02-08") | (index > "2023-02-14")]
+        ours = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "volume": 1.0}, index=index)
+        lines = crosscheck.inspect([("ADESE.IS", date(2023, 2, 8))], get=fake_get([]), bars=lambda s: ours,
+                                   sleep=lambda s: None)
+        self.assertIn("o gün iki kaynakta da yok", lines[0])
+        rows = [line for line in lines if line.startswith("  bizde")]
+        self.assertEqual([r.split()[1] for r in rows], ["06.02.2023", "07.02.2023", "15.02.2023", "16.02.2023"])
+
     def test_inspect_survives_an_unreachable_source(self):
         def broken(*a, **k):
             raise ConnectionError("kapalı")

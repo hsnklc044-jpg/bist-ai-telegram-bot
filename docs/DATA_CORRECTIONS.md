@@ -63,3 +63,23 @@ Satırların 448'inde düzeltilmiş kapanış o günün en düşük–en yüksek
 - Yedek SQLite'ın kendi yedekleme yöntemiyle alınır; içinde SHA-256 manifesti bulunur.
 - Haftalık otomatik yedekten sonra geri yükleme testi yapılır.
 - İzole senaryo deneyi, deponun SHA-256 özetini çalışmadan önce ve sonra yazdırır; deneyin depoyu değiştirmediği böylece kanıtlanır.
+
+## Düz mumlar: 27.06.2022 ve 16.12.2022 (kullanıcının OHLC incelemesi, 27.10.2026)
+
+Kullanıcının PC'deki incelemesi 7 kritik kayıt buldu: açılış = en yüksek = en düşük, kapanış bu aralığın dışında. `crosscheck --inspect` ile İş Yatırım'a karşı bakıldı (Data check çalışması, `research-results` dalı `datacheck/2026-10-27_14-36.txt`):
+
+| Kayıt | Kapanış (bizde / İş Yatırım) | Bizim yüksek–düşük | İş Yatırım yüksek–düşük |
+|---|---|---|---|
+| BIOEN 27.06.2022 | 7,64 / 7,65 (aynı) | 7,24 – 7,24 | 7,81 – 7,13 |
+| BOBET 27.06.2022 | 5,80 / 5,80 (aynı) | 5,81 – 5,81 | 5,92 – 5,74 |
+| MIATK 27.06.2022 | 2,50 / 2,50 (aynı) | 2,51 – 2,51 | 2,54 – 2,41 |
+| PSGYO 27.06.2022 | 0,5393 / 0,5405 (aynı) | 0,5266 – 0,5266 | 0,5503 – 0,5266 |
+| BASGZ 27.06.2022 | 11,28 / 11,22 (+%0,5) | 10,87 – 10,87 | 11,44 – 10,75 |
+| KRVGD 16.12.2022 | 2,86 / 2,90 (−%1,2) | 2,86 – 2,86 | 2,93 – 2,65 |
+| BERA 27.06.2022 (karşılaştırma) | 7,15 / 7,91 (−%9,6) | 7,15 – 7,15 | 7,91 – 6,95 |
+| CLEBI 27.06.2022 (karşılaştırma) | 271,55 / 296,69 (−%8,5) | 271,55 – 271,55 | 298,23 – 270,18 |
+
+- **Neden:** 27.06.2022'de Yahoo birçok hissede gün içi tek bir fiyatı açılış, yüksek ve düşük olarak bırakmış. Bazı hisselerde kapanış doğru (BIOEN, BOBET, MIATK, PSGYO), bazılarında o da yanlış (BERA, CLEBI). Komşu günler iki kaynakta birebir aynı. Yani sorun o güne özgü, kaynak tarafında.
+- **ADESE 08.02.2023:** İş Yatırım'da da yok (iptal edilen seans). Bizde `drop_cancelled_sessions` ile zaten çıkarılıyor. Sorun yok.
+- **Sonuçlara etkisi:** pratikte yok. Araştırma 2023-08-01'de başlıyor; o gün kullanılan en uzun pencere (200 seans) Ekim 2022'ye kadar gidiyor. 27.06.2022 bunun da öncesinde. KRVGD (16.12.2022) bu pencerenin içinde, ama 01.04.2022'de BIST 100'den çıktı ve geri girmedi; geçmiş üyelik evreninde hiç seçilemez.
+- **Karar:** düzeltme uygulanmadı. Gerekirse `data/price_fix_approvals.csv` üzerinden, kaynağıyla, kullanıcı onayıyla yapılır.

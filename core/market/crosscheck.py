@@ -411,15 +411,17 @@ def inspect(items: list[tuple[str, date]], get=None, bars=None, sleep=None, arou
             bar = ours.loc[target]
             if not bar["low"] <= bar["close"] <= bar["high"]:
                 notes.append("bizde en yüksek/en düşük kapanışı kapsamıyor")
+        elif target not in ours.index and target not in theirs.index:
+            notes.append("o gün iki kaynakta da yok")
         else:
             notes.append("o gün " + ("bizde yok" if target not in ours.index else "İş Yatırım'da yok"))
         lines.append(f"{title}: " + " | ".join(notes))
         lines.append("  " + "kaynak".ljust(12) + "gün".ljust(12) + "".join(c.ljust(8) for c in
                                                                            ("açılış", "yüksek", "düşük", "kapanış")))
         days = sorted(set(ours.index) | set(theirs.index))
-        if target in days:
-            i = days.index(target)
-            days = days[max(0, i - around): i + around + 1]
+        before = [d for d in days if d < target][-around:]
+        after = [d for d in days if d > target][:around]
+        days = before + ([target] if target in days else []) + after
         for d in days:
             if d in ours.index:
                 b = ours.loc[d]

@@ -5,7 +5,7 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
 
 ## Kaldığım yer (27.10.2026, kod v0.48.1)
 
-- **Son sürüm:** v0.48.2 (şüpheli mumları İş Yatırım ile yan yana gösteren `crosscheck --inspect`).
+- **Son sürüm:** v0.48.3 (OHLC incelemesi İş Yatırım ile doğrulandı: 27.06.2022 Yahoo kaynaklı, sonuçlara etkisi yok).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
