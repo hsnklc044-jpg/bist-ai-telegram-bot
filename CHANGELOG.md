@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.55.3 – 27.10.2026
+- Öz-denetim (ROADMAP). Bakım takvimi BIST 100 dönemlerini çeyreğin ilk işlem gününden de tanıyor; aksi halde Ocak 2027'de kalıcı yanlış uyarı verecekti.
+
 ## v0.55.2 – 27.10.2026
 - SLO'lar kaydın başladığı günden ölçülür: PC'de rapor ve yedek hedefi, kaydı olmayan eski günleri "eksik" sayıp %25 gösteriyordu. Hiç kaydedilmemiş geri yükleme testi artık "bilinmiyor".
 

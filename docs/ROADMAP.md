@@ -20,11 +20,22 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 | I | Güvenlik ve bağımlılıklar | kod hemen | I1 haftalık pip-audit, I2 gizli bilgi testi v0.54.0; I3 kural DECISIONS'ta; kapsam kapısı %91 ve kalite SLO'su v0.54.1 — **tamam** |
 | J | Bakım ve devir | yazılım işi bitince | J1 HANDBOOK, J2 MAINTENANCE, J3 /durum 'Bakım takvimi', J4 CHANGELOG v0.55.0 — **tamam** |
 
-Öz-denetim (CHARTER §7): her 10 sürümde bir. Sayaç v0.50.0'dan başlar; ilk denetim v0.60.0 civarı.
+Öz-denetim (CHARTER §7): her 10 sürümde bir. İlk denetim 27.10 (v0.50.0–v0.55.2, 11 sürüm); sayaç v0.55.3'ten yeniden başlar.
 
-## Kaldığım yer (27.10.2026, kod v0.55.2)
+**Öz-denetim 27.10.2026 bulguları** (önem sırasıyla)
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö1 | YÜKSEK | "Bakım takvimi" yalnız ayın 1'ini dönem başı sayıyordu; dönemler çeyreğin ilk işlem gününde başlıyor (2023-01-02, 2026-01-02…). Ocak 2027 değişikliği 04.01 ile girilince /durum kalıcı "girilmedi" uyarısı verecekti | ✅ v0.55.3 (`QuarterlyReviewDateTest`) |
+| Ö2 | YÜKSEK | SLO'lar kayıt başlamadan önceki günleri "eksik" sayıyordu (PC'de %25) | ✅ v0.55.2 (K-15) |
+| Ö3 | DÜŞÜK | `logs/monitoring.json` iki süreçten (bot, rapor görevi) aynı `.tmp` adıyla yazılıyor; çakışırsa biri kaydedilmez (OSError yakalanıp loglanır), izleme satırı bir sonraki sinyalde düzelir | kabul: etkisi yalnız /durum satırı, bir sinyal sonra kendiliğinden düzelir |
+| Ö4 | DÜŞÜK | `logs/heartbeats.csv` sınırsız büyür (~3 MB/yıl) ve /durum her seferinde tamamını okur | kabul; yıllık bakımda (MAINTENANCE) gözden geçirilir |
+| Ö5 | BİLGİ | Cuma raporu SLO tablosu için iki GitHub sorgusu yapar (10 sn zaman aşımı); internet yoksa "bilinmiyor" | beklenen davranış |
 
-- **Son sürüm:** v0.55.2 (SLO'lar kaydın başladığı günden ölçülür; PC'deki yanlış %25 alarmı).
+Saat dilimi, sessiz hata yutma, belge-kod uyumu: bugün eklenen kod (slo, health, daily, runs, ping, crosscheck, quality) tarandı; başka bulgu yok.
+
+## Kaldığım yer (27.10.2026, kod v0.55.3)
+
+- **Son sürüm:** v0.55.3 (öz-denetim; BIST 100 dönem tarihi hatası düzeltildi).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

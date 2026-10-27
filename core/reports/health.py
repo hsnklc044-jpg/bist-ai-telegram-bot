@@ -166,15 +166,16 @@ def _next_quarter(day: date) -> date:
     return date(day.year + (month > 12), (month - 1) % 12 + 1, 1)
 
 
-def _last_review() -> date | None:
-    """The latest quarterly (1st of Jan/Apr/Jul/Oct) BIST 100 change in data/bist100_changes.csv."""
+def _last_review(path: Path | None = None) -> date | None:
+    """Start of the quarter of the latest quarterly BIST 100 review in data/bist100_changes.csv. A review takes
+    effect on the quarter's first session (e.g. 2027-01-04), so the first week of Jan/Apr/Jul/Oct counts."""
 
     try:
-        with open(DATA_DIR / "bist100_changes.csv", encoding="utf-8-sig", newline="") as fh:
+        with open(path or DATA_DIR / "bist100_changes.csv", encoding="utf-8-sig", newline="") as fh:
             days = [date.fromisoformat(r["effective_date"]) for r in csv.DictReader(fh)]
     except (OSError, ValueError, KeyError):
         return None
-    reviews = [d for d in days if d.day == 1 and d.month in (1, 4, 7, 10)]
+    reviews = [date(d.year, d.month, 1) for d in days if d.month in (1, 4, 7, 10) and d.day <= 7]
     return max(reviews) if reviews else None
 
 

@@ -325,3 +325,29 @@ class MaintenanceCalendarTest(unittest.TestCase):
         c = self.check((2027, 8, 10), last_review="2027-07-01")
         self.assertEqual(c.state, health.WARN)
         self.assertIn("Python 3.11", c.text)
+
+
+class QuarterlyReviewDateTest(unittest.TestCase):
+    """Self-audit 27.10: a review takes effect on the quarter's first session (2023-01-02, 2023-04-03, 2026-01-02),
+    not always on the 1st. A review entered as 2027-01-04 must count, or /durum warns forever."""
+
+    def test_review_on_the_first_session_counts(self):
+        import tempfile
+        from pathlib import Path
+
+        from core.market.calendar import ISTANBUL
+        from core.reports import health
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "changes.csv"
+            path.write_text("effective_date,symbol,action,source\n2026-10-01,AAA,add,x\n2026-10-01,BBB,remove,x\n"
+                            "2026-06-18,CCC,add,x\n2027-01-04,DDD,add,x\n2027-01-04,AAA,remove,x\n", encoding="utf-8")
+            self.assertEqual(health._last_review(path).isoformat(), "2027-01-01")  # the quarter it belongs to
+            c = health.maintenance_check(datetime(2027, 1, 5, 12, tzinfo=ISTANBUL), health._last_review(path))
+        self.assertEqual(c.state, health.OK, c.text)
+        self.assertIn("01.04.2027", c.text)
+
+    def test_committed_history_reads_the_latest_quarter(self):
+        from core.reports import health
+
+        self.assertEqual(health._last_review().isoformat(), "2026-10-01")
