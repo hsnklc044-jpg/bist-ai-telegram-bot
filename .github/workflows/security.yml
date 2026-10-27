@@ -1,0 +1,35 @@
+name: Security (packages)
+
+# CHARTER I1: every week, check the locked packages against the public vulnerability
+# databases (PyPI / OSV) with pip-audit. pip-audit runs only here; it is not a project
+# dependency (DECISIONS K-13). A finding fails the run; the fix is a tested upgrade of
+# requirements.lock, released like any other change.
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"  # Monday 08:17 Istanbul
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install pip-audit==2.7.3
+      - name: pip-audit requirements.lock
+        run: |
+          set -o pipefail
+          pip-audit --requirement requirements.lock --no-deps --disable-pip --progress-spinner off 2>&1 | tee audit.txt
+      - name: Summary
+        if: always()
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat audit.txt >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
