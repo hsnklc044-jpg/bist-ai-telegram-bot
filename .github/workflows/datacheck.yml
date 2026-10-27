@@ -16,13 +16,17 @@ on:
         description: "only these codes, space separated (empty: every BIST 100 member since 2022)"
         required: false
         default: ""
+      inspect:
+        description: "only show these candles side by side, e.g. BIOEN:2022-06-27 PSGYO:2022-06-27"
+        required: false
+        default: ""
 
 permissions:
   contents: write  # push to the research-results branch only
 
 concurrency:
   # a short run with a few symbols does not wait for the full one
-  group: datacheck-${{ inputs.symbols != '' && 'symbols' || 'full' }}
+  group: datacheck-${{ (inputs.symbols != '' || inputs.inspect != '') && 'symbols' || 'full' }}
   cancel-in-progress: false
 
 # A command piped into tee must fail its step when it fails (steps that
@@ -38,6 +42,7 @@ jobs:
     env:
       START: ${{ inputs.start }}
       SYMBOLS: ${{ inputs.symbols }}
+      INSPECT: ${{ inputs.inspect }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -49,7 +54,9 @@ jobs:
         run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
       - name: Compare with İş Yatırım
         run: |
-          if [ -n "$SYMBOLS" ]; then
+          if [ -n "$INSPECT" ]; then
+            python -m core.market.crosscheck --inspect $INSPECT 2>&1 | tee datacheck.txt
+          elif [ -n "$SYMBOLS" ]; then
             python -m core.market.update > update.txt 2>&1 || true
             python -m core.market.crosscheck --start "${START:-2022-01-01}" --adjusted --show-explained --symbols $SYMBOLS 2>&1 | tee datacheck.txt
           else

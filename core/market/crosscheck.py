@@ -372,6 +372,65 @@ def run(
     return [benchmark, *results]
 
 
+SAME_CLOSE = 0.005  # within 0.5%: the same close
+
+
+def _price(x) -> str:
+    if x is None or pd.isna(x):
+        return "—"
+    return f"{x:.2f}" if abs(x) >= 1 else f"{x:.4f}"
+
+
+def _row(label: str, day, o, h, low, c) -> str:
+    return "  " + label.ljust(12) + f"{day:%d.%m.%Y}".ljust(12) + "".join(_price(v).ljust(8) for v in (o, h, low, c))
+
+
+def inspect(items: list[tuple[str, date]], get=None, bars=None, sleep=None, around: int = 2) -> list[str]:
+    """One suspicious candle per item: our raw candle and İş Yatırım's, `around` sessions each side.
+
+    İş Yatırım gives no open, so the open column is ours only. Nothing is changed."""
+
+    if bars is None:
+        from core.reports.daily import raw_bars as bars
+
+    lines = []
+    for symbol, day in items:
+        code = symbol.removesuffix(".IS")
+        title = f"{code} {day:%d.%m.%Y}"
+        ours = bars(symbol)
+        try:
+            theirs = fetch_isyatirim(code, day - timedelta(days=10), day + timedelta(days=10), get=get, sleep=sleep)
+        except Exception as exc:  # noqa: BLE001 - one failed stock must not stop the check
+            lines += [f"{title}: ikinci kaynak alınamadı ({type(exc).__name__})", ""]
+            continue
+        target = pd.Timestamp(day)
+        notes = []
+        if target in ours.index and target in theirs.index:
+            diff = ours.at[target, "close"] / theirs.at[target, "close"] - 1
+            notes.append("kapanış aynı" if abs(diff) <= SAME_CLOSE else f"kapanış farklı (%{diff * 100:+.1f})")
+            bar = ours.loc[target]
+            if not bar["low"] <= bar["close"] <= bar["high"]:
+                notes.append("bizde en yüksek/en düşük kapanışı kapsamıyor")
+        else:
+            notes.append("o gün " + ("bizde yok" if target not in ours.index else "İş Yatırım'da yok"))
+        lines.append(f"{title}: " + " | ".join(notes))
+        lines.append("  " + "kaynak".ljust(12) + "gün".ljust(12) + "".join(c.ljust(8) for c in
+                                                                           ("açılış", "yüksek", "düşük", "kapanış")))
+        days = sorted(set(ours.index) | set(theirs.index))
+        if target in days:
+            i = days.index(target)
+            days = days[max(0, i - around): i + around + 1]
+        for d in days:
+            if d in ours.index:
+                b = ours.loc[d]
+                lines.append(_row("bizde", d, b["open"], b["high"], b["low"], b["close"]))
+            if d in theirs.index:
+                t = theirs.loc[d]
+                lines.append(_row("İş Yatırım", d, None, t["high"], t["low"], t["close"]))
+        lines.append("")
+    return lines
+
+
 def main(argv: list[str] | None = None) -> None:
     from core.market.universe import load_universe
 
@@ -386,7 +445,19 @@ def main(argv: list[str] | None = None) -> None:
                         help="also list the days counted as dividend/bonus/split days")
     parser.add_argument("--adjusted", action="store_true",
                         help="check the corporate-action adjusted series the backtests use")
+    parser.add_argument("--inspect", nargs="*", default=None, metavar="KOD:YYYY-MM-DD",
+                        help="show our raw candle and İş Yatırım's around these days, nothing else")
     args = parser.parse_args(argv)
+
+    if args.inspect:
+        items = []
+        for item in args.inspect:
+            code, _, day = item.partition(":")
+            items.append((code.upper() if code.upper().endswith(".IS") else f"{code.upper()}.IS",
+                          date.fromisoformat(day)))
+        print("\n".join(["Ham mum karşılaştırması (bizde: Yahoo, işlem gördüğü haliyle; düzeltme uygulanmaz)", "",
+                         *inspect(items)]))
+        return
 
     if args.symbols:
         symbols = [s if s.endswith(".IS") else f"{s.upper()}.IS" for s in args.symbols]
@@ -413,4 +484,4 @@ if __name__ == "__main__":
     main()
 
 
-__all__ = ["CrossCheck", "compare", "fetch_isyatirim", "format_report", "run"]
+__all__ = ["CrossCheck", "compare", "fetch_isyatirim", "format_report", "inspect", "run"]

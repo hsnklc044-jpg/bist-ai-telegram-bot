@@ -226,6 +226,43 @@ class CompareTest(unittest.TestCase):
         self.assertEqual(len(ok.calls), 3)  # C, D, E were all asked
         self.assertNotIn("yanıt vermiyor", " ".join(r.error or "" for r in results))
 
+    def test_inspect_shows_both_candles_around_the_day(self):
+        """A flat O=H=L candle with the close outside: is our close right, or our high/low?"""
+
+        rows = [
+            {"HGDG_TARIH": "24-06-2022", "HGDG_KAPANIS": 7.00, "HGDG_MAX": 7.30, "HGDG_MIN": 6.90, "HGDG_AOF": 7.1,
+             "HGDG_HACIM": 1e7},
+            {"HGDG_TARIH": "27-06-2022", "HGDG_KAPANIS": 7.64, "HGDG_MAX": 7.70, "HGDG_MIN": 7.20, "HGDG_AOF": 7.5,
+             "HGDG_HACIM": 2e7},
+        ]
+        index = pd.to_datetime(["2022-06-24", "2022-06-27"])
+        ours = pd.DataFrame({"open": [7.0, 7.24], "high": [7.3, 7.24], "low": [6.9, 7.24], "close": [7.0, 7.64],
+                             "volume": [1e6, 2e6]}, index=index)
+        lines = crosscheck.inspect([("BIOEN.IS", date(2022, 6, 27))], get=fake_get(rows), bars=lambda s: ours,
+                                   sleep=lambda s: None)
+        text = "\n".join(lines)
+        self.assertIn("BIOEN 27.06.2022", text)
+        self.assertIn("kapanış aynı", text)  # 7.64 = 7.64: our close is right
+        self.assertIn("bizde en yüksek/en düşük kapanışı kapsamıyor", text)
+        self.assertIn("İş Yatırım  27.06.2022  —       7.70    7.20    7.64", text)
+
+    def test_inspect_reports_a_different_close(self):
+        rows = [{"HGDG_TARIH": "27-06-2022", "HGDG_KAPANIS": 5.70, "HGDG_MAX": 5.90, "HGDG_MIN": 5.60,
+                 "HGDG_AOF": 5.8, "HGDG_HACIM": 1e7}]
+        ours = pd.DataFrame({"open": [5.805], "high": [5.805], "low": [5.805], "close": [5.796], "volume": [1e6]},
+                            index=pd.to_datetime(["2022-06-27"]))
+        text = "\n".join(crosscheck.inspect([("BOBET.IS", date(2022, 6, 27))], get=fake_get(rows),
+                                             bars=lambda s: ours, sleep=lambda s: None))
+        self.assertIn("kapanış farklı (%+1.7)", text)
+
+    def test_inspect_survives_an_unreachable_source(self):
+        def broken(*a, **k):
+            raise ConnectionError("kapalı")
+
+        text = "\n".join(crosscheck.inspect([("X.IS", date(2022, 6, 27))], get=broken, bars=lambda s: frame([1.0]),
+                                             sleep=lambda s: None))
+        self.assertIn("X 27.06.2022: ikinci kaynak alınamadı", text)
+
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))
         self.assertEqual(result.state, "kontrol edilemedi")
