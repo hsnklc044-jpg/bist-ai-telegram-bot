@@ -1,0 +1,30 @@
+DR drill 2026-10-27_20-33 (e00f2545c6aef0e24b1f142a5d1640ee31962bae): success
+run: https://github.com/hsnklc044-jpg/bist-ai-telegram-bot/actions/runs/40551266369
+🩺 QuantBIST v0.56.2 durum – 27.10.2026 20:33
+⚠️ UYARI: dikkat gereken bileşen var
+
+❔ BİLİNMİYOR · Telegram botu: yaşam sinyali yok (bot v0.37.0 öncesi ya da hiç başlamadı)
+❔ BİLİNMİYOR · Günlük rapor: henüz gönderim kaydı yok (kayıt v0.22.0 ile başladı)
+✅ SAĞLIKLI · Fiyat verisi: XU100 son kapanış 27.10.2026
+✅ SAĞLIKLI · Fiyat veritabanı: bütünlük ok (14 MB)
+❔ BİLİNMİYOR · Canlı ölçüm kaydı: signal_log.csv yok
+❔ BİLİNMİYOR · Sanal hesap kaydı: equity_log.csv yok
+✅ SAĞLIKLI · Veri şeması: 2 dosya bu sürümle uyumlu
+✅ SAĞLIKLI · Kişisel dosyalar: 3 dosya sonuna kadar okundu
+⚠️ UYARI · Yedek: quantbist_2026-10-27.zip (27.10 20:33); yedek verilerle aynı diskte; disk arızasında ikisi birlikte kaybolur. BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın
+✅ SAĞLIKLI · Disk: 32.9 GB boş
+✅ SAĞLIKLI · Tatil takvimi: 2026 sonuna kadar; yaklaşan: 28.10 Cumhuriyet Bayramı arifesi (yarım gün), 29.10 Cumhuriyet Bayramı
+✅ SAĞLIKLI · Bakım takvimi: sonraki BIST 100 dönemi 01.01.2027
+ℹ️ BİLGİ · Dışarıdan izleme: kurulmadı (isteğe bağlı): .env'de HC_REPORT_URL ve HC_BOT_URL yok; OPERATIONS §7
+✅ SAĞLIKLI · GitHub araştırması: son çalışma 27.10 13:30: success
+
+📐 SLO (son 7 gün): 1/7 hedefte, 6 ölçülemiyor
+  ❔ Rapor teslimi: — (hedef ≥ %99 seans 19:00'a kadar) · runs.csv yok
+  ❔ Bot ayakta kalma: — (hedef ≥ %98) · veri birikiyor; en az 1 günlük yaşam sinyali gerekir
+  ❔ Veri tazeliği: — (hedef ≥ %98 hisse 19:00'da güncel) · freshness.csv yok (ilk raporla başlar)
+  ❔ Veri doğruluğu: — (hedef ≤ %1 hisse ikinci kaynaktan farklı) · ikinci kaynak özeti alınamadı (haftalık araştırma, crosscheck/latest.json)
+  ❔ Yedek: %100.0 (hedef her gün + haftalık geri yükleme testi) · 1/1 seans günü yedekli; ölçüm 27.10'de başladı; geri yükleme testi sonucu henüz kaydedilmedi (haftalık test ilk çalışınca)
+  ❔ Kayıt bütünlüğü: — (hedef 0 bozuk / tekrar / eksik) · signal_log.csv yok
+  ✅ Kalite (CI, kapsam): — (hedef CI yeşil, kapsam ≥ %90) · son CI 27.10 20:30 (e00f254): success; testler, ruff ve kapsam kapısı %91 geçti
+
+Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.
