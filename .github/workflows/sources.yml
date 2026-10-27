@@ -1,0 +1,78 @@
+name: Source pages (archive)
+
+# Downloads public source pages (e.g. Borsa İstanbul index announcements) and
+# keeps them as evidence on the research-results branch under sources/<date>/.
+# Data rows built from them cite the archived copy. Nothing in the repo changes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "space separated https:// addresses"
+        required: true
+
+permissions:
+  contents: write  # push to the research-results branch only
+
+concurrency:
+  group: sources
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      URLS: ${{ inputs.urls }}
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install requests==2.32.3
+      - name: Download
+        run: |
+          mkdir -p out
+          python - <<'EOF'
+          import hashlib, os, re, time, requests
+          urls = os.environ["URLS"].split()
+          index = []
+          for n, url in enumerate(urls, 1):
+              if not re.match(r"^https://[\w.-]+/", url):
+                  index.append(f"{n:03d}\tSKIPPED\t{url}")
+                  continue
+              try:
+                  r = requests.get(url, timeout=30, headers={"User-Agent": "Mozilla/5.0 (QuantBIST source archive)"})
+                  body = r.content
+                  name = f"{n:03d}.html"
+                  open(f"out/{name}", "wb").write(body)
+                  index.append(f"{n:03d}\t{r.status_code}\t{len(body)}\tsha256={hashlib.sha256(body).hexdigest()}\t{url}")
+              except Exception as exc:
+                  index.append(f"{n:03d}\tERROR {type(exc).__name__}\t{url}")
+              time.sleep(1)
+          open("out/index.tsv", "w", encoding="utf-8").write("\n".join(index) + "\n")
+          print("\n".join(index))
+          EOF
+      - uses: actions/checkout@v5
+        with:
+          path: repo
+      - name: Save
+        run: |
+          stamp=$(TZ=Europe/Istanbul date '+%Y-%m-%d_%H-%M-%S')
+          cd repo
+          if git fetch --depth=1 origin research-results; then
+            git worktree add -B research-results ../results FETCH_HEAD
+          else
+            git worktree add --orphan -b research-results ../results
+          fi
+          cd ../results
+          mkdir -p "sources/$stamp"
+          cp ../out/* "sources/$stamp/"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Sources $stamp" || exit 0
+          git push origin research-results
