@@ -153,6 +153,8 @@ Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kim
 - Tatilde "tatil" kaydı başarılı sinyali sayılır, bu yüzden yanlış alarm çıkmaz.
 - Takvime girmemiş bir tatilde rapor "yeni veri yok" diyerek `/fail` gönderir. Bu durumda alarm doğrudur: `data/bist_holidays.csv` dosyasına bakılmalı.
 
+**Adres yazım hataları (27.10'da yaşandı).** Adrese yanlışlıkla giren boşluklar kendiliğinden silinir. Örnek metin (`<…>`), `https://` eksikliği ya da kodsuz adres `/durum`'da "HC_… biçimi hatalı" diye, adres gösterilmeden yazılır; `--drill` bu durumda hiçbir şey göndermez (`test_ping.AddressTypoTest`).
+
 ## 7b. Çalıştırma kayıtları (aranabilir)
 
 Her günlük rapor çalıştırması `logs/daily_<tarih>.log` ve `logs/quantbist.log` dosyalarına tek satırlık bir özet yazar:

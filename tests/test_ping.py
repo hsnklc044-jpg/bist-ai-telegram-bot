@@ -103,6 +103,42 @@ class RedactTest(unittest.TestCase):
         self.assertNotIn("1234abcd", text)
 
 
+class AddressTypoTest(unittest.TestCase):
+    """PC 27.10: the .env lines first kept the example text "<… kod>", then a space after ".com/".
+    Healthchecks answered HTTP 400 and only a manual look found why. The address is never shown."""
+
+    def test_spaces_inside_the_address_are_dropped(self):
+        with mock.patch.dict("os.environ", {"HC_BOT_URL": " https://hc-ping.com/ 1234abcd-gizli "}):
+            self.assertEqual(ping.address("HC_BOT_URL"), "https://hc-ping.com/1234abcd-gizli")
+            self.assertIsNone(ping.address_problem("HC_BOT_URL"))
+
+    def test_example_text_and_wrong_shapes_are_named_without_the_address(self):
+        cases = {
+            "https://hc-ping.com/<QuantBIST bot satırındaki kod>": "örnek metin",
+            "hc-ping.com/1234abcd-gizli": "https://",
+            "https://hc-ping.com/": "kod yok",
+        }
+        for value, words in cases.items():
+            with self.subTest(value), mock.patch.dict("os.environ", {"HC_BOT_URL": value}):
+                problem = ping.address_problem("HC_BOT_URL")
+                self.assertIn(words, problem)
+                self.assertNotIn("hc-ping.com", problem)
+
+    def test_durum_says_which_line_is_malformed(self):
+        from datetime import datetime
+
+        from core.market.calendar import ISTANBUL
+        from core.reports import health
+
+        env = {"HC_REPORT_URL": URL, "HC_BOT_URL": "https://hc-ping.com/<kod>"}
+        with mock.patch.dict("os.environ", env):
+            check = health.monitoring_check(datetime(2026, 10, 28, 21, 0, tzinfo=ISTANBUL))
+        self.assertEqual(check.state, health.WARN)
+        self.assertIn("HC_BOT_URL", check.text)
+        self.assertIn("örnek metin", check.text)
+        self.assertNotIn("hc-ping.com", check.text)
+
+
 if __name__ == "__main__":
     unittest.main()
 

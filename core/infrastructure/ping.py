@@ -33,7 +33,23 @@ _http_get = None  # tests replace it: a test run must never reach the real monit
 def address(name: str) -> str:
     import core.infrastructure.settings  # noqa: F401 - loads .env into the environment
 
-    return os.getenv(name, "").strip()
+    # a URL has no spaces: one copied in by mistake (PC 27.10, after ".com/") is dropped
+    return "".join(os.getenv(name, "").split())
+
+
+def address_problem(name: str) -> str | None:
+    """What is wrong with the address's shape, in words that never contain the address; None when fine."""
+
+    value = address(name)
+    if not value:
+        return None
+    if "<" in value or ">" in value:
+        return "örnek metin kalmış (< >); Healthchecks'teki gerçek adresi yapıştırın"
+    if not value.startswith("https://"):
+        return "https:// ile başlamıyor"
+    if not value.removeprefix("https://").partition("/")[2].strip("/"):
+        return "kod yok (adres / ile bitiyor)"
+    return None
 
 
 def ping(url: str, fail: bool = False, get=None, name: str | None = None, state_path=None, now=None) -> bool:
@@ -97,6 +113,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     url = address(REPORT_ENV)
+    if address_problem(REPORT_ENV):
+        print(f"HC_REPORT_URL biçimi hatalı: {address_problem(REPORT_ENV)}. Hiçbir şey gönderilmedi.")
+        return 1
     if not url:
         print("HC_REPORT_URL .env'de yok: önce izlemeyi kurun (OPERATIONS §7). Hiçbir şey gönderilmedi.")
         return 1
@@ -115,4 +134,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["BOT_ENV", "REPORT_ENV", "STATE_FILE", "address", "last_pings", "main", "ping"]
+__all__ = ["BOT_ENV", "REPORT_ENV", "STATE_FILE", "address", "address_problem", "last_pings", "main", "ping"]

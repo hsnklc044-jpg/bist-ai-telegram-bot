@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.59.2 – 27.10.2026
+- Dışarıdan izleme açıldı (PC, 22:23). Kurulumda yaşanan iki yazım hatası artık kendiliğinden yakalanıyor: adrese giren boşluk silinir; `< >` örnek metni ya da eksik kod `/durum`'da "biçimi hatalı" diye görünür (adres gösterilmez).
+
 ## v0.59.1 – 27.10.2026
 - Erken öz-denetim (ROADMAP "Öz-denetim 2"): kritik ya da yüksek bulgu yok. Bir orta bulgu düzeltildi: GitHub'daki iş akışları sonuçlarını aynı dala aynı anda yazmaya çalışırsa haftalık araştırma sonuçları kaybolabiliyordu; artık yeniden denerler.
 

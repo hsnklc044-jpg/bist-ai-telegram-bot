@@ -485,6 +485,9 @@ def monitoring_check(now: datetime, state_path: Path | None = None) -> Check:
     missing = [env for env, ok in have.items() if not ok]
     if missing:
         return Check(name, WARN, f"{', '.join(missing)} .env'de yok; iki adres de gerekli (OPERATIONS §7)")
+    malformed = [f"{env} biçimi hatalı: {why}" for env in have if (why := ping.address_problem(env))]
+    if malformed:
+        return Check(name, WARN, "; ".join(malformed) + " (OPERATIONS §7)")
 
     pings = ping.last_pings(state_path)
     problems, parts = [], []
