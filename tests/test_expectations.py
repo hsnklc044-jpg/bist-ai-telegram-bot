@@ -67,3 +67,19 @@ class ViewExcessTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CommittedFileTest(unittest.TestCase):
+    """data/view_expectations.csv (user decision 27.10.2026): every view and horizon, readable."""
+
+    def test_every_view_and_horizon(self):
+        from core.config.paths import DATA_DIR
+        from core.config.thresholds import SIGNAL_VIEW_LABELS
+
+        loaded = expectations.load(DATA_DIR / "view_expectations.csv")
+        wanted = {(v, h) for v in SIGNAL_VIEW_LABELS.values() for h in expectations.HORIZONS}
+        self.assertEqual(set(loaded), wanted)
+        for row in loaded.values():
+            self.assertLess(abs(row["mean"]), 0.5)
+            self.assertTrue(0 <= row["hit_rate"] <= 1)
+            self.assertEqual(row["universe"], "pit")

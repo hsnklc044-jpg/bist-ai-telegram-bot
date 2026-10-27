@@ -173,3 +173,24 @@ kalıyordu (`candidates --pit` dahil). Önceki `--pit` sonuçları bu yüzden ge
   - Hiçbir strateji sinyal olarak sunulmaz.
   - Sonuçlar bağımsız bir dönemde (canlı ölçüm) tekrar etmeden "çalışıyor" denmez.
   - Yeni kurallar en az "en kârlı 5 hisse hariç" kapısını geçmelidir. Aday kurallarda bu kapı zaten var; ana tablodaki stratejilerin hiçbiri bu kapıyı geçmiyor.
+
+---
+
+## 2026-10-27 — Teknik görünümlerin geçmiş sonucu (`/performans` referansı, v0.45.14)
+
+- **Kaynak:** Research çalışması 40415685951 (v0.44.0), `runs/2026-10-27_01-52/`.
+  - Geçmiş BIST 100 üyeliği, 190 hisse, 2023-08-01 – 2026-10-16.
+  - Yöntem: ertesi seansın açılışında alıp 5/20/60 seans tutmak; sonuç XU100'e göre fark.
+- **Sonuç (20 seans):**
+
+  | Görünüm | XU100'e göre fark |
+  |---|---|
+  | Güçlü pozitif | −%0,28 |
+  | Pozitif | −%0,17 |
+  | Nötr | −%0,80 |
+  | Negatif | −%0,87 |
+  | Güçlü negatif | −%2,04 |
+
+  İsabet oranı %41–46. Pozitif görünümler XU100'ü geçmiyor; yalnız negatif görünümler daha kötü sonuç veriyor. Bu, mevcut "tahmin gücü kanıtlanmadı" kararıyla tutarlı.
+- **Karar:** dosya `data/view_expectations.csv` olarak eklendi (kullanıcı kararı, 27.10.2026). Bu değerler karşılaştırma için referanstır, kanıt değildir. Hiçbir kural bu sonuca göre ayarlanmadı.
+- **Not:** dosya KCAER katsayısı 0,8650 iken üretildi (v0.45.13'te 0,8646 oldu). Fark tek bir hissenin 28.11.2024 öncesi fiyatlarında %0,05; sonuçlar ölçülebilir biçimde değişmez. Dosya bir sonraki elle yenilemede güncellenecek.
