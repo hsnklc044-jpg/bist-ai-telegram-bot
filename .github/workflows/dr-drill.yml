@@ -1,0 +1,102 @@
+name: Disaster recovery drill (Windows)
+
+# CHARTER E / MATURITY S2: a clean Windows machine is rebuilt from a backup, following
+# docs/DISASTER_RECOVERY.md step by step. Synthetic personal records only (no real data,
+# no token). Monthly and on demand; the result is kept on research-results under drills/.
+
+on:
+  schedule:
+    - cron: "41 4 3 * *"  # 3rd of each month, 07:41 Istanbul
+  workflow_dispatch:
+
+permissions:
+  contents: write  # push the drill report to research-results only
+
+concurrency:
+  group: dr-drill
+  cancel-in-progress: false
+
+jobs:
+  drill:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: "Old machine: synthetic records and their backup"
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force C:\old\data, C:\yedek | Out-Null
+          Set-Content -Encoding utf8NoBOM C:\old\data\ledger.csv "id,date,account,symbol,side,quantity,price,fee,note`n1,2026-10-01,real,THYAO.IS,buy,10,100,1,`n"
+          Set-Content -Encoding utf8NoBOM C:\old\data\paper_orders.csv "id,created_at,symbol,side,quantity,status,fill_date,fill_price,note`n1,2026-10-20T10:00:00+03:00,THYAO.IS,buy,10,pending,,,`n"
+          Set-Content -Encoding utf8NoBOM C:\old\data\watchlist.json '{"1": ["EREGL.IS"]}'
+          Get-FileHash C:\old\data\* | ForEach-Object { "$($_.Hash) $(Split-Path -Leaf $_.Path)" } | Set-Content C:\old\hashes.txt
+          Get-Content C:\old\hashes.txt
+      - name: "Step 2: download the code as the document says"
+        run: |
+          $ErrorActionPreference = "Stop"
+          $branch = "${{ github.ref_name }}"
+          Invoke-WebRequest "https://github.com/${{ github.repository }}/archive/refs/heads/$branch.zip" -OutFile "$env:TEMP\qb.zip"
+          New-Item -ItemType Directory -Force C:\Projeler | Out-Null
+          Expand-Archive "$env:TEMP\qb.zip" C:\Projeler -Force
+          Rename-Item (Get-ChildItem C:\Projeler -Directory -Filter "bist-ai-telegram-bot-*")[0].FullName QuantBIST
+          Get-Content C:\Projeler\QuantBIST\core\__init__.py | Select-String __version__
+      - name: "Step 3: setup.ps1 (venv, locked packages, ruff, tests)"
+        working-directory: C:\Projeler\QuantBIST
+        run: powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+      - name: "Backup of the old machine (made with this code)"
+        working-directory: C:\Projeler\QuantBIST
+        run: |
+          $ErrorActionPreference = "Stop"
+          .venv\Scripts\python -c "from pathlib import Path; from core import backup; b = backup.create_backup([Path(r'C:\old\data') / n for n in ('ledger.csv', 'paper_orders.csv', 'watchlist.json')], target=Path(r'C:\yedek')); print(b.path)"
+      - name: "Step 5: restore the newest daily backup"
+        working-directory: C:\Projeler\QuantBIST
+        env:
+          BACKUP_DIR: C:\yedek
+        run: |
+          $ErrorActionPreference = "Stop"
+          .venv\Scripts\python -m core.backup --list
+          $zip = (Get-ChildItem C:\yedek -Filter "quantbist_????-??-??.zip" | Sort-Object Name)[-1].FullName
+          .venv\Scripts\python -m core.backup --restore $zip
+          $now = Get-FileHash data\ledger.csv, data\paper_orders.csv, data\watchlist.json | ForEach-Object { "$($_.Hash) $(Split-Path -Leaf $_.Path)" }
+          $old = Get-Content C:\old\hashes.txt
+          if (Compare-Object ($old | Sort-Object) ($now | Sort-Object)) { throw "restored files differ from the old machine" }
+          "restored files identical (SHA-256)"
+      - name: "Step 6: price store from Yahoo"
+        working-directory: C:\Projeler\QuantBIST
+        run: .venv\Scripts\python -m core.market.update
+      - name: "Isolated restore test and /durum"
+        working-directory: C:\Projeler\QuantBIST
+        env:
+          BACKUP_DIR: C:\yedek
+          PYTHONUTF8: "1"
+        run: |
+          $ErrorActionPreference = "Stop"
+          .venv\Scripts\python -m core.backup --test-restore
+          .venv\Scripts\python -m core.reports.health | Tee-Object C:\health.txt
+          if (-not (Select-String -Path C:\health.txt -Pattern "SAĞLIKLI · Kişisel dosyalar: \d+ dosya sonuna kadar okundu")) { throw "personal files not healthy after restore" }
+      - uses: actions/checkout@v5
+        if: always()
+        with:
+          path: repo
+      - name: Save drill report
+        if: always()
+        run: |
+          $stamp = (Get-Date).ToUniversalTime().AddHours(3).ToString("yyyy-MM-dd_HH-mm")
+          cd repo
+          git fetch --depth=1 origin research-results
+          git worktree add -B research-results ..\results FETCH_HEAD
+          cd ..\results
+          New-Item -ItemType Directory -Force drills | Out-Null
+          $result = "${{ job.status }}"
+          "DR drill $stamp (${{ github.sha }}): $result`nrun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" | Set-Content "drills\$stamp.txt"
+          if (Test-Path C:\health.txt) { Get-Content C:\health.txt | Add-Content "drills\$stamp.txt" }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "DR drill $stamp"
+          git push origin research-results
