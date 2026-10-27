@@ -111,3 +111,35 @@ class StartupNetworkTest(unittest.TestCase):
             application.main()
         retries = app.run_polling.call_args.kwargs.get("bootstrap_retries", 0)
         self.assertGreaterEqual(retries, 10)  # about 2 minutes of back-off before giving up
+
+    def test_one_dns_failure_then_success_keeps_starting(self):
+        """PC log 27.10 08:36: 'getaddrinfo failed' once, then the network was back. With our setting the
+        library's retry loop must try again (with 0 retries it raised: 'Failed run number 0 of 0. Aborting.')."""
+
+        import asyncio
+        from unittest import mock
+
+        from telegram.error import NetworkError
+        from telegram.ext._utils.networkloop import network_retry_loop
+
+        from bot.application import BOOTSTRAP_RETRIES
+
+        calls = []
+
+        async def get_me():
+            calls.append(1)
+            if len(calls) == 1:
+                raise NetworkError("httpcore.ConnectError: [Errno 11001] getaddrinfo failed")
+
+        async def start(retries):
+            with mock.patch("asyncio.sleep", new=mock.AsyncMock()):  # no real back-off wait in tests
+                await network_retry_loop(action_cb=get_me, description="Bootstrap Initialize Application",
+                                         interval=1, max_retries=retries)
+
+        asyncio.run(start(BOOTSTRAP_RETRIES))
+        self.assertEqual(len(calls), 2)  # failed once, retried, started
+
+        calls.clear()
+        with self.assertRaises(NetworkError):  # the old default: the bot stopped at the first failure
+            asyncio.run(start(0))
+

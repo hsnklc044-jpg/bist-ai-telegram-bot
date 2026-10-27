@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.55.1 – 27.10.2026
+- Bot açılışında tek bir DNS hatasının ardından bağlantı gelirse botun açılmaya devam ettiği, python-telegram-bot'un gerçek yeniden deneme döngüsüyle test edildi (eski ayarla aynı test başarısız olur). PC doğrulamaları (D13, v0.45.13–v0.46.0) ROADMAP'e işlendi.
+
 ## v0.55.0 – 27.10.2026
 - `/durum`'a "Bakım takvimi": BIST 100 üç aylık dönem değişikliği yaklaşınca haber, girilmezse uyarı; Python 3.11 destek sonu.
 - El kitabı (docs/HANDBOOK.md), bakım takvimi (docs/MAINTENANCE.md), bu dosya.

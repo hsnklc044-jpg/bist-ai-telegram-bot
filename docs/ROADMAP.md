@@ -22,9 +22,9 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 
 Öz-denetim (CHARTER §7): her 10 sürümde bir. Sayaç v0.50.0'dan başlar; ilk denetim v0.60.0 civarı.
 
-## Kaldığım yer (27.10.2026, kod v0.55.0)
+## Kaldığım yer (27.10.2026, kod v0.55.1)
 
-- **Son sürüm:** v0.55.0 (bakım ve devir: el kitabı, bakım takvimi, /durum'da süresi dolacaklar, CHANGELOG).
+- **Son sürüm:** v0.55.1 (açılıştaki ağ hatası kütüphanenin gerçek döngüsüyle test edildi; PC doğrulamaları kaydedildi).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
@@ -33,6 +33,7 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 - **Bot tek örnek (27.10 09:30):** arka plandaki eski bot (08:40) kapatıldı ve v0.46.1 ile yeniden başlatıldı. Başlangıçtan sonra `Conflict` satırı yok; yaşam sinyali 09:30:56'da yazıldı. Botu otomatik başlatan bir şey yoktu: bilgisayar yeniden başlarsa bot açılmayacaktı. Kullanıcı 27.10'da "QuantBIST Bot" görevini kurdu (oturum açılışında, tek kopya, çökerse yeniden başlatır); aynı ayarlar `scripts/register_bot_task.ps1` dosyasında.
 - **Bot görev üzerinden (27.10 10:15):** görev yeniden başlatılınca elle açılmış eski bot da çalışır durumdaydı (iki bot); eski kopya kapatıldı. Şimdi tek bot, "QuantBIST Bot" görevinin başlattığı. Bot artık yalnız görevle başlatılır/yeniden başlatılır.
 - **Aşama 3 kapandı:** H1, H2, H3'ün üçü de ön kayıtlı birincil ölçütü (Bonferroni %98,3 fazla getiri aralığı > 0) geçemedi, hepsi **red** (RESEARCH_LOG, 27.10). H2/H3 nakdi kullanıcı onaylı plan değişikliği 1 ile TCMB politika faizi. Haftalık araştırma üçünü kayıt için yeniden hesaplıyor; yeni hipotez yalnız yeni plan ve onayla.
+- **PC doğrulaması (yerel nöbetçi, 27.10 08:41–08:45):** v0.46.0 kuruldu, 448 test geçti (2 atlandı), ruff temiz, /durum 13/13 SAĞLIKLI. D13 (temettü, v0.45.15) ve v0.45.13–v0.46.0 **PC'de doğrulandı**: ledger, paper_orders, equity_log ve signal_log dosyalarının SHA-256 değerleri kurulumdan önce ve sonra aynı, yeni sürüm dördünü de sonuna kadar okuyor, kurulumdan önce yedek alındı (quantbist_2026-10-27.zip, 08:39). Aynı mesajdaki açılış hatası v0.48.4'te düzeltildi; v0.55.1'de kütüphanenin gerçek yeniden deneme döngüsüyle de test edildi.
 - **Kurulum rolü (kullanıcı, 27.10):** kodu Claude geliştirir; PC'deki yerel otomasyon (`C:\Projeler\QuantBIST_otomasyon\guncelle.py`) yalnız bu dalı indirir, yedek alır, deneme kopyasında ruff+pytest çalıştırır, geçerse kurar, bot açılmazsa eski sürüme döner ve botu "QuantBIST Bot" göreviyle yeniden başlatır. Telegram'daki "🤖 Otomasyon" mesajları ondan gelir. Kullanıcıya kurulum (robocopy) komutu verilmez.
 - **08:36 kurulum hatası (27.10):** Conflict değildi. Log: `getaddrinfo failed` (DNS) ve "Network Retry Loop (Bootstrap Initialize Application): Failed run number 0 of 0. Aborting." Bot açılışta tek ağ hatasında kapanıyordu. v0.48.4'te açılış yaklaşık 7 dakika yeniden dener (`bootstrap_retries=20`); yanlış token yine hemen durur.
 - **Yerel çalışma klasörleri:** canlı klasörde `backups\`, `qb\`, `research_workspace\` var, repoda yok. pytest yalnız `tests/`'i toplar. `ruff check .` (setup.ps1/verify.ps1) bunları v0.48.4'ten beri taramaz.
@@ -80,7 +81,7 @@ Kritik bulgu yok. Satır satır kaynak ve risk tablosu: docs/RAKAMLAR.md. Yükse
 | D10 | DÜŞÜK | Saat dilimi belirtilmemiş zamanlar: fiyat deposunun eşitleme zamanı, veri önbelleği, log dosyası adı | PC ve sunucu İstanbul saatinde olduğu için bugün doğru. Başka bir saat diliminde 15 dakikalık yenileme ve log adı kayar | ✅ v0.45.9 (`test_data_layer.StoreTest.test_times_with_and_without_time_zone_mix_safely`; testler UTC ve İstanbul saatinde geçiyor) |
 | D11 | DÜŞÜK | Telegram mesaj sınırı UTF-16 birimiyle sayılıyor, kod Python karakteri sayıyor | 96'dan fazla emoji içeren bir parça sınırı aşabilir; bugünkü raporlarda olmuyor | ✅ v0.45.10 (`test_daily.SplitUtf16Test`) |
 | D12 | DÜŞÜK | `/report` elle çalıştırılınca yeni uyarıları kayda geçiriyor. Aynı gün 18:30 raporu onları "🆕" olarak yeniden göstermiyor | Kullanıcı uyarıyı `/report` çıktısında zaten görmüş oluyor | ✅ v0.45.11 (`test_report_numbers.ManualReportAlertsTest`) |
-| D13 | ORTA | Temettü kaydı yok. Defterde temettü satırı (`dividend`) bulunmuyor; temettü günü ham fiyat düşüyor ama nakde bir şey eklenmiyor | Sanal ve gerçek hesap getirisi temettü kadar eksik görünüyor; temettü günü "Günlük değişim" kayıp gösteriyor. Backtest (temettüye göre düzeltilmiş fiyat) ile sanal hesap tutarsız | ✅ v0.45.15, kullanıcı onayıyla (`test_ledger.DividendTest`, `test_report_numbers.DividendReportTest`). Sanal hesaba otomatik temettü yazılmıyor: temettü verisi yok |
+| D13 | ORTA | Temettü kaydı yok. Defterde temettü satırı (`dividend`) bulunmuyor; temettü günü ham fiyat düşüyor ama nakde bir şey eklenmiyor | Sanal ve gerçek hesap getirisi temettü kadar eksik görünüyor; temettü günü "Günlük değişim" kayıp gösteriyor. Backtest (temettüye göre düzeltilmiş fiyat) ile sanal hesap tutarsız | ✅ v0.45.15, kullanıcı onayıyla (`test_ledger.DividendTest`, `test_report_numbers.DividendReportTest`); PC'de doğrulandı 27.10. Sanal hesaba otomatik temettü yazılmıyor: temettü verisi yok |
 | D14 | DÜŞÜK | "Günlük değişim" son hesap kaydına göre hesaplanıyor. PC bir veya birkaç gün kapalı kaldıysa satır birkaç günün toplamını gösteriyor ama "günlük" yazıyor | Yanıltıcı etiket; hesabın kendisi doğru | ✅ v0.45.12 (`test_report_numbers.ChangeLabelTest`) |
 
 ## Aşama 2: tamamlandı (PC'de doğrulandı, 27.10.2026)
