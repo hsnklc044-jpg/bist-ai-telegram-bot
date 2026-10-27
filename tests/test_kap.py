@@ -27,6 +27,8 @@ class ProbeTest(unittest.TestCase):
         self.assertIn("Sermaye Artırımı", text)
         self.assertIn("[DG] konular alınamadı: ConnectionError", text)
         self.assertIn("alanlar: ['publishDate', 'stockCodes', 'subject']", text)
+        self.assertIn("     1  Kar Payı", text)
+        self.assertIn("stockCodes örnekleri: ['THYAO']", text)
         self.assertIn((f"{kap.BASE}/disclosure/members/byCriteria", "ODA", "2026-10-20", "2026-10-27"), calls)
 
     def test_criteria_asks_every_company(self):

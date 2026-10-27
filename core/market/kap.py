@@ -76,8 +76,14 @@ def probe(today: date, get=None, post=None) -> str:
             items = disclosures(today - timedelta(days=7), today, cls, post=post)
             lines.append(f"[{cls}] son 7 gün bildirim sayısı (tüm şirketler): {len(items)}")
             if items:
+                from collections import Counter
+
                 lines.append(f"  alanlar: {sorted(items[0])}")
                 lines += [f"  {json.dumps(item, ensure_ascii=False)[:400]}" for item in items[:3]]
+                lines.append(f"[{cls}] konu dağılımı (subject: adet):")
+                lines += [f"  {n:4d}  {s}" for s, n in Counter(i.get("subject") for i in items).most_common(80)]
+                codes = [i.get("stockCodes") for i in items if i.get("stockCodes")][:15]
+                lines.append(f"[{cls}] stockCodes örnekleri: {codes}")
         except Exception as exc:  # noqa: BLE001
             lines.append(f"[{cls}] bildirimler alınamadı: {type(exc).__name__}: {exc}")
     return "\n".join(lines)
