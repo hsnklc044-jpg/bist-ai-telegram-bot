@@ -1,0 +1,18 @@
+Teknik görünümlerin geçmişi (geçmiş BIST 100 üyeliği, 188 hisse, 2023-08-01 – son)
+Sonraki seansın açılışında alıp h seans tutmak, XU100'e göre fark; gün ortalamalarının ortalaması
+   5 seans  Güçlü pozitif   -0.19%  isabet %47  802 gün, 20452 kayıt
+   5 seans  Pozitif         +0.16%  isabet %48  799 gün, 14962 kayıt
+   5 seans  Nötr            -0.15%  isabet %46  801 gün, 9334 kayıt
+   5 seans  Negatif         -0.56%  isabet %43  736 gün, 5078 kayıt
+   5 seans  Güçlü negatif   -0.63%  isabet %42  793 gün, 26025 kayıt
+  20 seans  Güçlü pozitif   -0.25%  isabet %46  787 gün, 20417 kayıt
+  20 seans  Pozitif         -0.07%  isabet %46  784 gün, 14835 kayıt
+  20 seans  Nötr            -0.85%  isabet %44  786 gün, 9159 kayıt
+  20 seans  Negatif         -0.90%  isabet %44  721 gün, 4943 kayıt
+  20 seans  Güçlü negatif   -1.96%  isabet %41  778 gün, 25091 kayıt
+  60 seans  Güçlü pozitif   -0.73%  isabet %41  747 gün, 19747 kayıt
+  60 seans  Pozitif         +0.57%  isabet %41  744 gün, 14338 kayıt
+  60 seans  Nötr            -1.70%  isabet %39  746 gün, 8729 kayıt
+  60 seans  Negatif         -1.81%  isabet %44  681 gün, 4531 kayıt
+  60 seans  Güçlü negatif   -3.27%  isabet %38  738 gün, 23420 kayıt
+Yazıldı: view_expectations.csv

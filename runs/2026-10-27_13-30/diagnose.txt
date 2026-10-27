@@ -1,0 +1,45 @@
+Momentum 126 gün, en iyi 10 | 116 hisse
+En derin düşüş: -88.4% (2026-08-14 zirve → 2026-10-23 dip)
+Kayıp: 444,860 TL
+
+Düşüş döneminde kâr/zarar (en kötü 10 hisse):
+  ODINE.IS       -245,140 TL  (kayba katkı %55)
+  IEYHO.IS       -102,350 TL  (kayba katkı %23)
+  ANELE.IS        -39,770 TL  (kayba katkı %9)
+  ASTOR.IS        -18,059 TL  (kayba katkı %4)
+  IZMDC.IS        -14,748 TL  (kayba katkı %3)
+  EUPWR.IS        -13,537 TL  (kayba katkı %3)
+  TCKRC.IS         -5,635 TL  (kayba katkı %1)
+  BSOKE.IS         -2,366 TL  (kayba katkı %1)
+  TKFEN.IS         -1,932 TL  (kayba katkı %0)
+  GESAN.IS           -790 TL  (kayba katkı %0)
+
+En kötü 15 işlem (tüm dönem):
+  ANELE.IS   2026-06-01 → 2026-10-26  -91.2%
+  IEYHO.IS   2025-11-03 → 2026-10-26  -68.2%
+  ODINE.IS   2025-12-01 → 2026-10-26  -62.1%
+  EUPWR.IS   2026-07-01 → 2026-10-26  -52.7%
+  ASTOR.IS   2026-06-01 → 2026-10-26  -49.9%
+  IZMDC.IS   2026-09-01 → 2026-10-01  -48.3%
+  TKFEN.IS   2025-05-02 → 2025-10-01  -41.3%
+  QUAGR.IS   2025-06-02 → 2025-12-01  -40.1%
+  ODINE.IS   2025-04-02 → 2025-06-02  -39.1%
+  RYSAS.IS   2025-01-02 → 2025-05-02  -34.5%
+  ALFAS.IS   2023-09-01 → 2023-12-01  -33.5%
+  ADESE.IS   2025-07-01 → 2026-02-02  -30.8%
+  KENT.IS    2024-05-02 → 2024-07-01  -28.7%
+  MIATK.IS   2024-08-01 → 2024-10-01  -28.6%
+  KENT.IS    2024-08-01 → 2024-11-01  -27.9%
+
+±%10 limitiyle açıklanamayan günlük hareketler (tüm hisseler): 10 gün, 9 hisse
+  ARCLK.IS   2022-12-19 +11%
+  BERA.IS    2022-06-28 +15%
+  DOAS.IS    2022-11-10 +12%
+  DOHOL.IS   2022-12-19 +12%
+  ISCTR.IS   2022-12-19 +12%
+  ISGYO.IS   2022-12-19 +11%
+  KONTR.IS   2022-12-09 +12%, 2024-07-19 +14%
+  TSKB.IS    2022-12-19 +12%
+  VESTL.IS   2022-11-30 +11%
+
+En kötü işlemlerde ±%10 limitine aykırı hareket yok: kayıplar gerçek fiyat hareketi.

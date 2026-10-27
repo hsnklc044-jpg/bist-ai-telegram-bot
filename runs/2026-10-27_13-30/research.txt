@@ -1,0 +1,35 @@
+Dönem: 2023-08-01 – 2026-10-26 | Evren: geçmiş BIST 100 üyeliği (her gün yalnızca o günkü üyeler), 188 hisse
+Komisyon %0.10 + kayma %0.05 (her yön) | nakit: faizsiz (%0)
+Verisi yetersiz, dışarıda (14): ADEL.IS, ASUZU.IS, BJKAS.IS, CVKMD.IS, EUREN.IS, FENER.IS, GOLTS.IS, GSRAY.IS, KERVT.IS, OBAMS.IS, PAHOL.IS, SKBNK.IS, TSPOR.IS, TUKAS.IS
+  (işlemden kalkmış eski üyelerin verisi yoksa sonuçlar hâlâ biraz iyimserdir)
+
+Strateji                                      Toplam   Yıllık    MaxDD Sharpe  İşlem  XU100'e göre fazla getiri (yıllık, %99.2 GA)
+Bot sinyali                                   +44.3%   +12.0%   -45.7%   0.56    323  -2.0% [-30.9%, +25.2%] anlamlı değil
+Bot sinyali + rejim filtresi                  +26.7%    +7.6%   -38.6%   0.42    327  -6.6% [-38.1%, +23.3%] anlamlı değil
+Trend kuralı                                 +199.6%   +40.4%   -50.4%   1.31    118  +21.5% [-24.9%, +64.6%] anlamlı değil
+Momentum 6 ay, en iyi 10                      -52.7%   -20.7%   -90.4%  -0.38    127  -32.3% [-163.6%, +52.5%] anlamlı değil
+Momentum 6 ay, en iyi 10 + rejim              -33.9%   -12.0%   -83.4%  -0.18    197  -23.4% [-139.2%, +50.7%] anlamlı değil
+Momentum walk-forward (test dönemleri)       +106.1%   +25.0%   -60.4%   0.87    236  +10.6% [-44.9%, +56.8%] anlamlı değil
+XU100 al-tut                                  +55.6%   +14.6%   -26.5%   0.67      0  
+
+GA: blok bootstrap güven aralığı (21 seanslık bloklar). 6 strateji test edildiği için Bonferroni düzeltmeli (%99.2). Aralık tamamen sıfırın üstünde değilse strateji XU100'ü geçmiş sayılmaz.
+
+Sağlamlık: yıllara göre getiri ve en kârlı 5 hisse olmadan yıllık getiri (XU100 yıllık +14.6%)
+  Strateji                                    2023    2024    2025    2026  5 hisse hariç  en kârlı hisseler
+  XU100                                      +4.2%  +31.6%  +14.6%   -1.0%
+  Bot sinyali                                -5.4%  +29.9%  +48.4%  -20.9%          +7.8%  MAGEN, KTLEV, ASELS, YEOTK, TUPRS
+  Bot sinyali + rejim filtresi               -5.4%  +21.2%  +24.7%  -11.4%          +4.3%  KTLEV, YEOTK, TUPRS, MAGEN, TKFEN
+  Trend kuralı                               +9.1%  +36.9%  +69.0%  +18.7%          +4.4%  KTLEV, PASEU, MAGEN, ASELS, DSTKF
+  Momentum 6 ay, en iyi 10                   +0.5%  +12.9%  +95.2%  -78.6%         -20.2%  PASEU, MAGEN, ASELS, BRSAN, KTLEV
+  Momentum 6 ay, en iyi 10 + rejim           +0.5%  +12.0%  +47.4%  -60.2%          -9.6%  KTLEV, MAGEN, BRSAN, CCOLA, OYAKC
+  ⚠️ En kârlı 5 hisse olmadan XU100'ün altında: Bot sinyali, Bot sinyali + rejim filtresi, Trend kuralı, Momentum 6 ay, en iyi 10, Momentum 6 ay, en iyi 10 + rejim. Sonuç birkaç hisseye bağlı; tekrarlanabilir bir kural kanıtı değil.
+
+Walk-forward adımları (24 ay eğitim → 6 ay test):
+  2023-08-01 – 2024-01-31: 63 gün, en iyi 15, rejim kapalı | eğitim Sharpe 3.04 | test +21.8% | XU100 +18.5%
+  2024-02-01 – 2024-07-31: 63 gün, en iyi 15, rejim kapalı | eğitim Sharpe 2.70 | test +10.5% | XU100 +23.0%
+  2024-08-01 – 2025-01-31: 63 gün, en iyi 15, rejim kapalı | eğitim Sharpe 1.87 | test -11.5% | XU100 -7.4%
+  2025-02-01 – 2025-07-31: 126 gün, en iyi 15, rejim kapalı | eğitim Sharpe 1.10 | test +21.8% | XU100 +9.9%
+  2025-08-01 – 2026-01-31: 126 gün, en iyi 10, rejim kapalı | eğitim Sharpe 0.86 | test +74.7% | XU100 +28.8%
+  2026-02-01 – 2026-07-31: 63 gün, en iyi 5, rejim kapalı | eğitim Sharpe 1.82 | test +64.7% | XU100 -1.2%
+  2026-08-01 – 2026-10-26: 63 gün, en iyi 5, rejim kapalı | eğitim Sharpe 2.60 | test -50.6% | XU100 -16.8%
+  XU100'ü geçen pencere 4/7 | medyan test +21.8% | en iyi pencere hariç toplam +18.0%

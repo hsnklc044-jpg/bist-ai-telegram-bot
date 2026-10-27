@@ -1,0 +1,269 @@
+2026-10-27 10:30:37,353 | ERROR | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: KPOWR.IS"}}}
+2026-10-27 10:30:37,505 | ERROR | yfinance | $KPOWR.IS: possibly delisted; no timezone found
+2026-10-27 10:30:49,101 | ERROR | yfinance | $KERVT.IS: possibly delisted; no timezone found
+2026-10-27 10:30:51,387 | ERROR | yfinance | 
+3 Failed downloads:
+2026-10-27 10:30:51,387 | ERROR | yfinance | ['OBAMS.IS']: OperationalError('database is locked')
+2026-10-27 10:30:51,387 | ERROR | yfinance | ['KPOWR.IS', 'KERVT.IS']: possibly delisted; no timezone found
+2026-10-27 10:30:57,378 | INFO | core.market.store | Price store updated | {'XU100.IS': 'full', 'ADESE.IS': 'full', 'AEFES.IS': 'full', 'AFYON.IS': 'full', 'AGHOL.IS': 'full', 'AGROT.IS': 'full', 'AHGAZ.IS': 'full', 'AKBNK.IS': 'full', 'AKCNS.IS': 'full', 'AKFGY.IS': 'full', 'AKFYE.IS': 'full', 'AKSA.IS': 'full', 'AKSEN.IS': 'full', 'ALARK.IS': 'full', 'ALBRK.IS': 'full', 'ALFAS.IS': 'full', 'ALGYO.IS': 'full', 'ANELE.IS': 'full', 'ANHYT.IS': 'full', 'ANSGR.IS': 'full', 'ARCLK.IS': 'full', 'ASELS.IS': 'full', 'ASTOR.IS': 'full', 'AYGAZ.IS': 'full', 'BERA.IS': 'full', 'BFREN.IS': 'full', 'BIENY.IS': 'full', 'BIMAS.IS': 'full', 'BINHO.IS': 'full', 'BRSAN.IS': 'full', 'BRYAT.IS': 'full', 'BSOKE.IS': 'full', 'BTCIM.IS': 'full', 'BUCIM.IS': 'full', 'CANTE.IS': 'full', 'CCOLA.IS': 'full', 'CIMSA.IS': 'full', 'CONSE.IS': 'full', 'CWENE.IS': 'full', 'DOAS.IS': 'full', 'DOHOL.IS': 'full', 'ECILC.IS': 'full', 'ECZYT.IS': 'full', 'EGEEN.IS': 'full', 'EGGUB.IS': 'full', 'EKGYO.IS': 'full', 'ENJSA.IS': 'full', 'ENKAI.IS': 'full', 'ENTRA.IS': 'full', 'EREGL.IS': 'full', 'ESEN.IS': 'full', 'EUPWR.IS': 'full', 'FROTO.IS': 'full', 'GARAN.IS': 'full', 'GENIL.IS': 'full', 'GESAN.IS': 'full', 'GLYHO.IS': 'full', 'GUBRF.IS': 'full', 'GWIND.IS': 'full', 'HEKTS.IS': 'full', 'IEYHO.IS': 'full', 'TRENJ.IS': 'full', 'ISCTR.IS': 'full', 'ISDMR.IS': 'full', 'ISGYO.IS': 'full', 'ISMEN.IS': 'full', 'IZMDC.IS': 'full', 'KARSN.IS': 'full', 'KATMR.IS': 'full', 'KAYSE.IS': 'full', 'KCAER.IS': 'full', 'KCHOL.IS': 'full', 'KENT.IS': 'full', 'KONTR.IS': 'full', 'KORDS.IS': 'full', 'TRMET.IS': 'full', 'TRALT.IS': 'full', 'KPOWR.IS': 'empty', 'KRDMD.IS': 'full', 'LMKDC.IS': 'full', 'MAVI.IS': 'full', 'MGROS.IS': 'full', 'MIATK.IS': 'full', 'NETAS.IS': 'full', 'ODAS.IS': 'full', 'ODINE.IS': 'full', 'OTKAR.IS': 'full', 'OYAKC.IS': 'full', 'PEKGY.IS': 'full', 'PETKM.IS': 'full', 'PGSUS.IS': 'full', 'QUAGR.IS': 'full', 'RGYAS.IS': 'full', 'RYSAS.IS': 'full', 'SAHOL.IS': 'full', 'SASA.IS': 'full', 'SAYAS.IS': 'full', 'SDTTR.IS': 'full', 'SISE.IS': 'full', 'SKBNK.IS': 'full', 'SMRTG.IS': 'full', 'SNGYO.IS': 'full', 'SOKM.IS': 'full', 'TABGD.IS': 'full', 'TAVHL.IS': 'full', 'TCELL.IS': 'full', 'TCKRC.IS': 'full', 'THYAO.IS': 'full', 'TKFEN.IS': 'full', 'TOASO.IS': 'full', 'TRGYO.IS': 'full', 'TSKB.IS': 'full', 'TTKOM.IS': 'full', 'TTRAK.IS': 'full', 'TUPRS.IS': 'full', 'TURSG.IS': 'full', 'ULKER.IS': 'full', 'VESTL.IS': 'full', 'YKBNK.IS': 'full', 'ADEL.IS': 'full', 'ALKIM.IS': 'full', 'ALTNY.IS': 'full', 'ARASE.IS': 'full', 'ARDYZ.IS': 'full', 'ASGYO.IS': 'full', 'ASUZU.IS': 'full', 'AVPGY.IS': 'full', 'AYDEM.IS': 'full', 'BAGFS.IS': 'full', 'BALSU.IS': 'full', 'BASGZ.IS': 'full', 'BIOEN.IS': 'full', 'BJKAS.IS': 'full', 'BOBET.IS': 'full', 'BRISA.IS': 'full', 'CEMAS.IS': 'full', 'CEMTS.IS': 'full', 'CLEBI.IS': 'full', 'CVKMD.IS': 'full', 'DAPGM.IS': 'full', 'DEVA.IS': 'full', 'DSTKF.IS': 'full', 'EFOR.IS': 'full', 'ENERY.IS': 'full', 'ERBOS.IS': 'full', 'EUREN.IS': 'full', 'FENER.IS': 'full', 'GLRMK.IS': 'full', 'GOLTS.IS': 'full', 'GOZDE.IS': 'full', 'GRSEL.IS': 'full', 'GRTHO.IS': 'full', 'GSDHO.IS': 'full', 'GSRAY.IS': 'full', 'HALKB.IS': 'full', 'IMASM.IS': 'full', 'INDES.IS': 'full', 'INVES.IS': 'full', 'ISFIN.IS': 'full', 'IZENR.IS': 'full', 'JANTS.IS': 'full', 'KARTN.IS': 'full', 'KERVT.IS': 'empty', 'KLRHO.IS': 'full', 'KLSER.IS': 'full', 'KMPUR.IS': 'full', 'KONYA.IS': 'full', 'KRVGD.IS': 'full', 'KTLEV.IS': 'full', 'KUTPO.IS': 'full', 'KUYAS.IS': 'full', 'KZBGY.IS': 'full', 'LIDER.IS': 'full', 'LOGO.IS': 'full', 'MAGEN.IS': 'full', 'MPARK.IS': 'full', 'NTHOL.IS': 'full', 'NUGYO.IS': 'full', 'OBAMS.IS': 'empty', 'PAHOL.IS': 'full', 'PAPIL.IS': 'full', 'PARSN.IS': 'full', 'PASEU.IS': 'full', 'PATEK.IS': 'full', 'PENTA.IS': 'full', 'PRKAB.IS': 'full', 'PSGYO.IS': 'full', 'RALYH.IS': 'full', 'REEDR.IS': 'full', 'RTALB.IS': 'full', 'RYGYO.IS': 'full', 'SARKY.IS': 'full', 'SELEC.IS': 'full', 'TATEN.IS': 'full', 'TKNSA.IS': 'full', 'TMSN.IS': 'full', 'TRILC.IS': 'full', 'TSPOR.IS': 'full', 'TUKAS.IS': 'full', 'TUREX.IS': 'full', 'ULUUN.IS': 'full', 'VAKBN.IS': 'full', 'VERUS.IS': 'full', 'VESBE.IS': 'full', 'YATAS.IS': 'full', 'YEOTK.IS': 'full', 'YYLGD.IS': 'full', 'ZOREN.IS': 'full', 'ZRGYO.IS': 'full'}
+209 sembol güncelleniyor (5 yıl)...
+Sonuç: empty=3, full=206
+İndirilemeyenler: KPOWR.IS, KERVT.IS, OBAMS.IS
+
+Sembol       Mum        İlk        Son Eksik Bayat 0 hacim Hatalı  Durum
+XU100.IS    1251 2021-10-25 2026-10-26     3     0       0      0  KONTROL: eksik gün
+ADESE.IS    1254 2021-10-25 2026-10-26     0     0       3      0  OK
+AEFES.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+AFYON.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+AGHOL.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+AGROT.IS     732 2023-11-23 2026-10-26     0     0       1      0  OK
+AHGAZ.IS     957 2022-12-26 2026-10-26     0     0       0      0  OK
+AKBNK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+AKCNS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+AKFGY.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+AKFYE.IS     905 2023-03-16 2026-10-26     0     0       1      0  OK
+AKSA.IS     1254 2021-10-25 2026-10-26     0     0       1      0  OK
+AKSEN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ALARK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ALBRK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ALFAS.IS     985 2022-11-16 2026-10-26     0     0       0      0  OK
+ALGYO.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+ANELE.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ANHYT.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ANSGR.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+ARCLK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ASELS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ASTOR.IS     940 2023-01-18 2026-10-26     0     0       0      0  OK
+AYGAZ.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BERA.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BFREN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BIENY.IS     861 2023-05-18 2026-10-26     0     0       0      0  OK
+BIMAS.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+BINHO.IS     648 2024-03-21 2026-10-26     0     0       1      0  OK
+BRSAN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BRYAT.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BSOKE.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BTCIM.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+BUCIM.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+CANTE.IS    1254 2021-10-25 2026-10-26     0     0       3      0  OK
+CCOLA.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+CIMSA.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+CONSE.IS    1128 2022-04-20 2026-10-26     0     0       1      0  OK
+CWENE.IS     868 2023-05-10 2026-10-26     0     0       1      0  OK
+DOAS.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+DOHOL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ECILC.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ECZYT.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+EGEEN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+EGGUB.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+EKGYO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ENJSA.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ENKAI.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ENTRA.IS     638 2024-04-04 2026-10-26     0     0       0      0  OK
+EREGL.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+ESEN.IS     1254 2021-10-25 2026-10-26     0     0       1      0  OK
+EUPWR.IS     880 2023-04-20 2026-10-26     0     0       1      0  OK
+FROTO.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+GARAN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+GENIL.IS    1253 2021-10-25 2026-10-26     1     0       1      0  OK
+GESAN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+GLYHO.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+GUBRF.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+GWIND.IS    1252 2021-10-25 2026-10-26     1     0       0      0  OK
+HEKTS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+IEYHO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TRENJ.IS    1253 2021-10-25 2026-10-26     0     0       1      0  OK
+ISCTR.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ISDMR.IS    1253 2021-10-25 2026-10-26     0     0       5      0  OK
+ISGYO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ISMEN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+IZMDC.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KARSN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KATMR.IS    1253 2021-10-25 2026-10-26     0     0       1      0  OK
+KAYSE.IS     862 2023-05-18 2026-10-26     0     0       1      0  OK
+KCAER.IS    1081 2022-06-30 2026-10-26     0     0       1      0  OK
+KCHOL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KENT.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KONTR.IS    1254 2021-10-25 2026-10-26     0     0       3      0  OK
+KORDS.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+TRMET.IS    1253 2021-10-25 2026-10-26     0     0       1      0  OK
+TRALT.IS    1253 2021-10-25 2026-10-26     0     0       1      0  OK
+KPOWR.IS       0          -          -     0     0       0      0  KONTROL: kısa geçmiş
+KRDMD.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+LMKDC.IS     667 2024-02-22 2026-10-26     0     0       0      0  OK
+MAVI.IS     1254 2021-10-25 2026-10-26     0     0       1      0  OK
+MGROS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+MIATK.IS    1234 2021-11-22 2026-10-26     0     0       0      0  OK
+NETAS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ODAS.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ODINE.IS     623 2024-05-02 2026-10-26     0     0       0      0  OK
+OTKAR.IS    1251 2021-10-25 2026-10-26     2     0       0      0  OK
+OYAKC.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+PEKGY.IS    1254 2021-10-25 2026-10-26     0     0       2      0  OK
+PETKM.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+PGSUS.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+QUAGR.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+RGYAS.IS     623 2024-05-02 2026-10-26     0     0       0      0  OK
+RYSAS.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+SAHOL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+SASA.IS     1254 2021-10-25 2026-10-26     0     0     151      0  KONTROL: hacim eksik
+SAYAS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+SDTTR.IS     951 2023-01-04 2026-10-26     0     0       1      0  OK
+SISE.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+SKBNK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+SMRTG.IS    1147 2022-03-24 2026-10-26     0     0       1      0  OK
+SNGYO.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+SOKM.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TABGD.IS     751 2023-10-26 2026-10-26     0     0       0      0  OK
+TAVHL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TCELL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TCKRC.IS     545 2024-08-26 2026-10-26     0     0       0      0  OK
+THYAO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TKFEN.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+TOASO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TRGYO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TSKB.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TTKOM.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TTRAK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TUPRS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TURSG.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+ULKER.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+VESTL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+YKBNK.IS    1253 2021-10-25 2026-10-26     0     0       1      0  OK
+ADEL.IS     1254 2021-10-25 2026-10-26     0     0       1      0  KONTROL: düzeltilmemiş sıçrama
+ALKIM.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+ALTNY.IS     613 2024-05-16 2026-10-26     0     0       0      0  OK
+ARASE.IS    1242 2021-11-11 2026-10-26     0     0       1      0  OK
+ARDYZ.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ASGYO.IS     647 2024-03-21 2026-10-26     0     0       0      0  OK
+ASUZU.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+AVPGY.IS     647 2024-03-21 2026-10-26     0     0       0      0  OK
+AYDEM.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BAGFS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+BALSU.IS     420 2025-02-20 2026-10-26     0     0       0      0  OK
+BASGZ.IS    1254 2021-10-25 2026-10-26     0     0       1      1  KONTROL: hatalı OHLC
+BIOEN.IS    1254 2021-10-25 2026-10-26     0     0       1      1  KONTROL: hatalı OHLC
+BJKAS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+BOBET.IS    1254 2021-10-25 2026-10-26     0     0       1      1  KONTROL: hatalı OHLC
+BRISA.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+CEMAS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+CEMTS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+CLEBI.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+CVKMD.IS     885 2023-04-13 2026-10-26     0     0       1      0  KONTROL: düzeltilmemiş sıçrama
+DAPGM.IS    1167 2022-02-24 2026-10-26     0     0       1      0  OK
+DEVA.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+DSTKF.IS     430 2025-02-06 2026-10-26     0     0       0      0  OK
+EFOR.IS      580 2024-07-05 2026-10-26     0     0       1      0  OK
+ENERY.IS     797 2023-08-23 2026-10-26     0     0       1      0  OK
+ERBOS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+EUREN.IS    1097 2022-06-08 2026-10-26     0     0       1      0  KONTROL: düzeltilmemiş sıçrama
+FENER.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+GLRMK.IS     444 2025-01-17 2026-10-26     0     0       0      0  OK
+GOLTS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+GOZDE.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+GRSEL.IS    1158 2022-03-09 2026-10-26     0     0       1      0  OK
+GRTHO.IS     647 2024-03-21 2026-10-26     0     0       0      0  OK
+GSDHO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+GSRAY.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+HALKB.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+IMASM.IS    1121 2022-04-29 2026-10-26     0     0       1      0  OK
+INDES.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+INVES.IS     655 2024-03-11 2026-10-26     0     0       0      0  OK
+ISFIN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+IZENR.IS     802 2023-08-16 2026-10-26     0     0       1      0  OK
+JANTS.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+KARTN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KERVT.IS       0          -          -     0     0       0      0  KONTROL: kısa geçmiş
+KLRHO.IS     648 2024-03-21 2026-10-26     0     0       1      0  OK
+KLSER.IS     812 2023-08-01 2026-10-26     0     0       0      0  OK
+KMPUR.IS    1121 2022-04-28 2026-10-26     1     0       1      0  OK
+KONYA.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KRVGD.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+KTLEV.IS     648 2024-03-21 2026-10-26     0     0       1      0  OK
+KUTPO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+KUYAS.IS    1254 2021-10-25 2026-10-26     0     0       2      0  OK
+KZBGY.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+LIDER.IS    1140 2022-04-04 2026-10-26     0     0       1      0  OK
+LOGO.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+MAGEN.IS    1249 2021-11-02 2026-10-26     0     0       1      0  OK
+MPARK.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+NTHOL.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+NUGYO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+OBAMS.IS       0          -          -     0     0       0      0  KONTROL: kısa geçmiş
+PAHOL.IS     233 2025-11-21 2026-10-26     0     0       6      0  KONTROL: hacim eksik
+PAPIL.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+PARSN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+PASEU.IS     648 2024-03-21 2026-10-26     0     0       1      0  OK
+PATEK.IS     674 2024-02-14 2026-10-26     0     0       1      0  OK
+PENTA.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+PRKAB.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+PSGYO.IS    1217 2021-12-16 2026-10-26     0     0       1      1  KONTROL: hatalı OHLC
+RALYH.IS    1254 2021-10-25 2026-10-26     0     0       2      0  OK
+REEDR.IS     647 2024-03-21 2026-10-26     0     0       0      0  OK
+RTALB.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+RYGYO.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+SARKY.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+SELEC.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TATEN.IS     801 2023-08-17 2026-10-26     0     0       1      0  OK
+TKNSA.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TMSN.IS     1253 2021-10-25 2026-10-26     0     0       0      0  OK
+TRILC.IS    1253 2021-10-25 2026-10-26     1     0       3      0  OK
+TSPOR.IS    1253 2021-10-25 2026-10-26     0     0       0      0  KONTROL: düzeltilmemiş sıçrama
+TUKAS.IS    1254 2021-10-25 2026-10-26     0     0       1      0  KONTROL: düzeltilmemiş sıçrama
+TUREX.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+ULUUN.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+VAKBN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+VERUS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+VESBE.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+YATAS.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+YEOTK.IS    1254 2021-10-25 2026-10-26     0     0       1      0  OK
+YYLGD.IS    1109 2022-05-20 2026-10-26     0     0       0      0  OK
+ZOREN.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+ZRGYO.IS    1253 2021-10-25 2026-10-26     0     0       0      0  OK
+
+±%20'yi aşan düzeltilmemiş sıçramalar (sermaye artırımı/bölünme). KAP'tan doğrulayıp
+data/corporate_actions.csv dosyasına ekleyin ya da --apply-suggestions kullanın:
+  SKBNK.IS,2026-10-19,0.7542,-24.6%
+  ADEL.IS,2024-01-02,0.0917,-90.8%
+  ASUZU.IS,2022-06-28,1.2103,+21.0%
+  BJKAS.IS,2024-07-03,0.2328,-76.7%
+  BJKAS.IS,2025-04-07,0.7275,-27.3%
+  CVKMD.IS,2026-08-03,0.3812,-61.9%
+  EUREN.IS,2024-12-02,0.3645,-63.5%
+  FENER.IS,2024-12-09,0.405,-59.5%
+  FENER.IS,2025-06-23,0.2137,-78.6%
+  FENER.IS,2025-12-29,0.3632,-63.7%
+  GOLTS.IS,2024-04-15,1.2095,+21.0%
+  GSRAY.IS,2024-12-23,0.3222,-67.8%
+  GSRAY.IS,2025-06-30,0.7718,-22.8%
+  TSPOR.IS,2024-09-09,0.7187,-28.1%
+  TSPOR.IS,2025-06-19,1.9459,+94.6%
+  TUKAS.IS,2025-02-03,0.3256,-67.4%
+
+Bilgi: ±%10 günlük limitle açıklanamayan, %20 altı hareketler (24; hisseler dışlanmaz).
+  Düşüşler: temettü düzeltmesiyle açıklanamaz; fiyata yansımamış bedelli olabilir, KAP'tan kontrol edin:
+    EUREN.IS,2022-12-19,0.8664,-13.4%
+    PRKAB.IS,2022-05-11,0.8756,-12.4%
+    RTALB.IS,2024-09-09,0.8871,-11.3%
+    TSPOR.IS,2022-05-11,0.8882,-11.2%
+    CEMTS.IS,2025-05-09,0.8888,-11.1%
+    ADEL.IS,2023-01-06,0.8904,-11.0%
+  Yükselişler: çoğunlukla Yahoo'nun temettü/baz fiyat düzeltmesi:
+    VAKBN.IS,2022-12-19,+17.6%
+    SKBNK.IS,2026-10-22,+15.7%
+    BERA.IS,2022-06-28,+15.4%
+    KONTR.IS,2024-07-19,+14.1%
+    HALKB.IS,2022-12-19,+14.0%
+    SKBNK.IS,2022-12-19,+13.5%
+    ULUUN.IS,2022-05-11,+13.1%
+    MAGEN.IS,2023-11-29,+12.9%
+    TSKB.IS,2022-12-19,+12.0%
+    DOAS.IS,2022-11-10,+12.0%
+    KONTR.IS,2022-12-09,+11.9%
+    DOHOL.IS,2022-12-19,+11.7%
+    ISCTR.IS,2022-12-19,+11.5%
+    VESTL.IS,2022-11-30,+11.3%
+    ISGYO.IS,2022-12-19,+11.2%
+    ARCLK.IS,2022-12-19,+11.1%
+    PAPIL.IS,2024-09-09,+10.6%
+    GRTHO.IS,2025-05-09,+10.5%
