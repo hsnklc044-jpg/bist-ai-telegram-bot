@@ -106,6 +106,13 @@ class CorporateActionCheckTest(unittest.TestCase):
         old = self.check([item("THYAO", CAPITAL)], actions=self.actions(("THYAO.IS", date(2025, 1, 2))))  # an older, other action
         self.assertFalse(old[0].recorded)
 
+    def test_private_placement_needs_no_price_adjustment(self):
+        """First real run 27.10: HEKTS "Tahsisli Sermaye Artırımı" was flagged as unrecorded; a private
+        placement gives existing holders no rights, so prices need no adjustment and no row is expected."""
+        found = self.check([item("THYAO", CAPITAL, summary="Tahsisli Sermaye Artırımında Payların Satışının Tamamlanması")])
+        self.assertTrue(found[0].recorded)
+        self.assertIn("düzeltme gerekmez", kap.format_findings(found, TODAY, 14))
+
     def test_dividends_are_information_and_several_codes_are_split(self):
         found = self.check([item("OYA, OYYAT", DIVIDEND), item("BIMAS", "Payların Geri Alınmasına İlişkin Bildirim")])
         self.assertEqual([(f.symbol, f.kind) for f in found], [("OYYAT.IS", "temettü")])

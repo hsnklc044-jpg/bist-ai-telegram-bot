@@ -35,6 +35,8 @@ KINDS = {
 RECORDED_BEFORE = timedelta(days=30)  # a corporate_actions.csv row this close to the announcement covers it
 RECORDED_AFTER = timedelta(days=180)  # ... or after it: the ex-date comes weeks or months later
 CHUNK = 7  # days per request (a week is ~1,200 disclosures)
+# a private placement (tahsisli) gives existing holders no rights: the price needs no adjustment
+NO_ADJUSTMENT_WORDS = ("tahsisli",)
 
 
 @dataclass(frozen=True)
@@ -68,11 +70,13 @@ def check(today: date, universe: list[str], actions: list, days: int = 14, post=
                 if code not in ours:
                     continue
                 symbol = f"{code}.IS"
-                recorded = kind == "sermaye" and any(
+                summary = (item.get("summary") or "").strip()
+                no_adjustment = any(w in summary.casefold() for w in NO_ADJUSTMENT_WORDS)
+                recorded = kind == "sermaye" and (no_adjustment or any(
                     a.symbol == symbol and published - RECORDED_BEFORE <= a.ex_date <= published + RECORDED_AFTER
-                    for a in actions)
+                    for a in actions))
                 key = (symbol, kind, item.get("disclosureIndex"))
-                found[key] = Finding(symbol, kind, published, (item.get("summary") or "").strip()[:120],
+                found[key] = Finding(symbol, kind, published, summary[:120],
                                      f"https://www.kap.org.tr/tr/Bildirim/{item.get('disclosureIndex')}", recorded)
         start = end + timedelta(days=1)
     return sorted(found.values(), key=lambda f: (f.published, f.symbol))
@@ -87,7 +91,8 @@ def format_findings(found: list[Finding], today: date, days: int) -> str:
     if capital:
         lines.append("\nSermaye artırımı / azaltımı (bedelsiz, bedelli, bölünme):")
         for f in capital:
-            mark = "kayıtlı" if f.recorded else "⚠️ corporate_actions.csv'de yok: KAP'ta doğrula, hak kullanım günü eklenecek"
+            no_adjustment = any(w in f.summary.casefold() for w in NO_ADJUSTMENT_WORDS)
+            mark = "tahsisli: fiyat düzeltme gerekmez" if no_adjustment else "kayıtlı" if f.recorded else "⚠️ corporate_actions.csv'de yok: KAP'ta doğrula, hak kullanım günü eklenecek"
             lines.append(f"  {f.symbol.removesuffix('.IS')} {f.published:%d.%m} – {f.summary} – {mark}")
             lines.append(f"    {f.link}")
     dividends = [f for f in found if f.kind == "temettü"]

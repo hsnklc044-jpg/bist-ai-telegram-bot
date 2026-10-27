@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.62.1 – 27.10.2026
+- KAP takibinin ilk gerçek çalışmasında HEKTS'in *tahsisli* sermaye artırımı yanlışlıkla "kayıtta yok" çıktı; tahsisli artırım mevcut ortaklara hak vermez, fiyat düzeltmesi gerekmez. Artık "tahsisli: fiyat düzeltme gerekmez" yazıyor.
+
 ## v0.62.0 – 27.10.2026
 - KAP takibi: her cumartesi araştırma çalışması son 14 günün KAP duyurularından bizim hisselerdeki sermaye artırımı/azaltımı ve temettüleri listeler; `corporate_actions.csv`'de kaydı olmayan sermaye işlemi "KAP'ta doğrula" diye bağlantısıyla gelir. Hiçbir şey kendiliğinden uygulanmaz.
 

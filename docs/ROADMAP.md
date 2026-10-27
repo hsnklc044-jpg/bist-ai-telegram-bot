@@ -46,7 +46,7 @@ Kontrol edilenler: yeni hata yolları (rapor metni yazılamazsa, ikinci kaynak/T
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.62.0 (KAP kurumsal işlem takibi, haftalık).
+- **Son sürüm:** v0.62.1 (KAP: tahsisli artırım yanlış alarmı düzeltildi).
 - **Dışarıdan izleme açıldı (27.10 22:23, yerel otomasyon):** iki .env satırında önce örnek metin (`<…kod>`), sonra `.com/` ile kod arasında boşluk vardı (Healthchecks HTTP 400); düzeltilince bot sinyali kabul edildi, `/durum` izleme satırı SAĞLIKLI. Rapor kontrolü ilk sinyalini 28.10 18:30'da alacak. Adresler hiçbir yerde yazdırılmadı.
 - **İlk otomatik kurulu sürümle rapor (27.10 18:30, yerel otomasyon doğruladı):** runs.csv 18:30:01→18:30:39, veri günü 27.10, tek mesaj. Sayılar elle sağlandı: hesap 97.394+2.530=99.924 TL, günlük −%0,05, THYAO 10×253,00, −76 TL/−%2,93, risk ~78 TL (%0,08→%0,1), etkin pozisyon 1,0 (26.10 düzeltmesi tuttu). KPOWR verisi yok (bilinen). S1 kanıtına eklendi.
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
