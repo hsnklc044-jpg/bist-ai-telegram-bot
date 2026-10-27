@@ -7,7 +7,7 @@ Bileşenler, arıza etkileri, korumalar ve kurtarma adımları. Durum: v0.38.0 (
 | Bileşen | Yer | Bağımlılık | Arızada ne olur | Veri kaybı riski | Koruma |
 |---|---|---|---|---|---|
 | Uygulama (Python 3.11, `requirements.lock`) | `C:\Projeler\QuantBIST` | `.venv` | Bot ve rapor çalışmaz | Yok (GitHub'da) | `setup.ps1 -CheckOnly`: sürüm, paket kilidi, ruff, testler |
-| Telegram botu | `python main.py` (açık pencere) | `.env` (BOT_TOKEN, CHAT_ID) | Komutlar ve 20:00 kontrolü çalışmaz | Yok | 5 dk yaşam sinyali (`logs/heartbeat.txt`); kapalıysa günlük rapor ve `/durum` KRİTİK der |
+| Telegram botu | Windows görevi "QuantBIST Bot": oturum açılışında `pythonw main.py`, tek kopya (`scripts/register_bot_task.ps1`, 27.10.2026'da kuruldu) | `.env` (BOT_TOKEN, CHAT_ID) | Komutlar ve 20:00 kontrolü çalışmaz | Yok | 5 dk yaşam sinyali (`logs/heartbeat.txt`); kapalıysa günlük rapor ve `/durum` KRİTİK der. Çökerse görev 5 dk sonra yeniden başlatır (en çok 3 kez). İkinci kopya Telegram'da `Conflict` verir |
 | Günlük rapor | Windows görevi "QuantBIST Gunluk Rapor", 18:30 | fiyat deposu, kişisel dosyalar, internet | Rapor ve canlı kayıt eksik kalır | Düşük (ertesi gün kendini tamamlar) | Kilit (tek çalıştırma), `logs/runs.csv`, hata bildirimi, Telegram yeniden deneme, 20:00 kontrolü |
 | Fiyat deposu | `data/market.db` (SQLite) | Yahoo | Fiyatlar okunamaz | Orta: Yahoo yalnız son 5 yılı verir | Haftalık SQLite anlık yedeği (online backup API), `/durum` bütünlük kontrolü |
 | İşlem defteri | `data/ledger.csv` | — | Portföy hesaplanamaz | **Yüksek** (yalnız bu PC'de) | Günlük doğrulamalı yedek, yazmalarda kilit |

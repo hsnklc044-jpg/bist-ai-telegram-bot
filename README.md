@@ -154,6 +154,8 @@ Bot sadece `CHAT_ID` sohbetinden gelen komutlara cevap verir ve hiçbir zaman ge
 - **Günlük rapor**: `python -m core.reports.daily [--send] [--no-update]`. Hafta içi 18:30'da otomatik
   göndermek için bir kez: `powershell -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1`
   (kaldırmak için `-Remove`). Çıktılar `logs\daily_<tarih>.log`.
+  Botu oturum açılışında kendiliğinden başlatmak için bir kez: `powershell -ExecutionPolicy Bypass -File scripts\register_bot_task.ps1`
+  (tek kopya çalışır; ayrıca elle `python main.py` başlatmayın, Telegram iki botu reddeder).
   Aynı anda tek rapor çalışır; aynı veri günü Telegram'a bir kez gider (tatilde tekrar gönderilmez,
   yeniden göndermek için `--force`). Her çalıştırma `logs\runs.csv` dosyasına yazılır:
   `sent` gönderildi, `skipped` zaten gönderilmişti, `holiday` bugün seans yok (tatil), `stale` beklenen
