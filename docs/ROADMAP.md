@@ -15,7 +15,7 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 | D | Gerçek ortam gözlemleri | olay olunca | bekliyor: 28.10 yarım gün, 29.10 tatil, 30.10 canlı ölçüm + ilk haftalık sistem özeti, 31.10 araştırma |
 | E | Felaket kurtarma | kod hemen | E1 ve E3 v0.53.0 (docs/DISASTER_RECOVERY.md; adımları test_disaster_recovery denetler); E2 aylık tatbikat yerel otomasyonun işi (komut belgede) — **tamam** |
 | F | Altyapı kararı | ≥1 haftalık kayıt ya da SLO tutmazsa | bekliyor (03.11 sonrası) |
-| G | Araştırma | yazılım/dayanıklılık/veri işi bitince | bekliyor; veri 2015'e uzatma durduruldu (DECISIONS K-6) |
+| G | Araştırma | yazılım/dayanıklılık/veri işi bitince | **açık/engelli**: veri 2015'e uzatma için kaynaklı üyelik listesi yok (DECISIONS K-16); mevcut veriyle güç düşük |
 | H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (Kasım sonu) |
 | I | Güvenlik ve bağımlılıklar | kod hemen | I1 haftalık pip-audit, I2 gizli bilgi testi v0.54.0; I3 kural DECISIONS'ta; kapsam kapısı %91 ve kalite SLO'su v0.54.1 — **tamam** |
 | J | Bakım ve devir | yazılım işi bitince | J1 HANDBOOK, J2 MAINTENANCE, J3 /durum 'Bakım takvimi', J4 CHANGELOG v0.55.0 — **tamam** |
