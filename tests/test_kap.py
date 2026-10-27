@@ -70,3 +70,67 @@ class HttpAndCommandTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+CAPITAL = "Sermaye Artırımı - Azaltımı İşlemlerine İlişkin Bildirim"
+DIVIDEND = "Kar Payı Dağıtım İşlemlerine İlişkin Bildirim"
+
+
+def item(codes, subject, when="20.10.2026 18:00:00", index=1500000, summary="özet"):
+    return {"stockCodes": codes, "subject": subject, "publishDate": when, "disclosureIndex": index, "summary": summary}
+
+
+class CorporateActionCheckTest(unittest.TestCase):
+    def actions(self, *rows):
+        from core.market.corrections import CorporateAction
+
+        return [CorporateAction(symbol=s, ex_date=d, factor=1.0, note="", kind="factor", ratio=None, price=1.0, source="")
+                for s, d in rows]
+
+    def check(self, items, actions=()):
+        def post(url, body):
+            return items if body["fromDate"] == "2026-10-14" else []
+
+        return kap.check(TODAY, ["THYAO.IS", "BIMAS.IS", "OYYAT.IS"], list(actions), days=14, post=post)
+
+    def test_unrecorded_capital_action_in_our_universe_is_listed_with_its_link(self):
+        found = self.check([item("THYAO", CAPITAL, index=1511111, summary="%100 bedelsiz"),
+                            item("ZZZZZ", CAPITAL)])  # not in our universe
+        self.assertEqual([(f.symbol, f.kind, f.recorded) for f in found], [("THYAO.IS", "sermaye", False)])
+        self.assertIn("kap.org.tr/tr/Bildirim/1511111", found[0].link)
+        self.assertIn("%100 bedelsiz", found[0].summary)
+
+    def test_a_recorded_action_near_the_announcement_counts_as_recorded(self):
+        found = self.check([item("THYAO", CAPITAL)], actions=self.actions(("THYAO.IS", date(2026, 11, 20))))
+        self.assertTrue(found[0].recorded)
+        old = self.check([item("THYAO", CAPITAL)], actions=self.actions(("THYAO.IS", date(2025, 1, 2))))  # an older, other action
+        self.assertFalse(old[0].recorded)
+
+    def test_dividends_are_information_and_several_codes_are_split(self):
+        found = self.check([item("OYA, OYYAT", DIVIDEND), item("BIMAS", "Payların Geri Alınmasına İlişkin Bildirim")])
+        self.assertEqual([(f.symbol, f.kind) for f in found], [("OYYAT.IS", "temettü")])
+
+    def test_text(self):
+        found = self.check([item("THYAO", CAPITAL), item("BIMAS", DIVIDEND)])
+        text = kap.format_findings(found, TODAY, 14)
+        self.assertIn("THYAO", text)
+        self.assertIn("corporate_actions.csv'de yok", text)
+        self.assertIn("temettü", text)
+        self.assertIn("hiçbir şey kendiliğinden uygulanmaz", text)
+        self.assertIn("bildirim yok", kap.format_findings([], TODAY, 14))
+
+
+class DaysCommandTest(unittest.TestCase):
+    def test_days_uses_the_universe_and_recorded_actions(self):
+        import io
+        from contextlib import redirect_stdout
+        from unittest import mock
+
+        out = io.StringIO()
+        with mock.patch.object(kap, "check", return_value=[]) as check, \
+                mock.patch("core.market.universe.load_universe", return_value=["THYAO.IS"]), \
+                mock.patch("core.market.corrections.load_corporate_actions", return_value=[]), \
+                redirect_stdout(out):
+            self.assertEqual(kap.main(["--days", "14"]), 0)
+        self.assertEqual(check.call_args.args[1:3], (["THYAO.IS"], []))
+        self.assertIn("bildirim yok", out.getvalue())

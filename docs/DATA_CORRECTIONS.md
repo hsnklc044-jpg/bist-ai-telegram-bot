@@ -96,3 +96,6 @@ Kullanıcının PC'deki incelemesi 7 kritik kayıt buldu: açılış = en yükse
 - Kapsam: 2022'den beri BIST 100'e girmiş her hisse. Son 14 günde ±%20'yi aşan tek günlük hareket ("sıçrama": büyük olasılıkla düzeltilmemiş bedelsiz/bedelli/bölünme) ve günlük fiyat limitinin açıklayamadığı hareket ("limit aşımı": bedelli ya da temettü olabilir). `corporate_actions.csv`'de zaten olanlar ve piyasa geneli hareketler hariç.
 - Hiçbir şey otomatik uygulanmaz. Her satır KAP'ta doğrulanır; doğrulanan, kaynağıyla birlikte `data/corporate_actions.csv`'ye ve buraya eklenir.
 
+## KAP duyuruları (v0.62.0)
+
+Her cumartesi araştırma çalışması `kap.txt`: son 14 günde evrendeki hisseler için KAP'ta yayımlanan sermaye artırımı/azaltımı ve kâr payı duyuruları. Sermaye işleminin `corporate_actions.csv`'de kaydı yoksa "⚠️ kayıtta yok" ve KAP bağlantısı yazılır. Satır, duyuru metnindeki oran ve hak kullanım günüyle elle eklenir (DECISIONS K-24); haftalık sıçrama taraması (`corporate.txt`) aynı işlemi fiyat tarafından yakalar.

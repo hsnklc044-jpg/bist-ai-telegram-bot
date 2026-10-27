@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.62.0 – 27.10.2026
+- KAP takibi: her cumartesi araştırma çalışması son 14 günün KAP duyurularından bizim hisselerdeki sermaye artırımı/azaltımı ve temettüleri listeler; `corporate_actions.csv`'de kaydı olmayan sermaye işlemi "KAP'ta doğrula" diye bağlantısıyla gelir. Hiçbir şey kendiliğinden uygulanmaz.
+
 ## v0.61.1 – 27.10.2026
 - KAP takibinin 1. adımı: KAP'ın (resmî API'si yok) sitesinin kullandığı uç noktaları GitHub'dan deneyen komut ve iş akışı (`kap.yml`). Hiçbir veri değişmez; amaç ayrıştırıcıyı tahmin değil gerçek cevap üzerine yazmak.
 

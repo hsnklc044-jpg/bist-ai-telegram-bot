@@ -3,7 +3,7 @@ name: KAP corporate actions
 # KAP disclosures (bonus / rights issues, splits, dividends) for our stocks, checked against
 # data/corporate_actions.csv. KAP is not reachable from the development sandbox, so the
 # endpoints are called here. Results go to the research-results branch under kap/.
-# Step 1: --probe (what the endpoints return); the weekly check follows once the shape is known.
+# On demand; `--probe` (python -m core.market.kap --probe) shows the raw answers when KAP changes.
 
 on:
   workflow_dispatch:
@@ -30,8 +30,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.lock
-      - name: Probe
-        run: python -m core.market.kap --probe 2>&1 | tee kap.txt
+      - name: Check (last 14 days; the weekly research run does the same)
+        run: python -m core.market.kap --days 14 2>&1 | tee kap.txt
       - name: Save
         if: always()
         run: |
@@ -42,12 +42,12 @@ jobs:
             git worktree add --orphan -b research-results ../results
           fi
           mkdir -p ../results/kap
-          cp kap.txt "../results/kap/probe_$stamp.txt" 2>/dev/null || echo "(çıktı yok)" > "../results/kap/probe_$stamp.txt"
+          cp kap.txt "../results/kap/$stamp.txt" 2>/dev/null || echo "(çıktı yok)" > "../results/kap/$stamp.txt"
           cd ../results
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -q -m "KAP probe $stamp" || exit 0
+          git commit -q -m "KAP check $stamp" || exit 0
           for i in 1 2 3; do  # another workflow may have pushed meanwhile
             git pull --rebase -q origin research-results && git push -q origin research-results && exit 0
             sleep $((i * 10))
