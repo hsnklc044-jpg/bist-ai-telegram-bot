@@ -311,6 +311,33 @@ def apply_suggestions(report: list[SymbolQuality], path=None) -> int:
     return len(rows)
 
 
+def recent_suspects(report: list[SymbolQuality], since: str, known: set[tuple[str, str]] | None = None) -> list[dict]:
+    """Jumps (likely an unadjusted bonus/rights issue or split) and limit breaches on or after
+    `since` that data/corporate_actions.csv does not explain yet. Nothing is applied."""
+
+    known = known or set()
+    found = []
+    for r in report:
+        for kind, moves in (("sıçrama", r.jumps), ("limit aşımı", r.breaches)):
+            for j in moves:
+                if j.date >= since and (r.symbol, j.date) not in known:
+                    found.append({"symbol": r.symbol, "date": j.date, "change": j.change, "kind": kind,
+                                  "suggested_factor": j.suggested_factor})
+    return sorted(found, key=lambda f: (f["date"], f["symbol"]))
+
+
+def format_suspects(found: list[dict], since: str) -> str:
+    lines = [f"Kurumsal işlem şüphesi taraması ({since} sonrası): " + (f"{len(found)} yeni şüphe" if found else
+                                                                     "yeni şüphe yok")]
+    for f in found:
+        lines.append(f"  {f['symbol'].removesuffix('.IS')} {f['date'][8:10]}.{f['date'][5:7]}.{f['date'][:4]} "
+                     f"{f['change'] * 100:+.1f}% {f['kind']} (çarpan önerisi {f['suggested_factor']})")
+    if found:
+        lines.append("Yapılacak: her satırı KAP'ta (bedelsiz/bedelli/bölünme/temettü) doğrula; doğrulananı kaynağıyla "
+                     "data/corporate_actions.csv'ye ekle. Hiçbir şey otomatik uygulanmadı.")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> None:
     import argparse
 
@@ -320,7 +347,21 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="write suggested factors for flagged jumps to data/corporate_actions.csv",
     )
+    parser.add_argument("--recent", type=int, default=None, metavar="GÜN",
+                        help="only the corporate-action suspects of the last N days (every BIST 100 member since 2022)")
     args = parser.parse_args(argv)
+
+    if args.recent:
+        from datetime import date, timedelta
+
+        from core.market.corrections import load_corporate_actions
+        from core.market.membership import ever_members
+
+        since = (date.today() - timedelta(days=args.recent)).isoformat()
+        known = {(a.symbol, a.ex_date.isoformat()) for a in load_corporate_actions()}
+        found = recent_suspects(build_report(ever_members()), since, known)
+        print(format_suspects(found, f"{since[8:10]}.{since[5:7]}.{since[:4]}"))
+        return
 
     report = build_report()
 

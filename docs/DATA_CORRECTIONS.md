@@ -90,3 +90,9 @@ Kullanıcının PC'deki incelemesi 7 kritik kayıt buldu: açılış = en yükse
 - `/durum`'daki "Veri doğruluğu" hedefi bu özeti okur: şüpheli hisse oranı ≤ %1 ise hedefte; aşarsa hisseler isimle yazılır. Özet 8 günden eskiyse ya da okunamazsa "bilinmiyor".
 - Araştırmada dışlama: `python -m core.backtest.research --exclude-suspects <latest.json>`. Rapor dışlanan hisseleri "İkinci kaynakta şüpheli, dışarıda" satırında adıyla yazar. Varsayılan çalıştırmada dışlama yoktur; bir dışlama, bir deneme sayılır (CHARTER G2).
 
+## Haftalık kurumsal işlem şüphesi taraması (v0.52.1)
+
+- Haftalık araştırma `python -m core.market.quality --recent 14` çalıştırır; çıktı `research-results` dalında `runs/<tarih>/corporate.txt` ve iş akışı özetinde.
+- Kapsam: 2022'den beri BIST 100'e girmiş her hisse. Son 14 günde ±%20'yi aşan tek günlük hareket ("sıçrama": büyük olasılıkla düzeltilmemiş bedelsiz/bedelli/bölünme) ve günlük fiyat limitinin açıklayamadığı hareket ("limit aşımı": bedelli ya da temettü olabilir). `corporate_actions.csv`'de zaten olanlar ve piyasa geneli hareketler hariç.
+- Hiçbir şey otomatik uygulanmaz. Her satır KAP'ta doğrulanır; doğrulanan, kaynağıyla birlikte `data/corporate_actions.csv`'ye ve buraya eklenir.
+

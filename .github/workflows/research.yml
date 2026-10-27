@@ -85,6 +85,8 @@ jobs:
         run: python -m core.backtest.diagnose 2>&1 | tee diagnose.txt
       - name: Holiday calendar against XU100 candles
         run: python -m core.market.calendar 2>&1 | tee calendar.txt
+      - name: Corporate action suspects (last 14 days)
+        run: python -m core.market.quality --recent 14 2>&1 | tee corporate.txt || true
       - name: Second source check (İş Yatırım closes, last 30 days)
         timeout-minutes: 20  # a slow source must not use up the job's time before the results are saved
         continue-on-error: true
@@ -97,7 +99,7 @@ jobs:
         run: |
           folder="results/runs/$(echo "$RUN_DATE" | tr ' :' '_-')"
           mkdir -p "$folder"
-          cp update.txt research.txt research_fixed.txt research_today.txt phase3.txt candidates.txt diagnose.txt calendar.txt crosscheck.txt history.txt expectations.txt view_expectations.csv "$folder"/ 2>/dev/null || true
+          cp update.txt research.txt research_fixed.txt research_today.txt phase3.txt corporate.txt candidates.txt diagnose.txt calendar.txt crosscheck.txt history.txt expectations.txt view_expectations.csv "$folder"/ 2>/dev/null || true
           cd results
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -107,7 +109,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          for f in history phase3 crosscheck research research_fixed research_today expectations candidates diagnose calendar update; do
+          for f in history phase3 corporate crosscheck research research_fixed research_today expectations candidates diagnose calendar update; do
             echo "## $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
