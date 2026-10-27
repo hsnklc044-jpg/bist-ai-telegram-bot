@@ -69,3 +69,27 @@ class AnalysisFormatTest(unittest.TestCase):
         self.assertIn("2 ATR altı : 243.26", text)
         self.assertIn("4 ATR üstü : 290.48", text)
         self.assertIn("tahmin gücü bulunmadı", text)
+
+
+class SecondInstanceTest(unittest.TestCase):
+    """Two bots with one token: Telegram refuses the second (Conflict). Seen on the user's PC, 27.10.2026."""
+
+    def test_conflict_is_one_clear_line_without_a_traceback(self):
+        import asyncio
+        from types import SimpleNamespace
+
+        from telegram.error import Conflict
+
+        from bot import handlers
+
+        error = Conflict("terminated by other getUpdates request; make sure that only one bot instance is running")
+        from unittest import mock
+
+        with mock.patch.object(handlers, "_conflict_reported", False), \
+                self.assertLogs("bot.handlers", level="ERROR") as logs:
+            asyncio.run(handlers.on_error(None, SimpleNamespace(error=error)))
+            asyncio.run(handlers.on_error(None, SimpleNamespace(error=error)))  # repeats every few seconds
+        self.assertEqual(len(logs.records), 1)  # said once, not on every retry
+        record = logs.records[0]
+        self.assertIn("aynı anda iki bot", record.getMessage())
+        self.assertIsNone(record.exc_info)

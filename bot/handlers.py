@@ -27,6 +27,7 @@ from core.infrastructure.exceptions import PersonalFileError
 from core.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
+_conflict_reported = False  # a second bot with the same token is reported once per run
 
 COMMANDS = (
     ("start", start),
@@ -53,6 +54,19 @@ async def on_error(
     context: ContextTypes.DEFAULT_TYPE,
 ) -> None:
     """Log the failure and tell the user something went wrong."""
+
+    from telegram.error import Conflict
+
+    if isinstance(context.error, Conflict):
+        # another process polls with the same token; Telegram repeats this every few seconds
+        global _conflict_reported
+        if not _conflict_reported:
+            _conflict_reported = True
+            logger.error(
+                "Bu token ile aynı anda iki bot çalışıyor; Telegram ikincisini reddediyor. "
+                "Yalnız bir 'python main.py' açık kalsın (diğer pencereyi kapatın)."
+            )
+        return
 
     logger.error(
         "Telegram handler failed.",
