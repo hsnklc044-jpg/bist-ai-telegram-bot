@@ -8,7 +8,7 @@ import pytest  # noqa: E402
 from core.backtest import expectations  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
 from core.market import store  # noqa: E402
-from core.reports import health, runs, slo  # noqa: E402
+from core.reports import daily, health, runs, slo  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -31,6 +31,7 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(slo, "FRESHNESS_FILE", tmp_path / "freshness.csv")
     monkeypatch.setattr(slo, "RESTORE_FILE", tmp_path / "restore_tests.csv")
     monkeypatch.setattr(ping, "STATE_FILE", tmp_path / "monitoring.json")
+    monkeypatch.setattr(daily, "REPORT_TEXT_DIR", tmp_path / "reports")
 
     previous = store._db_path
     store.configure(tmp_path / "market.db")

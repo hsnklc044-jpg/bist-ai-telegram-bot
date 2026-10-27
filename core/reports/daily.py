@@ -30,7 +30,7 @@ import pandas as pd
 from core.alerts import evaluate_account, evaluate_position, update_alert_log
 from core.alerts.portfolio import evaluate_portfolio, portfolio_risk
 from core.config import alerts as alert_cfg
-from core.config.paths import ALERTS_LOG_FILE, EQUITY_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
+from core.config.paths import ALERTS_LOG_FILE, EQUITY_LOG_FILE, LEDGER_FILE, LOG_DIR, PAPER_ORDERS_FILE
 from core.config.trading import ACCOUNTS
 from core.infrastructure import ping
 from core.infrastructure.console import utf8_output
@@ -698,6 +698,22 @@ def _record_freshness(universe: list[str] | None = None, now=None) -> None:
         logger.exception("Freshness not recorded")
 
 
+REPORT_TEXT_DIR = LOG_DIR / "reports"  # SPOF T-1: the day's report survives a Telegram outage
+
+
+def _keep_report_text(day, text: str) -> Path | None:
+    """Save what is about to be sent (one file per data day; a resend replaces it). Never fatal."""
+
+    try:
+        REPORT_TEXT_DIR.mkdir(parents=True, exist_ok=True)
+        path = REPORT_TEXT_DIR / f"rapor_{day.isoformat()}.txt"
+        path.write_text(text, encoding="utf-8")
+        return path
+    except OSError:
+        logger.exception("Report text not saved")
+        return None
+
+
 def _run(args) -> DailyResult:
     with report_lock():
         return _run_locked(args)
@@ -731,6 +747,7 @@ def _run_locked(args) -> DailyResult:
         from core.infrastructure.settings import require_bot_settings
 
         s = require_bot_settings()
+        _keep_report_text(result.day, result.text)
         send_telegram(result.text, s.bot_token, s.chat_id)
         result.status = "sent"
         logger.info("Daily report sent to Telegram | %s", result.day)

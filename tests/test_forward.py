@@ -258,5 +258,37 @@ class DailyRecordingTest(unittest.TestCase):
         record.assert_called_once()
 
 
+class ReportTextKeptTest(unittest.TestCase):
+    """SPOF T-1: if Telegram is down for good, the day's report must not be lost."""
+
+    def test_text_is_saved_before_sending_even_when_sending_fails(self):
+        from core.reports import daily
+
+        fake = daily.DailyResult(date(2026, 10, 27), "🗓 rapor metni")
+        args = mock.Mock(no_update=True, send=True, force=False)
+        settings = mock.Mock(bot_token="x", chat_id=1)
+        with mock.patch.object(daily, "build_daily", return_value=fake), \
+                mock.patch.object(daily, "_record_scores", return_value=""), \
+                mock.patch.object(daily, "already_sent", return_value=False), \
+                mock.patch.object(daily, "_with_weekly_line", side_effect=lambda t, d: t), \
+                mock.patch.object(daily, "_with_backup_line", side_effect=lambda t: t), \
+                mock.patch.object(daily, "_with_health_warnings", side_effect=lambda t: t), \
+                mock.patch("core.infrastructure.settings.require_bot_settings", return_value=settings), \
+                mock.patch.object(daily, "send_telegram", side_effect=ConnectionError("Telegram HTTP 502")):
+            with self.assertRaises(ConnectionError):
+                daily._run_locked(args)
+        saved = daily.REPORT_TEXT_DIR / "rapor_2026-10-27.txt"
+        self.assertEqual(saved.read_text(encoding="utf-8"), "🗓 rapor metni")
+
+    def test_a_failed_save_never_stops_the_report(self):
+        from core.reports import daily
+
+        with tempfile.TemporaryDirectory() as tmp:
+            blocker = Path(tmp) / "reports"
+            blocker.write_text("a file where the folder should be", encoding="utf-8")
+            with mock.patch.object(daily, "REPORT_TEXT_DIR", blocker):
+                self.assertIsNone(daily._keep_report_text(date(2026, 10, 27), "rapor"))  # must not raise
+
+
 if __name__ == "__main__":
     unittest.main()

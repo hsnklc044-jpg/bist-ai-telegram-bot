@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.57.0 – 27.10.2026
+- Tek arıza noktası analizi (docs/SPOF.md): PC, internet, Yahoo, Telegram, GitHub ve diğerleri için B planları.
+- Günlük rapor göndermeden önce `logs/reports/rapor_<gün>.txt` dosyasına da yazılır: Telegram uzun süre çökse bile o günün raporu kaybolmaz.
+
 ## v0.56.3 – 27.10.2026
 - Felaket kurtarma tatbikatı temiz Windows makinesinde baştan sona başarılı (yedekten geri yüklenen dosyalar birebir aynı). Tatbikatın `/durum` çıktısı son bir eksik gösterdi: elle ya da aylık yapılan geri yükleme testi "Yedek" hedefine sayılmıyordu. Artık sayılıyor; başarısızlık da kaydediliyor. Sunucudan çekilen yedeklerin denetimi bu makinenin hedefine sayılmaz (`--no-record`).
 
