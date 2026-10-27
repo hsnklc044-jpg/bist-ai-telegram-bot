@@ -22,7 +22,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 | Dışarıdan izleme aktif ve yanlış/gerçek alarm testiyle doğrulanmış | ⏳ kullanıcı + 🔧 | Kod v0.46.0/v0.49.1. Araç hazır (v0.56.0, `python -m core.infrastructure.ping --drill/--recover`, `test_ping.AlarmDrillTest`). Eksik: adresler (.env, BENİM ADIMLARIM), tatbikatın PC'de yapılması ve bir hafta yanlış alarm olmaması |
 | Açılış / uyku / ağ kesintisi senaryoları testli | ✅ | `test_bot.StartupNetworkTest` (gerçek PTB döngüsü), `test_scheduler.SleepWakeTest`, `test_daily.LateInternetTest`, `test_corrupt_files.LockedFileTest`, `test_corrupt_files.CutLastLineTest`, `test_runs` (saat değişimi) |
 | İzole kopyada felaket kurtarma tatbikatı (sıfır makinede yedekten tam kurulum) başarılı | ✅ 27.10 | `dr-drill.yml` 3. çalışma **40551266369 başarılı** (v0.56.2, ~3 dk): temiz Windows'ta belgedeki zip → `setup.ps1` (kilitli paketler, ruff, 572 test) → yedek → `--restore` (3 dosya SHA-256 aynı) → Yahoo fiyat deposu → `--test-restore` → `/durum` "Kişisel dosyalar: 3 dosya sonuna kadar okundu". Rapor: research-results `drills/2026-10-27_20-33.txt`. Önceki iki çalışma iki gerçek hata buldu (v0.56.1, v0.56.2); tatbikatın `/durum`'u bir üçüncüsünü (K-20, v0.56.3). Aylık tekrar: her ayın 3'ü |
-| Son öz-denetimde kritik/yüksek bulgu yok | ❌ | 27.10 öz-denetimi: 2 YÜKSEK (düzeltildi). Sonraki öz-denetim (10 sürüm sonra) temiz çıkmalı |
+| Son öz-denetimde kritik/yüksek bulgu yok | ✅ 27.10 | Öz-denetim 2 (erken, v0.55.3→v0.59.0, ROADMAP): 2 ORTA (biri düzeltildi, v0.59.1), 1 DÜŞÜK, 1 BİLGİ; kritik/yüksek yok. Bir sonraki denetim de temiz çıkmazsa bu madde yeniden açılır |
 
 ## S3 BAĞIMSIZ — kapalı (S2'den sonra)
 

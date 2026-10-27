@@ -27,6 +27,10 @@ class HoldoutNeverEntersScreeningTest(unittest.TestCase):
         self.assertEqual(run.HOLDOUT_START, pd.Timestamp("2026-11-02"))
         self.assertEqual(opened["AAA.IS"].index[-1], df.index[-1])  # only an explicit holdout verdict sees it
 
+    def test_a_symbol_without_data_does_not_break_the_cut(self):
+        """Weekly research loads ~200 past members; a dozen have no prices (KPOWR, clubs)."""
+        self.assertTrue(run.load_frames(["YOK.IS"])["YOK.IS"].empty)
+
     def test_the_documents_name_the_same_dates(self):
         from pathlib import Path
 

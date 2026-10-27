@@ -75,4 +75,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -q -m "Sources $stamp" || exit 0
-          git push origin research-results
+          for i in 1 2 3; do  # another workflow may have pushed meanwhile
+            git pull --rebase -q origin research-results && git push -q origin research-results && exit 0
+            sleep $((i * 10))
+          done
+          exit 1

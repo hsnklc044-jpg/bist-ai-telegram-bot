@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.59.1 – 27.10.2026
+- Erken öz-denetim (ROADMAP "Öz-denetim 2"): kritik ya da yüksek bulgu yok. Bir orta bulgu düzeltildi: GitHub'daki iş akışları sonuçlarını aynı dala aynı anda yazmaya çalışırsa haftalık araştırma sonuçları kaybolabiliyordu; artık yeniden denerler.
+
 ## v0.59.0 – 27.10.2026
 - Araştırma programı (docs/RESEARCH_PROGRAM.md): deneme bütçesi, ön kayıt ve 02.11.2026'dan başlayan ileri holdout. Araştırma araçları artık 30.10.2026'dan sonraki fiyatları göremez; bu kodla zorunlu. Günlük rapor ve canlı ölçüm etkilenmez.
 
