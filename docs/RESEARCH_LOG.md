@@ -308,3 +308,26 @@ Bu bölüm, faiz verisi indirilmeden ve H2/H3'ün hiçbir sonucu görülmeden ya
   - **Kapı 2 (H2/H3):** takvim yılları 2023 (01.08'den), 2024, 2025, 2026 (son kapanışa kadar); en az 3'ünde XU100'ün üstünde.
 - **Sonuç:** ne çıkarsa çıksın bu bölümün altına olduğu gibi yazılır. Kural ve faiz ayarı yapılmaz.
 - **Uygulama notu (aynı gün, faiz verisi eklenmeden ve sonuç görülmeden önce):** `data/bist_holidays.csv` yalnız 2026'yı kapsıyor. H2 ve H3'ün ay sonu ve seans sırası için geçmiş aylarda **gerçekleşmiş seanslar** (XU100 mum tarihleri) kullanılır; son mumdan sonrası için tatil takvimi ve hafta içi günler kullanılır. 2023-08 sonrasında borsada önceden duyurulmamış bir kapanış bilinmiyor; bu yüzden gerçekleşmiş seanslar o dönem yayımlanmış takvimle aynıdır. Kurallar fiyatlara göre değil, yalnız tarihlere göre zamanlanır.
+
+### Aşama 3 – H2 ve H3 ilk sonuç: RED (27.10.2026)
+
+Research çalışması 40488966701 (kod v0.48.0, `runs/2026-10-27_13-30/phase3.txt`; history.csv'de `a3` ailesi). Dönem 2023-08-01 – 2026-10-26. Sonuç olduğu gibi:
+
+| | H2 endeks trendi | H3 ay dönümü |
+|---|---|---|
+| Yıllık, 2023-08-01'den (XU100 +14,6%) | +21,2% | +27,1% |
+| Yıllık, 2024-01-02'den (XU100 +14,5%) | +22,2% | +22,8% |
+| MaxDD (XU100 −26,5%) | −22,5% | −11,3% |
+| Fazla getiri, %98,3 GA | +4,9% [−9,1%, +20,2%] anlamlı değil | +8,1% [−17,1%, +35,3%] anlamlı değil |
+| XU100'ün üstünde kalınan yıl | 2/4 | 3/4 |
+| Piyasada kalma | %80 | %28 |
+| Faiz − 3 puan ile fazla getiri | +4,4% [−9,6%, +19,5%] | +6,5% [−18,7%, +33,6%] |
+| Bilgi: %0 nakitle yıllık | +12,3% | +1,4% |
+
+- **H2:** birincil ölçüt ✗, kapı 1 ✓, kapı 2 ✗ (2/4 yıl), kapı 3 ✓. Faiz − 3 puanla da aynı sonuç. **Red.**
+- **H3:** birincil ölçüt ✗, kapı 1 ✓, kapı 2 ✓, kapı 3 ✓. Faiz − 3 puanla da aynı sonuç. Birincil ölçüt tutmadığı için **red**.
+- **Not (yorum, karara girmez):** H3'ün getirisinin neredeyse tamamı nakdin faizinden geliyor; %0 nakitle yıllık +1,4%. Yani bu dönemde XU100'ü geçmesi, ay dönümü etkisinden çok, yüksek TL faizinde zamanın %72'sini nakitte geçirmesinden kaynaklanıyor. Aralığın genişliği (yaklaşık ±26 puan) üç yıllık veriyle bu farkın şanstan ayrılamadığını gösteriyor.
+
+**Karar:** H2 ve H3 reddedildi. Plan gereği kurallar ve faiz varsayımı ayarlanmaz, canlı ölçüme alınmaz. Haftalık araştırma bu üç hipotezi her hafta aynı biçimde yeniden hesaplar; sonuç değişirse yalnızca buraya not edilir, kendiliğinden kabul edilmez.
+
+**Aşama 3 kapandı:** önceden kaydedilen üç hipotezin üçü de birincil ölçütü geçemedi. Bu veriyle (yaklaşık 3,2 yıl) XU100'den istatistiksel olarak ayrılan bir kural bulunamadı. Yeni hipotez, ancak yeni bir planla ve kullanıcı onayıyla denenir.
