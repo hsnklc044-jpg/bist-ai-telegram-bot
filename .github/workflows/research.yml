@@ -88,7 +88,7 @@ jobs:
       - name: Second source check (İş Yatırım closes, last 30 days)
         timeout-minutes: 20  # a slow source must not use up the job's time before the results are saved
         continue-on-error: true
-        run: python -m core.market.crosscheck --days 30 2>&1 | tee crosscheck.txt || true
+        run: python -m core.market.crosscheck --days 30 --summary results/crosscheck/latest.json 2>&1 | tee crosscheck.txt || true
       - name: Compare with the previous run
         if: always()
         run: python -m core.backtest.history results/history.csv 2>&1 | tee history.txt

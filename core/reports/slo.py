@@ -252,6 +252,43 @@ def backup_slo(now: datetime, folder: Path, restores: Path) -> SloResult:
     return SloResult(name, OK if ok else WARN, value, "; ".join(notes))
 
 
+# --- data accuracy (second source) ---------------------------------------------------------------
+
+ACCURACY_URL = ("https://raw.githubusercontent.com/hsnklc044-jpg/bist-ai-telegram-bot/"
+                "research-results/crosscheck/latest.json")  # written by the weekly research run
+ACCURACY_MAX_AGE = timedelta(days=8)
+
+
+def accuracy(now: datetime, data: dict | None) -> SloResult:
+    name = "Veri doğruluğu"
+    if not data or not data.get("checked"):
+        return SloResult(name, UNKNOWN, None, "ikinci kaynak özeti alınamadı (haftalık araştırma, crosscheck/latest.json)")
+    day = date.fromisoformat(data["date"])
+    if now.date() - day > ACCURACY_MAX_AGE:
+        return SloResult(name, UNKNOWN, None, f"son ikinci kaynak özeti eski ({day:%d.%m})")
+    differing = data.get("differing", [])
+    share = len(differing) / data["checked"]
+    text = f"{day:%d.%m}: {len(differing)}/{data['checked']} hisse farklı"
+    if share > 0.01:
+        return SloResult(name, WARN, 1 - share, f"{text}; şüpheli: {', '.join(differing)}")
+    return SloResult(name, OK, 1 - share, text + (f" ({', '.join(differing)})" if differing else ""))
+
+
+def fetch_accuracy(get=None) -> dict | None:
+    """The latest summary from the research-results branch; None when offline (tests always are)."""
+
+    from core.reports import health
+
+    try:
+        get = get or health._http_get or __import__("httpx").get
+        response = get(ACCURACY_URL, timeout=10)
+        if getattr(response, "status_code", 200) >= 400:
+            return None
+        return response.json()
+    except Exception:  # noqa: BLE001 - unknown, never healthy
+        return None
+
+
 # --- record integrity -----------------------------------------------------------------------------
 
 
@@ -301,12 +338,21 @@ def measure(now: datetime, folder: Path | None = None) -> list[SloResult]:
         report_delivery(now, paths["runs"]),
         bot_uptime(now, paths["beats"]),
         freshness(now, paths["fresh"]),
-        SloResult("Veri doğruluğu", UNKNOWN, None, "ikinci kaynak sonucu henüz buraya bağlı değil (CHARTER C1)"),
+        accuracy(now, _local_json(folder / "crosscheck.json") if folder is not None else fetch_accuracy()),
         backup_slo(now, paths["backups"], paths["restores"]),
         integrity(now, paths["signal"], check_personal=folder is None),
         SloResult("Kalite (CI, kapsam)", UNKNOWN, None, "CI ve test kapsamı bu bilgisayardan ölçülmüyor (CHARTER I)"),
     ]
     return results
+
+
+def _local_json(path: Path) -> dict | None:
+    import json
+
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
 
 
 def lines(results: list[SloResult]) -> list[str]:
@@ -317,6 +363,6 @@ def lines(results: list[SloResult]) -> list[str]:
 
 
 __all__ = [
-    "SloResult", "TARGETS", "backup_slo", "bot_uptime", "freshness", "integrity", "lines", "measure",
+    "SloResult", "TARGETS", "accuracy", "backup_slo", "fetch_accuracy", "bot_uptime", "freshness", "integrity", "lines", "measure",
     "record_freshness", "record_heartbeat", "record_restore_test", "report_delivery",
 ]

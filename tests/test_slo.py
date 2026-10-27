@@ -145,13 +145,34 @@ class BackupSloTest(Temp):
         self.assertIn("başarısız", r.text)
 
 
+class AccuracySloTest(Temp):
+    def summary(self, days_ago=1, differing=(), checked=100):
+        d = (NOW - timedelta(days=days_ago)).date().isoformat()
+        return {"date": d, "checked": checked, "differing": list(differing), "unchecked": [],
+                "share": len(differing) / checked}
+
+    def test_within_one_percent(self):
+        r = slo.accuracy(NOW, self.summary(differing=["AAA"]))
+        self.assertEqual(r.state, OK)
+        self.assertIn("1/100", r.text)
+
+    def test_above_one_percent_names_the_stocks(self):
+        r = slo.accuracy(NOW, self.summary(differing=["AAA", "BBB"]))
+        self.assertEqual(r.state, WARN)
+        self.assertIn("şüpheli: AAA, BBB", r.text)
+
+    def test_old_or_missing_result_is_unknown(self):
+        self.assertEqual(slo.accuracy(NOW, None).state, UNKNOWN)
+        self.assertEqual(slo.accuracy(NOW, self.summary(days_ago=9)).state, UNKNOWN)
+
+
 class AllSloTest(Temp):
     def test_unmeasured_objectives_are_unknown_never_ok(self):
         results = slo.measure(NOW, folder=self.dir)
         names = [r.name for r in results]
         self.assertEqual(names, list(slo.TARGETS))
         by = {r.name: r for r in results}
-        self.assertEqual(by["Veri doğruluğu"].state, UNKNOWN)
+        self.assertEqual(by["Veri doğruluğu"].state, UNKNOWN)  # tests are offline: no summary to read
         self.assertEqual(by["Kalite (CI, kapsam)"].state, UNKNOWN)
         self.assertTrue(all(r.state != OK for r in results))  # empty folder: nothing is measurable
 

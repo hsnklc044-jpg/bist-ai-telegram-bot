@@ -275,6 +275,19 @@ class CompareTest(unittest.TestCase):
                                              sleep=lambda s: None))
         self.assertIn("X 27.06.2022: ikinci kaynak alınamadı", text)
 
+    def test_summary_for_the_accuracy_objective(self):
+        ok = crosscheck.CrossCheck("A.IS", days=20)
+        bad = crosscheck.CrossCheck("B.IS", days=20, differences=[(date(2026, 10, 20), 0.05, 0.01, False)])
+        down = crosscheck.CrossCheck("C.IS", error="ConnectionError")
+        index = crosscheck.CrossCheck("XU100.IS", days=20)
+        crosscheck.format_report([index, ok, bad, down], "son 30 gün")  # marks market-wide days, as main does
+        s = crosscheck.summary([index, ok, bad, down], date(2026, 10, 31))
+        self.assertEqual(s["checked"], 2)  # stocks only; the unreachable one is not counted
+        self.assertEqual(s["differing"], ["B"])
+        self.assertEqual(s["unchecked"], ["C"])
+        self.assertAlmostEqual(s["share"], 0.5)
+        self.assertEqual(s["date"], "2026-10-31")
+
     def test_empty_second_source(self):
         result = crosscheck.compare("X.IS", frame([1.0, 2.0]), pd.DataFrame(columns=["close"]))
         self.assertEqual(result.state, "kontrol edilemedi")

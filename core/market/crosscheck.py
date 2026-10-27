@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass, field
 from datetime import date, timedelta
+from pathlib import Path
 
 import pandas as pd
 
@@ -302,6 +303,24 @@ def format_report(results: list[CrossCheck], period: str, show_explained: bool =
     return "\n".join(lines)
 
 
+def summary(results: list[CrossCheck], day: date) -> dict:
+    """For the 'veri doğruluğu' objective: stocks checked, stocks with an unexplained difference.
+    Call after format_report (it marks the market-wide dates)."""
+
+    from core.market.universe import BENCHMARK
+
+    stocks = [r for r in results if r.symbol != BENCHMARK]
+    checked = [r for r in stocks if not r.error]
+    differing = sorted(r.symbol.removesuffix(".IS") for r in checked if r.state == "fark var")
+    return {
+        "date": day.isoformat(),
+        "checked": len(checked),
+        "differing": differing,
+        "unchecked": sorted(r.symbol.removesuffix(".IS") for r in stocks if r.error),
+        "share": len(differing) / len(checked) if checked else None,
+    }
+
+
 def export_fixes(results: list[CrossCheck], path) -> int:
     """Write the one-day wrong closes as price fixes (core.market.corrections)."""
 
@@ -447,6 +466,7 @@ def main(argv: list[str] | None = None) -> None:
                         help="also list the days counted as dividend/bonus/split days")
     parser.add_argument("--adjusted", action="store_true",
                         help="check the corporate-action adjusted series the backtests use")
+    parser.add_argument("--summary", default=None, help="write the accuracy summary (JSON) here")
     parser.add_argument("--inspect", nargs="*", default=None, metavar="KOD:YYYY-MM-DD",
                         help="show our raw candle and İş Yatırım's around these days, nothing else")
     args = parser.parse_args(argv)
@@ -478,6 +498,11 @@ def main(argv: list[str] | None = None) -> None:
     period = f"{args.start:%d.%m.%Y} – bugün" if args.start else f"son {args.days} gün"
     results = run(symbols, args.days, bars=bars, start=args.start)
     print(format_report(results, period + (", düzeltilmiş seri" if args.adjusted else ""), args.show_explained))
+    if args.summary:
+        import json
+
+        Path(args.summary).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.summary).write_text(json.dumps(summary(results, date.today()), indent=1), encoding="utf-8")
     if args.export:
         print(f"{export_fixes(results, args.export)} günlük kapanış düzeltmesi yazıldı: {args.export}")
 
@@ -486,4 +511,4 @@ if __name__ == "__main__":
     main()
 
 
-__all__ = ["CrossCheck", "compare", "fetch_isyatirim", "format_report", "inspect", "run"]
+__all__ = ["CrossCheck", "compare", "fetch_isyatirim", "format_report", "inspect", "run", "summary"]

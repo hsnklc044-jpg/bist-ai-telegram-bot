@@ -83,3 +83,10 @@ Kullanıcının PC'deki incelemesi 7 kritik kayıt buldu: açılış = en yükse
 - **ADESE 08.02.2023:** İş Yatırım'da da yok (iptal edilen seans). Bizde `drop_cancelled_sessions` ile zaten çıkarılıyor. Sorun yok.
 - **Sonuçlara etkisi:** pratikte yok. Araştırma 2023-08-01'de başlıyor; o gün kullanılan en uzun pencere (200 seans) Ekim 2022'ye kadar gidiyor. 27.06.2022 bunun da öncesinde. KRVGD (16.12.2022) bu pencerenin içinde, ama 01.04.2022'de BIST 100'den çıktı ve geri girmedi; geçmiş üyelik evreninde hiç seçilemez.
 - **Karar:** düzeltme uygulanmadı. Gerekirse `data/price_fix_approvals.csv` üzerinden, kaynağıyla, kullanıcı onayıyla yapılır.
+
+## Şüpheli hisseler (ikinci kaynak, haftalık; v0.52.0)
+
+- Haftalık araştırma, son 30 günü İş Yatırım ile karşılaştırır ve özeti `research-results` dalında `crosscheck/latest.json`'a yazar: kontrol edilen hisse sayısı, açıklanamayan farkı olanlar ("şüpheli"), ulaşılamayanlar.
+- `/durum`'daki "Veri doğruluğu" hedefi bu özeti okur: şüpheli hisse oranı ≤ %1 ise hedefte; aşarsa hisseler isimle yazılır. Özet 8 günden eskiyse ya da okunamazsa "bilinmiyor".
+- Araştırmada dışlama: `python -m core.backtest.research --exclude-suspects <latest.json>`. Rapor dışlanan hisseleri "İkinci kaynakta şüpheli, dışarıda" satırında adıyla yazar. Varsayılan çalıştırmada dışlama yoktur; bir dışlama, bir deneme sayılır (CHARTER G2).
+

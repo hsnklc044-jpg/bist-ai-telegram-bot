@@ -84,6 +84,25 @@ def _universe(universe: str):
     return frames, skipped, membership_panel(index, list(frames))
 
 
+def load_suspects(path) -> set[str]:
+    """Codes the second-source check found different (crosscheck --summary)."""
+
+    import json
+    from pathlib import Path
+
+    return set(json.loads(Path(path).read_text(encoding="utf-8")).get("differing", []))
+
+
+def drop_suspects(frames: dict, eligible, suspects: set[str]):
+    """frames and eligibility without the suspect stocks; also returns the dropped symbols."""
+
+    dropped = sorted(s for s in frames if s.removesuffix(".IS") in suspects)
+    kept = {s: df for s, df in frames.items() if s not in dropped}
+    if eligible is not None:
+        eligible = eligible[[c for c in eligible.columns if c not in dropped]]
+    return kept, eligible, dropped
+
+
 def _window_return(close: pd.Series, start, end) -> float:
     part = close.loc[start:end]
     return float(part.iloc[-1] / part.iloc[0] - 1) if len(part) > 1 else float("nan")
@@ -97,10 +116,15 @@ def research_report(
     universe: str = "pit",
     seed: int = 0,
     records: list[dict] | None = None,
+    suspects: set[str] | None = None,
 ) -> str:
-    """The report text; with `records`, one dict per table row is appended (for history.csv)."""
+    """The report text; with `records`, one dict per table row is appended (for history.csv).
+    With `suspects`, those stocks (second source differs) are left out and named in the report."""
 
     frames, skipped, eligible = _universe(universe)
+    excluded: list[str] = []
+    if suspects:
+        frames, eligible, excluded = drop_suspects(frames, eligible, suspects)
     bench = load_frames([BENCHMARK])[BENCHMARK]
     regime = regime_filter(bench)
 
@@ -173,6 +197,8 @@ def research_report(
         f"Komisyon %{base.commission * 100:.2f} + kayma %{base.slippage * 100:.2f} (her yön) | "
         f"nakit: {repr(cash) if cash is not None else 'faizsiz (%0)'}",
     ]
+    if excluded:
+        lines.append(f"İkinci kaynakta şüpheli, dışarıda ({len(excluded)}): {', '.join(excluded)}")
     if skipped:
         lines.append(f"Verisi yetersiz, dışarıda ({len(skipped)}): {', '.join(skipped)}")
         share = len(skipped) / (len(skipped) + len(frames))
@@ -296,6 +322,8 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument("--records", default=None, help="also append the table rows to this CSV (history)")
     parser.add_argument("--run-date", default=None, help="label of this run in the history (default: now)")
+    parser.add_argument("--exclude-suspects", default=None,
+                        help="leave out the stocks in this second-source summary (crosscheck --summary)")
     parser.add_argument("--price-fixes", default=None,
                         help="apply one-day close fixes from this CSV (core.market.crosscheck --export)")
     args = parser.parse_args(argv)
@@ -319,6 +347,7 @@ def main(argv: list[str] | None = None) -> None:
             cash=parse_cash_option(args.cash),
             universe=args.universe,
             records=records,
+            suspects=load_suspects(args.exclude_suspects) if args.exclude_suspects else None,
         )
     )
     if args.records:
