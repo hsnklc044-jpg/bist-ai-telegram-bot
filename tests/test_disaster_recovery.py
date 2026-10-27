@@ -64,5 +64,23 @@ class FreshMachineRestoreTest(unittest.TestCase):
             self.assertIn("watchlist.json", " ".join(restored))
 
 
+class SpofDocTest(unittest.TestCase):
+    """MATURITY S3: every single point of failure has a row, and every test and link it cites exists."""
+
+    def test_components_tests_and_links(self):
+        text = (ROOT / "docs" / "SPOF.md").read_text(encoding="utf-8")
+        for part in ("**PC**", "**İnternet**", "**Yahoo**", "**Telegram**", "**GitHub**"):
+            self.assertIn(part, text)
+        for module, cls in set(re.findall(r"`(test_\w+)\.(\w+)`", text)) | {("test_crosscheck", None)}:
+            source = (ROOT / "tests" / f"{module}.py").read_text(encoding="utf-8")
+            if cls:
+                self.assertIn(f"class {cls}(", source, f"{module}.{cls}")
+        for link in re.findall(r"\]\(([A-Z_]+\.md)\)", text):
+            self.assertTrue((ROOT / "docs" / link).exists(), link)
+        from core.market import crosscheck
+
+        self.assertTrue(callable(crosscheck.fetch_isyatirim))
+
+
 if __name__ == "__main__":
     unittest.main()

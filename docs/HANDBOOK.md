@@ -38,6 +38,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 ## 3. Kurulum ve geri yükleme
 
 - Sıfırdan kurulum ve yedekten dönüş: **docs/DISASTER_RECOVERY.md**.
+- Tek arıza noktaları (PC, internet, Yahoo, Telegram, GitHub) ve B planları: **docs/SPOF.md**.
 - Yeni sürümü yerel otomasyon kurar (deneme kopyasında ruff + pytest, olmazsa geri alır). Elle kurulum gerekirse: OPERATIONS §5.
 
 ## 4. Günlük işleyiş
