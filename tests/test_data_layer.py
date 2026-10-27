@@ -58,6 +58,20 @@ class StoreTest(unittest.TestCase):
             self.assertEqual(len(fake.calls), 2)
             self.assertGreater(fake.calls[1][1], fake.calls[0][1])
 
+    def test_times_with_and_without_time_zone_mix_safely(self):
+        # one caller passes Istanbul time, another the computer's local time: the refresh check
+        # must compare them as the same clock instead of failing with a TypeError
+        with offline_market():
+            aware = datetime(2026, 10, 24, 12, 0, tzinfo=IST)
+
+            def local(minutes):  # the same moment as this computer's clock shows it, without a zone
+                return (aware + pd.Timedelta(minutes=minutes)).astimezone().replace(tzinfo=None)
+
+            store.update(["AAA.IS"], now=aware)
+            self.assertEqual(store.update(["AAA.IS"], now=local(5)), {"AAA.IS": "fresh"})
+            self.assertEqual(store.update(["AAA.IS"], now=local(60)), {"AAA.IS": "incremental"})
+            self.assertEqual(store.update(["AAA.IS"], now=aware + pd.Timedelta(minutes=65)), {"AAA.IS": "fresh"})
+
     def test_adjusted_history_is_replaced(self):
         with offline_market() as fake:
             store.update(["AAA.IS"])

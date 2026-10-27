@@ -679,12 +679,12 @@ def main(argv: list[str] | None = None) -> int:
     log_file = None
     if args.log_dir:
         Path(args.log_dir).mkdir(parents=True, exist_ok=True)
-        log_file = Path(args.log_dir) / f"daily_{datetime.now():%Y-%m-%d}.log"
+        log_file = Path(args.log_dir) / f"daily_{started:%Y-%m-%d}.log"  # Istanbul date
 
     def write_log(text: str) -> None:
         if log_file is not None:
             with open(log_file, "a", encoding="utf-8") as fh:
-                fh.write(f"\n===== {datetime.now():%Y-%m-%d %H:%M:%S} =====\n{text}\n")
+                fh.write(f"\n===== {now_istanbul():%Y-%m-%d %H:%M:%S} =====\n{text}\n")
 
     try:
         result = _run(args)

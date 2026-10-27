@@ -24,6 +24,7 @@ import pandas as pd
 
 from core.config.paths import MARKET_DB
 from core.infrastructure.logger import get_logger
+from core.market.calendar import ISTANBUL
 from core.market.provider import COLUMNS, get_provider
 
 logger = get_logger(__name__)
@@ -146,6 +147,12 @@ def _write(
     return len(rows)
 
 
+def _istanbul(moment: datetime) -> datetime:
+    """Istanbul time; a time without a zone is the computer's local time (PC, server or CI)."""
+
+    return moment.astimezone(ISTANBUL)
+
+
 def _checked_recently(symbol: str, now: datetime) -> bool:
     with _connect() as conn:
         row = conn.execute(
@@ -155,9 +162,9 @@ def _checked_recently(symbol: str, now: datetime) -> bool:
     if not row:
         return False
 
-    checked = datetime.fromisoformat(row[0])
+    checked = _istanbul(datetime.fromisoformat(row[0]))
 
-    return now - checked < timedelta(minutes=REFRESH_MINUTES)
+    return _istanbul(now) - checked < timedelta(minutes=REFRESH_MINUTES)
 
 
 def _overlap_matches(stored: pd.DataFrame, fresh: pd.DataFrame) -> bool:
@@ -187,7 +194,7 @@ def update(
     "failed" (provider error; stored data, if any, is kept).
     """
 
-    now = now or datetime.now()
+    now = _istanbul(now or datetime.now())
     provider = get_provider()
     status: dict[str, str] = {}
 
