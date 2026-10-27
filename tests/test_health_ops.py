@@ -236,3 +236,50 @@ class PulledBackupTest(Temp):
     def test_unreadable_marker_is_not_trusted(self):
         (self.target / health.PULL_MARKER).write_text("dün", encoding="utf-8")
         self.assertEqual(self.check().state, health.WARN)
+
+
+class WeeklySystemSummaryTest(unittest.TestCase):
+    """Friday report: one line on how the week went (roadmap, Aşama C)."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.runs = Path(tmp.name) / "runs.csv"
+
+    def write_runs(self, rows):
+        self.runs.write_text("started_at,finished_at,data_day,status,detail\n" + "".join(
+            f"{d}T18:30:00+03:00,{d}T18:31:00+03:00,{d},{s},\n" for d, s in rows), encoding="utf-8")
+
+    def test_week_with_a_holiday_and_a_missing_day(self):
+        from datetime import date
+
+        from core.reports import health
+
+        # week of 26.10.2026: Wed 28 half day, Thu 29 holiday; Tue 27 had no report
+        self.write_runs([("2026-10-26", "sent"), ("2026-10-28", "sent"), ("2026-10-30", "sent")])
+        checks = [health.Check("Yedek", health.OK, "quantbist_2026-10-30.zip"),
+                  health.Check("Disk", health.WARN, "0.9 GB boş"),
+                  health.Check("Dışarıdan izleme", health.INFO, "kurulmadı (isteğe bağlı)")]
+        line = health.weekly_summary(date(2026, 10, 30), checks, self.runs)
+        self.assertIn("rapor 3/4 seans", line)
+        self.assertIn("eksik: 27.10", line)
+        self.assertIn("tatil: 29.10", line)
+        self.assertIn("açık uyarı: Disk", line)
+        self.assertIn("yedek ✅", line)
+        self.assertIn("izleme: kurulmadı", line)
+
+    def test_clean_week(self):
+        from datetime import date
+
+        from core.reports import health
+
+        self.write_runs([(f"2026-11-0{d}", "sent") for d in range(2, 7)])
+        checks = [health.Check("Yedek", health.OK, "x"), health.Check("Dışarıdan izleme", health.OK, "açık; ...")]
+        line = health.weekly_summary(date(2026, 11, 6), checks, self.runs)
+        self.assertIn("rapor 5/5 seans", line)
+        self.assertNotIn("eksik", line)
+        self.assertIn("açık uyarı yok", line)
+        self.assertIn("izleme: açık", line)

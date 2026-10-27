@@ -16,7 +16,7 @@ Kararları Claude verir ve gerekçesini docs/DECISIONS.md'ye tarihli yazar; kull
 |---|---|---|---|
 | A | Dayanıklılık: açılışta ağ hatası, uyku/uyanma, geç internet, kilitli dosya, yarım kayıt; OPERATIONS §8 tablosu | her zaman, öncelikli | v0.49.0 ile tamamlandı |
 | B | Dışarıdan izleme: OPERATIONS §7 değerleri; /durum'a izleme satırı (adres asla gösterilmez/loglanmaz); adresler girilip ping başarılıysa "doğrulandı" | kod hemen; aktivasyon .env ile | kod v0.49.1'de; doğrulama bekliyor (kullanıcı .env'e adresleri girince /durum'da ✅) |
-| C | Gerçek ortam gözlemleri (yarım gün, tatil, haftalık canlı ölçüm, araştırma, kaçan rapor, PC kapanması): kanıt GitHub'dan ya da otomasyon raporundan; doğrulandı/sorunlu; haftalık rapora sistem sağlığı özeti | olay gerçekleştiğinde | özet kodu hemen; gözlemler bekliyor |
+| C | Gerçek ortam gözlemleri (yarım gün, tatil, haftalık canlı ölçüm, araştırma, kaçan rapor, PC kapanması): kanıt GitHub'dan ya da otomasyon raporundan; doğrulandı/sorunlu; haftalık rapora sistem sağlığı özeti | olay gerçekleştiğinde | haftalık sistem özeti v0.49.2'de (cuma raporu); gözlemler bekliyor: 28.10 yarım gün, 29.10 tatil, 30.10 ilk özet ve canlı ölçüm, 31.10 araştırma |
 | D | Altyapı kararı: PC'de kalma riski, kaçan raporlar; gerekirse sunucu kodu+belge+paralel deneme planı | ≥1 haftalık gerçek kayıt ya da kesinti artışı | bekliyor (03.11 sonrası) |
 | E | Araştırma: önce RESEARCH_LOG'a hipotez/kural/ölçüt/dönem; gerçekçi maliyet ve en kötü senaryo; sonuca göre ayar yok; "işe yarıyor" = XU100'e karşı anlamlı fark + maliyet sonrası pozitif | yazılım ve dayanıklılık işi kalmadığında | bekliyor (veri 2015'e uzatma başlatılmıştı, durduruldu: DECISIONS 27.10) |
 | F | Canlı ölçüm kararı: gün sayısı, XU100 farkı, güven aralığı, sanal hesap; anlamlı/değil/yetersiz; backtest ile karşılaştırma; sonraki dönem planı | /performans yeterli bağımsız veri | bekliyor (Kasım sonu) |
@@ -33,9 +33,9 @@ Kararları Claude verir ve gerekçesini docs/DECISIONS.md'ye tarihli yazar; kull
 
 **Raporlama:** her sürümden sonra tek mesaj: SÜRÜM / NE DEĞİŞTİ (≤5, sade) / VERDİĞİM KARARLAR / BENİM ADIMLARIM / SIRADAKİ İŞ. Koşulu oluşmuş iş yoksa açıkça söylenir ve durulur.
 
-## Kaldığım yer (27.10.2026, kod v0.49.1)
+## Kaldığım yer (27.10.2026, kod v0.49.2)
 
-- **Son sürüm:** v0.49.1 (/durum'a "Dışarıdan izleme" satırı).
+- **Son sürüm:** v0.49.2 (cuma raporuna haftalık sistem sağlığı özeti).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

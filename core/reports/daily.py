@@ -576,18 +576,23 @@ FRIDAY = 4
 
 
 def _with_weekly_line(text: str, day: date) -> str:
-    """On Fridays add the live-measurement summary; never fatal."""
+    """On Fridays add the live-measurement and system summaries; never fatal."""
 
     if day.weekday() != FRIDAY:
         return text
 
+    from core.reports import health
     from core.reports.forward import weekly_line
 
     try:
-        return _before_disclaimer(text, weekly_line())
+        text = _before_disclaimer(text, weekly_line())
     except Exception:  # noqa: BLE001 - the report must still go out
         logger.exception("Weekly summary failed")
-        return text
+    try:  # how the week went: reports sent, open problems, backup, monitoring
+        text = _before_disclaimer(text, health.weekly_summary(day, health.health_checks(online=False)))
+    except Exception:  # noqa: BLE001 - the report must still go out
+        logger.exception("Weekly system summary failed")
+    return text
 
 
 def _record_scores() -> str:

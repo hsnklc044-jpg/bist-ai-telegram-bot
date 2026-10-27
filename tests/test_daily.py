@@ -261,3 +261,26 @@ class LateInternetTest(unittest.TestCase):
 
         daily.update_prices(["A.IS", "B.IS"], update=update, sleep=lambda s: self.fail("waited"))
         self.assertEqual(len(calls), 1)
+
+
+class FridaySystemLineTest(unittest.TestCase):
+    def test_friday_report_has_the_system_summary_and_survives_its_failure(self):
+        from datetime import date
+        from unittest import mock
+
+        from core.reports import daily, health
+
+        text = "rapor\n\n" + daily.DISCLAIMER
+        checks = [health.Check("Yedek", health.OK, "x")]
+        with mock.patch("core.reports.forward.weekly_line", return_value="📏 Canlı ölçüm: ..."), \
+                mock.patch.object(health, "health_checks", return_value=checks), \
+                mock.patch.object(health, "weekly_summary", return_value="🩺 Bu hafta sistem: rapor 5/5 seans"):
+            out = daily._with_weekly_line(text, date(2026, 10, 30))
+        self.assertIn("🩺 Bu hafta sistem", out)
+        self.assertIn("📏 Canlı ölçüm", out)
+        self.assertLess(out.index("🩺 Bu hafta"), out.index(daily.DISCLAIMER))
+
+        with mock.patch("core.reports.forward.weekly_line", return_value="📏 Canlı ölçüm: ..."), \
+                mock.patch.object(health, "health_checks", side_effect=OSError("disk")):
+            out = daily._with_weekly_line(text, date(2026, 10, 30))
+        self.assertIn("📏 Canlı ölçüm", out)  # the live-measurement line still goes out

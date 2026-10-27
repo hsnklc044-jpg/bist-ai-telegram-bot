@@ -453,6 +453,37 @@ def monitoring_check(now: datetime, state_path: Path | None = None) -> Check:
     return Check(name, OK, "açık; " + ", ".join(parts))
 
 
+def weekly_summary(day: date, checks: list[Check], runs_path: Path | str | None = None) -> str:
+    """Friday report: reports sent this week (Monday to `day`), open problems, backup, monitoring.
+    `day` is the report being built, so it counts as sent."""
+
+    from core.market.calendar import is_session_day
+
+    monday = day - timedelta(days=day.weekday())
+    weekdays = [monday + timedelta(days=i) for i in range((day - monday).days + 1)]
+    sessions = [d for d in weekdays if is_session_day(d)]
+    closed = [d for d in weekdays if not is_session_day(d)]
+    sent = {r.data_day for r in run_log.read_runs(runs_path) if r.status == run_log.SENT} | {day.isoformat()}
+    missing = [d for d in sessions if d.isoformat() not in sent]
+
+    reports = f"rapor {len(sessions) - len(missing)}/{len(sessions)} seans"
+    notes = ([f"eksik: {', '.join(f'{d:%d.%m}' for d in missing)}"] if missing else []) + (
+        [f"tatil: {', '.join(f'{d:%d.%m}' for d in closed)}"] if closed else [])
+    if notes:
+        reports += f" ({'; '.join(notes)})"
+    problems = [c.name for c in checks if c.state in (WARN, CRIT)]
+    by_name = {c.name: c for c in checks}
+    backup = by_name.get("Yedek")
+    monitor = by_name.get("Dışarıdan izleme")
+    monitor_text = {INFO: "kurulmadı", OK: "açık", None: "?"}.get(monitor.state if monitor else None, "sorunlu")
+    return " · ".join([
+        f"🩺 Bu hafta sistem: {reports}",
+        f"açık uyarı: {', '.join(problems)}" if problems else "açık uyarı yok",
+        f"yedek {backup.state if backup else UNKNOWN}",
+        f"izleme: {monitor_text}",
+    ])
+
+
 def verdict(checks: list[Check]) -> str:
     states = [c.state for c in checks]
     if CRIT in states:
