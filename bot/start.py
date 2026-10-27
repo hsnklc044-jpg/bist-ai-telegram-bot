@@ -31,6 +31,7 @@ Portföy ve risk:
 /performans – kayıtlı görünümlerin ve sanal hesabın canlı sonucu (XU100'e karşı)
 /durum – sistem sağlığı: son rapor, veri, canlı kayıt, yedek
 /rapor_tekrar – kayıtlı son raporu yeniden gönder (/rapor_tekrar 27.10)
+/stres – pozisyonlar XU100'ün en kötü geçmiş düşüşlerinde ne kaybederdi (/stres sanal)
 /yil – yıllık döküm: satış sonuçları, temettü, komisyon (/yil 2026 sanal)
 /help – bu mesaj
 

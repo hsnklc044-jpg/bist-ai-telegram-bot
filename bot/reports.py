@@ -70,6 +70,18 @@ async def yearly(
     await reply(update, text)
 
 
+async def stress_test(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /stres [sanal]: open positions in the worst stored XU100 falls (read-only)."""
+
+    from core.reports import stress
+
+    await reply(update, "⏳ Stres testi hesaplanıyor...")
+    await reply(update, await asyncio.to_thread(stress.stress_text, stress.parse_account(list(context.args or []))))
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
