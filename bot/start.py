@@ -5,10 +5,9 @@ Start / Help Command
 
 from __future__ import annotations
 
-from telegram import Update
+from telegram import KeyboardButton, ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from bot.common import reply
 from core.infrastructure.settings import settings
 
 HELP_TEXT = f"""🚀 {settings.app_name} v{settings.version}
@@ -31,10 +30,22 @@ Portföy ve risk:
 /report – günlük raporu şimdi üret
 /performans – kayıtlı görünümlerin ve sanal hesabın canlı sonucu (XU100'e karşı)
 /durum – sistem sağlığı: son rapor, veri, canlı kayıt, yedek
+/rapor_tekrar – kayıtlı son raporu yeniden gönder (/rapor_tekrar 27.10)
 /help – bu mesaj
 
 ℹ️ Teknik skorun backtest'te getiri tahmin gücü bulunmadı;
 bilgi amaçlıdır, yatırım tavsiyesi değildir. Bot gerçek emir göndermez."""
+
+
+# everyday commands as buttons under the text field (a tap sends the command)
+KEYBOARD = ReplyKeyboardMarkup(
+    [[KeyboardButton(c) for c in row] for row in (
+        ("/durum", "/summary", "/portfolio"),
+        ("/alerts", "/performans", "/rapor_tekrar"),
+    )],
+    resize_keyboard=True,
+    is_persistent=True,
+)
 
 
 async def start(
@@ -43,4 +54,4 @@ async def start(
 ) -> None:
     """Handle /start and /help."""
 
-    await reply(update, HELP_TEXT)
+    await update.effective_message.reply_text(HELP_TEXT, reply_markup=KEYBOARD)

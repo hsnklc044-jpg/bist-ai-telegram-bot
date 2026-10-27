@@ -714,6 +714,43 @@ def _keep_report_text(day, text: str, prefix: str = "rapor_") -> Path | None:
         return None
 
 
+def _parse_day(text: str, today: date) -> date | None:
+    """27.10, 27.10.2026 or 2026-10-27; a day-month without a year is the latest one not in the future."""
+
+    from datetime import datetime
+
+    text = text.strip()
+    for fmt in ("%d.%m.%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(text, fmt).date()
+        except ValueError:
+            pass
+    try:
+        day = datetime.strptime(f"{text}.{today.year}", "%d.%m.%Y").date()
+    except ValueError:
+        return None
+    return day if day <= today else day.replace(year=today.year - 1)
+
+
+def saved_report(day_text: str | None) -> str:
+    """/rapor_tekrar: the newest saved report, or the one of a given data day (SPOF T-1 files)."""
+
+    folder = REPORT_TEXT_DIR
+    files = sorted(folder.glob("rapor_????-??-??.txt")) if folder.exists() else []
+    if not day_text:
+        if not files:
+            return "Kayıtlı rapor yok: v0.57.0'dan beri gönderilen her rapor logs/reports/ klasörüne yazılır."
+        return files[-1].read_text(encoding="utf-8")
+    day = _parse_day(day_text, now_istanbul().date())
+    if day is None:
+        return "Tarih anlaşılmadı. Örnek: /rapor_tekrar 27.10 ya da /rapor_tekrar 27.10.2026"
+    path = folder / f"rapor_{day.isoformat()}.txt"
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    known = ", ".join(f"{date.fromisoformat(f.stem[-10:]):%d.%m.%Y}" for f in files[-5:]) or "hiç yok"
+    return f"{day:%d.%m} için kayıtlı rapor yok. Kayıtlı son raporlar: {known}"
+
+
 def _held_symbols(paths: Paths | None = None) -> list[str]:
     entries = load_ledger((paths or Paths()).ledger)
     return sorted({p.symbol for account in ACCOUNTS for p in open_positions(entries, account)})

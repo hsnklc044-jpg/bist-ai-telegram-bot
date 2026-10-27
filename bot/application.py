@@ -20,10 +20,23 @@ logger = get_logger(__name__)
 BOOTSTRAP_RETRIES = 20
 
 
+async def _set_menu(app: Application) -> None:
+    """Fill Telegram's "Menu" list; a failure only costs the list, never the bot."""
+
+    from telegram import BotCommand
+
+    from bot.handlers import MENU
+
+    try:
+        await app.bot.set_my_commands([BotCommand(c, d) for c, d in MENU])
+    except Exception:  # noqa: BLE001
+        logger.warning("Telegram command menu not set", exc_info=True)
+
+
 def build_app() -> Application:
     config = require_bot_settings()
 
-    app = ApplicationBuilder().token(config.bot_token).build()
+    app = ApplicationBuilder().token(config.bot_token).post_init(_set_menu).build()
 
     register_handlers(app, config.chat_id)
     schedule_daily_report(app)

@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.61.0 – 27.10.2026
+- `/rapor_tekrar`: kaçan ya da silinen günlük raporu kayıttan yeniden gönderir (`/rapor_tekrar 27.10`). `/start` sık kullanılan komutları düğme olarak açar; Telegram "Menu" bütün komutları listeler.
+
 ## v0.60.1 – 27.10.2026
 - Bot ve rapor görevi izleme durumunu aynı anda yazarsa biri artık kaybolmuyor. İkinci kaynak çökmüşse bilgi mesajı denemesi rapor görevini en fazla bir zaman aşımı kadar uzatıyor (önce ~3 dk).
 

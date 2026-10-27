@@ -46,6 +46,17 @@ async def performance(
     await reply(update, text)
 
 
+async def resend(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /rapor_tekrar [27.10]: send a saved daily report again (nothing is recomputed)."""
+
+    from core.reports.daily import saved_report
+
+    await reply(update, saved_report(" ".join(context.args or []) or None))
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
