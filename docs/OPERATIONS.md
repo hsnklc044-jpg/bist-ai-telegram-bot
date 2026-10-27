@@ -41,6 +41,8 @@ Bileşenler, arıza etkileri, korumalar ve kurtarma adımları. Durum: v0.38.0 (
 
 ## 3. Kurtarma senaryoları
 
+Bilgisayar tamamen bozulursa ya da token sızarsa: **docs/DISASTER_RECOVERY.md** (sıfır makinede baştan kurulum, aylık tatbikat, token yenileme).
+
 | Senaryo | Beklenen en fazla kayıp | Geri dönüş | Yol |
 |---|---|---|---|
 | `ledger.csv` / `paper_orders.csv` bozuldu veya silindi | Son yedekten sonraki komutlar (en fazla 1 gün) | Dakikalar | Botu durdur → `python -m core.backup --restore <zip>`. Önce mevcut hâl `before_restore` olarak yedeklenir. Kullanıcı provası 27.10'da başarılı. |
