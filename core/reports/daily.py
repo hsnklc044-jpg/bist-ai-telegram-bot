@@ -701,17 +701,80 @@ def _record_freshness(universe: list[str] | None = None, now=None) -> None:
 REPORT_TEXT_DIR = LOG_DIR / "reports"  # SPOF T-1: the day's report survives a Telegram outage
 
 
-def _keep_report_text(day, text: str) -> Path | None:
+def _keep_report_text(day, text: str, prefix: str = "rapor_") -> Path | None:
     """Save what is about to be sent (one file per data day; a resend replaces it). Never fatal."""
 
     try:
         REPORT_TEXT_DIR.mkdir(parents=True, exist_ok=True)
-        path = REPORT_TEXT_DIR / f"rapor_{day.isoformat()}.txt"
+        path = REPORT_TEXT_DIR / f"{prefix}{day if isinstance(day, str) else day.isoformat()}.txt"
         path.write_text(text, encoding="utf-8")
         return path
     except OSError:
         logger.exception("Report text not saved")
         return None
+
+
+def _held_symbols(paths: Paths | None = None) -> list[str]:
+    entries = load_ledger((paths or Paths()).ledger)
+    return sorted({p.symbol for account in ACCOUNTS for p in open_positions(entries, account)})
+
+
+def _second_source_note(expected: date, symbols: list[str], fetch=None) -> str | None:
+    """SPOF Y-1: the expected session's closes from İş Yatırım, for information only. None when it has none.
+
+    Never written to the price store: it has no open, and paper fills and the live measurement
+    use the open. They wait for Yahoo; the store catches up by itself when Yahoo is back.
+    """
+
+    from core.market.crosscheck import fetch_isyatirim
+
+    fetch = fetch or fetch_isyatirim
+    closes, index = [], None
+    for symbol in symbols or ["THYAO.IS"]:  # every İş Yatırım row also carries BIST 100
+        try:
+            frame = fetch(symbol.removesuffix(".IS"), expected - timedelta(days=7), expected)
+        except Exception:  # noqa: BLE001 - a second source that is down just means no message
+            logger.warning("Second source unavailable | %s", symbol, exc_info=True)
+            return None
+        stamp = pd.Timestamp(expected)
+        if frame.empty or stamp not in frame.index:
+            continue
+        row = frame.loc[stamp]
+        if symbols:
+            closes.append(f"  {symbol.removesuffix('.IS')} {tr(float(row['close']), 2)}")
+        if index is None and pd.notna(row.get("index")):
+            index = float(row["index"])
+    if index is None and not closes:
+        return None
+    lines = [f"⚠️ Yahoo'dan {expected:%d.%m.%Y} kapanışı alınamadı; tam rapor veri gelince ilk çalışmada.",
+             "İkinci kaynak (İş Yatırım), yalnız bilgi:"]
+    if index is not None:
+        lines.append(f"  XU100 {tr(index)}")
+    lines += closes
+    lines += ["Sanal emirler, hesap değeri ve canlı ölçüm Yahoo verisi gelince işlenir.", "", DISCLAIMER]
+    return "\n".join(lines)
+
+
+def _send_second_source(args) -> str:
+    """Once per missing session: a marker in REPORT_TEXT_DIR is written only after it went out."""
+
+    from core.infrastructure.settings import require_bot_settings
+
+    expected = last_final_session_date(now_istanbul())
+    marker = REPORT_TEXT_DIR / f"ikinci_kaynak_{expected.isoformat()}.txt"
+    if marker.exists():
+        return ""
+    try:
+        text = _second_source_note(expected, _held_symbols())
+        if not text:
+            return ""
+        s = require_bot_settings()
+        send_telegram(text, s.bot_token, s.chat_id)
+        _keep_report_text(f"ikinci_kaynak_{expected.isoformat()}", text, prefix="")
+        return "ikinci kaynak bilgisi gönderildi"
+    except Exception:  # noqa: BLE001 - a stale day stays a stale day, never an error
+        logger.exception("Second-source message not sent")
+        return ""
 
 
 def _run(args) -> DailyResult:
@@ -733,6 +796,10 @@ def _run_locked(args) -> DailyResult:
     if args.send and not args.force and already_sent(result.day):
         # never send the same data day twice; say why in logs/runs.csv
         result.status, result.note = _not_sent_reason(result.day)
+        if result.status == "stale":
+            sent = _send_second_source(args)
+            if sent:
+                result.note = f"{result.note}; {sent}"
         logger.info("Daily report for %s was already sent (%s); not sending again", result.day, result.status)
         return result
 

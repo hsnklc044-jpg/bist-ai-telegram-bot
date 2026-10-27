@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.58.0 – 27.10.2026
+- Yahoo bir seansın verisini vermezse o gün sessiz geçmiyor: bir kez kısa mesajla XU100 ve elindeki hisselerin İş Yatırım'daki kapanışları gelir ("yalnız bilgi"). Bu veri fiyat deposuna yazılmaz; sanal emirler ve ölçüm Yahoo'yu bekler.
+
 ## v0.57.0 – 27.10.2026
 - Tek arıza noktası analizi (docs/SPOF.md): PC, internet, Yahoo, Telegram, GitHub ve diğerleri için B planları.
 - Günlük rapor göndermeden önce `logs/reports/rapor_<gün>.txt` dosyasına da yazılır: Telegram uzun süre çökse bile o günün raporu kaybolmaz.
