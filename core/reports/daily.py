@@ -728,7 +728,7 @@ def _second_source_note(expected: date, symbols: list[str], fetch=None) -> str |
 
     from core.market.crosscheck import fetch_isyatirim
 
-    fetch = fetch or fetch_isyatirim
+    fetch = fetch or (lambda *a, **k: fetch_isyatirim(*a, retries=1, **k))  # information only: one try
     closes, index = [], None
     for symbol in symbols or ["THYAO.IS"]:  # every İş Yatırım row also carries BIST 100
         try:

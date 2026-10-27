@@ -56,7 +56,7 @@ TIMEOUT = 60
 SOURCE_DOWN_AFTER = 3  # this many stocks failing in a row: the source is down, the rest are not asked
 
 
-def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None) -> pd.DataFrame:
+def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None, retries: int = RETRIES) -> pd.DataFrame:
     """Daily close / high / low / VWAP / TL volume, as traded, oldest first.
 
     Fetched in yearly pieces, each retried up to RETRIES times with a growing pause.
@@ -68,12 +68,12 @@ def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None) -> 
     pieces, piece_start = [], start
     while piece_start <= end:
         piece_end = min(piece_start + timedelta(days=CHUNK_DAYS - 1), end)
-        for attempt in range(RETRIES):
+        for attempt in range(retries):
             try:
                 pieces.append(_fetch_piece(code, piece_start, piece_end, get))
                 break
             except Exception:  # noqa: BLE001 - retried, then raised
-                if attempt == RETRIES - 1:
+                if attempt == retries - 1:
                     raise
                 sleep(5 * (attempt + 1))
         piece_start = piece_end + timedelta(days=1)

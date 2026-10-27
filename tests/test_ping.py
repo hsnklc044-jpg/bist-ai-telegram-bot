@@ -139,6 +139,22 @@ class AddressTypoTest(unittest.TestCase):
         self.assertNotIn("hc-ping.com", check.text)
 
 
+class ConcurrentStateWriteTest(unittest.TestCase):
+    """Öz-denetim 1, Ö3: the bot and the report task both write logs/monitoring.json through a
+    temporary file; with one shared name a concurrent writer could make the other's save fail."""
+
+    def test_a_leftover_shared_temp_name_does_not_block_the_save(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "monitoring.json"
+            state.with_suffix(".tmp").mkdir()  # the old shared name, held by "another process"
+            get = mock.Mock(return_value=SimpleNamespace(status_code=200))
+            ping.ping(URL, get=get, name=ping.BOT_ENV, state_path=state)
+            self.assertIn(ping.BOT_ENV, ping.last_pings(state))
+
+
 if __name__ == "__main__":
     unittest.main()
 

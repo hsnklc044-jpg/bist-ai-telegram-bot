@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.60.1 – 27.10.2026
+- Bot ve rapor görevi izleme durumunu aynı anda yazarsa biri artık kaybolmuyor. İkinci kaynak çökmüşse bilgi mesajı denemesi rapor görevini en fazla bir zaman aşımı kadar uzatıyor (önce ~3 dk).
+
 ## v0.60.0 – 27.10.2026
 - `/performans`: canlı ölçüm olgunlaşınca her teknik görünüm için geçmiş (backtest) sonucuyla "uyumlu" mu, yoksa "anlamlı sapma" mı olduğunu kendisi söyler. Sunucu kararının ölçütü veriden önce yazıldı (DECISIONS K-23).
 

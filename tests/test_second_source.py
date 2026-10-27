@@ -50,6 +50,22 @@ class SecondSourceNoteTest(unittest.TestCase):
         self.assertIsNone(daily._second_source_note(DAY, ["THYAO.IS"], fetch=down))
 
 
+class SecondSourceTriesOnceTest(unittest.TestCase):
+    def test_one_attempt_so_a_dead_second_source_costs_one_timeout(self):
+        """Öz-denetim 2, Ö7: three attempts with pauses added ~3 minutes to the report task."""
+        calls = []
+
+        def get(*args, **kwargs):
+            calls.append(1)
+            raise ConnectionError("down")
+
+        with mock.patch("core.market.crosscheck._fetch_piece", side_effect=get), \
+                mock.patch("time.sleep") as slept:
+            self.assertIsNone(daily._second_source_note(DAY, ["THYAO.IS"]))
+        self.assertEqual(len(calls), 1)
+        slept.assert_not_called()
+
+
 class StaleDaySendsSecondSourceOnceTest(unittest.TestCase):
     def run_stale(self, send, yahoo="failed"):
         fake = daily.DailyResult(date(2026, 10, 27), "dünkü rapor")

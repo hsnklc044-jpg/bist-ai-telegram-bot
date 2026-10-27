@@ -90,7 +90,7 @@ def _record(name: str, ok: bool, fail: bool, state_path=None, now=None) -> None:
         state = last_pings(path)
         state[name] = {"at": (now or now_istanbul()).isoformat(timespec="seconds"), "ok": ok, "fail": fail}
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".tmp")
+        tmp = path.with_suffix(f".{os.getpid()}.tmp")  # the bot and the report task may write at once
         tmp.write_text(json.dumps(state, indent=1), encoding="utf-8")
         tmp.replace(path)
     except OSError as exc:  # recording is for /durum only; never stops anything

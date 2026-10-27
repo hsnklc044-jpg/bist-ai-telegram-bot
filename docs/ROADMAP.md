@@ -27,7 +27,7 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 |---|---|---|---|
 | Ö1 | YÜKSEK | "Bakım takvimi" yalnız ayın 1'ini dönem başı sayıyordu; dönemler çeyreğin ilk işlem gününde başlıyor (2023-01-02, 2026-01-02…). Ocak 2027 değişikliği 04.01 ile girilince /durum kalıcı "girilmedi" uyarısı verecekti | ✅ v0.55.3 (`QuarterlyReviewDateTest`) |
 | Ö2 | YÜKSEK | SLO'lar kayıt başlamadan önceki günleri "eksik" sayıyordu (PC'de %25) | ✅ v0.55.2 (K-15) |
-| Ö3 | DÜŞÜK | `logs/monitoring.json` iki süreçten (bot, rapor görevi) aynı `.tmp` adıyla yazılıyor; çakışırsa biri kaydedilmez (OSError yakalanıp loglanır), izleme satırı bir sonraki sinyalde düzelir | kabul: etkisi yalnız /durum satırı, bir sinyal sonra kendiliğinden düzelir |
+| Ö3 | DÜŞÜK | `logs/monitoring.json` iki süreçten (bot, rapor görevi) aynı `.tmp` adıyla yazılıyor; çakışırsa biri kaydedilmez (OSError yakalanıp loglanır), izleme satırı bir sonraki sinyalde düzelir | ✅ v0.60.1: her süreç kendi geçici dosyasıyla yazar (`test_ping.ConcurrentStateWriteTest`) |
 | Ö4 | DÜŞÜK | `logs/heartbeats.csv` sınırsız büyür (~3 MB/yıl) ve /durum her seferinde tamamını okur | kabul; yıllık bakımda (MAINTENANCE) gözden geçirilir |
 | Ö5 | BİLGİ | Cuma raporu SLO tablosu için iki GitHub sorgusu yapar (10 sn zaman aşımı); internet yoksa "bilinmiyor" | beklenen davranış |
 
@@ -38,7 +38,7 @@ Saat dilimi, sessiz hata yutma, belge-kod uyumu: bugün eklenen kod (slo, health
 | # | Önem | Bulgu | Durum |
 |---|---|---|---|
 | Ö6 | ORTA | İkinci kaynak mesajı (v0.58.0) Yahoo yalnız *gecikmişse* de gidiyordu; rapor sonra gelirse aynı akşam iki mesaj olurdu | ✅ v0.59.3: yalnız Yahoo XU100 için cevap vermediyse (`failed`/`empty`) gider; cevap verip bugünün mumu yoksa beklenir (`test_second_source.…test_yahoo_only_late_sends_nothing`) |
-| Ö7 | DÜŞÜK | İş Yatırım da çökmüşse o deneme rapor görevine ~3 dk ekler (3 deneme × 60 sn) | kabul: görev sınırı 30 dk; tek sembolde vazgeçer |
+| Ö7 | DÜŞÜK | İş Yatırım da çökmüşse o deneme rapor görevine ~3 dk ekler (3 deneme × 60 sn) | ✅ v0.60.1: bilgi mesajı için tek deneme, en çok bir zaman aşımı (`test_second_source.SecondSourceTriesOnceTest`) |
 | Ö8 | ORTA | Beş iş akışı research-results'a tek seferlik `git push` yapıyordu. Uzun süren haftalık araştırma sırasında başka biri (kaynak arşivi, veri kontrolü, tatbikat) push ederse araştırmanın push'u reddedilir; haftanın sonuçları ve "Veri doğruluğu" SLO'sunun okuduğu `crosscheck/latest.json` kaybolurdu. Ayın 3'ü cumartesiye denk gelince tatbikat (07:41) araştırmayla (07:17) çakışabilir | ✅ v0.59.1: hepsi rebase + 3 deneme (`test_results_push`) |
 | Ö9 | BİLGİ | Holdout kesimi verisi olmayan sembolde (KPOWR) bozulur mu? | denendi, bozulmuyor; regresyon testi eklendi (`test_holdout`) |
 
@@ -46,7 +46,7 @@ Kontrol edilenler: yeni hata yolları (rapor metni yazılamazsa, ikinci kaynak/T
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.60.0 (canlı–backtest sapma işareti; sunucu kararı ölçütü K-23).
+- **Son sürüm:** v0.60.1 (öz-denetim Ö3 ve Ö7 kapandı).
 - **Dışarıdan izleme açıldı (27.10 22:23, yerel otomasyon):** iki .env satırında önce örnek metin (`<…kod>`), sonra `.com/` ile kod arasında boşluk vardı (Healthchecks HTTP 400); düzeltilince bot sinyali kabul edildi, `/durum` izleme satırı SAĞLIKLI. Rapor kontrolü ilk sinyalini 28.10 18:30'da alacak. Adresler hiçbir yerde yazdırılmadı.
 - **İlk otomatik kurulu sürümle rapor (27.10 18:30, yerel otomasyon doğruladı):** runs.csv 18:30:01→18:30:39, veri günü 27.10, tek mesaj. Sayılar elle sağlandı: hesap 97.394+2.530=99.924 TL, günlük −%0,05, THYAO 10×253,00, −76 TL/−%2,93, risk ~78 TL (%0,08→%0,1), etkin pozisyon 1,0 (26.10 düzeltmesi tuttu). KPOWR verisi yok (bilinen). S1 kanıtına eklendi.
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
