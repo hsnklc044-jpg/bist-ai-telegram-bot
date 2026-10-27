@@ -144,3 +144,30 @@ class FileTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DividendTest(unittest.TestCase):
+    """Audit D13 (user decision 27.10.2026): a cash dividend is income, not a gain hidden in the price."""
+
+    def test_dividend_is_cash_in_and_realized_without_touching_the_lots(self):
+        entries = [e("2026-01-05", "buy", 100, 50, fee=5), e("2026-05-20", "dividend", 100, 3.25)]
+        pos = replay(entries)[("real", "THYAO.IS")]
+        self.assertEqual(pos.quantity, 100)
+        self.assertAlmostEqual(pos.average_cost, 50.05)  # the cost basis does not change
+        self.assertAlmostEqual(pos.realized, 325.0)  # 100 × 3,25
+        self.assertAlmostEqual(entries[1].amount, 325.0)
+
+    def test_paper_cash_receives_it(self):
+        entries = [e("2026-01-05", "buy", 10, 100, account="paper"), e("2026-05-20", "dividend", 10, 2, account="paper")]
+        self.assertAlmostEqual(cash_balance(entries, "paper"), PAPER_INITIAL_CAPITAL - 1000 + 20)
+
+    def test_more_shares_than_held_is_refused(self):
+        with self.assertRaises(LedgerError):
+            replay([e("2026-01-05", "buy", 10, 100), e("2026-05-20", "dividend", 11, 2)])
+        with self.assertRaises(LedgerError):
+            replay([e("2026-05-20", "dividend", 1, 2)])
+
+    def test_amount_must_be_positive_and_no_fee(self):
+        for price, fee in ((0, 0), (2, 1)):
+            with self.subTest(price=price, fee=fee), self.assertRaises(LedgerError):
+                Entry(D("2026-05-20"), "real", "THYAO", "dividend", 10, price, fee).validate()

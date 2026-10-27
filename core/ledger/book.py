@@ -17,7 +17,7 @@ from core.infrastructure.exceptions import PersonalFileError
 from core.market.symbols import normalize_symbol
 
 COLUMNS = ("id", "date", "account", "symbol", "side", "quantity", "price", "fee", "note")
-SIDES = ("buy", "sell", "bonus", "rights")
+SIDES = ("buy", "sell", "bonus", "rights", "dividend")  # dividend: quantity = shares paid on, price = net per share
 EPS = 1e-9
 
 
@@ -48,8 +48,10 @@ class Entry:
             raise LedgerError(f"işlem türü {SIDES} olmalı: {self.side!r}")
         if not self.quantity > 0:
             raise LedgerError(f"adet sıfırdan büyük olmalı: {self.quantity}")
-        if self.side in ("buy", "sell", "rights") and not self.price > 0:
+        if self.side in ("buy", "sell", "rights", "dividend") and not self.price > 0:
             raise LedgerError(f"fiyat sıfırdan büyük olmalı: {self.price}")
+        if self.side == "dividend" and self.fee:
+            raise LedgerError("temettüde komisyon yazılmaz; pay başına net (stopaj düşülmüş) tutarı girin")
         if self.side == "bonus" and self.price != 0:
             raise LedgerError("bedelsiz payın fiyatı 0 olmalı")
         if self.fee < 0:
@@ -62,7 +64,7 @@ class Entry:
     def amount(self) -> float:
         """Cash effect: negative for money paid out."""
 
-        if self.side == "sell":
+        if self.side in ("sell", "dividend"):
             return self.quantity * self.price - self.fee
         if self.side == "bonus":
             return 0.0
@@ -115,6 +117,14 @@ class Position:
             for lot in self.lots:
                 lot.quantity *= ratio
                 lot.unit_cost /= ratio
+        elif e.side == "dividend":
+            # cash income on shares held that day; the lots and their cost stay as they are
+            if e.quantity > self.quantity + EPS:
+                raise LedgerError(
+                    f"{e.date} {e.symbol} ({e.account}): {e.quantity:g} pay için temettü girilemez, "
+                    f"elde {self.quantity:g} adet var"
+                )
+            self.realized += e.quantity * e.price
         elif e.side == "sell":
             if e.quantity > self.quantity + EPS:
                 raise LedgerError(

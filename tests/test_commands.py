@@ -30,6 +30,10 @@ class ParseTest(unittest.TestCase):
         self.assertEqual((c.side, c.price, c.fee), ("bonus", 0.0, 0.0))
         c = parse_trade(["bedelli", "KONTR", "100"])
         self.assertEqual((c.side, c.price), ("rights", 1.0))
+        c = parse_trade(["temettü", "TUPRS", "100", "3,25", "20.05.2026"])
+        self.assertEqual((c.side, c.quantity, c.price, c.fee, c.day), ("dividend", 100, 3.25, 0.0, date(2026, 5, 20)))
+        with self.assertRaises(LedgerError):
+            parse_trade(["temettu", "TUPRS", "100"])  # amount per share missing
         for bad in ([], ["al", "THYAO"], ["al", "THYAO", "10"], ["kirala", "THYAO", "1", "1"]):
             with self.subTest(args=bad), self.assertRaises(LedgerError):
                 parse_trade(bad)

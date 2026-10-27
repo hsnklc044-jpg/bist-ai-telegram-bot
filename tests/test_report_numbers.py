@@ -299,3 +299,27 @@ class ChangeLabelTest(unittest.TestCase):
         text = self.run_report("2026-10-19")  # Mon → Fri: four sessions
         self.assertNotIn("Günlük değişim", text)
         self.assertIn("19.10 kaydından bu yana değişim +%1,01 (4 seans)", text)
+
+
+class DividendReportTest(unittest.TestCase):
+    """
+    22.10: 100 AAA at 50 = 5.000 TL. 23.10 is the ex-dividend day: the price drops by the 3 TL
+    dividend to 47, and 300 TL is paid out. (4.700 + 300) / 5.000 − 1 = 0,00%, not −6,00%.
+    """
+
+    def test_dividend_day_is_not_a_loss(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+            paths.equity.write_text("date,account,value,cash,invested,positions\n"
+                                    "2026-10-22,real,5000.00,0.00,5000.00,1\n", encoding="utf-8")
+            append_entry(Entry(date(2026, 6, 1), "real", "AAA", "buy", 100, 50.0, 0.0), paths.ledger,
+                         today=date(2026, 10, 24))
+            append_entry(Entry(date(2026, 10, 23), "real", "AAA", "dividend", 100, 3.0, 0.0), paths.ledger,
+                         today=date(2026, 10, 24))
+            provider = FakeProvider()
+            provider.overrides.update({"AAA.IS": flat(47.0, 47.0), BENCHMARK: flat(10_000.0, 10_000.0)})
+            with offline_market(provider):
+                store.update([BENCHMARK, "AAA.IS"], now=NOW)
+                text = build_daily(paths, ["AAA.IS"]).text
+        self.assertIn("Günlük değişim +%0,00", text)

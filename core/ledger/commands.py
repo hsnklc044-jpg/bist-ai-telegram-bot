@@ -6,6 +6,7 @@ Parsing of ledger commands typed in Telegram (no Telegram imports, so it can be 
     /trade sat THYAO 40 290,25
     /trade bedelsiz THYAO 900
     /trade bedelli THYAO 100 [fiyat=1]
+    /trade temettü THYAO 100 3,25 [GG.AA.YYYY]
     /paper al THYAO 100
     /paper sat THYAO 50
     /paper iptal 3
@@ -23,6 +24,7 @@ SIDES = {
     "sat": "sell", "satış": "sell", "satis": "sell", "sell": "sell",
     "bedelsiz": "bonus", "bonus": "bonus",
     "bedelli": "rights", "rights": "rights",
+    "temettü": "dividend", "temettu": "dividend", "dividend": "dividend",
 }
 
 TRADE_USAGE = (
@@ -30,7 +32,8 @@ TRADE_USAGE = (
     "/trade al THYAO 100 285,50 [komisyon] [GG.AA.YYYY]\n"
     "/trade sat THYAO 40 290,25\n"
     "/trade bedelsiz THYAO 900\n"
-    "/trade bedelli THYAO 100 [fiyat, varsayılan 1]"
+    "/trade bedelli THYAO 100 [fiyat, varsayılan 1]\n"
+    "/trade temettü THYAO 100 3,25 [GG.AA.YYYY] (100 pay, pay başına net 3,25 TL)"
 )
 PAPER_USAGE = (
     "Kullanım:\n/paper al THYAO 100\n/paper al THYAO 100 gerekçeniz (isteğe bağlı, kayda geçer)\n"
@@ -62,7 +65,7 @@ def parse_date(text: str) -> date:
 def _side(word: str) -> str:
     side = SIDES.get(word.strip().lower())
     if side is None:
-        raise LedgerError(f"işlem türü anlaşılamadı: {word!r} (al, sat, bedelsiz, bedelli)")
+        raise LedgerError(f"işlem türü anlaşılamadı: {word!r} (al, sat, bedelsiz, bedelli, temettü)")
     return side
 
 
@@ -93,6 +96,10 @@ def parse_trade(args: list[str]) -> TradeCommand:
     if side == "rights":
         price = parse_number(rest[0]) if rest else 1.0
         return TradeCommand(side, symbol, quantity, price, 0.0, day)
+    if side == "dividend":
+        if len(rest) != 1:
+            raise LedgerError("temettü: /trade temettü THYAO 100 3,25 (pay adedi, pay başına net tutar)")
+        return TradeCommand(side, symbol, quantity, parse_number(rest[0]), 0.0, day)
     if not rest:
         raise LedgerError("fiyat eksik.\n" + TRADE_USAGE)
     price = parse_number(rest[0])

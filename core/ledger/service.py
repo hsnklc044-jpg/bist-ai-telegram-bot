@@ -21,7 +21,7 @@ from core.market.calendar import now_istanbul
 from core.market.universe import BENCHMARK
 from core.reports.daily import ACCOUNT_NAMES, adjusted_bars, pct, raw_bars, tr
 
-SIDE_NAMES = {"buy": "alış", "sell": "satış", "bonus": "bedelsiz", "rights": "bedelli"}
+SIDE_NAMES = {"buy": "alış", "sell": "satış", "bonus": "bedelsiz", "rights": "bedelli", "dividend": "temettü"}
 
 
 def _exclusive():

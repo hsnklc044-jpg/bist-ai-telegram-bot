@@ -88,6 +88,10 @@ UYARI durumundaki bir sorun bir seviye düşük sayılır. Örneğin kilitli ver
 
 Zip kişisel dosyaları içermez (`.gitignore`), bu yüzden kopyalama onları ezemez. Uygulamanın sürümü (`core/__init__.py`) ile veri şeması birbirinden ayrı izlenir: şema, `/durum`'daki zorunlu sütun kontrolüyle doğrulanır.
 
+**Geri dönüş sınırı:** v0.45.15 ile defterde "temettü" (`dividend`) işlem türü geldi. Defterde temettü satırı varsa daha eski bir sürüm defteri okuyamaz ve satır numarasıyla hata verir. Böyle bir durumda geri dönmeden önce şunlardan birini yap:
+- o satırları geçici olarak çıkar,
+- ya da temettü satırı olmayan bir yedeği geri yükle (`python -m core.backup --list`).
+
 ## 6. Sunucu seçenekleri (karar kullanıcıda)
 
 | Seçenek | Artı | Eksi |
