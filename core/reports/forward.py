@@ -265,6 +265,17 @@ def _verdict(stats: ViewStats) -> str:
     return "XU100'den farkı anlamlı değil"
 
 
+def _drift(stats: ViewStats, ref: dict | None) -> str:
+    """Live versus the backtest reference (MATURITY S4), only once the measurement is mature:
+    a reference outside the live 95% interval is a significant drift whose reasons must be reported."""
+
+    if ref is None or not stats.mature:
+        return ""
+    if stats.low <= ref["mean"] <= stats.high:
+        return " → geçmişle uyumlu"
+    return " → ⚠️ geçmişten anlamlı sapma (nedeni RESEARCH_LOG'a yazılır)"
+
+
 def forward_report(
     signal_path: Path | str | None = None,
     equity_path: Path | str | None = None,
@@ -306,6 +317,7 @@ def forward_report(
                     f"isabet %{stats.hit_rate * 100:.0f} "
                     f"→ {_verdict(stats)}"
                     + (f" | geçmiş {pct(ref['mean'])}, isabet %{ref['hit_rate'] * 100:.0f}" if ref else "")
+                    + _drift(stats, ref)
                 )
 
     asked = scored[scored["source"] != SYSTEMATIC]

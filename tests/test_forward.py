@@ -290,5 +290,24 @@ class ReportTextKeptTest(unittest.TestCase):
                 self.assertIsNone(daily._keep_report_text(date(2026, 10, 27), "rapor"))  # must not raise
 
 
+class LiveVersusBacktestTest(unittest.TestCase):
+    """MATURITY S4: the report says whether live results drift from the backtest reference,
+    not just the two numbers side by side; no word before the measurement is mature."""
+
+    def stats(self, low, high, days=forward.MIN_DAYS, periods=forward.MIN_PERIODS):
+        return forward.ViewStats("Pozitif", 100, days, (low + high) / 2, low, high, 0.5, periods)
+
+    def test_reference_outside_the_live_interval_is_a_drift(self):
+        self.assertIn("anlamlı sapma", forward._drift(self.stats(-0.03, -0.01), {"mean": 0.012}))
+        self.assertIn("anlamlı sapma", forward._drift(self.stats(0.02, 0.04), {"mean": 0.012}))
+
+    def test_reference_inside_is_consistent(self):
+        self.assertIn("uyumlu", forward._drift(self.stats(-0.01, 0.03), {"mean": 0.012}))
+
+    def test_nothing_before_mature_or_without_reference(self):
+        self.assertEqual(forward._drift(self.stats(-0.03, -0.01, days=5), {"mean": 0.012}), "")
+        self.assertEqual(forward._drift(self.stats(-0.03, -0.01), None), "")
+
+
 if __name__ == "__main__":
     unittest.main()
