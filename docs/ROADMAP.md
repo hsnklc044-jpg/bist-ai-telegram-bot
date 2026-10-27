@@ -11,6 +11,7 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
   - Bot açılırken `telegram.error.Conflict` hatası çıktı: aynı token'la iki bot aynı anda çalışıyordu (kullanıcının log'u, 27.10 09:21). v0.46.2'den itibaren bu durum log'a tek bir açık satırla yazılıyor.
 - **PC doğrulaması (27.10 09:22, v0.46.1):** 450 test geçti (2 atlandı); `verify.ps1` hatasız tamamlandı.
+- **Bot tek örnek (27.10 09:30):** arka plandaki eski bot (08:40) kapatıldı ve v0.46.1 ile yeniden başlatıldı. Başlangıçtan sonra `Conflict` satırı yok; yaşam sinyali 09:30:56'da yazıldı. Botu oturum açılışında neyin başlattığı henüz bilinmiyor.
 - **Denetim:** D1–D14'ün hepsi kapandı (v0.45.1–v0.45.15).
 - **Kullanıcı kararları (27.10) uygulandı:**
   - KCAER katsayısı 0,8646 (v0.45.13).
