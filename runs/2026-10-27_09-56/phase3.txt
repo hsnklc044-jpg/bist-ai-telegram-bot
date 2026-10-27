@@ -1,0 +1,15 @@
+Aşama 3 – ön kayıtlı hipotezler (docs/RESEARCH_LOG.md). H2 ve H3 test edilmiyor: nakit verisi yok.
+Evren: geçmiş BIST 100 üyeliği | 10 pozisyon | komisyon %0,10 + kayma %0,05 her yön
+
+A3-H1 Düşük oynaklık (60 seans, en sakin 10, aylık)
+  2023-08-01: yıllık +15.9% (XU100 +14.6%), MaxDD -37.7% (XU100 -26.5%), Sharpe 0.73, işlem 161
+  2024-01-02: yıllık +12.0% (XU100 +14.4%), MaxDD -37.7% (XU100 -26.5%), Sharpe 0.61, işlem 140
+  XU100'e göre fazla getiri (yıllık, %98.3 GA): +0.9% [-16.5%, +18.6%] anlamlı değil
+  En kârlı 5 hisse (BIMAS, CCOLA, REEDR, AEFES, SELEC) olmadan yıllık +6.1%
+
+  ✗ birincil ölçüt (aralık sıfırın üstünde)
+  ✗ kapı 1: iki başlangıçta da XU100'ün üstünde
+  ✗ kapı 2: en kârlı 5 hisse olmadan XU100'ün üstünde
+  ✗ kapı 3: en büyük düşüş XU100'den kötü değil
+
+  KARAR: red – kural ayarlanmaz, sonuç RESEARCH_LOG'a yazılır

@@ -1,0 +1,25 @@
+Araştırma geçmişi: 6 çalışma, son 2026-10-27 09:56, önceki 2026-10-27 00:10
+
+[geçmiş üyelik] dönem 2023-08-01 – 2026-10-23
+  Bot sinyali: yıllık +12.4% (önceki +12.4%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Bot sinyali + rejim filtresi: yıllık +10.5% (önceki +10.8%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Trend kuralı: yıllık +39.9% (önceki +34.6%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Momentum 6 ay, en iyi 10: yıllık -16.5% (önceki -16.6%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Momentum 6 ay, en iyi 10 + rejim: yıllık -11.7% (önceki -12.6%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Momentum walk-forward (test dönemleri): yıllık +27.1% (önceki +23.5%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  XU100 al-tut: yıllık +14.6% (önceki +14.6%)
+
+[bugünkü liste] dönem 2023-08-01 – 2026-10-23
+  Bot sinyali: yıllık +14.7% (önceki +7.5%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Bot sinyali + rejim filtresi: yıllık +5.1% (önceki +3.4%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Trend kuralı: yıllık +20.5% (önceki +17.0%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Momentum 6 ay, en iyi 10: yıllık -15.4% (önceki -9.5%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Momentum 6 ay, en iyi 10 + rejim: yıllık -3.9% (önceki -2.5%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Momentum walk-forward (test dönemleri): yıllık +9.3% (önceki +20.0%) | anlamlı değil; anlamlı yüksek 0/6 çalışmada
+  Eşit ağırlık al-tut (aynı hisseler): yıllık +15.7% (önceki +15.8%)
+  XU100 al-tut: yıllık +14.6% (önceki +14.6%)
+
+[Aşama 3 ön kayıtlı] dönem 2023-08-01 – 2026-10-23
+  A3-H1 Düşük oynaklık (60 seans, en sakin 10, aylık): yıllık +15.9% | anlamlı değil; anlamlı yüksek 0/1 çalışmada
+
+Not: aynı stratejilere her hafta bakmak da çoklu denemedir; tek bir haftanın 'anlamlı' sonucu kanıt sayılmaz, sürekliliğine bakılır.
