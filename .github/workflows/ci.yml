@@ -14,10 +14,13 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.lock
+      # coverage is measured here only (not a project dependency; DECISIONS K-14)
+      - run: pip install pytest-cov==6.0.0
       - run: ruff check .
       # Windows reads and writes files as cp1254 unless told otherwise: any
       # open()/read_text()/write_text() without encoding= fails here.
-      - run: python -X warn_default_encoding -W error::EncodingWarning -m pytest -q
+      # CHARTER §2: coverage of core+bot never drops; the gate only moves up (core/reports/slo.py COVERAGE_GATE)
+      - run: python -X warn_default_encoding -W error::EncodingWarning -m pytest -q --cov=core --cov=bot --cov-report=term --cov-fail-under=91
 
   docker:
     runs-on: ubuntu-latest

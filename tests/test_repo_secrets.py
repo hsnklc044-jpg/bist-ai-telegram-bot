@@ -42,7 +42,9 @@ class RepoSecretsTest(unittest.TestCase):
 
     def test_patterns_catch_the_real_shapes(self):
         self.assertTrue(TOKEN.search(b"BOT_TOKEN=1234567890:AAH" + b"x" * 32))
-        self.assertTrue(PING.search(b"https://hc-ping.com/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"))
+        # built at run time, so this file itself never contains a matching address
+        self.assertTrue(PING.search(b"https://hc-ping.com/" + b"-".join([b"0f1e2d3c", b"4b5a", b"6978", b"8796",
+                                                                           b"a5b4c3d2e1f0"])))
         self.assertFalse(TOKEN.search(b'token("123:ABC")'))
 
 

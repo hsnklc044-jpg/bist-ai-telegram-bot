@@ -289,6 +289,36 @@ def fetch_accuracy(get=None) -> dict | None:
         return None
 
 
+# --- quality (CI and coverage) -------------------------------------------------------------------
+
+COVERAGE_GATE = 91  # CI fails below this (ci.yml --cov-fail-under); never lowered (CHARTER §2)
+CI_API = "https://api.github.com/repos/hsnklc044-jpg/bist-ai-telegram-bot/actions/workflows/ci.yml/runs"
+BRANCH = "claude/borsa-bot-creation-n7nmc9"
+
+
+def quality(now: datetime, get=None) -> SloResult:
+    """The latest finished CI run on the release branch: green means tests, ruff and the coverage gate passed."""
+
+    from core.reports import health
+
+    name = "Kalite (CI, kapsam)"
+    try:
+        get = get or health._http_get or __import__("httpx").get
+        response = get(CI_API, params={"branch": BRANCH, "per_page": 5}, timeout=10)
+        response.raise_for_status()
+        runs = [r for r in response.json().get("workflow_runs", []) if r.get("status") == "completed"]
+    except Exception as exc:  # noqa: BLE001 - offline: unknown, never healthy
+        return SloResult(name, UNKNOWN, None, f"GitHub sorgulanamadı ({type(exc).__name__})")
+    if not runs:
+        return SloResult(name, UNKNOWN, None, "tamamlanmış CI çalışması yok")
+    last = runs[0]
+    started = datetime.fromisoformat(last["run_started_at"].replace("Z", "+00:00")).astimezone(ISTANBUL)
+    text = f"son CI {started:%d.%m %H:%M} ({last.get('head_sha', '')[:7]}): {last.get('conclusion')}"
+    if last.get("conclusion") != "success":
+        return SloResult(name, WARN, None, text)
+    return SloResult(name, OK, None, f"{text}; testler, ruff ve kapsam kapısı %{COVERAGE_GATE} geçti")
+
+
 # --- record integrity -----------------------------------------------------------------------------
 
 
@@ -341,7 +371,7 @@ def measure(now: datetime, folder: Path | None = None) -> list[SloResult]:
         accuracy(now, _local_json(folder / "crosscheck.json") if folder is not None else fetch_accuracy()),
         backup_slo(now, paths["backups"], paths["restores"]),
         integrity(now, paths["signal"], check_personal=folder is None),
-        SloResult("Kalite (CI, kapsam)", UNKNOWN, None, "CI ve test kapsamı bu bilgisayardan ölçülmüyor (CHARTER I)"),
+        quality(now) if folder is None else SloResult("Kalite (CI, kapsam)", UNKNOWN, None, "testte sorgulanmaz"),
     ]
     return results
 
@@ -363,6 +393,6 @@ def lines(results: list[SloResult]) -> list[str]:
 
 
 __all__ = [
-    "SloResult", "TARGETS", "accuracy", "backup_slo", "fetch_accuracy", "bot_uptime", "freshness", "integrity", "lines", "measure",
+    "SloResult", "TARGETS", "accuracy", "quality", "backup_slo", "fetch_accuracy", "bot_uptime", "freshness", "integrity", "lines", "measure",
     "record_freshness", "record_heartbeat", "record_restore_test", "report_delivery",
 ]

@@ -166,6 +166,37 @@ class AccuracySloTest(Temp):
         self.assertEqual(slo.accuracy(NOW, self.summary(days_ago=9)).state, UNKNOWN)
 
 
+class QualitySloTest(Temp):
+    def get(self, conclusion, minutes_ago=30):
+        from types import SimpleNamespace
+
+        started = (NOW - timedelta(minutes=minutes_ago)).astimezone(__import__("datetime").timezone.utc)
+        body = {"workflow_runs": [{"status": "completed", "conclusion": conclusion, "head_sha": "abc1234def",
+                                   "run_started_at": started.strftime("%Y-%m-%dT%H:%M:%SZ")}]}
+        return lambda *a, **k: SimpleNamespace(raise_for_status=lambda: None, json=lambda: body)
+
+    def test_green_ci_with_the_coverage_gate(self):
+        r = slo.quality(NOW, get=self.get("success"))
+        self.assertEqual(r.state, OK)
+        self.assertIn(f"kapsam kapısı %{slo.COVERAGE_GATE}", r.text)
+
+    def test_red_ci(self):
+        r = slo.quality(NOW, get=self.get("failure"))
+        self.assertEqual(r.state, WARN)
+        self.assertIn("abc1234", r.text)
+
+    def test_offline_is_unknown(self):
+        def offline(*a, **k):
+            raise OSError("ağ yok")
+
+        self.assertEqual(slo.quality(NOW, get=offline).state, UNKNOWN)
+
+    def test_gate_matches_the_ci_workflow(self):
+        ci = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        self.assertIn(f"--cov-fail-under={slo.COVERAGE_GATE}", ci)
+        self.assertGreaterEqual(slo.COVERAGE_GATE, 90)  # CHARTER §2
+
+
 class AllSloTest(Temp):
     def test_unmeasured_objectives_are_unknown_never_ok(self):
         results = slo.measure(NOW, folder=self.dir)
