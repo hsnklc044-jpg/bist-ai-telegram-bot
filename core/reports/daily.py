@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
@@ -768,6 +769,19 @@ def main(argv: list[str] | None = None) -> int:
             with open(log_file, "a", encoding="utf-8") as fh:
                 fh.write(f"\n===== {now_istanbul():%Y-%m-%d %H:%M:%S} =====\n{text}\n")
 
+    run_id = f"{started:%Y%m%d-%H%M%S}-{os.getpid()}"
+
+    def run_line(status: str, day=None, detail: str = "") -> None:
+        """One searchable line per run: 'RUN daily' finds every run, 'status=failed' the errors."""
+
+        seconds = int((now_istanbul() - started).total_seconds())
+        line = (f"RUN daily id={run_id} status={status} day={day.isoformat() if day else '-'} "
+                f"duration={seconds}s" + (f" detail={detail.replace(chr(10), ' ')[:200]}" if detail else ""))
+        (logger.error if status == "failed" else logger.info)("%s", line)
+        if log_file is not None:
+            with open(log_file, "a", encoding="utf-8") as fh:
+                fh.write(line + "\n")
+
     try:
         result = _run(args)
     except ReportBusy as exc:
@@ -775,6 +789,7 @@ def main(argv: list[str] | None = None) -> int:
         logger.warning("%s", exc)
         write_log(f"ATLANDI: {exc}")
         record_run(started, "busy", detail=str(exc))
+        run_line("busy", detail=str(exc))
         print(exc)
         return 0
     except Exception as exc:  # noqa: BLE001 - the scheduled run must leave a trace
@@ -782,6 +797,7 @@ def main(argv: list[str] | None = None) -> int:
         logger.error("Daily report failed\n%s", error)
         write_log("HATA\n" + error)
         record_run(started, "failed", detail=f"{type(exc).__name__}: {exc}")
+        run_line("failed", detail=f"{type(exc).__name__}: {exc}")
         print(error, file=sys.stderr)
         if args.send:
             _notify_failure(exc, str(log_file or "logs/quantbist.log"))
@@ -796,6 +812,7 @@ def main(argv: list[str] | None = None) -> int:
         f"\n\nTelegram'a gönderilmedi ({result.status}: {result.note})." if result.note else ""
     )
     write_log(result.text + note)
+    run_line(result.status, result.day, result.note)
     print(result.text + note)
     return 0
 

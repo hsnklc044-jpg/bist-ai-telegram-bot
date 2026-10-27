@@ -10,8 +10,8 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 | Aşama | Konu | Koşul | Durum |
 |---|---|---|---|
 | A | Dayanıklılık | her zaman | A1 v0.48.4; A2 (uyku/uyanma, geç internet, DNS, Telegram 429/5xx, kilitli dosya, yarım satır, disk dolu, saat değişimi, eşzamanlı çalıştırma) v0.49.0–v0.50.0; A3 OPERATIONS §8 (kimin işi sütunuyla) — **tamam** |
-| B | Gözlemlenebilirlik | kod hemen | B1 SLO ölçümü v0.51.0 (/durum + cuma raporu; doğruluk ve kalite 'bilinmiyor' → C1 ve I); B2 izleme satırı v0.49.1 (aktivasyon: kullanıcının .env adımı); B3 çalıştırma log satırı — **sırada** |
-| C | Veri bütünlüğü | kod hemen | C3 lookahead/survivorship testleri var (test_no_lookahead, geçmiş üyelik); C1 ikinci kaynak→SLO, C2 haftalık kurumsal işlem taraması — bekliyor (B'den sonra) |
+| B | Gözlemlenebilirlik | kod hemen | B1 SLO ölçümü v0.51.0 (/durum + cuma raporu; doğruluk ve kalite 'bilinmiyor' → C1 ve I); B2 izleme satırı v0.49.1 (aktivasyon: kullanıcının .env adımı); B3 çalıştırma log satırı v0.51.1 — **tamam** (aktivasyon hariç) |
+| C | Veri bütünlüğü | kod hemen | C3 lookahead/survivorship testleri var (test_no_lookahead, geçmiş üyelik); C1 ikinci kaynak→SLO, C2 haftalık kurumsal işlem taraması — **sırada** |
 | D | Gerçek ortam gözlemleri | olay olunca | bekliyor: 28.10 yarım gün, 29.10 tatil, 30.10 canlı ölçüm + ilk haftalık sistem özeti, 31.10 araştırma |
 | E | Felaket kurtarma | kod hemen | bekliyor (C'den sonra) |
 | F | Altyapı kararı | ≥1 haftalık kayıt ya da SLO tutmazsa | bekliyor (03.11 sonrası) |
@@ -22,9 +22,9 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 
 Öz-denetim (CHARTER §7): her 10 sürümde bir. Sayaç v0.50.0'dan başlar; ilk denetim v0.60.0 civarı.
 
-## Kaldığım yer (27.10.2026, kod v0.51.0)
+## Kaldığım yer (27.10.2026, kod v0.51.1)
 
-- **Son sürüm:** v0.51.0 (SLO ölçümü: /durum ve cuma raporunda 7 hedef).
+- **Son sürüm:** v0.51.1 (her rapor çalıştırması için tek, aranabilir 'RUN daily' satırı).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

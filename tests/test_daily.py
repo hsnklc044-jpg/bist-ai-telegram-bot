@@ -153,6 +153,25 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("🗓 rapor", text)
 
+    def test_every_run_ends_with_one_searchable_line(self):
+        """CHARTER B3: run id, duration and result on one line; 'RUN daily' finds every run, 'status=failed' the errors."""
+
+        import re
+        from unittest import mock
+
+        from core.reports import daily, runs
+
+        pattern = r"^RUN daily id=\d{8}-\d{6}-\d+ status=%s day=%s duration=\d+s"
+        fake = daily.DailyResult(date(2026, 10, 23), "🗓 rapor", status="sent")
+        cases = [(mock.patch.object(daily, "_run", return_value=fake), "sent", "2026-10-23"),
+                 (mock.patch.object(daily, "_run", side_effect=RuntimeError("boom")), "failed", "-"),
+                 (mock.patch.object(daily, "_run", side_effect=runs.ReportBusy("başka")), "busy", "-")]
+        for patcher, status, day in cases:
+            with self.subTest(status), tempfile.TemporaryDirectory() as tmp, patcher:
+                daily.main(["--no-update", "--log-dir", tmp])
+                text = next(Path(tmp).glob("daily_*.log")).read_text(encoding="utf-8")
+                self.assertRegex(text, re.compile(pattern % (status, day), re.M))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -145,6 +145,16 @@ Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kim
 - Tatilde "tatil" kaydı başarılı sinyali sayılır, bu yüzden yanlış alarm çıkmaz.
 - Takvime girmemiş bir tatilde rapor "yeni veri yok" diyerek `/fail` gönderir. Bu durumda alarm doğrudur: `data/bist_holidays.csv` dosyasına bakılmalı.
 
+## 7b. Çalıştırma kayıtları (aranabilir)
+
+Her günlük rapor çalıştırması `logs/daily_<tarih>.log` ve `logs/quantbist.log` dosyalarına tek satırlık bir özet yazar:
+
+    RUN daily id=20261027-183001-4321 status=sent day=2026-10-27 duration=58s
+
+- Tüm çalıştırmalar: `Select-String "RUN daily" logs\quantbist.log`
+- Yalnız hatalar: `Select-String "status=failed" logs\quantbist.log`
+- `status` değerleri: `sent`, `skipped` (o gün zaten gönderildi), `holiday`, `stale` (yeni veri yok), `busy` (başka çalıştırma sürüyordu), `failed`.
+
 ## 8. Kesintiler: ne olur, nasıl fark edilir, nasıl toparlanır, kimin işi
 
 Her satırın arkasında bir test var (parantez içinde). "Sistem" = kod kendiliğinden; "Otomasyon" = PC'deki yerel otomasyon; "Kullanıcı" = sen.
