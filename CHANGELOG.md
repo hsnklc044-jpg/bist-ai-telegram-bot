@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.59.3 – 27.10.2026
+- Gerçek alarm tatbikatı başarılı (DOWN 22:53, UP 22:56; Telegram ve e-posta). İkinci kaynak mesajı artık yalnız Yahoo gerçekten cevap vermediğinde gider; Yahoo yalnız gecikmişse beklenir (öz-denetim Ö6).
+
 ## v0.59.2 – 27.10.2026
 - Dışarıdan izleme açıldı (PC, 22:23). Kurulumda yaşanan iki yazım hatası artık kendiliğinden yakalanıyor: adrese giren boşluk silinir; `< >` örnek metni ya da eksik kod `/durum`'da "biçimi hatalı" diye görünür (adres gösterilmez).
 

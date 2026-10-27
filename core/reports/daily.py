@@ -783,8 +783,10 @@ def _run(args) -> DailyResult:
 
 
 def _run_locked(args) -> DailyResult:
+    yahoo_down = False  # Yahoo did not answer for XU100 (not merely late with today's candle)
     if not args.no_update:
         status = update_prices(symbols_to_update())
+        yahoo_down = status.get(BENCHMARK) in ("failed", "empty")
         failed = [s for s, v in status.items() if v in ("failed", "empty")]
         if failed:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
@@ -796,7 +798,7 @@ def _run_locked(args) -> DailyResult:
     if args.send and not args.force and already_sent(result.day):
         # never send the same data day twice; say why in logs/runs.csv
         result.status, result.note = _not_sent_reason(result.day)
-        if result.status == "stale":
+        if result.status == "stale" and yahoo_down:  # a late candle comes later; no second source for that
             sent = _send_second_source(args)
             if sent:
                 result.note = f"{result.note}; {sent}"

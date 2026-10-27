@@ -51,11 +51,14 @@ class SecondSourceNoteTest(unittest.TestCase):
 
 
 class StaleDaySendsSecondSourceOnceTest(unittest.TestCase):
-    def run_stale(self, send):
+    def run_stale(self, send, yahoo="failed"):
         fake = daily.DailyResult(date(2026, 10, 27), "dünkü rapor")
-        args = SimpleNamespace(no_update=True, send=True, force=False)
+        args = SimpleNamespace(no_update=False, send=True, force=False)
         settings = SimpleNamespace(bot_token="x", chat_id=1)
-        with mock.patch.object(daily, "build_daily", return_value=fake), \
+        with mock.patch.object(daily, "update_prices", return_value={daily.BENCHMARK: yahoo}), \
+                mock.patch.object(daily, "symbols_to_update", return_value=[daily.BENCHMARK]), \
+                mock.patch.object(daily, "_record_freshness"), \
+                mock.patch.object(daily, "build_daily", return_value=fake), \
                 mock.patch.object(daily, "_record_scores", return_value=""), \
                 mock.patch.object(daily, "already_sent", return_value=True), \
                 mock.patch.object(daily, "_not_sent_reason", return_value=("stale", "beklenen 28.10.2026")), \
@@ -75,6 +78,14 @@ class StaleDaySendsSecondSourceOnceTest(unittest.TestCase):
 
         _, sent_again = self.run_stale(None)  # the task runs again the same evening
         sent_again.assert_not_called()
+
+    def test_yahoo_only_late_sends_nothing(self):
+        """Öz-denetim 2, Ö6: Yahoo answered but without today's candle (late, not down): wait for it."""
+        for status in ("incremental", "fresh"):
+            with self.subTest(status):
+                result, sent = self.run_stale(None, yahoo=status)
+                sent.assert_not_called()
+                self.assertEqual(result.status, "stale")
 
     def test_a_failed_send_never_turns_a_stale_day_into_an_error(self):
         result, _ = self.run_stale(ConnectionError("Telegram HTTP 502"))
