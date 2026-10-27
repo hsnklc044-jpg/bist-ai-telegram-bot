@@ -105,6 +105,8 @@ GUIDANCE = {
     "Disk": ("yedek ve kayıtlar yazılamayabilir", "diskte yer açın"),
     "Tatil takvimi": ("tatil günleri eksik rapor sayılabilir", "data/bist_holidays.csv'yi güncelleyin"),
     "GitHub araştırması": ("haftalık araştırma sonucu yok", "GitHub Actions > Research"),
+    "Dışarıdan izleme": ("bilgisayar kapalıyken ya da bot dururken kimse uyarılmaz",
+                         "OPERATIONS §7; .env'deki HC_REPORT_URL ve HC_BOT_URL, internet bağlantısı"),
     "Telegram botu": ("komutlar ve 20:00 kontrolü çalışmaz",
                       "PowerShell: Start-ScheduledTask \"QuantBIST Bot\" (elle python main.py açmayın)"),
 }
@@ -112,7 +114,7 @@ GUIDANCE = {
 SEVERITY = {
     "Fiyat veritabanı": "KRİTİK", "Veri şeması": "KRİTİK", "Kişisel dosyalar": "KRİTİK", "Günlük rapor": "YÜKSEK", "Yedek": "YÜKSEK",
     "Canlı ölçüm kaydı": "YÜKSEK", "Telegram botu": "YÜKSEK", "Disk": "YÜKSEK", "Fiyat verisi": "ORTA",
-    "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK",
+    "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK", "Dışarıdan izleme": "DÜŞÜK",
 }
 LEVELS = ["KRİTİK", "YÜKSEK", "ORTA", "DÜŞÜK"]
 
@@ -197,7 +199,7 @@ async def heartbeat_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     await asyncio.to_thread(write_heartbeat)
     url = ping.address(ping.BOT_ENV)
     if url:  # outside monitoring (Healthchecks.io): an alarm when the bot stops, even with the PC off
-        await asyncio.to_thread(ping.ping, url)
+        await asyncio.to_thread(ping.ping, url, name=ping.BOT_ENV)
 
 
 def schedule_heartbeat(app: Application) -> bool:

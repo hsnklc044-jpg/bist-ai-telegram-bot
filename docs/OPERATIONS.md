@@ -126,6 +126,12 @@ Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kim
    ```
 6. Botu yeniden başlat. 5 dakika içinde "QuantBIST bot" kontrolü yeşile döner; ilk 18:30 raporundan sonra "QuantBIST rapor" da yeşile döner.
 
+**/durum satırı ("Dışarıdan izleme"):**
+- ℹ️ BİLGİ "kurulmadı": adresler yok; genel durumu değiştirmez, uyarı göndermez.
+- ✅ "açık; bot sinyali SS:DD, rapor sinyali GG.AA SS:DD": iki adres var, son sinyaller ulaştı.
+- ⚠️ UYARI: adreslerden biri eksik, son sinyal ulaşmadı ya da bot sinyali 20 dakikadan eski.
+- Sinyal sonuçları `logs/monitoring.json`'da tutulur: yalnız zaman, ulaştı mı, `/fail` mı. Adres hiçbir yerde yazılmaz.
+
 **Güvenlik:**
 - Adresler gizlidir; bilen herkes sahte sinyal gönderebilir.
 - `scripts\verify.ps1` çıktısında adresler gizlenir.

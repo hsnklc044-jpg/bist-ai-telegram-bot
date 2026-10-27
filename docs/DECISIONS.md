@@ -4,6 +4,8 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-7. İzleme kurulmamışsa /durum'da "BİLGİ" görünür, uyarı değil.** Kurulum kullanıcının adımı (hesap ve .env). UYARI olsaydı /durum hep "UYARI" der, 20:00 kontrolü her 3 günde bir mesaj atardı; asıl sorunlar bu gürültüde kaybolurdu. Bir adres eksikse, sinyal ulaşmıyorsa ya da bot sinyali 20 dakikadan eskiyse UYARI. Sinyal sonucu `logs/monitoring.json`'a adres olmadan yazılır.
+
 **K-6. Aşama E'deki "veriyi 2015'e uzatma" işi durduruldu.** Kullanıcı aynı gün bu yönü seçmişti; ardından gelen sürekli yol haritası araştırmayı (E) dayanıklılık ve izleme işleri bittikten sonraya koydu. Yapılan: kaynak sayfa arşivi iş akışı (`sources.yml`) ve ilk kaynak indirmesi; ikisi de durur, iş E sırasında kaldığı yerden sürer. Gerekçe: yol haritası tek kaynak.
 
 **K-5. Dosya kilitliyken (Excel) rapor durmaz.** Kilitli dosyaya yazılmaz, raporun "Veri notları"nda adı geçer, sonraki çalışma yazar. Sanal emir doldurma zaten idempotent (defterdeki "sanal emir #N" etiketi), bu yüzden yarıda kalan dolum ikinci kez yazılmaz. Alternatif (raporu tamamen durdurmak) günün raporunu ve canlı ölçüm satırını kaybettiriyordu.

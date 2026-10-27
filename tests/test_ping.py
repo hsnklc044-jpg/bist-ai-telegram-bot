@@ -47,7 +47,7 @@ class DailyReportPingTest(unittest.TestCase):
         calls = []
         with mock.patch.dict("os.environ", {"HC_REPORT_URL": URL}), \
                 mock.patch.object(daily, "_run", return_value=result), \
-                mock.patch.object(daily.ping, "ping", side_effect=lambda url, fail=False: calls.append((url, fail))):
+                mock.patch.object(daily.ping, "ping", side_effect=lambda url, fail=False, **k: calls.append((url, fail))):
             daily.main(["--send"])
         return calls
 
@@ -66,7 +66,7 @@ class DailyReportPingTest(unittest.TestCase):
         with mock.patch.dict("os.environ", {"HC_REPORT_URL": URL}), \
                 mock.patch.object(daily, "_run", side_effect=RuntimeError("bozuk")), \
                 mock.patch.object(daily, "_notify_failure"), \
-                mock.patch.object(daily.ping, "ping", side_effect=lambda url, fail=False: calls.append((url, fail))):
+                mock.patch.object(daily.ping, "ping", side_effect=lambda url, fail=False, **k: calls.append((url, fail))):
             self.assertEqual(daily.main(["--send"]), 1)
         self.assertEqual(calls, [(URL, True)])
 
@@ -91,7 +91,7 @@ class BotHeartbeatPingTest(unittest.TestCase):
                 mock.patch("core.reports.health.write_heartbeat"), \
                 mock.patch.object(ping, "ping") as sent:
             asyncio.run(scheduler.heartbeat_job(SimpleNamespace()))
-        sent.assert_called_once_with(URL)
+        sent.assert_called_once_with(URL, name=ping.BOT_ENV)  # the outcome is kept for /durum
 
 
 class RedactTest(unittest.TestCase):
@@ -105,3 +105,84 @@ class RedactTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MonitoringStatusTest(unittest.TestCase):
+    """/durum shows whether outside monitoring is set up and whether the last pings arrived,
+    never the address itself."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.state = Path(tmp.name) / "monitoring.json"
+        from datetime import datetime
+
+        from core.market.calendar import ISTANBUL
+
+        self.now = datetime(2026, 10, 28, 21, 0, tzinfo=ISTANBUL)
+
+    def check(self, env, pings=()):
+        from core.reports import health
+
+        with mock.patch.dict("os.environ", env, clear=False):
+            for name, at, ok in pings:
+                get = mock.Mock(return_value=SimpleNamespace(status_code=200 if ok else 500))
+                ping.ping(URL, get=get, name=name, state_path=self.state, now=at)
+            return health.monitoring_check(self.now, self.state)
+
+    def test_ping_records_the_result_without_the_address(self):
+        get = mock.Mock(return_value=SimpleNamespace(status_code=200))
+        ping.ping(URL, fail=True, get=get, name=ping.REPORT_ENV, state_path=self.state, now=self.now)
+        text = self.state.read_text(encoding="utf-8")
+        self.assertIn('"fail": true', text)
+        self.assertNotIn("1234abcd", text)
+
+    def test_not_set_up_is_information_not_a_problem(self):
+        from core.reports import health
+
+        c = self.check({ping.REPORT_ENV: "", ping.BOT_ENV: ""})
+        self.assertEqual(c.state, health.INFO)
+        self.assertIn("kurulmadı", c.text)
+
+    def test_both_set_and_recent_pings_arrived(self):
+        from datetime import timedelta
+
+        from core.reports import health
+
+        c = self.check({ping.REPORT_ENV: URL, ping.BOT_ENV: URL},
+                       [(ping.REPORT_ENV, self.now - timedelta(hours=2), True),
+                        (ping.BOT_ENV, self.now - timedelta(minutes=3), True)])
+        self.assertEqual(c.state, health.OK, c.text)
+        self.assertNotIn("1234abcd", c.text)
+
+    def test_failed_or_old_bot_ping_is_a_warning(self):
+        from datetime import timedelta
+
+        from core.reports import health
+
+        c = self.check({ping.REPORT_ENV: URL, ping.BOT_ENV: URL},
+                       [(ping.BOT_ENV, self.now - timedelta(minutes=3), False)])
+        self.assertEqual(c.state, health.WARN)
+        self.assertIn("ulaşmadı", c.text)
+        old = self.check({ping.REPORT_ENV: URL, ping.BOT_ENV: URL},
+                         [(ping.BOT_ENV, self.now - timedelta(hours=2), True)])
+        self.assertEqual(old.state, health.WARN)
+
+    def test_one_address_missing_is_a_warning(self):
+        from core.reports import health
+
+        c = self.check({ping.REPORT_ENV: "", ping.BOT_ENV: URL})
+        self.assertEqual(c.state, health.WARN)
+        self.assertIn("HC_REPORT_URL", c.text)
+
+    def test_information_does_not_change_the_verdict_or_alert(self):
+        from core.reports import health
+
+        checks = [health.Check("A", health.OK, "x"), health.Check("Dışarıdan izleme", health.INFO, "kurulmadı")]
+        self.assertEqual(health.verdict(checks), f"{health.OK} SAĞLIKLI: tüm kontroller geçti")
+        from bot import scheduler
+
+        self.assertEqual(scheduler.due_alerts(checks, self.now, self.state.with_name("alerts.json")), [])

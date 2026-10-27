@@ -50,7 +50,9 @@ from core.reports.daily import adjusted_bars, tr
 from core.signals_log import audit_log
 
 OK, WARN, CRIT, UNKNOWN = "✅", "⚠️", "🛑", "❔"
-LABELS = {OK: "SAĞLIKLI", WARN: "UYARI", CRIT: "KRİTİK", UNKNOWN: "BİLİNMİYOR"}
+INFO = "ℹ️"  # a fact, not a problem: never changes the verdict, never alerts
+LABELS = {OK: "SAĞLIKLI", WARN: "UYARI", CRIT: "KRİTİK", UNKNOWN: "BİLİNMİYOR", INFO: "BİLGİ"}
+BOT_PING_STALE = timedelta(minutes=20)  # Healthchecks "QuantBIST bot": 5 min period, 20 min grace
 HEARTBEAT_FILE = LOG_DIR / "heartbeat.txt"
 HEARTBEAT_STALE = timedelta(minutes=20)  # the bot writes it every 5 minutes
 DISK_WARN, DISK_CRIT = 1_000_000_000, 200_000_000  # free bytes
@@ -411,6 +413,57 @@ def research_check(now: datetime, get=None) -> Check:
     return Check("GitHub araştırması", OK, text)
 
 
+def monitoring_check(now: datetime, state_path: Path | None = None) -> Check:
+    """Outside monitoring (OPERATIONS §7): addresses set, last pings delivered. Never shows an address."""
+
+    from core.infrastructure import ping
+
+    name = "Dışarıdan izleme"
+    have = {env: bool(ping.address(env)) for env in (ping.REPORT_ENV, ping.BOT_ENV)}
+    if not any(have.values()):
+        return Check(name, INFO, "kurulmadı (isteğe bağlı): .env'de HC_REPORT_URL ve HC_BOT_URL yok; OPERATIONS §7")
+    missing = [env for env, ok in have.items() if not ok]
+    if missing:
+        return Check(name, WARN, f"{', '.join(missing)} .env'de yok; iki adres de gerekli (OPERATIONS §7)")
+
+    pings = ping.last_pings(state_path)
+    problems, parts = [], []
+    bot = pings.get(ping.BOT_ENV)
+    if not bot:
+        problems.append("bot sinyali yok (adres girildikten sonra bot yeniden başlatılmalı)")
+    else:
+        at = datetime.fromisoformat(bot["at"])
+        if not bot.get("ok"):
+            problems.append(f"son bot sinyali ulaşmadı ({at:%d.%m %H:%M})")
+        elif now - at > BOT_PING_STALE:
+            problems.append(f"son bot sinyali {at:%d.%m %H:%M} (20 dakikadan eski)")
+        else:
+            parts.append(f"bot sinyali {at:%H:%M}")
+    report = pings.get(ping.REPORT_ENV)
+    if not report:
+        parts.append("rapor sinyali henüz yok (ilk 18:30 raporundan sonra gelir)")
+    else:
+        at = datetime.fromisoformat(report["at"])
+        if not report.get("ok"):
+            problems.append(f"son rapor sinyali ulaşmadı ({at:%d.%m %H:%M})")
+        else:
+            parts.append(f"rapor sinyali {at:%d.%m %H:%M}" + (" (/fail: rapor gitmedi)" if report.get("fail") else ""))
+    if problems:
+        return Check(name, WARN, "; ".join(problems + parts))
+    return Check(name, OK, "açık; " + ", ".join(parts))
+
+
+def verdict(checks: list[Check]) -> str:
+    states = [c.state for c in checks]
+    if CRIT in states:
+        return f"{CRIT} KRİTİK: {states.count(CRIT)} açık kritik sorun"
+    if WARN in states:
+        return f"{WARN} UYARI: dikkat gereken bileşen var"
+    if UNKNOWN in states:
+        return f"{UNKNOWN} BİLİNMİYOR: bazı bileşenler doğrulanamadı"
+    return f"{OK} SAĞLIKLI: tüm kontroller geçti"
+
+
 def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool = True) -> list[Check]:
     now = now or now_istanbul()
     checks = [
@@ -425,6 +478,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         backup_check(now),
         disk_check(),
         calendar_check(now),
+        monitoring_check(now),
     ]
     if online:
         checks.append(research_check(now))
@@ -434,20 +488,10 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
 def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
     now = now or now_istanbul()
     checks = health_checks(now, bars)
-    states = [c.state for c in checks]
-
-    if CRIT in states:
-        verdict = f"{CRIT} KRİTİK: {states.count(CRIT)} açık kritik sorun"
-    elif WARN in states:
-        verdict = f"{WARN} UYARI: dikkat gereken bileşen var"
-    elif UNKNOWN in states:
-        verdict = f"{UNKNOWN} BİLİNMİYOR: bazı bileşenler doğrulanamadı"
-    else:
-        verdict = f"{OK} SAĞLIKLI: tüm kontroller geçti"
 
     return "\n".join([
         f"🩺 QuantBIST v{__version__} durum – {now:%d.%m.%Y %H:%M}",
-        verdict,
+        verdict(checks),
         "",
         *(c.line() for c in checks),
         "",

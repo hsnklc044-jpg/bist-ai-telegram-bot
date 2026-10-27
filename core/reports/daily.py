@@ -742,12 +742,13 @@ def main(argv: list[str] | None = None) -> int:
         print(error, file=sys.stderr)
         if args.send:
             _notify_failure(exc, str(log_file or "logs/quantbist.log"))
-            ping.ping(ping.address(ping.REPORT_ENV), fail=True)
+            ping.ping(ping.address(ping.REPORT_ENV), fail=True, name=ping.REPORT_ENV)
         return 1
 
     record_run(started, result.status, result.day, result.note)
     if args.send:  # outside monitoring: a holiday or an already sent day is fine; no new data is not
-        ping.ping(ping.address(ping.REPORT_ENV), fail=result.status not in ("sent", "skipped", "holiday"))
+        ping.ping(ping.address(ping.REPORT_ENV), fail=result.status not in ("sent", "skipped", "holiday"),
+                  name=ping.REPORT_ENV)
     note = "\n\nTelegram'a gönderildi." if result.status == "sent" else (
         f"\n\nTelegram'a gönderilmedi ({result.status}: {result.note})." if result.note else ""
     )
