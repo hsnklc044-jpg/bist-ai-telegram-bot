@@ -227,9 +227,11 @@ class DailyWeeklyTest(unittest.TestCase):
         self.assertNotIn("HAFTALIK", self._text(date(2026, 10, 29)))
 
     def test_failure_keeps_report(self):
-        from core.reports import daily
+        from core.reports import daily, health
 
-        with mock.patch.object(forward, "weekly_line", side_effect=OSError("disk")):
+        # both Friday lines failing (the system summary came in v0.49.2) leave the report exactly as it was
+        with mock.patch.object(forward, "weekly_line", side_effect=OSError("disk")), \
+                mock.patch.object(health, "health_checks", side_effect=OSError("disk")):
             self.assertEqual(daily._with_weekly_line("rapor", date(2026, 10, 30)), "rapor")
 
 
