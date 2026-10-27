@@ -1,0 +1,48 @@
+name: Cash data (TEFAS)
+
+# Aşama 3 prerequisite: daily prices of the money market fund chosen by the rule
+# fixed in docs/RESEARCH_LOG.md (largest on 2023-07-31). Saved on the
+# research-results branch as cash/ppf.csv; research runs read it from there.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # push to the research-results branch only
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  cash:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Results branch
+        run: |
+          git fetch --depth=1 origin research-results
+          git worktree add -B research-results results FETCH_HEAD
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download fund prices
+        run: python -m core.backtest.tefas --select 2023-07-31 --start 2023-07-31 --out results/cash/ppf.csv 2>&1 | tee cash.txt
+      - name: Save
+        run: |
+          cp cash.txt results/cash/ppf_selection.txt
+          cd results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Cash data: TEFAS money market fund (${GITHUB_SHA::7})" || exit 0
+          git push origin research-results
+      - name: Summary
+        if: always()
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat cash.txt >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
