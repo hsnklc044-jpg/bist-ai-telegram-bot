@@ -1,0 +1,14 @@
+001	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/14347
+002	ERROR ConnectionError	https://www.borsaistanbul.com/tr/duyuru/14347
+003	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/10000
+004	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/10500
+005	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/11000
+006	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/11500
+007	ERROR ConnectTimeout	https://www.borsaistanbul.com/en/announcement/12000
+008	ERROR ConnectTimeout	https://www.borsaistanbul.com/en/announcement/12500
+009	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/13000
+010	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/13500
+011	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/14000
+012	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/5000
+013	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/8000
+014	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/en/announcement/2000
