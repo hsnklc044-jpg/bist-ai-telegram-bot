@@ -1,0 +1,55 @@
+name: KAP corporate actions
+
+# KAP disclosures (bonus / rights issues, splits, dividends) for our stocks, checked against
+# data/corporate_actions.csv. KAP is not reachable from the development sandbox, so the
+# endpoints are called here. Results go to the research-results branch under kap/.
+# Step 1: --probe (what the endpoints return); the weekly check follows once the shape is known.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # push to the research-results branch only
+
+concurrency:
+  group: kap
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  kap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Probe
+        run: python -m core.market.kap --probe 2>&1 | tee kap.txt
+      - name: Save
+        if: always()
+        run: |
+          stamp=$(TZ=Europe/Istanbul date '+%Y-%m-%d_%H-%M-%S')
+          if git fetch --depth=1 origin research-results; then
+            git worktree add -B research-results ../results FETCH_HEAD
+          else
+            git worktree add --orphan -b research-results ../results
+          fi
+          mkdir -p ../results/kap
+          cp kap.txt "../results/kap/probe_$stamp.txt" 2>/dev/null || echo "(çıktı yok)" > "../results/kap/probe_$stamp.txt"
+          cd ../results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "KAP probe $stamp" || exit 0
+          for i in 1 2 3; do  # another workflow may have pushed meanwhile
+            git pull --rebase -q origin research-results && git push -q origin research-results && exit 0
+            sleep $((i * 10))
+          done
+          exit 1
