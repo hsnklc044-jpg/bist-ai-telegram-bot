@@ -186,9 +186,13 @@ HEARTBEAT_JOB = "heartbeat"
 
 
 async def heartbeat_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    from core.infrastructure import ping
     from core.reports.health import write_heartbeat
 
     await asyncio.to_thread(write_heartbeat)
+    url = ping.address(ping.BOT_ENV)
+    if url:  # outside monitoring (Healthchecks.io): an alarm when the bot stops, even with the PC off
+        await asyncio.to_thread(ping.ping, url)
 
 
 def schedule_heartbeat(app: Application) -> bool:

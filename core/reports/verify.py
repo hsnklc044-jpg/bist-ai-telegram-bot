@@ -34,7 +34,8 @@ def redact(text: str, secrets: dict[str, str] | None = None) -> str:
     if secrets is None:
         import core.infrastructure.settings  # noqa: F401 - loads .env into the environment
 
-        secrets = {name: os.getenv(name, "").strip() for name in ("BOT_TOKEN", "CHAT_ID")}
+        secrets = {name: os.getenv(name, "").strip()
+                   for name in ("BOT_TOKEN", "CHAT_ID", "HC_REPORT_URL", "HC_BOT_URL")}
     for name, value in secrets.items():
         if value and len(value) >= 4:
             text = text.replace(value, f"[{name}]")

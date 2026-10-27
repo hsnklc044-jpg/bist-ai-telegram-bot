@@ -6,6 +6,7 @@ os.environ["QUANTBIST_LOG_FILE"] = ""
 import pytest  # noqa: E402
 
 from core.backtest import expectations  # noqa: E402
+from core.infrastructure import ping  # noqa: E402
 from core.market import store  # noqa: E402
 from core.reports import health, runs  # noqa: E402
 
@@ -21,6 +22,8 @@ def _private_run_files(tmp_path, monkeypatch):
         raise RuntimeError("no network in tests")
 
     monkeypatch.setattr(health, "_http_get", offline)
+    # with HC_*_URL in the user's .env, a test must never ping (a /fail would page the user)
+    monkeypatch.setattr(ping, "_http_get", offline)
     # /performans reads the committed live reference; tests use their own or none
     monkeypatch.setattr(expectations, "EXPECTATIONS_FILE", tmp_path / "view_expectations.csv")
 

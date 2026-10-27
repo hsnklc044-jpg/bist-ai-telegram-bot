@@ -99,3 +99,42 @@ Zip kişisel dosyaları içermez (`.gitignore`), bu yüzden kopyalama onları ez
 | Bugünkü PC + Windows görevi | Ücretsiz, veriler sende | PC kapalıyken çalışmaz |
 | Küçük bulut sunucu (Docker hazır, adımlar docs/SERVER.md) | Kesintisiz; yeniden başlarsa kaçan raporu telafi eder | Aylık ücret, kişisel veriler sunucuda (onay gerekir); yedekler haftalık PC'ye alınmalı |
 | GitHub Actions'ta rapor | Ücretsiz | Kişisel dosyalar herkese açık depoda tutulamaz; **uygun değil** |
+
+## 7. Dışarıdan izleme (Healthchecks.io)
+
+Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kimseyi uyaramaz. Bunu dışarıdaki bir servis çözer: bot ve rapor ona düzenli olarak "çalışıyorum" sinyali gönderir. Sinyal zamanında gelmezse servis seni Telegram'dan ya da e-postayla uyarır.
+
+**Kurulum.** Hesap ve adresler sende; kod adresleri yalnız `.env` dosyasından okur.
+
+1. https://healthchecks.io adresinde ücretsiz hesap aç.
+2. **"QuantBIST rapor"** kontrolünü ekle:
+   - Schedule: `Cron`, `35 18 * * 1-5`
+   - Time zone: `Europe/Istanbul`
+   - Grace time: `1 hour`
+
+   Rapor başarılıysa, tatildeyse ya da o gün zaten gönderildiyse servis "başarılı" sinyali alır. Hata verirse ya da yeni veri gelmediyse `/fail` sinyali gider.
+3. **"QuantBIST bot"** kontrolünü ekle:
+   - Period: `5 minutes`
+   - Grace time: `20 minutes`
+
+   Bot her 5 dakikada bir sinyal gönderir.
+4. Integrations bölümünden Telegram'ı (ya da e-postayı) bağla.
+5. İki kontrolün "Ping URL" adresini `.env` dosyasına yaz:
+   ```
+   HC_REPORT_URL=https://hc-ping.com/...
+   HC_BOT_URL=https://hc-ping.com/...
+   ```
+6. Botu yeniden başlat. 5 dakika içinde "QuantBIST bot" kontrolü yeşile döner; ilk 18:30 raporundan sonra "QuantBIST rapor" da yeşile döner.
+
+**Güvenlik:**
+- Adresler gizlidir; bilen herkes sahte sinyal gönderebilir.
+- `scripts\verify.ps1` çıktısında adresler gizlenir.
+- Log dosyasına adresler yazılmaz.
+- Testler gerçek servise asla sinyal göndermez.
+
+**Arıza:** servise ulaşılamazsa rapor ve bot normal çalışmaya devam eder; log'a yalnız "Monitoring ping failed" yazılır.
+
+**Yarım gün ve tatil:**
+- Yarım günlerde rapor yine 18:30'da çalışır.
+- Tatilde "tatil" kaydı başarılı sinyali sayılır, bu yüzden yanlış alarm çıkmaz.
+- Takvime girmemiş bir tatilde rapor "yeni veri yok" diyerek `/fail` gönderir. Bu durumda alarm doğrudur: `data/bist_holidays.csv` dosyasına bakılmalı.

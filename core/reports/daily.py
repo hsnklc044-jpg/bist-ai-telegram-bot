@@ -31,6 +31,7 @@ from core.alerts.portfolio import evaluate_portfolio, portfolio_risk
 from core.config import alerts as alert_cfg
 from core.config.paths import ALERTS_LOG_FILE, EQUITY_LOG_FILE, LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import ACCOUNTS
+from core.infrastructure import ping
 from core.infrastructure.csvfiles import read_rows
 from core.infrastructure.exceptions import PersonalFileError
 from core.infrastructure.logger import get_logger
@@ -732,9 +733,12 @@ def main(argv: list[str] | None = None) -> int:
         print(error, file=sys.stderr)
         if args.send:
             _notify_failure(exc, str(log_file or "logs/quantbist.log"))
+            ping.ping(ping.address(ping.REPORT_ENV), fail=True)
         return 1
 
     record_run(started, result.status, result.day, result.note)
+    if args.send:  # outside monitoring: a holiday or an already sent day is fine; no new data is not
+        ping.ping(ping.address(ping.REPORT_ENV), fail=result.status not in ("sent", "skipped", "holiday"))
     note = "\n\nTelegram'a gönderildi." if result.status == "sent" else (
         f"\n\nTelegram'a gönderilmedi ({result.status}: {result.note})." if result.note else ""
     )

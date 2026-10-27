@@ -3,19 +3,20 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.45.15)
+## Kaldığım yer (27.10.2026, kod v0.46.0)
 
-- **Son sürüm:** v0.45.15 (CI #90). Kullanıcı PC'si v0.35.0'da; v0.36–v0.45.15 PC'de doğrulanmadı.
+- **Son sürüm:** v0.46.0. Kullanıcı PC'si v0.35.0'da; v0.36–v0.46.0 PC'de doğrulanmadı.
 - **Denetim:** D1–D14'ün hepsi kapandı (v0.45.1–v0.45.15).
 - **Kullanıcı kararları (27.10) uygulandı:**
   - KCAER katsayısı 0,8646 (v0.45.13).
   - `/performans` "geçmiş" sütunu (v0.45.14).
   - Temettü kaydı (v0.45.15).
   - Tek gün kapanış düzeltmeleri kapalı kalıyor.
+  - Dışarıdan izleme: Healthchecks.io kodu hazır (v0.46.0); adresler girilene kadar kapalı.
+  - Sunucu: şimdilik PC'de kalınıyor; hazırlık docs/SERVER.md'de bekliyor.
 - **Kullanıcıdan beklenen:**
-  - v0.45.15 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
-  - Dışarıdan izleme için servis seçimi (hesap gerekir).
-  - Sunucu kiralansın mı (ödeme gerekir).
+  - v0.46.0 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
+  - Healthchecks.io hesabı ve iki adres (OPERATIONS.md §7).
 - **Gözlem tarihleri:**
   - 28.10: yarım gün.
   - 29.10: tatil.

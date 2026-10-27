@@ -40,6 +40,7 @@ nano .env
 | `BOT_TOKEN`, `CHAT_ID` | PC'dekiyle aynı |
 | `DAILY_REPORT_AT` | `18:30` (raporu bot kendisi gönderir; yeniden başlarsa kaçırdığını telafi eder) |
 | `BACKUP_DIR` | `/app/backups` (sunucudaki `~/QuantBIST/backups` klasörü) |
+| `HC_REPORT_URL`, `HC_BOT_URL` | İsteğe bağlı: dışarıdan izleme (OPERATIONS.md §7) |
 
 `chmod 600 .env` ile dosyayı yalnız kendinize açın.
 
