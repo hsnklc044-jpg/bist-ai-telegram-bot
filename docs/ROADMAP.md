@@ -44,9 +44,19 @@ Saat dilimi, sessiz hata yutma, belge-kod uyumu: bugün eklenen kod (slo, health
 
 Kontrol edilenler: yeni hata yolları (rapor metni yazılamazsa, ikinci kaynak/Telegram çökerse, geri yükleme testi başarısızsa) raporu durdurmuyor ve sessiz değil (log); kişisel kayıtlara yazan yeni kod yok; adres/token yazdıran yeni satır yok (`ping --drill`); testler gerçek `data/`, `logs/`a dokunmuyor (yazma koruması, v0.56.3'te bir kez yakaladı ve düzeltildi). **Kritik ya da yüksek bulgu yok.** İlk değerlendirmede DÜŞÜK sanılan Ö8 kontrol edilince ORTA çıktı ve düzeltildi.
 
+**Öz-denetim 3 — 27.10.2026 (v0.59.2 → v0.63.0, 9 sürüm)**. Kapsam: `git diff d96afd7..baea6ec -- core bot scripts .github` (14 dosya, +564 satır): izleme adresi denetimi, ikinci kaynak mesajı, sapma işareti, /rapor_tekrar ve düğmeler, KAP takibi, /yil.
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö10 | DÜŞÜK | KAP bir hafta için liste yerine hata nesnesi döndürürse ya da tarih biçimini değiştirirse haftalık KAP kontrolünün tamamı çöküyordu; atlanırsa da sessiz kalacaktı | ✅ v0.63.1: o aralık/bildirim atlanır ve çıktıda "⚠️ Eksik kontrol: …" yazar (`test_kap.UnexpectedAnswerTest`) |
+| Ö11 | BİLGİ | KAP kontrolü güncel evreni (`universe.csv`) tarar; evren dışından alınmış bir hisse kapsanmaz | kabul: haftalık sıçrama taraması (`corporate.txt`) ve `/durum` veri notları aynı evrene dayanıyor; evren dışı pozisyon olursa evrene eklenir |
+| Ö12 | BİLGİ | `/start` düğmelerindeki `is_persistent` eski python-telegram-bot sürümlerinde yok; olsaydı bot açılmazdı | denendi: kilitli sürüm 22.8, destekleniyor |
+
+Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı tarihi dosya yoluna yalnız `date` olarak girer (yol enjeksiyonu yok); `/yil` defteri yükleme anında doğrular (tutarsız geçmiş yükleme hatası verir); KAP'tan gelen hiçbir şey veriye yazılmaz (K-24); menü kurulamazsa bot açılır; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
+
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.63.0 (/yil yıllık döküm).
+- **Son sürüm:** v0.63.1 (öz-denetim 3; KAP beklenmedik cevapta çökmez, eksik kontrolü yazar).
 - **Dışarıdan izleme açıldı (27.10 22:23, yerel otomasyon):** iki .env satırında önce örnek metin (`<…kod>`), sonra `.com/` ile kod arasında boşluk vardı (Healthchecks HTTP 400); düzeltilince bot sinyali kabul edildi, `/durum` izleme satırı SAĞLIKLI. Rapor kontrolü ilk sinyalini 28.10 18:30'da alacak. Adresler hiçbir yerde yazdırılmadı.
 - **İlk otomatik kurulu sürümle rapor (27.10 18:30, yerel otomasyon doğruladı):** runs.csv 18:30:01→18:30:39, veri günü 27.10, tek mesaj. Sayılar elle sağlandı: hesap 97.394+2.530=99.924 TL, günlük −%0,05, THYAO 10×253,00, −76 TL/−%2,93, risk ~78 TL (%0,08→%0,1), etkin pozisyon 1,0 (26.10 düzeltmesi tuttu). KPOWR verisi yok (bilinen). S1 kanıtına eklendi.
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.

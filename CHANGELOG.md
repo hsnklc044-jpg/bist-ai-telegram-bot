@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.63.1 – 27.10.2026
+- Öz-denetim 3: kritik ya da yüksek bulgu yok. KAP bir hafta için beklenmedik cevap verirse haftalık kontrol artık çökmüyor; atlanan aralık çıktıda "Eksik kontrol" diye yazıyor.
+
 ## v0.63.0 – 27.10.2026
 - `/yil [2026] [gerçek|sanal]`: yıllık döküm. Yıl içindeki satışların sonucu (FIFO maliyet, komisyon dahil), net temettüler ve ödenen komisyon. Defter dökümüdür, vergi danışmanlığı değildir.
 

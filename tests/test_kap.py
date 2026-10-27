@@ -140,4 +140,22 @@ class DaysCommandTest(unittest.TestCase):
                 redirect_stdout(out):
             self.assertEqual(kap.main(["--days", "14"]), 0)
         self.assertEqual(check.call_args.args[1:3], (["THYAO.IS"], []))
+        self.assertEqual(check.call_args.kwargs["problems"], [])
         self.assertIn("bildirim yok", out.getvalue())
+
+
+class UnexpectedAnswerTest(unittest.TestCase):
+    """Öz-denetim 3, Ö10: one odd answer from KAP must not lose the whole weekly check."""
+
+    def test_non_list_answer_and_odd_dates_are_skipped_not_fatal(self):
+        def post(url, body):
+            if body["fromDate"] == "2026-10-14":
+                return {"error": "rate limited"}
+            return [item("THYAO", CAPITAL, when="27/10/2026"), item("BIMAS", CAPITAL, when="22.10.2026 10:00:00")]
+
+        problems = []
+        found = kap.check(TODAY, ["THYAO.IS", "BIMAS.IS"], [], days=14, post=post, problems=problems)
+        self.assertEqual([f.symbol for f in found], ["BIMAS.IS"])
+        self.assertEqual(len(problems), 2)
+        self.assertIn("14.10–20.10 arası okunamadı", problems[0])
+        self.assertIn("⚠️ Eksik kontrol", kap.format_findings(found, TODAY, 14, problems))

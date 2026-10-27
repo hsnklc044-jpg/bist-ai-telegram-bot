@@ -53,19 +53,33 @@ def _published(text: str) -> date:
     return datetime.strptime(text.split()[0], "%d.%m.%Y").date()
 
 
-def check(today: date, universe: list[str], actions: list, days: int = 14, post=None) -> list[Finding]:
-    """KAP corporate actions and dividends for `universe` in the last `days` days, oldest first."""
+def check(today: date, universe: list[str], actions: list, days: int = 14, post=None,
+          problems: list[str] | None = None) -> list[Finding]:
+    """KAP corporate actions and dividends for `universe` in the last `days` days, oldest first.
+    Answers that could not be read are skipped and, when `problems` is given, described there."""
 
     ours = {s.removesuffix(".IS") for s in universe}
     found: dict[tuple, Finding] = {}
     start = today - timedelta(days=days - 1)
     while start <= today:
         end = min(start + timedelta(days=CHUNK - 1), today)
-        for item in disclosures(start, end, "ODA", post=post):
-            kind = KINDS.get((item.get("subject") or "").strip())
+        answer = disclosures(start, end, "ODA", post=post)
+        if not isinstance(answer, list):  # an error object instead of the list: skip this week, keep the rest
+            logger.warning("KAP answered %s for %s..%s", type(answer).__name__, start, end)
+            if problems is not None:
+                problems.append(f"{start:%d.%m}–{end:%d.%m} arası okunamadı (KAP cevabı liste değil)")
+            answer = []
+        for item in answer:
+            kind = KINDS.get((str(item.get("subject") or "")).strip()) if isinstance(item, dict) else None
             if not kind:
                 continue
-            published = _published(item["publishDate"])
+            try:
+                published = _published(str(item.get("publishDate")))
+            except ValueError:
+                logger.warning("KAP date not understood: %r", item.get("publishDate"))
+                if problems is not None:
+                    problems.append(f"tarihi anlaşılmayan bildirim atlandı: {item.get('disclosureIndex')}")
+                continue
             for code in str(item.get("stockCodes") or "").replace(" ", "").split(","):
                 if code not in ours:
                     continue
@@ -82,8 +96,10 @@ def check(today: date, universe: list[str], actions: list, days: int = 14, post=
     return sorted(found.values(), key=lambda f: (f.published, f.symbol))
 
 
-def format_findings(found: list[Finding], today: date, days: int) -> str:
+def format_findings(found: list[Finding], today: date, days: int, problems: list[str] | None = None) -> str:
     head = f"KAP kurumsal işlem bildirimleri, son {days} gün ({today:%d.%m.%Y}); hiçbir şey kendiliğinden uygulanmaz."
+    if problems:
+        head += "\n⚠️ Eksik kontrol: " + "; ".join(problems)
     if not found:
         return head + "\nEvrendeki hisseler için sermaye artırımı/azaltımı ya da kâr payı bildirim yok."
     lines = [head]
@@ -183,7 +199,9 @@ def main(argv: list[str] | None = None) -> int:
         from core.market.corrections import load_corporate_actions
         from core.market.universe import load_universe
 
-        print(format_findings(check(today, load_universe(), load_corporate_actions(), days=args.days), today, args.days))
+        problems: list[str] = []
+        found = check(today, load_universe(), load_corporate_actions(), days=args.days, problems=problems)
+        print(format_findings(found, today, args.days, problems))
         return 0
     parser.print_help()
     return 2
