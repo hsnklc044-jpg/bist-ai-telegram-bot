@@ -242,12 +242,27 @@ def candle_check(fixes: Path) -> list[str]:
     ]
 
 
+def _approved_fixes(path: Path | None) -> tuple[Path | None, str | None]:
+    """The fix file if data/price_fix_approvals.csv approves all of it, else (None, why)."""
+
+    if path is None:
+        return None, None
+    try:
+        corrections._validate_price_fix_source(path)
+    except corrections.PriceFixGateError as exc:
+        return None, f"Fiyat düzeltmeleri uygulanmadı: {exc} C ve D çalıştırılmadı."
+    return path, None
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Research under four data scenarios (A-D).")
     parser.add_argument("--price-fixes", type=Path, default=None)
     parser.add_argument("--start", default=DEFAULT_START)
     parser.add_argument("--positions", type=int, default=10)
     args = parser.parse_args(argv)
+    args.price_fixes, blocked = _approved_fixes(args.price_fixes)
+    if blocked:
+        print(blocked)
 
     bench = store.read(BENCHMARK)
     actions_file = corrections.CORPORATE_ACTIONS_FILE

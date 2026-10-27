@@ -301,9 +301,14 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.price_fixes:
-        from core.market.corrections import use_price_fixes
+        from core.market.corrections import PriceFixGateError, use_price_fixes
 
-        print(f"Fiyat düzeltmeleri açık: {use_price_fixes(args.price_fixes)} gün ({args.price_fixes})\n")
+        try:
+            days = use_price_fixes(args.price_fixes)
+        except PriceFixGateError as exc:  # data/price_fix_approvals.csv decides
+            print(f"Fiyat düzeltmeleri uygulanmadı: {exc} ({args.price_fixes})")
+            return
+        print(f"Fiyat düzeltmeleri açık: {days} gün ({args.price_fixes})\n")
 
     records: list[dict] = []
     print(

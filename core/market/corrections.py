@@ -23,10 +23,14 @@ Price corrections applied on top of the raw provider data.
    One-day wrong closes found by the second-source check
    (core.market.crosscheck --export): each row multiplies one day's close
    by `factor`. Used only after use_price_fixes(path) - the research
-   report's --price-fixes option - so their effect can be measured
-   before anything changes by default.
+   report's --price-fixes option.
 
        symbol,date,factor,source,note
+
+   A fix is used only if data/price_fix_approvals.csv approves that exact
+   row (same symbol, date and factor, approved=true, with a source); any
+   other row stops the whole file (PriceFixGateError). The file is checked
+   and loaded from one private copy, so it cannot change in between.
 
 The raw data in the store is never modified; corrections are applied
 when data is read, so a wrong row in the CSV can simply be removed.
@@ -46,6 +50,8 @@ from core.infrastructure.logger import get_logger
 logger = get_logger(__name__)
 
 CORPORATE_ACTIONS_FILE = DATA_DIR / "corporate_actions.csv"
+APPROVALS_FILE = DATA_DIR / "price_fix_approvals.csv"
+FACTOR_TOLERANCE = 1e-6  # crosscheck writes factors with 6 decimals
 
 CANCELLED_SESSIONS: frozenset[date] = frozenset(
     {
@@ -182,6 +188,15 @@ def use_corporate_actions(actions: list[CorporateAction] | None) -> None:
 
     global _actions_override
     _actions_override = actions
+    _clear_price_cache()
+
+
+def _clear_price_cache() -> None:
+    """Cached price histories carry the old corrections: drop them."""
+
+    from core.market import data
+
+    data.clear_cache()
 
 
 def load_price_fixes(path) -> dict[str, dict[pd.Timestamp, float]]:
@@ -195,11 +210,73 @@ def load_price_fixes(path) -> dict[str, dict[pd.Timestamp, float]]:
     return fixes
 
 
+class PriceFixGateError(ValueError):
+    """A price fix file that is not fully approved in data/price_fix_approvals.csv."""
+
+
+def _rows(path) -> list[dict]:
+    with open(path, encoding="utf-8", newline="") as fh:
+        return [{k: (v or "").strip() for k, v in row.items()} for row in csv.DictReader(fh)]
+
+
+def _key(row: dict) -> tuple[str, pd.Timestamp]:
+    return row["symbol"].upper(), pd.Timestamp(row["date"])
+
+
+def _validate_price_fix_source(path, approvals=None) -> bool:
+    """Every row of the fix file must be approved, with the same factor and a source."""
+
+    approved: dict[tuple[str, pd.Timestamp], dict] = {}
+    for row in _rows(approvals or APPROVALS_FILE):
+        if _key(row) in approved:
+            raise PriceFixGateError(f"Onay listesinde tekrar eden satır: {row['symbol']} {row['date']}")
+        if row.get("approved", "").lower() == "true" and not row.get("source"):
+            raise PriceFixGateError(f"Onaylı satırın kaynağı yok: {row['symbol']} {row['date']}")
+        approved[_key(row)] = row
+
+    fixes = _rows(path)
+    if not fixes:
+        raise PriceFixGateError("Boş düzeltme dosyası reddedildi.")
+    keys = [_key(r) for r in fixes]
+    if len(set(keys)) != len(keys):
+        raise PriceFixGateError("Düzeltme dosyasında tekrar eden satır var.")
+
+    missing = [k for k in keys if k not in approved]
+    if missing:
+        raise PriceFixGateError(f"ENGELLENDİ: {len(missing)} düzeltme onay listesinde yok.")
+    for row, key in zip(fixes, keys):
+        if abs(float(row["factor"]) - float(approved[key]["factor"])) > FACTOR_TOLERANCE:
+            raise PriceFixGateError(f"Onaylanan çarpan farklı: {row['symbol']} {row['date']}")
+    unapproved = sum(approved[k].get("approved", "").lower() != "true" for k in keys)
+    if unapproved:
+        raise PriceFixGateError(f"ENGELLENDİ: {unapproved} onaysız fiyat düzeltmesi.")
+    return True
+
+
 def use_price_fixes(path=None) -> int:
-    """Turn price fixes on (path) or off (None). Returns the number of fixed days."""
+    """Turn price fixes on (path) or off (None). Returns the number of fixed days.
+
+    The file is copied once; the copy is checked against the approval list and loaded, and
+    only then does it replace the active fixes. On any error the previous state stays."""
 
     global _price_fixes
-    _price_fixes = load_price_fixes(path) if path else None
+    if path is None:
+        _price_fixes = None
+    else:
+        import shutil
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory(prefix="qb-price-fix-") as folder:
+            snapshot = Path(folder) / "verified_fixes.csv"
+            with open(path, "rb") as source, open(snapshot, "xb") as target:
+                shutil.copyfileobj(source, target)
+            _validate_price_fix_source(snapshot)
+            loaded = load_price_fixes(snapshot)
+        if not any(loaded.values()):
+            raise PriceFixGateError("Boş düzeltme dosyası reddedildi.")
+        _price_fixes = loaded
+    _clear_price_cache()
     return sum(len(v) for v in (_price_fixes or {}).values())
 
 
@@ -232,6 +309,8 @@ def clean(
 __all__ = [
     "CANCELLED_SESSIONS",
     "CORPORATE_ACTIONS_FILE",
+    "APPROVALS_FILE",
+    "PriceFixGateError",
     "CorporateAction",
     "load_corporate_actions",
     "drop_cancelled_sessions",

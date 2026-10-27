@@ -3,9 +3,9 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.48.0)
+## Kaldığım yer (27.10.2026, kod v0.48.1)
 
-- **Son sürüm:** v0.48.0 (Aşama 3 H2 ve H3, TCMB politika faizli nakitle — plan değişikliği 1).
+- **Son sürüm:** v0.48.1 (kullanıcının PC'de yaptığı fiyat düzeltmesi onay kapısı repoya alındı).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).
@@ -23,7 +23,7 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
   - Dışarıdan izleme: Healthchecks.io kodu hazır (v0.46.0); adresler girilene kadar kapalı.
   - Sunucu: şimdilik PC'de kalınıyor; hazırlık docs/SERVER.md'de bekliyor.
 - **Kullanıcıdan beklenen:**
-  - PC'de elle yapılan değişiklikler (27.10, fiyat düzeltmesi koruması, OHLC incelemesi) yalnız PC'de; repoya alınmadan incelenmesi için fark dosyası (`quantbist_degisiklik.diff`).
+  - PC'deki elle değişiklikler (27.10) incelendi ve v0.48.1'de repoya alındı: onay kapısı `core/market/corrections.py`'de, onaylar `data/price_fix_approvals.csv`'de (şimdilik boş). PC'deki `research_workspace` kapısı artık kullanılmıyor; v0.48.1 kurulunca PC'deki üç dosya repodakiyle değişir.
   - Healthchecks.io hesabı ve iki adres (OPERATIONS.md §7).
 - **Gözlem tarihleri:**
   - 28.10: yarım gün.

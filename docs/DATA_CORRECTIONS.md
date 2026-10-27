@@ -50,6 +50,13 @@ Sınıflandırma ve gerekçe: docs/RESEARCH_LOG.md. Özet:
 
 Satırların 448'inde düzeltilmiş kapanış o günün en düşük–en yüksek aralığının dışına düşüyor. Yani o günlerde mumun tamamı yanlış; yalnız kapanışı değiştirmek yapay mum üretir. Bu yüzden düzeltmeler varsayılan olarak kapalı kalıyor. Açılmaları kullanıcı onayı gerektirir.
 
+**Onay kapısı (v0.48.1, kullanıcının 27.10 PC çalışmasından):** `--price-fixes` ile verilen bir dosya yalnız `data/price_fix_approvals.csv` her satırını onaylıyorsa kullanılır.
+- Onay satırı: `symbol,date,factor,approved,source,note`. Aynı sembol, tarih ve çarpan; `approved=true`; kaynak zorunlu (ör. İş Yatırım + KAP).
+- Listede olmayan, onaysız ya da çarpanı farklı tek bir satır bile dosyanın tamamını durdurur.
+- Araştırma raporu bu durumda "Fiyat düzeltmeleri uygulanmadı: ENGELLENDİ …" yazar ve düzeltmeli ölçümü yapmaz. Senaryolar yalnız A ve B'yi çalıştırır.
+- Dosya bir kez geçici kopyaya alınır; kontrol ve yükleme aynı kopyadan yapılır. Hata olursa önceki durum korunur.
+- Şu an listede onaylı satır yok; 635 düzeltmenin hepsi engelli. Bir testi bunu doğruluyor; bir satırı onaylamak, kaynağıyla birlikte bu dosyaya yazılan ve git geçmişinde görünen bir karardır.
+
 ## Değişmez yedek
 
 - Kullanıcının fiyat deposu `python -m core.backup --market-db` ile yedeklenir.

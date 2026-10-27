@@ -46,7 +46,8 @@ class ScenarioTest(unittest.TestCase):
 
             robust: dict = {}
             with mock.patch.object(corrections, "apply_corporate_actions", side_effect=spy):
-                results = scenarios.run_scenarios(fixes, start="2025-06-01", positions=3, robustness=robust)
+                with mock.patch.object(corrections, "_validate_price_fix_source", return_value=True):
+                    results = scenarios.run_scenarios(fixes, start="2025-06-01", positions=3, robustness=robust)
             lines = scenarios.format_scenarios(results)
             candle = scenarios.candle_check(fixes)
             robust_text = "\n".join(scenarios.format_robustness(robust, store.read(BENCHMARK)["close"]))
