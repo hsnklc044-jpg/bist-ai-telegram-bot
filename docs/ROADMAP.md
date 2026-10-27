@@ -3,7 +3,7 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
-## Kaldığım yer (27.10.2026, kod v0.46.0)
+## Kaldığım yer (27.10.2026, kod v0.47.1)
 
 - **Son sürüm:** v0.47.1 (ikinci kaynak çökünce kontrol erken biter; araştırma kayıtları korunur).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
@@ -12,6 +12,8 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
   - Bot açılırken `telegram.error.Conflict` hatası çıktı: aynı token'la iki bot aynı anda çalışıyordu (kullanıcının log'u, 27.10 09:21). v0.46.2'den itibaren bu durum log'a tek bir açık satırla yazılıyor.
 - **PC doğrulaması (27.10 09:22, v0.46.1):** 450 test geçti (2 atlandı); `verify.ps1` hatasız tamamlandı.
 - **Bot tek örnek (27.10 09:30):** arka plandaki eski bot (08:40) kapatıldı ve v0.46.1 ile yeniden başlatıldı. Başlangıçtan sonra `Conflict` satırı yok; yaşam sinyali 09:30:56'da yazıldı. Botu otomatik başlatan bir şey yoktu: bilgisayar yeniden başlarsa bot açılmayacaktı. Kullanıcı 27.10'da "QuantBIST Bot" görevini kurdu (oturum açılışında, tek kopya, çökerse yeniden başlatır); aynı ayarlar `scripts/register_bot_task.ps1` dosyasında.
+- **Bot görev üzerinden (27.10 10:15):** görev yeniden başlatılınca elle açılmış eski bot da çalışır durumdaydı (iki bot); eski kopya kapatıldı. Şimdi tek bot, "QuantBIST Bot" görevinin başlattığı. Bot artık yalnız görevle başlatılır/yeniden başlatılır.
+- **Aşama 3:** H1 (düşük oynaklık) ön kayıtlı ölçütlerle **reddedildi** (RESEARCH_LOG, 27.10; birincil ölçüt ve üç kapı da tutmadı). H2/H3 nakit verisi olmadığı için test edilmedi. Önceden onaylanmış başka hipotez yok; H2/H3 için başka nakit kaynağı yalnız kullanıcı onayıyla.
 - **Denetim:** D1–D14'ün hepsi kapandı (v0.45.1–v0.45.15).
 - **Kullanıcı kararları (27.10) uygulandı:**
   - KCAER katsayısı 0,8646 (v0.45.13).
@@ -21,7 +23,6 @@ güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölü
   - Dışarıdan izleme: Healthchecks.io kodu hazır (v0.46.0); adresler girilene kadar kapalı.
   - Sunucu: şimdilik PC'de kalınıyor; hazırlık docs/SERVER.md'de bekliyor.
 - **Kullanıcıdan beklenen:**
-  - v0.46.0 kurulumu: `scripts\verify.ps1` çıktısı ve `/durum`.
   - Healthchecks.io hesabı ve iki adres (OPERATIONS.md §7).
 - **Gözlem tarihleri:**
   - 28.10: yarım gün.

@@ -268,3 +268,23 @@ Bu veri kamuya açık; hesap ya da ödeme gerekmiyor. Veri eklenemezse H2 ve H3 
 - **Karar:** onaylanan plandaki hüküm gereği **H2 ve H3 test edilmiyor**. H1 her zaman hisselerde durduğu için nakit verisine ihtiyaç duymuyor; H1 planlandığı gibi test edilecek.
 - **Açık seçenek:** H2 ve H3, başka bir nakit kaynağıyla test edilebilir; örneğin TCMB politika faizi kararları, her biri kaynağıyla. Bu, planda değişiklik demektir; ancak kullanıcı onayıyla yapılır. Değişiklik, H1 sonucu görülmeden önce önerildi.
 - **Temizlik:** TEFAS indiricisi (`core/backtest/tefas.py`) ve `cashdata.yml` iş akışı kaldırıldı. Stopaj tablosu (`data/cash/withholding.csv`) kaynaklarıyla birlikte duruyor; başka bir nakit kaynağı onaylanırsa kullanılacak.
+
+### Aşama 3 – H1 ilk sonuç: RED (27.10.2026)
+
+Research çalışması 40464071625 (kod v0.47.0, `runs/2026-10-27_09-56/phase3.txt`; history.csv'de `a3` ailesi). Sonuç olduğu gibi:
+
+| | 2023-08-01'den | 2024-01-02'den |
+|---|---|---|
+| Kural, yıllık | +15,9% | +12,0% |
+| XU100, yıllık | +14,6% | +14,4% |
+| Kural MaxDD | −37,7% | −37,7% |
+| XU100 MaxDD | −26,5% | −26,5% |
+| Sharpe / işlem | 0,73 / 161 | 0,61 / 140 |
+
+- XU100'e göre fazla getiri (yıllık, %98,3 GA, Bonferroni 3 hipotez): **+0,9% [−16,5%, +18,6%] anlamlı değil**.
+- En kârlı 5 hisse (BIMAS, CCOLA, REEDR, AEFES, SELEC) olmadan yıllık +6,1%.
+- Birincil ölçüt ✗, kapı 1 ✗ (ikinci başlangıçta XU100'ün altında), kapı 2 ✗, kapı 3 ✗ (düşüş XU100'den 11 puan derin).
+
+**Karar:** H1 reddedildi. Plan gereği kural ayarlanmaz (pencere, hisse sayısı, yeniden dengeleme sıklığı denenmez); canlı ölçüme alınmaz. Kod ve haftalık kayıt, yalnızca sonraki çalışmalarda sonucun değişip değişmediğini görmek için kalır.
+
+**Aşama 3'ün durumu:** H1 red; H2 ve H3 nakit verisi olmadığı için test edilmedi. Önceden onaylanmış başka hipotez yok. H2/H3 için başka bir nakit kaynağı (örneğin TCMB politika faizi) ancak kullanıcı onayıyla, plan değişikliği olarak eklenebilir. Bu seçenek H1 sonucu görülmeden önce yazılmıştı; H1'in reddi onu güçlendirmez de zayıflatmaz da.
