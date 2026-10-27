@@ -159,6 +159,11 @@ kullanıcı faydası → sürdürülebilirlik → maliyet/risk.
 ## Karar notları
 
 - 2026-10: Teknik skor yatırım sinyali olarak sunulmaz; backtest'te XU100'ü geçmedi.
-- 2026-10: KCAER/CANTE fiyat düzeltmesi yapılmadı (çift düzeltme riski).
+- 2026-10: KCAER/CANTE fiyat düzeltmesi yapılmadı (çift düzeltme riski). Sonra v0.34.0'da ikinci kaynakla eklendi.
+- 2026-10-27 (kullanıcı kararları):
+  - KCAER katsayısı teorik değere, 0,8646'ya çekildi (v0.45.13).
+  - Tek gün kapanış düzeltmeleri kapalı kalıyor.
+  - `/performans`'a "geçmiş" sütunu eklenecek.
+  - Temettü kaydı (D13) eklenecek.
 - 2026-10: Eski karar katmanı (AL/SAT etiketleri, AI modülleri) kaldırıldı (v0.20.0, kullanıcı onaylı).
 - Gerçek emir entegrasyonu: yalnızca canlı ölçüm bir kuralı istatistiksel olarak kanıtlarsa ve açık onayla.

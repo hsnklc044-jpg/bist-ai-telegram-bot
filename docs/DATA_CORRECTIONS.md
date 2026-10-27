@@ -15,7 +15,7 @@ Katsayı hesabı:
 
 ## İkinci kaynak kontrolünden eklenen satırlar (v0.34.0, commit 5f2d0f0, 26.10.2026)
 
-### KCAER.IS — 28.11.2024, katsayı 0,8650
+### KCAER.IS — 28.11.2024, katsayı 0,8646 (v0.45.13'ten önce 0,8650)
 
 - **Olay:** %191,22 bedelsiz; sermaye 657,57 milyondan 1.915 milyon TL'ye. SPK onayı 21.11.2024 (bülten 2024/53), bölünme 28.11.2024.
 - **Bileşenler:** Borsa İstanbul fiyat düzeltmesine göre %151,784 iç kaynaklardan, %39,440 kâr payından bedelsiz. Bölünme sonrası teorik fiyat 14,182 TL, yani önceki kapanış 41,30 TL.
@@ -23,9 +23,10 @@ Katsayı hesabı:
 - **Yahoo:** o gün −%13,7. Yahoo katsayıyı 1/2,5178 almış; olması gereken 1/2,9122. Yani yalnız iç kaynak kısmını (%151,78) uygulamış, kâr payından gelen %39,44'ü atlamış.
 - **İş Yatırım:** o gün −%0,2.
 - **Teorik kalan düzeltme:** 2,5178 / 2,9122 = **0,8646**.
-- **Uygulanan katsayı:** 0,8650. Gözlenen getirilerden hesaplandı: 0,8633 / 0,998.
-- **Fark:** %0,05. Değiştirilmedi; teorik değere geçmek kullanıcı kararı.
-- **Durum:** olay doğrulandı, katsayı yaklaşık doğru.
+- **İlk katsayı (v0.34.0):** 0,8650, gözlenen getirilerden hesaplanmıştı: 0,8633 / 0,998.
+- **Değişiklik (v0.45.13, 27.10.2026):** kullanıcı kararıyla teorik değere, **0,8646**'ya geçildi. Fark %0,05; 28.11.2024 öncesindeki bütün KCAER fiyatları bu oranda değişir.
+- **Geri alma:** `data/corporate_actions.csv` dosyasında katsayıyı 0.8650 yapmak.
+- **Durum:** olay ve katsayı doğrulandı. Test: `test_corrections.test_kcaer_factor_is_the_missing_part_of_the_bonus`.
 
 ### CANTE.IS — 26.01.2026, katsayı 0,8408
 

@@ -164,6 +164,12 @@ class CorporateActionKindsTest(unittest.TestCase):
         for row in rows:
             self.assertTrue(row["source"].strip(), f"no source: {row}")
 
+    def test_kcaer_factor_is_the_missing_part_of_the_bonus(self):
+        # %191,22 bonus = %151,784 from reserves + %39,440 from dividend (Borsa İstanbul).
+        # Yahoo divided by 2,51784 only; the rest is 2,51784 / 2,91224 = 0,8646 (decided 27.10.2026)
+        action = next(a for a in corrections.load_corporate_actions() if a.symbol == "KCAER.IS")
+        self.assertEqual(action.factor, round(2.5178408 / 2.9122373, 4))
+
 
 class BadCorporateActionRowTest(unittest.TestCase):
     """A row that cannot be read leaves that stock's history unadjusted: it must be visible, never silent."""
