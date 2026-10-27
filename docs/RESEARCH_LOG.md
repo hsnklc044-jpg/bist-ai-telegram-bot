@@ -13,6 +13,23 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+## Reddedilen fikir türleri — özet (27.10.2026, MATURITY S4)
+
+Aşağıdaki kayıtların özeti; ayrıntı ve sayılar ilgili bölümlerde. 2023-08 – 2026-10 arasında (yaklaşık 3,2 yıl, geçmiş BIST 100 üyeliği, maliyet dahil) test edilen 13 kuralın (6 ana tablo, 4 aday kural, Aşama 3'ün 3 hipotezi) hiçbiri XU100'ü istatistiksel olarak geçmedi. Aynı veride bu türlerin yeni varyantlarını denemek veri gözetlemesi olur; bu yüzden **yeniden denenmez**.
+
+| Tür | Denenenler | Neden reddedildi | Ders |
+|---|---|---|---|
+| Teknik sinyal / puan | bot sinyali, bot sinyali + rejim, `/performans` görünümleri | Fazla getiri aralığı sıfırı içine alıyor (−1,5% [−28%, +23%]); "pozitif" görünümler 20 seansta XU100'ün altında (−0,2 puan), isabet %41–46 | Görünümler yalnız "negatif daha kötü" diyor; alım gerekçesi olamaz |
+| Tek hissede trend takibi / kırılım | trend kuralı, weekly_trend, breakout, dryup_breakout, grouped_score | Nokta tahmini yüksek (+34,6%) ama aralık çok geniş; en kârlı 5 hisse çıkınca negatif (−5,2%); düşüş XU100'ün iki katı | Kazanç birkaç hisseye bağlı → "en kârlı 5 hariç" kapısı zorunlu |
+| Kesitsel momentum | 6 ay en iyi 10, + rejim, walk-forward | Negatif ya da kararsız; 2025 +88%, 2026 −73% | Rejime aşırı bağlı; 12-1 gibi türevleri denenmez |
+| Düşük oynaklık (H1) | 60 seans oynaklığı en düşük 10 | +0,9% [−16,5%, +18,6%]; düşüş XU100'den 11 puan derin | Literatürdeki dayanıklı anomali bu dönemde görünmedi |
+| Endeks zamanlaması (H2 trend, H3 ay dönümü) | 200 günlük ortalama; ayın son/ilk 3 seansı | Aralıklar sıfırı içine alıyor; H3'ün kazancı neredeyse tamamen nakdin faizinden (%0 nakitle +1,4%) | Yüksek TL faizinde nakitte beklemek "zamanlama" gibi görünür; nakit getirisi ayrı ölçülmeli |
+| Veriyi düzelterek sonucu iyileştirmek | yalnız kapanış düzeltmeleri | 635 düzeltmenin 448'i yapay mum üretiyor; sonuç farkı küçük | Kapanış düzeltmeleri kapalı; düzeltme yalnız onaylı ve kaynaklı (`price_fix_approvals.csv`) |
+
+**Ortak sınır:** 3,2 yıllık veriyle güven aralıkları ±20–30 puan genişliğinde; yıllık 10 puanın altındaki gerçek bir üstünlük bu veriyle şanstan ayrılamaz. Daha uzun veri (2015'e uzatma) kaynak yokluğundan engelli (DECISIONS K-16). Bu yüzden yeni bir hipotez ancak yeni plan + kullanıcı onayı + holdout dönemiyle denenir; asıl bağımsız kanıt canlı ölçümdür (ilk karar Kasım sonu).
+
+---
+
 ## 2026-10-26 — Araştırma tablosu, geçmiş BIST 100 üyeliğiyle (v0.24.0)
 
 - **Soru:** Bugünkü hisse listesiyle yapılan testler (survivorship bias) sonuçları ne kadar

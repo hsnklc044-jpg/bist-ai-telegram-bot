@@ -40,7 +40,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 | Canlı ölçüm ilk kararını vermiş (önceden belirlenmiş ölçüt) | ⏳ Kasım sonu |
 | Backtest–canlı sapması nedenleriyle raporlanmış | ⏳ |
 | Araştırma programı: deneme bütçesi + holdout + ön kayıtla bir tam döngü | kısmi: Aşama 3 ön kayıtlı, Bonferroni; holdout yoktu; veri uzatması engelli (K-16) |
-| Reddedilen fikir türleri özetlenmiş | ❌ (RESEARCH_LOG'a özet) |
+| Reddedilen fikir türleri özetlenmiş | ✅ 27.10: RESEARCH_LOG "Reddedilen fikir türleri — özet" (6 tür, 13 kural, ortak sınır) |
 | Veri iki kaynakla doğrulanmış ve fark SLO'su tutuyor | kısmi: v0.52.0 kodu; ilk özet 31.10 |
 
 ## S5 KARAR DESTEĞİ (gerçek para yok) — açılamaz
