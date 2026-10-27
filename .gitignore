@@ -92,3 +92,7 @@ data/*_before_v0.28.csv
 
 # Per-user watchlists (contain Telegram chat ids)
 data/watchlist.json
+
+# test coverage data
+.coverage
+.coverage.*
