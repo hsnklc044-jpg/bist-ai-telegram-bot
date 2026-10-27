@@ -1,6 +1,6 @@
 # Rapordaki ve /durum'daki her satır: nereden geliyor, nasıl yanlış olabilir
 
-Durum: v0.45.3. "Koruma" sütunu, hatayı yakalayan ya da görünür kılan mekanizmayı ve testini gösterir.
+Durum: v0.45.11. "Koruma" sütunu, hatayı yakalayan ya da görünür kılan mekanizmayı ve testini gösterir.
 
 Fiyat türleri:
 - **Ham (raw):** Yahoo'nun işlem fiyatı, iptal edilen seans çıkarılmış hâli (`daily.raw_bars`). Değer ve kâr/zarar bununla hesaplanır, çünkü defterdeki adetler bu fiyatlara karşılık gelir.
@@ -22,7 +22,7 @@ Fiyat türleri:
 | Risk: 1 günlük kayıp (%95 tarihsel) | Düzeltilmiş getiriler, son 250 ortak seans | Bugünkü ağırlıklarla geçmiş günlük sonuçların %5'lik dilimi; hesabın payı ve TL | Geçmiş 250 seans geleceği temsil etmeyebilir. 60'tan az ortak seans varsa "hesaplanamadı" yazar. Yeni halka arz hisseler ortak dönemi kısaltır | `RiskByHandTest` (el hesabı), `test_portfolio_risk` |
 | Etkin pozisyon sayısı | Pozisyon değerleri | 1 / Σ(pay²); paylar nakit hariç, yatırılan tutara göre | Fiyatı olmayan pozisyon varsa hesaplanmaz | `test_effective_n_ignores_cash`, `RiskByHandTest.test_equal_holdings` |
 | En yüksek korelasyon | Son 60 ortak seansın düzeltilmiş getirileri | İkili Pearson korelasyonu | Kısa geçmişte gürültülüdür. Hiç oynamayan hissede tanımsızdır (gösterilmez) | `test_portfolio_risk` |
-| Risk uyarıları (🆕/⬆️/✅) | Düzeltilmiş mumlar ve `alerts_log.csv` | Kurallar ve eşikler `core/config/alerts.py`'de: stop (en yüksek kapanış − 2 ATR), taban kilidi, parabolik yükseliş, likidite, %25 yoğunlaşma, %15 zirveden düşüş, 5 günden eski veri | `/report` elle çalıştırılırsa yeni uyarı o anda kayda geçer ve 18:30 raporunda "🆕" olarak tekrar görünmez (D12). Eski veride uyarı da eskidir | "veri" uyarısı; `test_alerts` |
+| Risk uyarıları (🆕/⬆️/✅) | Düzeltilmiş mumlar ve `alerts_log.csv` | Kurallar ve eşikler `core/config/alerts.py`'de: stop (en yüksek kapanış − 2 ATR), taban kilidi, parabolik yükseliş, likidite, %25 yoğunlaşma, %15 zirveden düşüş, 5 günden eski veri | `/report` uyarıları gösterir ama kayda geçirmez; "🆕" işareti 18:30 raporunda yine görünür (v0.45.11). Eski veride uyarı da eskidir | "veri" uyarısı; `test_alerts` |
 | Sanal emirler "#id … X TL'den alındı (açılış + kayma, komisyon)" | `paper_orders.csv`, ham mumlar | Fiyat = açılış × (1 ± %0,05), komisyon = fiyat × adet × %0,1. 09:40'tan önce verilen emir aynı gün, sonra verilen ertesi seans dolar. Tavan veya taban kilidinde beklenir | Yahoo'nun "açılış" değeri gerçek açılış seansı fiyatından farklı olabilir. Dolduktan sonraki bir temettü geçmiş açılışı Yahoo'da değiştirir; deftere yazılan fiyat değişmez | `test_paper` (dolum zamanı, kilit, tek dolum, çift yazma koruması) |
 | Veri notları: Verisi olmayan / Güncel olmayan | Fiyat deposu | Mumu olmayan liste hisseleri; son mumu 5 takvim gününden eski olan liste hisseleri ve pozisyonlar | Uzun tatilde 5 gün eşiği kısa kalabilir | `HeldOutsideUniverseTest.test_stale_held_stock_is_named` |
 | Veri notları: "… okunamadı (satır N …)" | Bozuk `equity_log` ya da `alerts_log` | Dosyaya dokunulmaz, rapor devam eder | — | `test_corrupt_files.DailyReportTest` |

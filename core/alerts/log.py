@@ -46,10 +46,12 @@ def update_alert_log(
     data_date: date,
     path: Path | str | None = None,
     now: datetime | None = None,
+    write: bool = True,
 ) -> list[tuple[str, Alert | dict]]:
     """
     Compare today's alerts with the open ones and append the changes.
     Returns the events [(event, alert_or_row)] that should be reported.
+    write=False only reports them (/report by hand: the 18:30 report still shows them as new).
     """
 
     path = Path(path or ALERTS_LOG_FILE)
@@ -77,7 +79,7 @@ def update_alert_log(
             events.append(("close", row))
             rows.append([now, data_date.isoformat(), *key, "close", row["severity"], "", "", "koşul ortadan kalktı"])
 
-    if rows:
+    if rows and write:
         new_file = not path.exists()
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "a", encoding="utf-8", newline="") as fh:

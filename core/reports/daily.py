@@ -279,7 +279,15 @@ def symbols_to_update(paths: Paths | None = None, universe: list[str] | None = N
     return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered]))
 
 
-def build_daily(paths: Paths | None = None, universe: list[str] | None = None, today: date | None = None) -> DailyResult:
+def build_daily(
+    paths: Paths | None = None,
+    universe: list[str] | None = None,
+    today: date | None = None,
+    record_alerts: bool = True,
+) -> DailyResult:
+    """record_alerts=False (/report by hand): alert changes are shown but not written, so the
+    scheduled report still announces them."""
+
     paths = paths or Paths()
     universe = universe or load_universe()
 
@@ -359,7 +367,7 @@ def build_daily(paths: Paths | None = None, universe: list[str] | None = None, t
             alerts += evaluate_portfolio(account, risk, day)
         alerts += evaluate_account(account, growth)
 
-    events = guarded(lambda: update_alert_log(alerts, day, paths.alerts), [])
+    events = guarded(lambda: update_alert_log(alerts, day, paths.alerts, write=record_alerts), [])
     lines += ["", "⚠️ Risk uyarıları"]
     if not alerts and not events:
         lines.append("Uyarı yok.")

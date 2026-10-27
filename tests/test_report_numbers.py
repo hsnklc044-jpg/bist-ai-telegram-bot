@@ -251,3 +251,27 @@ class PortfolioCommandTest(unittest.TestCase):
         self.assertIn("son 12,00 →", text)  # AAA: current, no date
         self.assertIn("Hisse değeri 258 TL", report)  # 10 × 21 + 4 × 12, same prices in both
         self.assertIn("XYZ: 10 adet × 21,00", report)
+
+
+class ManualReportAlertsTest(unittest.TestCase):
+    """/report shows the same alerts as the 18:30 report but must not use up their "🆕" there."""
+
+    def test_new_alert_is_still_new_in_the_scheduled_report(self):
+        from unittest import mock
+
+        from bot import portfolio
+        from core.reports import daily
+
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            paths = Paths(d / "ledger.csv", d / "orders.csv", d / "alerts.csv", d / "equity.csv")
+            append_entry(Entry(date(2026, 6, 1), "real", "AAA", "buy", 10, 10.0, 0.0), paths.ledger)
+            provider = FakeProvider()
+            provider.overrides.update({"AAA.IS": flat(10.0, 10.0), BENCHMARK: flat(10_000.0, 10_000.0)})
+            with offline_market(provider), \
+                    mock.patch.object(daily, "Paths", lambda: paths), \
+                    mock.patch.object(daily, "load_universe", return_value=["AAA.IS"]):
+                manual = portfolio._daily_text()
+                scheduled = build_daily(paths, ["AAA.IS"]).text
+        self.assertIn("🆕 [orta] AAA: bu hissenin hesaptaki payı %100", manual)
+        self.assertIn("🆕 [orta] AAA: bu hissenin hesaptaki payı %100", scheduled)

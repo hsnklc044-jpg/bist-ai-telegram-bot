@@ -60,7 +60,7 @@ def _daily_text() -> str:
     try:
         with report_lock():
             store.update(symbols_to_update())
-            return build_daily().text
+            return build_daily(record_alerts=False).text  # the 18:30 report still shows them as new
     except ReportBusy as exc:
         return f"⏳ {exc} Birkaç dakika sonra tekrar deneyin."
 
