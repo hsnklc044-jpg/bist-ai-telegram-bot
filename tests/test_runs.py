@@ -59,6 +59,9 @@ class LockTest(unittest.TestCase):
         self.assertEqual((len(done), len(busy)), (1, 1))
 
 
+AFTER_REPORT = datetime(2026, 10, 26, 18, 35, tzinfo=ISTANBUL)  # the evening of the data day (DAY)
+
+
 class OncePerDataDayTest(unittest.TestCase):
     def _main(self, argv, sent):
         result = daily.DailyResult(DAY, f"rapor\n\n{daily.DISCLAIMER}")
@@ -66,7 +69,9 @@ class OncePerDataDayTest(unittest.TestCase):
                 mock.patch.object(daily, "_record_scores"), \
                 mock.patch.object(daily, "_with_backup_line", side_effect=lambda t: t), \
                 mock.patch.object(daily, "send_telegram", side_effect=lambda *a, **k: sent.append(a)), \
-                mock.patch("core.infrastructure.settings.require_bot_settings", return_value=CONFIG):
+                mock.patch("core.infrastructure.settings.require_bot_settings", return_value=CONFIG), \
+                mock.patch.object(daily, "now_istanbul", return_value=AFTER_REPORT):
+            # the clock is pinned: after 18:15 on the next session the real clock made DAY "stale" (failed every evening)
             return daily.main(["--no-update", *argv])
 
     def test_same_data_day_is_sent_once(self):

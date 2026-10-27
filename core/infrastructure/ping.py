@@ -81,4 +81,38 @@ def _record(name: str, ok: bool, fail: bool, state_path=None, now=None) -> None:
         logger.warning("Monitoring state not saved (%s)", type(exc).__name__)
 
 
-__all__ = ["BOT_ENV", "REPORT_ENV", "STATE_FILE", "address", "last_pings", "ping"]
+def main(argv: list[str] | None = None) -> int:
+    """Alarm drill (MATURITY S2): --drill marks "QuantBIST rapor" as failed so the alert must reach you;
+    --recover puts it back. The address is never printed."""
+
+    import argparse
+
+    from core.infrastructure.console import utf8_output
+
+    utf8_output()
+    parser = argparse.ArgumentParser(description="Healthchecks alarm drill")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--drill", action="store_true", help="send /fail to the report check (a real alarm)")
+    group.add_argument("--recover", action="store_true", help="send success to the report check")
+    args = parser.parse_args(argv)
+
+    url = address(REPORT_ENV)
+    if not url:
+        print("HC_REPORT_URL .env'de yok: önce izlemeyi kurun (OPERATIONS §7). Hiçbir şey gönderilmedi.")
+        return 1
+    if not ping(url, fail=args.drill, name=REPORT_ENV):
+        print("Servise ulaşılamadı; internet bağlantısını kontrol edip tekrar deneyin.")
+        return 1
+    if args.drill:
+        print('Gönderildi: "QuantBIST rapor" kontrolü şimdi DOWN. 1-2 dakika içinde Telegram/e-posta alarmı gelmeli.\n'
+              "Alarm geldiyse tatbikat başarılı. Kontrolü geri almak için: python -m core.infrastructure.ping --recover")
+    else:
+        print('Gönderildi: "QuantBIST rapor" kontrolü yeniden UP; "geri geldi" bildirimi de gelmeli.')
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+__all__ = ["BOT_ENV", "REPORT_ENV", "STATE_FILE", "address", "last_pings", "main", "ping"]

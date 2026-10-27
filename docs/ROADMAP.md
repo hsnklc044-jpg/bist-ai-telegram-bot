@@ -33,9 +33,9 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 
 Saat dilimi, sessiz hata yutma, belge-kod uyumu: bugün eklenen kod (slo, health, daily, runs, ping, crosscheck, quality) tarandı; başka bulgu yok.
 
-## Kaldığım yer (27.10.2026, kod v0.55.3)
+## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.55.3 (öz-denetim; BIST 100 dönem tarihi hatası düzeltildi).
+- **Son sürüm:** v0.56.0 (izleme alarm tatbikatı aracı; felaket kurtarma tatbikatı iş akışı; MATURITY S1 kapandı).
 - **PC doğrulaması (27.10 09:09, v0.46.0):** 448 test geçti (Windows'ta 2 test atlandı), ruff temiz, paketler kilit dosyasıyla aynı. `/durum`'daki 12 kontrolün hepsi SAĞLIKLI; geri yükleme testi başarılı.
 - **Bulunan sorunlar:**
   - `verify.ps1` sonda emoji yazdırırken çöküyordu (v0.46.1'de düzeltildi).

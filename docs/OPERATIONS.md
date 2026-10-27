@@ -128,6 +128,12 @@ Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kim
    ```
 6. Botu yeniden başlat. 5 dakika içinde "QuantBIST bot" kontrolü yeşile döner; ilk 18:30 raporundan sonra "QuantBIST rapor" da yeşile döner.
 
+**Alarm tatbikatı (adresler girildikten sonra bir kez; MATURITY S2):**
+1. `.venv\Scripts\python -m core.infrastructure.ping --drill` → "QuantBIST rapor" kontrolü DOWN olur.
+2. 1–2 dakika içinde Telegram/e-posta alarmı gelmeli. Gelmezse Healthchecks'te Integrations ayarını kontrol et.
+3. `.venv\Scripts\python -m core.infrastructure.ping --recover` → kontrol UP olur, "geri geldi" bildirimi gelir.
+4. Sonucu (alarm geldi mi, kaç dakikada) bana yazın ya da yerel nöbetçi `gozlemler.md`'ye yazsın; MATURITY S2'de kanıt olarak işlenir. Yanlış alarm testi: normal bir hafta boyunca hiç alarm gelmemesi.
+
 **/durum satırı ("Dışarıdan izleme"):**
 - ℹ️ BİLGİ "kurulmadı": adresler yok; genel durumu değiştirmez, uyarı göndermez.
 - ✅ "açık; bot sinyali SS:DD, rapor sinyali GG.AA SS:DD": iki adres var, son sinyaller ulaştı.

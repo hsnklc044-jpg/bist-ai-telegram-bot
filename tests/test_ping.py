@@ -186,3 +186,35 @@ class MonitoringStatusTest(unittest.TestCase):
         from bot import scheduler
 
         self.assertEqual(scheduler.due_alerts(checks, self.now, self.state.with_name("alerts.json")), [])
+
+
+class AlarmDrillTest(unittest.TestCase):
+    """MATURITY S2: a deliberate alarm proves the alert reaches the user; then the check is put back."""
+
+    def run_drill(self, env, argv):
+        import contextlib
+        import io
+
+        calls, out = [], io.StringIO()
+        get = mock.Mock(side_effect=lambda url, timeout=None: calls.append(url) or SimpleNamespace(status_code=200))
+        with mock.patch.dict("os.environ", env), mock.patch.object(ping, "_http_get", get), \
+                contextlib.redirect_stdout(out):
+            code = ping.main(argv)
+        return code, calls, out.getvalue()
+
+    def test_drill_sends_a_fail_and_says_what_to_expect(self):
+        code, calls, text = self.run_drill({ping.REPORT_ENV: URL, ping.BOT_ENV: URL}, ["--drill"])
+        self.assertEqual(code, 0)
+        self.assertEqual(calls, [URL + "/fail"])
+        self.assertIn("QuantBIST rapor", text)
+        self.assertIn("--recover", text)
+        self.assertNotIn("1234abcd", text)  # the address is never printed
+
+    def test_recover_sends_success(self):
+        code, calls, _ = self.run_drill({ping.REPORT_ENV: URL, ping.BOT_ENV: URL}, ["--recover"])
+        self.assertEqual((code, calls), (0, [URL]))
+
+    def test_without_addresses_nothing_is_sent(self):
+        code, calls, text = self.run_drill({ping.REPORT_ENV: "", ping.BOT_ENV: ""}, ["--drill"])
+        self.assertEqual((code, calls), (1, []))
+        self.assertIn("OPERATIONS §7", text)

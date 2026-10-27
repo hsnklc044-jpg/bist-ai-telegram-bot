@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.56.0 – 27.10.2026
+- İzleme alarm tatbikatı: `python -m core.infrastructure.ping --drill` bilerek bir alarm üretir, `--recover` geri alır; adres hiçbir yerde yazılmaz (OPERATIONS §7). Windows'ta aylık felaket kurtarma tatbikatı iş akışı (dr-drill.yml). Olgunluk merdiveni (docs/MATURITY.md): S1 kapandı.
+
 ## v0.55.3 – 27.10.2026
 - Öz-denetim (ROADMAP). Bakım takvimi BIST 100 dönemlerini çeyreğin ilk işlem gününden de tanıyor; aksi halde Ocak 2027'de kalıcı yanlış uyarı verecekti.
 

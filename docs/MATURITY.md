@@ -19,7 +19,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 | Çıkış kanıtı | Durum | Kanıt / eksik |
 |---|---|---|
 | SLO'lar art arda 4 hafta hedefte | ⏳ zaman | Ölçüm 27.10'da başladı (v0.51.0, K-15). En erken 24.11 haftası. Haftalık tablolar `docs/PERIODS/`'e yazılır |
-| Dışarıdan izleme aktif ve yanlış/gerçek alarm testiyle doğrulanmış | ⏳ kullanıcı + 🔧 | Kod v0.46.0/v0.49.1. Eksik: adresler (.env, BENİM ADIMLARIM) ve bir alarm tatbikatı (araç hazırlanacak) |
+| Dışarıdan izleme aktif ve yanlış/gerçek alarm testiyle doğrulanmış | ⏳ kullanıcı + 🔧 | Kod v0.46.0/v0.49.1. Araç hazır (v0.56.0, `python -m core.infrastructure.ping --drill/--recover`, `test_ping.AlarmDrillTest`). Eksik: adresler (.env, BENİM ADIMLARIM), tatbikatın PC'de yapılması ve bir hafta yanlış alarm olmaması |
 | Açılış / uyku / ağ kesintisi senaryoları testli | ✅ | `test_bot.StartupNetworkTest` (gerçek PTB döngüsü), `test_scheduler.SleepWakeTest`, `test_daily.LateInternetTest`, `test_corrupt_files.LockedFileTest`, `test_corrupt_files.CutLastLineTest`, `test_runs` (saat değişimi) |
 | İzole kopyada felaket kurtarma tatbikatı (sıfır makinede yedekten tam kurulum) başarılı | 🔧 | `dr-drill.yml`: GitHub'ın temiz Windows makinesinde DISASTER_RECOVERY adımları; ilk çalışma bekleniyor |
 | Son öz-denetimde kritik/yüksek bulgu yok | ❌ | 27.10 öz-denetimi: 2 YÜKSEK (düzeltildi). Sonraki öz-denetim (10 sürüm sonra) temiz çıkmalı |
