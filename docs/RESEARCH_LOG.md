@@ -288,3 +288,22 @@ Research çalışması 40464071625 (kod v0.47.0, `runs/2026-10-27_09-56/phase3.t
 **Karar:** H1 reddedildi. Plan gereği kural ayarlanmaz (pencere, hisse sayısı, yeniden dengeleme sıklığı denenmez); canlı ölçüme alınmaz. Kod ve haftalık kayıt, yalnızca sonraki çalışmalarda sonucun değişip değişmediğini görmek için kalır.
 
 **Aşama 3'ün durumu:** H1 red; H2 ve H3 nakit verisi olmadığı için test edilmedi. Önceden onaylanmış başka hipotez yok. H2/H3 için başka bir nakit kaynağı (örneğin TCMB politika faizi) ancak kullanıcı onayıyla, plan değişikliği olarak eklenebilir. Bu seçenek H1 sonucu görülmeden önce yazılmıştı; H1'in reddi onu güçlendirmez de zayıflatmaz da.
+
+### Plan değişikliği 1 – H2 ve H3 için nakit: TCMB politika faizi (kullanıcı onayı 27.10.2026)
+
+Bu bölüm, faiz verisi indirilmeden ve H2/H3'ün hiçbir sonucu görülmeden yazıldı. Hipotezler, dönem, maliyet, Bonferroni düzeyi (3 hipotez) ve kapılar değişmez. Değişen tek şey nakdin kaynağı; ek olarak kabulü **zorlaştıran** bir koşul eklenir.
+
+- **Nakit getirisi:** TCMB politika faizi (bir hafta vadeli repo ihale faizi), `data/cash/policy_rate.csv`. Her satır bir PPK kararı ve kaynağı (TCMB basın duyurusu).
+  - Yürürlük tarihi: kararın açıklandığı günden sonraki iş günü.
+  - Yalnız açıklanan politika faizi kullanılır. Fonlamanın geçici olarak başka bir faizden yapıldığı dönemler (ör. Mart–Nisan 2025) ayrıca modellenmez; bu durum veri dosyasına not düşülür.
+- **Net getiri:** brüt faiz × (1 − stopaj). Stopaj tablosu `data/cash/withholding.csv` (değişmedi). Faiz basit yıllık, takvim günü üzerinden işler (`core/backtest/cash.py`, RateSeries).
+- **Neden üst sınır sayılır:** bireysel yatırımcı politika faizini birebir alamaz; bir para piyasası fonu bu faizin biraz altında, ücretler düşülmüş olarak kazanır. Bu yüzden nakit getirisi H2/H3 lehine fazla gösterilebilir.
+- **Ek koşul (yalnız kabulü zorlaştırır):** H2 veya H3, birincil ölçüt ve üç kapıyı **politika faizi − 3 puan** ile de geçmelidir; ikisinden birinde kalırsa red.
+- **Bilgi amaçlı (karara girmez):** %0 nakitle sonuç da yazılır.
+- **Uygulama ayrıntıları (şimdiden sabit):**
+  - Kurallar XU100 endeksini aynı maliyetle (her yönde %0,10 + %0,05) alıp satar. Gerçekte bu bir endeks fonu ya da vadeli işlemle yapılır; takip farkı yok sayılır.
+  - Emirler, her kuralda olduğu gibi, sinyal gününün ertesi seansının açılışında gerçekleşir.
+  - **H2:** ayın son seansının kapanışında XU100 > son 200 seans kapanış ortalaması ise endeks tutulur; ertesi ayın ilk seansının açılışında işlem yapılır.
+  - **H3:** ayın sondan 4. seansının kapanışında giriş sinyali verilir (alım sondan 3. seansın açılışında). Ertesi ayın 3. seansının kapanışında çıkış sinyali verilir (satış 4. seansın açılışında). Seans günleri borsa tatil takviminden (`data/bist_holidays.csv`) alınır; bu takvim önceden yayımlanır, ileriye bakma sayılmaz.
+  - **Kapı 2 (H2/H3):** takvim yılları 2023 (01.08'den), 2024, 2025, 2026 (son kapanışa kadar); en az 3'ünde XU100'ün üstünde.
+- **Sonuç:** ne çıkarsa çıksın bu bölümün altına olduğu gibi yazılır. Kural ve faiz ayarı yapılmaz.
