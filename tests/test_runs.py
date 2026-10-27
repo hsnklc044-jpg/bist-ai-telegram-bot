@@ -62,7 +62,8 @@ class LockTest(unittest.TestCase):
 class OncePerDataDayTest(unittest.TestCase):
     def _main(self, argv, sent):
         result = daily.DailyResult(DAY, f"rapor\n\n{daily.DISCLAIMER}")
-        with mock.patch.object(daily, "build_daily", return_value=result), \
+        with mock.patch.object(daily, "now_istanbul", return_value=datetime(2026, 10, 26, 18, 30, tzinfo=ISTANBUL)), \
+                mock.patch.object(daily, "build_daily", return_value=result), \
                 mock.patch.object(daily, "_record_scores"), \
                 mock.patch.object(daily, "_with_backup_line", side_effect=lambda t: t), \
                 mock.patch.object(daily, "send_telegram", side_effect=lambda *a, **k: sent.append(a)), \

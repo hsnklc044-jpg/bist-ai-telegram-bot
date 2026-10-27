@@ -29,8 +29,17 @@ $version = & $python --version
 $release = & $python -c "import core; print(core.__version__)"
 # releases are delivered as zips without git history; a commit shown here comes
 # from a local git folder and may not match the files
-$commit = (git rev-parse --short HEAD 2>$null)
-if (-not $commit) { $commit = "(no git)" }
+$commit = "(no git)"
+if (Test-Path (Join-Path $root ".git")) {
+    try {
+        $candidate = & git -C $root rev-parse --short HEAD 2>$null
+        if ($LASTEXITCODE -eq 0 -and $candidate) {
+            $commit = [string]$candidate
+        }
+    } catch {
+        $commit = "(no git)"
+    }
+}
 
 $frozen = & $python -m pip freeze
 $locked = Get-Content requirements.lock | Where-Object { $_ -and -not $_.StartsWith("#") }
