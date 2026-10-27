@@ -5,9 +5,6 @@ Watchlist Intelligence Service
 
 from __future__ import annotations
 
-from core.analytics.analyzer import (
-    analyze_stock,
-)
 from core.infrastructure.logger import (
     get_logger,
 )
@@ -19,7 +16,6 @@ from core.watchlist.repository import (
 )
 
 logger = get_logger(__name__)
-
 
 
 # =====================================================
@@ -84,9 +80,6 @@ def remove_symbol(
     return True
 
 
-
-
-
 # =====================================================
 # WATCHLIST SYMBOLS
 # =====================================================
@@ -113,7 +106,6 @@ def get_watchlist(
             return []
 
 
-
         return data.get(
 
             str(user_id),
@@ -138,196 +130,9 @@ def get_watchlist(
         return []
 
 
-
-
-
 # =====================================================
 # WATCHLIST ANALYSIS
 # =====================================================
-
-
-def get_watchlist_details(
-    user_id: str | int | None = None,
-) -> list[dict]:
-    """
-    Analyze watchlist symbols.
-
-    Returns RC5 dashboard ready data.
-    """
-
-
-    symbols = get_watchlist(
-        user_id,
-    )
-
-
-    results: list[dict] = []
-
-
-
-    for symbol in symbols:
-
-
-        try:
-
-
-            analysis = analyze_stock(
-                symbol,
-            )
-
-
-            if not analysis:
-
-                continue
-
-
-
-            results.append(
-
-                {
-
-
-                    "symbol":
-
-                        analysis.get(
-                            "symbol",
-                            symbol,
-                        ),
-
-
-
-                    "price":
-
-                        analysis.get(
-                            "price",
-                            0,
-                        ),
-
-
-
-                    "signal":
-
-                        analysis.get(
-                            "signal",
-                            "WATCH",
-                        ),
-
-
-
-                    "score":
-
-                        analysis.get(
-                            "score",
-                            0,
-                        ),
-
-
-
-                    "confidence":
-
-                        analysis.get(
-                            "confidence",
-                            0,
-                        ),
-
-
-
-                    "trend":
-
-                        analysis.get(
-                            "trend",
-                            "NEUTRAL",
-                        ),
-
-
-
-                    "momentum":
-
-                        analysis.get(
-                            "momentum",
-                            "NEUTRAL",
-                        ),
-
-
-
-                    "risk_level":
-
-                        analysis.get(
-                            "risk_level",
-                            "LOW",
-                        ),
-
-
-
-                    "entry_price":
-
-                        analysis.get(
-                            "entry_price",
-                            0,
-                        ),
-
-
-
-                    "stop_loss":
-
-                        analysis.get(
-                            "stop_loss",
-                            0,
-                        ),
-
-
-
-                    "target_1":
-
-                        analysis.get(
-                            "target_1",
-                            0,
-                        ),
-
-
-                }
-
-            )
-
-
-
-        except Exception as exc:
-
-
-            logger.warning(
-
-                "Watchlist analysis failed | %s | %s",
-
-                symbol,
-
-                exc,
-
-            )
-
-
-            continue
-
-
-
-    results.sort(
-
-        key=lambda item:
-
-        item.get(
-            "score",
-            0,
-        ),
-
-        reverse=True,
-
-    )
-
-
-
-    return results
-
-
-
 
 
 # =====================================================
@@ -345,6 +150,5 @@ __all__ = [
 
     "get_watchlist",
 
-    "get_watchlist_details",
 
 ]

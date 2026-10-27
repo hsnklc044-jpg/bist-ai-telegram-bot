@@ -106,75 +106,10 @@ def preload(symbols: list[str]) -> dict[str, str]:
     return status
 
 
-def load_last_price(symbol: str) -> float:
-    df = load_price_history(symbol, period="5d")
-
-    return round(float(df["close"].iloc[-1]), 2)
-
-
-def get_data_quality(df: pd.DataFrame) -> dict:
-    candles = len(df)
-
-    if candles >= 200:
-        reliability = 100
-    elif candles >= 100:
-        reliability = 85
-    elif candles >= 50:
-        reliability = 70
-    else:
-        reliability = 50
-
-    return {
-        "candles": candles,
-        "reliability": reliability,
-        "ema200_available": candles >= 200,
-        "last_candle": df.index[-1].date() if candles else None,
-        "updated": datetime.now(),
-    }
-
-
-def load_snapshot(symbol: str) -> dict:
-    df = load_price_history(symbol)
-
-    if len(df) < 2:
-        raise MarketError(f"Insufficient data: {symbol}")
-
-    close = float(df["close"].iloc[-1])
-    previous = float(df["close"].iloc[-2])
-    change = round((close - previous) / previous * 100, 2) if previous else 0.0
-
-    return {
-        "symbol": symbol,
-        "price": round(close, 2),
-        "change": change,
-        "volume": float(df["volume"].iloc[-1]),
-        "quality": get_data_quality(df),
-        "updated": datetime.now(),
-    }
-
-
-def load_market(symbols: list[str]) -> dict[str, pd.DataFrame]:
-    preload(symbols)
-
-    result = {}
-
-    for symbol in symbols:
-        try:
-            result[symbol] = load_price_history(symbol)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Skipping %s | %s", symbol, exc)
-
-    return result
-
-
 __all__ = [
     "DEFAULT_PERIOD",
     "PERIOD_DAYS",
     "clear_cache",
     "load_price_history",
     "preload",
-    "load_last_price",
-    "load_snapshot",
-    "load_market",
-    "get_data_quality",
 ]

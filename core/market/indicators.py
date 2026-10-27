@@ -173,18 +173,6 @@ def generate_indicator_snapshot(
         raise MarketError(str(exc)) from exc
 
 
-def is_bullish(snapshot: IndicatorSnapshot) -> bool:
-    return snapshot.trend is MarketTrend.BULLISH
-
-
-def is_bearish(snapshot: IndicatorSnapshot) -> bool:
-    return snapshot.trend is MarketTrend.BEARISH
-
-
-def is_neutral(snapshot: IndicatorSnapshot) -> bool:
-    return snapshot.trend is MarketTrend.NEUTRAL
-
-
 def above_long_term(snapshot: IndicatorSnapshot) -> bool | None:
     """Price above EMA200; None when EMA200 is unavailable."""
 
@@ -194,54 +182,8 @@ def above_long_term(snapshot: IndicatorSnapshot) -> bool | None:
     return snapshot.price > snapshot.ema200
 
 
-def strong_buy_signal(snapshot: IndicatorSnapshot) -> bool:
-    return (
-        snapshot.trend is MarketTrend.BULLISH
-        and snapshot.rsi < 70
-        and snapshot.macd > snapshot.macd_signal
-    )
-
-
-def strong_sell_signal(snapshot: IndicatorSnapshot) -> bool:
-    return (
-        snapshot.trend is MarketTrend.BEARISH
-        and snapshot.rsi > 30
-        and snapshot.macd < snapshot.macd_signal
-    )
-
-
-def indicator_score(snapshot: IndicatorSnapshot) -> float:
-    score = 50.0
-
-    if snapshot.trend is MarketTrend.BULLISH:
-        score += 20
-    elif snapshot.trend is MarketTrend.BEARISH:
-        score -= 20
-
-    if snapshot.rsi < 30:
-        score += 10
-    elif snapshot.rsi > 70:
-        score -= 10
-
-    score += 10 if snapshot.macd > snapshot.macd_signal else -10
-
-    long_term = above_long_term(snapshot)
-    if long_term is True:
-        score += 10
-    elif long_term is False:
-        score -= 10
-
-    return round(max(0.0, min(100.0, score)), 2)
-
-
 __all__ = [
     "MIN_HISTORY_LENGTH",
     "generate_indicator_snapshot",
-    "indicator_score",
     "above_long_term",
-    "is_bullish",
-    "is_bearish",
-    "is_neutral",
-    "strong_buy_signal",
-    "strong_sell_signal",
 ]
