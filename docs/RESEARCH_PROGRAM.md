@@ -12,7 +12,7 @@ MATURITY S4 ("deneme bütçesi, holdout ve ön kayıtla en az bir tam döngü").
 
 ## 2. Bir döngü
 
-1. **Ön kayıt** (testten önce, git commit'iyle zaman damgalı; yeni hipotez kullanıcı onayıyla): hipotez, kural, sabit parametreler, evren, maliyet (komisyon %0,10 + kayma %0,05 her yön), nakit varsayımı ve kaynağı, birincil ölçüt, sağlamlık kapıları, holdout karar tarihi. Ön kayıt RESEARCH_LOG'a yazılır; sonra değiştirilmez.
+1. **Ön kayıt** (testten önce, git commit'iyle zaman damgalı; yeni hipotez onayı 28.10.2026'dan beri Claude'da, K-28): hipotez, kural, sabit parametreler, evren, maliyet (komisyon %0,10 + kayma %0,05 her yön), nakit varsayımı ve kaynağı, birincil ölçüt, sağlamlık kapıları, holdout karar tarihi. Ön kayıt RESEARCH_LOG'a yazılır; sonra değiştirilmez.
 2. **Tarama** (2023-08-01 – 30.10.2026, geçmiş BIST 100 üyeliği): Aşama 3'teki birincil ölçüt (XU100'e göre fazla getirinin blok bootstrap GA'sı, döngüdeki hipotez sayısına Bonferroni) ve üç kapı. Geçemeyen reddedilir, ayarlanmaz.
 3. **Holdout kararı** (yalnız taramayı geçenler; en az **250 seans** ileri veri, yani en erken Kasım 2027): aynı kural, aynı parametre, aynı ölçüt; tek yönlü test, Bonferroni yalnız holdout'a giren hipotez sayısına. Bu arada kural canlı ölçümde ve sanal hesapta izlenebilir (gerçek para yok).
 4. **Kayıt**: sonuç ne olursa olsun RESEARCH_LOG'a olduğu gibi; "Reddedilen fikir türleri" tablosu güncellenir.
@@ -29,7 +29,7 @@ MATURITY S4 ("deneme bütçesi, holdout ve ön kayıtla en az bir tam döngü").
 | a1 (ana tablo) | 26.10.2026 | 6 kural | ön kayıtsız, bütçe öncesi | hepsi red |
 | a2 (aday kurallar) | 26.10.2026 | 4 kural | ön kayıtsız, bütçe öncesi | hepsi red |
 | a3 (Aşama 3) | 27.10.2026 | H1–H3 | 3/3, ön kayıtlı | hepsi taramada red; holdout'a giren yok |
-| a4 | en erken 27.04.2027 | — | 0/3 | açık değil; yeni plan + kullanıcı onayı gerekir |
+| a4 | ön kayıt 28.10.2026; tarama en erken 27.04.2027 | H4 eşit ağırlık, H5 düşük işlem hacmi | 2/3 | ön kayıtlı ([RESEARCH_LOG](RESEARCH_LOG.md) "a4 ön kaydı"); onay Claude'da (K-28) |
 
 ## 4. S4 için "tam döngü" ne zaman sayılır
 

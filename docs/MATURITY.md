@@ -39,7 +39,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 |---|---|
 | Canlı ölçüm ilk kararını vermiş (önceden belirlenmiş ölçüt) | ⏳ Kasım sonu |
 | Backtest–canlı sapması nedenleriyle raporlanmış | kısmi: `/performans` ölçüm olgunlaşınca her görünüm için "geçmişle uyumlu" ya da "⚠️ geçmişten anlamlı sapma" yazar (geçmiş değer canlı %95 aralığın dışındaysa; v0.60.0, `test_forward.LiveVersusBacktestTest`). Nedenlerin yazılması ilk olgun sonuçla (Kasım sonu) |
-| Araştırma programı: deneme bütçesi + holdout + ön kayıtla bir tam döngü | kısmi: program yazıldı ([RESEARCH_PROGRAM](RESEARCH_PROGRAM.md), K-22: holdout 02.11.2026'dan ileri veri, döngüde 3 hipotez, 6 ayda bir). Aşama 3 (a3) ön kayıtlı ama holdout kuralından önce → kısmi. İlk tam döngü a4, en erken Nisan 2027, kullanıcı onayıyla. Holdout kodla korunuyor (v0.59.0, `test_holdout`) |
+| Araştırma programı: deneme bütçesi + holdout + ön kayıtla bir tam döngü | kısmi: program yazıldı ([RESEARCH_PROGRAM](RESEARCH_PROGRAM.md), K-22: holdout 02.11.2026'dan ileri veri, döngüde 3 hipotez, 6 ayda bir). Aşama 3 (a3) ön kayıtlı ama holdout kuralından önce → kısmi. İlk tam döngü a4: **ön kayıt 28.10.2026** (H4 eşit ağırlık, H5 düşük işlem hacmi; RESEARCH_LOG "a4 ön kaydı", K-28), tarama en erken 27.04.2027. Holdout kodla korunuyor (v0.59.0, `test_holdout`) |
 | Reddedilen fikir türleri özetlenmiş | ✅ 27.10: RESEARCH_LOG "Reddedilen fikir türleri — özet" (6 tür, 13 kural, ortak sınır) |
 | Veri iki kaynakla doğrulanmış ve fark SLO'su tutuyor | kısmi: v0.52.0 kodu; ilk özet 31.10 |
 

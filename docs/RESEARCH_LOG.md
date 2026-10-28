@@ -348,3 +348,44 @@ Research çalışması 40488966701 (kod v0.48.0, `runs/2026-10-27_13-30/phase3.t
 **Karar:** H2 ve H3 reddedildi. Plan gereği kurallar ve faiz varsayımı ayarlanmaz, canlı ölçüme alınmaz. Haftalık araştırma bu üç hipotezi her hafta aynı biçimde yeniden hesaplar; sonuç değişirse yalnızca buraya not edilir, kendiliğinden kabul edilmez.
 
 **Aşama 3 kapandı:** önceden kaydedilen üç hipotezin üçü de birincil ölçütü geçemedi. Bu veriyle (yaklaşık 3,2 yıl) XU100'den istatistiksel olarak ayrılan bir kural bulunamadı. Yeni hipotez, ancak yeni bir planla ve kullanıcı onayıyla denenir.
+
+---
+
+## a4 ön kaydı — ONAYLANDI (Claude, kullanıcının devriyle, 28.10.2026; değiştirilmez)
+
+Bu bölüm, **iki kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve bu commit'le zaman damgalandı. Kullanıcı 28.10.2026'da hipotez onayını Claude'a bıraktı (DECISIONS K-28). Onaydan sonra hipotezler, parametreler, maliyet, ölçüt ve kapılar değiştirilmez; sonuç ne olursa olsun bu bölümün altına yazılır.
+
+### Seçim gerekçesi
+
+- "Reddedilen fikir türleri" tablosundaki türlerin (teknik sinyal, tek hissede trend/kırılım, geçmiş getiriye göre sıralama/momentum, düşük oynaklık, endeks ve takvim zamanlaması, veri düzeltmesi) hiçbir varyantı alınmadı. Geçmiş getiriye dayalı her sıralama (kısa vadeli dönüş, 52 hafta zirvesi, MAX etkisi gibi) bu ailenin türevi sayıldı ve dışarıda bırakıldı.
+- Temel analiz verisi (F/K, PD/DD) ve temettü geçmişi sistemde yok. Bunlar veri olmadan ön kayda yazılmaz.
+- **Bedelsiz sermaye artırımı etkisi** değerlendirildi ve alınmadı. `corporate_actions.csv`'de yalnız 16 satır var ve tarihler gerçek hak kullanım günü değil, Yahoo'daki sıçrama günü. Eksik ve kaydırılmış olay listesiyle olay çalışması yanıltıcı olurdu.
+- Bütçe 3 hipotez; **2 hipotez** kullanılıyor. Az hipotez Bonferroni cezasını küçültür. Üçüncü hak bu döngüde kullanılmaz ve devredilmez.
+
+### Hipotezler (parametreler sabit, ayar yapılmayacak)
+
+| # | Hipotez | Kural | Neden aday |
+|---|---|---|---|
+| H4 | Eşit ağırlık | Her ayın ilk seansında, o gün BIST 100 üyesi olup fiyatı olan bütün hisseler eşit ağırlıkla alınır ve bir ay tutulur | XU100 piyasa değeri ağırlıklı; eşit ağırlık küçük üyelere daha çok pay verir. Sinyal ya da sıralama yok, parametre yok |
+| H5 | Düşük işlem hacmi (likidite primi) | Her ayın ilk seansında, o gün BIST 100 üyesi olan hisselerden son 60 seansın günlük TL hacminin (kapanış × adet) medyanı en düşük 10 hisse eşit ağırlıkla alınır ve bir ay tutulur | Az işlem gören hissenin taşıma maliyetine prim ödendiği fikri (Amihud). Geçmiş getiriye ya da oynaklığa dayanmıyor |
+
+### Test kuralları
+
+- **Tarama dönemi ve evren:** 2023-08-01 – 30.10.2026 (`SCREEN_END`; holdout kodla kapalı), geçmiş BIST 100 üyeliği, Aşama 3 ile aynı fiyat temeli ve düzeltmeler (kapanış düzeltmeleri kapalı). İşlem ertesi seansın açılışında; Aşama 3 motoru (`core/backtest/phase3.py`) aynen.
+- **Maliyet:** her yönde komisyon %0,10 + kayma %0,05.
+- **Birincil ölçüt:** XU100'e göre günlük fazla getirinin blok bootstrap güven aralığı (21 seanslık bloklar) tamamen sıfırın üstünde. Bonferroni 2 hipotez için: **%97,5 GA**. a1–a3 ayrı aileler.
+- **Sağlamlık kapıları:** hepsi geçilmeli.
+  1. İki başlangıç tarihinde de (2023-08-01 ve 2024-01-02) XU100'ü geçmeli.
+  2. Sonuç en kârlı 5 hisse çıkarılınca da XU100'ü geçmeli.
+  3. MaxDD XU100'ünkinden kötü olmamalı.
+  4. **Yalnız H5:** maliyet iki katına çıkınca (komisyon %0,20 + kayma %0,10 her yön) birincil ölçüt yine tutmalı. Az işlem gören hissede kayma büyüktür; bu kapı prim sanılanın aslında ödenemeyen maliyet olup olmadığını sınar.
+- **Zaman:** Bütçe kuralı (6 ayda bir döngü, a3 27.10.2026) gereği tarama **27.04.2027'den önce çalıştırılmaz**. Kod bunu tarih kapısıyla zorlar; kapı açılmadan sonuç hesaplanmaz.
+- **Holdout kararı:** Taramayı geçen kural, 02.11.2026'dan itibaren en az 250 seanslık ileri veriyle (en erken Kasım 2027) aynı kural, parametre ve ölçütle karara bağlanır. Tek yönlü test, Bonferroni holdout'a giren kural sayısına göre.
+- **Kabul edilirse:** Kural yalnız canlı ölçüme ve sanal hesaba alınır. Gerçek para ya da emir yok, al/sat önerisi yok.
+- **Kabul edilmezse:** Sonuç buraya yazılır, tür "Reddedilen fikir türleri" tablosuna eklenir, kural ayarlanıp yeniden denenmez.
+
+### Uygulama sırası
+
+1. H4 ve H5 kuralları ile tarih kapısı yazılır. Her kural için ileriye bakmama testi, el hesabıyla küçük bir örnek testi ve kapının testi eklenir. Bunlar yalnız yapay veriyle yapılır, gerçek veride sonuç hesaplanmaz.
+2. 27.04.2027'den sonraki ilk haftalık araştırma çalışması taramayı yapar. `history.csv`'ye `a4` ailesi olarak yazılır.
+3. İlk sonuç buraya olduğu gibi yazılır.
