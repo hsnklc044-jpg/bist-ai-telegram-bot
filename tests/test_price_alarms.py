@@ -79,6 +79,25 @@ class CommandTextTest(unittest.TestCase):
         self.assertIn("Kullanım", self.run_words("THYAO", "altında", "dün"))
 
 
+    def test_percent_from_the_last_close(self):
+        closes = {"THYAO.IS": 250.0}
+
+        def last(symbol):
+            return closes.get(symbol)
+
+        text = levels.command(["THYAO", "altında", "%5"], path=self.path, now=NOW, last_close=last)
+        self.assertIn("237,50", text)  # 250 x 0.95
+        self.assertIn("son kapanış 250,00'ın %5 altı", text)
+        text = levels.command(["THYAO", "üstünde", "%10"], path=self.path, now=NOW, last_close=last)
+        self.assertIn("275,00", text)
+        self.assertEqual([a.level for a in levels.active(self.path)], [237.5, 275.0])
+        self.assertIn("kapanışı yok", levels.command(["EREGL", "altında", "%5"], path=self.path, now=NOW,
+                                                      last_close=last))
+        for bad in ("%0", "%100", "%-5", "%abc"):
+            with self.subTest(bad=bad):
+                self.assertIn("Kullanım", levels.command(["THYAO", "altında", bad], path=self.path, now=NOW,
+                                                         last_close=last))
+
     def test_damaged_file_gives_an_answer_not_a_crash(self):
         """Öz-tarama v0.66: a damaged alarm file made /alarm raise instead of answering."""
         self.path.write_text("", encoding="utf-8")
@@ -110,6 +129,10 @@ class DailyReportTest(unittest.TestCase):
         daily._mark_alarms(hits)
         self.assertEqual(levels.active(), [])
         self.assertEqual(daily._alarm_hits(DAY), ([], None))
+
+    def test_percent_uses_the_as_traded_close_by_default(self):
+        self.assertEqual(levels._last_close("THYAO.IS"), 238.0)
+        self.assertIn("226,10", levels.command(["THYAO", "altında", "%5"], now=NOW))
 
     def test_alarm_stocks_are_updated(self):
         from core.reports import daily

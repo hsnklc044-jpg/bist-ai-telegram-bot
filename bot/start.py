@@ -33,7 +33,7 @@ Portföy ve risk:
 /rapor_tekrar – kayıtlı son raporu yeniden gönder (/rapor_tekrar 27.10)
 /stres – pozisyonlar XU100'ün en kötü geçmiş düşüşlerinde ne kaybederdi (/stres sanal)
 /yil – yıllık döküm: satış sonuçları, temettü, komisyon (/yil 2026 sanal)
-/alarm THYAO altında 240 – kapanış alarmı (akşam raporunda bir kez); /alarm liste, /alarm sil 1
+/alarm THYAO altında 240 – kapanış alarmı (akşam raporunda bir kez); %5 de olur (son kapanışa göre); /alarm liste, /alarm sil 1
 /help – bu mesaj
 
 ℹ️ Teknik skorun backtest'te getiri tahmin gücü bulunmadı;

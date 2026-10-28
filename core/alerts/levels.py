@@ -30,7 +30,8 @@ DIRECTION_WORDS = {
     "altında": "below", "altinda": "below", "altı": "below", "alti": "below", "<": "below",
     "üstünde": "above", "ustunde": "above", "üstü": "above", "ustu": "above", ">": "above",
 }
-USAGE = ("Kullanım: /alarm THYAO altında 240 · /alarm THYAO üstünde 300 · /alarm (liste) · /alarm sil 3\n"
+USAGE = ("Kullanım: /alarm THYAO altında 240 · /alarm THYAO üstünde 300 · /alarm THYAO altında %5 "
+         "(son kapanışa göre) · /alarm (liste) · /alarm sil 3\n"
          "Alarm yalnız akşam kapanışında kontrol edilir; gün içi fiyat izlenmez.")
 
 
@@ -149,7 +150,35 @@ def _number(text: str) -> float:
     return float(text.strip().replace(".", "").replace(",", ".") if "," in text else text.strip())
 
 
-def command(words: list[str], path: Path | None = None, now: datetime | None = None) -> str:
+def _last_close(symbol: str) -> float | None:
+    from core.reports.daily import raw_bars
+
+    bars = raw_bars(symbol)
+    return None if bars.empty else float(bars["close"].iloc[-1])
+
+
+def _percent_level(words: list[str], last_close) -> tuple[float, str] | str:
+    """'%5' after a direction: (level, note) from the last as-traded close, or the answer to send."""
+
+    from core.reports.daily import tr
+
+    try:
+        percent = _number(words[2][1:])
+        symbol = normalize_symbol(words[0])
+    except ValueError:
+        return USAGE
+    if not 0 < percent < 100:
+        return USAGE
+    close = (last_close or _last_close)(symbol)
+    code = symbol.removesuffix(".IS")
+    if close is None:
+        return f"{code} için kayıtlı son kapanışı yok; seviyeyi rakamla yazın (/alarm {code} altında 240)."
+    below = DIRECTION_WORDS[words[1].lower()] == "below"
+    level = round(close * (1 - percent / 100 if below else 1 + percent / 100), 2)
+    return level, f" (son kapanış {tr(close, 2)}'ın %{percent:g} {'altı' if below else 'üstü'})"
+
+
+def command(words: list[str], path: Path | None = None, now: datetime | None = None, last_close=None) -> str:
     """The /alarm command's answer (and the file change it asks for). A damaged file is
     reported, never written to: nothing is added or removed until it is readable again."""
 
@@ -159,10 +188,10 @@ def command(words: list[str], path: Path | None = None, now: datetime | None = N
     except (PersonalFileError, ValueError, KeyError) as exc:
         return (f"⚠️ Alarm dosyası ({path.name}) okunamadı: {exc}\n"
                 "Dosya düzelene kadar alarm kurulmaz ve silinmez; /durum ayrıntıyı gösterir.")
-    return _command(words, path, now)
+    return _command(words, path, now, last_close)
 
 
-def _command(words: list[str], path: Path, now: datetime | None) -> str:
+def _command(words: list[str], path: Path, now: datetime | None, last_close=None) -> str:
     words = [w.strip() for w in words if w.strip()]
     if not words:
         alarms = active(path)
@@ -177,11 +206,18 @@ def _command(words: list[str], path: Path, now: datetime | None) -> str:
         return f"🔔 Alarm #{alarm_id} silindi." if remove(alarm_id, path, now) else f"Alarm #{alarm_id} bulunamadı."
     if len(words) != 3 or words[1].lower() not in DIRECTION_WORDS:
         return USAGE
+    note = ""
+    if words[2].startswith("%"):
+        found = _percent_level(words, last_close)
+        if isinstance(found, str):
+            return found
+        level, note = found
     try:
-        alarm = add(words[0], DIRECTION_WORDS[words[1].lower()], _number(words[2]), path, now)
+        level = level if note else _number(words[2])
+        alarm = add(words[0], DIRECTION_WORDS[words[1].lower()], level, path, now)
     except ValueError as exc:
         return f"{exc}\n{USAGE}" if "Geçersiz" in str(exc) or "seviye" in str(exc) else USAGE
-    return f"🔔 Alarm kuruldu: {_describe(alarm)}. Akşam raporunda bir kez bildirilir."
+    return f"🔔 Alarm kuruldu: {_describe(alarm)}{note}. Akşam raporunda bir kez bildirilir."
 
 
 __all__ = ["Alarm", "Hit", "active", "add", "check", "command", "format_hits", "mark", "remove"]

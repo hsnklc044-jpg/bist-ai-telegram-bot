@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.71.0 – 28.10.2026
+- `/alarm THYAO altında %5`: seviye yerine yüzde yazılabiliyor. Alarm son kapanışın %5 altına (ya da `üstünde %10` ile %10 üstüne) kurulur. Onay mesajı hesaplanan seviyeyi ve hangi kapanıştan hesaplandığını yazar.
+
 ## v0.70.0 – 28.10.2026
 - Sunucu kararı artık hesaplanıyor. 13.11 akşam raporu, 27.10'da önceden yazılan ölçüte göre "sunucu önerilir" ya da "PC'de kalınır" kararını kendisi yazacak. Yalnız PC kaynaklı kayıplar sayılıyor: uyku, kapalı kalma, rapor görevinin geç başlaması. Ara durum: `python -m core.reports.server_decision`.
 
