@@ -65,6 +65,33 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 7 — 28.10.2026 (v0.87.0 → v0.91.1, 11 sürüm).** Kapsam:
+- eleme filtreleri ve karnede gün gün uygulanması;
+- D11 (tek `report_due_day`), D12 (karne sırası, yavaş makine CI işi);
+- profesyonel şablonlar ve evren içi sıra;
+- temel veri deposu;
+- veri borcunun kapatılması (yeni `reduction_rights` türü, `candle_exceptions`, KERVT→BESLR, KPOWR).
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö22 | DÜŞÜK | Eleme, `corporate_actions.csv`'yi süreç başına bir kez okur. PC'de dosya elle değiştirilirse çalışan bot yeniden başlayana kadar eski satırları kullanır. | kabul: güncelleyici her kurulumda botu yeniden başlatır; satırlar yalnız depodan gelir |
+| Ö23 | DÜŞÜK | BJKAS 07.04.2025'te ikinci kaynakla bir günlük ~10 puanlık artık fark | açık, belgeli (DATA_CORRECTIONS); tek gün, hükümleri etkilemez |
+| Ö24 | DÜŞÜK | `/durum` "Temel veri" satırı veri gelince de hep BİLGİ; eskimiş temel veri uyarı vermez | açık: ilk gerçek veri içe aktarıldığında "son yayın 120 günden eski" uyarısı eklenecek |
+| Ö25 | BİLGİ | Yavaş makine işi CI süresini yaklaşık 5 dakika uzatıyor | kabul: D12 türü hataları yakalamanın bedeli |
+| Ö26 | BİLGİ | D13 (İş Yatırım robots.txt) kullanıcı kararı bekliyor; ikinci kaynak doğrulamaları bu arada aynı düşük hacimle sürüyor | açık: kullanıcı kararı |
+
+**Kontrol edilenler:**
+- **Elemeler geleceği görmez.** Kurumsal işlem yalnız işlem gününden itibaren 60 seans eler, öncesini değil (test). Karne, eleme kesimi ve holdout kesimiyle birlikte çalışır.
+- **Liste ve karne aynı tanımı kullanır.** Sıra alanları liste, karne ve açıklamada ortak fonksiyondan gelir.
+- **`report_due_day` dört kontrolde ortak.** Yarım gün, tatil ve hafta sonu testli.
+- **Karne mesajı listeden sonra gider.** Liste adımı hata verse de karne asılı kalmaz (test).
+- **Temel veri modülünde ağ kodu yok** (test). Yayın akşamı kullanılmaz.
+- **Yeni veri satırlarının hepsi kaynaklı.** Kaynaksız satır okunmaz. İkinci kaynakta 11.954 hisse-günde açıklanamayan fark 2 gün.
+- **Zamana bağlı testler tarandı.** Kalan `sleep` ya da duvar saati ölçümü yok; hız testi CPU süresi ölçüyor.
+- **Kişisel dosyalar** (yeni `screen_subscriptions`, `screen_virtual`, `fundamentals`) yedekte ve şema denetiminde; git'e girmez.
+
+**Kritik ya da yüksek bulgu yok.** Sayaç v0.91.2'de sıfırlandı.
+
 **Öz-denetim 6 — 28.10.2026 (v0.80.0 → v0.86.1, 10 sürüm) = profesyonel talimatın EVRE 0'ı.** Tam rapor: [AUDIT.md](AUDIT.md).
 
 | # | Önem | Bulgu | Durum |
@@ -92,9 +119,9 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.91.1 (dışarıda kalanların nedeni). Öz-denetim sayacı: v0.87.0'dan beri 10; öz-denetim 7 zamanı geldi.
+- **Son sürüm:** v0.91.2 (öz-denetim 7). Öz-denetim sayacı v0.91.2'de sıfırlandı.
 - **Özellik talimatları (28.10):**
-  - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0 (ikinci kaynak doğrulaması bekleniyor). Kod sırada.
+  - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod sırada.
   - B senaryolar: A bitince.
 - **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).

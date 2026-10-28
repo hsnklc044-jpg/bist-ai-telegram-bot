@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.91.2 – 28.10.2026 (öz-denetim 7)
+- v0.87.0–v0.91.1 denetlendi: kritik ya da yüksek bulgu yok. Düşük bulgular Ö22–Ö26 (ROADMAP).
+- Veri borcu kapısı açıldı. Açıklama çalışması (`screens.yml`, 3beeba3) karnenin dışarıda bıraktığı yalnız PAHOL'u gösteriyor (kısa geçmiş).
+
 ## v0.91.1 – 28.10.2026 (dışarıda kalan hisselerin nedeni)
 - Karne ve araştırmanın dışarıda bıraktığı hisseler artık nedenleriyle yazılıyor: çözülmemiş sıçrama (tarihleriyle), kısa geçmiş (mum sayısı) ya da veri yok. Böylece veri borcunun kapandığı doğrudan görülebiliyor.
 - İkinci kaynak doğrulaması (v0.91.0 satırları): 10 hisse, 11.954 hisse-gün, açıklanamayan fark 2 gün (DATA_CORRECTIONS).

@@ -164,5 +164,5 @@ Denetimde 10 hissede 15 çözülmemiş ±%20 sıçrama bulundu. Bunlardan bugün
   - Bunların çoğu 1–3,5 puan.
   - **BJKAS 07.04.2025'te bir günlük ~10 puanlık artık fark kaldı:** Yahoo +%8,5, İş −%1,8. Açık, küçük, tek gün. Rüçhan fiyatı "lot başına 2 TL" kaynağa göre; Yahoo'nun kopukluğu teorik fiyattan biraz farklı.
 - **Ortak not:** 09.04.2024 yarım günü yalnız İş Yatırım'da var (bilinen Yahoo eksiği). 42 tek günlük kapanış hatası ertesi gün düzeliyor (bilinen Yahoo hatası; iz bırakmaz).
-- **Sonuç:** 15 sıçramanın hepsi kayıtlı. Karnenin dışarıda bıraktığı liste 12 hisseden 2'ye indi: PAHOL (kısa geçmiş, Kasım 2025'te işleme başladı; borç değil) ve RGYAS. RGYAS ikinci kaynakla tutarlı (860 hisse-gün, 0 fark); nedeni v0.91.1'den beri listede yazıyor ve ayrıca incelenir.
+- **Sonuç:** 15 sıçramanın hepsi kayıtlı. Karnenin dışarıda bıraktığı liste 12 hisseden 2'ye indi: PAHOL (kısa geçmiş, Kasım 2025'te işleme başladı; borç değil) ve RGYAS. RGYAS ikinci kaynakla tutarlı (860 hisse-gün, 0 fark). v0.91.1 sonrası açıklama çalışmasında (`screens.yml`, 3beeba3) listede yok; o çalışmadaki Yahoo indirmesinin geçici bir aksaklığıydı. **Dışarıda yalnız PAHOL kaldı (kısa geçmiş, 235 mum).**
 
