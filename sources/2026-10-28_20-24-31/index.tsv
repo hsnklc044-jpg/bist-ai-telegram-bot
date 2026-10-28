@@ -1,0 +1,11 @@
+001	404	0	sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	https://www.tuik.gov.tr/robots.txt
+002	ERROR ReadTimeout	https://data.tuik.gov.tr/robots.txt
+003	200	41	sha256=788ae04bb8e1dc25f095b6608c6fdf6a01b83dd5fc44d022c5fc485a16df54f9	https://www.tcmb.gov.tr/robots.txt
+004	200	1355	sha256=c1baee95614f2a5e64dcbd7c189e2de135379a6213c1bc2ba50d115e7dc92d9d	https://evds2.tcmb.gov.tr/robots.txt
+005	200	1355	sha256=c1baee95614f2a5e64dcbd7c189e2de135379a6213c1bc2ba50d115e7dc92d9d	https://evds3.tcmb.gov.tr/robots.txt
+006	200	95828	sha256=975d345de2b710998bb78d3d605903e7238e57a9414586245fb19cd99f2e81c6	https://evds3.tcmb.gov.tr/igmevdsms-dis/documents/showDocument?docId=18
+007	200	9097	sha256=aead695d5688abead9d7c8bf7d86613e553649feeee19e9205f5337cf2c1a1b6	https://www.tcmb.gov.tr/kurlar/today.xml
+008	200	22	sha256=44f3f8eafdf064cf69acb05f23ee4dfc9ab5b3d67d81c64246bc29f7e438789a	https://www.borsaistanbul.com/robots.txt
+009	404	8558	sha256=d9d26c97ad8ec0955085cc39b3cf568e1c5563165e3f245b0d3b0f8bbaed0678	https://www.borsaistanbul.com/tr/endeksler/bist-pay-endeksleri/sektor-endeksleri
+010	200	3692	sha256=1eeec1aab541d50774ac389c794040fcc4d4d11c79d6176759fcd9a54500a9fd	https://data.tuik.gov.tr/Kategori/GetKategori?p=enflasyon-ve-fiyat-106
+011	404	0	sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	https://www.tuik.gov.tr/Kurumsal/Veri_Yayimlama_Takvimi
