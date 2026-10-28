@@ -34,8 +34,9 @@ Portföy ve risk:
 /stres – pozisyonlar XU100'ün en kötü geçmiş düşüşlerinde ne kaybederdi (/stres sanal)
 /yil – yıllık döküm: satış sonuçları, temettü, komisyon (/yil 2026 sanal)
 /alarm THYAO altında 240 – kapanış alarmı (akşam raporunda bir kez); %5 de olur (son kapanışa göre); /alarm liste, /alarm sil 1
-/tara rsi<30 ema20>ema50 – hisseleri kendi gösterge koşullarınla filtrele, geçmiş karnesiyle (/tara: kılavuz ve örnekler; /tara_alanlar, /tara_aciklama THYAO rsi<30, /tara_devam, /tara_kaydet AD koşullar). Filtredir, öneri değildir
+/tara rsi<30 ema20>ema50 – hisseleri kendi gösterge koşullarınla filtrele, geçmiş karnesiyle (/tara: kılavuz ve örnekler; /tara_alanlar, /tara_aciklama THYAO rsi<30, /tara_devam, /tara_kaydet AD koşullar, /tara_liste, /tara_sil AD). Filtredir, öneri değildir
 /tara_sablonlar – hazır şablonlar (TradingView taramalarının teknik kısmı) ve karneleri; /tara AD ile çalışır
+/tara_abone AD – kayıtlı tarama ya da şablon her işlem günü 18:30 raporundan sonra çalışır, yalnız giren/çıkan hisseler gelir (/tara_abonelikler, /tara_abone_iptal AD)
 /help – bu mesaj
 
 ℹ️ Teknik skorun backtest'te getiri tahmin gücü bulunmadı;

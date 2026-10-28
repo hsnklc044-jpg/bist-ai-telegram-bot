@@ -277,19 +277,63 @@ def pd_series(values: dict):
     return pd.Series(values, dtype=float)
 
 
-# --- saved screens (CSV until Aşama 4) ------------------------------------------------------------
+# --- saved screens (append-only CSV; a row with empty criteria deletes; DECISIONS K-41) -----------
 
 SAVED_COLUMNS = ("at", "name", "criteria")
+DELETE_USAGE = "Kullanım: /tara_sil AD (kayıtlı taramalar: /tara_liste)"
 
 
 def load_saved(path: Path | None = None) -> dict[str, str]:
-    """name -> criteria; a later row for the same name replaces the earlier one."""
+    """name -> criteria; a later row for the same name replaces the earlier one, an empty one deletes it."""
 
-    return {row["name"]: row["criteria"] for _, row in read_rows(Path(path or SCREENS_FILE), SAVED_COLUMNS)}
+    saved = {row["name"]: row["criteria"] for _, row in read_rows(Path(path or SCREENS_FILE), SAVED_COLUMNS)}
+    return {name: criteria for name, criteria in saved.items() if criteria.strip()}
+
+
+def _append_saved(path: Path, name: str, criteria: str, now: datetime | None) -> None:
+    from core.market.calendar import now_istanbul
+
+    fh, new_file = open_append(path)
+    with fh:
+        writer = csv.writer(fh, lineterminator="\n")
+        if new_file:
+            writer.writerow(SAVED_COLUMNS)
+        writer.writerow([(now or now_istanbul()).isoformat(timespec="seconds"), name, criteria])
+
+
+def list_saved_text(path: Path | None = None) -> str:
+    saved = load_saved(path)
+    if not saved:
+        lines = ["Kayıtlı tarama yok. Kaydetmek için: /tara_kaydet AD koşullar"]
+    else:
+        lines = [f"💾 Kayıtlı taramalar ({len(saved)}/{MAX_SAVED}):"] + [f"  {k}: {v}" for k, v in sorted(saved.items())]
+        lines.append("Çalıştırmak: /tara AD · silmek: /tara_sil AD · hazır şablonlar: /tara_sablonlar")
+    lines.append(DISCLAIMER)
+    return "\n".join(lines)
+
+
+def delete_text(words: list[str], path: Path | None = None, now: datetime | None = None) -> str:
+    """Delete a saved screen by appending an empty row: earlier rows stay as they were."""
+
+    from core.screen.templates import TEMPLATES
+
+    path = Path(path or SCREENS_FILE)
+    if len(words) != 1:
+        return DELETE_USAGE
+    name = normalize(words[0])
+    saved = load_saved(path)
+    if name not in saved:
+        if name in TEMPLATES:
+            return f"⚠️ '{name}' hazır bir şablon; şablonlar silinmez. " + DELETE_USAGE
+        return f"⚠️ '{name}' adında kayıtlı tarama yok. " + DELETE_USAGE
+    _append_saved(path, name, "", now)
+    from core.screen import subscriptions
+
+    subscriptions.end_for_deleted(name, now=now)
+    return f"🗑 Silindi: {name} ({saved[name]}). Aynı adla yeniden kaydedebilirsin."
 
 
 def save_text(words: list[str], path: Path | None = None, now: datetime | None = None) -> str:
-    from core.market.calendar import now_istanbul
     from core.screen import fields as F
 
     path = Path(path or SCREENS_FILE)
@@ -312,12 +356,7 @@ def save_text(words: list[str], path: Path | None = None, now: datetime | None =
     if name not in saved and len(saved) >= MAX_SAVED:
         return f"⚠️ En fazla {MAX_SAVED} kayıtlı tarama olabilir."
     criteria = query.text + (f" sirala={query.order}" if query.order != "alfabetik" else "")
-    fh, new_file = open_append(path)
-    with fh:
-        writer = csv.writer(fh, lineterminator="\n")
-        if new_file:
-            writer.writerow(SAVED_COLUMNS)
-        writer.writerow([(now or now_istanbul()).isoformat(timespec="seconds"), name, criteria])
+    _append_saved(path, name, criteria, now)
     return f"💾 Kaydedildi: {name}: {criteria}\nÇalıştırmak için: /tara {name}"
 
 
@@ -332,7 +371,7 @@ def help_text(saved: dict[str, str]) -> str:
               "Seçenekler: evren=bist100 (güncel üyelik)|quantbist|izleme · likidite=10 (mn TL; 0 kapalı) · "
               "sirala=alfabetik|goreli_guc|hacim|rsi",
               "Tüm alanlar: /tara_alanlar · Hazır şablonlar: /tara_sablonlar · Kayıt: /tara_kaydet AD koşullar, "
-              "sonra /tara AD"]
+              "sonra /tara AD · /tara_liste · /tara_sil AD"]
     if saved:
         lines += ["Kayıtlı taramaların:"] + [f"  {k}: {v}" for k, v in sorted(saved.items())]
     lines.append(DISCLAIMER)
@@ -463,5 +502,5 @@ def screen_list(query, chat_id=None, live=None, suspects=None):
     return result, trials
 
 
-__all__ = ["DISCLAIMER", "SESSIONS", "SOURCE", "card_text", "criterion_hash", "explain_text", "fields_text",
-           "format_result", "has_more", "help_text", "load_saved", "more_text", "save_hint", "save_text", "screen_text"]
+__all__ = ["DISCLAIMER", "SESSIONS", "SOURCE", "card_text", "criterion_hash", "delete_text", "explain_text", "fields_text",
+           "format_result", "has_more", "help_text", "list_saved_text", "load_saved", "more_text", "save_hint", "save_text", "screen_text"]

@@ -12,6 +12,7 @@ from core.infrastructure import ping  # noqa: E402
 from core.market import store  # noqa: E402
 from core.reports import daily, health, runs, slo  # noqa: E402
 from core.screen import command as screen  # noqa: E402
+from core.screen import subscriptions  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -37,6 +38,8 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(daily, "REPORT_TEXT_DIR", tmp_path / "reports")
     monkeypatch.setattr(levels, "PRICE_ALARMS_FILE", tmp_path / "price_alarms.csv")
     monkeypatch.setattr(screen, "SCREENS_FILE", tmp_path / "screens.csv")
+    monkeypatch.setattr(subscriptions, "SUBSCRIPTIONS_FILE", tmp_path / "screen_subscriptions.csv")
+    monkeypatch.setattr(subscriptions, "STATE_FILE", tmp_path / "screen_subscriptions_state.json")
     # every signal_log write that does not name its file (e.g. /tara through the bot) stays private
     monkeypatch.setattr(signals_log, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")
     monkeypatch.setattr(screen.C, "CACHE_FILE", tmp_path / "screen_cards.json")

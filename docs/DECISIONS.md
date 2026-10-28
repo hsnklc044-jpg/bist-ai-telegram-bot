@@ -4,6 +4,22 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-42. /tara aboneliği raporun arkasından, yalnız değişiklik (28.10.2026, /tara Aşama 4b).**
+- `/tara_abone AD` kayıtlı bir taramayı ya da hazır bir şablonu izler. 18:30 raporu gönderildikten hemen sonra çalışır (`daily._screen_subscriptions`).
+- Rapor gitmeyen gün (tatil, yeni mum yok, ikinci çalıştırma) abonelik de çalışmaz. Tatil takvimi böylece aynen izlenir.
+- Yalnız giren ve çıkan hisseler gönderilir; değişiklik yoksa mesaj yok. İlk çalıştırma listenin tamamını "ilk liste" olarak gönderir. Kriter değişirse liste yeniden başlar. Aynı veri günü ikinci kez çalışmaz.
+- En fazla 5 abonelik. Kayıtlı bir tarama silinirse aboneliği de biter.
+- `data/screen_subscriptions.csv` kişisel dosya: yalnız ekleme (abone/iptal satırları), yedekte, `/durum` okur ve şemasını denetler, git'e girmez. Son listeler türetilmiş durumdur: `logs/screen_subscriptions_state.json`, mesajlar gittikten sonra yazılır.
+- Bir taramanın hatası diğerlerini ve raporu durdurmaz.
+- Abonelik çalışmaları canlı ölçüme yazılmaz. Aynı kriter her gün otomatik kaydedilirse `/tara` kayıtlarıyla çift sayılırdı. Ölçüm `/tara` ve sonraki `/tara_sanal` ile yapılır.
+
+**K-41. Kayıtlı taramalar CSV'de kalıyor; silme = boş satır (28.10.2026, /tara Aşama 4).** Görev "data/screens.json" diyordu. JSON'a geçilmedi, çünkü:
+- Bir JSON dosyası her kayıtta baştan yazılır. Kişisel kayıtlarda "silme/üzerine yazma yok" kuralı var; mevcut `data/screens.csv` yalnız eklemeli çalışıyor.
+- Dosya zaten yedekte, `/durum` sonuna kadar okuyor, şema denetimi var ve güncellemede korunuyor (güncelleyici `data/`'ya dokunmuyor).
+- Geçiş olmayınca şema değişikliği de yok: geçiş testi, yedek ve geri dönüş gerekmiyor.
+
+`/tara_sil AD` aynı ada **boş koşullu bir satır** ekler; önceki satırlar değişmez. `load_saved` boş koşullu adı yok sayar. Silinen taramalar 20'lik sınıra sayılmaz; ad yeniden kullanılabilir. Geri dönüş yolu: eski bir sürüm boş koşulu yine okur, yalnız o adı çalıştırınca "koşul yok" der. `/tara_liste` kayıtları listeler.
+
 **K-40. Temel veri: seçenekler (yalnız tasarım, kod yok; 28.10.2026, şablon görevi Aşama D).** Kullanıcının taramalarında piyasa değeri, F/S, gelir artışı, özsermaye kârlılığı, borç/öz kaynak geçiyor. **Uygulama için ayrı karar gerekir.**
 
 Seçenekler:

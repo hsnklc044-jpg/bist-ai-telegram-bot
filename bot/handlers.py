@@ -17,6 +17,8 @@ from telegram.ext import (
 from bot.analysis import analyze, top
 from bot.portfolio import alerts, paper, portfolio, report, trade
 from bot.reports import (
+    delete_screen,
+    list_screens,
     performance,
     price_alarm,
     resend,
@@ -26,10 +28,13 @@ from bot.reports import (
     screen_explain,
     screen_fields,
     screen_more,
+    screen_subscriptions,
     screen_templates,
     status,
     stress_test,
+    subscribe_screen,
     summary,
+    unsubscribe_screen,
     yearly,
 )
 from bot.start import start
@@ -68,6 +73,11 @@ COMMANDS = (
     ("alarm", price_alarm),
     ("tara", screen_cmd),
     ("tara_kaydet", save_screen),
+    ("tara_liste", list_screens),
+    ("tara_sil", delete_screen),
+    ("tara_abone", subscribe_screen),
+    ("tara_abonelikler", screen_subscriptions),
+    ("tara_abone_iptal", unsubscribe_screen),
     ("tara_alanlar", screen_fields),
     ("tara_aciklama", screen_explain),
     ("tara_devam", screen_more),
@@ -89,6 +99,11 @@ MENU = (
     ("alarm", "kapanış alarmı: /alarm THYAO altında 240"),
     ("tara", "göstergeyle filtre: /tara rsi<30 ema20>ema50"),
     ("tara_kaydet", "taramayı kaydet: /tara_kaydet AD koşullar"),
+    ("tara_liste", "kayıtlı taramalar"),
+    ("tara_sil", "kayıtlı taramayı sil: /tara_sil AD"),
+    ("tara_abone", "her akşam yalnız değişiklikleri gönder: /tara_abone AD"),
+    ("tara_abonelikler", "tarama abonelikleri"),
+    ("tara_abone_iptal", "aboneliği bitir: /tara_abone_iptal AD"),
     ("tara_alanlar", "tarama alanları ve birimleri"),
     ("tara_aciklama", "bir hissede koşulların değeri: /tara_aciklama THYAO rsi<30"),
     ("tara_devam", "son taramanın sonraki 15 satırı"),

@@ -250,6 +250,63 @@ async def save_screen(
     await reply(update, await asyncio.to_thread(screen.save_text, list(context.args or [])))
 
 
+async def list_screens(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_liste: the saved screens."""
+
+    from core.screen import command as screen
+
+    await reply(update, await asyncio.to_thread(screen.list_saved_text))
+
+
+async def delete_screen(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_sil AD."""
+
+    from core.screen import command as screen
+
+    await reply(update, await asyncio.to_thread(screen.delete_text, list(context.args or [])))
+
+
+async def subscribe_screen(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_abone AD."""
+
+    from core.screen import subscriptions
+
+    await reply(update, await asyncio.to_thread(subscriptions.subscribe_text, list(context.args or []),
+                                                update.effective_chat.id))
+
+
+async def screen_subscriptions(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_abonelikler."""
+
+    from core.screen import subscriptions
+
+    await reply(update, await asyncio.to_thread(subscriptions.list_text))
+
+
+async def unsubscribe_screen(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_abone_iptal AD."""
+
+    from core.screen import subscriptions
+
+    await reply(update, await asyncio.to_thread(subscriptions.cancel_text, list(context.args or []),
+                                                update.effective_chat.id))
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

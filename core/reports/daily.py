@@ -630,6 +630,22 @@ def _alarm_hits(day: date) -> tuple[list, str | None]:
         return [], f"⚠️ Fiyat alarmları kontrol edilemedi: {exc}"
 
 
+def _screen_subscriptions(day: date, send) -> None:
+    """/tara subscriptions after the report went out: only the changes, each its own message.
+    The state is kept once they went out. Never fatal (DECISIONS K-42)."""
+
+    from core.screen import subscriptions
+
+    try:
+        outcome = subscriptions.run(day)
+        for message in outcome.messages:
+            send(message)
+        subscriptions.save_state(outcome)
+    except Exception:  # noqa: BLE001 - the report went out already
+        logger.exception("Screen subscriptions failed")
+    return None
+
+
 def _mark_alarms(hits: list) -> None:
     from core.alerts import levels
 
@@ -924,6 +940,7 @@ def _run_locked(args) -> DailyResult:
         result.status = "sent"
         _mark_alarms(hits)
         logger.info("Daily report sent to Telegram | %s", result.day)
+        _screen_subscriptions(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id))
     return result
 
 

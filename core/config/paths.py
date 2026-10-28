@@ -26,6 +26,7 @@ PAPER_ORDERS_FILE = DATA_DIR / "paper_orders.csv"
 ALERTS_LOG_FILE = DATA_DIR / "alerts_log.csv"
 PRICE_ALARMS_FILE = DATA_DIR / "price_alarms.csv"
 SCREENS_FILE = DATA_DIR / "screens.csv"
+SCREEN_SUBSCRIPTIONS_FILE = DATA_DIR / "screen_subscriptions.csv"
 SIGNAL_LOG_FILE = DATA_DIR / "signal_log.csv"
 EQUITY_LOG_FILE = DATA_DIR / "equity_log.csv"
 
@@ -45,6 +46,7 @@ __all__ = [
     "ALERTS_LOG_FILE",
     "PRICE_ALARMS_FILE",
     "SCREENS_FILE",
+    "SCREEN_SUBSCRIPTIONS_FILE",
     "SIGNAL_LOG_FILE",
     "EQUITY_LOG_FILE",
     "WEB_DIR",

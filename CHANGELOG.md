@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.83.0 – 28.10.2026 (/tara Aşama 4a–4b: kayıt listesi, silme, abonelik)
+- `/tara_abone AD`: kayıtlı tarama ya da şablon her işlem günü 18:30 raporundan sonra çalışıyor. Yalnız giren/çıkan hisseler gönderiliyor; değişiklik yoksa mesaj yok. Rapor gitmeyen gün (tatil) çalışmıyor. `/tara_abonelikler` ve `/tara_abone_iptal AD` de eklendi. Kayıtlar yeni kişisel dosya `data/screen_subscriptions.csv`'de (yalnız ekleme, yedekte, `/durum` denetler; K-42).
+- `/tara_liste` kayıtlı taramaları gösteriyor. `/tara_sil AD` bir taramayı siliyor.
+- Silme dosyaya boş koşullu bir satır ekliyor; önceki satırlar değişmiyor. Silinen tarama 20'lik sınıra sayılmıyor, ad yeniden kullanılabiliyor.
+- `data/screens.json`'a geçilmedi, kayıtlar `data/screens.csv`'de kalıyor (K-41).
+- Doğrulama: `test_screen_saved`, `test_screen_subscriptions` (yalnız değişiklik, aynı gün bir kez, tatilde yok, hata raporu durdurmuyor, yedek/şema/gitignore). Silme yalnız ekliyor; eski sürümün yazdığı dosya aynen okunuyor; silinen ad çalışmıyor; komutlar menüde.
+
 ## v0.82.1 – 28.10.2026 (şablon görevi Aşama D: temel veri, yalnız tasarım)
 - Temel veri kaynakları için seçenekler DECISIONS K-40'a yazıldı: KAP, İş Yatırım, Yahoo, ücretli sağlayıcılar ve kendimiz hesaplamak. Her birinin lisansı, güncelliği, geçmişi ve kapanmış şirketleri kapsayıp kapsamadığı not edildi. Kod yazılmadı; uygulama ayrı bir karar.
 - Tek Tuş Trend şablonundaki not düzeltildi: beta fiyattan hesaplanıyor ve `/tara`'da zaten var.
