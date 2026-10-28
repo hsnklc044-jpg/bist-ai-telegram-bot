@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.92.0 – 28.10.2026 (Özellik A: destek/direnç seviyeleri, hesap ve görünüm)
+- `core/analytics/levels.py` eklendi (K-49 tasarımıyla birebir): salınım tepe/dip (N=5, kesinleşme 5 seans sonra, tavan/taban günleri hariç), 0,5 ATR kümeleme, kırılma sayısı, sabit güç puanı, klasik günlük ve haftalık pivotlar, 52 hafta, psikolojik seviye, sma50/200.
+- `/seviye THYAO` tam listeyi veriyor. `/analyze` en yakın 3 destek ve 3 direnci ekliyor; görünüm ve ATR satırları değişmedi.
+- Doğrulama: `test_levels`. Elle hesaplanan küçük örnekler (fraktal, kümeleme, kırılma, pivot, yuvarlak sayı, güç) ve geleceği görme testi: gelecek değişse de seviyeler aynı.
+
 ## v0.91.2 – 28.10.2026 (öz-denetim 7)
 - v0.87.0–v0.91.1 denetlendi: kritik ya da yüksek bulgu yok. Düşük bulgular Ö22–Ö26 (ROADMAP).
 - Veri borcu kapısı açıldı. Açıklama çalışması (`screens.yml`, 3beeba3) karnenin dışarıda bıraktığı yalnız PAHOL'u gösteriyor (kısa geçmiş).

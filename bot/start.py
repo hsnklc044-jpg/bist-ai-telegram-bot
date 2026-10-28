@@ -14,7 +14,8 @@ HELP_TEXT = f"""🚀 {settings.app_name} v{settings.version}
 
 Komutlar:
 /top – teknik görünümü en güçlü hisseler
-/analyze THYAO – tek hisse teknik analizi
+/analyze THYAO – tek hisse teknik analizi (en yakın 3 destek ve 3 direnç dahil)
+/seviye THYAO – bütün destek/direnç seviyeleri: yöntem, güç, ATR uzaklığı (teknik seviye, öneri değil)
 /summary – portföy ve piyasa özeti
 /watchlist – takip listesi
 /watchadd EREGL – listeye ekle

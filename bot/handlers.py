@@ -14,7 +14,7 @@ from telegram.ext import (
     filters,
 )
 
-from bot.analysis import analyze, top
+from bot.analysis import analyze, levels_cmd, top
 from bot.portfolio import alerts, paper, portfolio, report, trade
 from bot.reports import (
     delete_screen,
@@ -57,6 +57,7 @@ COMMANDS = (
     ("summary", summary),
     ("top", top),
     ("analyze", analyze),
+    ("seviye", levels_cmd),
     ("watchadd", watchadd),
     ("watchremove", watchremove),
     ("watchlist", watchlist),
@@ -113,6 +114,7 @@ MENU = (
     ("tara_sablonlar", "hazır tarama şablonları (TradingView taramalarından)"),
     ("top", "teknik görünümü en güçlü hisseler"),
     ("analyze", "tek hisse: /analyze THYAO"),
+    ("seviye", "destek/direnç seviyeleri: /seviye THYAO (öneri değil)"),
     ("watchlist", "takip listesi"),
     ("watchadd", "listeye ekle: /watchadd EREGL"),
     ("watchremove", "listeden çıkar"),

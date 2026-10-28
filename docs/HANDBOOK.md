@@ -331,6 +331,7 @@ tara_devam - son taramanın sonraki 15 satırı
 tara_sablonlar - hazır tarama şablonları (TradingView taramalarından)
 top - teknik görünümü en güçlü hisseler
 analyze - tek hisse: /analyze THYAO
+seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
 watchlist - takip listesi
 watchadd - listeye ekle: /watchadd EREGL
 watchremove - listeden çıkar
@@ -338,4 +339,29 @@ watchscan - takip listesini tara
 trade - gerçekleşmiş işlemi deftere yaz
 paper - sanal emir
 ```
+
+## 9. Destek ve direnç seviyeleri (/seviye; K-49)
+
+**Teknik seviye, öneri değil.** Seviyeler, kapanmış ve kurumsal işlemlere göre düzeltilmiş günlük mumlardan hesaplanır. Bir seviye yalnız o güne kadarki mumları kullanır (test). Hiçbir çıktıda "güçlü destek", "buradan al" ya da "alım bölgesi" yazmaz.
+
+Yöntemler (her seviye yöntem adıyla gösterilir):
+- **küme**: salınım tepe ve dipleri. Bir tepe, iki yanındaki 5 seanstan yüksektir ve ancak 5 seans sonra kesinleşir. Tavan/taban günlerinin tepe ve dipleri sayılmaz. Birbirine 0,5 ATR'den yakın tepe ve dipler tek seviyede birleşir. Her seviyenin yanında yazanlar:
+  - dokunma sayısı;
+  - kırılma sayısı: kapanışın seviyenin öbür yanına 0,5 ATR'den fazla geçmesi;
+  - güç puanı (0–100): 100 × (1 − e^(−dokunma/2)) × e^(−yaş/252) × 0,5^kırılma. Formül sabittir, sonuçlara bakılarak değişmez.
+- **pivot_gün / pivot_hafta**: klasik pivotlar, son günün ve önceki tamamlanmış haftanın yüksek, düşük ve kapanışından: P, R1, D1, R2, D2.
+- **52h_zirve / 52h_dip**: 252 seansın en yükseği ve en düşüğü.
+- **psikolojik**: fiyatın iki yanındaki yuvarlak sayı (270 TL'de 250 ve 300).
+- **sma50 / sma200**: basit ortalamalar.
+
+**Ortak kurallar:**
+- Uzaklık, son kapanıştan ATR ve yüzde olarak verilir.
+- Tür, son kapanışa göre belirlenir: altındaki seviye destek, üstündeki direnç. Kırılan direnç bu yolla desteğe döner.
+- Hacim profili yoktur: gün içi veri olmadan yanıltıcı olur.
+
+**Komutlar:**
+- `/analyze THYAO` en yakın 3 destek ve 3 direnci, görünüm ve ATR satırlarına dokunmadan ekler.
+- `/seviye THYAO` tam listeyi verir.
+
+Seviyelerin tarihsel olarak rastgele seviyelerden ayırt edilip edilemediği ayrıca ölçülür (RESEARCH_LOG). Ölçüm sonucu çıkana kadar seviyeler yalnız "teknik seviye" olarak gösterilir.
 

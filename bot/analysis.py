@@ -62,7 +62,7 @@ def _levels(result: dict) -> str:
 ⬆️ 4 ATR üstü : {result["target_2"]}"""
 
 
-def _format_analysis(result: dict) -> str:
+def _format_analysis(result: dict, levels: str = "") -> str:
     return f"""📊 {result["symbol"]}
 
 💰 Fiyat : {result["price"]}
@@ -77,7 +77,7 @@ def _format_analysis(result: dict) -> str:
 🌊 Volatilite (ATR/fiyat) : %{result["volatility"] * 100:.2f}
 
 {_levels(result)}
-
+{chr(10) + levels + chr(10) if levels else ""}
 📈 EMA20 : {result["ma20"]:.2f}
 📈 EMA50 : {result["ma50"]:.2f}
 
@@ -128,4 +128,34 @@ async def analyze(
 
     await asyncio.to_thread(log_analysis, "analyze", result, view_label(result["signal"]))
 
-    await reply(update, _format_analysis(result))
+    await reply(update, _format_analysis(result, await asyncio.to_thread(_level_block, symbol, 3)))
+
+
+def _level_block(symbol: str, k: int | None) -> str:
+    """Support and resistance (K-49); a failure only costs this block."""
+
+    from core.analytics.levels import levels_text
+    from core.reports.daily import adjusted_bars
+
+    try:
+        return levels_text(symbol, adjusted_bars(symbol), k=k)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+async def levels_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /seviye SYMBOL: every support and resistance level (teknik seviye, öneri değil)."""
+
+    if len(context.args or []) != 1:
+        await reply(update, "Kullanım:\n/seviye THYAO")
+        return
+    try:
+        symbol = normalize_symbol(context.args[0])
+    except ValueError as exc:
+        await reply(update, str(exc))
+        return
+    text = await asyncio.to_thread(_level_block, symbol, None)
+    await reply(update, text or f"{symbol} için seviye hesaplanamadı.")
