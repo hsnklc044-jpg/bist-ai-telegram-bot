@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.82.1 – 28.10.2026 (şablon görevi Aşama D: temel veri, yalnız tasarım)
+- Temel veri kaynakları için seçenekler DECISIONS K-40'a yazıldı: KAP, İş Yatırım, Yahoo, ücretli sağlayıcılar ve kendimiz hesaplamak. Her birinin lisansı, güncelliği, geçmişi ve kapanmış şirketleri kapsayıp kapsamadığı not edildi. Kod yazılmadı; uygulama ayrı bir karar.
+- Tek Tuş Trend şablonundaki not düzeltildi: beta fiyattan hesaplanıyor ve `/tara`'da zaten var.
+
 ## v0.82.0 – 28.10.2026 (şablon görevi Aşama C: karne)
 - Güven aralığı gün ortalamasıyla hesaplanıyor: her gün bir kez sayılıyor, 20 seanslık bloklarla. Böylece aynı gün çok sinyal veren günler sonucu tek başına sürükleyemiyor.
 - Yeni "tüm hisseler" satırı: koşulsuz ortalama ve koşulun ondan farkı. Sonuç maliyet hariç ve dahil yan yana yazıyor.

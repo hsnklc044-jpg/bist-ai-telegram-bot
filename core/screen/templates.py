@@ -45,7 +45,9 @@ TEMPLATES = {
         "Tek tuş trend, teknik kısım",
         "kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis "
         "degisim_3a<60",
-        f"{SOURCE} BIST TEK TUŞ TREND", "piyasa değeri > 10 milyar TL, beta 0,8–1,5"),
+        f"{SOURCE} BIST TEK TUŞ TREND",
+        "piyasa değeri > 10 milyar TL; beta 0,8–1,5 (fiyattan hesaplanır, `beta` alanı var; şablon görevdeki "
+        "tanımla bırakıldı)"),
     "teknik_temel_ema": Template(
         "Teknik-temel, EMA kısmı (05)", "kapanis>ema50 ema50>ema200",
         f"{SOURCE} 05", "piyasa değeri > 2 milyar TL, gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak"),

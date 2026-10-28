@@ -4,6 +4,25 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-40. Temel veri: seçenekler (yalnız tasarım, kod yok; 28.10.2026, şablon görevi Aşama D).** Kullanıcının taramalarında piyasa değeri, F/S, gelir artışı, özsermaye kârlılığı, borç/öz kaynak geçiyor. **Uygulama için ayrı karar gerekir.**
+
+Seçenekler:
+- **(A) KAP finansal raporları.** Resmi kaynak. Raporlar XBRL tabanlı. Artısı: kapanan ve endeksten çıkan şirketler de var (survivorship riski düşük), her raporun yayım tarihi belli. Eksisi: belgelenmiş açık bir API bulunamadı; KAP'a bu ortamdan erişilemiyor, yalnız GitHub Actions'tan (`kap.py` gibi). XBRL/taksonomi ayrıştırması emek ister. Kullanım koşulları okunmalı.
+- **(B) İş Yatırım mali tablo uç noktası.** Topluluk paketleri (isyatirimhisse, borsa-mcp) kullanıyor; tek istekte üç tablo, sanayi (XI_29) ve banka (UFRS) şablonları. Artısı: kolay, çeyreklik, fiyatlarda zaten ikinci kaynağımız. Eksisi: resmi değil, değişebilir, kullanım koşulları belirsiz, geçmiş derinliği ve kapanmış şirketler doğrulanmalı.
+- **(C) Yahoo (yfinance).** Piyasa değeri ve beta yalnız bugünün anlık değeri; tablolar birkaç yıl. Geçmiş karnede kullanılırsa geleceği görme riski taşır; en çok canlı filtre için.
+- **(D) Ücretli sağlayıcılar** (lisanslı KAP veri dağıtıcıları, Fintables, Matriks vb.). Ödeme gerektirir; BENİM ADIMLARIM'a girer, kullanıcı kararı.
+- **(E) Kendimiz hesaplamak.** Beta fiyattan hesaplanıyor, zaten var (`beta`). Piyasa değeri = ödenmiş sermaye (KAP sermaye bildirimleri) × fiyat; sermaye geçmişi KAP'tan kurulabilir.
+
+Her seçenekte zorunlu kurallar:
+- **Zamanlama:** bir tablo ancak KAP'taki **yayım tarihinden** sonra bilinir. Dönem sonu tarihi kullanılırsa geleceği görmek olur.
+- **Enflasyon muhasebesi:** TMS 29 (2023'ten beri) büyüme oranlarını önceki dönemlerle karşılaştırılamaz kılar. Düzeltilmiş ve düzeltilmemiş tablolar ayrı tutulmalı.
+- **Kapsam:** endeksten çıkmış ya da kapanmış şirketler de kapsanmalı.
+- **Araştırma kuralları:** holdout (02.11.2026 sonrası) ve araştırma bütçesi temel veri için de aynen geçerli; temel verili bir kural ancak ön kayıtla denenir.
+
+**Öneri (karar değil):** önce (E) ile piyasa değeri. İçinde ödeme ve belirsiz lisans yok, KAP sermaye bildirimleri zaten okunuyor. Tablolar için (A) asıl kaynak, (B) çapraz kontrol. Bu sırayla bir keşif (`kap.yml` gibi bir deneme iş akışı) ayrı bir görev olarak verilirse yapılır.
+
+Kaynaklar: [isyatirimhisse](https://gittrend.io/repo/urazakgul/isyatirimhisse), [borsa-mcp İş Yatırım sağlayıcısı](https://glama.ai/mcp/servers/@saidsurucu/borsa-mcp/blob/728c8332f33398b82fe218e3607af09513a486ed/providers/isyatirim_provider.py), [XBRL.org: Türkiye'nin XBRL tabanlı açıklama sistemi](https://www.xbrl.org/news/turkey-launches-xbrl-based-public-disclosure-system/), [pykap](https://github.com/cemsinano/pykap).
+
 **K-39. Karne: gün ortalaması, 20 seanslık blok, "tüm hisseler" karşılaştırması, maliyet iki türlü (28.10.2026, şablon görevi Aşama C).** (1) Güven aralığı artık gün ortalamasıyla hesaplanıyor: önce her giriş gününün olay ortalaması alınır, sonra bu seri 20 seanslık dairesel bloklarla bootstrap edilir (2000 örnek, sabit tohum). Böylece çok olaylı günler aralığı tek başına belirleyemez. Etiket bu aralığa bakar. Olay ortalaması ve medyan da yazılır. K-35'teki 21 tarihlik olay bloğunun yerini aldı. (2) "Tüm hisseler" satırı: aynı dönem, aynı evren (o günkü BIST 100), aynı likidite tabanı ve aynı maliyetle koşulsuz gün ortalaması; koşulun bundan farkı da yazılır. Kullanıcının keşif testindeki karşılaştırma satırıyla aynı fikir. (3) Olay ortalaması maliyet dahil ve hariç yan yana. Kullanıcının PC sayıları maliyet hariçti; karşılaştırma yapılabilsin diye. (4) Önbellekteki eski biçim karneler yeni alanlar olmadan görünmesin diye veri sürümüne karne biçim numarası (`CARD_FORMAT`) eklendi; biçim değişince karneler yeniden hesaplanır.
 
 **K-38. Hazır şablonlar kodda sabit, kullanıcı kayıtlarından ayrı (28.10.2026, şablon görevi Aşama B).** Altı şablon görevde verildiği gibi yazıldı (`core/screen/templates.py`), sonuçlara bakılarak değiştirilmez. Adlarında övgü sözcüğü yok: dosya adındaki "Şampiyonları" kullanılmadı, "Harekete Hazır EMA" taraması "Düşeni Kıran" ile aynı dizilim olduğundan ayrı şablon olmadı. Kayıtlı bir tarama şablon adını alamaz (`save_text` reddeder). Şablon karneleri bot açılışında ayrı bir iş parçacığında ısıtılır; liste yalnız önbelleği okur (`card.peek`), hiçbir zaman beklemez. Haftalık araştırma bütün şablon karnelerini yazar (gerçek veride karşılaştırma için). Kullanıcının PC'deki keşif sonuçları (maliyet hariç) RESEARCH_LOG'a not olarak yazıldı; şablonlar RESEARCH_PROGRAM'a aday kural olarak girmez (`test_screen_templates` denetler).
