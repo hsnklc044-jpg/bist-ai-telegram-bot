@@ -127,8 +127,8 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - ✅ v0.95.0: dört bazlı sonuç (`core/market/macro.py`; günlük rapor, `/performans`, `/durum` "Makro veri"); TÜFE ve kur kendiliğinden güncelleniyor.
   - ✅ v0.95.1: rejim etiketi, genişlik ve dört ana sektör (`core/market/regime.py`, `/piyasa`); sektör endeksleri akşam güncellemesinde.
   - ✅ v0.95.2: `/tara` `rejim=` filtresi (liste ve karne).
+  - ✅ v0.95.3: araştırma raporunda dört baz. Haftalık araştırma TCMB kur bültenlerini önbellekle dolduruyor.
 - **Kalan:**
-  - araştırma raporunda dört sütun;
   - Yahoo ile ikinci kaynak kur karşılaştırması;
   - sektör kısmı (D14 kararı).
 - **Durum:**
@@ -174,7 +174,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.95.2 (C: /tara rejim=). Öz-denetim sayacı: v0.91.2'den beri 9.
+- **Son sürüm:** v0.95.3 (C: araştırma raporunda dört baz). Öz-denetim sayacı: v0.91.2'den beri 10; **öz-denetim sırada**.
 - **İleri hedefler:** 2027 tatilleri ✅ v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit). Kalan: elenen ve kalan grubun canlı izlenmesi, haftalık kayıtlı tarama özeti.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).

@@ -265,6 +265,11 @@ class ResearchSmokeTest(unittest.TestCase):
         section = text.split("Sağlamlık")[1].split("Walk-forward")[0]
         self.assertIn("XU100", section)
         self.assertIn("Bot sinyali", section)
+        # Talimat C: the same totals on four bases, as extra information
+        bases = text.split("Dört baz")[1].split("GA:")[0]
+        self.assertIn("XU100: nominal", bases)
+        self.assertIn("reel", bases)
+        self.assertIn("nakde göre", bases)
 
     def test_fragile_strategy_is_flagged(self):
         import pandas as pd

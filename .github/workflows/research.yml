@@ -57,6 +57,14 @@ jobs:
       - run: pip install -r requirements.lock
       - name: Download prices
         run: python -m core.market.update --bist100-history 2>&1 | tee update.txt || true
+      # Talimat C: TCMB USD/TRY bulletins for the four-basis lines; each day is asked once and kept
+      - uses: actions/cache@v4
+        with:
+          path: data/macro/usdtry.csv
+          key: usdtry-${{ github.run_id }}
+          restore-keys: usdtry-
+      - name: USD/TRY bulletins (TCMB)
+        run: python -m core.market.macro --usd 2021-12-01 2>&1 | tee macro.txt || true
       - name: Strategy research
         run: python -m core.backtest.research ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research.txt
       - name: Strategy research, today's list (survivorship-biased comparison)

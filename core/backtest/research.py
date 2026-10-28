@@ -247,6 +247,7 @@ def research_report(
                 "verdict": stats.verdict if stats else "",
             })
 
+    lines += _basis_lines(rows, xu, window)
     lines += [
         "",
         f"GA: blok bootstrap güven aralığı (21 seanslık bloklar). {tested} strateji test edildiği için "
@@ -281,6 +282,27 @@ def research_report(
         )
 
     return "\n".join(lines)
+
+
+def _basis_lines(rows, xu: pd.Series, window) -> list[str]:
+    """Talimat C: each total also against inflation, the dollar and cash. Extra information only:
+    the primary criterion (excess over XU100, RESEARCH_PROGRAM) does not change."""
+
+    from core.market import macro
+
+    start, end = window[0].date(), window[-1].date()
+    try:
+        cpi, usd, cash = macro.load_cpi(), macro.load_usdtry(), macro.policy_cash()
+    except Exception as exc:  # noqa: BLE001 - the report itself still goes out
+        return ["", f"Dört baz hesaplanamadı: {exc}"]
+    lines = ["", f"Dört baz, toplam getiri {start:%d.%m.%Y} → {end:%d.%m.%Y} (ek bilgi; birincil ölçüt değişmez):"]
+    for name, equity, m in [*rows, ("XU100", xu, {"total_return": float(xu.iloc[-1] / xu.iloc[0] - 1)})]:
+        total = m.get("total_return")
+        if total is None:
+            continue
+        line = macro.four_basis(float(total), start, end, cpi=cpi, usd=usd, cash=cash).line()
+        lines.append(f"  {name}: {line}")
+    return lines
 
 
 def _robustness_lines(robust, xu: pd.Series, xu_cagr) -> list[str]:

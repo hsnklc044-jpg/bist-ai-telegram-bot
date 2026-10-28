@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.3 – 29.10.2026 (Talimat C: araştırma raporunda dört baz)
+- Araştırma raporunda strateji tablosunun altına yeni bir bölüm eklendi: her stratejinin ve XU100'ün toplam getirisi nominal, reel, USD ve nakde göre. Ek bilgidir; birincil ölçüt (XU100'e göre fazla getiri, Bonferroni aralığı) değişmedi.
+- Haftalık araştırma iş akışı, TCMB kur bültenlerini 01.12.2021'den bu yana dolduruyor (`python -m core.market.macro --usd`). Her gün bir kez soruluyor ve GitHub önbelleğinde tutuluyor. İlk çalışma yaklaşık 10 dakika uzun sürecek.
+- Doğrulama: `test_backtest` araştırma raporunda dört baz bölümünü ve XU100 satırını denetliyor.
+
 ## v0.95.2 – 29.10.2026 (Talimat C: /tara rejim= filtresi)
 - `/tara ... rejim=dusus` (seçenekler `yukselis`, `dusus`, `karisik`, `yuksek_oynaklik`).
   - Liste yalnız bugünkü rejim seçilen rejimse çıkar. Değilse boş kalır ve "Bugünkü rejim: …" diye nedenini yazar.
