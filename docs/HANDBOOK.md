@@ -89,7 +89,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 - Pencere: `son(5, kesti_yukari(...))` (koşul son 5 seansın birinde sağlandıysa).
 - Mantık: `ve` / `veya` / `değil` ve parantez. Yan yana yazılan koşullar "ve" sayılır.
 - Ondalıklar virgülle yazılabilir: `1,5`.
-- Sınırlar: en çok 300 karakter, en çok 15 koşul (K-34).
+- Sınırlar: en çok 400 karakter, en çok 15 koşul (K-34, K-37). `ema(n)` ve `sma(n)` için n: 5, 10, 20, 40, 50, 100, 200.
 - Hatalı yazımda mesaj hatanın yerini `^` ile gösterir ve en yakın alanı önerir. Ayrıştırıcı kendi yazdığımız kod; yazılan hiçbir şey çalıştırılmaz (eval/exec yok).
 
 **Seçenekler.**
@@ -131,6 +131,10 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Momentum | `mom(n)` (varsayılan 10) | momentum: kapanış − n seans önceki kapanış | TL |
 | Momentum | `cci(n)` (varsayılan 20) | CCI(n), emtia kanal endeksi | puan |
 | Momentum | `getiri(n)` (varsayılan 20) | son n seans getiri (1 ay ≈ 21, 3 ay ≈ 63) | % |
+| Momentum | `momentum10` | kapanış − 10 seans önceki kapanış (TradingView 'Mom, 10') | TL |
+| Momentum | `degisim_1h` | son 5 seans değişim (TradingView 'Değ, 1H') | % |
+| Momentum | `degisim_1a` | son 21 seans değişim (TradingView 'Değ/Perf, 1A') | % |
+| Momentum | `degisim_3a` | son 63 seans değişim (TradingView 'Perf, 3A') | % |
 | Momentum | `getiri_5g` | son 5 seans getiri | % |
 | Momentum | `getiri_20g` | son 20 seans getiri | % |
 | Momentum | `getiri_60g` | son 60 seans getiri | % |
@@ -146,6 +150,10 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Hacim | `hacim_degisim` | bugünkü hacmin dünküne göre değişimi | % |
 | Hacim | `ort_hacim(n)` (varsayılan 30) | n günlük ortalama hacim (adet) | milyon adet |
 | Hacim | `vwma(n)` (varsayılan 20) | hacim ağırlıklı ortalama fiyat, n gün | TL |
+| Hacim | `vwma20` | hacim ağırlıklı ortalama fiyat, 20 gün (TradingView 'VWMA, 20') | TL |
+| Hacim | `goreli_hacim` | bugünkü hacim / önceki 10 seans ortalaması (TradingView 'Göreceli hacim'; hacim_oran 20 günlüktür) | × |
+| Hacim | `ortalama_hacim_30g` | 30 günlük ortalama hacim, adet (TradingView 'Ort. hacim, 30G') | adet |
+| Hacim | `likidite` | 20 günlük ortalama işlem hacmi, TL (likidite= seçeneği milyon TL'dir) | TL |
 | Hacim | `obv_egim` | OBV'nin 20 günlük değişimi / 20 günlük toplam hacim | % |
 | Hacim | `islem_tl` | 20 günlük ortalama işlem hacmi | milyon TL |
 | Göreli güç | `gg_20` | son 20 seans getirisi − XU100'ünki | puan |
@@ -156,6 +164,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Fiyat konumu | `dip_uzaklik` | kapanışın 52 hafta dibine uzaklığı | % |
 | Fiyat konumu | `yuksek_20g` | önceki 20 seansın en yükseği (bugün hariç) | TL |
 | Fiyat konumu | `dusuk_20g` | önceki 20 seansın en düşüğü (bugün hariç) | TL |
+| Fiyat konumu | `zirve_1a` | son 21 seansın en yükseği, bugün dahil (TradingView 'Yüksek, 1A') | TL |
 | Fiyat konumu | `bosluk` | açılışın önceki kapanışa göre boşluğu | % |
 | Fiyat konumu | `kapanis` | son kapanış | TL |
 | Fiyat konumu | `acilis` | son açılış | TL |
@@ -177,13 +186,14 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | BIST TEK TUŞ TREND | `kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ort_hacim(30)>10 getiri(21)<30 beta 0,8..1,5 kapanis>ema20 getiri(63)<60` | Pys değ > 10 milyar TL (piyasa değeri verisi yok) |
 | ERKEN TREND | `kapanis>ema20 kapanis<ema50 rsi 45..55 adx 15..22 hacim_oran(10)>1 ort_hacim(10)>10` | — |
 
-Eşlemeler: Perf 1A ≈ `getiri(21)`, 3A ≈ `getiri(63)`, Değ 1H ≈ `getiri_5g`; Göreceli hacim ≈ `hacim_oran(10)`; Ort. hacim 30G = `ort_hacim(30)` (milyon adet); Fiyat < Yüksek 1A ≈ `kapanis<yuksek_20g`; Mom 10 = `mom(10)`. Piyasa değeri, FSO ve borsa pazarı için veri yok. "HO derecelendirmesi: Güçlü al" bir al/sat etiketidir, eklenmez (CHARTER §9).
+Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisim_1a` (21 seans), 3A = `degisim_3a` (63), Değ 1H = `degisim_1h` (5); Göreceli hacim = `goreli_hacim` (önceki 10 seans; `hacim_oran` 20 günlüktür, ikisi ayrı); Ort. hacim 30G = `ortalama_hacim_30g` (adet) ya da `ort_hacim(30)` (milyon adet); Yüksek 1A = `zirve_1a` (bugün dahil 21 seans; `yuksek_20g` bugünü dışarıda bırakır); Mom 10 = `momentum10`; VWMA 20 = `vwma20`; likidite = `likidite` (TL; `likidite=` seçeneği milyon TL). Piyasa değeri, FSO ve borsa pazarı için veri yok. "HO derecelendirmesi: Güçlü al" bir al/sat etiketidir, eklenmez (CHARTER §9).
 
 **Karne nasıl okunur** (K-35).
 - **Dönem ve veri:** 2023-08 – 30.10.2026. Holdout (02.11.2026 sonrası) hiç okunmaz: veri `load_frames` ile gelir ve karne bir kez daha keser.
 - **Olay:** her gün, o günkü BIST 100 üyesi olup koşulu sağlayan hisse bir olaydır (geçmiş üyelik; survivorship yok).
 - **Giriş ve çıkış:** giriş ertesi seansın açılışıdır (geleceğe bakma yok); çıkış 5 ya da 20 seans sonraki kapanıştır.
 - **Maliyet:** her yönde komisyon %0,10 + kayma %0,05, gidiş-dönüş %0,30 düşülür.
+- **Likidite tabanı:** listedeki taban karnede de uygulanır; o günün 20 günlük ortalama işlem hacmi tabanın altındaysa olay sayılmaz.
 - **Ölçü:** XU100'ün aynı seanslardaki getirisine göre fazla getiri.
 - **Satırda:**
   - ortalama ve medyan, isabet (XU100'ü geçen olay oranı)

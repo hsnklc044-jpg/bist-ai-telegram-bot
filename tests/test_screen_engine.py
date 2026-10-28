@@ -96,8 +96,8 @@ class ParserTest(unittest.TestCase):
             parse("rsi<30 " * 16)
         self.assertIn("en fazla 15 koşul", str(caught.exception))
         with self.assertRaises(ScreenError) as caught:
-            parse("rsi<30 ve " + "x" * 300)
-        self.assertIn("en fazla 300 karakter", str(caught.exception))
+            parse("rsi<30 ve " + "x" * 400)
+        self.assertIn("en fazla 400 karakter", str(caught.exception))
         parse(" ve ".join(["rsi<30"] * 15))  # exactly fifteen is fine
 
     def test_no_eval_anywhere(self):
@@ -131,7 +131,7 @@ class FieldTest(unittest.TestCase):
         pd.testing.assert_series_equal(t["atr_yuzde"], sf["volatility"] * 100, check_names=False)
 
     def test_every_field_computes(self):
-        names = [f"{name}>-1000000" for name in fields.FIELDS if name not in fields.CROSS_SECTIONAL] + ["ema(30)>0", "sma(10)>0", "rsi(7)>0",
+        names = [f"{name}>-1000000" for name in fields.FIELDS if name not in fields.CROSS_SECTIONAL] + ["ema(40)>0", "sma(10)>0", "rsi(7)>0",
                                                                     "roc(5)>-100", "atr(20)>0", "adx(20)>0"]
         t = fields.table(self.df, self.bench["close"], sorted({f for n in names for f in parse(n).fields}))
         last = t.iloc[-1]

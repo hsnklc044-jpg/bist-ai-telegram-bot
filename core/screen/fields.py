@@ -46,6 +46,10 @@ FIELDS = {
     "mom": Field("Momentum", "momentum: kapanış − n seans önceki kapanış", "TL", 10),
     "cci": Field("Momentum", "CCI(n), emtia kanal endeksi", "puan", 20),
     "getiri": Field("Momentum", "son n seans getiri (1 ay ≈ 21, 3 ay ≈ 63)", "%", 20),
+    "momentum10": Field("Momentum", "kapanış − 10 seans önceki kapanış (TradingView 'Mom, 10')", "TL"),
+    "degisim_1h": Field("Momentum", "son 5 seans değişim (TradingView 'Değ, 1H')", "%"),
+    "degisim_1a": Field("Momentum", "son 21 seans değişim (TradingView 'Değ/Perf, 1A')", "%"),
+    "degisim_3a": Field("Momentum", "son 63 seans değişim (TradingView 'Perf, 3A')", "%"),
     "getiri_5g": Field("Momentum", "son 5 seans getiri", "%"),
     "getiri_20g": Field("Momentum", "son 20 seans getiri", "%"),
     "getiri_60g": Field("Momentum", "son 60 seans getiri", "%"),
@@ -63,6 +67,11 @@ FIELDS = {
     "hacim_degisim": Field("Hacim", "bugünkü hacmin dünküne göre değişimi", "%"),
     "ort_hacim": Field("Hacim", "n günlük ortalama hacim (adet)", "milyon adet", 30),
     "vwma": Field("Hacim", "hacim ağırlıklı ortalama fiyat, n gün", "TL", 20),
+    "vwma20": Field("Hacim", "hacim ağırlıklı ortalama fiyat, 20 gün (TradingView 'VWMA, 20')", "TL"),
+    "goreli_hacim": Field("Hacim", "bugünkü hacim / önceki 10 seans ortalaması (TradingView 'Göreceli hacim'; "
+                                   "hacim_oran 20 günlüktür)", "×"),
+    "ortalama_hacim_30g": Field("Hacim", "30 günlük ortalama hacim, adet (TradingView 'Ort. hacim, 30G')", "adet"),
+    "likidite": Field("Hacim", "20 günlük ortalama işlem hacmi, TL (likidite= seçeneği milyon TL'dir)", "TL"),
     "obv_egim": Field("Hacim", "OBV'nin 20 günlük değişimi / 20 günlük toplam hacim", "%"),
     "islem_tl": Field("Hacim", "20 günlük ortalama işlem hacmi", "milyon TL"),
     # relative strength
@@ -75,6 +84,7 @@ FIELDS = {
     "dip_uzaklik": Field("Fiyat konumu", "kapanışın 52 hafta dibine uzaklığı", "%"),
     "yuksek_20g": Field("Fiyat konumu", "önceki 20 seansın en yükseği (bugün hariç)", "TL"),
     "dusuk_20g": Field("Fiyat konumu", "önceki 20 seansın en düşüğü (bugün hariç)", "TL"),
+    "zirve_1a": Field("Fiyat konumu", "son 21 seansın en yükseği, bugün dahil (TradingView 'Yüksek, 1A')", "TL"),
     "bosluk": Field("Fiyat konumu", "açılışın önceki kapanışa göre boşluğu", "%"),
     "kapanis": Field("Fiyat konumu", "son kapanış", "TL"),
     "acilis": Field("Fiyat konumu", "son açılış", "TL"),
@@ -217,6 +227,22 @@ class _Table:
             from core.strategy.score import volume_ratio_series
 
             return volume_ratio_series(df["volume"], n)
+        if name == "goreli_hacim":
+            from core.strategy.score import volume_ratio_series
+
+            return volume_ratio_series(df["volume"], 10)
+        if name == "momentum10":
+            return close - close.shift(10)
+        if name in ("degisim_1h", "degisim_1a", "degisim_3a"):
+            return self._ret({"1h": 5, "1a": 21, "3a": 63}[name[8:]])
+        if name == "vwma20":
+            return self.get("vwma")
+        if name == "ortalama_hacim_30g":
+            return df["volume"].rolling(30).mean()
+        if name == "likidite":
+            return (close * df["volume"]).rolling(20).mean()
+        if name == "zirve_1a":
+            return df["high"].rolling(21).max()
         if name == "hacim_degisim":
             return (df["volume"] / df["volume"].shift(1) - 1) * 100
         if name == "ort_hacim":

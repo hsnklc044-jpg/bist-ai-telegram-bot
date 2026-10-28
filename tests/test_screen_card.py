@@ -146,6 +146,33 @@ class CacheTest(unittest.TestCase):
             self.assertNotEqual(card.data_version([a]), before)
 
 
+class AuditFiveTest(unittest.TestCase):
+    """Öz-denetim 5."""
+
+    def test_the_card_applies_the_lists_liquidity_floor(self):
+        frames, bench = noisy_market(n_stocks=4)
+        thin = frames["S00.IS"].copy()
+        thin["volume"] = 1.0  # ~100 TL a day: the list never shows it
+        frames["S00.IS"] = thin
+        with_floor = card.history(parse("kapanis>0"), frames, bench, horizons=(5,))[5].n
+        without = card.history(parse("kapanis>0 likidite=0"), frames, bench, horizons=(5,))[5].n
+        self.assertLess(with_floor, without)
+        self.assertAlmostEqual(with_floor / without, 3 / 4, delta=0.02)
+
+    def test_the_cache_file_keeps_at_most_its_limit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Path(tmp) / "cards.json"
+            frames, bench = noisy_market(n_stocks=2)
+            with mock.patch.object(card, "CACHE_LIMIT", 3):
+                for i in range(5):
+                    card.cached_history(parse(f"kapanis>{i}"), lambda: (frames, bench, None), version="v", path=store)
+            import json
+
+            kept = json.loads(store.read_text(encoding="utf-8"))
+            self.assertEqual(list(kept), ["kapanis>2|v", "kapanis>3|v", "kapanis>4|v"])  # the newest
+            card._MEMORY.clear()
+
+
 class HoldoutTest(unittest.TestCase):
     def test_history_data_goes_through_load_frames_without_the_holdout(self):
         from core.screen import command

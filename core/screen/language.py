@@ -9,7 +9,7 @@ Nothing the user types is ever executed; it only becomes a tree of known nodes.
     options: evren=bist100|bist30|izleme · likidite=10 (million TL, 0 = off) ·
              sirala=alfabetik|goreli_guc|hacim|rsi
 
-At most 300 characters and 15 conditions. Errors name the place (a caret under the normalized
+At most 400 characters and 15 conditions. Errors name the place (a caret under the normalized
 text) and the nearest valid field.
 """
 
@@ -24,7 +24,8 @@ import pandas as pd
 
 from core.screen import fields as F
 
-MAX_LENGTH = 300
+MAX_LENGTH = 400
+MA_PERIODS = (5, 10, 20, 40, 50, 100, 200)  # the periods the user's screens use (görev 28.10, Aşama A)
 MAX_CONDITIONS = 15  # the user's own "Düşeni Kıran" screen has 14 price conditions (DECISIONS K-34)
 PARAM_RANGE = (2, 250)
 WINDOW_RANGE = (1, 60)
@@ -474,6 +475,9 @@ class _Parser:
             param = number.value
         if param is not None and F.FIELDS[name].param is None:
             self.error(f"'{name}' parametre almaz.", t.pos)
+        if name in ("ema", "sma") and param is not None and int(param) not in MA_PERIODS:
+            self.error(f"{name}({int(param)}) desteklenmiyor; geçerli değerler: "
+                       f"{', '.join(str(p) for p in MA_PERIODS)}.", t.pos)
         key = F.key(name, None if param is None else int(param))
         self.fields.add(key)
         return Operand(key)

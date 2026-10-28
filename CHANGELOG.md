@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.80.0 – 28.10.2026 (şablon görevi Aşama A + öz-denetim 5)
+- TradingView adlarıyla yeni alanlar: `goreli_hacim` (10 gün), `momentum10`, `vwma20`, `ortalama_hacim_30g` (adet), `likidite` (TL), `degisim_1h/1a/3a`, `zirve_1a`. Taramalar TradingView'daki gibi yazılabiliyor.
+- `ema(n)` ve `sma(n)` için geçerli dönemler: 5, 10, 20, 40, 50, 100, 200. Başka bir değer yazılırsa hata mesajı geçerli değerleri listeliyor. Girdi sınırı 400 karakter.
+- Öz-denetim 5 bulguları:
+  - Karne artık listedeki likidite tabanını da uyguluyor; önceden listede hiç görünmeyecek sığ hisseleri sayıyordu.
+  - Karne önbelleği 500 kayıtla sınırlandı.
+  - Kritik ya da yüksek bulgu yok.
+
 ## v0.79.0 – 28.10.2026 (PC'deki gerçek veri bulguları)
 - `/tara` artık gerçekten bugünkü BIST 100'ü (100 hisse, resmi üyelik) tarıyor. Eskiden "BIST 100" yazıp 118 hisselik rapor listesini tarıyordu. O liste `evren=quantbist` seçeneği olarak kaldı.
 - Günlük fiyat güncellemesi bugünkü BIST 100'ün tamamını kapsıyor. Daha önce 14 üye eksikti: HALKB, VAKBN, ZOREN ve diğerleri.

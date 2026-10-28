@@ -45,6 +45,8 @@ def value_text(column: str, x: float) -> str:
         return f"{tr(x, 1)}×"
     if unit == "milyon TL":
         return f"{tr(x, 0)} mn TL"
+    if unit == "adet":
+        return tr(x, 0)
     if unit in ("%", "puan", "0–100", "±1"):
         return tr(x, 1)
     return tr(x, 2) if abs(x) < 1000 else tr(x, 0)

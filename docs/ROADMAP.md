@@ -65,9 +65,21 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 5 — 28.10.2026 (v0.73.0 → v0.79.0, 10 sürüm).** Kapsam: KAP metin aracı, SKBNK düzeltmesi, kanıt dosyası (triage), /tara motoru, Telegram arayüzü, dürüst karne, evren düzeltmesi.
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö17 | ORTA (tutarlılık) | Liste likidite tabanını uyguluyordu, karne uygulamıyordu: karne listede hiç görünmeyecek sığ hisselerin olaylarını da sayıyordu (kullanıcının "liste ve karne aynı evrende olsun" bulgusuyla aynı tür) | ✅ v0.80.0: karne tabanı o günün 20 günlük işlem hacmiyle uygular (`test_screen_card.AuditFiveTest`) |
+| Ö18 | DÜŞÜK | `logs/screen_cards.json` her yeni kriterle sınırsız büyüyordu | ✅ v0.80.0: en yeni 500 karne tutulur |
+| Ö19 | DÜŞÜK | Karne evren olarak her zaman o günkü BIST 100 üyelerini alır; `evren=izleme/quantbist` listesinde karne o evrene daraltılmaz | kabul: karne başlığı bunu yazar; izleme listesi gibi küçük evrende karne örneği anlamsız küçülür |
+| Ö20 | BİLGİ | `/tara` oturumu (`/tara_devam`, düğmeler) bellekte; bot yeniden başlarsa unutulur | kabul: cevap "Önce /tara" der; kişisel kayıt değildir |
+| Ö21 | BİLGİ | Bot üzerinden giden testler gerçek `signal_log`'a yazabiliyordu | ✅ v0.78.0'da bulunmuştu (yazma koruması), conftest kalıcı yönlendiriyor |
+
+Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter kümesi dışı her şey reddedilir; holdout karnede iki yerde kesilir (kesim kaldırılınca test kırmızı); giriş ertesi açılış; düğmeler yalnız izinli sohbete cevap verir; KAP'tan gelen hiçbir şey kendiliğinden veriye yazılmaz (SKBNK elle, kanıtla); ATR/ADX hızlı sürümleri kütüphaneyle bit bit aynı. **Kritik ya da yüksek bulgu yok.**
+
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.79.0 (/tara evreni bugünkü resmi BIST 100, ATR uyarıları; K-36). Öz-denetim sayacı: v0.72.0'dan beri 9; bir sonraki sürüm öz-denetim 5.
+- **Son sürüm:** v0.80.0 (TradingView adlarıyla alanlar, ema/sma dönemleri, 400 karakter; öz-denetim 5; K-37). Öz-denetim sayacı v0.80.0'da sıfırlandı.
 - **PC'de doğrulandı (28.10 yerel otomasyon, v0.68.0 → v0.75.0):** 699 test geçti (4 atlandı), ruff temiz, `/durum` hepsi SAĞLIKLI, SLO 6/7 hedefte. Dışarıdan izleme çalışıyor (bot sinyali 10:42). Bayram günü rapor görevi "holiday" ile başarılı sinyal gönderiyor; 29.10'da yanlış alarm beklenmiyor, 30.10'da `logs/monitoring.json`'dan doğrulanacak. v0.68.1–v0.75.0 PC'de doğrulandı.
 - **Açık (K-36):** günlük raporun ve canlı ölçümün evreni (`data/universe.csv`, 118 hisse) resmi BIST 100 ile aynı değil: 32 fazla, 14 eksik. Ölçüm sürerken değiştirilmeyecek. Karar ilk canlı ölçüm dönemi bitince (Kasım sonu) verilecek.
 - **/tara paketi (kullanıcı, 28.10):** Aşama 1 ✅ v0.76.0, Aşama 2 ✅ v0.77.0, Aşama 3 ✅ v0.78.0. Sırada Aşama 4 (kayıt/abonelik/ölçüm), 5 (şablonlar), 6 (kalite ve belgeler). **Açık:** BIST 30 listesi kaynağıyla eklenmeli (K-33).

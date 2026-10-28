@@ -39,6 +39,7 @@ BLOCK = 21
 SAMPLES = 2000
 TOP_EXCLUDED = 5
 CACHE_FILE = LOG_DIR / "screen_cards.json"
+CACHE_LIMIT = 500  # cards kept on disk, newest last (öz-denetim 5, Ö18)
 TRIALS_FILE = LOG_DIR / "screen_trials.csv"
 VERSION_FILES = (DATA_DIR / "corporate_actions.csv", DATA_DIR / "price_fix_approvals.csv",
                  DATA_DIR / "bist100_changes.csv", DATA_DIR / "bist100_stable.csv")
@@ -67,7 +68,7 @@ class CardStats:
 
 
 def _tables(query: Query, frames: dict, bench: pd.DataFrame, eligible: pd.DataFrame | None) -> dict:
-    wanted = sorted(query.fields) or ["kapanis"]
+    wanted = sorted(query.fields | {"islem_tl"})
     tables = {s: F.table(df, bench["close"], wanted) for s, df in frames.items() if not df.empty}
     if "gg_sira" in query.fields and tables:
         panel = pd.DataFrame({s: t["gg_60"] for s, t in tables.items()})
@@ -120,6 +121,8 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
     for symbol, table in tables.items():
         df = frames[symbol]
         mask = query.mask(table).to_numpy() & (table.index >= pd.Timestamp(HISTORY_START))
+        if query.liquidity > 0:  # the list's own floor, measured on that day (öz-denetim 5, Ö17)
+            mask &= (table["islem_tl"] >= query.liquidity).to_numpy()
         if eligible is not None:
             if symbol not in eligible.columns:
                 continue
@@ -185,6 +188,7 @@ def cached_history(query: Query, load, version: str | None = None, path: Path | 
     else:
         result = history(query, *load())
         stored[key] = {str(h): asdict(v) for h, v in result.items()}
+        stored = dict(list(stored.items())[-CACHE_LIMIT:])
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             tmp = path.with_suffix(".tmp")
