@@ -1,0 +1,15 @@
+KAP kurumsal işlem bildirimleri, son 14 gün (28.10.2026); hiçbir şey kendiliğinden uygulanmaz.
+
+Sermaye artırımı / azaltımı (bedelsiz, bedelli, bölünme):
+  SKBNK 20.10 – Bedelli Sermaye Artırımına İlişkin İzahnamenin SPK Tarafından Onaylanması – kayıtlı
+    https://www.kap.org.tr/tr/Bildirim/1684593
+  SKBNK 21.10 – Bedelli Sermaye Artırımına İlişkin Yeni Pay Alma Hakkı Kullanım Tarihleri – kayıtlı
+    https://www.kap.org.tr/tr/Bildirim/1685136
+  HEKTS 23.10 – Tahsisli Sermaye Artırımı Sonrası Esas Sözleşme Değişikliği İçin Sermaye Piyasası Kurulu?na Başvurulması Hk. – tahsisli: fiyat düzeltme gerekmez
+    https://www.kap.org.tr/tr/Bildirim/1686978
+
+Kâr payı (temettü; fiyat düzeltmesini Yahoo yapar, elinde varsa deftere temettü işlenir):
+  FROTO 27.10 – Kar Dağıtım Önerisi
+    https://www.kap.org.tr/tr/Bildirim/1688363
+  SDTTR 27.10 – Kâr Payı Dağıtım İşlemlerine İlişkin Bildirim
+    https://www.kap.org.tr/tr/Bildirim/1688128

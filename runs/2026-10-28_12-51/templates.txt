@@ -1,0 +1,25 @@
+/tara şablon karneleri (2023-08-01 – 30.10.2026, o günkü BIST 100 üyeleri, ertesi açılış, maliyet dahil; keşif, araştırma programı dışında)
+
+basit_teknik: goreli_hacim>1 kesti_yukari(rsi,50) kesti_yukari(ema5,ema20)
+  5 seans: ortalama -%1,0, medyan -%1,1, isabet %39, örnek 674 (bağımsız 663), %95 aralık [-%1,5, -%0,4], en kârlı 5 hisse hariç -%1,2 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: ortalama -%1,6, medyan -%2,3, isabet %40, örnek 663 (bağımsız 593), %95 aralık [-%3,0, +%0,1], en kârlı 5 hisse hariç -%2,2 → geçmişte XU100'den ayırt edilemiyor
+
+basit_teknik_3g: goreli_hacim>1 son(3,kesti_yukari(rsi,50)) son(3,kesti_yukari(ema5,ema20))
+  5 seans: ortalama -%0,7, medyan -%1,0, isabet %41, örnek 3073 (bağımsız 1737), %95 aralık [-%1,1, -%0,4], en kârlı 5 hisse hariç -%0,9 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: ortalama -%1,3, medyan -%2,1, isabet %42, örnek 3051 (bağımsız 1382), %95 aralık [-%2,4, -%0,2], en kârlı 5 hisse hariç -%1,7 → geçmişte XU100'ün gerisinde; kanıt değildir
+
+bebek_teknik: goreli_hacim>1 momentum10>0
+  5 seans: ortalama -%0,5, medyan -%0,9, isabet %43, örnek 17946 (bağımsız 6956), %95 aralık [-%0,7, -%0,2], en kârlı 5 hisse hariç -%0,6 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: ortalama -%0,7, medyan -%1,6, isabet %44, örnek 17788 (bağımsız 2921), %95 aralık [-%1,4, +%0,2], en kârlı 5 hisse hariç -%1,0 → geçmişte XU100'den ayırt edilemiyor
+
+duseni_kiran: kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis
+  5 seans: ortalama -%0,0, medyan -%0,8, isabet %44, örnek 960 (bağımsız 739), %95 aralık [-%0,6, +%0,5], en kârlı 5 hisse hariç -%0,4 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: ortalama -%0,9, medyan -%1,6, isabet %44, örnek 955 (bağımsız 581), %95 aralık [-%2,3, +%0,6], en kârlı 5 hisse hariç -%1,9 → geçmişte XU100'den ayırt edilemiyor
+
+tek_tus_trend: kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis degisim_3a<60
+  5 seans: ortalama -%0,1, medyan -%0,5, isabet %46, örnek 4012 (bağımsız 1426), %95 aralık [-%0,4, +%0,2], en kârlı 5 hisse hariç -%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: ortalama +%0,4, medyan -%0,9, isabet %46, örnek 4009 (bağımsız 688), %95 aralık [-%0,6, +%1,3], en kârlı 5 hisse hariç -%0,5 → geçmişte XU100'den ayırt edilemiyor
+
+teknik_temel_ema: kapanis>ema50 ema50>ema200
+  5 seans: ortalama -%0,1, medyan -%0,6, isabet %45, örnek 32055 (bağımsız 7256), %95 aralık [-%0,3, +%0,0], en kârlı 5 hisse hariç -%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: ortalama +%0,2, medyan -%1,0, isabet %46, örnek 31829 (bağımsız 2160), %95 aralık [-%0,6, +%0,9], en kârlı 5 hisse hariç -%0,4 → geçmişte XU100'den ayırt edilemiyor
