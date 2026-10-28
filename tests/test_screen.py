@@ -62,7 +62,9 @@ class MessageTest(unittest.TestCase):
         result = engine.run(parse("rsi>0 ema20>0 macd>-1000 hacim_oran>0 atr_yuzde>0"), frames, bench)
         result.matches = result.matches * 3
         result.missing = [(f"X{i:02d}.IS", "son kapanış 24.10") for i in range(20)]
-        text = command.format_result(result, {5: (0.001, 0.52, 1234), 20: (-0.002, 0.48, 1200)}, "not")
+        stats = card.CardStats(n=1234, independent=300, mean=0.001, median=0.0, hit=0.52, low=-0.003, high=0.005,
+                               without_top=0.0)
+        text = command.format_result(result, {5: stats, 20: stats}, "not", trials=(2, 9))
         self.assertIn(f"(+{len(result.matches) - 15} hisse daha: /tara_devam)", text)
         from bot.common import split_message
 
@@ -83,6 +85,7 @@ class HistoryCardTest(unittest.TestCase):
         self.assertGreater(frames["S00.IS"].index[-1], pd.Timestamp(SCREEN_END))  # data runs past it
         q = parse("rsi>0")
         full = card.history(q, frames, bench)
+        self.assertGreater(full[5].n, 0)
         cut = card.history(q, {k: v.loc[:SCREEN_END] for k, v in frames.items()}, bench.loc[:SCREEN_END])
         self.assertEqual(full, cut)
         later = {k: v.copy() for k, v in frames.items()}  # change everything after the line: nothing moves
@@ -92,23 +95,23 @@ class HistoryCardTest(unittest.TestCase):
 
     def test_counts_from_the_screening_start(self):
         frames, bench = self.frames_across_the_holdout()
-        mean, hit, n = card.history(parse("rsi>0"), frames, bench)[5]
-        self.assertGreater(n, 30)
-        self.assertTrue(0 <= hit <= 1)
+        stats = card.history(parse("rsi>0"), frames, bench)[5]
+        self.assertGreater(stats.n, 30)
+        self.assertTrue(0 <= stats.hit <= 1)
         early = {k: v.loc[:"2023-07-31"] for k, v in frames.items()}
-        self.assertEqual(card.history(parse("rsi>0"), early, bench)[5][2], 0)
+        self.assertEqual(card.history(parse("rsi>0"), early, bench)[5].n, 0)
 
     def test_eligibility_rank_and_small_samples(self):
         frames, bench = self.frames_across_the_holdout()
         nobody = pd.DataFrame(False, index=bench.index, columns=list(frames))
-        self.assertEqual(card.history(parse("rsi>0"), frames, bench, eligible=nobody)[5][2], 0)
+        self.assertEqual(card.history(parse("rsi>0"), frames, bench, eligible=nobody)[5].n, 0)
         everyone = pd.DataFrame(True, index=bench.index, columns=list(frames))
-        top = card.history(parse("gg_sira>80"), frames, bench, eligible=everyone)[5][2]
-        allr = card.history(parse("gg_sira>-1"), frames, bench, eligible=everyone)[5][2]
+        top = card.history(parse("gg_sira>80"), frames, bench, eligible=everyone)[5].n
+        allr = card.history(parse("gg_sira>-1"), frames, bench, eligible=everyone)[5].n
         self.assertAlmostEqual(top / allr, 1 / 3, delta=0.01)  # of six stocks, ranks 83 and 100 are above 80
         frames2, bench2 = market()
         result = engine.run(parse("rsi>0"), frames2, bench2)
-        text = command.format_result(result, {5: (None, None, 0), 20: (None, None, 12)})
+        text = command.format_result(result, {5: card.CardStats(), 20: card.CardStats(n=12)})
         self.assertIn("5 seans: yetersiz örnek (0)", text)
         self.assertIn("20 seans: yetersiz örnek (12)", text)
         self.assertIn("2023-08", text)
@@ -194,9 +197,13 @@ class BotTest(unittest.TestCase):
         self.assertIn("tara_kaydet", dict(MENU))
         self.assertIn("/tara", HELP_TEXT)
         self.assertIn("Örnekler", run_handler(dict(COMMANDS)["tara"], []))
-        with mock.patch.object(command, "screen_text", return_value="liste") as called:
+        with mock.patch.object(command, "screen_list", return_value=("sonuç", None)) as listed, \
+                mock.patch.object(command.C, "cached_history", return_value=None), \
+                mock.patch.object(command, "finish", return_value="liste") as finished:
             out = run_handler(dict(COMMANDS)["tara"], ["rsi<30"])
-        called.assert_called_once_with(["rsi<30"], CHAT)
+        self.assertEqual(listed.call_args.args[0].text, "rsi<30")
+        self.assertEqual(listed.call_args.args[1], CHAT)
+        self.assertEqual(finished.call_args.args[2], "sonuç")
         self.assertTrue(out.startswith("⏳") and out.endswith("liste"))
         self.assertIn("Kaydedildi", run_handler(dict(COMMANDS)["tara_kaydet"], ["dusuk", "rsi<30"]))
 

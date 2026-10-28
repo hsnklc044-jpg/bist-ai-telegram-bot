@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.78.0 – 28.10.2026 (/tara Aşama 3: dürüst karne)
+- Karne artık işlem maliyetini düşüyor (gidiş-dönüş %0,30). Giriş ertesi seansın açılışından yapılıyor.
+- Karnede yeni ölçüler: ortalama ve medyan, isabet, örnek ve bağımsız olay sayısı (bir hissenin çakışan sinyalleri bir sayılıyor), %95 güven aralığı, en kârlı 5 hisse çıkarılınca sonuç.
+- Etiketler hiçbir zaman "başarılı" demiyor. Aralık olumlu çıksa bile "çoklu deneme nedeniyle şans olabilir, kanıt değildir" yazıyor.
+- Kaç farklı kriter denendiği sayılıyor ve karnede veri gözetlemesi uyarısı olarak gösteriliyor.
+- Karne önbelleğe alınıyor. Hesap 60 saniyeyi geçerse liste hemen geliyor, karne ayrı mesajla.
+
 ## v0.77.0 – 28.10.2026 (/tara Aşama 2: Telegram arayüzü)
 - Yeni komutlar: `/tara_alanlar` (tüm alanlar ve birimleri), `/tara_aciklama THYAO rsi<30` (o hissede her koşulun değeri ve sağlanıp sağlanmadığı), `/tara_devam` (sonraki 15 satır).
 - Cevabın altında Devam, Karne ve Kaydet düğmeleri var. Uzun cevaplar satırlar bölünmeden parçalanıyor.

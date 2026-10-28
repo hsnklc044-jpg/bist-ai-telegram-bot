@@ -11,9 +11,12 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from bot.common import reply
+from core.infrastructure.logger import get_logger
 from core.reports.forward import forward_report
 from core.reports.health import health_report
 from core.reports.overview import build_overview
+
+logger = get_logger(__name__)
 
 
 def _build_summary() -> str:
@@ -103,10 +106,40 @@ async def screen_cmd(
 
     words = list(context.args or [])
     chat = update.effective_chat.id
-    if words:
-        await reply(update, "⏳ Taranıyor (geçmiş karne ile birlikte)...")
-    text = await asyncio.to_thread(screen.screen_text, words, chat)
-    await reply(update, text, _screen_buttons(chat) if words and chat in screen.SESSIONS else None)
+    query, answer = screen.resolve(words, chat)
+    if query is None:
+        await reply(update, answer)
+        return
+    await reply(update, "⏳ Taranıyor (geçmiş karne ile birlikte)...")
+    result, trials = await asyncio.to_thread(screen.screen_list, query, chat)
+    card_task = asyncio.ensure_future(asyncio.to_thread(screen.C.cached_history, query, screen._history_data))
+    try:
+        history = await asyncio.wait_for(asyncio.shield(card_task), CARD_WAIT)
+    except asyncio.TimeoutError:  # the list goes out now, the card when it is ready
+        history = screen.PENDING
+        task = asyncio.ensure_future(_card_later(update, chat, card_task))
+        _BACKGROUND.add(task)
+        task.add_done_callback(_BACKGROUND.discard)
+    except Exception:  # noqa: BLE001 - the list still goes out
+        logger.exception("History card failed")
+        history = None
+    text = await asyncio.to_thread(screen.finish, query, chat, result, trials, history)
+    await reply(update, text, _screen_buttons(chat))
+
+
+CARD_WAIT = 60  # seconds the list waits for its history card (Aşama 3, madde 10)
+_BACKGROUND: set = set()
+
+
+async def _card_later(update, chat, card_task) -> None:
+    from core.screen import command as screen
+
+    try:
+        history = await card_task
+    except Exception:  # noqa: BLE001
+        logger.exception("History card failed")
+        history = None
+    await reply(update, screen.card_later(chat, history))
 
 
 def _screen_buttons(chat_id):

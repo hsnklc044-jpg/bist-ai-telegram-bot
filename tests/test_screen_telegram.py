@@ -109,18 +109,62 @@ def fake_update(sent, chat=CHAT, data=None):
 
 
 class BotTest(Base):
+    def run_screen(self, sent, args, card_seconds=0.0, wait=60):
+        """/tara through the bot with the test market; the card takes `card_seconds`."""
+        import time
+
+        from bot import reports
+
+        real_list = command.screen_list
+
+        def card(query, load):
+            time.sleep(card_seconds)
+            return {5: command.C.CardStats(n=3), 20: command.C.CardStats(n=3)}
+
+        async def go():
+            await reports.screen_cmd(fake_update(sent), SimpleNamespace(args=args))
+            await asyncio.gather(*list(reports._BACKGROUND))
+
+        with mock.patch.object(command, "screen_list",
+                               side_effect=lambda q, chat: real_list(q, chat, live=self.kwargs()["live"],
+                                                                     suspects=set())), \
+                mock.patch.object(command.C, "cached_history", side_effect=card), \
+                mock.patch.object(reports, "CARD_WAIT", wait):
+            asyncio.run(go())
+
+    def test_slow_card_comes_in_its_own_message(self):
+        sent = []
+        self.run_screen(sent, ["rsi>0"], card_seconds=0.3, wait=0.05)
+        texts = [t for t, _ in sent]
+        self.assertTrue(texts[0].startswith("⏳"))
+        self.assertIn("karne hesaplanıyor; hazır olunca ayrı mesajla gelecek", texts[1])
+        self.assertIn("📒 Geçmiş karne", texts[2])
+        self.assertIn("yetersiz örnek (3)", texts[2])
+
+    def test_fast_card_is_under_the_list(self):
+        sent = []
+        self.run_screen(sent, ["rsi>0"])
+        self.assertEqual(len(sent), 2)
+        self.assertIn("yetersiz örnek (3)", sent[1][0])
+
+    def test_guide_and_errors_need_no_scan(self):
+        from bot.reports import screen_cmd
+
+        for args, expected in (([], "Örnekler"), (["rsx<3"], "bilinmeyen alan")):
+            sent = []
+            asyncio.run(screen_cmd(fake_update(sent), SimpleNamespace(args=args)))
+            self.assertEqual(len(sent), 1)
+            self.assertIn(expected, sent[0][0])
+
     def test_commands_menu_and_buttons(self):
         from bot.handlers import COMMANDS, MENU
-        from bot.reports import screen_button, screen_cmd
+        from bot.reports import screen_button
 
         for name in ("tara", "tara_alanlar", "tara_aciklama", "tara_devam", "tara_kaydet"):
             self.assertIn(name, dict(COMMANDS))
             self.assertIn(name, dict(MENU))
         sent = []
-        real = command.screen_text
-        with mock.patch.object(command, "screen_text",
-                               side_effect=lambda words, chat_id: real(words, chat_id=chat_id, **self.kwargs())):
-            asyncio.run(screen_cmd(fake_update(sent), SimpleNamespace(args=["rsi>0", "likidite=0"])))
+        self.run_screen(sent, ["rsi>0", "likidite=0"])
         text, markup = sent[-1]
         labels = [b.text for row in markup.inline_keyboard for b in row]
         self.assertEqual(labels, ["Devam ▶", "Karne", "Kaydet"])

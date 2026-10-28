@@ -52,7 +52,8 @@ def _line(m: engine.Match) -> str:
             f"likidite {engine.value_text('islem_tl', m.liquidity)}")
 
 
-def format_result(result: engine.Result, card: dict | None, note: str = "", rows: int = MAX_ROWS) -> str:
+def format_result(result: engine.Result, card: dict | None, note: str = "", rows: int = MAX_ROWS,
+                  trials: tuple[int, int] | None = None) -> str:
     q = result.query
     lines = [f"🔎 /tara {q.text}"]
     if note:
@@ -79,29 +80,35 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
         lines.append("Veri eksik (taranmadı): " + "; ".join(f"{s.removesuffix('.IS')} ({why})"
                                                              for s, why in result.missing))
     lines.append("")
-    lines += card_lines(card)
+    lines += card_lines(card, trials)
     lines.append(DISCLAIMER)
     return "\n".join(lines)
 
 
-def card_lines(card: dict | None) -> list[str]:
+def card_lines(card: dict | None, trials: tuple[int, int] | None = None) -> list[str]:
     import pandas as pd
 
     from core.backtest.run import SCREEN_END
-    from core.reports.daily import pct
+    from core.reports.daily import pct, tr
 
     if card is None:
         return ["📒 Geçmiş karne hesaplanamadı."]
-    lines = [f"📒 Geçmiş karne ({C.HISTORY_START[:7]} – {pd.Timestamp(SCREEN_END):%d.%m.%Y}, "
-             "holdout öncesi; o günkü BIST 100 üyeleri; ertesi açılıştan itibaren XU100'e göre fazla getiri):"]
+    lines = [f"📒 Geçmiş karne ({C.HISTORY_START[:7]} – {pd.Timestamp(SCREEN_END):%d.%m.%Y}, holdout öncesi; o günkü "
+             f"BIST 100 üyeleri; giriş ertesi seansın açılışı, maliyet dahil (gidiş-dönüş %{tr(C.ROUND_TRIP_COST * 100, 2)}); "
+             "XU100'e göre fazla getiri):"]
     for h in sorted(card):
-        mean, hit, n = card[h]
-        if n < C.MIN_SAMPLES:
-            lines.append(f"  {h} seans: yetersiz örnek ({n})")
-        else:
-            lines.append(f"  {h} seans: ortalama {pct(mean)}, isabet %{hit * 100:.0f}, örnek {n}")
-    lines.append("  Geçmişin özetidir. Koşullar serbestçe denenebildiği için bir kuralın işe yaradığına "
-                 "kanıt sayılmaz (araştırma programı dışında; örnekler zaman içinde çakışır).")
+        s = card[h]
+        if s.n < C.MIN_SAMPLES or s.mean is None:
+            lines.append(f"  {h} seans: yetersiz örnek ({s.n})")
+            continue
+        interval = f"%95 aralık [{pct(s.low)}, {pct(s.high)}]" if s.low is not None else "aralık için tarih az"
+        without = f", en kârlı 5 hisse hariç {pct(s.without_top)}" if s.without_top is not None else ""
+        lines.append(f"  {h} seans: ortalama {pct(s.mean)}, medyan {pct(s.median)}, isabet %{s.hit * 100:.0f}, "
+                     f"örnek {s.n} (bağımsız {s.independent}), {interval}{without} → {s.label}")
+    if trials:
+        lines.append(f"  ⚠️ Veri gözetlemesi: bu oturumda {trials[0]}. deneme; bugüne kadar {trials[1]} farklı kriter "
+                     "denendi. Ne kadar çok koşul denenirse iyi görünen bir karnenin şans olma ihtimali o kadar artar.")
+    lines.append("  Geçmişin özetidir; bir kuralın işe yaradığına kanıt sayılmaz (araştırma programı dışında).")
     return lines
 
 
@@ -113,6 +120,7 @@ class Session:
     result: engine.Result
     card: dict | None
     offset: int = MAX_ROWS
+    trials: tuple | None = None
 
 
 SESSIONS: dict = {}  # chat id -> Session (memory only; a restart forgets it)
@@ -148,7 +156,7 @@ def card_text(chat_id) -> str:
     session = SESSIONS.get(chat_id)
     if session is None:
         return "Önce /tara ile bir tarama yap."
-    return "\n".join([f"🔎 /tara {session.result.query.text}", *card_lines(session.card), DISCLAIMER])
+    return "\n".join([f"🔎 /tara {session.result.query.text}", *card_lines(session.card, session.trials), DISCLAIMER])
 
 
 def save_hint(chat_id) -> str:
@@ -343,42 +351,94 @@ def _history_data():
     return _HISTORY[key]
 
 
-def screen_text(words: list[str], chat_id=None, live=None, history_data=None, signal_path=None, saved_path=None,
-                now: datetime | None = None, suspects=None) -> str:
-    from core.infrastructure.logger import get_logger
-    from core.market.calendar import now_istanbul
-    from core.signals_log import log_signal
+def resolve(words: list[str], chat_id=None, saved_path=None):
+    """(query, None) to scan, or (None, answer) when the answer needs no scan (guide, error)."""
 
-    now = now or now_istanbul()
     text = " ".join(words).strip()
     try:
         saved = load_saved(saved_path)
     except Exception:  # noqa: BLE001 - a damaged saved file must not stop a plain /tara
         saved = {}
     if not text:
-        return help_text(saved)
+        return None, help_text(saved)
     text = saved.get(normalize(text), text)
     try:
         query = parse(text)
-        symbols = universe.symbols(query.universe, chat_id)
+        universe.symbols(query.universe, chat_id)  # an empty watchlist is an answer, not an error
     except ScreenError as exc:
-        return str(exc)
+        return None, str(exc)
+    return query, None
 
-    frames, bench = (live or _live)(symbols)
-    found = universe.suspects() if suspects is None else suspects
-    result = engine.run(query, frames, bench, found)
+
+PENDING = "pending"
+
+
+def finish(query, chat_id, result, trials, history, now: datetime | None = None, signal_path=None) -> str:
+    """Record the matches (live measurement), keep the chat's session, write the answer.
+    `history` PENDING: the card follows in its own message."""
+
+    from core.market.calendar import now_istanbul
+    from core.signals_log import log_signal
+
+    now = now or now_istanbul()
+    details = f"kriter={query.text};ozet={criterion_hash(query.text)}"
+    for m in result.matches:  # every match, not only the rows shown
+        log_signal(SOURCE, m.symbol, None, query.text, m.day, m.close, details=details, path=signal_path, now=now)
+    pending = history == PENDING
+    card = None if pending else history
+    if chat_id is not None:
+        SESSIONS[chat_id] = Session(result, card, trials=trials)
+    text = format_result(result, card, engine.time_note(result.day, now), trials=trials)
+    if pending:
+        text = text.replace("📒 Geçmiş karne hesaplanamadı.",
+                            "📒 Geçmiş karne hesaplanıyor; hazır olunca ayrı mesajla gelecek.")
+    return text
+
+
+def screen_text(words: list[str], chat_id=None, live=None, history_data=None, signal_path=None, saved_path=None,
+                now: datetime | None = None, suspects=None) -> str:
+    """The whole answer in one go (the bot uses resolve / screen_list / finish to send the card
+    later when it takes long)."""
+
+    from core.infrastructure.logger import get_logger
+
+    query, answer = resolve(words, chat_id, saved_path)
+    if query is None:
+        return answer
+    result, trials = screen_list(query, chat_id, live, suspects)
     try:
-        data = (history_data or _history_data)()
-        history = C.history(query, *data) if data is not None else None
+        if history_data is not None:
+            data = history_data()
+            history = C.history(query, *data) if data is not None else None
+        else:
+            history = C.cached_history(query, _history_data)
     except Exception:  # noqa: BLE001 - the list still goes out
         get_logger(__name__).exception("History card failed")
         history = None
-    details = f"kriter={query.text};ozet={criterion_hash(query.text)}"
-    for m in result.matches:  # live measurement: every match, not only the rows shown
-        log_signal(SOURCE, m.symbol, None, query.text, m.day, m.close, details=details, path=signal_path, now=now)
-    if chat_id is not None:
-        SESSIONS[chat_id] = Session(result, history)
-    return format_result(result, history, engine.time_note(result.day, now))
+    return finish(query, chat_id, result, trials, history, now, signal_path)
+
+
+def card_later(chat_id, history) -> str:
+    """The card that was still being computed when the list went out."""
+
+    session = SESSIONS.get(chat_id)
+    if session is not None:
+        session.card = history
+    return card_text(chat_id)
+
+
+def screen_list(query, chat_id=None, live=None, suspects=None):
+    """The live list and the trial count, without the history card (the bot sends the card later
+    when it takes long)."""
+
+    frames, bench = (live or _live)(universe.symbols(query.universe, chat_id))
+    found = universe.suspects() if suspects is None else suspects
+    result = engine.run(query, frames, bench, found)
+    try:
+        trials = C.record_trial(chat_id if chat_id is not None else 0, query.text)
+    except Exception:  # noqa: BLE001 - the count is a warning, never a reason to fail
+        trials = None
+    return result, trials
 
 
 __all__ = ["DISCLAIMER", "SESSIONS", "SOURCE", "card_text", "criterion_hash", "explain_text", "fields_text",

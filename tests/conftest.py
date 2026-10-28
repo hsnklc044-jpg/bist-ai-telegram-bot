@@ -5,6 +5,7 @@ os.environ["QUANTBIST_LOG_FILE"] = ""
 
 import pytest  # noqa: E402
 
+from core import signals_log  # noqa: E402
 from core.alerts import levels  # noqa: E402
 from core.backtest import expectations  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
@@ -36,6 +37,12 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(daily, "REPORT_TEXT_DIR", tmp_path / "reports")
     monkeypatch.setattr(levels, "PRICE_ALARMS_FILE", tmp_path / "price_alarms.csv")
     monkeypatch.setattr(screen, "SCREENS_FILE", tmp_path / "screens.csv")
+    # every signal_log write that does not name its file (e.g. /tara through the bot) stays private
+    monkeypatch.setattr(signals_log, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")
+    monkeypatch.setattr(screen.C, "CACHE_FILE", tmp_path / "screen_cards.json")
+    monkeypatch.setattr(screen.C, "TRIALS_FILE", tmp_path / "screen_trials.csv")
+    screen.C._MEMORY.clear()
+    screen.C._SESSIONS.clear()
 
     previous = store._db_path
     store.configure(tmp_path / "market.db")

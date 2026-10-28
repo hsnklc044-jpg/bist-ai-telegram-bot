@@ -174,11 +174,26 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 
 Eşlemeler: Perf 1A ≈ `getiri(21)`, 3A ≈ `getiri(63)`, Değ 1H ≈ `getiri_5g`; Göreceli hacim ≈ `hacim_oran(10)`; Ort. hacim 30G = `ort_hacim(30)` (milyon adet); Fiyat < Yüksek 1A ≈ `kapanis<yuksek_20g`; Mom 10 = `mom(10)`. Piyasa değeri, FSO ve borsa pazarı için veri yok. "HO derecelendirmesi: Güçlü al" bir al/sat etiketidir, eklenmez (CHARTER §9).
 
-**Karne nasıl okunur.**
-- Aynı koşulların 2023-08 – 30.10.2026 verisindeki geçmişidir. Holdout (02.11.2026 sonrası) hiç okunmaz.
-- Her gün o günkü BIST 100 üyeleri alınır. Giriş ertesi seansın açılışıdır; çıkış 5 ya da 20 seans sonraki kapanıştır; sonuç XU100'e göre fazla getiri olarak verilir.
-- 30'dan az örnekte "yetersiz örnek" yazar.
-- Koşullar serbestçe denenebildiği için karne bir kuralın işe yaradığına **kanıt değildir**. Bir koşul araştırılacaksa ön kayıtla araştırma programına girer (RESEARCH_PROGRAM).
+**Karne nasıl okunur** (K-35).
+- **Dönem ve veri:** 2023-08 – 30.10.2026. Holdout (02.11.2026 sonrası) hiç okunmaz: veri `load_frames` ile gelir ve karne bir kez daha keser.
+- **Olay:** her gün, o günkü BIST 100 üyesi olup koşulu sağlayan hisse bir olaydır (geçmiş üyelik; survivorship yok).
+- **Giriş ve çıkış:** giriş ertesi seansın açılışıdır (geleceğe bakma yok); çıkış 5 ya da 20 seans sonraki kapanıştır.
+- **Maliyet:** her yönde komisyon %0,10 + kayma %0,05, gidiş-dönüş %0,30 düşülür.
+- **Ölçü:** XU100'ün aynı seanslardaki getirisine göre fazla getiri.
+- **Satırda:**
+  - ortalama ve medyan, isabet (XU100'ü geçen olay oranı)
+  - örnek sayısı ve **bağımsız** olay sayısı (bir hissenin aynı tutma süresine düşen sinyalleri bir sayılır)
+  - %95 blok bootstrap aralığı (21 giriş tarihlik dairesel bloklar; aynı tarihin olayları birlikte taşınır)
+  - en kârlı 5 hisse çıkarılınca ortalama
+- **Etiketler:**
+  - örnek 30'dan azsa "yetersiz örnek"
+  - aralık sıfırı içeriyorsa "geçmişte XU100'den ayırt edilemiyor"
+  - aralık tamamen sıfırın üstündeyse bile "geçmişte olumlu; çoklu deneme nedeniyle şans olabilir, kanıt değildir"
+  - tamamen altındaysa "geçmişte XU100'ün gerisinde"
+- **Veri gözetlemesi uyarısı:** karne bu oturumda kaçıncı deneme olduğunu ve bugüne kadar kaç farklı kriter denendiğini yazar (`logs/screen_trials.csv`). Ne kadar çok koşul denenirse iyi görünen bir karnenin şans olma ihtimali o kadar artar.
+- **Önbellek:** karne aynı kriter ve aynı veri sürümü için bir kez hesaplanır (`logs/screen_cards.json`). Veri sürümü düzeltme ve üyelik dosyalarıyla değişir.
+- **Uzun süren karne:** hesap 60 saniyeyi geçerse liste hemen gider, karne hazır olunca ayrı mesajla gelir.
+- **Kanıt değildir:** koşullar serbestçe denenebildiği için karne bir kuralın işe yaradığına kanıt sayılmaz. Bir koşul araştırılacaksa ön kayıtla araştırma programına girer (RESEARCH_PROGRAM).
 
 **Canlı ölçüm.** Bulunan her hisse `signal_log`'a "tara" kaynağıyla, kriter metni ve özetiyle yazılır. `/performans` her kriterin 5 ve 20 seans sonucunu ayrı gösterir.
 
