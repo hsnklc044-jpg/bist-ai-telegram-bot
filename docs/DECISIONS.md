@@ -4,6 +4,8 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-36. /tara'nın varsayılan evreni bugünkü resmi BIST 100 (28.10.2026, PC'deki gerçek veri bulgusu).** Kullanıcının v0.75.0 denemesi gösterdi: çıktı "BIST 100" diyordu ama tarama `data/universe.csv`'yi kullanıyordu. Bu liste 118 hisse (kaynak btcturk-2026-07); 32'si bugün BIST 100'de değil (ör. ADESE, 2022-04-01'de çıktı), bugünkü 14 üye ise listede yok (HALKB, VAKBN, ZOREN…). Karar: (1) `evren=bist100` artık bugünkü resmi üyeliği alır (`bist100_stable.csv` + değişiklikler, karnenin de kaynağı; 100 hisse). Eski liste `evren=quantbist` seçeneğidir ve etiketinde adı ve sayısı yazar. (2) Günlük fiyat güncellemesine bugünkü BIST 100 üyeleri eklendi; aksi halde 14 üye "veri eksik" görünürdü. (3) Günlük raporun, katılım oranının ve canlı ölçümün evreni **şimdilik değişmedi**: ölçüm sürerken evreni değiştirmek ölçümü bozar. Bu ayrı bir karar olarak açık (ROADMAP). (4) ATR uyarıları: son 14 seansta ±%10 limitini aşan bir kapanış hareketi (veri ya da kurumsal işlem) ya da %30'dan büyük bir fiyat değişimi (ATR başka bir fiyat düzeyinde oluşmuş) satırda ⚠️ ile yazılır. ANELE'nin %45'lik ATR'si ikinci durumdur: 19–23.10 beş taban, 26–27.10 iki tavan; iki kaynak birebir aynı (veri doğru, düzeltme yok).
+
 **K-35. /tara Aşama 3: dürüst karne (28.10.2026).**
 (1) Giriş ertesi seansın açılışıdır. Maliyet araştırmayla aynıdır: her yönde %0,10 + %0,05, gidiş-dönüş %0,30. Fazla getiri XU100'ün aynı seanslarına göre ölçülür.
 (2) Bağımsız olay sayısı: bir hissenin sinyalleri içinde, son sayılandan en az h seans sonra gelen ilk sinyal yeni bir olaydır. Basit ve tekrar üretilebilir bir sayımdır.

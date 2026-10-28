@@ -19,11 +19,20 @@ BIST30_FILE = DATA_DIR / "bist30.csv"
 SUSPECTS_TTL = 3600
 _suspects: dict = {}
 
-LABELS = {"bist100": "BIST 100", "bist30": "BIST 30", "izleme": "izleme listesi"}
+LABELS = {"bist100": "BIST 100 (güncel üyelik)", "bist30": "BIST 30", "izleme": "izleme listesi",
+          "quantbist": "QuantBIST evreni"}
 
 
-def symbols(universe: str, chat_id=None, bist30_path: Path | None = None) -> list[str]:
+def symbols(universe: str, chat_id=None, bist30_path: Path | None = None, today=None) -> list[str]:
+    """bist100 = today's official membership (data/bist100_stable.csv + changes, the history
+    card's own source); quantbist = data/universe.csv, the report's list (DECISIONS K-36)."""
+
     if universe == "bist100":
+        from core.market.calendar import now_istanbul
+        from core.market.membership import members_on
+
+        return sorted(f"{code}.IS" for code in members_on(today or now_istanbul().date()))
+    if universe == "quantbist":
         from core.market.universe import load_universe
 
         return load_universe()

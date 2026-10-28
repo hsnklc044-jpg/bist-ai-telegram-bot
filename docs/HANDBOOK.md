@@ -93,9 +93,14 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 - Hatalı yazımda mesaj hatanın yerini `^` ile gösterir ve en yakın alanı önerir. Ayrıştırıcı kendi yazdığımız kod; yazılan hiçbir şey çalıştırılmaz (eval/exec yok).
 
 **Seçenekler.**
-- `evren=bist100` (varsayılan, güncel liste) ya da `evren=izleme` (izleme listen). `evren=bist30` için kaynaklı bir `data/bist30.csv` gerekir; şimdilik yok.
+- `evren=bist100` (varsayılan): bugünkü resmi BIST 100 üyeliği, 100 hisse; karne de aynı kaynağı kullanır (K-36).
+- `evren=quantbist`: raporun 118 hisselik listesi.
+- `evren=izleme`: izleme listen.
+- `evren=bist30` için kaynaklı bir `data/bist30.csv` gerekir; şimdilik yok.
 - `likidite=10`: 20 günlük ortalama işlem hacmi, milyon TL. Varsayılan 10; `likidite=0` tabanı kapatır.
 - `sirala=alfabetik|goreli_guc|hacim|rsi`.
+
+**ATR uyarıları.** Son 14 seansta ±%10 limitini aşan bir kapanış hareketi ya da %30'dan büyük bir fiyat değişimi varsa satırda ⚠️ yazar: ATR o hareketle şişmiş olabilir.
 
 **Elenenler adıyla yazılır, sessizce düşürülmez:** son kapanışı son seans olmayan, ikinci kaynakta farkı olan (düzeltme bekleyen) ve likidite tabanının altındaki hisseler.
 

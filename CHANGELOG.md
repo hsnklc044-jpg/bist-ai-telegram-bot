@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.79.0 – 28.10.2026 (PC'deki gerçek veri bulguları)
+- `/tara` artık gerçekten bugünkü BIST 100'ü (100 hisse, resmi üyelik) tarıyor. Eskiden "BIST 100" yazıp 118 hisselik rapor listesini tarıyordu. O liste `evren=quantbist` seçeneği olarak kaldı.
+- Günlük fiyat güncellemesi bugünkü BIST 100'ün tamamını kapsıyor. Daha önce 14 üye eksikti: HALKB, VAKBN, ZOREN ve diğerleri.
+- ATR uyarısı eklendi: son 14 seansta limit dışı ya da sert bir fiyat hareketi varsa satırda ⚠️ yazıyor. ANELE'nin %45'lik ATR'si veri hatası değil; beş gün taban, iki gün tavan yapmış ve iki kaynak birebir aynı.
+
 ## v0.78.0 – 28.10.2026 (/tara Aşama 3: dürüst karne)
 - Karne artık işlem maliyetini düşüyor (gidiş-dönüş %0,30). Giriş ertesi seansın açılışından yapılıyor.
 - Karnede yeni ölçüler: ortalama ve medyan, isabet, örnek ve bağımsız olay sayısı (bir hissenin çakışan sinyalleri bir sayılıyor), %95 güven aralığı, en kârlı 5 hisse çıkarılınca sonuç.

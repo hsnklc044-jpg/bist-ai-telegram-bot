@@ -48,8 +48,9 @@ def _line(m: engine.Match) -> str:
                 f"2 ATR %{tr(2 * atr / close * 100, 1)} ({tr(2 * atr, 2)} TL)")
     else:
         risk = "ATR —"
+    flags = "".join(f" | ⚠️ {f}" for f in m.flags)
     return (f"• {m.symbol.removesuffix('.IS')} {tr(close, 2)} | {' · '.join(m.met)} | {risk} | "
-            f"likidite {engine.value_text('islem_tl', m.liquidity)}")
+            f"likidite {engine.value_text('islem_tl', m.liquidity)}{flags}")
 
 
 def format_result(result: engine.Result, card: dict | None, note: str = "", rows: int = MAX_ROWS,
@@ -58,7 +59,9 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
     lines = [f"🔎 /tara {q.text}"]
     if note:
         lines.append(f"🕒 {note}")
-    lines.append(f"{result.day:%d.%m.%Y} kapanışı · {universe.LABELS[q.universe]} · {result.scanned} hisse tarandı · "
+    listed = result.scanned + len(result.missing)
+    lines.append(f"{result.day:%d.%m.%Y} kapanışı · {universe.LABELS[q.universe]}, {listed} hisse · "
+                 f"{result.scanned} hisse tarandı · "
                  f"{len(result.matches)} hisse koşulları sağlıyor · sıra: {ORDER_TEXT[q.order]}")
     if result.matches:
         lines += [_line(m) for m in result.matches[:rows]]
@@ -313,7 +316,8 @@ def help_text(saved: dict[str, str]) -> str:
              "Örnekler:"] + [f"  /tara {e}" for e in EXAMPLES]
     lines += ["Karşılaştırma < > <= >=, aralık rsi 30..50, kesişim kesti_yukari(a,b) / kesti_asagi(a,b), "
               "pencere son(5, ...), ve / veya / değil ve parantez.",
-              "Seçenekler: evren=bist100|izleme · likidite=10 (mn TL; 0 kapalı) · sirala=alfabetik|goreli_guc|hacim|rsi",
+              "Seçenekler: evren=bist100 (güncel üyelik)|quantbist|izleme · likidite=10 (mn TL; 0 kapalı) · "
+              "sirala=alfabetik|goreli_guc|hacim|rsi",
               "Tüm alanlar: /tara_alanlar · Kayıt: /tara_kaydet AD koşullar, sonra /tara AD"]
     if saved:
         lines += ["Kayıtlı taramaların:"] + [f"  {k}: {v}" for k, v in sorted(saved.items())]

@@ -280,7 +280,21 @@ def symbols_to_update(paths: Paths | None = None, universe: list[str] | None = N
     paths = paths or Paths()
     held = [p.symbol for p in open_positions(load_ledger(paths.ledger))]
     ordered = [o.symbol for o in load_orders(paths.orders) if o.status == "pending"]
-    return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered, *_alarm_symbols()]))
+    return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered, *_alarm_symbols(),
+                               *_bist100_members()]))
+
+
+def _bist100_members() -> list[str]:
+    """Today's official BIST 100: /tara scans it (DECISIONS K-36), and 14 members are not in
+    data/universe.csv. A membership file problem never stops the update."""
+
+    try:
+        from core.market.membership import members_on
+
+        return sorted(f"{code}.IS" for code in members_on(now_istanbul().date()))
+    except Exception:  # noqa: BLE001
+        logger.exception("BIST 100 membership could not be read")
+        return []
 
 
 def _alarm_symbols() -> list[str]:

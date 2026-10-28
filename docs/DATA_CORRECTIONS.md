@@ -110,3 +110,9 @@ Her cumartesi araştırma çalışması `kap.txt`: son 14 günde evrendeki hisse
 - **Düzeltme:** satır 19.10'a, yani fiyat kopukluğunun olduğu güne taşındı (projenin kuralı: satır sıçrama gününe konur). KAP tarihleri ve kanıt satırın notunda.
 - **Doğrulama ✅:** `datacheck/2026-10-28_10-05.txt` (SKBNK, düzeltilmiş seri, 01.09–bugün): tutarlı, 40 hisse-günde açıklanamayan fark 0.
 
+## ANELE 19–27.10.2026: veri doğru, düzeltme yok (28.10.2026)
+
+- **Bulgu (kullanıcı, PC, /tara):** ATR %45,3 (1 ATR 4,17 TL, kapanış 9,19).
+- **Kontrol:** `datacheck/2026-10-28_12-25.txt` (ham mumlar, İş Yatırım ile yan yana). 19–23.10 arası beş gün art arda yaklaşık −%10 (13,99 → 7,60), 26–27.10 iki gün yaklaşık +%10 (9,19). Bütün günler iki kaynakta da aynı; hiçbir hareket ±%10 limitini aşmıyor.
+- **Sonuç:** veri gerçek. ATR, fiyat yüksekken oluşan gün içi aralıklardan geliyor. /tara bunu satırda uyarıyla yazar (K-36).
+

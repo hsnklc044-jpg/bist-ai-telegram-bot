@@ -79,6 +79,7 @@ class Match:
     day: date
     values: dict
     met: list = field(default_factory=list)
+    flags: list = field(default_factory=list)
 
     @property
     def close(self) -> float:
@@ -141,7 +142,7 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         tail = t.iloc[-LOOKBACK:]  # fields use the full history; the logic looks back ≤ 61 sessions
         if bool(query.mask(tail).iloc[-1]):
             result.matches.append(Match(symbol, latest.date(), {c: float(row[c]) for c in t.columns},
-                                        describe(query.root, tail)))
+                                        describe(query.root, tail), flags(frames[symbol])))
 
     if not result.matches:
         result.funnel = funnel(query, {s: t for s, t in tables.items() if s not in result.illiquid})
@@ -156,6 +157,29 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
 
         result.matches.sort(key=sort_key)
     return result
+
+
+SHARP_MOVE = 0.30  # a limit-down or limit-up streak: ATR built at another price level (ANELE, 19-27.10.2026)
+LIMIT_MOVE = 0.105  # BIST's daily price limit is ±10%; a bigger close-to-close move is data or an action
+
+
+def flags(df: pd.DataFrame) -> list[str]:
+    """Warnings for a matched row: an ATR built on a move no session allows (ANELE, 27.10.2026)."""
+
+    from core.reports.daily import pct
+
+    close = df["close"]
+    found = []
+    moves = (close / close.shift(1) - 1).iloc[-14:].abs()
+    if (moves > LIMIT_MOVE).any():
+        found.append("ATR son 14 seansta ±%10 limitini aşan bir hareket içeriyor (uç hareket: veri ya da kurumsal "
+                     "işlem; /tara_aciklama ile bakın)")
+    if len(close) > 14:
+        change = close.iloc[-1] / close.iloc[-15] - 1
+        if abs(change) > SHARP_MOVE:
+            found.append(f"son 14 seansta fiyat {pct(change)} değişti: ATR bu sert hareketle şişmiş olabilir "
+                         "(aralıklar farklı fiyat düzeyinde oluştu)")
+    return found
 
 
 def funnel(query: Query, tables: dict) -> list[tuple[str, int, int]]:
