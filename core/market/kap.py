@@ -178,7 +178,8 @@ def detail(index: int, get=None) -> str:
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
     text = " ".join(soup.get_text(" ").split())
-    lines = [f"KAP bildirimi {index} ({url})", text[:6000]]
+    start = text.find("Gönderim Tarihi")  # the site's menus come first (first run, 28.10.2026)
+    lines = [f"KAP bildirimi {index} ({url})", text[max(start, 0):][:12000]]
     lines += [f"[sayfadaki veri] {e[:6000]}" for e in embedded if e.strip()]
     return "\n".join(lines)
 

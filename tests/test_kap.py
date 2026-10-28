@@ -72,6 +72,7 @@ class DetailTest(unittest.TestCase):
     """A disclosure's own text, so a corporate action is verified from KAP itself (SKBNK 19.10 vs 22.10)."""
 
     PAGE = (b"<html><head><script>var x = 1;</script><style>p{}</style></head><body>"
+            b"<nav>Menu Bildirim Sorgulari</nav><p>G\xc3\xb6nderim Tarihi 21.10.2026</p>"
             b"<h1>Bedelli Sermaye Art\xc4\xb1r\xc4\xb1m\xc4\xb1</h1><table><tr><td>Hak Kullan\xc4\xb1m Ba\xc5\x9flang\xc4\xb1\xc3\xa7"
             b"</td><td>22.10.2026</td></tr></table>"
             b'<script id="__NEXT_DATA__" type="application/json">{"props":{"rightsStart":"2026-10-22"}}</script>'
@@ -88,6 +89,7 @@ class DetailTest(unittest.TestCase):
         self.assertEqual(asked, ["https://www.kap.org.tr/tr/Bildirim/1685136"])
         self.assertIn("Hak Kullanım Başlangıç 22.10.2026", text)
         self.assertNotIn("var x", text)
+        self.assertNotIn("Menu", text)  # the text starts at the disclosure itself
         self.assertIn('"rightsStart":"2026-10-22"', text)
 
     def test_failure_is_reported_not_raised(self):
