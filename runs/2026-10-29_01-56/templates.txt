@@ -1,0 +1,62 @@
+/tara şablon karneleri (2023-08-01 – 30.10.2026, o günkü BIST 100 üyeleri, ertesi açılış, maliyet dahil; keşif, araştırma programı dışında)
+Dışarıda (araştırmadaki gibi; çözülmemiş ±%20 sıçrama ya da kısa geçmiş): 1 hisse: PAHOL (kısa geçmiş (234 mum))
+
+basit_teknik: goreli_hacim>1 kesti_yukari(rsi,50) kesti_yukari(ema5,ema20)
+  5 seans: gün ortalaması -%0,6 %95 [-%1,2, +%0,1] · olay ortalaması -%0,7 (maliyet hariç -%0,4), medyan -%1,0, isabet %40, örnek 645 (bağımsız 634), en kârlı 5 hisse hariç -%0,9 · tüm hisseler -%0,4, fark -%0,2 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması -%1,3 %95 [-%3,0, +%0,3] · olay ortalaması -%1,4 (maliyet hariç -%1,1), medyan -%2,3, isabet %40, örnek 634 (bağımsız 568), en kârlı 5 hisse hariç -%2,1 · tüm hisseler -%0,7, fark -%0,6 → geçmişte XU100'den ayırt edilemiyor
+
+basit_teknik_3g: goreli_hacim>1 son(3,kesti_yukari(rsi,50)) son(3,kesti_yukari(ema5,ema20))
+  5 seans: gün ortalaması -%0,4 %95 [-%0,9, +%0,1] · olay ortalaması -%0,6 (maliyet hariç -%0,3), medyan -%1,0, isabet %41, örnek 2944 (bağımsız 1669), en kârlı 5 hisse hariç -%0,7 · tüm hisseler -%0,4, fark -%0,0 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması -%1,0 %95 [-%2,2, +%0,3] · olay ortalaması -%1,1 (maliyet hariç -%0,8), medyan -%1,9, isabet %42, örnek 2922 (bağımsız 1332), en kârlı 5 hisse hariç -%1,5 · tüm hisseler -%0,7, fark -%0,3 → geçmişte XU100'den ayırt edilemiyor
+
+bebek_teknik: goreli_hacim>1 momentum10>0
+  5 seans: gün ortalaması -%0,5 %95 [-%0,8, -%0,2] · olay ortalaması -%0,4 (maliyet hariç -%0,1), medyan -%0,8, isabet %43, örnek 17038 (bağımsız 6630), en kârlı 5 hisse hariç -%0,5 · tüm hisseler -%0,4, fark -%0,1 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: gün ortalaması -%0,8 %95 [-%1,6, +%0,1] · olay ortalaması -%0,4 (maliyet hariç -%0,1), medyan -%1,5, isabet %44, örnek 16892 (bağımsız 2811), en kârlı 5 hisse hariç -%0,8 · tüm hisseler -%0,7, fark -%0,1 → geçmişte XU100'den ayırt edilemiyor
+
+duseni_kiran: kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis
+  5 seans: gün ortalaması -%0,1 %95 [-%0,7, +%0,6] · olay ortalaması +%0,0 (maliyet hariç +%0,3), medyan -%0,7, isabet %45, örnek 934 (bağımsız 718), en kârlı 5 hisse hariç -%0,4 · tüm hisseler -%0,4, fark +%0,4 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması -%1,2 %95 [-%3,0, +%0,7] · olay ortalaması -%0,9 (maliyet hariç -%0,6), medyan -%1,7, isabet %44, örnek 930 (bağımsız 566), en kârlı 5 hisse hariç -%2,0 · tüm hisseler -%0,7, fark -%0,5 → geçmişte XU100'den ayırt edilemiyor
+
+tek_tus_trend: kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis degisim_3a<60
+  5 seans: gün ortalaması +%0,1 %95 [-%0,4, +%0,5] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%0,5, isabet %46, örnek 3960 (bağımsız 1407), en kârlı 5 hisse hariç -%0,3 · tüm hisseler -%0,4, fark +%0,5 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması +%0,3 %95 [-%0,9, +%1,4] · olay ortalaması +%0,4 (maliyet hariç +%0,7), medyan -%0,9, isabet %46, örnek 3956 (bağımsız 677), en kârlı 5 hisse hariç -%0,4 · tüm hisseler -%0,7, fark +%1,0 → geçmişte XU100'den ayırt edilemiyor
+
+teknik_temel_ema: kapanis>ema50 ema50>ema200
+  5 seans: gün ortalaması -%0,2 %95 [-%0,4, +%0,0] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%0,6, isabet %46, örnek 30501 (bağımsız 6970), en kârlı 5 hisse hariç -%0,2 · tüm hisseler -%0,4, fark +%0,2 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması +%0,1 %95 [-%0,6, +%0,7] · olay ortalaması +%0,2 (maliyet hariç +%0,5), medyan -%0,9, isabet %46, örnek 30272 (bağımsız 2113), en kârlı 5 hisse hariç -%0,3 · tüm hisseler -%0,7, fark +%0,8 → geçmişte XU100'den ayırt edilemiyor
+
+trend_takibi: ema20>ema50 ema50>ema200 adx>20
+  5 seans: gün ortalaması -%0,1 %95 [-%0,4, +%0,1] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%0,5, isabet %45, örnek 24337 (bağımsız 5338), en kârlı 5 hisse hariç -%0,2 · tüm hisseler -%0,4, fark +%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması +%0,2 %95 [-%0,4, +%1,0] · olay ortalaması +%0,3 (maliyet hariç +%0,6), medyan -%0,9, isabet %46, örnek 24252 (bağımsız 1654), en kârlı 5 hisse hariç -%0,2 · tüm hisseler -%0,7, fark +%1,0 → geçmişte XU100'den ayırt edilemiyor
+
+asiri_satim: rsi<30 kapanis>ema200
+  5 seans: gün ortalaması -%0,8 %95 [-%2,0, +%0,2] · olay ortalaması -%0,8 (maliyet hariç -%0,5), medyan -%0,9, isabet %42, örnek 167 (bağımsız 82), en kârlı 5 hisse hariç -%1,5 · tüm hisseler -%0,4, fark -%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması -%2,9 %95 [-%6,3, -%0,2] · olay ortalaması -%2,2 (maliyet hariç -%1,9), medyan -%2,3, isabet %38, örnek 170 (bağımsız 63), en kârlı 5 hisse hariç -%4,0 · tüm hisseler -%0,7, fark -%2,2 → geçmişte XU100'ün gerisinde; kanıt değildir
+
+kirilim: kapanis>yuksek_20g hacim_oran>1.5
+  5 seans: gün ortalaması -%1,1 %95 [-%1,8, -%0,3] · olay ortalaması -%0,8 (maliyet hariç -%0,5), medyan -%1,4, isabet %40, örnek 2143 (bağımsız 1473), en kârlı 5 hisse hariç -%1,1 · tüm hisseler -%0,4, fark -%0,6 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: gün ortalaması -%1,2 %95 [-%2,5, +%0,1] · olay ortalaması -%0,4 (maliyet hariç -%0,1), medyan -%1,8, isabet %43, örnek 2130 (bağımsız 1089), en kârlı 5 hisse hariç -%1,0 · tüm hisseler -%0,7, fark -%0,5 → geçmişte XU100'den ayırt edilemiyor
+
+sikisma: bb_genislik_yuzdelik<10
+  5 seans: gün ortalaması -%0,4 %95 [-%0,6, -%0,1] · olay ortalaması -%0,5 (maliyet hariç -%0,2), medyan -%0,9, isabet %41, örnek 10422 (bağımsız 2805), en kârlı 5 hisse hariç -%0,6 · tüm hisseler -%0,4, fark +%0,0 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: gün ortalaması -%0,9 %95 [-%2,0, +%0,2] · olay ortalaması -%1,3 (maliyet hariç -%1,0), medyan -%2,3, isabet %41, örnek 10276 (bağımsız 1365), en kârlı 5 hisse hariç -%1,7 · tüm hisseler -%0,7, fark -%0,2 → geçmişte XU100'den ayırt edilemiyor
+
+goreli_guc: gg_sira>80
+  5 seans: gün ortalaması -%0,1 %95 [-%0,4, +%0,1] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%0,5, isabet %47, örnek 14150 (bağımsız 3478), en kârlı 5 hisse hariç -%0,4 · tüm hisseler -%0,4, fark +%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması -%0,1 %95 [-%1,0, +%0,8] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%1,0, isabet %47, örnek 13853 (bağımsız 1164), en kârlı 5 hisse hariç -%1,0 · tüm hisseler -%0,7, fark +%0,6 → geçmişte XU100'den ayırt edilemiyor
+
+minervini: kapanis>sma150 kapanis>sma200 sma150>sma200 egim(sma200,21)>0 sma50>sma150 kapanis>sma50 dip_52h_oran>=130 zirve_52h_oran>=75 goreli_guc_yuzdelik>=70
+  5 seans: gün ortalaması +%0,1 %95 [-%0,2, +%0,4] · olay ortalaması +%0,1 (maliyet hariç +%0,4), medyan -%0,3, isabet %48, örnek 12382 (bağımsız 2871), en kârlı 5 hisse hariç -%0,1 · tüm hisseler -%0,4, fark +%0,5 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması +%1,2 %95 [+%0,2, +%2,4] · olay ortalaması +%1,2 (maliyet hariç +%1,5), medyan +%0,1, isabet %50, örnek 12274 (bağımsız 925), en kârlı 5 hisse hariç +%0,2 · tüm hisseler -%0,7, fark +%1,9 → geçmişte olumlu; çoklu deneme nedeniyle şans olabilir, kanıt değildir
+
+zirveye_yakin: zirve_52h_oran>=95
+  5 seans: gün ortalaması -%0,2 %95 [-%0,6, +%0,3] · olay ortalaması -%0,0 (maliyet hariç +%0,3), medyan -%0,3, isabet %47, örnek 8177 (bağımsız 2255), en kârlı 5 hisse hariç -%0,2 · tüm hisseler -%0,4, fark +%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması -%0,2 %95 [-%1,4, +%1,0] · olay ortalaması +%0,3 (maliyet hariç +%0,6), medyan -%0,6, isabet %48, örnek 8153 (bağımsız 875), en kârlı 5 hisse hariç -%0,4 · tüm hisseler -%0,7, fark +%0,5 → geçmişte XU100'den ayırt edilemiyor
+
+goreli_guc_ust: momentum_sira>=80
+  5 seans: gün ortalaması -%0,1 %95 [-%0,4, +%0,2] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%0,4, isabet %47, örnek 14300 (bağımsız 3350), en kârlı 5 hisse hariç -%0,3 · tüm hisseler -%0,4, fark +%0,3 → geçmişte XU100'den ayırt edilemiyor
+  20 seans: gün ortalaması +%0,1 %95 [-%1,1, +%1,3] · olay ortalaması +%0,2 (maliyet hariç +%0,5), medyan -%0,9, isabet %47, örnek 14040 (bağımsız 1060), en kârlı 5 hisse hariç -%0,8 · tüm hisseler -%0,7, fark +%0,8 → geçmişte XU100'den ayırt edilemiyor
+
+dusuk_oynaklik: oynaklik_sira<=20
+  5 seans: gün ortalaması -%0,2 %95 [-%0,4, -%0,1] · olay ortalaması -%0,2 (maliyet hariç +%0,1), medyan -%0,5, isabet %44, örnek 15785 (bağımsız 3486), en kârlı 5 hisse hariç -%0,3 · tüm hisseler -%0,4, fark +%0,2 → geçmişte XU100'ün gerisinde; kanıt değildir
+  20 seans: gün ortalaması -%0,1 %95 [-%0,6, +%0,5] · olay ortalaması -%0,1 (maliyet hariç +%0,2), medyan -%0,8, isabet %46, örnek 15500 (bağımsız 1039), en kârlı 5 hisse hariç -%0,4 · tüm hisseler -%0,7, fark +%0,7 → geçmişte XU100'den ayırt edilemiyor
