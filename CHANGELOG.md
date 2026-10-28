@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.65.0 – 28.10.2026
+- Cuma raporuna eğilim satırı: sanal hesap ve XU100'ün son 20 seansı yan yana küçük metin grafiğiyle (▁▂▃▅▇) ve yüzde değişimle.
+
 ## v0.64.0 – 28.10.2026
 - `/stres [sanal]`: stres testi. Açık pozisyonlar XU100'ün kayıtlı geçmişindeki en kötü 1, 5 ve 20 seanslık düşüşlerini yaşasaydı her hisse kendi o günkü getirisiyle ne kaybederdi. Dönemleri veri kendisi bulur; bilgi amaçlıdır.
 

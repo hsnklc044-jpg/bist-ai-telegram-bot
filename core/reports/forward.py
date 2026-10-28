@@ -248,6 +248,35 @@ def paper_vs_market(path: Path | str | None = None, bars=adjusted_bars) -> Paper
     )
 
 
+BARS = "▁▂▃▄▅▆▇█"
+CHART_MIN_POINTS = 5
+
+
+def sparkline(values) -> str:
+    """A text chart for Telegram (K-25): lowest value ▁, highest █; a flat series sits in the middle."""
+
+    values = [float(v) for v in values]
+    if not values:
+        return ""
+    low, high = min(values), max(values)
+    if high - low <= 1e-12:
+        return BARS[3] * len(values)
+    return "".join(BARS[round((v - low) / (high - low) * (len(BARS) - 1))] for v in values)
+
+
+def weekly_chart(path: Path | str | None = None, bars=adjusted_bars, sessions: int = 20) -> str:
+    """The paper account and XU100 over its last `sessions` records, side by side; "" when too short."""
+
+    equity = read_equity(Path(path or EQUITY_LOG_FILE), "paper").tail(sessions)
+    if len(equity) < CHART_MIN_POINTS:
+        return ""
+    market = bars(BENCHMARK)["close"].reindex(equity.index, method="ffill").dropna()
+    parts = [f"Sanal hesap {sparkline(equity)} {pct(equity.iloc[-1] / equity.iloc[0] - 1)}"]
+    if len(market) >= CHART_MIN_POINTS:
+        parts.append(f"XU100 {sparkline(market)} {pct(market.iloc[-1] / market.iloc[0] - 1)}")
+    return f"📈 Son {len(equity)} seans: " + " | ".join(parts)
+
+
 # =====================================================
 # REPORT
 # =====================================================
@@ -388,6 +417,9 @@ def weekly_line(
     paper = paper_vs_market(equity_path, bars=bars)
     if paper is not None:
         lines.append(f"💼 Sanal hesap {pct(paper.account)}, XU100 {pct(paper.market)} ({paper.days} gün)")
+    chart = weekly_chart(equity_path, bars=bars)
+    if chart:
+        lines.append(chart)
 
     return "\n".join(lines)
 
