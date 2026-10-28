@@ -153,6 +153,20 @@ class BotTest(unittest.TestCase):
         self.assertIn("Banka:", sent[0][0])
         self.assertNotIn("Banka: veri yok", sent[0][0])
 
+    def test_today_label(self):
+        from unittest import mock
+
+        rng = np.random.default_rng(4)
+        index = pd.bdate_range("2024-01-01", periods=400)
+
+        def bars(symbol):
+            return frame(pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 0.01, 400))), index=index))
+
+        with mock.patch("core.reports.daily.adjusted_bars", side_effect=bars):
+            self.assertIn(R.today_label(), R.LABELS)
+        with mock.patch("core.reports.daily.adjusted_bars", return_value=pd.DataFrame()):
+            self.assertEqual(R.today_label(), "bilinmiyor")
+
     def test_sector_indices_are_updated(self):
         from core.reports import daily
 

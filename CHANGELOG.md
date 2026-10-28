@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.2 – 29.10.2026 (Talimat C: /tara rejim= filtresi)
+- `/tara ... rejim=dusus` (seçenekler `yukselis`, `dusus`, `karisik`, `yuksek_oynaklik`).
+  - Liste yalnız bugünkü rejim seçilen rejimse çıkar. Değilse boş kalır ve "Bugünkü rejim: …" diye nedenini yazar.
+  - Karne yalnız kendi rejimi seçilen olan günleri sayar. Her günün etiketi o güne kadarki veriyle hesaplanır.
+- Seçenek kriterin parçası; aynı koşulun rejimsiz karnesi ayrı kalır.
+- Küçük evrenlerde (`evren=izleme`) rejim yine bugünkü BIST 100'den hesaplanır, çünkü genişlik için en az 20 hisse gerekir.
+- Doğrulama: `test_screen_regime` (7 test): ayrıştırma ve hatalı değer, canlı liste iki durumda, küçük evren, karnede yalnız seçilen günler, karnenin rejime doğru veriyi vermesi.
+
 ## v0.95.1 – 29.10.2026 (Talimat C: /piyasa, rejim, genişlik, sektörler)
 - Yeni `/piyasa` komutu üç şeyi gösteriyor:
   - rejim etiketi (yükseliş / düşüş / karışık / yüksek oynaklık / bilinmiyor) ve üç girdisi;

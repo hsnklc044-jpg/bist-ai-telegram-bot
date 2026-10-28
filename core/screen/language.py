@@ -7,7 +7,7 @@ Nothing the user types is ever executed; it only becomes a tree of known nodes.
     kesti_yukari(ema20,ema50) · kesti_asagi(macd,macd_sinyal) · son(5, kesti_yukari(...))
     ve / veya / değil and parentheses; conditions side by side mean "ve"
     options: evren=bist100|bist30|izleme · likidite=10 (million TL, 0 = off) ·
-             sirala=alfabetik|goreli_guc|hacim|rsi
+             sirala=alfabetik|goreli_guc|hacim|rsi · rejim=yukselis|dusus|karisik|yuksek_oynaklik
 
 At most 400 characters and 15 conditions. Errors name the place (a caret under the normalized
 text) and the nearest valid field.
@@ -32,6 +32,8 @@ WINDOW_RANGE = (1, 60)
 EXAMPLE = "Örnek: /tara rsi<30 ema20>ema50"
 UNIVERSES = ("bist100", "bist30", "izleme", "quantbist")
 ORDERS = ("alfabetik", "goreli_guc", "hacim", "rsi")
+# rejim= (Talimat C, K-51): a filter on the market regime label, never a signal
+REGIMES = {"yukselis": "yükseliş", "dusus": "düşüş", "karisik": "karışık", "yuksek_oynaklik": "yüksek oynaklık"}
 DEFAULT_LIQUIDITY = 15.0  # million TL, previous 20 sessions (core.screen.elimination, K-45)
 _ASCII = str.maketrans("ığüşöç", "igusoc")
 _ALLOWED = set("abcdefghijklmnopqrstuvwxyz0123456789_(),<>=:.- ")
@@ -297,6 +299,7 @@ class Query:
     order: str = "alfabetik"
     fields: set = field(default_factory=set)
     template: str = ""  # the ready-made template it came from (core.screen.templates)
+    regime: str = ""  # rejim= option: a key of REGIMES, or "" for every regime
 
     def __post_init__(self):
         if self.elimination is None:
@@ -315,6 +318,8 @@ class Query:
         options = []
         if self.universe != "bist100":
             options.append(f"evren={self.universe}")
+        if self.regime:
+            options.append(f"rejim={self.regime}")
         return " ".join([self.root.text(False), *options, *self.elimination.options()])
 
     def truth(self, t: pd.DataFrame):
@@ -374,7 +379,7 @@ class _Parser:
             if name in self.options:
                 settings = settings.with_option(name, self.options[name])
         return Query(root, self.options.get("evren", "bist100"), settings, self.options.get("sirala", "alfabetik"),
-                     self.fields)
+                     self.fields, regime=self.options.get("rejim", ""))
 
     def starts_term(self) -> bool:
         t = self.tok
@@ -545,7 +550,8 @@ class _Parser:
         if t.kind != "name" or self.tokens[self.i + 1].kind != "assign":
             return False
         name = {"sira": "sirala", "siralama": "sirala"}.get(t.value, t.value)
-        if name not in ("evren", "likidite", "sirala", "ele", "ele_likidite", "ele_kurumsal", "ele_hareket", "ele_veri"):
+        if name not in ("evren", "likidite", "sirala", "rejim", "ele", "ele_likidite", "ele_kurumsal", "ele_hareket",
+                        "ele_veri"):
             return False
         self.i += 2
         value = self.tok
@@ -566,7 +572,7 @@ class _Parser:
             return True
         word = self.take("name", f"{name}= sonrasına bir seçenek yazın.").value
         word = {"guc": "goreli_guc"}.get(word, word) if name == "sirala" else word
-        allowed = UNIVERSES if name == "evren" else ORDERS
+        allowed = {"evren": UNIVERSES, "rejim": tuple(REGIMES)}.get(name, ORDERS)
         if word not in allowed:
             self.error(f"Bilinmeyen {name} '{word}'; seçenekler: {', '.join(allowed)}.", value.pos)
         self.options[name] = word

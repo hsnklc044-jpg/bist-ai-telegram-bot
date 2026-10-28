@@ -100,6 +100,10 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 - `evren=bist30` için kaynaklı bir `data/bist30.csv` gerekir; şimdilik yok.
 - Eleme seçenekleri (aşağıda "Eleme filtreleri"): `ele=hayir` hepsini kapatır. Tek tek kapatmak için: `ele_likidite=0` (eski adı `likidite=`; sayı yazılırsa taban o olur, varsayılan 15 mn TL), `ele_kurumsal=0`, `ele_hareket=0`, `ele_veri=0`.
 - `sirala=alfabetik|goreli_guc|hacim|rsi`.
+- `rejim=yukselis|dusus|karisik|yuksek_oynaklik` (Talimat C, yalnız filtre; tanım §11).
+  - Liste yalnız bugünkü rejim seçilen rejimse çıkar; değilse boş kalır ve nedenini yazar.
+  - Karne yalnız kendi rejimi seçilen olan günleri sayar. Her günün rejimi o güne kadarki veriyle hesaplanır.
+  - Seçenek kriterin parçasıdır, ayrı karne üretir.
 
 **ATR uyarıları.** Son 14 seansta ±%10 limitini aşan bir kapanış hareketi ya da %30'dan büyük bir fiyat değişimi varsa satırda ⚠️ yazar: ATR o hareketle şişmiş olabilir.
 

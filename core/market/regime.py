@@ -152,18 +152,34 @@ def market_text(bench: pd.DataFrame, frames: dict, sectors: dict, day: date | No
     return "\n".join(lines)
 
 
-def live_text(day: date | None = None) -> str:
-    """/piyasa from the price store: today's BIST 100 members, XU100 and the sector indices."""
-
+def _live_data(day: date | None = None):
     from core.market.universe import BENCHMARK
     from core.reports.daily import adjusted_bars
     from core.screen.universe import symbols
 
     members = symbols("bist100", today=day)
     frames = {s: df for s in members if not (df := adjusted_bars(s)).empty}
+    return adjusted_bars(BENCHMARK), frames
+
+
+def today_label(day: date | None = None) -> str:
+    """Today's label from the store's BIST 100 members (a small /tara universe cannot give breadth)."""
+
+    bench, frames = _live_data(day)
+    if bench.empty:
+        return "bilinmiyor"
+    return str(labels(bench["close"], frames, None).iloc[-1])
+
+
+def live_text(day: date | None = None) -> str:
+    """/piyasa from the price store: today's BIST 100 members, XU100 and the sector indices."""
+
+    from core.reports.daily import adjusted_bars
+
+    bench, frames = _live_data(day)
     sectors = {s: adjusted_bars(s) for s in SECTORS}
-    return market_text(adjusted_bars(BENCHMARK), frames, sectors, day=day)
+    return market_text(bench, frames, sectors, day=day)
 
 
-__all__ = ["DISCLAIMER", "LABELS", "NOTE", "SECTORS", "components", "label", "labels", "live_text", "market_text",
+__all__ = ["DISCLAIMER", "LABELS", "NOTE", "SECTORS", "components", "label", "labels", "live_text", "market_text", "today_label",
            "relative_strength"]

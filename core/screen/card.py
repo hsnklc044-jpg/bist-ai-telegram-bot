@@ -131,12 +131,20 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         checks[symbol] = E.frame(frames[symbol], symbol, bench.index, actions)
     # the same eliminations as the live list, each day with its own data (K-45)
     cut = E.daily_cut(checks, members) if query.elimination.move and checks else None
+    chosen = None
+    if query.regime:  # only the days whose own regime label is the chosen one (K-51)
+        from core.market import regime
+        from core.screen.language import REGIMES
+
+        chosen = regime.labels(bench["close"], frames, eligible) == REGIMES[query.regime]
     rows: dict[int, list] = {h: [] for h in horizons}
     base: dict[int, list] = {h: [] for h in horizons}
     independent = dict.fromkeys(horizons, 0)
     for symbol, ok in members.items():
         table, df = tables[symbol], frames[symbol]
         universe = ok & ~E.mask(checks[symbol], query.elimination, cut)
+        if chosen is not None:
+            universe &= chosen.reindex(table.index).fillna(False).astype(bool).to_numpy()
         if not universe.any():
             continue
         mask = query.mask(table).to_numpy() & universe

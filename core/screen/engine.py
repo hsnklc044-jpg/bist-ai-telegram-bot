@@ -105,6 +105,8 @@ class Result:
     eliminated: list[tuple[str, str]] = field(default_factory=list)  # (symbol, reasons)
     scanned: int = 0
     funnel: list = field(default_factory=list)  # (condition, alone, cumulative) when nothing matched
+    regime: str = ""  # today's market regime label, when the query has rejim= (K-51)
+    regime_blocked: bool = False  # rejim= names another regime than today's: nothing is listed
 
     @property
     def illiquid(self) -> list[str]:
@@ -140,6 +142,17 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
 
     if tables:
         F.rank_last(tables, sorted(query.fields & F.CROSS_SECTIONAL))
+    if query.regime:
+        from core.market import regime
+        from core.screen.language import REGIMES
+
+        if query.universe == "bist100":
+            result.regime = str(regime.labels(bench["close"], frames, None).iloc[-1])
+        else:  # breadth needs the BIST 100, not a short list
+            result.regime = regime.today_label(latest.date())
+        if result.regime != REGIMES[query.regime]:
+            result.regime_blocked = True
+            return result
 
     for symbol, t in tables.items():
         row = t.iloc[-1]

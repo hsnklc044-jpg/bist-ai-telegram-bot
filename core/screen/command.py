@@ -69,6 +69,12 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
     lines.append(f"{result.day:%d.%m.%Y} kapanışı · {universe.LABELS[q.universe]}, {listed} hisse · "
                  f"{result.scanned} hisse tarandı · "
                  f"{len(result.matches)} hisse koşulları sağlıyor · sıra: {ORDER_TEXT[q.order]}")
+    if result.regime:
+        if result.regime_blocked:
+            lines.append(f"🌐 Bugünkü rejim: {result.regime}. rejim={q.regime} filtresi bugün listeyi boş bırakır "
+                         "(rejim bir etikettir, sinyal değildir; /piyasa). Karne yalnız o rejimdeki günleri sayar.")
+        else:
+            lines.append(f"🌐 Bugünkü rejim: {result.regime} (rejim={q.regime}; karne yalnız bu rejimdeki günleri sayar)")
     if result.matches:
         lines += [_line(m) for m in result.matches[:rows]]
         if len(result.matches) > rows:
@@ -367,7 +373,7 @@ def help_text(saved: dict[str, str]) -> str:
     lines += ["Karşılaştırma < > <= >=, aralık rsi 30..50, kesişim kesti_yukari(a,b) / kesti_asagi(a,b), "
               "pencere son(5, ...), ve / veya / değil ve parantez.",
               "Seçenekler: evren=bist100 (güncel üyelik)|quantbist|izleme · eleme: ele=hayir ya da ele_likidite=15 (mn TL; 0 kapalı), ele_kurumsal=0, ele_hareket=0, ele_veri=0 · "
-              "sirala=alfabetik|goreli_guc|hacim|rsi",
+              "sirala=alfabetik|goreli_guc|hacim|rsi · rejim=yukselis|dusus|karisik|yuksek_oynaklik (yalnız filtre; /piyasa)",
               "Tüm alanlar: /tara_alanlar · Hazır şablonlar: /tara_sablonlar · Kayıt: /tara_kaydet AD koşullar, "
               "sonra /tara AD · /tara_liste · /tara_sil AD"]
     if saved:
