@@ -128,6 +128,6 @@ Denetimde 10 hissede 15 çözülmemiş ±%20 sıçrama bulundu. Bunlardan bugün
 
 - Satırlar projenin kuralıyla Yahoo'daki sıçrama gününe yazıldı (BFREN, SKBNK gibi). Yahoo bu hisselerde düzeltmeyi rüçhan başlangıcından yaklaşık bir hafta önce uyguluyor.
 - `--apply-suggestions` kullanılmadı: o, oranı kopukluktan tahmin eder ve kaynağı yoktur.
-- **Doğrulama:** satırlar eklendikten sonra Actions `datacheck` ikinci kaynakla (İş Yatırım'ın düzeltilmiş fiyatları) karşılaştırır. Sonuç bu bölüme eklenir.
+- **Doğrulama:** satırlar eklendikten sonra Actions `datacheck` ikinci kaynakla (İş Yatırım'ın düzeltilmiş fiyatları) karşılaştırır. **Sonuç (datacheck 40682879776, 28.10.2026 14:50):** 01.05.2025'ten bugüne iki hisse de İş Yatırım'la tutarlı. 748 hisse-gün karşılaştırıldı; açıklanamayan fark 0, ertesi gün düzelen tek gün kapanış hatası 1.
 - **Kalanlar (açık):** FENER 09.12.2024 (%152,57 bedelli; fiyat doğrulanmadı), ADEL, ASUZU, BJKAS, EUREN, GOLTS, GSRAY, TSPOR, TUKAS. Bunlar bugünkü listede değil ya da sıçramaları 252 seanstan eski. Araştırma ve karne bu hisseleri bütünüyle dışarıda bırakmaya devam eder (FENER'in 2024 satırı da çözülene kadar).
 
