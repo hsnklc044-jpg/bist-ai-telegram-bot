@@ -944,6 +944,7 @@ def _update_macro() -> None:
         today = date.today()
         macro.update_usdtry(today - timedelta(days=14), today, limit=10, budget=30)
         macro.update_cpi(today)
+        macro.save_second_source(macro.second_source_check(macro.load_usdtry(), today))
     except Exception:  # noqa: BLE001 - the report never waits on this
         logger.exception("Macro data update failed")
 

@@ -229,7 +229,7 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
 - **Sınırlar:**
   - Geçmiş ayların yayım tarihi kuraldandır (iki kaynaklı istisna dışında).
   - Bir aydan kısa pencerede reel getiri nominale eşit çıkar.
-  - Yahoo ile ikinci kaynak kur karşılaştırması henüz yok.
+  - Yahoo ile ikinci kaynak kur karşılaştırması yalnız uyarı verir (%1); değer değiştirmez.
 - **Doğrulama:** bağımsız doğrulanmadı. Elle hesaplanmış testler var (bir ay, bir yıl, kur, nakit). Yayımdan önce görünmeme testi var. Zincirlenen 12 ay, TÜİK'in yıllık değişimiyle tutarlı.
 - **Risk:** YÜKSEK. Kararda bakılan bir sayıdır.
 

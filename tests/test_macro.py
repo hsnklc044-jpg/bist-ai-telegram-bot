@@ -222,6 +222,38 @@ class CpiUpdateTest(Files):
         self.assertFalse(local.exists())
 
 
+class SecondSourceTest(Files):
+    def test_difference_by_hand(self):
+        tcmb = pd.Series([40.0, 41.0, 42.0], index=pd.to_datetime(["2026-10-26", "2026-10-27", "2026-10-28"]))
+        yahoo = pd.DataFrame({"close": [40.2, 41.0, 42.84]},
+                             index=pd.to_datetime(["2026-10-26", "2026-10-27", "2026-10-29"]))
+        out = macro.second_source_check(tcmb, today=date(2026, 10, 29),
+                                        fetch=lambda symbols, start: {"USDTRY=X": yahoo})
+        self.assertEqual(out["days"], 2)  # only the days both have
+        self.assertAlmostEqual(out["max_diff_pct"], 0.5)  # 40.2 / 40 - 1
+        self.assertEqual(out["day"], "2026-10-27")
+
+    def test_unavailable(self):
+        tcmb = pd.Series([40.0], index=pd.to_datetime(["2026-10-26"]))
+        self.assertIsNone(macro.second_source_check(tcmb, today=date(2026, 10, 29), fetch=lambda s, start: {}))
+
+        def broken(symbols, start):
+            raise OSError("offline")
+
+        self.assertIsNone(macro.second_source_check(tcmb, today=date(2026, 10, 29), fetch=broken))
+
+    def test_freshness_shows_and_warns(self):
+        cpi = self.cpi("2026-09,1.84,29.7,2026-10-05,x\n")
+        rates = pd.Series([49.7], index=pd.to_datetime(["2026-10-27"]))
+        ok = {"day": "2026-10-27", "days": 5, "max_diff_pct": 0.3}
+        state, text = macro.freshness(date(2026, 10, 28), cpi, rates, second=ok)
+        self.assertEqual(state, "ok")
+        self.assertIn("Yahoo farkı en çok %0,3", text)
+        state, text = macro.freshness(date(2026, 10, 28), cpi, rates, second={**ok, "max_diff_pct": 1.4})
+        self.assertEqual(state, "warn")
+        self.assertIn("%1,4", text)
+
+
 class FreshnessTest(Files):
     def test_states(self):
         cpi = self.cpi("2026-09,1.84,29.7,2026-10-05,x\n")

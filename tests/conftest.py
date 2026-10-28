@@ -59,6 +59,8 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(fundamentals, "FUNDAMENTALS_FILE", tmp_path / "fundamentals.csv")
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
+    monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")
+    monkeypatch.setattr(macro, "_second_fetch", offline)
     monkeypatch.setattr(macro, "_http_get", offline)
     monkeypatch.setattr(levels_module, "_log_file", lambda: tmp_path / "levels_log.csv")
     # every signal_log write that does not name its file (e.g. /tara through the bot) stays private

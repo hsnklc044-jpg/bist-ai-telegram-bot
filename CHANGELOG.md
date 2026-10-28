@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.6 – 29.10.2026 (Talimat C: ikinci kaynak kur)
+- Akşam raporu son iki haftanın Yahoo `USDTRY=X` kapanışını TCMB bülteniyle karşılaştırıyor. Sonuç `logs/usd_second_source.json` dosyasına yazılıyor.
+- `/durum` "Makro veri" satırı en büyük farkı gösteriyor. Fark %1'i aşarsa UYARI veriyor; hiçbir değer değiştirilmiyor (K-51). Yahoo'nun günlük kapanışı başka bir saatte alındığı için küçük farklar olağan.
+- Yahoo isteği fiyat deposunun kullandığı sağlayıcıyla yapılıyor. Testlerde ağ kapalı.
+- Doğrulama: `test_macro.SecondSourceTest`. Fark elle hesaplanıyor; yalnız iki kaynakta da olan günler sayılıyor; kaynak yoksa ya da ağ yoksa sessiz; `/durum` metni ve uyarı denetleniyor.
+
 ## v0.95.5 – 29.10.2026 (kur adımına süre sınırı; Ö33)
 - Gerçek veride ilk denemede görüldü: TCMB'de bir bülten isteği yaklaşık 1,6 saniye sürüyor. Araştırmanın kur adımı bütün geçmişi bir kerede istediği için 33 dakikayı geçti. Bu, cumartesi araştırmasını 90 dakikalık iş sınırına itebilirdi. Deneme çalışması iptal edildi; kayıtlar etkilenmedi.
 - Kur önbelleğini dolduran fonksiyonun artık bir süre sınırı var.

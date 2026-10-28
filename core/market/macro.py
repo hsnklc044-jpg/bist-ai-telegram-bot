@@ -32,7 +32,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.config.paths import DATA_DIR
+from core.config.paths import DATA_DIR, LOG_DIR
 
 MACRO_DIR = DATA_DIR / "macro"
 CPI_FILE = MACRO_DIR / "cpi.csv"
@@ -46,6 +46,8 @@ BULLETIN_URL = "https://www.tcmb.gov.tr/kurlar/{d:%Y%m}/{d:%d%m%Y}.xml"
 TIMEOUT = 15
 PAUSE = 0.3  # seconds between bulletin requests
 SAVE_EVERY = 50  # bulletins; a stopped run keeps what it fetched
+SECOND_FILE = LOG_DIR / "usd_second_source.json"  # the last TCMB–Yahoo comparison (K-51)
+SECOND_LIMIT = 1.0  # % : a bigger gap is a data note in /durum; no value is changed
 SOURCE = "TÜFE: TÜİK (TCMB tablosu); kur: TCMB gösterge kuru; nakit: TCMB politika faizi"
 
 
@@ -259,6 +261,52 @@ def usd_return(nominal: float, start: date, end: date, rates: pd.Series) -> floa
     return (1 + nominal) * (a / b) - 1
 
 
+def second_source_check(rates: pd.Series, today: date | None = None, fetch=None, days: int = 14) -> dict | None:
+    """Yahoo's USDTRY=X close against the TCMB bulletin on the days both have in the last `days`.
+    Yahoo's daily close is taken at another hour, so small gaps are normal (K-51: > 1% is a note)."""
+
+    today = today or date.today()
+    start = today - timedelta(days=days)
+    try:
+        if fetch is None:
+            from core.market.provider import get_provider
+
+            fetch = _second_fetch or get_provider().fetch  # the store's provider (Yahoo on the PC)
+        yahoo = fetch(["USDTRY=X"], start).get("USDTRY=X")
+    except Exception:  # noqa: BLE001 - a second source never stops anything
+        return None
+    if yahoo is None or yahoo.empty:
+        return None
+    both = pd.concat([rates.loc[pd.Timestamp(start):], yahoo["close"]], axis=1, join="inner").dropna()
+    if both.empty:
+        return None
+    gaps = (both.iloc[:, 1] / both.iloc[:, 0] - 1).abs() * 100
+    return {"day": both.index[-1].date().isoformat(), "days": int(len(both)), "max_diff_pct": float(gaps.max())}
+
+
+_second_fetch = None  # tests switch the network off here
+
+
+def save_second_source(result: dict | None, path: Path | None = None) -> None:
+    if result is None:
+        return
+    import json
+
+    path = Path(path or SECOND_FILE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result), encoding="utf-8")
+
+
+def _load_second(path: Path | None = None) -> dict | None:
+    import json
+
+    path = Path(path or SECOND_FILE)
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    except (OSError, ValueError):
+        return None
+
+
 # --- four bases --------------------------------------------------------------------------------
 
 
@@ -312,11 +360,13 @@ def four_basis(nominal: float, start: date, end: date, cpi=_DEFAULT, usd=_DEFAUL
     return FourBasis(nominal, real, usd_value, cash_value, known.period if known and real is not None else None)
 
 
-def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None = None) -> tuple[str, str]:
+def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None = None,
+              second: dict | None | object = None) -> tuple[str, str]:
     """(state, text) for /durum: state 'ok', 'warn' or 'unknown'."""
 
     cpi = load_cpi() if cpi is None else cpi
     usd = load_usdtry() if usd is None else usd
+    second = _load_second() if second is None else second
     notes, state = [], "ok"
     if cpi.empty:
         return "unknown", "TÜFE dosyası yok"
@@ -333,6 +383,11 @@ def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None 
         age = (pd.Timestamp(now) - usd.index[-1]).days
         notes.append(f"kur {usd.index[-1]:%d.%m.%Y}")
         if age > 5:
+            state = "warn"
+    if second:
+        gap = f"{second['max_diff_pct']:.1f}".replace(".", ",")
+        notes.append(f"Yahoo farkı en çok %{gap} ({second['days']} gün)")
+        if second["max_diff_pct"] > SECOND_LIMIT:
             state = "warn"
     return state, ", ".join(notes)
 

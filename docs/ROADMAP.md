@@ -79,7 +79,7 @@ Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı ku
 | Ö29 | DÜŞÜK | PC 14 günden uzun kapalı kalırsa kur önbelleğinde boşluk olur. O günler için bir önceki kur kullanılır: eski bir kur, ama geleceği görme yok. | kabul: `python -m core.market.macro --usd TARİH` doldurur; `/durum` kur 5 günden eskiyse uyarır. |
 | Ö30 | BİLGİ | 2027 geçici kalırsa `/durum` Aralık'tan itibaren uyarır. Teyit için kod sürümü gerekir (`calendar.PROVISIONAL`). | kabul: MAINTENANCE'ta Aralık işi. |
 | Ö31 | BİLGİ | Geçmiş TÜFE yayım tarihleri kuraldan geliyor (iki kaynaklı istisna). Bilinmeyen başka bir erteleme olduysa değer birkaç gün erken görünmüş olabilir. | kabul: K-52'de sınır olarak yazılı; birincil ölçüt bunu kullanmıyor. |
-| Ö32 | DÜŞÜK | Yahoo ile ikinci kaynak kur karşılaştırması (K-51) henüz yok. | açık: C'nin kalan işi. |
+| Ö32 | DÜŞÜK | Yahoo ile ikinci kaynak kur karşılaştırması (K-51) henüz yok. | ✅ v0.95.6: akşam raporu karşılaştırıyor, `/durum` %1 üstünde uyarıyor. |
 | Ö33 | YÜKSEK (bulundu, zarar yok) | Araştırmadaki kur adımı ilk çalışmada bütün geçmişi sınırsız istiyordu. TCMB'de bir istek ~1,6 sn sürdüğü için adım 33 dakikayı geçti. İşin 90 dakikalık sınırıyla cumartesi araştırması sonuç kaydedilmeden kesilebilirdi. Elle başlatılan deneme çalışmasında görüldü ve iptal edildi; kayıt etkilenmedi. | ✅ v0.95.5: süre sınırı (araştırmada 8 dk, adım sınırı 10 dk; raporda 30 sn), 50 bültende bir ara kayıt; önbellek haftadan haftaya dolar. |
 
 **Kontrol edilenler:**
@@ -154,15 +154,10 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - ✅ v0.95.1: rejim etiketi, genişlik ve dört ana sektör (`core/market/regime.py`, `/piyasa`); sektör endeksleri akşam güncellemesinde.
   - ✅ v0.95.2: `/tara` `rejim=` filtresi (liste ve karne).
   - ✅ v0.95.3: araştırma raporunda dört baz. Haftalık araştırma TCMB kur bültenlerini önbellekle dolduruyor.
+  - ✅ v0.95.5–v0.95.6: kur önbelleğine süre sınırı; Yahoo ile ikinci kaynak kur karşılaştırması.
 - **Kalan:**
-  - Yahoo ile ikinci kaynak kur karşılaştırması;
-  - sektör kısmı (D14 kararı).
-- **Durum:**
-  - C1 tasarımı ✅ (K-51; rejim tanımı sonuç görülmeden).
-  - Kaynaklar ✅ DATA_SOURCES.md: EVDS koşulu arşivli; TCMB kurları XML'i uygun.
-  - Açık kaynak işleri:
-    - TÜİK yazılı koşulu bulunamadı; robots.txt izin veriyor, elle giriş yolu seçildi.
-    - **Sektör ataması kullanıcı kararı bekliyor:** Borsa İstanbul'un telif bildirimi bilginin izinsiz saklanmasını yasaklıyor (AUDIT D14). Bu kısım kapı açılsa da karara kadar "bilinmiyor" gösterir.
+  - sektör kısmı: hisse sektörü, `/analyze` sektör satırı, `/tara` `sektor` ve `sektor_goreli_guc`. Kaynak kararı kullanıcıda (D14).
+  - PC kanıtı: bu sürümlerin PC'de bir akşam raporu ve `/piyasa` ile çalıştığının görülmesi. Sektör endekslerinin Yahoo'da gelip gelmediği de bu kanıtla görülecek.
 - **En erken:** kod 31.10 (30.10 akşam kanıtı gelirse).
 - **Bitti ölçütü:**
   - nominal / reel / USD / nakit sonuçları günlük raporda, `/performans`'ta ve araştırma raporunda;
@@ -200,7 +195,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.95.5 (kur adımına süre sınırı). Öz-denetim sayacı: v0.95.4'ten beri 1.
+- **Son sürüm:** v0.95.6 (ikinci kaynak kur). Öz-denetim sayacı: v0.95.4'ten beri 2.
 - **İleri hedefler:** 2027 tatilleri ✅ v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit). Kalan: elenen ve kalan grubun canlı izlenmesi, haftalık kayıtlı tarama özeti.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
