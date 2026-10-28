@@ -116,3 +116,18 @@ Her cumartesi araştırma çalışması `kap.txt`: son 14 günde evrendeki hisse
 - **Kontrol:** `datacheck/2026-10-28_12-25.txt` (ham mumlar, İş Yatırım ile yan yana). 19–23.10 arası beş gün art arda yaklaşık −%10 (13,99 → 7,60), 26–27.10 iki gün yaklaşık +%10 (9,19). Bütün günler iki kaynakta da aynı; hiçbir hareket ±%10 limitini aşmıyor.
 - **Sonuç:** veri gerçek. ATR, fiyat yüksekken oluşan gün içi aralıklardan geliyor. /tara bunu satırda uyarıyla yazar (K-36).
 
+## FENER ve CVKMD bedellileri kayda girdi (v0.88.1, 28.10.2026; öz-denetim 6, D4)
+
+Denetimde 10 hissede 15 çözülmemiş ±%20 sıçrama bulundu. Bunlardan bugünkü BIST 100'de olan ve son 252 seansta kalanlar önce ele alındı. Bu hisseler /tara'da "veri sorunu" olarak eleniyordu.
+
+| Satır | Kaynak | Kontrol |
+|---|---|---|
+| FENER 23.06.2025, %400 bedelli, 1 TL | KAP 1452776 ve 1466238 (Actions `kap.yml` ile metni alındı): rüçhan 30.06–14.07.2025 | Fiyat kopukluğu −%78,6 |
+| FENER 29.12.2025, %400 bedelli, 2 TL | KAP'ı aktaran haber (capital.com.tr): rüçhan 05.01–19.01.2026. KAP metni ayrıca alınmadı. | Kopukluk −%63,7; 2 TL ile tutarlı (1 TL olsaydı önceki kapanış 4,9 TL olmalıydı) |
+| CVKMD 03.08.2026, %170 bedelli, 1 TL | KAP 1656455: rüçhan 05.08–19.08.2026. Fiyat, kullanılan 2,374 milyar TL nominal karşılığı 2,374 milyar TL fondan hesaplandı. | Kopukluk −%61,9 |
+
+- Satırlar projenin kuralıyla Yahoo'daki sıçrama gününe yazıldı (BFREN, SKBNK gibi). Yahoo bu hisselerde düzeltmeyi rüçhan başlangıcından yaklaşık bir hafta önce uyguluyor.
+- `--apply-suggestions` kullanılmadı: o, oranı kopukluktan tahmin eder ve kaynağı yoktur.
+- **Doğrulama:** satırlar eklendikten sonra Actions `datacheck` ikinci kaynakla (İş Yatırım'ın düzeltilmiş fiyatları) karşılaştırır. Sonuç bu bölüme eklenir.
+- **Kalanlar (açık):** FENER 09.12.2024 (%152,57 bedelli; fiyat doğrulanmadı), ADEL, ASUZU, BJKAS, EUREN, GOLTS, GSRAY, TSPOR, TUKAS. Bunlar bugünkü listede değil ya da sıçramaları 252 seanstan eski. Araştırma ve karne bu hisseleri bütünüyle dışarıda bırakmaya devam eder (FENER'in 2024 satırı da çözülene kadar).
+

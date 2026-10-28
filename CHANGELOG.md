@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.88.1 – 28.10.2026 (veri: FENER ve CVKMD bedellileri)
+- `corporate_actions.csv`'ye 3 kaynaklı satır eklendi: FENER 23.06.2025 (%400, 1 TL), FENER 29.12.2025 (%400, 2 TL), CVKMD 03.08.2026 (%170, 1 TL). Kaynaklar: KAP 1452776, 1466238, 1656455 ve KAP'ı aktaran bir haber (DATA_CORRECTIONS).
+- Bu iki hisse artık /tara'da "düzeltilmemiş sıçrama" nedeniyle elenmeyecek. Doğrulama: ikinci kaynakla karşılaştırma (Actions `datacheck`).
+
 ## v0.88.0 – 28.10.2026 (profesyonel filtreler Aşama 1: eleme filtreleri)
 - Her /tara sonucuna varsayılan dört eleme uygulanıyor:
   - **likidite:** önceki 20 seans ortalaması < 15 mn TL;
