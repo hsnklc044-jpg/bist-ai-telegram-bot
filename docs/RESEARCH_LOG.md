@@ -389,3 +389,21 @@ Bu bölüm, **iki kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve 
 1. ✅ (v0.67.0, 28.10.2026) H4 ve H5 kuralları ile tarih kapısı yazılır (`core/backtest/a4.py`, `core.strategy.rules.equal_weight_signals` / `low_turnover_signals`, `tests/test_a4.py`; haftalık araştırmada "a4" adımı, kapı açılana dek yalnız "çalıştırılmadı" yazar). Her kural için ileriye bakmama testi, el hesabıyla küçük bir örnek testi ve kapının testi eklenir. Bunlar yalnız yapay veriyle yapılır, gerçek veride sonuç hesaplanmaz.
 2. 27.04.2027'den sonraki ilk haftalık araştırma çalışması taramayı yapar. `history.csv`'ye `a4` ailesi olarak yazılır.
 3. İlk sonuç buraya olduğu gibi yazılır.
+
+---
+
+## Not — kullanıcı taramaları, keşif (28.10.2026; araştırma programı dışında)
+
+Kullanıcının TradingView taramalarının teknik kısmı, PC'de keşif amaçlı denendi. Dönem 2023-08 – 30.10.2026, o günkü BIST 100 üyeleri, giriş ertesi açılış, XU100'e göre fazla getiri, **maliyet hariç**. 20 seans sonuçları:
+
+| Tarama | Ortalama [aralık] | Olay |
+|---|---|---|
+| 06 Basit teknik | −%0,3 [−1,8; +1,7] | 516 |
+| 08 Bebek (teknik) | −%0,0 [−1,4; +0,6] | — |
+| 10 Düşeni kıran | −%0,9 [−3,0; +0,3] | 693 |
+| Tek tuş trend (teknik) | +%0,5 [−0,8; +1,3] | 1249 |
+| 05 (EMA kısmı) | +%0,3 [−0,7; +0,5] | — |
+| Karşılaştırma: tüm hisseler | −%0,5 | — |
+
+Hiçbiri XU100'den ayırt edilemedi. **Bu bir keşiftir, aday kural değildir; bütçeden harcanmaz.** Tür olarak "Reddedilen fikir türleri" tablosundaki teknik sinyal / tek hissede trend türüyle aynıdır. Aynı şablonların maliyet dahil karnesi haftalık araştırmada `templates.txt`'de yazılır (`/tara_sablonlar` aynısını gösterir). Sayılar farklı çıkarsa nedeni bu bölüme eklenir.
+

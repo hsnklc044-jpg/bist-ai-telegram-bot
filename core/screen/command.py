@@ -57,6 +57,11 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
                   trials: tuple[int, int] | None = None) -> str:
     q = result.query
     lines = [f"🔎 /tara {q.text}"]
+    if q.template:
+        from core.screen.templates import TEMPLATES
+
+        t = TEMPLATES[q.template]
+        lines.append(f"🧩 şablon: {q.template} ({t.source}; atlanan: {t.skipped})")
     if note:
         lines.append(f"🕒 {note}")
     listed = result.scanned + len(result.missing)
@@ -291,6 +296,10 @@ def save_text(words: list[str], path: Path | None = None, now: datetime | None =
         return "⚠️ Ad yalnız küçük harf, rakam ve _ olabilir (en fazla 20). " + SAVE_USAGE
     if name in F.FIELDS:
         return f"⚠️ Ad bir alan adı olamaz ('{name}'). " + SAVE_USAGE
+    from core.screen.templates import TEMPLATES
+
+    if name in TEMPLATES:
+        return f"⚠️ '{name}' hazır bir şablonun adı; başka bir ad seç (/tara_sablonlar). " + SAVE_USAGE
     try:
         query = parse(" ".join(words[1:]))
     except ScreenError as exc:
@@ -318,7 +327,8 @@ def help_text(saved: dict[str, str]) -> str:
               "pencere son(5, ...), ve / veya / değil ve parantez.",
               "Seçenekler: evren=bist100 (güncel üyelik)|quantbist|izleme · likidite=10 (mn TL; 0 kapalı) · "
               "sirala=alfabetik|goreli_guc|hacim|rsi",
-              "Tüm alanlar: /tara_alanlar · Kayıt: /tara_kaydet AD koşullar, sonra /tara AD"]
+              "Tüm alanlar: /tara_alanlar · Hazır şablonlar: /tara_sablonlar · Kayıt: /tara_kaydet AD koşullar, "
+              "sonra /tara AD"]
     if saved:
         lines += ["Kayıtlı taramaların:"] + [f"  {k}: {v}" for k, v in sorted(saved.items())]
     lines.append(DISCLAIMER)
@@ -365,9 +375,13 @@ def resolve(words: list[str], chat_id=None, saved_path=None):
         saved = {}
     if not text:
         return None, help_text(saved)
-    text = saved.get(normalize(text), text)
+    from core.screen.templates import TEMPLATES
+
+    template = normalize(text) if normalize(text) in TEMPLATES else ""
+    text = TEMPLATES[template].criteria if template else saved.get(normalize(text), text)
     try:
         query = parse(text)
+        query.template = template
         universe.symbols(query.universe, chat_id)  # an empty watchlist is an answer, not an error
     except ScreenError as exc:
         return None, str(exc)

@@ -213,3 +213,14 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 **Canlı ölçüm.** Bulunan her hisse `signal_log`'a "tara" kaynağıyla, kriter metni ve özetiyle yazılır. `/performans` her kriterin 5 ve 20 seans sonucunu ayrı gösterir.
 
 **Kayıt.** `/tara_kaydet AD koşullar`, sonra `/tara AD`. Kayıtlar `data/screens.csv`'de tutulur: yalnız ekleme, yedeğe dahil, `/durum` kontrol eder.
+
+**Hazır şablonlar** (`/tara_sablonlar` listeler, `/tara AD` çalıştırır; K-38). Kullanıcının TradingView taramalarının teknik kısmıdır. Filtre şablonudur, öneri değildir. Kodda sabittir ve sonuçlara bakılarak ayarlanmaz. Araştırma programına aday kural değildir. Kayıtlı taramalardan ayrıdır; bir kayıt şablon adını alamaz. Temel veri gerektiren koşullar (piyasa değeri, FSO, beta, gelir artışı, ÖGO, borç/öz kaynak) atlanır ve listede yazılır. Karneleri bot açılışında arka planda hesaplanıp önbelleğe alınır, veri sürümü değişince yenilenir; `/tara_sablonlar` yalnız önbelleği okur, hazır değilse "karne hazırlanıyor" der. Haftalık araştırma bütün şablon karnelerini `templates.txt`'ye yazar.
+
+| Şablon | Koşullar | Kaynak | Atlanan (veri yok) |
+|---|---|---|---|
+| `basit_teknik` | `goreli_hacim>1 kesti_yukari(rsi,50) kesti_yukari(ema5,ema20)` | kullanıcının TradingView taraması 06, teknik kısım; kesişimler o günkü mumda | piyasa değeri, gelir artışı, ÖGO, borç/öz kaynak |
+| `basit_teknik_3g` | `goreli_hacim>1 son(3,kesti_yukari(rsi,50)) son(3,kesti_yukari(ema5,ema20))` | kullanıcının TradingView taraması 06, kesişimler son 3 seansta | piyasa değeri, gelir artışı, ÖGO, borç/öz kaynak |
+| `bebek_teknik` | `goreli_hacim>1 momentum10>0` | kullanıcının TradingView taraması 08 | piyasa değeri 1–2 milyar TL, FSO < 1 |
+| `duseni_kiran` | `kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis` | kullanıcının TradingView taraması 10 (ve 3, aynı EMA dizilimi) | — |
+| `tek_tus_trend` | `kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis degisim_3a<60` | kullanıcının TradingView taraması BIST TEK TUŞ TREND | piyasa değeri > 10 milyar TL, beta 0,8–1,5 |
+| `teknik_temel_ema` | `kapanis>ema50 ema50>ema200` | kullanıcının TradingView taraması 05 | piyasa değeri > 2 milyar TL, gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak |

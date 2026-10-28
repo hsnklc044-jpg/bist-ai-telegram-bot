@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.81.0 – 28.10.2026 (şablon görevi Aşama B: hazır şablonlar)
+- `/tara_sablonlar`: TradingView taramalarının teknik kısmından altı hazır şablon. `/tara duseni_kiran` gibi adıyla çalışıyor.
+- Her şablonda kaynağı, atlanan koşullar (temel veri yok) ve karnesi yazıyor. Karneler önceden hesaplandığı için liste beklemiyor.
+- Şablonlar filtre şablonudur, öneri değildir. Sonuçlara bakılarak ayarlanmazlar ve araştırma programına aday kural olarak girmezler.
+
 ## v0.80.0 – 28.10.2026 (şablon görevi Aşama A + öz-denetim 5)
 - TradingView adlarıyla yeni alanlar: `goreli_hacim` (10 gün), `momentum10`, `vwma20`, `ortalama_hacim_30g` (adet), `likidite` (TL), `degisim_1h/1a/3a`, `zirve_1a`. Taramalar TradingView'daki gibi yazılabiliyor.
 - `ema(n)` ve `sma(n)` için geçerli dönemler: 5, 10, 20, 40, 50, 100, 200. Başka bir değer yazılırsa hata mesajı geçerli değerleri listeliyor. Girdi sınırı 400 karakter.

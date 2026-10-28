@@ -192,6 +192,17 @@ def _split(text: str) -> list[str]:
     return split_message(text)
 
 
+async def screen_templates(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_sablonlar: the ready-made templates with their cached cards."""
+
+    from core.screen import templates
+
+    await reply(update, await asyncio.to_thread(templates.list_text))
+
+
 async def screen_fields(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

@@ -33,10 +33,31 @@ async def _set_menu(app: Application) -> None:
         logger.warning("Telegram command menu not set", exc_info=True)
 
 
+async def _start_up(app: Application) -> None:
+    await _set_menu(app)
+    _warm_templates()
+
+
+def _warm_templates() -> None:
+    """The template cards in the background: /tara and /tara_sablonlar never wait for them."""
+
+    import threading
+
+    from core.screen import templates
+
+    def run():
+        try:
+            templates.warm()
+        except Exception:  # noqa: BLE001 - only the cards are late
+            logger.warning("Template cards not computed", exc_info=True)
+
+    threading.Thread(target=run, name="tara-templates", daemon=True).start()
+
+
 def build_app() -> Application:
     config = require_bot_settings()
 
-    app = ApplicationBuilder().token(config.bot_token).post_init(_set_menu).build()
+    app = ApplicationBuilder().token(config.bot_token).post_init(_start_up).build()
 
     register_handlers(app, config.chat_id)
     schedule_daily_report(app)

@@ -26,6 +26,7 @@ from bot.reports import (
     screen_explain,
     screen_fields,
     screen_more,
+    screen_templates,
     status,
     stress_test,
     summary,
@@ -70,6 +71,7 @@ COMMANDS = (
     ("tara_alanlar", screen_fields),
     ("tara_aciklama", screen_explain),
     ("tara_devam", screen_more),
+    ("tara_sablonlar", screen_templates),
 )
 
 # Telegram's "Menu" list (set when the bot starts); /help is the same as /start
@@ -90,6 +92,7 @@ MENU = (
     ("tara_alanlar", "tarama alanları ve birimleri"),
     ("tara_aciklama", "bir hissede koşulların değeri: /tara_aciklama THYAO rsi<30"),
     ("tara_devam", "son taramanın sonraki 15 satırı"),
+    ("tara_sablonlar", "hazır tarama şablonları (TradingView taramalarından)"),
     ("top", "teknik görünümü en güçlü hisseler"),
     ("analyze", "tek hisse: /analyze THYAO"),
     ("watchlist", "takip listesi"),

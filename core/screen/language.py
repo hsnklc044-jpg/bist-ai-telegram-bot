@@ -288,6 +288,7 @@ class Query:
     liquidity: float = DEFAULT_LIQUIDITY
     order: str = "alfabetik"
     fields: set = field(default_factory=set)
+    template: str = ""  # the ready-made template it came from (core.screen.templates)
 
     @property
     def text(self) -> str:

@@ -172,6 +172,23 @@ def data_version(files=VERSION_FILES) -> str:
     return digest.hexdigest()[:12]
 
 
+def peek(query: Query, version: str | None = None, path: Path | None = None) -> dict | None:
+    """The cached card, or None: never computes (for lists that must not wait)."""
+
+    path = Path(path or CACHE_FILE)
+    key = f"{query.text}|{version or data_version()}"
+    if key in _MEMORY:
+        return _MEMORY[key]
+    try:
+        stored = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError):
+        return None
+    if key not in stored:
+        return None
+    _MEMORY[key] = {int(h): CardStats(**v) for h, v in stored[key].items()}
+    return _MEMORY[key]
+
+
 def cached_history(query: Query, load, version: str | None = None, path: Path | None = None) -> dict:
     """The card for (criterion, data version): from memory, then from disk, else computed once."""
 
