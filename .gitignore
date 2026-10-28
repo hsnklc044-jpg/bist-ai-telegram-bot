@@ -83,6 +83,7 @@ data/*.parquet
 data/ledger.csv
 data/paper_orders.csv
 data/alerts_log.csv
+data/price_alarms.csv
 data/signal_log.csv
 data/equity_log.csv
 data/backups/

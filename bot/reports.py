@@ -82,6 +82,17 @@ async def stress_test(
     await reply(update, await asyncio.to_thread(stress.stress_text, stress.parse_account(list(context.args or []))))
 
 
+async def price_alarm(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /alarm [HİSSE altında|üstünde SEVİYE | sil N]: closing price alarms, checked in the evening report."""
+
+    from core.alerts import levels
+
+    await reply(update, await asyncio.to_thread(levels.command, list(context.args or [])))
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

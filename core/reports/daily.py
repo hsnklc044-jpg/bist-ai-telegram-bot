@@ -280,7 +280,19 @@ def symbols_to_update(paths: Paths | None = None, universe: list[str] | None = N
     paths = paths or Paths()
     held = [p.symbol for p in open_positions(load_ledger(paths.ledger))]
     ordered = [o.symbol for o in load_orders(paths.orders) if o.status == "pending"]
-    return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered]))
+    return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered, *_alarm_symbols()]))
+
+
+def _alarm_symbols() -> list[str]:
+    """Stocks with a price alarm need today's close too; a damaged alarm file never stops the update."""
+
+    from core.alerts import levels
+
+    try:
+        return [a.symbol for a in levels.active()]
+    except Exception:  # noqa: BLE001
+        logger.exception("Price alarms could not be read")
+        return []
 
 
 def build_daily(
@@ -584,6 +596,35 @@ def _restore_result(ok: bool, detail: str) -> None:
         logger.exception("Restore test result not recorded")
 
 
+def _alarm_hits(day: date) -> tuple[list, str | None]:
+    """Price alarms crossed by `day`'s as-traded close: (hits, report line). Nothing is written
+    here; _mark_alarms does that after the report went out. Never fatal."""
+
+    from core.alerts import levels
+
+    try:
+        closes = {}
+        for alarm in levels.active():
+            bars = raw_bars(alarm.symbol)
+            at = pd.Timestamp(day)
+            if at in bars.index:
+                closes[alarm.symbol] = float(bars.loc[at, "close"])
+        hits = levels.check(day, closes, write=False)
+        return hits, levels.format_hits(hits) or None
+    except Exception as exc:  # noqa: BLE001 - the report must still go out
+        logger.exception("Price alarms could not be checked")
+        return [], f"⚠️ Fiyat alarmları kontrol edilemedi: {exc}"
+
+
+def _mark_alarms(hits: list) -> None:
+    from core.alerts import levels
+
+    try:
+        levels.mark(hits)
+    except Exception:  # noqa: BLE001 - announced already; worst case it is announced again tomorrow
+        logger.exception("Price alarms could not be marked as triggered")
+
+
 def _before_disclaimer(text: str, line: str) -> str:
     head, sep, tail = text.rpartition(DISCLAIMER)
     return f"{head}{line}\n\n{sep}{tail}" if sep else f"{text}\n\n{line}"
@@ -843,6 +884,9 @@ def _run_locked(args) -> DailyResult:
         return result
 
     result.text = _with_weekly_line(result.text, result.day)
+    hits, alarm_line = _alarm_hits(result.day)
+    if alarm_line:
+        result.text = _before_disclaimer(result.text, alarm_line)
     if score_warning:
         result.text = _before_disclaimer(result.text, score_warning)
     result.text = _with_backup_line(result.text)
@@ -856,6 +900,7 @@ def _run_locked(args) -> DailyResult:
         _keep_report_text(result.day, result.text)
         send_telegram(result.text, s.bot_token, s.chat_id)
         result.status = "sent"
+        _mark_alarms(hits)
         logger.info("Daily report sent to Telegram | %s", result.day)
     return result
 

@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.66.0 – 28.10.2026
+- `/alarm THYAO altında 240` (ya da `üstünde`): kapanış fiyatı alarmı. Akşam raporu o günün kapanışıyla kontrol eder ve geçen alarmı bir kez "🔔" satırıyla söyler. `/alarm` listeler, `/alarm sil 1` siler. Gün içi fiyat izlenmez. Kayıt `data/price_alarms.csv` (yalnız ekleme, günlük yedekte, `/durum` sağlam okunduğunu kontrol eder).
+
 ## v0.65.0 – 28.10.2026
 - Cuma raporuna eğilim satırı: sanal hesap ve XU100'ün son 20 seansı yan yana küçük metin grafiğiyle (▁▂▃▅▇) ve yüzde değişimle.
 

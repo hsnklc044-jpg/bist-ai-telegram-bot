@@ -5,6 +5,7 @@ os.environ["QUANTBIST_LOG_FILE"] = ""
 
 import pytest  # noqa: E402
 
+from core.alerts import levels  # noqa: E402
 from core.backtest import expectations  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
 from core.market import store  # noqa: E402
@@ -32,6 +33,7 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(slo, "RESTORE_FILE", tmp_path / "restore_tests.csv")
     monkeypatch.setattr(ping, "STATE_FILE", tmp_path / "monitoring.json")
     monkeypatch.setattr(daily, "REPORT_TEXT_DIR", tmp_path / "reports")
+    monkeypatch.setattr(levels, "PRICE_ALARMS_FILE", tmp_path / "price_alarms.csv")
 
     previous = store._db_path
     store.configure(tmp_path / "market.db")

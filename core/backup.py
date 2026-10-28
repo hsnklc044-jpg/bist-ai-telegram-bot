@@ -47,6 +47,7 @@ from core.config.paths import (
     LEDGER_FILE,
     MARKET_DB,
     PAPER_ORDERS_FILE,
+    PRICE_ALARMS_FILE,
     SIGNAL_LOG_FILE,
     WATCHLIST_FILE,
 )
@@ -62,6 +63,7 @@ PERSONAL_FILES = (
     ALERTS_LOG_FILE,
     SIGNAL_LOG_FILE,
     EQUITY_LOG_FILE,
+    PRICE_ALARMS_FILE,
 )
 MANIFEST = "manifest.json"
 PREFIX = "quantbist_"
