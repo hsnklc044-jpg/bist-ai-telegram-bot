@@ -382,7 +382,7 @@ def bot_check(now: datetime, path: Path | None = None) -> Check:
 def _personal_readers() -> dict:
     from core.alerts import levels
     from core.alerts.log import open_alerts
-    from core.analytics import screen
+    from core.screen import command as screen
     from core.ledger import load_ledger
     from core.ledger.paper import load_orders
     from core.reports.daily import read_equity

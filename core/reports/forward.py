@@ -54,7 +54,7 @@ T95 = (12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.
        2.045, 2.042)
 VIEW_ORDER = tuple(SIGNAL_VIEW_LABELS.values())
 SYSTEMATIC = "daily"
-SCREENED = "tara"  # /tara matches (core.analytics.screen), measured per criterion
+SCREENED = "tara"  # /tara matches (core.screen), measured per criterion
 
 
 # =====================================================

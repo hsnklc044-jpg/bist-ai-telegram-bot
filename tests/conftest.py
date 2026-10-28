@@ -6,11 +6,11 @@ os.environ["QUANTBIST_LOG_FILE"] = ""
 import pytest  # noqa: E402
 
 from core.alerts import levels  # noqa: E402
-from core.analytics import screen  # noqa: E402
 from core.backtest import expectations  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
 from core.market import store  # noqa: E402
 from core.reports import daily, health, runs, slo  # noqa: E402
+from core.screen import command as screen  # noqa: E402
 
 
 @pytest.fixture(autouse=True)

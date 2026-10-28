@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.76.0 – 28.10.2026 (/tara Aşama 1: motor)
+- `/tara` yeni motora geçti. Yaklaşık 40 alan var: trend, momentum, oynaklık, hacim, göreli güç ve fiyat konumu (tam liste HANDBOOK §8).
+- Yazımda yeni olanaklar: aralık (`rsi 30..50`), kesişim (`kesti_yukari(ema20,ema50)`), pencere (`son(5, ...)`), `ve / veya / değil` ve parantez. Hatalı yazımda hatanın yeri gösteriliyor ve en yakın alan öneriliyor ("'rsi' mi demek istediniz?").
+- Evren ve eleme: `evren=izleme` seçeneği eklendi. Likidite tabanı varsayılan olarak açık (10 mn TL, `likidite=0` kapatır). Verisi eski ya da düzeltme bekleyen hisseler adlarıyla yazılıyor.
+- Göstergeler canlı analizle birebir aynı hesaptan geliyor. Teknik puanın ATR hesabı da hızlandı; sonuç bit bit aynı.
+- Satırlarda 1 ve 2 ATR mesafesi var. Seans sürerken çalıştırılırsa cevap hangi kapanışa göre olduğunu yazıyor.
+
 ## v0.75.0 – 28.10.2026
 - `/tara`: BIST 100'ü kendi gösterge koşullarınla filtreleyebilirsin (ör. `/tara rsi<30 ema20>ema50`). Desteklenen alanlar:
   - RSI, EMA20/50, MACD ve sinyal çizgisi
