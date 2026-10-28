@@ -126,6 +126,7 @@ class CrossCheck:
     days: int = 0  # sessions both sources have
     only_ours: list[date] = field(default_factory=list)
     only_theirs: list[date] = field(default_factory=list)
+    pending: list[date] = field(default_factory=list)  # after our last candle: Yahoo not yet, no difference
     # day, our return, their return, explained (adjustment day or recorded corporate action)
     differences: list[tuple[date, float, float, bool]] = field(default_factory=list)
     error: str = ""
@@ -175,7 +176,9 @@ def compare(
 
     window = ours[(ours.index >= theirs.index[0]) & (ours.index <= theirs.index[-1])]
     result.only_ours = [d.date() for d in window.index.difference(theirs.index)]
-    result.only_theirs = [d.date() for d in theirs.index.difference(window.index)]
+    missing = theirs.index.difference(window.index)
+    result.only_theirs = [d.date() for d in missing if d <= ours.index[-1]]
+    result.pending = [d.date() for d in missing if d > ours.index[-1]]
 
     both = pd.concat({"ours": window["close"], "theirs": theirs["close"]}, axis=1, sort=True).dropna()
     result.days = len(both)
@@ -258,6 +261,10 @@ def format_report(results: list[CrossCheck], period: str, show_explained: bool =
         f"günü {sum(len(r.explained) for r in results)}; "
         f"tek gün kapanış hatası (ertesi gün düzelen) {sum(len(r.close_errors) for r in results)}",
     ]
+    pending = sorted({d for r in results for d in r.pending})
+    if pending:
+        lines.append(f"Yahoo'da henüz yayımlanmamış son seans ({_days(pending)}): "
+                     f"{sum(bool(r.pending) for r in results)} hisse; fark sayılmadı, sonraki çalışmada karşılaştırılır")
     wrong_closes: dict[date, int] = {}
     for r in results:
         for d in r.close_errors:

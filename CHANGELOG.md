@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.72.1 – 28.10.2026
+- İkinci kaynak kontrolü düzeltildi. Yahoo'nun henüz yayımlamadığı son seansı "fark" sayıyordu. 28.10 çalışmasında 118 hissenin 117'si bu yüzden "fark var" göründü; veri doğruluğu SLO'su yanlışlıkla kötü çıkacaktı. O gün artık "henüz yayımlanmamış" diye ayrı yazılıyor ve bir sonraki çalışmada karşılaştırılıyor.
+
 ## v0.72.0 – 28.10.2026
 - Öz-denetim 4 (v0.64–v0.71): bir orta bulgu düzeltildi. Sunucu kararı hesabı gece kapanan PC'nin kaybını PC'ye saymıyordu (yalnız uykuyu sayıyordu); artık 20 dakikadan uzun her kesinti de sayılıyor. Kritik ya da yüksek bulgu yok.
 

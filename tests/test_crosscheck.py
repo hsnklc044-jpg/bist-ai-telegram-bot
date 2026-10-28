@@ -63,6 +63,21 @@ class CompareTest(unittest.TestCase):
         self.assertEqual((result.state, result.days), ("tutarlı", 5))
         self.assertIn("karşılaştırılan 5 hisse-gün", crosscheck.format_report([result], "son 30 gün"))
 
+    def test_a_session_yahoo_has_not_published_yet_is_no_difference(self):
+        """28.10.2026 run: Yahoo's stock candles ended on 26.10, İş Yatırım already had 27.10;
+        117 of 118 stocks were "fark var" for that alone. Days after our last candle are pending."""
+        closes = [100.0 + i for i in range(12)]
+        ours = frame(closes[:11])  # 12.10 – 26.10
+        theirs = frame(closes)  # one more session: 27.10
+        result = crosscheck.compare("THYAO.IS", ours, theirs)
+        self.assertEqual((result.state, result.only_theirs, result.pending), ("tutarlı", [], [date(2026, 10, 27)]))
+        self.assertIn("Yahoo'da henüz yayımlanmamış son seans (27.10.2026): 1 hisse",
+                      crosscheck.format_report([result], "son 30 gün"))
+        self.assertEqual(crosscheck.summary([result], date(2026, 10, 28))["differing"], [])
+        hole = ours.drop(pd.Timestamp("2026-10-13"))  # a hole INSIDE our range still counts
+        inside = crosscheck.compare("THYAO.IS", hole, theirs.iloc[:11])
+        self.assertEqual((inside.only_theirs, inside.state), ([date(2026, 10, 13)], "fark var"))
+
     def test_wrong_day_missing_day_and_known_action(self):
         ours = frame([100.0, 108.0, 102.0, 103.0, 103.0, 104.0, 105.0])  # 13.10 wrong
         # traded price: 15.10 missing, 16.10 ex-dividend drop (Yahoo's adjusted series has none)
