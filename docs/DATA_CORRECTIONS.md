@@ -156,5 +156,13 @@ Denetimde 10 hissede 15 çözülmemiş ±%20 sıçrama bulundu. Bunlardan bugün
 - **KERVT → BESLR:** kod 02.06.2025'te değişti (Kerevitaş → Besler Gıda; Borsa İstanbul duyurusu). Üyelik eşlemesine eklendi; fiyatlar BESLR koduyla indirilir. KERVT'in 2023'teki BIST 100 üyeliği artık verisiz değil.
 - **KPOWR rapor evreninden çıkarıldı:** Yahoo, İş Yatırım ve resmî BIST 100 listelerinde yok; web aramasında böyle bir BIST kodu bulunamadı. Satırın kendi notu "teyit bekliyor" diyordu. Git geçmişinde duruyor, geri alınabilir (K-50).
 
-**Doğrulama:** satırlar eklendikten sonra Actions `datacheck` bu hisseleri 2022'den bugüne İş Yatırım'ın düzeltilmiş fiyatlarıyla karşılaştırır. Sonuç bu bölüme eklenir.
+**Doğrulama (datacheck 40722099640, 28.10.2026 19:23):** 10 hisse 2022'den bugüne İş Yatırım'ın düzeltilmiş fiyatlarıyla karşılaştırıldı, 11.954 hisse-gün.
+- **Açıklanamayan fark 2 gün, ikisi de küçük:**
+  - ADEL 28.09.2022: Yahoo −%2,7, İş −%1,0;
+  - FENER 17.12.2024: rüçhanın asıl başlangıcı. İş Yatırım düzeltmeyi o gün uygular, Yahoo bir hafta önce.
+- **Kayıtlı düzeltme günleri** iki kaynağın düzeltmeyi farklı günlerde uygulamasından fark gösterir: BJKAS 07.04.2025, FENER 09.12.2024, GSRAY 23.12.2024 ve 30.06.2025, TSPOR 09.09.2024.
+  - Bunların çoğu 1–3,5 puan.
+  - **BJKAS 07.04.2025'te bir günlük ~10 puanlık artık fark kaldı:** Yahoo +%8,5, İş −%1,8. Açık, küçük, tek gün. Rüçhan fiyatı "lot başına 2 TL" kaynağa göre; Yahoo'nun kopukluğu teorik fiyattan biraz farklı.
+- **Ortak not:** 09.04.2024 yarım günü yalnız İş Yatırım'da var (bilinen Yahoo eksiği). 42 tek günlük kapanış hatası ertesi gün düzeliyor (bilinen Yahoo hatası; iz bırakmaz).
+- **Sonuç:** 15 sıçramanın hepsi kayıtlı. Karnenin dışarıda bıraktığı liste 12 hisseden 2'ye indi: PAHOL (kısa geçmiş, Kasım 2025'te işleme başladı; borç değil) ve RGYAS. RGYAS ikinci kaynakla tutarlı (860 hisse-gün, 0 fark); nedeni v0.91.1'den beri listede yazıyor ve ayrıca incelenir.
 

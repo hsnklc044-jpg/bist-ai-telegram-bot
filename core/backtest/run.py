@@ -38,15 +38,29 @@ def load_frames(symbols: list[str], include_holdout: bool = False) -> dict[str, 
     return {s: df.loc[:SCREEN_END] for s, df in frames.items()}
 
 
-def tradable_symbols(universe: list[str] | None = None) -> tuple[list[str], list[str]]:
+def skip_reason(q) -> str | None:
+    """Why a stock is left out of the research and the cards (None: it stays)."""
+
+    if q is None or q.candles == 0:
+        return "veri yok"
+    if q.candles < 300:
+        return f"kısa geçmiş ({q.candles} mum)"
+    if q.jumps:
+        return "çözülmemiş sıçrama " + ", ".join(j.date for j in q.jumps[:3])
+    return None
+
+
+def tradable_symbols(universe: list[str] | None = None, reasons: dict | None = None) -> tuple[list[str], list[str]]:
     universe = universe or load_universe()
     report = {q.symbol: q for q in build_report(universe)}
     keep, skip = [], []
 
     for symbol in universe:
-        q = report.get(symbol)
-        if q is None or q.candles < 300 or q.jumps:
+        why = skip_reason(report.get(symbol))
+        if why:
             skip.append(symbol)
+            if reasons is not None:
+                reasons[symbol] = why
         else:
             keep.append(symbol)
 

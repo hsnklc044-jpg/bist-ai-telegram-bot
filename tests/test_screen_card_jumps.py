@@ -38,6 +38,17 @@ class HistoryDataTest(unittest.TestCase):
         self.assertNotIn("FENER.IS", eligible.columns)
         self.assertEqual(command.history_skipped(), ["FENER.IS"])
 
+    def test_the_reason_is_kept(self):
+        from types import SimpleNamespace
+
+        from core.backtest.run import skip_reason
+
+        jump = SimpleNamespace(date="2025-12-29")
+        self.assertEqual(skip_reason(None), "veri yok")
+        self.assertEqual(skip_reason(SimpleNamespace(candles=235, jumps=[])), "kısa geçmiş (235 mum)")
+        self.assertEqual(skip_reason(SimpleNamespace(candles=900, jumps=[jump])), "çözülmemiş sıçrama 2025-12-29")
+        self.assertIsNone(skip_reason(SimpleNamespace(candles=900, jumps=[])))
+
 
 if __name__ == "__main__":
     unittest.main()

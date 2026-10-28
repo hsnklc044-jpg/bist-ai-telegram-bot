@@ -136,8 +136,9 @@ def _skipped_line(command) -> list[str]:
     skipped = command.history_skipped()
     if not skipped:
         return []
+    reasons = command.history_skip_reasons()
     return [f"Dışarıda (araştırmadaki gibi; çözülmemiş ±%20 sıçrama ya da kısa geçmiş): {len(skipped)} hisse: "
-            + ", ".join(s.removesuffix(".IS") for s in skipped)]
+            + ", ".join(s.removesuffix(".IS") + (f" ({reasons[s]})" if s in reasons else "") for s in skipped)]
 
 
 def cards_text(load=None) -> str:

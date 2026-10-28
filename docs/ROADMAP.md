@@ -92,7 +92,7 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.91.0 (veri borcu kapatıldı; K-50). Öz-denetim sayacı: v0.87.0'dan beri 9; bir sonraki sürüm öz-denetim 7.
+- **Son sürüm:** v0.91.1 (dışarıda kalanların nedeni). Öz-denetim sayacı: v0.87.0'dan beri 10; öz-denetim 7 zamanı geldi.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0 (ikinci kaynak doğrulaması bekleniyor). Kod sırada.
   - B senaryolar: A bitince.

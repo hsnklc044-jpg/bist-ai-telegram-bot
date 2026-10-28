@@ -385,12 +385,17 @@ def _live(symbols: list[str]):
 
 _HISTORY: dict = {}
 _SKIPPED: list[str] = []
+_SKIP_REASONS: dict = {}
 
 
 def history_skipped() -> list[str]:
     """The past members the card leaves out, as the research does (unresolved jump, short history)."""
 
     return list(_SKIPPED)
+
+
+def history_skip_reasons() -> dict:
+    return dict(_SKIP_REASONS)
 
 
 def _history_data():
@@ -407,8 +412,11 @@ def _history_data():
 
     key = now_istanbul().date()
     if key not in _HISTORY:
-        keep, skipped = tradable_symbols(ever_members())
+        reasons: dict = {}
+        keep, skipped = tradable_symbols(ever_members(), reasons)
         _SKIPPED[:] = sorted(skipped)
+        _SKIP_REASONS.clear()
+        _SKIP_REASONS.update(reasons)
         frames = {s: df for s, df in load_frames(keep).items() if not df.empty}
         index = pd.DatetimeIndex(sorted(set().union(*(df.index for df in frames.values()))))
         _HISTORY.clear()

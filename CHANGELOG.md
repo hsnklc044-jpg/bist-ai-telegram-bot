@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.91.1 – 28.10.2026 (dışarıda kalan hisselerin nedeni)
+- Karne ve araştırmanın dışarıda bıraktığı hisseler artık nedenleriyle yazılıyor: çözülmemiş sıçrama (tarihleriyle), kısa geçmiş (mum sayısı) ya da veri yok. Böylece veri borcunun kapandığı doğrudan görülebiliyor.
+- İkinci kaynak doğrulaması (v0.91.0 satırları): 10 hisse, 11.954 hisse-gün, açıklanamayan fark 2 gün (DATA_CORRECTIONS).
+
 ## v0.91.0 – 28.10.2026 (veri borcu: 12 sıçrama, KERVT, KPOWR)
 - `corporate_actions.csv`'ye 10 kaynaklı satır eklendi: ADEL, BJKAS×2, EUREN, FENER 2024, GSRAY×2, TSPOR×2, TUKAS.
 - TSPOR'un 2025'teki birleşik işlemi (sermaye azaltımı + bedelli) için yeni satır türü eklendi: `reduction_rights`.
