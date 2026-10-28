@@ -230,6 +230,8 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
   - Geçmiş ayların yayım tarihi kuraldandır (iki kaynaklı istisna dışında).
   - Bir aydan kısa pencerede reel getiri nominale eşit çıkar.
   - Yahoo ile ikinci kaynak kur karşılaştırması yalnız uyarı verir (%1); değer değiştirmez.
+  - 10 günden eski kur kullanılmaz ("kur yok"; Ö34).
+  - Politika faizi serisi 23.06.2023'te başlar. Daha önce başlayan dönemde "nakde göre" boş kalır.
 - **Doğrulama:** bağımsız doğrulanmadı. Elle hesaplanmış testler var (bir ay, bir yıl, kur, nakit). Yayımdan önce görünmeme testi var. Zincirlenen 12 ay, TÜİK'in yıllık değişimiyle tutarlı.
 - **Risk:** YÜKSEK. Kararda bakılan bir sayıdır.
 

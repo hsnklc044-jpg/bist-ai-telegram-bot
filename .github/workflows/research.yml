@@ -67,7 +67,8 @@ jobs:
         # ~1,6 s per bulletin: at most 8 minutes a week; the cache keeps what was fetched and the
         # next run continues (the first full fill takes a few Saturdays)
         timeout-minutes: 10
-        run: python -m core.market.macro --usd 2021-12-01 --budget 480 2>&1 | tee macro.txt || true
+        run: |  # from 10 days before the research start (core.backtest.research.DEFAULT_START)
+          python -m core.market.macro --usd "$(date -d "${START:-2023-08-01} -10 days" +%F)" --budget 480 2>&1 | tee macro.txt || true
       - name: Strategy research
         run: python -m core.backtest.research ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research.txt
       - name: Strategy research, today's list (survivorship-biased comparison)

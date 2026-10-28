@@ -150,6 +150,14 @@ class UsdTest(Files):
                                              sleep=lambda s: None), 0)
         self.assertFalse(path.exists() and macro.load_usdtry(path).size)
 
+    def test_a_stale_rate_is_never_used(self):
+        # research 29.10.2026: a half-filled cache made the END rate months old (USD +383% instead of ~+56%)
+        rates = pd.Series([13.42, 18.70], index=pd.to_datetime(["2022-01-03", "2023-02-28"]))
+        self.assertIsNone(macro.usd_on(rates, date(2026, 10, 27)))
+        self.assertIsNone(macro.usd_return(4.788, date(2022, 1, 3), date(2026, 10, 27), rates))
+        self.assertEqual(macro.usd_on(rates, date(2023, 3, 9)), 18.70)  # a 9-day holiday gap is still fine
+        self.assertIsNone(macro.usd_on(rates, date(2023, 3, 13)))
+
     def test_usd_return_by_hand(self):
         rates = pd.Series([40.0, 44.0], index=pd.to_datetime(["2026-01-02", "2026-06-01"]))
         # +21% in TL while USD/TRY rose 10%: in USD 1.21 / 1.10 - 1 = +10%
@@ -186,6 +194,18 @@ class FourBasisTest(Files):
         self.assertIn("reel: TÜFE yok", result.line())
         self.assertIn("USD: kur yok", result.line())
 
+    def test_cash_series_that_starts_later_says_so(self):
+        class Cash:
+            def growth(self, prev_day, day):
+                from core.backtest.cash import CashGrowth
+
+                return CashGrowth(1.5, missing_days=10)
+
+        result = macro.four_basis(0.10, date(2022, 1, 3), date(2026, 10, 27), cpi=macro.load_cpi(),
+                                  usd=pd.Series(dtype=float), cash=Cash())
+        self.assertIsNone(result.cash)
+        self.assertIn("nakde göre: faiz serisi dönemin başını kapsamıyor", result.line())
+
 
 TCMB_PAGE = """<html><body><table><tr><td>Ay-Yıl</td></tr>
 <tr><td>10-2026</td><td>28.10</td><td>2.10</td></tr>
@@ -220,6 +240,25 @@ class CpiUpdateTest(Files):
 
         self.assertFalse(macro.update_cpi(date(2026, 11, 4), repo, local, get=offline))
         self.assertFalse(local.exists())
+
+
+class CommandTest(Files):
+    def test_both_ends_are_filled_first(self):
+        from unittest import mock
+
+        calls = []
+
+        def fake(start, end, **kwargs):
+            calls.append((start, end))
+            return 0
+
+        with mock.patch.object(macro, "update_usdtry", side_effect=fake), \
+                mock.patch.object(macro, "freshness", return_value=("ok", "x")):
+            macro.main(["--usd", "2021-12-01", "--budget", "100"])
+        today = date.today()
+        self.assertEqual(calls[0], (today - pd.Timedelta(days=14).to_pytimedelta(), today))  # the newest days
+        self.assertEqual(calls[1], (date(2021, 12, 1), date(2021, 12, 15)))  # the period's start
+        self.assertEqual(calls[2], (date(2021, 12, 1), today))  # then everything else
 
 
 class SecondSourceTest(Files):

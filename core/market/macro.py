@@ -46,6 +46,7 @@ BULLETIN_URL = "https://www.tcmb.gov.tr/kurlar/{d:%Y%m}/{d:%d%m%Y}.xml"
 TIMEOUT = 15
 PAUSE = 0.3  # seconds between bulletin requests
 SAVE_EVERY = 50  # bulletins; a stopped run keeps what it fetched
+MAX_STALE_DAYS = 10  # calendar days: a 9-day bayram has no bulletin; anything older is "kur yok"
 SECOND_FILE = LOG_DIR / "usd_second_source.json"  # the last TCMB–Yahoo comparison (K-51)
 SECOND_LIMIT = 1.0  # % : a bigger gap is a data note in /durum; no value is changed
 SOURCE = "TÜFE: TÜİK (TCMB tablosu); kur: TCMB gösterge kuru; nakit: TCMB politika faizi"
@@ -250,8 +251,13 @@ def update_usdtry(start: date, end: date, path: Path | str | None = None, limit:
 
 
 def usd_on(rates: pd.Series, day: date) -> float | None:
+    """The last bulletin on or before `day`, at most MAX_STALE_DAYS old (a gap in the cache never
+    lends a months-old rate to a later day)."""
+
     known = rates.loc[: pd.Timestamp(day)]
-    return float(known.iloc[-1]) if len(known) else None
+    if not len(known) or (pd.Timestamp(day) - known.index[-1]).days > MAX_STALE_DAYS:
+        return None
+    return float(known.iloc[-1])
 
 
 def usd_return(nominal: float, start: date, end: date, rates: pd.Series) -> float | None:
@@ -327,6 +333,7 @@ class FourBasis:
     usd: float | None
     cash: float | None
     cpi_period: str | None
+    cash_note: str = "faiz yok"
 
     def line(self) -> str:
         from core.reports.daily import pct
@@ -338,7 +345,7 @@ class FourBasis:
             month = datetime.strptime(self.cpi_period, "%Y-%m")
             parts.append(f"reel {pct(self.real)} (TÜFE {month:%m.%Y}'ya kadar, tahmin yok)")
         parts.append("USD: kur yok" if self.usd is None else f"USD {pct(self.usd)}")
-        parts.append("nakde göre: faiz yok" if self.cash is None else f"nakde göre {pct(self.cash)}")
+        parts.append(f"nakde göre: {self.cash_note}" if self.cash is None else f"nakde göre {pct(self.cash)}")
         return " · ".join(parts)
 
 
@@ -352,12 +359,15 @@ def four_basis(nominal: float, start: date, end: date, cpi=_DEFAULT, usd=_DEFAUL
     known = cpi_known(cpi, end) if len(cpi) else None
     real = real_return(nominal, start, end, cpi) if len(cpi) else None
     usd_value = usd_return(nominal, start, end, usd) if len(usd) else None
-    cash_value = None
+    cash_value, cash_note = None, "faiz yok"
     if cash is not None:
         growth = cash.growth(pd.Timestamp(start), pd.Timestamp(end))
-        if not getattr(growth, "missing_days", 0):
+        if getattr(growth, "missing_days", 0):
+            cash_note = "faiz serisi dönemin başını kapsamıyor"  # never estimated (data/cash/README.md)
+        else:
             cash_value = (1 + nominal) / growth.factor - 1
-    return FourBasis(nominal, real, usd_value, cash_value, known.period if known and real is not None else None)
+    return FourBasis(nominal, real, usd_value, cash_value, known.period if known and real is not None else None,
+                     cash_note)
 
 
 def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None = None,
@@ -401,7 +411,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--budget", type=float, default=None, help="stop after this many seconds (progress is kept)")
     args = parser.parse_args(argv)
     if args.usd:
-        added = update_usdtry(date.fromisoformat(args.usd), date.today(), budget=args.budget)
+        # the two ends first (the four-basis lines read the start and the end of a period), then the rest
+        start, today = date.fromisoformat(args.usd), date.today()
+        began, added = time.monotonic(), 0
+        for first, last in ((today - timedelta(days=14), today), (start, start + timedelta(days=14)), (start, today)):
+            left = None if args.budget is None else max(args.budget - (time.monotonic() - began), 0)
+            if left == 0:
+                break
+            added += update_usdtry(first, last, budget=left)
         print(f"{added} gün eklendi; önbellekte {len(load_usdtry())} kur günü")
     state, text = freshness(date.today())
     print(f"Makro veri: {text} ({state})")
