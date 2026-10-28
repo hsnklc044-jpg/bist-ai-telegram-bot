@@ -95,6 +95,7 @@ Kullanıcının PC'deki incelemesi 7 kritik kayıt buldu: açılış = en yükse
 - Haftalık araştırma `python -m core.market.quality --recent 14` çalıştırır; çıktı `research-results` dalında `runs/<tarih>/corporate.txt` ve iş akışı özetinde.
 - Kapsam: 2022'den beri BIST 100'e girmiş her hisse. Son 14 günde ±%20'yi aşan tek günlük hareket ("sıçrama": büyük olasılıkla düzeltilmemiş bedelsiz/bedelli/bölünme) ve günlük fiyat limitinin açıklayamadığı hareket ("limit aşımı": bedelli ya da temettü olabilir). `corporate_actions.csv`'de zaten olanlar ve piyasa geneli hareketler hariç.
 - Hiçbir şey otomatik uygulanmaz. Her satır KAP'ta doğrulanır; doğrulanan, kaynağıyla birlikte `data/corporate_actions.csv`'ye ve buraya eklenir.
+- **Kanıtlar yan yana (v0.74.0):** haftalık araştırma `python -m core.market.triage --days 14` çalıştırır (`triage.txt`). Her şüphe için: 30 gün içindeki KAP sermaye bildirimleri (bağlantı ve `kap.yml detail` numaraları) ve İş Yatırım'ın düzeltilmiş serisinde aynı günün hareketi. İkisi de varsa ("güçlü") önerilen satır yazılır. Hiçbiri uygulanmaz; KAP metni okunduktan sonra eklenir.
 - KAP'taki özgün metin (v0.73.0): Actions → "KAP corporate actions" → Run workflow → `detail` alanına bildirim numaraları (ör. `1685136,1684593`). Metin `research-results` dalında `kap/<tarih>.txt`. Bildirim numarası KAP kontrol çıktısındaki bağlantının sonundaki sayıdır.
 
 ## KAP duyuruları (v0.62.0)

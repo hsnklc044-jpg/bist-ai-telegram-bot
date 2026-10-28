@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.74.0 – 28.10.2026
+- Haftalık araştırmaya "kanıtlar yan yana" raporu (`triage.txt`) eklendi. Bir hissede kurumsal işlem şüphesi çıkınca rapor KAP'taki sermaye bildirimlerini ve İş Yatırım'ın aynı gündeki hareketini birlikte gösteriyor; iki kanıt da varsa hazır bir öneri satırı yazıyor. Bugün SKBNK'yı elle çözmek birkaç adım sürdü; bundan sonra aynı iş tek okumada biter. Hiçbir şey otomatik uygulanmıyor.
+
 ## v0.73.1 – 28.10.2026
 - SKBNK'nın %40 bedelli sermaye artırımı düzeltmesi doğru güne (19.10) taşındı. Önceki kayıt (22.10) düzeltilmiş seride iki sahte hareket üretiyordu. Doğrulama: KAP'ın kendi metni (yeni araçla getirildi) ve Yahoo ile İş Yatırım'ın aynı gün gösterdiği fiyat kopukluğu.
 
