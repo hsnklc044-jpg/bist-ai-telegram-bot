@@ -337,6 +337,7 @@ tara_sablonlar - hazır tarama şablonları (TradingView taramalarından)
 top - teknik görünümü en güçlü hisseler
 analyze - tek hisse: /analyze THYAO
 seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
+piyasa - piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)
 watchlist - takip listesi
 watchadd - listeye ekle: /watchadd EREGL
 watchremove - listeden çıkar
@@ -407,4 +408,29 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 - Her ayın 3'ünden sonra yeni TÜFE ayını TCMB tablosundan ekler (ilk görüldüğü günle).
 - `/durum`'daki "Makro veri" satırı ikisinin tarihini gösterir. Yeni ay 8 gün içinde gelmezse ya da kur 5 günden eskiyse UYARI verir.
 - Geçmiş kurları bir kerede doldurmak için: `python -m core.market.macro --usd 2026-01-02` (her gün için bir istek).
+
+## 11. Piyasa rejimi ve sektörler (/piyasa; K-51)
+
+`/piyasa` üç şey söyler. Hepsi kapanmış günlük mumlardan, o günün kapanışına kadarki veriyle hesaplanır:
+
+1. **Rejim etiketi:** yükseliş, düşüş, karışık, yüksek oynaklık ya da bilinmiyor. Tanım sonuç görülmeden sabitlendi ve eşikler sonuca göre değiştirilmez:
+
+   | Girdi | Tanım |
+   |---|---|
+   | trend | XU100 kapanışı 200 seanslık ortalamasının üstünde mi altında mı |
+   | oynaklık | XU100'ün 20 seanslık günlük getiri oynaklığı, önceki 252 seansın kaçıncı yüzdeliğinde |
+   | genişlik | o günün BIST 100 üyelerinden kapanışı kendi EMA50'sinin üstünde olanların oranı |
+
+   Kurallar sırayla uygulanır:
+   - oynaklık yüzdeliği ≥ 80 → **yüksek oynaklık**;
+   - değilse trend üstte ve genişlik ≥ %50 → **yükseliş**;
+   - trend altta ve genişlik < %50 → **düşüş**;
+   - diğer durumlar → **karışık**;
+   - bir girdi yoksa → **bilinmiyor**. Bunun için 200 seans geçmiş, 252 seanslık pencere ve EMA50'si olan en az 20 üye gerekir.
+2. **Genişlik:** BIST 100'ün yüzde kaçı EMA50 üstünde, kaç hisseyle hesaplandığı.
+3. **Dört ana sektör** (Banka, Sınai, Hizmetler, Holding ve Yatırım): son 1, 5 ve 20 seansta XU100'den kaç puan iyi ya da kötü. Endeks fiyatları diğer fiyatlarla aynı kaynaktan, akşam güncellemesiyle gelir. Fiyatı olmayan sektör "veri yok" yazar.
+
+**Rejim bir etikettir, sinyal değildir.** Hiçbir yerde "al/sat zamanı" anlamında kullanılmaz. Araştırma raporundaki eski "yükselen/düşen/yatay" ayrımı (63 seanslık XU100 getirisi) ayrı bir tanımdır ve öyle kalır.
+
+**Hisselerin sektörü henüz gösterilmiyor.** Borsa İstanbul'un pay–sektör listesi telif bildirimi nedeniyle izinsiz saklanamıyor (AUDIT D14); kaynak kararı kullanıcıda.
 

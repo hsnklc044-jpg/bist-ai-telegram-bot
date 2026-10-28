@@ -16,6 +16,7 @@ Komutlar:
 /top – teknik görünümü en güçlü hisseler
 /analyze THYAO – tek hisse teknik analizi (en yakın 3 destek ve 3 direnç dahil)
 /seviye THYAO – bütün destek/direnç seviyeleri: yöntem, güç, ATR uzaklığı (teknik seviye, öneri değil)
+/piyasa – piyasa rejimi (yükseliş/düşüş/karışık/yüksek oynaklık), genişlik ve dört ana sektör (etiket, sinyal değil)
 /summary – portföy ve piyasa özeti
 /watchlist – takip listesi
 /watchadd EREGL – listeye ekle

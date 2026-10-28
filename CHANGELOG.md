@@ -2,6 +2,22 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.1 – 29.10.2026 (Talimat C: /piyasa, rejim, genişlik, sektörler)
+- Yeni `/piyasa` komutu üç şeyi gösteriyor:
+  - rejim etiketi (yükseliş / düşüş / karışık / yüksek oynaklık / bilinmiyor) ve üç girdisi;
+  - BIST 100'ün EMA50 üstündeki payı;
+  - dört ana sektörün (Banka, Sınai, Hizmetler, Holding) son 1, 5 ve 20 seansta XU100'e göre puanı.
+- Tanım K-51'de sonuç görülmeden yazıldı ve aynen uygulandı. Eşikler sabit; her gün yalnız kendi kapanışına kadarki veriyi kullanıyor.
+- Çıktıda "Rejim bir etikettir, sinyal değildir" ve "Kural çıktısıdır, öneri değildir" yazıyor.
+- Sektör endeksleri (XBANK, XUSIN, XUHIZ, XHOLD) akşam fiyat güncellemesine eklendi. Verisi olmayan sektör "veri yok" diyor.
+- Doğrulama: `test_regime` (12 test).
+  - Etiket kurallarının tablosu.
+  - Elle hesaplanmış trend, oynaklık yüzdeliği, genişlik ve göreli güç.
+  - Gün üyeliği ve en az 20 hisse kuralı.
+  - Gelecek değişince geçmiş etiket değişmiyor.
+  - Metinde öneri kelimesi yok.
+  - Komut kaydı ve BotFather listesi.
+
 ## v0.95.0 – 29.10.2026 (Talimat C başladı: enflasyona, dolara ve nakde göre sonuç)
 - Kullanıcının "daha da ötesini yapabilirsin" mesajıyla C'nin kapısı açıldı (K-52).
 - Yeni `core/market/macro.py`. Her sonuç dört bazda gösteriliyor: nominal, reel (TÜFE), USD (TCMB gösterge kuru) ve nakde göre (politika faizi, stopaj sonrası).

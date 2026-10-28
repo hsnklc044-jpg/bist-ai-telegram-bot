@@ -125,8 +125,8 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 - **Koşul:** ✅ **açıldı** (kullanıcı, 28.10 akşamı; K-52).
 - **Yapılan:**
   - ✅ v0.95.0: dört bazlı sonuç (`core/market/macro.py`; günlük rapor, `/performans`, `/durum` "Makro veri"); TÜFE ve kur kendiliğinden güncelleniyor.
+  - ✅ v0.95.1: rejim etiketi, genişlik ve dört ana sektör (`core/market/regime.py`, `/piyasa`); sektör endeksleri akşam güncellemesinde.
 - **Kalan:**
-  - rejim etiketi ve `/piyasa`;
   - `/tara` `rejim` alanı;
   - araştırma raporunda dört sütun;
   - Yahoo ile ikinci kaynak kur karşılaştırması;
@@ -163,7 +163,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ### F – Model riski yönetimi ve bağımsız doğrulama
 - **Koşul:** F1 envanteri hemen; gerisi B'nin bitti ölçütünden sonra.
-- **Durum:** F1 ✅ docs/MODELS.md (24 model, 9'u yüksek risk; doğrulama sırası yazılı).
+- **Durum:** F1 ✅ docs/MODELS.md (25 model, 9'u yüksek risk; doğrulama sırası yazılı).
 - **En erken:** B'nin kapısı A'nın bitti ölçütüne bağlı. B'nin kendi bitti ölçütünde canlı kayıt olduğundan F2+ Kasım'dan önce açılmaz.
 - **Bitti ölçütü:**
   - MODELS.md eksiksiz;
@@ -174,7 +174,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.95.0 (C: dört bazlı sonuç). Öz-denetim sayacı: v0.91.2'den beri 7.
+- **Son sürüm:** v0.95.1 (C: /piyasa, rejim). Öz-denetim sayacı: v0.91.2'den beri 8.
 - **İleri hedefler:** 2027 tatilleri ✅ v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit). Kalan: elenen ve kalan grubun canlı izlenmesi, haftalık kayıtlı tarama özeti.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).

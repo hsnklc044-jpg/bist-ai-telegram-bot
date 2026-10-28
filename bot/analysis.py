@@ -143,6 +143,17 @@ def _level_block(symbol: str, k: int | None) -> str:
         return ""
 
 
+async def market_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /piyasa: the regime label, breadth and the main sectors against XU100 (K-51)."""
+
+    from core.market import regime
+
+    await reply(update, await asyncio.to_thread(regime.live_text))
+
+
 async def levels_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

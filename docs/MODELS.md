@@ -50,10 +50,11 @@ Hiçbir model al/sat önerisi üretmez; çıktılar "kural çıktısıdır, öne
 | M21 | SLO ölçümü | `core/reports/slo.py` | ORTA | bağımsız doğrulanmadı | PC /durum 28.10 |
 | M22 | Sunucu kararı | `core/reports/server_decision.py` | DÜŞÜK | bağımsız doğrulanmadı; karar 13.11 | testler |
 | M24 | Dört bazlı sonuç (nominal/reel/USD/nakit) | `core/market/macro.py` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış testler | testler, v0.95.0 |
+| M25 | Piyasa rejimi ve sektör göreli gücü (/piyasa) | `core/market/regime.py` | ORTA | bağımsız doğrulanmadı; elle hesaplanmış testler | testler, v0.95.1 |
 | M23 | Rapor zamanı ve seans takvimi | `core/market/calendar.py` | ORTA | bağımsız doğrulanmadı | testler; tatil 29.10 PC kanıtı bekleniyor |
 
 Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı sürümde girerler.
-- **C:** piyasa rejimi, sektör göreli gücü (reel ve dolar getiri M24 olarak girdi).
+- **C:** hisse sektörü (kaynak kararı bekliyor; reel/dolar getiri M24, rejim M25 olarak girdi).
 - **B:** senaryolar.
 - **D:** olay takvimi önem sınıfı.
 - **E:** risk bütçesi.
@@ -231,6 +232,18 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
   - Yahoo ile ikinci kaynak kur karşılaştırması henüz yok.
 - **Doğrulama:** bağımsız doğrulanmadı. Elle hesaplanmış testler var (bir ay, bir yıl, kur, nakit). Yayımdan önce görünmeme testi var. Zincirlenen 12 ay, TÜİK'in yıllık değişimiyle tutarlı.
 - **Risk:** YÜKSEK. Kararda bakılan bir sayıdır.
+
+### M25 Piyasa rejimi ve sektör göreli gücü
+- **Amaç:** piyasanın genel durumunu sabit bir etiketle ve dört ana sektörün XU100'e göre gücüyle göstermek (K-51).
+- **Girdi:** XU100, o günün BIST 100 üyeleri (geçmiş üyelik), sektör endeks fiyatları.
+- **Çıktı:** `/piyasa`. Kapı açılınca `/tara`'da `rejim` filtresi.
+- **Varsayımlar:** eşikler sabittir (200 seans, 20/252 seans, yüzdelik 80, genişlik %50, en az 20 üye). Her gün yalnız kendi kapanışına kadarki veriyi kullanır.
+- **Sınırlar:**
+  - Etiket sinyal değildir.
+  - Yüksek oynaklık diğerlerinden önce gelir.
+  - Sektör endeks verisinin Yahoo'daki varlığı ilk PC çalışmasında doğrulanacak; yoksa "veri yok" yazar.
+- **Doğrulama:** bağımsız doğrulanmadı. Elle hesaplanmış testler var (trend, yüzdelik, genişlik, göreli güç) ve geleceği görmeme testi var.
+- **Risk:** ORTA.
 
 ## Yüksek riskli modeller (F3 sırası)
 

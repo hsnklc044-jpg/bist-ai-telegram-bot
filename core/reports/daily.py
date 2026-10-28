@@ -280,8 +280,10 @@ def symbols_to_update(paths: Paths | None = None, universe: list[str] | None = N
     paths = paths or Paths()
     held = [p.symbol for p in open_positions(load_ledger(paths.ledger))]
     ordered = [o.symbol for o in load_orders(paths.orders) if o.status == "pending"]
+    from core.market.regime import SECTORS
+
     return list(dict.fromkeys([BENCHMARK, *(universe or load_universe()), *held, *ordered, *_alarm_symbols(),
-                               *_bist100_members()]))
+                               *_bist100_members(), *SECTORS]))
 
 
 def _bist100_members() -> list[str]:
