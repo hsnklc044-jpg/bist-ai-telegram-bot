@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.70.0 – 28.10.2026
+- Sunucu kararı artık hesaplanıyor. 13.11 akşam raporu, 27.10'da önceden yazılan ölçüte göre "sunucu önerilir" ya da "PC'de kalınır" kararını kendisi yazacak. Yalnız PC kaynaklı kayıplar sayılıyor: uyku, kapalı kalma, rapor görevinin geç başlaması. Ara durum: `python -m core.reports.server_decision`.
+
 ## v0.69.0 – 28.10.2026
 - `/performans`: bir görünümün canlı sonucu geçmişten anlamlı saparsa altında "neden?" satırları çıkar. Sistem dört olası nedeni kendisi sınar: sapma birkaç hisseden mi, tek bir günden mi geliyor; piyasa geçmişten farklı mıydı; ölçülen hisselerde kurumsal işlem var mıydı. Sapma yokken hiçbir şey eklenmez.
 

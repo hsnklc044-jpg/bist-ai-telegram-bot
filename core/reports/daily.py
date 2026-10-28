@@ -656,6 +656,14 @@ def _with_weekly_line(text: str, day: date) -> str:
         text = _before_disclaimer(text, "\n".join(slo.lines(slo.measure(now_istanbul()))))
     except Exception:  # noqa: BLE001 - the report must still go out
         logger.exception("Weekly SLO table failed")
+    try:  # DECISIONS K-23: the last day of the measurement window carries the server decision
+        from core.reports import server_decision
+
+        if server_decision.due(day):
+            decision = server_decision.decide(now=now_istanbul())
+            text = _before_disclaimer(text, server_decision.format_decision(decision))
+    except Exception:  # noqa: BLE001 - the report must still go out
+        logger.exception("Server decision failed")
     return text
 
 
