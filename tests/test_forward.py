@@ -189,6 +189,11 @@ class RecordingAndReportTest(unittest.TestCase):
         self.assertAlmostEqual(stats.market, close.iloc[-1] / close.iloc[-10] - 1)
         self.assertEqual(stats.days, 2)
 
+        text = forward.forward_report(self.log, self.equity, bars=self.bars)
+        self.assertIn("hesap: nominal +%10,0 · reel", text)  # Talimat C: four bases, extra lines
+        self.assertIn("XU100: nominal", text)
+        self.assertIn("nakde göre", text)
+
 
 class WeeklyLineTest(RecordingAndReportTest):
     def test_empty(self):

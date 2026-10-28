@@ -2,6 +2,21 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.0 – 29.10.2026 (Talimat C başladı: enflasyona, dolara ve nakde göre sonuç)
+- Kullanıcının "daha da ötesini yapabilirsin" mesajıyla C'nin kapısı açıldı (K-52).
+- Yeni `core/market/macro.py`. Her sonuç dört bazda gösteriliyor: nominal, reel (TÜFE), USD (TCMB gösterge kuru) ve nakde göre (politika faizi, stopaj sonrası).
+  - Günlük raporda her hesabın altında ilk kayıttan bu yana dört bazlı satır var.
+  - `/performans`'ta sanal hesap ve aynı dönemin XU100'ü için aynı satır var.
+  - Ek bilgidir; canlı ölçüm ve araştırma ölçütleri değişmedi.
+- Yeni `data/macro/cpi.csv`: 2021'den Eylül 2026'ya 69 ay, her ayın yayım günüyle. Veri TÜİK'in, TCMB'nin "Tüketici Fiyatları" tablosundan; şartları arşivli. Elle hiçbir rakam yazılmadı; dosya arşivlenmiş sayfadan üretildi.
+  - Yayım tarihi ayın 3'ü; hafta sonuysa pazartesi. Kaynaklı iki istisna var: 5 Mayıs 2022 ve 5 Haziran 2026.
+  - Değer yayımın ertesi gününden itibaren kullanılıyor. Ay içinde tahmin yok.
+- Veri kendiliğinden güncelleniyor.
+  - Akşam raporu son iki haftanın eksik TCMB kur bültenlerini istiyor (en çok 10 istek). Kurlar yerel önbelleğe, git dışına yazılıyor.
+  - Her ayın 3'ünden sonra yeni TÜFE ayı TCMB tablosundan ekleniyor. Yayım tarihi olarak ilk görüldüğü gün yazılıyor; gerçek yayımdan önce olamaz.
+- `/durum`'a "Makro veri" satırı eklendi: TÜFE ayı ve son kur günü. Gecikirse UYARI veriyor.
+- Doğrulama: `test_macro` (19 test). Elle hesaplanmış örnekler var: bir ay, bir yıl, kur, nakit. TÜFE yayımın ertesi gününden önce görünmüyor. Zincirlenen 12 ay TÜİK'in yıllık rakamıyla ±0,15 puan içinde. Gerçek TCMB sayfasından okunan 260 ay dosyayla bire bir aynı. Rapor ve `/performans` testleri dört bazlı satırı denetliyor.
+
 ## v0.94.2 – 28.10.2026 (2027 tatil takvimi)
 - `data/bist_holidays.csv` 2027'nin 13 gününü içeriyor: 11 tam tatil ve 2 yarım gün (8 Mart Ramazan Bayramı arifesi, 28 Ekim). Kaynaklar: 2429 sayılı Kanun'daki sabit günler ve Diyanet'in 2027 takvimi. Ramazan Bayramı 9–11 Mart; Kurban Bayramı 16–19 Mayıs, 19 Mayıs'la çakışıyor, arifesi cumartesiye denk geliyor.
 - Hafta sonuna düşen günler (1 Mayıs, 15–16 Mayıs) dosyada yok.

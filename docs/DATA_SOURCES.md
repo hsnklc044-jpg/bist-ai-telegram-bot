@@ -17,10 +17,10 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 | İş Yatırım | ikinci kaynak doğrulaması | resmi olmayan uç nokta | robots.txt `/_layouts/` yolunu yasaklıyor (D13) | **kullanımda, düşük hacim**; kullanıcı kararı bekliyor |
 | KAP | kurumsal işlem metinleri, temel veri | Actions `kap.yml`, elle | kullanım koşulu teyit edilmedi | metin yalnız doğrulama için okunur; otomatik temel veri çekme **kapalı** (K-48) |
 | TCMB politika faizi | nakit karşılaştırması | elle, `data/cash/policy_rate.csv` | TCMB, kaynak gösterilerek | **kullanımda** |
-| TCMB gösterge kurları (XML) | USD/TRY (C, planlı) | `tcmb.gov.tr/kurlar/` | robots.txt izin veriyor; site şartları: kaynak gösterilerek yayımlanabilir, **ticari kullanım yazılı izne tabi** (arşivli) | **planlı**; kişisel, ticari olmayan kullanım |
+| TCMB gösterge kurları (XML) | USD/TRY (kullanımda, v0.95.0) | `tcmb.gov.tr/kurlar/` | robots.txt izin veriyor; site şartları: kaynak gösterilerek yayımlanabilir, **ticari kullanım yazılı izne tabi** (arşivli) | **planlı**; kişisel, ticari olmayan kullanım |
 | TCMB EVDS | USD/TRY, TÜFE serisi (C, planlı) | web servisi, API anahtarı | kaynak gösterilerek kullanılabilir ve yayımlanabilir (arşivli) | **planlı, yedek yol**; anahtar kullanıcı adımı |
 | Yahoo `USDTRY=X` | USD/TRY ikinci kaynak (C, planlı) | yfinance | Yahoo ile aynı | **planlı** |
-| TÜİK TÜFE bültenleri | TÜFE ve yayım tarihi (C, planlı) | `data.tuik.gov.tr` | `data.tuik.gov.tr` robots.txt herkese `Allow: /` (arşivli); yazılı kullanım koşulu bulunamadı | **planlı**; elle giriş + kaynak satırı |
+| TÜFE (TÜİK verisi, TCMB tablosu) | reel getiri | TCMB "Tüketici Fiyatları" sayfası | TCMB site şartları: kaynak gösterilerek, ticari olmayan (arşivli) | **kullanımda (v0.95.0)**; `data/macro/cpi.csv` + PC'nin eklediği aylar |
 | Borsa İstanbul (site ve dosyaları) | sektör üyeliği (C, planlı); BIST 100 değişiklikleri (mevcut) | `borsaistanbul.com` | robots.txt `Allow: /`, ama telif bildirimi bilgilerin yazılı izinsiz "kopya edilemez … ileride kullanılmak üzere saklanamaz" diyor (arşivli) | **sektör dosyası kullanılmaz**; mevcut kullanım AUDIT D14, kullanıcı kararı |
 
 ## Ayrıntı
@@ -61,14 +61,17 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 - **İkinci kaynak:** Yahoo `USDTRY=X` kapanışı. Fark eşiği C tasarımında (K-51).
 - **Gösterim:** çıktıda "Kaynak: TCMB" yazılır.
 
-### TÜİK TÜFE
-- **Kullanım (planlı):** reel getiri. Aylık genel endeks ve **yayım tarihi** birlikte tutulur. Baz yılı satırda yazılır; baz değişirse zincirleme bültendeki yönteme göre yapılır, tahmin edilmez. Değer yalnız yayım gününün kapanışından sonra kullanılır; ay içinde tahmin yapılmaz, son yayımlanan değer ileri taşınır (K-51).
-- **Yayım takvimi:** TÜİK yıl başında "Ulusal Veri Yayımlama Takvimi" açıklar. Tarih sabit değildir; örneğin Mayıs 2026 verisi 3 yerine 5 Haziran'da çıktı. Bu yüzden her satırın yayım tarihi elle, bültenden yazılır.
-- **Koşul:** yazılı kullanım koşulu bulunamadı.
-  - `data.tuik.gov.tr/robots.txt` her tarayıcıya `Allow: /` diyor (`sources/2026-10-28_20-26-19/002.html`). `www.tuik.gov.tr/robots.txt` 404 döndü.
-  - Kategori sayfası JavaScript istiyor (`sources/2026-10-28_20-24-31/010`); sade HTTP ile veri alınamıyor.
-- **En güvenli yol:** otomatik çekme yok. Ayda bir satır kullanıcı ya da Claude tarafından bültenden elle `data/macro/cpi.csv`'ye girilir: `period, index, published, source`. Bu kişisel kayıt değildir; kaynaklı kamu verisidir. Satır sayısı yılda 12'dir.
-- **Yedek yol:** EVDS'de TÜFE genel endeks serisi (seri kodu kodlamadan önce EVDS'den doğrulanır). Koşulu arşivli ve uygun, ama anahtar ister.
+### TÜFE (TÜİK verisi, TCMB'nin tablosundan)
+- **Kullanım:** reel getiri (`core/market/macro.py`, K-51 ve K-52).
+- **Kaynak:** TCMB'nin "Tüketici Fiyatları" sayfası. TÜİK'in açıkladığı aylık ve yıllık yüzde değişimleri 2014'ten bugüne tek tabloda veriyor. Arşiv: `sources/2026-10-29_00-47-43/001.html`. TCMB şartları kaynak gösterilerek, ticari olmayan kullanıma izin veriyor.
+- **TÜİK'in kendi sitesi kullanılmıyor:** yazılı kullanım koşulu bulunamadı ve sayfa JavaScript istiyor.
+- **Endeks:** aylık değişimlerden zincirlenir. TÜİK 2026'da baz yılını 2025=100'e taşıdı; getiri yalnız oranlara baktığı için baz yılı sonucu etkilemez. Kontrol: zincirlenen 12 ay, TÜİK'in açıkladığı yıllık değişimle ±0,15 puan içinde (test).
+- **Yayım tarihi:**
+  - TÜİK ayın 3'ünde, saat 10:00'da açıklar; 3'ü hafta sonuysa pazartesi.
+  - Kaynaklı istisnalar: Nisan 2022 → 5 Mayıs (bayram), Mayıs 2026 → 5 Haziran.
+  - Değer, yayım gününün ertesi gününden itibaren kullanılır.
+- **Yeni aylar:** akşam raporu her ayın 3'ünden sonra TCMB tablosunu bir kez okur. Yeni ayı `data/macro/cpi_local.csv`'ye ekler (yerel, git dışı). Yayım tarihi olarak **ilk görüldüğü gün** yazılır: gerçek açıklamadan önce olamaz, bu yüzden geleceği görme yoktur. Depodaki satır her zaman yerel satırdan önce gelir.
+- **Ay içi tahmin yok:** son açıklanan ay ileri taşınır. Bir aydan kısa pencerede reel getiri nominale eşit çıkabilir; çıktı bunu yazar.
 
 ### Borsa İstanbul
 - **Telif bildirimi** (`sources/2026-10-28_20-28-55/001.html`):
@@ -89,7 +92,7 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 
 ## Açık işler
 - TCMB site kullanım şartları sayfasının arşivi.
-- TÜİK kullanım koşulu.
+- TÜİK'in kendi kullanım koşulu (artık gerekmiyor: veri TCMB tablosundan).
 - Sektör ataması kaynağı (Borsa İstanbul izni, KAP ya da Yahoo; K-51).
 - AUDIT D14: Borsa İstanbul telif bildirimi ile mevcut kullanım.
 - KAP kullanım koşulu (K-48, D'nin kapısı).

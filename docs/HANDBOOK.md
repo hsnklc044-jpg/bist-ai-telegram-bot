@@ -384,3 +384,27 @@ Yöntemler (her seviye yöntem adıyla gösterilir):
 - Her gün, o güne kadarki mumlarla hesaplanır. Karne bu alanları da geleceği görmeden hesaplar.
 - Kırılma, dünkü en yakın seviyenin bugün 0,5 ATR'den fazla geçilmesidir.
 
+## 10. Enflasyona, dolara ve nakde göre sonuç (Talimat C; K-51, K-52)
+
+Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda her hesabın ve `/performans`'ta sanal hesabın ve aynı dönemdeki XU100'ün altında bir satır daha çıkar:
+
+`21.10.2026'den bu yana: nominal +%2,0 · reel +%2,0 (TÜFE 09.2026'ya kadar, tahmin yok) · USD +%1,6 · nakde göre +%1,0`
+
+| Baz | Anlamı | Veri |
+|---|---|---|
+| nominal | TL olarak değişim | hesap kaydı |
+| reel | enflasyondan arındırılmış: (1 + nominal) ÷ (TÜFE oranı) − 1 | TÜİK, TCMB tablosundan; yayımın ertesi gününden itibaren |
+| USD | dolar olarak: (1 + nominal) × (başlangıç kuru ÷ son kur) − 1 | TCMB gösterge kuru, döviz alış |
+| nakde göre | aynı parayı politika faiziyle (stopaj sonrası) tutmaya göre | `data/cash/policy_rate.csv` |
+
+**Okurken:**
+- Ay içinde enflasyon tahmin edilmez. Son açıklanan ay kullanılır; kısa bir pencerede reel ile nominal aynı çıkabilir.
+- Bir veri yoksa satır bunu söyler ("reel: TÜFE yok", "USD: kur yok"); sıfır yazmaz.
+- Bu satırlar ek bilgidir. Canlı ölçümün ölçütü (XU100'e göre) ve araştırmanın birincil ölçütü değişmez.
+
+**Veri kendiliğinden güncellenir:**
+- Akşam raporu son iki haftanın eksik TCMB kur bültenlerini ister.
+- Her ayın 3'ünden sonra yeni TÜFE ayını TCMB tablosundan ekler (ilk görüldüğü günle).
+- `/durum`'daki "Makro veri" satırı ikisinin tarihini gösterir. Yeni ay 8 gün içinde gelmezse ya da kur 5 günden eskiyse UYARI verir.
+- Geçmiş kurları bir kerede doldurmak için: `python -m core.market.macro --usd 2026-01-02` (her gün için bir istek).
+

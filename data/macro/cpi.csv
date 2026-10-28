@@ -1,0 +1,74 @@
+# TÜFE aylık ve yıllık % değişim (TÜİK), TCMB 'Tüketici Fiyatları' tablosundan.
+# Kaynak: https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Istatistikler/Enflasyon+Verileri/Tuketici+Fiyatlari
+# Arşiv: research-results sources/2026-10-29_00-47-43/001.html (sha256 798fc48c…). TCMB şartı: kaynak gösterilerek, ticari olmayan.
+# published = TÜİK'in açıklama günü (10:00). Değer bu günün ERTESİ gününden itibaren kullanılır (K-51).
+period,monthly_pct,annual_pct,published,published_note
+2021-01,1.68,14.97,2021-02-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-02,0.91,15.61,2021-03-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-03,1.08,16.19,2021-04-05,ayın 3'ü; hafta sonuysa pazartesi
+2021-04,1.68,17.14,2021-05-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-05,0.89,16.59,2021-06-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-06,1.94,17.53,2021-07-05,ayın 3'ü; hafta sonuysa pazartesi
+2021-07,1.80,18.95,2021-08-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-08,1.12,19.25,2021-09-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-09,1.25,19.58,2021-10-04,ayın 3'ü; hafta sonuysa pazartesi
+2021-10,2.39,19.89,2021-11-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-11,3.51,21.31,2021-12-03,ayın 3'ü; hafta sonuysa pazartesi
+2021-12,13.58,36.08,2022-01-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-01,11.10,48.69,2022-02-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-02,4.81,54.44,2022-03-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-03,5.46,61.14,2022-04-04,ayın 3'ü; hafta sonuysa pazartesi
+2022-04,7.25,69.97,2022-05-05,Ramazan Bayramı nedeniyle 5 Mayıs (Yetkin Report 05.05.2022)
+2022-05,2.98,73.50,2022-06-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-06,4.95,78.62,2022-07-04,ayın 3'ü; hafta sonuysa pazartesi
+2022-07,2.37,79.60,2022-08-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-08,1.46,80.21,2022-09-05,ayın 3'ü; hafta sonuysa pazartesi
+2022-09,3.08,83.45,2022-10-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-10,3.54,85.51,2022-11-03,ayın 3'ü; hafta sonuysa pazartesi
+2022-11,2.88,84.39,2022-12-05,ayın 3'ü; hafta sonuysa pazartesi
+2022-12,1.18,64.27,2023-01-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-01,6.65,57.68,2023-02-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-02,3.15,55.18,2023-03-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-03,2.29,50.51,2023-04-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-04,2.39,43.68,2023-05-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-05,0.04,39.59,2023-06-05,ayın 3'ü; hafta sonuysa pazartesi
+2023-06,3.92,38.21,2023-07-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-07,9.49,47.83,2023-08-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-08,9.09,58.94,2023-09-04,ayın 3'ü; hafta sonuysa pazartesi
+2023-09,4.75,61.53,2023-10-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-10,3.43,61.36,2023-11-03,ayın 3'ü; hafta sonuysa pazartesi
+2023-11,3.28,61.98,2023-12-04,ayın 3'ü; hafta sonuysa pazartesi
+2023-12,2.93,64.77,2024-01-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-01,6.70,64.86,2024-02-05,ayın 3'ü; hafta sonuysa pazartesi
+2024-02,4.53,67.07,2024-03-04,ayın 3'ü; hafta sonuysa pazartesi
+2024-03,3.16,68.50,2024-04-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-04,3.18,69.80,2024-05-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-05,3.37,75.45,2024-06-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-06,1.64,71.60,2024-07-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-07,3.23,61.78,2024-08-05,ayın 3'ü; hafta sonuysa pazartesi
+2024-08,2.47,51.97,2024-09-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-09,2.97,49.38,2024-10-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-10,2.88,48.58,2024-11-04,ayın 3'ü; hafta sonuysa pazartesi
+2024-11,2.24,47.09,2024-12-03,ayın 3'ü; hafta sonuysa pazartesi
+2024-12,1.03,44.38,2025-01-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-01,5.03,42.12,2025-02-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-02,2.27,39.05,2025-03-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-03,2.46,38.10,2025-04-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-04,3.00,37.86,2025-05-05,ayın 3'ü; hafta sonuysa pazartesi
+2025-05,1.53,35.41,2025-06-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-06,1.37,35.05,2025-07-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-07,2.06,33.52,2025-08-04,ayın 3'ü; hafta sonuysa pazartesi
+2025-08,2.04,32.95,2025-09-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-09,3.23,33.29,2025-10-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-10,2.55,32.87,2025-11-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-11,0.87,31.07,2025-12-03,ayın 3'ü; hafta sonuysa pazartesi
+2025-12,0.89,30.89,2026-01-05,ayın 3'ü; hafta sonuysa pazartesi
+2026-01,4.84,30.65,2026-02-03,ayın 3'ü; hafta sonuysa pazartesi
+2026-02,2.96,31.53,2026-03-03,ayın 3'ü; hafta sonuysa pazartesi
+2026-03,1.94,30.87,2026-04-03,ayın 3'ü; hafta sonuysa pazartesi
+2026-04,4.18,32.37,2026-05-04,ayın 3'ü; hafta sonuysa pazartesi
+2026-05,1.71,32.61,2026-06-05,TÜİK duyurusu: 3 yerine 5 Haziran (Dünya 2026)
+2026-06,0.99,32.11,2026-07-03,ayın 3'ü; hafta sonuysa pazartesi
+2026-07,1.78,31.75,2026-08-03,ayın 3'ü; hafta sonuysa pazartesi
+2026-08,1.84,31.51,2026-09-03,ayın 3'ü; hafta sonuysa pazartesi
+2026-09,1.84,29.73,2026-10-05,ayın 3'ü; hafta sonuysa pazartesi

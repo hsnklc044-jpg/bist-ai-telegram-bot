@@ -49,10 +49,11 @@ Hiçbir model al/sat önerisi üretmez; çıktılar "kural çıktısıdır, öne
 | M20 | Temel veri deposu | `core/fundamentals/store.py` | ORTA | bağımsız doğrulanmadı; veri yok | testler |
 | M21 | SLO ölçümü | `core/reports/slo.py` | ORTA | bağımsız doğrulanmadı | PC /durum 28.10 |
 | M22 | Sunucu kararı | `core/reports/server_decision.py` | DÜŞÜK | bağımsız doğrulanmadı; karar 13.11 | testler |
+| M24 | Dört bazlı sonuç (nominal/reel/USD/nakit) | `core/market/macro.py` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış testler | testler, v0.95.0 |
 | M23 | Rapor zamanı ve seans takvimi | `core/market/calendar.py` | ORTA | bağımsız doğrulanmadı | testler; tatil 29.10 PC kanıtı bekleniyor |
 
 Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı sürümde girerler.
-- **C:** reel ve dolar getiri, piyasa rejimi, sektör göreli gücü.
+- **C:** piyasa rejimi, sektör göreli gücü (reel ve dolar getiri M24 olarak girdi).
 - **B:** senaryolar.
 - **D:** olay takvimi önem sınıfı.
 - **E:** risk bütçesi.
@@ -213,6 +214,24 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
 - **Sınırlar:** Tatil dosyası yalnız 2026'yı kapsar; 2027 tatilleri açık iş.
 - **Risk:** ORTA. Yanlış takvim yanlış alarm ya da kaçan rapor demektir.
 
+### M24 Dört bazlı sonuç
+- **Amaç:** nominal TL sonucunu enflasyona, dolara ve nakde göre de göstermek (Talimat C, K-51, K-52).
+- **Girdi:**
+  - `data/macro/cpi.csv` ve PC'nin eklediği aylar (TÜİK verisi, TCMB tablosundan);
+  - TCMB kur bülteni önbelleği;
+  - politika faizi.
+- **Çıktı:** günlük rapordaki hesap satırları; `/performans`'ta sanal hesap ve XU100.
+- **Varsayımlar:**
+  - TÜFE yayımın ertesi gününden itibaren kullanılır; ay içinde tahmin yoktur.
+  - Kur, bülten günündeki döviz alış kurudur.
+  - Nakit, araştırmanın kullandığı seriyle aynıdır.
+- **Sınırlar:**
+  - Geçmiş ayların yayım tarihi kuraldandır (iki kaynaklı istisna dışında).
+  - Bir aydan kısa pencerede reel getiri nominale eşit çıkar.
+  - Yahoo ile ikinci kaynak kur karşılaştırması henüz yok.
+- **Doğrulama:** bağımsız doğrulanmadı. Elle hesaplanmış testler var (bir ay, bir yıl, kur, nakit). Yayımdan önce görünmeme testi var. Zincirlenen 12 ay, TÜİK'in yıllık değişimiyle tutarlı.
+- **Risk:** YÜKSEK. Kararda bakılan bir sayıdır.
+
 ## Yüksek riskli modeller (F3 sırası)
 
 Bağımsız doğrulama F'nin kapısı açılınca bu sırayla yapılır. Sıra, kişisel kaydı ya da her gün okunan rakamı etkileyen modelden başlar:
@@ -224,5 +243,6 @@ Bağımsız doğrulama F'nin kapısı açılınca bu sırayla yapılır. Sıra, 
 6. M1 teknik skor.
 7. M5 karne.
 8. M8 seviyeler.
+9. M24 dört bazlı sonuç.
 
 F7 gereği, doğrulama raporu gelene kadar bu modellerin çıktısına "doğrulanmadı" etiketi eklenmesi F'nin uygulama işidir. Kapı açılmadan kod değişmez.

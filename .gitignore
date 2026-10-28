@@ -101,3 +101,8 @@ data/watchlist.json
 # test coverage data
 .coverage
 .coverage.*
+
+# Talimat C: local TCMB bulletin cache (filled by the daily report)
+data/macro/usdtry.csv
+data/macro/cpi_local.csv
+data/macro/*.tmp

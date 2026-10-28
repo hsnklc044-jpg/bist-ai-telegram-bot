@@ -4,6 +4,21 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-52. C kapısı açıldı; TÜFE kaynağı TCMB tablosu; yeni aylar ilk görüldüğü günle (29.10.2026).**
+- **Kapı:** kullanıcı 28.10 akşamı "daha da ötesini yapabilirsin" dedi. Bir önceki mesajım "'C'yi şimdi başlat' yazarsanız başlarım" diyordu; bunu C'nin kapısını açma onayı olarak okudum.
+  - D'nin kapısı açılmadı: KAP kullanım koşulunun teyidi ek ön koşuldur.
+  - E (C'nin bitmesi) ve F'nin geri kalanı (B'nin bitmesi) aynı kaldı.
+- **TÜFE kaynağı değişti:** K-51 TÜİK bülteninden elle girişi seçmişti. TCMB'nin "Tüketici Fiyatları" tablosu aynı TÜİK rakamlarını veriyor ve şartları arşivli (kaynak gösterilerek, ticari olmayan). Bu yüzden ondan alındı. Elle tek satır bile yazılmadı; dosya arşivlenmiş sayfadan bir betikle üretildi.
+- **Yayım tarihi:**
+  - Geçmiş aylar: kural (ayın 3'ü; hafta sonuysa pazartesi) ve iki kaynaklı istisna.
+  - PC'nin eklediği yeni aylar: ilk görüldüğü gün. Bu tarih gerçek açıklamadan önce olamaz.
+  - Bilinen sınır: kaynağı olmayan başka bir erteleme olduysa, geçmişte en çok birkaç gün erken görülmüş olabilir. Etkisi bir aylık TÜFE'nin birkaç günlük kayması kadardır; birincil ölçüt bunu kullanmaz.
+- **Kur önbelleği:** `data/macro/usdtry.csv` yerel ve git dışındadır. Akşam raporu son 14 günden eksik bültenleri ister (en çok 10 istek). Bülteni olmayan gün (tatil, yarım gün; 404) hatırlanır, ağ hatası hatırlanmaz.
+- **Gösterim:** dört baz yalnız ek satırdır.
+  - Günlük raporda her hesabın altında "ilk kayıttan bu yana".
+  - `/performans`'ta sanal hesap ve aynı dönemin XU100'ü.
+  - Canlı ölçümün XU100'e göre fazla getiri ölçütü ve araştırmanın birincil ölçütü değişmedi.
+
 **K-51. C/D/E/F paketi: kapıların okunuşu ve C1 tasarımı (28.10.2026; sonuç görülmeden yazıldı).**
 
 **Kapılar.** Paket C ve D için "Talimat 1'in", F için "Talimat 2'nin" bitti ölçütünü şart koşuyor. Bu adlarla bir belge depoda yok. Yüklenen PROFESYONEL_TALIMAT_1'de ne "bitti ölçütü" ne de "§2" var. Özellik A ise "Talimat 1 §2" ile veri borcunu anıyordu.

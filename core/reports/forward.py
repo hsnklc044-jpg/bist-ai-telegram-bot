@@ -251,6 +251,18 @@ def paper_vs_market(path: Path | str | None = None, bars=adjusted_bars) -> Paper
     )
 
 
+def _basis_lines(paper: PaperStats) -> list[str]:
+    """Talimat C: the same two results against inflation, the dollar and cash (extra lines)."""
+
+    try:
+        from core.market import macro
+
+        return [f"  hesap: {macro.four_basis(paper.account, paper.start, paper.end).line()}",
+                f"  XU100: {macro.four_basis(paper.market, paper.start, paper.end).line()}"]
+    except Exception as exc:  # noqa: BLE001 - extra information only
+        return [f"  ⚠️ Dört bazlı sonuç hesaplanamadı: {exc}"]
+
+
 BARS = "▁▂▃▄▅▆▇█"
 CHART_MIN_POINTS = 5
 
@@ -432,6 +444,7 @@ def forward_report(
             f"{paper.start:%d.%m.%Y} → {paper.end:%d.%m.%Y} ({paper.days} gün): "
             f"hesap {pct(paper.account)}, XU100 {pct(paper.market)}, fark {pct(paper.account - paper.market)}"
         )
+        lines += _basis_lines(paper)
 
     lines += ["", DISCLAIMER]
 

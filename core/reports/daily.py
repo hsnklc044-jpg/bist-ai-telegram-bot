@@ -384,6 +384,9 @@ def build_daily(
             # a missing day (PC off) makes the change cover several sessions: say since when
             lines.append(f"Günlük değişim {change}" if gap <= 1
                          else f"{before:%d.%m} kaydından bu yana değişim {change} ({gap} seans)")
+            basis = _basis_line(growth)
+            if basis:
+                lines.append(basis)
         for p, price, value in rows:
             pnl = value - p.cost
             ret = pnl / p.cost if p.cost else 0.0
@@ -915,6 +918,34 @@ def _send_second_source(args) -> str:
         return ""
 
 
+def _basis_line(growth: pd.Series) -> str:
+    """Talimat C: growth since the first record, nominal / real / USD / against cash (K-51)."""
+
+    try:
+        from core.market import macro
+
+        start, end = growth.index[0].date(), growth.index[-1].date()
+        result = macro.four_basis(float(growth.iloc[-1] / growth.iloc[0] - 1), start, end)
+        return f"{start:%d.%m.%Y}'den bu yana: {result.line()}"
+    except Exception:  # noqa: BLE001 - extra information; the report still goes out
+        logger.exception("Four-basis line failed")
+        return ""
+
+
+def _update_macro() -> None:
+    """Talimat C: the last two weeks of TCMB bulletins not yet cached (at most 10 requests) and,
+    after the 3rd of a month, the new CPI figure from TCMB's table (one request)."""
+
+    try:
+        from core.market import macro
+
+        today = date.today()
+        macro.update_usdtry(today - timedelta(days=14), today, limit=10)
+        macro.update_cpi(today)
+    except Exception:  # noqa: BLE001 - the report never waits on this
+        logger.exception("Macro data update failed")
+
+
 def _run(args) -> DailyResult:
     with report_lock():
         return _run_locked(args)
@@ -929,6 +960,7 @@ def _run_locked(args) -> DailyResult:
         if failed:
             logger.warning("Daily update: no data for %s", ", ".join(failed))
         _record_freshness()
+        _update_macro()
 
     result = build_daily()
     score_warning = _record_scores()
