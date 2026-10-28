@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.75.0 – 28.10.2026
+- `/tara`: BIST 100'ü kendi gösterge koşullarınla filtreleyebilirsin (ör. `/tara rsi<30 ema20>ema50`). Desteklenen alanlar:
+  - RSI, EMA20/50, MACD ve sinyal çizgisi
+  - hacim oranı, ATR yüzdesi
+  - 5 ve 20 seans getiri, XU100'e göre göreli güç, kapanış
+- Her hisse için sağladığı koşullar, kapanış, 1 ATR risk mesafesi ve 20 günlük ortalama TL işlem gösteriliyor; en fazla 15 satır.
+- Listenin altında geçmiş karne var: 2023-08 – 30.10.2026 verisi, holdout kullanılmıyor. Karne bir kanıt değil, yalnızca bir özet.
+- Sonuçlar canlı ölçüme kaydediliyor; `/performans` her kriterin 5 ve 20 seanslık sonucunu gösteriyor.
+- Taramalar `/tara_kaydet` ile kaydedilebiliyor; kayıtlar yedeğe giriyor.
+- Filtre sonucudur, yatırım önerisi değildir.
+
 ## v0.74.0 – 28.10.2026
 - Haftalık araştırmaya "kanıtlar yan yana" raporu (`triage.txt`) eklendi. Bir hissede kurumsal işlem şüphesi çıkınca rapor KAP'taki sermaye bildirimlerini ve İş Yatırım'ın aynı gündeki hareketini birlikte gösteriyor; iki kanıt da varsa hazır bir öneri satırı yazıyor. Bugün SKBNK'yı elle çözmek birkaç adım sürdü; bundan sonra aynı iş tek okumada biter. Hiçbir şey otomatik uygulanmıyor.
 

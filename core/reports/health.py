@@ -34,6 +34,7 @@ from core.config.paths import (
     MARKET_DB,
     PAPER_ORDERS_FILE,
     PRICE_ALARMS_FILE,
+    SCREENS_FILE,
     SIGNAL_LOG_FILE,
 )
 from core.market.calendar import (
@@ -381,6 +382,7 @@ def bot_check(now: datetime, path: Path | None = None) -> Check:
 def _personal_readers() -> dict:
     from core.alerts import levels
     from core.alerts.log import open_alerts
+    from core.analytics import screen
     from core.ledger import load_ledger
     from core.ledger.paper import load_orders
     from core.reports.daily import read_equity
@@ -392,6 +394,7 @@ def _personal_readers() -> dict:
         EQUITY_LOG_FILE: lambda p: read_equity(p, "paper"),
         ALERTS_LOG_FILE: open_alerts,
         PRICE_ALARMS_FILE: levels.active,
+        SCREENS_FILE: screen.load_saved,
         repository.WATCHLIST_FILE: lambda p: repository.load_watchlist(),
     }
 
@@ -426,6 +429,7 @@ SCHEMAS = {
     SIGNAL_LOG_FILE: ({"logged_at", "source", "symbol", "score", "view", "data_date", "price", "details"},),
     EQUITY_LOG_FILE: ({"date", "account", "value", "cash", "invested", "positions"},),
     PRICE_ALARMS_FILE: ({"id", "at", "symbol", "direction", "level", "event", "close"},),
+    SCREENS_FILE: ({"at", "name", "criteria"},),
 }
 
 

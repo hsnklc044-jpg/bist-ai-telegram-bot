@@ -75,4 +75,5 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 - **Bot cevap vermiyor.** `Start-ScheduledTask "QuantBIST Bot"`. Elle `python main.py` açmayın; iki bot çakışır.
 - **"… kilitli" yazıyor.** Dosya Excel'de açık; kapatın, sonraki çalışma yazar.
 - **Bir hissede garip fiyat.** `python -m core.market.crosscheck --inspect KOD:YYYY-AA-GG` (ya da GitHub "Data check" iş akışı, `inspect` girdisi). Düzeltme yalnız `data/price_fix_approvals.csv` onayıyla.
+- **Kendi koşullarımla tarama.** Telegram'da `/tara` örnekleri ve alanları gösterir (ör. `/tara rsi<30 ema20>ema50`). Liste filtre sonucudur. Altındaki karne 2023-08 – 30.10.2026 verisinin özetidir; holdout (02.11.2026 sonrası) kullanılmaz. Koşullar serbestçe denenebildiği için karne bir kuralın kanıtı değildir. Bulunan hisseler canlı ölçüme "tara" kaynağıyla yazılır; `/performans` her kriterin 5 ve 20 seans sonucunu gösterir. Taramalar `/tara_kaydet AD koşullar` ile `data/screens.csv`'ye kaydedilir (yedeğe dahil, yalnız ekleme).
 - **Bir kural "işe yarıyor" mu?** RESEARCH_LOG'daki ön kayıtlı ölçüt geçmeden hayır. Canlı ölçüm kararı Kasım 2026 sonu.

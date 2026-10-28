@@ -54,6 +54,7 @@ T95 = (12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.
        2.045, 2.042)
 VIEW_ORDER = tuple(SIGNAL_VIEW_LABELS.values())
 SYSTEMATIC = "daily"
+SCREENED = "tara"  # /tara matches (core.analytics.screen), measured per criterion
 
 
 # =====================================================
@@ -199,7 +200,8 @@ def score_log(
     # unreadable rows (cut-off line, garbage) are skipped here and counted by audit_log (Kayıt sağlığı)
     records["day"] = pd.to_datetime(records["data_date"], format="%Y-%m-%d", errors="coerce")
     records = records[records["day"].notna() & records["symbol"].fillna("").astype(str).str.strip().ne("")]
-    records = records.drop_duplicates(["source", "symbol", "data_date"], keep="last")
+    # /tara: one row per criterion (the same stock can meet two criteria on the same day)
+    records = records.drop_duplicates(["source", "symbol", "data_date", "view"], keep="last")
 
     bench = bars(BENCHMARK)
     cache: dict[str, pd.DataFrame] = {}
@@ -366,7 +368,20 @@ def forward_report(
                 if "sapma" in drifted:
                     lines += [f"      neden? {r}" for r in _drift_reasons(part[part["view"] == view], ref, bars)]
 
-    asked = scored[scored["source"] != SYSTEMATIC]
+    screened = scored[scored["source"] == SCREENED]
+    if not screened.empty:
+        lines += ["", "🔎 /tara kriterleri → sonraki getirinin XU100'den farkı (ortalama, %95 aralık; filtre "
+                      "sonucu, öneri değil)"]
+        for criterion in sorted(screened["view"].unique()):
+            for h in (5, 20):
+                stats = summarize(screened[(screened["view"] == criterion) & (screened["horizon"] == h)])
+                if stats is None:
+                    continue
+                lines.append(f"  {criterion} · {h} seans: {pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
+                             f"| {stats.records} kayıt, {stats.days} gün, isabet %{stats.hit_rate * 100:.0f} "
+                             f"→ {_verdict(stats)}")
+
+    asked = scored[~scored["source"].isin([SYSTEMATIC, SCREENED])]
     if not asked.empty:
         matured = int((asked["horizon"] == asked["horizon"].min()).sum())
         lines += [

@@ -15,7 +15,17 @@ from telegram.ext import (
 
 from bot.analysis import analyze, top
 from bot.portfolio import alerts, paper, portfolio, report, trade
-from bot.reports import performance, price_alarm, resend, status, stress_test, summary, yearly
+from bot.reports import (
+    performance,
+    price_alarm,
+    resend,
+    save_screen,
+    screen_cmd,
+    status,
+    stress_test,
+    summary,
+    yearly,
+)
 from bot.start import start
 from bot.watchlist import (
     watchadd,
@@ -50,6 +60,8 @@ COMMANDS = (
     ("yil", yearly),
     ("stres", stress_test),
     ("alarm", price_alarm),
+    ("tara", screen_cmd),
+    ("tara_kaydet", save_screen),
 )
 
 # Telegram's "Menu" list (set when the bot starts); /help is the same as /start
@@ -65,6 +77,8 @@ MENU = (
     ("yil", "yıllık döküm: satışlar, temettü, komisyon"),
     ("stres", "pozisyonlar en kötü geçmiş düşüşlerde ne kaybederdi"),
     ("alarm", "kapanış alarmı: /alarm THYAO altında 240"),
+    ("tara", "göstergeyle filtre: /tara rsi<30 ema20>ema50"),
+    ("tara_kaydet", "taramayı kaydet: /tara_kaydet AD koşullar"),
     ("top", "teknik görünümü en güçlü hisseler"),
     ("analyze", "tek hisse: /analyze THYAO"),
     ("watchlist", "takip listesi"),

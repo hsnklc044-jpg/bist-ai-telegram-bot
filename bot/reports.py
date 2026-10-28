@@ -93,6 +93,31 @@ async def price_alarm(
     await reply(update, await asyncio.to_thread(levels.command, list(context.args or [])))
 
 
+async def screen_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara [koşullar | AD]: BIST 100 filtered by the user's indicator conditions (a filter, not advice)."""
+
+    from core.analytics import screen
+
+    words = list(context.args or [])
+    if words:
+        await reply(update, "⏳ Taranıyor (geçmiş karne ile birlikte)...")
+    await reply(update, await asyncio.to_thread(screen.screen_text, words))
+
+
+async def save_screen(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_kaydet AD koşullar."""
+
+    from core.analytics import screen
+
+    await reply(update, await asyncio.to_thread(screen.save_text, list(context.args or [])))
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

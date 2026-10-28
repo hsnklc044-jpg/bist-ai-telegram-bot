@@ -34,6 +34,7 @@ Portföy ve risk:
 /stres – pozisyonlar XU100'ün en kötü geçmiş düşüşlerinde ne kaybederdi (/stres sanal)
 /yil – yıllık döküm: satış sonuçları, temettü, komisyon (/yil 2026 sanal)
 /alarm THYAO altında 240 – kapanış alarmı (akşam raporunda bir kez); %5 de olur (son kapanışa göre); /alarm liste, /alarm sil 1
+/tara rsi<30 ema20>ema50 – BIST 100'ü kendi koşullarınla filtrele, geçmiş karnesiyle (/tara: örnekler; /tara_kaydet AD koşullar)
 /help – bu mesaj
 
 ℹ️ Teknik skorun backtest'te getiri tahmin gücü bulunmadı;
