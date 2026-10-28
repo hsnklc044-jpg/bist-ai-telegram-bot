@@ -52,12 +52,13 @@ class AtrSpikeTest(unittest.TestCase):
         df.iloc[-4, df.columns.get_loc("close")] *= 0.6  # one day -40%: no BIST session allows it
         df.iloc[-4, df.columns.get_loc("low")] = df.iloc[-4]["close"]
         frames["S05.IS"] = df
-        result = engine.run(parse("rsi>-1 likidite=0"), frames, bench)
+        result = engine.run(parse("rsi>-1 ele=hayir"), frames, bench)
         flagged = {m.symbol: m.flags for m in result.matches}
         self.assertTrue(any("uç hareket" in f for f in flagged["S05.IS"]))
         self.assertEqual(flagged["S06.IS"], [])
         self.assertIn("⚠️ ATR son 14 seansta ±%10 limitini aşan bir hareket içeriyor",
                       command.format_result(result, None))
+        self.assertIn("düzeltilmemiş sıçrama", dict(engine.run(parse("rsi>-1"), frames, bench).eliminated)["S05.IS"])
 
 
     def test_a_limit_down_streak_like_anele(self):
@@ -72,10 +73,12 @@ class AtrSpikeTest(unittest.TestCase):
             row = len(df) - 7 + i
             df.iloc[row, df.columns.get_indexer(["open", "high", "low", "close"])] = [p, p * 1.01, p * 0.99, p]
         frames["S07.IS"] = df
-        result = engine.run(parse("rsi>-1 likidite=0"), frames, bench)
+        result = engine.run(parse("rsi>-1 ele=hayir"), frames, bench)
         flags = {m.symbol: m.flags for m in result.matches}["S07.IS"]
         self.assertFalse(any("limitini aşan" in f for f in flags))
         self.assertTrue(any("sert hareket" in f for f in flags))
+        # since K-45 such a stock is eliminated by default (7 limit days in 10 sessions)
+        self.assertIn("tavan/taban", dict(engine.run(parse("rsi>-1"), frames, bench).eliminated)["S07.IS"])
 
 
 if __name__ == "__main__":

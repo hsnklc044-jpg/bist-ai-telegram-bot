@@ -91,7 +91,7 @@ class FunnelTest(unittest.TestCase):
         from core.screen import command
 
         frames, bench = market()
-        result = engine.run(parse("rsi>0 ve kapanis>0 ve rsi>99"), frames, bench)
+        result = engine.run(parse("rsi>0 ve kapanis>0 ve rsi>99 ele=hayir"), frames, bench)
         self.assertEqual(result.matches, [])
         alone = {text: n for text, n, _ in result.funnel}
         self.assertEqual(alone["rsi>0"], 30)

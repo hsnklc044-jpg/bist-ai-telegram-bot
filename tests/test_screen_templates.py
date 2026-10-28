@@ -151,15 +151,15 @@ class ExplainTest(unittest.TestCase):
         text = templates.explain_text(load=lambda: (frames, bench, None))
         for name in templates.TEMPLATES:
             self.assertIn(f"{name}:", text)
-        self.assertIn("şablon (likidite 10 mn TL)", text)
-        self.assertIn("likidite=0", text)
+        self.assertIn("şablon (varsayılan elemelerle)", text)
+        self.assertIn("ele=hayir", text)
         self.assertIn("20 günlük hacim", text)
         self.assertIn("maliyet hariç", text)
         self.assertIn("tüm hisseler", text)
         self.assertIn("seçim için kullanılmaz", text)
 
     def test_volume_variant_only_where_relative_volume_is_used(self):
-        self.assertEqual(templates.variants(templates.TEMPLATES["teknik_temel_ema"].criteria)[-1][0], "likidite=0")
+        self.assertEqual(templates.variants(templates.TEMPLATES["teknik_temel_ema"].criteria)[-1][0], "ele=hayir")
         names = [n for n, _ in templates.variants(templates.TEMPLATES["bebek_teknik"].criteria)]
         self.assertIn("20 günlük hacim (hacim_oran)", names)
         crit = dict(templates.variants(templates.TEMPLATES["bebek_teknik"].criteria))["20 günlük hacim (hacim_oran)"]

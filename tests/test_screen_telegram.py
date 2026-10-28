@@ -65,7 +65,7 @@ class ExplainTest(Base):
 
 class PagingTest(Base):
     def test_pages_of_fifteen_until_the_end(self):
-        first = command.screen_text(["rsi>0", "likidite=0"], chat_id=CHAT, **self.kwargs())
+        first = command.screen_text(["rsi>0", "ele=hayir"], chat_id=CHAT, **self.kwargs())
         total = len(command.SESSIONS[CHAT].result.matches)
         self.assertEqual(total, 20)
         self.assertIn("(+5 hisse daha: /tara_devam)", first)
@@ -164,7 +164,7 @@ class BotTest(Base):
             self.assertIn(name, dict(COMMANDS))
             self.assertIn(name, dict(MENU))
         sent = []
-        self.run_screen(sent, ["rsi>0", "likidite=0"])
+        self.run_screen(sent, ["rsi>0", "ele=hayir"])
         text, markup = sent[-1]
         labels = [b.text for row in markup.inline_keyboard for b in row]
         self.assertEqual(labels, ["Devam ▶", "Karne", "Kaydet"])

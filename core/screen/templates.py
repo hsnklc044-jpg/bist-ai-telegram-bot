@@ -137,10 +137,10 @@ def cards_text(load=None) -> str:
 def variants(criteria: str) -> list[tuple[str, str]]:
     """The same template under each definition that can differ from the user's own PC test."""
 
-    out = [("şablon (likidite 10 mn TL)", criteria), ("likidite=0", f"{criteria} likidite=0")]
+    out = [("şablon (varsayılan elemelerle)", criteria), ("ele=hayir", f"{criteria} ele=hayir")]
     if "goreli_hacim" in criteria:
         out.append(("20 günlük hacim (hacim_oran)", criteria.replace("goreli_hacim", "hacim_oran")))
-        out.append(("20 günlük hacim, likidite=0", criteria.replace("goreli_hacim", "hacim_oran") + " likidite=0"))
+        out.append(("20 günlük hacim, ele=hayir", criteria.replace("goreli_hacim", "hacim_oran") + " ele=hayir"))
     return out
 
 

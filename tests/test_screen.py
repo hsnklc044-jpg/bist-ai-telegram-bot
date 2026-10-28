@@ -47,7 +47,7 @@ def low_rsi(frames, bench):
 class MessageTest(unittest.TestCase):
     def test_lines(self):
         frames, bench = market()
-        result = engine.run(parse("rsi<30"), frames, bench)
+        result = engine.run(parse("rsi<30 ele_hareket=0"), frames, bench)  # the crashing pair is also the most volatile
         self.assertTrue({"S00.IS", "S01.IS"} <= {m.symbol for m in result.matches})
         text = command.format_result(result, None)
         self.assertIn("• S00", text)

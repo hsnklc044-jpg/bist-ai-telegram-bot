@@ -26,7 +26,7 @@ class Files(unittest.TestCase):
         d = Path(tmp.name)
         self.paths = dict(path=d / "subs.csv", saved_path=d / "screens.csv")
         self.state = d / "state.json"
-        command.save_text(["dusuk", "rsi<30", "likidite=0"], path=self.paths["saved_path"], now=NOW)
+        command.save_text(["dusuk", "rsi<30", "ele=hayir"], path=self.paths["saved_path"], now=NOW)
 
     def sub(self, *words):
         return subscriptions.subscribe_text(list(words), 7, now=NOW, **self.paths)
@@ -103,7 +103,7 @@ class RunTest(Files):
         frames, bench = market()
         self.sub("dusuk")
         subscriptions.save_state(self.run_on(DAY, frames, bench), self.state)
-        command.save_text(["dusuk", "rsi<20", "likidite=0"], path=self.paths["saved_path"], now=NOW)
+        command.save_text(["dusuk", "rsi<20", "ele=hayir"], path=self.paths["saved_path"], now=NOW)
         out = self.run_on(date(2026, 10, 29), frames, bench)
         self.assertIn("İlk liste", out.messages[0])
 

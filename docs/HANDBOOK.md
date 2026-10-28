@@ -97,12 +97,21 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 - `evren=quantbist`: raporun 118 hisselik listesi.
 - `evren=izleme`: izleme listen.
 - `evren=bist30` için kaynaklı bir `data/bist30.csv` gerekir; şimdilik yok.
-- `likidite=10`: 20 günlük ortalama işlem hacmi, milyon TL. Varsayılan 10; `likidite=0` tabanı kapatır.
+- Eleme seçenekleri (aşağıda "Eleme filtreleri"): `ele=hayir` hepsini kapatır. Tek tek kapatmak için: `ele_likidite=0` (eski adı `likidite=`; sayı yazılırsa taban o olur, varsayılan 15 mn TL), `ele_kurumsal=0`, `ele_hareket=0`, `ele_veri=0`.
 - `sirala=alfabetik|goreli_guc|hacim|rsi`.
 
 **ATR uyarıları.** Son 14 seansta ±%10 limitini aşan bir kapanış hareketi ya da %30'dan büyük bir fiyat değişimi varsa satırda ⚠️ yazar: ATR o hareketle şişmiş olabilir.
 
-**Elenenler adıyla yazılır, sessizce düşürülmez:** son kapanışı son seans olmayan, ikinci kaynakta farkı olan (düzeltme bekleyen) ve likidite tabanının altındaki hisseler.
+**Eleme filtreleri** (her sonuca varsayılan olarak uygulanır; K-45). Bunlar hisse eler, hisse seçmez. Elenen her hisse sonucun altında tek satırda nedeniyle yazılır, ör. "Elenen (3): X (likidite 8 mn TL), Y (bedelli 14.10)".
+
+| Filtre | Ne zaman eler | Kapatmak |
+|---|---|---|
+| Likidite | Önceki 20 tam seansın ortalama işlem tutarı < 15 mn TL (bugün sayılmaz) | `ele_likidite=0` |
+| Kurumsal işlem | Son 60 seansta bedelli, bedelsiz/bölünme (`data/corporate_actions.csv`) ya da halka arz (ilk mumu fiyat deposunun başlangıcından sonra). **Kaydı olmayan hissede bilinmiyor; elenmez.** KAP duyuruları haftalık taramada görülür, kendiliğinden kayda girmez. | `ele_kurumsal=0` |
+| Aşırı hareket | Son 10 seansta 3 ya da daha çok ±%9,5'i aşan gün, ya da ATR14/kapanış taranan listenin en oynak %5'inde (en az 20 hisselik listede) | `ele_hareket=0` |
+| Veri sorunu | Son 252 seansta düzeltilmemiş ±%20 tek gün sıçraması, son 20 seansta 3 ya da daha çok gün sıfır hacim, ya da ikinci kaynakta fark (düzeltme bekliyor) | `ele_veri=0` |
+
+Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca yazılır; o hisse taranamaz. Karne aynı elemeleri her gün o günün verisiyle uygular: likidite o güne kadarki 20 seans, kurumsal işlem o günden önceki 60 seans, ATR sırası o günkü üyeler arasında. İkinci kaynak farkı yalnız canlı listede vardır.
 
 **Zaman kuralı.** Göstergeler yalnız kapanmış mumlardan hesaplanır. Seans sürerken çalıştırılırsa cevap "dünkü kapanışa göre" olduğunu yazar.
 
@@ -193,7 +202,7 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 - **Olay:** her gün, o günkü BIST 100 üyesi olup koşulu sağlayan hisse bir olaydır (geçmiş üyelik; survivorship yok).
 - **Giriş ve çıkış:** giriş ertesi seansın açılışıdır (geleceğe bakma yok); çıkış 5 ya da 20 seans sonraki kapanıştır.
 - **Maliyet:** her yönde komisyon %0,10 + kayma %0,05, gidiş-dönüş %0,30 düşülür.
-- **Likidite tabanı:** listedeki taban karnede de uygulanır; o günün 20 günlük ortalama işlem hacmi tabanın altındaysa olay sayılmaz.
+- **Elemeler:** listedeki elemeler karnede de her gün o günün verisiyle uygulanır (likidite, kurumsal işlem, aşırı hareket, veri sorunu; K-45). Elenen gün olay sayılmaz.
 - **Ölçü:** XU100'ün aynı seanslardaki getirisine göre fazla getiri.
 - **Satırda** (K-39):
   - **gün ortalaması** ve %95 aralığı: önce her giriş gününün olay ortalaması alınır (her gün bir kez sayılır), sonra 20 seanslık dairesel blok bootstrap yapılır; etiket bu aralığa bakar

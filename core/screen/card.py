@@ -39,7 +39,7 @@ BLOCK = 20  # sessions per bootstrap block (görev 28.10, Aşama C)
 SAMPLES = 2000
 TOP_EXCLUDED = 5
 CACHE_FILE = LOG_DIR / "screen_cards.json"
-CARD_FORMAT = 3  # 3: jumped stocks left out (öz-denetim 6, D1); bumped when the card's statistics change: older cached cards are recomputed
+CARD_FORMAT = 4  # 4: elimination filters day by day (K-45); 3: jumped stocks left out (öz-denetim 6, D1); bumped when the card's statistics change: older cached cards are recomputed
 CACHE_LIMIT = 500  # cards kept on disk, newest last (öz-denetim 5, Ö18)
 TRIALS_FILE = LOG_DIR / "screen_trials.csv"
 VERSION_FILES = (DATA_DIR / "corporate_actions.csv", DATA_DIR / "price_fix_approvals.csv",
@@ -117,24 +117,32 @@ def _interval(days: np.ndarray, seed: int = 0) -> tuple[float, float] | tuple[No
 
 
 def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
-            eligible: pd.DataFrame | None = None, horizons=HORIZONS) -> dict[int, CardStats]:
+            eligible: pd.DataFrame | None = None, horizons=HORIZONS, actions=None) -> dict[int, CardStats]:
     from core.backtest.run import SCREEN_END
+    from core.screen import elimination as E
 
     bench = bench.loc[:SCREEN_END]
     frames = {s: df.loc[:SCREEN_END] for s, df in frames.items()}
     tables = _tables(query, frames, bench, eligible)
-    rows: dict[int, list] = {h: [] for h in horizons}
-    base: dict[int, list] = {h: [] for h in horizons}
-    independent = dict.fromkeys(horizons, 0)
+    actions = E.corporate_actions() if actions is None else actions
+    members: dict[str, np.ndarray] = {}
+    checks: dict[str, pd.DataFrame] = {}
     for symbol, table in tables.items():
-        df = frames[symbol]
-        universe = table.index >= pd.Timestamp(HISTORY_START)
-        if query.liquidity > 0:  # the list's own floor, measured on that day (öz-denetim 5, Ö17)
-            universe &= (table["islem_tl"] >= query.liquidity).to_numpy()
+        ok = table.index >= pd.Timestamp(HISTORY_START)
         if eligible is not None:
             if symbol not in eligible.columns:
                 continue
-            universe &= eligible[symbol].reindex(table.index).ffill().fillna(False).astype(bool).to_numpy()
+            ok &= eligible[symbol].reindex(table.index).ffill().fillna(False).astype(bool).to_numpy()
+        members[symbol] = ok
+        checks[symbol] = E.frame(frames[symbol], symbol, bench.index, actions)
+    # the same eliminations as the live list, each day with its own data (K-45)
+    cut = E.daily_cut(checks, members) if query.elimination.move and checks else None
+    rows: dict[int, list] = {h: [] for h in horizons}
+    base: dict[int, list] = {h: [] for h in horizons}
+    independent = dict.fromkeys(horizons, 0)
+    for symbol, ok in members.items():
+        table, df = tables[symbol], frames[symbol]
+        universe = ok & ~E.mask(checks[symbol], query.elimination, cut)
         if not universe.any():
             continue
         mask = query.mask(table).to_numpy() & universe

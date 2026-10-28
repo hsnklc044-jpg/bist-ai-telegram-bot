@@ -142,18 +142,18 @@ def command_text(words: list[str], path: Path | None = None, saved_path: Path | 
 def signals(query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame) -> dict[str, pd.Series]:
     """symbol -> the days the query held (with its own liquidity floor)."""
 
+    from core.screen import elimination as E
     from core.screen import fields as F
 
-    out = {}
-    wanted = sorted(query.fields | {"islem_tl"})
+    out, checks = {}, {}
     for symbol, df in frames.items():
         if df.empty:
             continue
-        table = F.table(df, bench["close"], wanted)
-        mask = query.mask(table)
-        if query.liquidity > 0:
-            mask &= table["islem_tl"] >= query.liquidity
-        out[symbol] = mask.fillna(False).astype(bool)
+        out[symbol] = query.mask(F.table(df, bench["close"], sorted(query.fields))).fillna(False).astype(bool)
+        checks[symbol] = E.frame(df, symbol, bench.index, E.corporate_actions())
+    cut = E.daily_cut(checks) if query.elimination.move and checks else None
+    for symbol, mask in out.items():  # the same eliminations as the list, day by day (K-45)
+        out[symbol] = mask & ~pd.Series(E.mask(checks[symbol], query.elimination, cut), index=mask.index)
     return out
 
 

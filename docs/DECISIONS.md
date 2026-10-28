@@ -4,6 +4,24 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-45. Eleme filtreleri: tanımlar ve belirsiz noktalarda seçilen en güvenli yol (28.10.2026, profesyonel filtreler Aşama 1).**
+Dört filtre her /tara sonucuna varsayılan olarak uygulanır ve tek tek kapatılabilir. Elenen her hisse nedeniyle yazılır. Belirsiz noktalardaki seçimler:
+- **Likidite:** önceki 20 tam seans, bugün hariç (talimat).
+  - Eski `likidite=` seçeneği aynı tabanın adı olarak kalır. Varsayılan 10'dan 15 mn TL'ye çıktı.
+  - Canlı ölçüm 28.10'da başladı ve 30 olgun örnek yok; eski ve yeni tabanın karışması önemsiz.
+  - Sıfır hacimli gün 0 TL sayılır, yani tabanı düşürür. Ayrıca "veri sorunu" eler (D3).
+- **Kurumsal işlem:** yalnız kayıtlı işlemler sayılır: `corporate_actions.csv`'de bedelli (`rights`), bedelsiz (`bonus`) ve bölünme (`split`).
+  - `factor` satırları veri düzeltmesidir, kurumsal işlem değildir.
+  - Kaydı olmayan hisse için durum "bilinmiyor"dur ve elenmez (talimat). KAP'tan otomatik çekip kayıt saymak yok (K-24).
+  - Halka arz = ilk mumu fiyat deposunun başlangıcından 5 seanstan fazla sonra olan hisse. Deponun başlangıcından beri işlem gören hissenin halka arz tarihi bilinmez.
+- **Aşırı hareket:** tavan/taban, ±%9,5'i aşan kapanıştan kapanışa değişimdir.
+  - ATR sırası taranan listenin içindedir. 20'den az hisselik listede bu kural uygulanmaz: izleme listesindeki 3 hissenin en oynağını elemek anlamsız olurdu.
+- **Veri sorunu:**
+  - Düzeltilmemiş sıçrama penceresi 252 seanstır, çünkü 52 haftalık alanlar sıçramanın iki yanından kurulur (D2). Karne zaten bu hisseleri bütünüyle dışarıda bırakıyor (D1).
+  - "Düzeltme onayı bekleyen" için ayrı bir liste yok: fiyat düzeltmeleri kapalı ve onay dosyası boş. Onay bekleyen durum, çözülmemiş sıçrama ve ikinci kaynak farkıyla aynıdır.
+- **Karne:** aynı elemeler her gün o günün verisiyle uygulanır (geleceği görme yok; test). Önbellek `CARD_FORMAT=4` ile yenilenir.
+- Elemeler hisse seçmez; "güvenilir" ya da "temiz" etiketi yoktur.
+
 **K-44. Görevin beş örnek şablonu eklendi, her şablon reddedilmiş türünü gösteriyor (28.10.2026, /tara Aşama 5).** `trend_takibi`, `asiri_satim`, `kirilim`, `sikisma` ve `goreli_guc` görevde yazıldığı gibi kodlandı.
 - Görevdeki "fiyat > ema200" `kapanis>ema200` olarak yazıldı.
 - "Son 20 günün en yükseği" bugün hariç alındı (`yuksek_20g`). Bugün dahil edilirse kapanış ondan büyük olamaz.

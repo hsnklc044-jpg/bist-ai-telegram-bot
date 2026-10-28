@@ -24,6 +24,7 @@ SOURCE = "tara"
 MAX_ROWS = 15
 MAX_SAVED = 20
 DISCLAIMER = "Filtre sonucudur, yatırım önerisi değildir."
+ELIMINATED_ROWS = 25
 SAVE_USAGE = "Kullanım: /tara_kaydet AD koşullar (ör. /tara_kaydet dusuk_rsi rsi<30)"
 ORDER_TEXT = {"alfabetik": "alfabetik", "goreli_guc": "göreli güç (XU100'e göre 20 seans, büyükten küçüğe)",
               "hacim": "hacim oranı (büyükten küçüğe)", "rsi": "RSI (küçükten büyüğe)"}
@@ -79,11 +80,12 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
             lines += [f"  {text}: tek başına {alone}, birlikte {together}" for text, alone, together in result.funnel]
             worst = min(result.funnel, key=lambda f: f[1])
             lines.append(f"  en çok eleyen: {worst[0]} (tek başına {worst[1]} hisse)")
-    if result.illiquid:
-        names = ", ".join(s.removesuffix(".IS") for s in result.illiquid[:10])
-        more = f" +{len(result.illiquid) - 10}" if len(result.illiquid) > 10 else ""
-        lines.append(f"Likidite tabanının altında (20 gün ort. < {q.liquidity:g} mn TL, taranmadı): "
-                     f"{names}{more}. Kapatmak için likidite=0")
+    if result.eliminated:
+        shown = result.eliminated[:ELIMINATED_ROWS]
+        more = f" +{len(result.eliminated) - len(shown)}" if len(result.eliminated) > len(shown) else ""
+        lines.append(f"Elenen ({len(result.eliminated)}): "
+                     + ", ".join(f"{s.removesuffix('.IS')} ({why})" for s, why in shown) + more
+                     + ". Kapatmak: ele=hayir ya da ele_likidite=0, ele_kurumsal=0, ele_hareket=0, ele_veri=0")
     if result.missing:
         lines.append("Veri eksik (taranmadı): " + "; ".join(f"{s.removesuffix('.IS')} ({why})"
                                                              for s, why in result.missing))
@@ -248,8 +250,6 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
     if df.index[-1] != latest:
         lines.append(f"⚠️ /tara bu hisseyi taranmadı sayar: son kapanış {df.index[-1]:%d.%m} "
                      f"(son seans {latest:%d.%m}); değerler {df.index[-1]:%d.%m} kapanışından.")
-    elif code in found:
-        lines.append("⚠️ /tara bu hisseyi taranmadı sayar: ikinci kaynakta fark var (düzeltme bekliyor).")
     wanted = engine.columns(query)
     table = F.table(df, bench["close"], wanted)
     if "gg_sira" in query.fields:
@@ -259,11 +259,14 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
         table.loc[table.index[-1], "gg_sira"] = ranks.get(symbol) if ranks is not None else float("nan")
     tail = table.iloc[-engine.LOOKBACK:]
     lines += [_leaf_line(leaf, tail) for leaf in query.leaves()]
-    liquidity = table["islem_tl"].iloc[-1]
-    if query.liquidity > 0:
-        ok = liquidity >= query.liquidity
-        lines.append(f"{'✓' if ok else '✗'} likidite {engine.value_text('islem_tl', liquidity)} "
-                     f"(taban {query.liquidity:g} mn TL{'' if ok else '; altında olduğu için taranmaz'})")
+    from core.screen import elimination as E
+
+    why = E.reasons(E.frame(df, symbol, bench.index, E.corporate_actions()).iloc[-1], query.elimination, None,
+                    code in found)
+    if why:
+        lines.append(f"✗ eleme: {', '.join(why)} → /tara bu hisseyi listelemez (kapatmak: ele=hayir)")
+    elif query.elimination != E.Settings.off():
+        lines.append("✓ elemelere takılmıyor (ATR'nin evrendeki sırası tek hissede bakılmaz)")
     holds = bool(query.mask(tail).iloc[-1])
     whole = "koşulların hepsi" if isinstance(query.root, (L.And, L.Compare, L.Range, L.Cross)) else "ifade"
     lines.append(f"Sonuç: {whole} {'sağlanıyor' if holds else 'sağlanmıyor'} ({df.index[-1]:%d.%m.%Y} kapanışı).")
@@ -368,7 +371,7 @@ def help_text(saved: dict[str, str]) -> str:
              "Örnekler:"] + [f"  /tara {e}" for e in EXAMPLES]
     lines += ["Karşılaştırma < > <= >=, aralık rsi 30..50, kesişim kesti_yukari(a,b) / kesti_asagi(a,b), "
               "pencere son(5, ...), ve / veya / değil ve parantez.",
-              "Seçenekler: evren=bist100 (güncel üyelik)|quantbist|izleme · likidite=10 (mn TL; 0 kapalı) · "
+              "Seçenekler: evren=bist100 (güncel üyelik)|quantbist|izleme · eleme: ele=hayir ya da ele_likidite=15 (mn TL; 0 kapalı), ele_kurumsal=0, ele_hareket=0, ele_veri=0 · "
               "sirala=alfabetik|goreli_guc|hacim|rsi",
               "Tüm alanlar: /tara_alanlar · Hazır şablonlar: /tara_sablonlar · Kayıt: /tara_kaydet AD koşullar, "
               "sonra /tara AD · /tara_liste · /tara_sil AD"]

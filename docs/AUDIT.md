@@ -35,15 +35,15 @@ Profesyonel geliştirme talimatının (28.10.2026) ilk adımı ve öz-denetim 6.
 | # | Önem | Bulgu | Durum |
 |---|---|---|---|
 | D1 | **YÜKSEK** | /tara geçmiş karnesi, araştırmanın dışarıda bıraktığı hisseleri de kullanıyordu: çözülmemiş ±%20 sıçrama ya da kısa geçmiş (`tradable_symbols`). Örneğin FENER'in düzeltilmemiş −%78'lik veri sıçraması karnede −%78'lik bir işlem gibi sayılabiliyordu. Bu, 28.10'daki şablon karnelerini ve kullanıcı sayılarıyla karşılaştırmayı da etkiledi. | ✅ v0.87.0: karne aynı hisseleri dışarıda bırakıyor ve hangilerini bıraktığını yazıyor; eski önbellek geçersiz (`CARD_FORMAT=3`, `test_screen_card_jumps`). Şablon karneleri yeniden hesaplanacak. |
-| D2 | ORTA | Canlı /tara listesi, abonelik ve sanal köprü yakın tarihte çözülmemiş sıçraması olan hisseyi eleyemiyor: CVKMD 03.08.2026'da −%61,9. 60 seanslık göstergeler bozuk çıkar. | açık → yeni görev Aşama 1, "veri sorunu" elemesi |
-| D3 | ORTA | Göreli hacim, eksik (sıfır) hacmi 1,0 ile dolduruyor; işlem tutarı sıfır hacmi 0 TL sayıyor (SASA 151 gün). Talimattaki "sahte doldurma yok" kuralına aykırı. | açık. Puan ve araştırma beklentileri bu tanıma bağlı olduğu için sessizce değiştirilmez. Aşama 1'de "veri sorunu" olarak elenir ve etiketlenir; tanım değişikliği ayrı kararla. |
+| D2 | ORTA | Canlı /tara listesi, abonelik ve sanal köprü yakın tarihte çözülmemiş sıçraması olan hisseyi eleyemiyor: CVKMD 03.08.2026'da −%61,9. 60 seanslık göstergeler bozuk çıkar. | ✅ v0.88.0: "veri sorunu" elemesi (252 seans) |
+| D3 | ORTA | Göreli hacim, eksik (sıfır) hacmi 1,0 ile dolduruyor; işlem tutarı sıfır hacmi 0 TL sayıyor (SASA 151 gün). Talimattaki "sahte doldurma yok" kuralına aykırı. | ✅ v0.88.0 eleme: son 20 seansta 3+ gün sıfır hacim "veri sorunu" sayılır. Göreli hacim tanımı puan ve araştırma beklentilerine bağlı olduğu için değişmedi (ayrı karar). |
 | D4 | ORTA | 10 hissede 15 çözülmemiş sıçrama kayıtta yok (yukarıda). Bu hisseler araştırmadan ve artık karneden tümüyle çıkıyor: geçmiş evrenin yaklaşık %5'i kayıp. | açık: her satır KAP duyurusuyla doğrulanıp tek tek eklenecek (K-24 kuralı, otomatik ekleme yok). |
 | D5 | DÜŞÜK | Veri kaynaklarının lisansı ve kullanım koşulları belgesiz. | açık → Aşama 3 kaynak kararıyla birlikte DECISIONS'a yazılacak. |
 | D6 | DÜŞÜK | Herkese açık git geçmişinde (eski commit 7ece232) Telegram sohbet kimliği ve 2 hisselik eski izleme listesi var. Kimlik bir parola değil; bot yalnız token sahibiyle konuşur ve izinli sohbet dışını reddeder. | kabul. Geçmişi yeniden yazmak kopyaları bozar ve varsayılan dal üzerinde kullanıcı kararıdır; kayıt altında. |
 | D7 | DÜŞÜK | Haftalık paket güvenlik taraması eklendiğinden beri hiç çalışmamıştı (zamanı pazartesi, iş akışı salı geldi). | ✅ 28.10'da elle çalıştırıldı, temiz. Bir sonraki otomatik çalışma 02.11. |
 | D8 | BİLGİ | Rapor evreninde (`universe.csv`) verisi olmayan KPOWR var; K-36 evren farkı (32 fazla, 14 eksik) sürüyor. | açık; karar Kasım sonu (K-36). |
 | D9 | BİLGİ | Tatil dosyası yalnız 2026'yı kapsıyor. | açık: 2027 listesi Borsa İstanbul duyurusundan (genelde aralık) eklenecek. |
-| D10 | BİLGİ | `likidite`/`islem_tl` bugünkü seansı da içeren 20 günlük ortalama. Talimat "önceki 20 tam seans" diyor. Kırılımda (`yuksek_20g`) ve göreli hacimde bugün zaten hariç. | Aşama 1'de eleme tanımı DECISIONS'a yazılacak. |
+| D10 | BİLGİ | `likidite`/`islem_tl` bugünkü seansı da içeren 20 günlük ortalama. Talimat "önceki 20 tam seans" diyor. Kırılımda (`yuksek_20g`) ve göreli hacimde bugün zaten hariç. | ✅ v0.88.0: eleme tabanı önceki 20 seans, bugün hariç (K-45). Görüntülenen `islem_tl` alanı aynı kaldı. |
 
 ## Hesap tanımları talimata göre
 

@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.88.0 – 28.10.2026 (profesyonel filtreler Aşama 1: eleme filtreleri)
+- Her /tara sonucuna varsayılan dört eleme uygulanıyor:
+  - **likidite:** önceki 20 seans ortalaması < 15 mn TL;
+  - **kurumsal işlem:** son 60 seansta kayıtlı bedelli, bedelsiz/bölünme ya da halka arz;
+  - **aşırı hareket:** 10 seansta 3 tavan/taban ya da listenin en oynak %5'i;
+  - **veri sorunu:** düzeltilmemiş sıçrama, sıfır hacim ya da ikinci kaynak farkı.
+- Elenen her hisse nedeniyle tek satırda yazılıyor. `ele=hayir` hepsini, `ele_likidite=0`, `ele_kurumsal=0`, `ele_hareket=0`, `ele_veri=0` tek tek kapatıyor.
+- Karne aynı elemeleri her gün o günün verisiyle uyguluyor. `/tara_aciklama` eleme nedenini gösteriyor. Sanal köprü de aynı elemeleri kullanıyor (K-45).
+- Öz-denetimdeki D2 (yakın tarihli sıçrama) ve D3 (sıfır hacim) bulguları bu sürümle eleme olarak kapandı.
+- Doğrulama: `test_screen_elimination` (her kural, kapatma seçenekleri, karnede gün gün uygulama ve geleceği görmeme). Eleme konusu olmayan eski testler `ele=hayir` ile açıkça yazıldı.
+
 ## v0.87.0 – 28.10.2026 (öz-denetim 6 = EVRE 0 denetimi)
 - `docs/AUDIT.md`: mevcut sistemin kanıta dayalı durum raporu. Neyin doğrulandığı, neyin eksik olduğu, neyin buradan doğrulanamadığı (PC'deki kişisel kayıtlar, sanal portföy, yedekler) ayrı ayrı yazıldı.
 - **Hata düzeltmesi (D1):** /tara karnesi, araştırmanın dışarıda bıraktığı çözülmemiş sıçramalı ya da kısa geçmişli hisseleri de sayıyordu. Artık aynı hisseleri dışarıda bırakıyor; şablon karneleri hangilerini bıraktığını yazıyor. Eski karne önbelleği geçersiz sayılıyor ve yeniden hesaplanıyor.

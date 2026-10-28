@@ -32,7 +32,7 @@ WINDOW_RANGE = (1, 60)
 EXAMPLE = "Örnek: /tara rsi<30 ema20>ema50"
 UNIVERSES = ("bist100", "bist30", "izleme", "quantbist")
 ORDERS = ("alfabetik", "goreli_guc", "hacim", "rsi")
-DEFAULT_LIQUIDITY = 10.0  # million TL, 20-session mean turnover
+DEFAULT_LIQUIDITY = 15.0  # million TL, previous 20 sessions (core.screen.elimination, K-45)
 _ASCII = str.maketrans("ığüşöç", "igusoc")
 _ALLOWED = set("abcdefghijklmnopqrstuvwxyz0123456789_(),<>=:.- ")
 KEYWORDS = {"ve", "veya", "degil", "and", "or", "not"}
@@ -285,21 +285,29 @@ class Or(Node):
 class Query:
     root: Node
     universe: str = "bist100"
-    liquidity: float = DEFAULT_LIQUIDITY
+    elimination: object = None  # core.screen.elimination.Settings (filled in __post_init__)
     order: str = "alfabetik"
     fields: set = field(default_factory=set)
     template: str = ""  # the ready-made template it came from (core.screen.templates)
 
+    def __post_init__(self):
+        if self.elimination is None:
+            from core.screen.elimination import Settings
+
+            self.elimination = Settings()
+
+    @property
+    def liquidity(self) -> float:
+        return self.elimination.liquidity
+
     @property
     def text(self) -> str:
-        """The criterion: the expression plus non-default universe/liquidity (the order is not part of it)."""
+        """The criterion: the expression plus non-default universe and eliminations (the order is not part of it)."""
 
         options = []
         if self.universe != "bist100":
             options.append(f"evren={self.universe}")
-        if self.liquidity != DEFAULT_LIQUIDITY:
-            options.append(f"likidite={_number(self.liquidity)}")
-        return " ".join([self.root.text(False), *options])
+        return " ".join([self.root.text(False), *options, *self.elimination.options()])
 
     def truth(self, t: pd.DataFrame):
         return self.root.truth(t)
@@ -349,8 +357,16 @@ class _Parser:
             self.error("Burada bir koşul ya da 've'/'veya' bekleniyordu.")
         if root is None:
             self.error("En az bir koşul yazın.", 0)
-        return Query(root, self.options.get("evren", "bist100"), self.options.get("likidite", DEFAULT_LIQUIDITY),
-                     self.options.get("sirala", "alfabetik"), self.fields)
+        from core.screen.elimination import Settings
+
+        settings = Settings()
+        if self.options.get("ele") is False:
+            settings = Settings.off()
+        for name in ("likidite", "ele_likidite", "ele_kurumsal", "ele_hareket", "ele_veri"):
+            if name in self.options:
+                settings = settings.with_option(name, self.options[name])
+        return Query(root, self.options.get("evren", "bist100"), settings, self.options.get("sirala", "alfabetik"),
+                     self.fields)
 
     def starts_term(self) -> bool:
         t = self.tok
@@ -488,15 +504,24 @@ class _Parser:
         if t.kind != "name" or self.tokens[self.i + 1].kind != "assign":
             return False
         name = {"sira": "sirala", "siralama": "sirala"}.get(t.value, t.value)
-        if name not in ("evren", "likidite", "sirala"):
+        if name not in ("evren", "likidite", "sirala", "ele", "ele_likidite", "ele_kurumsal", "ele_hareket", "ele_veri"):
             return False
         self.i += 2
         value = self.tok
-        if name == "likidite":
-            number = self.take("number", "likidite=10 gibi milyon TL olarak yazın (0 = kapalı).")
+        if name in ("likidite", "ele_likidite"):
+            number = self.take("number", f"{name}=15 gibi milyon TL olarak yazın (0 = kapalı).")
             if number.value < 0:
                 self.error("Likidite tabanı negatif olamaz.", number.pos)
             self.options[name] = float(number.value)
+            return True
+        if name.startswith("ele"):
+            switch = {"evet": True, "hayir": False, "1": True, "0": False}
+            word = str(self.tok.value if self.tok.kind == "name" else _number(self.tok.value)) \
+                if self.tok.kind in ("name", "number") else ""
+            if word not in switch:
+                self.error(f"{name}= sonrasına evet/hayir ya da 1/0 yazın.", value.pos)
+            self.i += 1
+            self.options[name] = switch[word]
             return True
         word = self.take("name", f"{name}= sonrasına bir seçenek yazın.").value
         word = {"guc": "goreli_guc"}.get(word, word) if name == "sirala" else word

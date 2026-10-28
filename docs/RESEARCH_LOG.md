@@ -431,3 +431,13 @@ Farkın ölçülen ve olası nedenleri:
 
 **Bu açıklamalar şablon seçmek ya da şablon değiştirmek için kullanılmaz (K-38).**
 
+**D1 düzeltmesinin etkisi (28.10.2026, öz-denetim 6, `screens.yml` 40677453651).** Karne artık araştırmanın dışarıda bıraktığı 12 hisseyi kullanmıyor: ADEL, ASUZU, BJKAS, CVKMD, EUREN, FENER, GOLTS, GSRAY, KERVT, PAHOL, TSPOR, TUKAS. 20 seans, olay ortalaması maliyet hariç:
+
+| Şablon | Önce | Sonra |
+|---|---|---|
+| `basit_teknik` | −%1,3 | −%1,1 |
+| `duseni_kiran` | −%0,6 | −%0,4 |
+| `bebek_teknik` | −%0,4 | −%0,2 |
+
+Diğerlerinde fark ±0,1 puan; tüm hisseler −%1,0'dan −%0,9'a. **Hiçbir hüküm değişmedi.**
+

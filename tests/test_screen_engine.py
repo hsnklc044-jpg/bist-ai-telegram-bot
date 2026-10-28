@@ -60,7 +60,7 @@ class ParserTest(unittest.TestCase):
         q = parse("rsi<30 evren=izleme likidite=0 sirala=rsi")
         self.assertEqual((q.universe, q.liquidity, q.order), ("izleme", 0.0, "rsi"))
         default = parse("rsi<30")
-        self.assertEqual((default.universe, default.liquidity, default.order), ("bist100", 10.0, "alfabetik"))
+        self.assertEqual((default.universe, default.liquidity, default.order), ("bist100", 15.0, "alfabetik"))
         self.assertEqual(parse("rsi<30 likidite=25").text, "rsi<30 likidite=25")  # non-default options are part of the criterion
         self.assertEqual(parse("rsi<30 sirala=hacim").text, "rsi<30")  # order is not
         self.assertEqual(parse("rsi<30 sıra:güç").order, "goreli_guc")  # v0.75.0 spelling
@@ -223,8 +223,8 @@ class LiveTest(unittest.TestCase):
         symbols = [m.symbol for m in result.matches]
         self.assertNotIn("THIN.IS", symbols)
         self.assertEqual(result.illiquid, ["THIN.IS"])
-        self.assertEqual(dict(result.missing), {"OLD.IS": "son kapanış " + f"{frames['OLD.IS'].index[-1]:%d.%m}",
-                                                "S01.IS": "ikinci kaynakta fark (düzeltme bekliyor)"})
+        self.assertEqual(dict(result.missing), {"OLD.IS": "son kapanış " + f"{frames['OLD.IS'].index[-1]:%d.%m}"})
+        self.assertEqual(dict(result.eliminated)["S01.IS"], "veri: ikinci kaynakta fark (düzeltme bekliyor)")
         self.assertIn("THIN.IS", [m.symbol for m in engine.run(parse("rsi>0 likidite=0"), frames, bench).matches])
 
     def test_orders(self):
