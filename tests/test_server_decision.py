@@ -69,6 +69,28 @@ class DecisionTest(unittest.TestCase):
         self.assertIn("SUNUCU ÖNERİLİR", text)
         self.assertIn("BENİM ADIMLARIM", text)
 
+    def test_a_pc_switched_off_every_night_counts_too(self):
+        """Öz-denetim 4: K-23 says "kapalı/uykuda"; a PC turned off restarts the bot with a new
+        process, so a long gap between two processes is the PC as well."""
+        f = Files(self)
+        for d in range(2, 14):
+            f.beat_every_5_min(at(d, 0), at(d, 0, 55), pid=1000 + 2 * d)
+            f.beat_every_5_min(at(d, 7), at(d, 23, 55), pid=1001 + 2 * d)
+        f.all_reports()
+        week = sd.decide(f.runs, f.beats).weeks[0]
+        self.assertGreater(week.sleep, week.down / 2)
+        self.assertGreaterEqual(week.long_gaps, 1)
+        self.assertTrue(sd.decide(f.runs, f.beats).server)
+
+    def test_a_quick_bot_restart_is_not_the_pc(self):
+        f = Files(self)
+        f.beat_every_5_min(at(2, 0), at(4, 12), pid=1)
+        f.beat_every_5_min(at(4, 12, 15), at(13, 23, 55), pid=2)  # crash, task restarted it in minutes
+        f.all_reports()
+        week = sd.decide(f.runs, f.beats).weeks[0]
+        self.assertEqual((week.sleep, week.long_gaps), (sd.timedelta(), 0))
+        self.assertFalse(sd.decide(f.runs, f.beats).server)
+
     def test_a_missed_report_counts_only_when_the_pc_missed_it(self):
         f = Files(self)
         f.beat_every_5_min(at(2, 0), at(13, 23, 55))

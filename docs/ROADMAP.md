@@ -54,9 +54,20 @@ Kontrol edilenler: yeni hata yolları (rapor metni yazılamazsa, ikinci kaynak/T
 
 Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı tarihi dosya yoluna yalnız `date` olarak girer (yol enjeksiyonu yok); `/yil` defteri yükleme anında doğrular (tutarsız geçmiş yükleme hatası verir); KAP'tan gelen hiçbir şey veriye yazılmaz (K-24); menü kurulamazsa bot açılır; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 4 — 28.10.2026 (v0.64.0 → v0.71.0, 9 sürüm)**. Kapsam: `git diff 620cf78..897738c -- core bot scripts .github`: /stres, cuma grafiği, kapanış alarmı (yüzde dahil), a4 kuralları ve tarih kapısı, depodaki güncelleyici, sapma nedenleri, sunucu kararı hesabı. v0.66–v0.68 ayrıca v0.68.1'de tarandı (iki düzeltme).
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö13 | ORTA (doğruluk) | Sunucu kararı hesabı yalnız aynı bot sürecindeki boşlukları (uyku) PC'ye yazıyordu; gece **kapanan** PC'de bot yeni süreçle açılır, kayıp PC'ye sayılmıyordu. K-23 "kapalı/uykuda" diyor; karar yanlışlıkla "PC'de kalınır" çıkabilirdi | ✅ v0.72.0: 20 dakikadan uzun her boşluk da PC'nin (botun kendi yeniden başlatmaları 3×5 dk); `test_server_decision.DecisionTest.test_a_pc_switched_off_every_night_counts_too`, hızlı yeniden başlama sayılmaz (`test_a_quick_bot_restart_is_not_the_pc`) |
+| Ö14 | DÜŞÜK | Sunucu kararı 13.11 raporunda çıkar; o rapor gitmezse karar da gelmez | kabul: komut satırı (`python -m core.reports.server_decision`) ve 14.11 kontrolü; karar zaten 14.11 dönem değerlendirmesinde yazılır |
+| Ö15 | BİLGİ | `/alarm THYAO altında 1.240` noktayı ondalık okur (1,24) | kabul: onay mesajı seviyeyi açıkça yazar; README'de 1.000 TL üstü için rakamı noktasız yazma notu |
+| Ö16 | BİLGİ | Araştırmadaki a4 adımı (27.04.2027'den sonra) hata verirse çalışma kırmızı olur ve sonraki adımlar atlanır | kabul: ilk gerçek çalışmanın sessiz kalmaması tercih; `/durum` kırmızı araştırmayı gösterir. Aşama 3 adımı aynı biçimde |
+
+Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
+
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.71.0 (`/alarm` yüzdeyle). Öz-denetim sayacı: v0.63.1'den beri 9 sürüm; bir sonraki sürüm öz-denetim 4.
+- **Son sürüm:** v0.72.0 (öz-denetim 4; sunucu kararında kapanan PC de sayılır). Öz-denetim sayacı v0.72.0'da sıfırlandı.
 - **PC v0.68.0'da (28.10 08:51, eski güncelleyiciyle son kurulum):** 654 geçti + 4 atlandı, ruff temiz, bot yeniden başladı. "QuantBIST Guncelle" görevi depodaki `scripts\guncelle.py`'ye çevrildi (07:40). Elle deneme 09:05: "GitHub'da CI'ı yeşil son sürüm 0.68.0 (14c56e9)" → GÜNCEL, Telegram'a mesaj yok (bilerek). `bildir.py` denemesi Telegram'a "🤖 Otomasyon" olarak ulaştı.
 - **PC v0.66.0'da (28.10 08:16, kullanıcıyla birlikte `guncelle.py`):** PC v0.59.0'daymış; güncelleme görevi yoktu. 639 geçti + 4 atlandı, ruff temiz, bot yeniden başladı; `/durum` tüm kontroller SAĞLIKLI. "QuantBIST Guncelle" görevi kuruldu, her gün 07:40 (K-27). Geri yükleme testi başarılı. İlk alarm kuruldu (#1 THYAO < 260): bu akşam gerçek veriyle ilk deneme.
 - **Dışarıdan izleme açıldı (27.10 22:23, yerel otomasyon):** iki .env satırında önce örnek metin (`<…kod>`), sonra `.com/` ile kod arasında boşluk vardı (Healthchecks HTTP 400); düzeltilince bot sinyali kabul edildi, `/durum` izleme satırı SAĞLIKLI. Rapor kontrolü ilk sinyalini 28.10 18:30'da alacak. Adresler hiçbir yerde yazdırılmadı.

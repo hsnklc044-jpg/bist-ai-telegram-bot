@@ -3,12 +3,13 @@ QuantBIST
 The server decision of DECISIONS K-23, computed from the SLO records exactly as written there
 before any data was seen. Window 02.11–13.11.2026 in two weeks; a server is recommended if in
 either week:
-  (a) bot uptime < 98% and most of the loss is the PC asleep/suspended (gaps with the same bot
-      process: the process was frozen, not dead), or
+  (a) bot uptime < 98% and most of the loss is the PC asleep, suspended or off (gaps with the
+      same bot process, which was frozen, or gaps of 20+ minutes, longer than the bot task's own
+      restarts), or
   (b) report delivery < 99% and a missed report was the PC's (no run that day, or the task
       started late because the PC was off), or
-  (c) at least one gap of 20+ minutes with the same bot process: what Healthchecks reports as
-      the bot DOWN (estimated from the records; Healthchecks itself is not read).
+  (c) at least one gap of 20+ minutes: what Healthchecks reports as the bot DOWN (estimated from
+      the records; Healthchecks itself is not read).
 Yahoo or Telegram losses do not count (a server would not fix them); targets are not loosened.
 
     python -m core.reports.server_decision
@@ -47,7 +48,7 @@ class Week:
     def reasons(self) -> list[str]:
         found = []
         if self.bot is not None and self.bot < 0.98 and self.sleep > self.down / 2:
-            found.append("(a) bot ayakta kalma %98'in altında, kaybın çoğu PC uykusu/askısı")
+            found.append("(a) bot ayakta kalma %98'in altında, kaybın çoğu PC kapalı/uykudayken")
         if self.report is not None and self.report < 0.99 and self.pc_missed:
             found.append("(b) rapor teslimi %99'un altında, kaçan rapor PC'den")
         if self.long_gaps:
@@ -80,7 +81,9 @@ def _bot(week: Week, beats: list[tuple[datetime, str]], until: datetime) -> None
         gap = t2 - t1 - BEAT
         if gap > BEAT:
             down += gap
-            if p1 == p2:
+            # the PC's: the same process frozen (asleep/suspended), or a gap longer than the bot
+            # task's own restarts (3 tries, 5 minutes apart): the PC was off
+            if p1 == p2 or gap + BEAT >= LONG_GAP:
                 week.sleep += gap
                 week.long_gaps += gap + BEAT >= LONG_GAP
     down += max(until - inside[-1][0] - BEAT, timedelta())
@@ -142,7 +145,7 @@ def format_decision(d: Decision) -> str:
             lines.append(f"Hafta {i} ({w.start:%d.%m}–{w.end:%d.%m}): veri yok")
             continue
         lines.append(f"Hafta {i} ({w.start:%d.%m}–{w.end:%d.%m}): bot {_pct(w.bot)} (kesinti "
-                     f"{w.down.total_seconds() / 3600:.1f} sa, uyku/askı {w.sleep.total_seconds() / 3600:.1f} sa, "
+                     f"{w.down.total_seconds() / 3600:.1f} sa, PC kapalı/uykuda {w.sleep.total_seconds() / 3600:.1f} sa, "
                      f"20+ dk kesinti {w.long_gaps}), rapor {_pct(w.report)}"
                      + (f", PC'den kaçan: {', '.join(f'{x:%d.%m}' for x in w.pc_missed)}" if w.pc_missed else "")
                      + (f", başka nedenle: {', '.join(f'{x:%d.%m}' for x in w.other_missed)}" if w.other_missed else ""))

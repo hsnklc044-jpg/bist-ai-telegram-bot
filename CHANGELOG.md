@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.72.0 – 28.10.2026
+- Öz-denetim 4 (v0.64–v0.71): bir orta bulgu düzeltildi. Sunucu kararı hesabı gece kapanan PC'nin kaybını PC'ye saymıyordu (yalnız uykuyu sayıyordu); artık 20 dakikadan uzun her kesinti de sayılıyor. Kritik ya da yüksek bulgu yok.
+
 ## v0.71.0 – 28.10.2026
 - `/alarm THYAO altında %5`: seviye yerine yüzde yazılabiliyor. Alarm son kapanışın %5 altına (ya da `üstünde %10` ile %10 üstüne) kurulur. Onay mesajı hesaplanan seviyeyi ve hangi kapanıştan hesaplandığını yazar.
 
