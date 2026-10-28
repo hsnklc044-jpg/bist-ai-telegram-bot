@@ -37,7 +37,7 @@ Gerekenler: yedek klasörü (OneDrive'daki `QuantBIST-yedek`), Telegram bot toke
    Start-ScheduledTask "QuantBIST Bot"
    ```
 8. **Doğrula**: `powershell -ExecutionPolicy Bypass -File scripts\verify.ps1`. Ardından Telegram'da `/durum`; beklenen "Kişisel dosyalar" SAĞLIKLI ve sürüm doğru.
-9. **Yerel otomasyonu** (`C:\Projeler\QuantBIST_otomasyon`) kendi yedeğinden geri kur. Otomasyon depoda değildir.
+9. **Güncelleme görevini** yeniden kur. Güncelleyici depoda (`scripts\guncelle.py`, `scripts\bildir.py`); kilit ve log klasörü `C:\Projeler\QuantBIST_otomasyon` kendiliğinden oluşur. Komut [OPERATIONS](OPERATIONS.md) §5'te.
 
 Beklenen en fazla kayıp: son yedekten sonraki komutlar. Yedek her gün rapordan sonra alınır, yani kayıp en fazla 1 gündür.
 

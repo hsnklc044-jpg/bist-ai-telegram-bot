@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.68.0 – 28.10.2026
+- PC güncelleyicisi depoya alındı (`scripts/guncelle.py`, `scripts/bildir.py`). Artık yalnız GitHub'da CI'ı yeşil olan sürümü kuruyor ve her sonucu (kuruldu, kurulmadı, geri alındı, hata) Telegram'a "🤖 Otomasyon" olarak yazıyor. Yeni sürüm yoksa sessiz kalıyor.
+
 ## v0.67.0 – 28.10.2026
 - Araştırma döngüsü a4 ön kayda alındı (H4 eşit ağırlık, H5 düşük işlem hacmi). Kurallar yazıldı ve yalnız yapay veriyle test edildi. Haftalık araştırma bu taramayı ön kaydın izin verdiği 27.04.2027'den önce çalıştırmaz; o tarihten sonra kendiliğinden çalıştırıp sonucu `a4` ailesi olarak kaydeder.
 

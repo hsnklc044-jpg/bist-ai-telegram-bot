@@ -82,6 +82,17 @@ UYARI durumundaki bir sorun bir seviye düşük sayılır. Örneğin kilitli ver
 
 ## 5. Güvenli güncelleme
 
+**Normalde elle bir şey yapılmaz.** "QuantBIST Guncelle" görevi her sabah 07:40'ta `scripts\guncelle.py`'yi çalıştırır (K-27, K-29). GitHub'da CI'ı yeşil olan en yeni commit kurulu sürümden yeniyse onu kurar. Sırası: yedek → deneme kopyasında ruff + testler → kurulum → bot yeniden başlatılır → açılmazsa eski sürüme dönülür. Sonuç Telegram'a "🤖 Otomasyon" olarak gelir; yeni sürüm yoksa mesaj gelmez. Görev yoksa (yeni PC) bir kez kur:
+
+```
+$a = New-ScheduledTaskAction -Execute "C:\Projeler\QuantBIST\.venv\Scripts\python.exe" -Argument "C:\Projeler\QuantBIST\scripts\guncelle.py" -WorkingDirectory "C:\Projeler\QuantBIST"
+$t = New-ScheduledTaskTrigger -Daily -At 07:40
+$s = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 1) -MultipleInstances IgnoreNew
+Register-ScheduledTask -TaskName "QuantBIST Guncelle" -Action $a -Trigger $t -Settings $s
+```
+
+Elle güncelleme (görev çalışmıyorsa):
+
 1. Güncellemeden önce `python -m core.backup` ile yedek al.
 2. Zip'i indir ve aç.
 3. `robocopy ... /E /XF watchlist.json .env` ile kopyala. **`/MIR` kullanma**, çünkü kişisel dosyaları siler.
