@@ -1,0 +1,19 @@
+İkinci kaynak kontrolü (İş Yatırım, 01.01.2022 – bugün, düzeltilmiş seri, günlük getiri farkı > 1 puan): 10 hisse | tutarlı 2, fark var 8, kontrol edilemedi 0 | karşılaştırılan 11954 hisse-gün
+Hisseye özgü açıklanamayan fark 2 gün; kayıtlı şirket işlemi günü 5; tek gün kapanış hatası (ertesi gün düzelen) 42
+Çok hissede aynı gün yanlış kapanış (Yahoo):
+  10.05.2022: 5 hisse
+  09.11.2022: 3 hisse
+  16.12.2022: 7 hisse
+  05.01.2023: 10 hisse
+  08.05.2025: 7 hisse
+XU100 (İş Yatırım'ın BIST 100 değeriyle, 1204 gün): tutarlı
+Hisseye özgü farklar (piyasa geneli günler hariç):
+  ADEL: 28.09.2022 Yahoo -2.7% / İş -1.0%
+  ASUZU: yalnız İş Yatırım'da 2 gün: 27.06.2022, 09.04.2024
+  BJKAS: yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 07.04.2025 Yahoo +8.5% / İş -1.8%
+  FENER: 17.12.2024 Yahoo -5.2% / İş +1.6%; yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 09.12.2024 Yahoo +0.9% / İş -5.9%
+  GOLTS: yalnız İş Yatırım'da 1 gün: 09.04.2024
+  GSRAY: yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 23.12.2024 Yahoo -2.6% / İş -1.5%, 30.06.2025 Yahoo -0.4% / İş +2.5%
+  TSPOR: yalnız İş Yatırım'da 1 gün: 09.04.2024; düzeltme günü sayılanlar: 09.09.2024 Yahoo +0.6% / İş -2.9%
+  BESLR: yalnız İş Yatırım'da 1 gün: 09.04.2024
+Not: iki kaynak da düzeltilmiş fiyat verir ama düzeltme yöntemleri aynı olmayabilir; açıklanamayan farklar ve tek kaynakta olan günler KAP ve üçüncü bir kaynaktan kontrol edilmeden düzeltilmez.
