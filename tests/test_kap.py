@@ -68,6 +68,46 @@ class HttpAndCommandTest(unittest.TestCase):
             self.assertEqual(kap.main([]), 2)
 
 
+class DetailTest(unittest.TestCase):
+    """A disclosure's own text, so a corporate action is verified from KAP itself (SKBNK 19.10 vs 22.10)."""
+
+    PAGE = (b"<html><head><script>var x = 1;</script><style>p{}</style></head><body>"
+            b"<h1>Bedelli Sermaye Art\xc4\xb1r\xc4\xb1m\xc4\xb1</h1><table><tr><td>Hak Kullan\xc4\xb1m Ba\xc5\x9flang\xc4\xb1\xc3\xa7"
+            b"</td><td>22.10.2026</td></tr></table>"
+            b'<script id="__NEXT_DATA__" type="application/json">{"props":{"rightsStart":"2026-10-22"}}</script>'
+            b"</body></html>")
+
+    def test_visible_text_and_embedded_data(self):
+        asked = []
+
+        def get(url):
+            asked.append(url)
+            return self.PAGE
+
+        text = kap.detail(1685136, get=get)
+        self.assertEqual(asked, ["https://www.kap.org.tr/tr/Bildirim/1685136"])
+        self.assertIn("Hak Kullanım Başlangıç 22.10.2026", text)
+        self.assertNotIn("var x", text)
+        self.assertIn('"rightsStart":"2026-10-22"', text)
+
+    def test_failure_is_reported_not_raised(self):
+        def down(url):
+            raise ConnectionError("KAP down")
+
+        self.assertIn("alınamadı: ConnectionError", kap.detail(1, get=down))
+
+    def test_command_line(self):
+        import io
+        from contextlib import redirect_stdout
+        from unittest import mock
+
+        out = io.StringIO()
+        with mock.patch.object(kap, "detail", side_effect=lambda i: f"metin {i}"), redirect_stdout(out):
+            self.assertEqual(kap.main(["--detail", "11,22"]), 0)
+        self.assertIn("metin 11", out.getvalue())
+        self.assertIn("metin 22", out.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
 

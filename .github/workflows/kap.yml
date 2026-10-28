@@ -7,6 +7,11 @@ name: KAP corporate actions
 
 on:
   workflow_dispatch:
+    inputs:
+      detail:
+        description: "Bildirim numaraları (virgülle): metinleri getirilir, kontrol yerine"
+        required: false
+        default: ""
 
 permissions:
   contents: write  # push to the research-results branch only
@@ -30,8 +35,15 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.lock
-      - name: Check (last 14 days; the weekly research run does the same)
-        run: python -m core.market.kap --days 14 2>&1 | tee kap.txt
+      - name: Check (last 14 days; the weekly research run does the same) or disclosure texts
+        env:
+          DETAIL: ${{ inputs.detail }}
+        run: |
+          if [ -n "$DETAIL" ]; then
+            python -m core.market.kap --detail "$DETAIL" 2>&1 | tee kap.txt
+          else
+            python -m core.market.kap --days 14 2>&1 | tee kap.txt
+          fi
       - name: Save
         if: always()
         run: |

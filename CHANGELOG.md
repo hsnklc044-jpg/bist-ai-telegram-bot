@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.73.0 – 28.10.2026
+- KAP bildiriminin metni artık GitHub'dan getirilebiliyor: `kap.yml` iş akışına bildirim numarası verilince metni research-results dalına yazılıyor. Bir şirket işleminin tarihi elle KAP'ta aranmak yerine KAP'ın kendi metninden doğrulanıyor. İlk kullanım: SKBNK bedelli tarihi.
+
 ## v0.72.1 – 28.10.2026
 - İkinci kaynak kontrolü düzeltildi. Yahoo'nun henüz yayımlamadığı son seansı "fark" sayıyordu. 28.10 çalışmasında 118 hissenin 117'si bu yüzden "fark var" göründü; veri doğruluğu SLO'su yanlışlıkla kötü çıkacaktı. O gün artık "henüz yayımlanmamış" diye ayrı yazılıyor ve bir sonraki çalışmada karşılaştırılıyor.
 

@@ -8,6 +8,7 @@ community tools use). They are reached from GitHub's servers (this sandbox canno
 
     python -m core.market.kap --probe      # what the endpoints return now (shape only)
     python -m core.market.kap --days 14    # capital actions and dividends for our stocks
+    python -m core.market.kap --detail 1685136,1684593   # a disclosure's own text
 
 Nothing here changes prices or corporate_actions.csv; a person confirms every row.
 """
@@ -154,6 +155,34 @@ def _http(method: str):
     return call
 
 
+def _page(url: str) -> bytes:
+    import requests
+
+    response = requests.get(url, headers={**HEADERS, "Accept": "text/html"}, timeout=TIMEOUT)
+    response.raise_for_status()
+    return response.content
+
+
+def detail(index: int, get=None) -> str:
+    """The text of one disclosure (its web page, scripts removed) plus any data embedded in the
+    page, so a corporate action's dates are read from KAP itself. A person still decides."""
+
+    from bs4 import BeautifulSoup
+
+    url = f"https://www.kap.org.tr/tr/Bildirim/{index}"
+    try:
+        soup = BeautifulSoup((get or _page)(url), "lxml")
+    except Exception as exc:  # noqa: BLE001 - reported, the next index still runs
+        return f"KAP bildirimi {index} alınamadı: {type(exc).__name__}: {exc}"
+    embedded = [s.get_text() for s in soup.find_all("script", type="application/json")]
+    for tag in soup(["script", "style", "noscript"]):
+        tag.decompose()
+    text = " ".join(soup.get_text(" ").split())
+    lines = [f"KAP bildirimi {index} ({url})", text[:6000]]
+    lines += [f"[sayfadaki veri] {e[:6000]}" for e in embedded if e.strip()]
+    return "\n".join(lines)
+
+
 def probe(today: date, get=None, post=None) -> str:
     """Step 1: the shape of today's answers, so the parser is written against facts, not guesses."""
 
@@ -190,7 +219,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="KAP corporate action disclosures")
     parser.add_argument("--probe", action="store_true", help="show what the KAP endpoints return now")
     parser.add_argument("--days", type=int, default=None, help="check the last N days against corporate_actions.csv")
+    parser.add_argument("--detail", default=None, help="disclosure numbers, comma separated: their text")
     args = parser.parse_args(argv)
+    if args.detail:
+        for index in args.detail.replace(" ", "").split(","):
+            print(detail(int(index)) + "\n")
+        return 0
     today = now_istanbul().date()
     if args.probe:
         print(probe(today))
@@ -211,4 +245,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["Finding", "check", "disclosures", "format_findings", "probe", "subjects"]
+__all__ = ["Finding", "check", "detail", "disclosures", "format_findings", "probe", "subjects"]
