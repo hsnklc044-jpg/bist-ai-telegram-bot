@@ -29,6 +29,7 @@ from core.config.paths import (
     ALERTS_LOG_FILE,
     DATA_DIR,
     EQUITY_LOG_FILE,
+    FUNDAMENTALS_FILE,
     LEDGER_FILE,
     LOG_DIR,
     MARKET_DB,
@@ -143,6 +144,21 @@ def price_check(now: datetime, bars=adjusted_bars) -> Check:
     if behind <= 0:
         return Check("Fiyat verisi", OK, f"XU100 son kapanış {_date(last)}")
     return Check("Fiyat verisi", WARN, f"XU100 son kapanış {_date(last)}; {behind} seans geride")
+
+
+def fundamentals_check() -> Check:
+    """Fundamental data (K-48): a fact, not a fault, while the store is empty by design."""
+
+    from core.fundamentals import store
+
+    try:
+        from core.market.universe import load_universe
+
+        symbols = load_universe()
+    except Exception:  # noqa: BLE001 - the line still shows the store itself
+        symbols = None
+    text = store.status_text(symbols=symbols)
+    return Check("Temel veri", UNKNOWN if text.startswith("okunamadı") else INFO, text)
 
 
 def calendar_check(now: datetime) -> Check:
@@ -384,6 +400,7 @@ def _personal_readers() -> dict:
     from core.alerts import levels
     from core.alerts.log import open_alerts
     from core.screen import command as screen
+    from core.fundamentals import store as fundamentals
     from core.screen import subscriptions, virtual
     from core.ledger import load_ledger
     from core.ledger.paper import load_orders
@@ -399,6 +416,7 @@ def _personal_readers() -> dict:
         SCREENS_FILE: screen.load_saved,
         SCREEN_SUBSCRIPTIONS_FILE: subscriptions.active,
         SCREEN_VIRTUAL_FILE: virtual.books,
+        FUNDAMENTALS_FILE: fundamentals.load,
         repository.WATCHLIST_FILE: lambda p: repository.load_watchlist(),
     }
 
@@ -436,6 +454,8 @@ SCHEMAS = {
     SCREENS_FILE: ({"at", "name", "criteria"},),
     SCREEN_SUBSCRIPTIONS_FILE: ({"at", "chat", "name", "action"},),
     SCREEN_VIRTUAL_FILE: ({"at", "name", "criteria", "action"},),
+    FUNDAMENTALS_FILE: ({"symbol", "period_end", "published_at", "item", "value", "unit", "consolidated",
+                         "inflation_adjusted", "source", "recorded_at"},),
 }
 
 
@@ -586,6 +606,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         backup_check(now),
         disk_check(),
         calendar_check(now),
+        fundamentals_check(),
         maintenance_check(now),
         monitoring_check(now),
     ]

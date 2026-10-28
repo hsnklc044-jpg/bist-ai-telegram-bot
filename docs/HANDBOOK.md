@@ -286,6 +286,15 @@ Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`
 - **Sıralar evren içidir.** Canlı listede taranan hisseler arasında, karnede o günkü BIST 100 üyeleri arasında hesaplanır.
 - **Dil çarpma yazmaz.** "Zirvenin %75'i" `zirve_52h_oran>=75`, "dibin %30 üstü" `dip_52h_oran>=130` olarak yazılır.
 
+**Temel veri deposu** (`data/fundamentals.csv`, K-48). Her kalem **yayın tarihiyle** saklanır. Bir seans, bir kalemi ancak yayın gününden sonraki seanstan itibaren görür; 18:30'da gönderilen bir bilanço o gün kullanılmaz. Bu yüzden karne ve tarama geleceği görmez.
+- Düzeltilmiş (restated) tablo yeni bir satırdır. Her gün en yeni dönemin en yeni yayını geçerlidir; hiçbir şey üzerine yazılmaz.
+- `inflation_adjusted` sütunu TMS 29 tablolarını işaretler (2023 yıl sonundan itibaren; 1/0/boş). Büyüme oranları iki dönemi karıştırmaz.
+- **Veri girişi:** yalnız dosyadan içe aktarma: `python -m core.fundamentals.store --import DOSYA`. Her satır denetlenir: kod, tarih, yayın tarihi > dönem sonu, bilinen kalem, sayı, kaynak. Reddedilenler satır numarası ve nedeniyle yazılır.
+- **KAP'tan otomatik çekme kapalıdır:** kullanım koşulları teyit edilmedi. Modülde ağ kodu yoktur (test denetler).
+- **Durum ve karşılaştırma:** `/durum` "Temel veri" satırı son yayını ve kaç hissede ana kalemlerin eksiksiz olduğunu gösterir. Depo boşken bu bir bilgi satırıdır, hata değildir. `--compare DOSYA` ikinci bir kaynağın dosyasıyla kalem kalem fark raporu verir.
+- **Sütunlar:** symbol, period_end, published_at (ISO, saat dilimiyle), item, value (TL), unit, consolidated (1/0), inflation_adjusted (1/0/boş), source.
+- **Kalemler:** `revenue` (hasılat (satışlar)), `cost_of_sales` (satışların maliyeti), `gross_profit` (brüt kâr), `operating_profit` (esas faaliyet kârı (FVÖK yerine)), `ebit` (faiz ve vergi öncesi kâr), `net_income` (net dönem kârı (ana ortaklık)), `operating_cash_flow` (işletme faaliyetlerinden nakit akışı), `depreciation` (amortisman ve itfa), `sga` (genel yönetim + pazarlama giderleri), `total_assets` (toplam varlıklar), `current_assets` (dönen varlıklar), `receivables` (ticari alacaklar), `ppe` (maddi duran varlıklar), `cash` (nakit ve nakit benzerleri), `total_liabilities` (toplam yükümlülükler), `current_liabilities` (kısa vadeli yükümlülükler), `long_term_debt` (uzun vadeli finansal borçlar), `financial_debt` (toplam finansal borçlar), `total_equity` (özkaynaklar (ana ortaklık)), `retained_earnings` (geçmiş yıllar kârları), `paid_in_capital` (ödenmiş sermaye (nominal TL = pay adedi)), `dividends_paid` (ödenen temettü).
+
 **CHARTER §9 uyumu (/tara).**
 - `/tara` bir filtredir.
 - Emir vermez; aracı kuruma, deftere ve kişisel `/paper` emirlerine dokunmaz. Sanal köprü kendi ölçüm kitabını her seferinde fiyatlardan yeniden hesaplar ve hiçbir yere emir yazmaz (K-43).

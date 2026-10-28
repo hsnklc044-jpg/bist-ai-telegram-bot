@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.90.0 – 28.10.2026 (profesyonel filtreler Aşama 3: yayın tarihli temel veri deposu)
+- `data/fundamentals.csv` deposu eklendi: her kalem yayın tarihiyle; yalnız ekleme; yedekte; şema denetimli; git'e girmez.
+- Bir seans, bir kalemi yalnız yayın gününden sonraki seanstan itibaren görür (`as_of`, `panel`). Düzeltilmiş tablolar yeni satır olarak eklenir. TMS 29 tabloları işaretli.
+- Veri girişi denetimli dosya içe aktarmasıyla yapılıyor. Ağ kodu yok: KAP koşulları teyit edilene kadar otomatik çekme kapalı (K-48).
+- İkinci kaynakla fark raporu var (`--compare`).
+- `/durum`'a "Temel veri" satırı eklendi; depo boşken bilgi satırıdır.
+- Doğrulama: `test_fundamentals_store`. Kapsananlar:
+  - geçersiz satırlar nedeniyle reddediliyor;
+  - yalnız ekleme, aynı satır iki kez yazılmıyor;
+  - yayın akşamı kullanılmıyor, ertesi seans kullanılıyor;
+  - düzeltilmiş tablonun sonraki yayını geçerli;
+  - kapsam satırı, karşılaştırma, yedek/şema/gitignore.
+
 ## v0.89.2 – 28.10.2026 (karar: temel veri kaynağı; keşif karşılaştırması)
 - K-48: temel veri kaynağı KAP. Toplu otomatik çekme, kullanım koşulları teyit edilene kadar kapalı; İş Yatırım seçilmedi (robots.txt `/_layouts/` yasağı).
 - Denetime D13 eklendi: mevcut ikinci fiyat kaynağı İş Yatırım'ın yasak yolunda; karar kullanıcıda.
