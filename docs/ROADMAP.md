@@ -119,9 +119,9 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.93.1 (seviye anlamlılık ölçümü). Öz-denetim sayacı: v0.91.2'den beri 3.
+- **Son sürüm:** v0.94.0 (Özellik A tamam; PC kanıtı bekleniyor). Öz-denetim sayacı: v0.91.2'den beri 4.
 - **Özellik talimatları (28.10):**
-  - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod sırada.
+  - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
   - B senaryolar: A bitince.
 - **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).

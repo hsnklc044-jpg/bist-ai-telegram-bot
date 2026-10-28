@@ -466,3 +466,22 @@ Okuma:
 - **Bu satırda aralık yok.** Karnenin aralıkları (20 seanslık blok bootstrap) haftalık araştırmadaki `templates.txt`'de ve `/tara_sablonlar`'da görünür.
 - **Hiçbiri aday kural değildir. Eşikler bu sonuçlara göre değiştirilmez (K-47).** Minervini'nin olumlu görünmesi de çok sayıda şablon ve kriter denendiği için şans olabilir.
 
+## Tanımlayıcı ölçüm: destek/direnç seviyeleri rastgele seviyelerden ayırt edilebiliyor mu? (28.10.2026; hipotez değil, bütçe dışı)
+
+- **Yöntem (K-49, sonuçtan önce yazıldı):**
+  - Tarama dönemi 2023-08-01 – 30.10.2026, holdout yok; o günkü BIST 100 üyeleri. Dışarıda yalnız PAHOL kaldı (kısa geçmiş).
+  - Kapanış, o gün bilinen bir küme seviyesine 0,25 ATR'den yakın kapandığında bir "yaklaşma" sayıldı.
+  - Sonraki 5 kapanışta: geldiği yöne 1 ATR uzaklaşma "dönüş", seviyenin öbür yanına 0,5 ATR geçme "kırılma", hiçbiri olmazsa "belirsiz".
+  - Karşılaştırma: aynı gün ve aynı sayıda, 52 hafta [dip, zirve] aralığında düzgün rastgele seviyeler (sabit tohum).
+- **Kaynak:** `screens.yml`, commit 2857f62, 28.10.2026.
+
+| | Yaklaşma | Dönüş | Kırılma | Belirsiz |
+|---|---|---|---|---|
+| Gerçek küme seviyeleri | 23.965 | %31,3 | %51,0 | %17,7 |
+| Rastgele seviyeler | 25.306 | %31,0 | %51,3 | %17,7 |
+
+- **Dönüş farkı** (gerçek − rastgele): +0,3 puan, %95 [−0,5; +1,1]; 810 gün, 20 seanslık blok bootstrap.
+- **Sonuç:** tarihsel olarak rastgele seviyeden **ayırt edilemedi**.
+- **Gösterimdeki karşılığı (talimat §3.3):** seviyeler yine gösterilir. Her çıktıda (`/seviye`, `/analyze`, rapor satırı, web) "tarihsel olarak rastgele seviyeden ayırt edilemedi" notu durur.
+- Bu bir hipotez testi değildir; seviyeler bir kurala dönüştürülmedi. Canlı kayıt (`logs/levels_log.csv`) sonuç bilinmeden yazılmaya devam eder; ileride aynı ölçüm ileri veride tekrarlanır.
+

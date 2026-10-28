@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.94.0 – 28.10.2026 (Özellik A tamam: ölçüm sonucu, not, web)
+- Anlamlılık ölçümü gerçek veride çalıştı:
+  - gerçek küme seviyelerinde dönüş %31,3, rastgele seviyelerde %31,0;
+  - fark +0,3 puan, %95 [−0,5; +1,1];
+  - sonuç: rastgele seviyeden ayırt edilemedi (RESEARCH_LOG).
+- Her seviye çıktısında artık "tarihsel olarak rastgele seviyeden ayırt edilemedi" notu var: `/seviye`, `/analyze`, rapor satırı, web.
+- Web panelinde `/seviye/{kod}` adresi listeyi JSON olarak veriyor.
+- Kalan bitti ölçütü: seviye kaydının PC'de her akşam yazıldığının kanıtı (ilk iş günü 30.10).
+
 ## v0.93.1 – 28.10.2026 (Özellik A §3.3: anlamlılık ölçümü)
 - `core/analytics/levels_study.py`: kapanış bir küme seviyesine 0,25 ATR'den yakınken sonraki 5 seans "dönüş", "kırılma" ya da "belirsiz" olarak sınıflanıyor. Aynı sayıda rastgele seviyeyle (52 hafta aralığı, sabit tohum) karşılaştırılıyor; fark 20 seanslık blok bootstrap ile %95 aralıkla veriliyor.
 - Tanımlayıcı ölçümdür; hipotez değildir, bütçeden harcamaz. `screens.yml` iş akışında çalışıyor.

@@ -117,7 +117,7 @@ python -m core.backtest.research --universe today  # karşılaştırma: bugünk�
 | --- | --- |
 | `/top` | En güçlü 10 sinyal |
 | `/analyze THYAO` | Tek hisse analizi; en yakın 3 destek ve 3 direnç dahil |
-| `/seviye THYAO` | Bütün destek ve direnç seviyeleri: yöntem (salınım kümesi, pivot, 52 hafta, yuvarlak sayı, ortalamalar), güç, ATR ve yüzde uzaklık. Teknik seviye, öneri değil (HANDBOOK §9) |
+| `/seviye THYAO` | Bütün destek ve direnç seviyeleri: yöntem (salınım kümesi, pivot, 52 hafta, yuvarlak sayı, ortalamalar), güç, ATR ve yüzde uzaklık. Teknik seviye, öneri değil; tarihsel olarak rastgele seviyeden ayırt edilemedi (RESEARCH_LOG). Web: `/seviye/THYAO` (HANDBOOK §9) |
 | `/summary` | Piyasa, gerçek ve sanal hesap, açık risk uyarıları (salt okunur; AL/SAT kararı içermez) |
 | `/watchlist`, `/watchadd EREGL`, `/watchremove EREGL`, `/watchscan` | Takip listesi |
 | `/portfolio` | Pozisyonlar ve kâr/zarar (gerçek ve sanal hesap) |

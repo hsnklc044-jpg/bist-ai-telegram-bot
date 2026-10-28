@@ -62,6 +62,26 @@ def dashboard(request: Request):
         )
 
 
+@app.get("/seviye/{code}")
+def levels_route(code: str):
+    """The same list as /seviye (Özellik A §2.2): teknik seviye, öneri değil."""
+
+    from core.analytics import levels as L
+    from core.reports.daily import adjusted_bars
+    from core.watchlist.service import normalize_symbol
+
+    try:
+        symbol = normalize_symbol(code)
+    except ValueError as exc:
+        return JSONResponse(status_code=400, content={"status": "error", "message": str(exc)})
+    found = L.levels(adjusted_bars(symbol))
+    return {"symbol": symbol.removesuffix(".IS"), "label": L.LABEL, "note": L.STUDY_NOTE,
+            "levels": [{"price": round(lv.price, 4), "kind": lv.kind, "method": lv.method, "name": lv.name,
+                        "strength": lv.strength, "touches": lv.touches, "breaks": lv.breaks,
+                        "last_touch": lv.last_touch.isoformat() if lv.last_touch else None,
+                        "dist_atr": round(lv.dist_atr, 3), "dist_pct": round(lv.dist_pct, 3)} for lv in found]}
+
+
 if __name__ == "__main__":
     import uvicorn
 

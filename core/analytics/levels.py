@@ -25,6 +25,9 @@ LIMIT_MOVE = 0.095  # a close-to-close move beyond ±9.5%: a locked (limit) day 
 MIN_CANDLES = 2 * N + 15
 METHODS = ("küme", "pivot_gün", "pivot_hafta", "52h_zirve", "52h_dip", "psikolojik", "sma50", "sma200")
 LABEL = "teknik seviye, öneri değil"
+# §3.3 result (RESEARCH_LOG 28.10.2026, screens.yml 2857f62): real cluster levels turned the price
+# 31.3% of the time, random ones 31.0% (difference +0.3 points, 95% [-0.5, +1.1])
+STUDY_NOTE = "tarihsel olarak rastgele seviyeden ayırt edilemedi"
 
 
 @dataclass(frozen=True)
@@ -313,7 +316,7 @@ def position_line(df: pd.DataFrame) -> str:
         return ""
     lv = max(supports, key=lambda lv: lv.price)
     distance = f"{lv.dist_atr:+.1f}".replace(".", ",")
-    return f"     en yakın destek {tr(lv.price, 2)} (küme, güç {lv.strength}, {distance} ATR) – {LABEL}"
+    return f"     en yakın destek {tr(lv.price, 2)} (küme, güç {lv.strength}, {distance} ATR) – {LABEL}, {STUDY_NOTE}"
 
 
 def nearest(found: list[Level], k: int = 3) -> dict[str, list[Level]]:
@@ -341,7 +344,7 @@ def levels_text(symbol: str, df: pd.DataFrame, day: date | None = None, k: int |
         return f"{code}: seviye hesaplanamadı (en az {MIN_CANDLES} kapanmış mum gerekir). {LABEL}."
     shown = nearest(found, k or len(found))
     when = f" ({day:%d.%m.%Y} kapanışı)" if day else ""
-    lines = [f"📐 {code} seviyeleri{when} – {LABEL}"]
+    lines = [f"📐 {code} seviyeleri{when} – {LABEL}; {STUDY_NOTE}"]
     for kind, title in (("direnç", "Direnç (yakından uzağa):"), ("destek", "Destek (yakından uzağa):")):
         lines += [title, *([_line(lv) for lv in shown[kind]] or ["  —"])]
     lines.append("Yöntemler: küme = salınım tepe/diplerinin 0,5 ATR kümesi; pivot = klasik (önceki gün/hafta); "
@@ -349,7 +352,7 @@ def levels_text(symbol: str, df: pd.DataFrame, day: date | None = None, k: int |
     return "\n".join(lines)
 
 
-__all__ = ["LABEL", "Level", "METHODS", "Pivot", "SERIES", "atr", "classic", "cluster", "cluster_days", "count_breaks",
+__all__ = ["LABEL", "Level", "METHODS", "Pivot", "SERIES", "STUDY_NOTE", "atr", "classic", "cluster", "cluster_days", "count_breaks",
            "daily_series",
            "last_log_day", "levels", "position_line", "write_log",
            "levels_text", "nearest", "pivots", "round_numbers", "strength"]

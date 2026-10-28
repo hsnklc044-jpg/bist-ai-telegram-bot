@@ -135,6 +135,34 @@ class TextTest(unittest.TestCase):
             self.assertNotIn(word, lowered)
 
 
+class StudyNoteTest(unittest.TestCase):
+    """§3.3: the measurement found no difference from random levels (RESEARCH_LOG, 28.10.2026), so
+    every level output carries the note."""
+
+    def test_note_everywhere(self):
+        self.assertIn("rastgele seviyeden ayırt edilemedi", L.STUDY_NOTE)
+        self.assertIn(L.STUDY_NOTE, L.levels_text("THYAO.IS", market()))
+        self.assertIn("ayırt edilemedi", L.position_line(market()))
+
+
+class WebTest(unittest.TestCase):
+    def test_route(self):
+        from unittest import mock
+
+        from fastapi.testclient import TestClient
+
+        from core.web.app import app
+
+        with mock.patch("core.reports.daily.adjusted_bars", return_value=market()):
+            answer = TestClient(app).get("/seviye/THYAO").json()
+        self.assertEqual(answer["symbol"], "THYAO")
+        self.assertIn("öneri değil", answer["label"])
+        self.assertIn("ayırt edilemedi", answer["note"])
+        self.assertTrue(answer["levels"])
+        self.assertEqual(set(answer["levels"][0]), {"price", "kind", "method", "name", "strength", "touches", "breaks",
+                                                    "last_touch", "dist_atr", "dist_pct"})
+
+
 class BotTest(unittest.TestCase):
     def test_seviye_and_analyze(self):
         import asyncio

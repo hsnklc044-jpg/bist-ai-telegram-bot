@@ -368,7 +368,12 @@ Yöntemler (her seviye yöntem adıyla gösterilir):
 - `/analyze THYAO` en yakın 3 destek ve 3 direnci, görünüm ve ATR satırlarına dokunmadan ekler.
 - `/seviye THYAO` tam listeyi verir.
 
-Seviyelerin tarihsel olarak rastgele seviyelerden ayırt edilip edilemediği ayrıca ölçülür (RESEARCH_LOG). Ölçüm sonucu çıkana kadar seviyeler yalnız "teknik seviye" olarak gösterilir.
+**Anlamlılık:** seviyelerin rastgele seviyelerden ayırt edilip edilemediği ölçüldü (RESEARCH_LOG, 28.10.2026).
+- Gerçek seviyelerde fiyat %31,3 oranında döndü, rastgele seviyelerde %31,0. Fark +0,3 puan, %95 [−0,5; +1,1].
+- Bu yüzden her seviye çıktısında "tarihsel olarak rastgele seviyeden ayırt edilemedi" yazar.
+- Seviyeler bir kural ya da sinyal değildir; yalnız fiyatın nerede olduğunu tarif eder.
+
+**Web paneli:** `/seviye/THYAO` adresi aynı listeyi JSON olarak verir.
 
 **Günlük rapor:** her açık pozisyonun altında en yakın küme desteği bir bilgi satırı olarak yazılır. Mevcut ATR iz süren stop uyarısının yerine geçmez.
 
