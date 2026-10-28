@@ -68,6 +68,13 @@ jobs:
           else
             echo "Aşama 3 yalnız ön kayıtlı başlangıçlarla çalışır (--start verildi)." | tee phase3.txt
           fi
+      - name: a4 pre-registered hypotheses (closed before 27.04.2027)
+        run: |
+          if [ -z "$START" ]; then
+            python -m core.backtest.a4 $RECORDS --run-date "$RUN_DATE" 2>&1 | tee a4.txt
+          else
+            echo "a4 yalnız ön kayıtlı başlangıçlarla çalışır (--start verildi)." | tee a4.txt
+          fi
       - name: Strategy research with one-day close fixes (effect only, not recorded)
         continue-on-error: true  # experimental; its failure must not hide the rest
         run: |
@@ -102,7 +109,7 @@ jobs:
         run: |
           folder="results/runs/$(echo "$RUN_DATE" | tr ' :' '_-')"
           mkdir -p "$folder"
-          cp update.txt research.txt research_fixed.txt research_today.txt phase3.txt corporate.txt kap.txt candidates.txt diagnose.txt calendar.txt crosscheck.txt history.txt expectations.txt view_expectations.csv "$folder"/ 2>/dev/null || true
+          cp update.txt research.txt research_fixed.txt research_today.txt phase3.txt a4.txt corporate.txt kap.txt candidates.txt diagnose.txt calendar.txt crosscheck.txt history.txt expectations.txt view_expectations.csv "$folder"/ 2>/dev/null || true
           cd results
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -116,7 +123,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          for f in history phase3 corporate kap crosscheck research research_fixed research_today expectations candidates diagnose calendar update; do
+          for f in history phase3 a4 corporate kap crosscheck research research_fixed research_today expectations candidates diagnose calendar update; do
             echo "## $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "$f.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "(yok)" >> "$GITHUB_STEP_SUMMARY"

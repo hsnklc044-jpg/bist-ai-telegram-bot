@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.67.0 – 28.10.2026
+- Araştırma döngüsü a4 ön kayda alındı (H4 eşit ağırlık, H5 düşük işlem hacmi). Kurallar yazıldı ve yalnız yapay veriyle test edildi. Haftalık araştırma bu taramayı ön kaydın izin verdiği 27.04.2027'den önce çalıştırmaz; o tarihten sonra kendiliğinden çalıştırıp sonucu `a4` ailesi olarak kaydeder.
+
 ## v0.66.0 – 28.10.2026
 - `/alarm THYAO altında 240` (ya da `üstünde`): kapanış fiyatı alarmı. Akşam raporu o günün kapanışıyla kontrol eder ve geçen alarmı bir kez "🔔" satırıyla söyler. `/alarm` listeler, `/alarm sil 1` siler. Gün içi fiyat izlenmez. Kayıt `data/price_alarms.csv` (yalnız ekleme, günlük yedekte, `/durum` sağlam okunduğunu kontrol eder).
 

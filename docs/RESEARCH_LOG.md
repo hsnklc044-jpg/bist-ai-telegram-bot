@@ -386,6 +386,6 @@ Bu bölüm, **iki kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve 
 
 ### Uygulama sırası
 
-1. H4 ve H5 kuralları ile tarih kapısı yazılır. Her kural için ileriye bakmama testi, el hesabıyla küçük bir örnek testi ve kapının testi eklenir. Bunlar yalnız yapay veriyle yapılır, gerçek veride sonuç hesaplanmaz.
+1. ✅ (v0.67.0, 28.10.2026) H4 ve H5 kuralları ile tarih kapısı yazılır (`core/backtest/a4.py`, `core.strategy.rules.equal_weight_signals` / `low_turnover_signals`, `tests/test_a4.py`; haftalık araştırmada "a4" adımı, kapı açılana dek yalnız "çalıştırılmadı" yazar). Her kural için ileriye bakmama testi, el hesabıyla küçük bir örnek testi ve kapının testi eklenir. Bunlar yalnız yapay veriyle yapılır, gerçek veride sonuç hesaplanmaz.
 2. 27.04.2027'den sonraki ilk haftalık araştırma çalışması taramayı yapar. `history.csv`'ye `a4` ailesi olarak yazılır.
 3. İlk sonuç buraya olduğu gibi yazılır.

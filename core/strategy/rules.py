@@ -184,6 +184,51 @@ def low_volatility_signals(
     return result
 
 
+def _monthly_lowest(frames: dict[str, pd.DataFrame], score: pd.DataFrame, top_n: int | None,
+                    eligible: pd.DataFrame | None) -> dict[str, pd.DataFrame]:
+    """On the last session of each month, the `top_n` stocks with the lowest `score` (all of
+    them when top_n is None), held until the next month end; filled at the next open."""
+
+    if eligible is not None:
+        ok = eligible.reindex(index=score.index, columns=score.columns).ffill().fillna(False).astype(bool)
+        score = score.where(ok)
+
+    month_end = score.index.to_series().groupby(score.index.to_period("M")).max()
+    in_top = pd.DataFrame(index=score.index, columns=score.columns, dtype="float")
+    for day in score.index[score.index.isin(month_end.values)]:
+        ranked = score.loc[day].dropna().sort_values().index
+        chosen = set(ranked if top_n is None else ranked[:top_n])
+        in_top.loc[day] = [1.0 if s in chosen else 0.0 for s in score.columns]
+    in_top = in_top.ffill().fillna(0.0).astype(bool)
+
+    result = {}
+    for symbol in score.columns:
+        own = frames[symbol].index
+        hold = in_top[symbol].reindex(own).fillna(False)
+        result[symbol] = pd.DataFrame(
+            {"enter": hold, "exit": ~hold, "rank": -score[symbol].reindex(own).fillna(0.0)}, index=own)
+    return result
+
+
+def equal_weight_signals(frames: dict[str, pd.DataFrame], eligible: pd.DataFrame | None = None):
+    """a4 H4 (docs/RESEARCH_LOG.md, fixed before testing): every eligible stock with a price at
+    the month end, equal slots (BacktestConfig.max_positions), rebalanced monthly."""
+
+    closes = _closes(frames)
+    return _monthly_lowest(frames, closes.notna().astype(float).where(closes.notna()) * 0.0, None, eligible)
+
+
+def low_turnover_signals(frames: dict[str, pd.DataFrame], window: int = 60, top_n: int = 10,
+                         eligible: pd.DataFrame | None = None):
+    """a4 H5 (docs/RESEARCH_LOG.md, fixed before testing): the `top_n` eligible stocks with the
+    lowest median daily TL turnover (close x volume) over the last `window` sessions."""
+
+    turnover = pd.concat({s: df["close"] * df["volume"] for s, df in frames.items() if not df.empty},
+                         axis=1, sort=True)
+    median = turnover.rolling(window, min_periods=window).median()
+    return _monthly_lowest(frames, median, top_n, eligible)
+
+
 def session_calendar(index: pd.DatetimeIndex, ahead_days: int = 45) -> pd.DatetimeIndex:
     """
     Past sessions are the candles themselves; after the last candle, the published
@@ -259,6 +304,8 @@ def apply_rule(rule, frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]
 
 
 __all__ += [
+    "equal_weight_signals",
+    "low_turnover_signals",
     "regime_filter",
     "momentum_signals",
     "low_volatility_signals",
