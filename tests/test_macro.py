@@ -119,6 +119,27 @@ class UsdTest(Files):
                                     get=lambda url, **_: Response(404), sleep=lambda s: None)
         self.assertEqual(added, 2)
 
+    def test_time_budget_keeps_what_was_fetched(self):
+        # the weekly research must never run out of time on this step (29.10.2026: ~1,6 s per bulletin)
+        path = self.dir / "usdtry.csv"
+        clock = iter([0, *range(0, 1000, 10)])  # the start, then each request "takes" 10 seconds
+        added = macro.update_usdtry(date(2026, 10, 1), date(2026, 10, 28), path=path, budget=25,
+                                    get=lambda url, **_: Response(404), sleep=lambda s: None,
+                                    clock=lambda: next(clock))
+        self.assertEqual(added, 3)  # 0, 10, 20 s: the fourth would start after the budget
+        self.assertEqual(len(macro._cache(path)), 3)  # and they are saved
+
+    def test_progress_is_saved_in_chunks(self):
+        path = self.dir / "usdtry.csv"
+        seen = []
+
+        def get(url, **_):
+            seen.append(len(macro._cache(path)))
+            return Response(404)
+
+        macro.update_usdtry(date(2026, 1, 1), date(2026, 6, 30), path=path, get=get, sleep=lambda s: None)
+        self.assertIn(macro.SAVE_EVERY, seen)  # written to disk while still running
+
     def test_network_error_is_not_remembered(self):
         path = self.dir / "usdtry.csv"
 

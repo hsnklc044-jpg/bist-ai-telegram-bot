@@ -935,14 +935,14 @@ def _basis_line(growth: pd.Series) -> str:
 
 
 def _update_macro() -> None:
-    """Talimat C: the last two weeks of TCMB bulletins not yet cached (at most 10 requests) and,
-    after the 3rd of a month, the new CPI figure from TCMB's table (one request)."""
+    """Talimat C: the last two weeks of TCMB bulletins not yet cached (at most 10 requests, 30 s)
+    and, after the 3rd of a month, the new CPI figure from TCMB's table (one request)."""
 
     try:
         from core.market import macro
 
         today = date.today()
-        macro.update_usdtry(today - timedelta(days=14), today, limit=10)
+        macro.update_usdtry(today - timedelta(days=14), today, limit=10, budget=30)
         macro.update_cpi(today)
     except Exception:  # noqa: BLE001 - the report never waits on this
         logger.exception("Macro data update failed")

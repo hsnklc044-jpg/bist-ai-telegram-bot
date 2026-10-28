@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.5 – 29.10.2026 (kur adımına süre sınırı; Ö33)
+- Gerçek veride ilk denemede görüldü: TCMB'de bir bülten isteği yaklaşık 1,6 saniye sürüyor. Araştırmanın kur adımı bütün geçmişi bir kerede istediği için 33 dakikayı geçti. Bu, cumartesi araştırmasını 90 dakikalık iş sınırına itebilirdi. Deneme çalışması iptal edildi; kayıtlar etkilenmedi.
+- Kur önbelleğini dolduran fonksiyonun artık bir süre sınırı var.
+  - Araştırmada 8 dakika; adımın kendi sınırı 10 dakika.
+  - Akşam raporunda 30 saniye.
+- 50 bültende bir ara kayıt yapılıyor. Duran çalışma aldıklarını kaybetmiyor; bir sonraki kaldığı yerden devam ediyor. Bütün geçmiş birkaç cumartesi içinde doluyor.
+- Doğrulama: `test_macro` süre sınırı ve ara kayıt testleri.
+
 ## v0.95.4 – 29.10.2026 (öz-denetim 8: iki düzeltme)
 - `/tara ... rejim=` canlı listede fiyatı olmayan bir hisse varken çöküyordu (Ö27). Verisiz hisseler artık rejim hesabının dışında kalıyor.
 - Rejim filtreli bir abonelik listesi rejim değişince boşalıyor. Mesaj artık bunun nedenini yazıyor: bugünkü rejim ve filtre (Ö28).

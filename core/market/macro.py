@@ -45,6 +45,7 @@ WITHHOLDING = DATA_DIR / "cash" / "withholding.csv"
 BULLETIN_URL = "https://www.tcmb.gov.tr/kurlar/{d:%Y%m}/{d:%d%m%Y}.xml"
 TIMEOUT = 15
 PAUSE = 0.3  # seconds between bulletin requests
+SAVE_EVERY = 50  # bulletins; a stopped run keeps what it fetched
 SOURCE = "TÜFE: TÜİK (TCMB tablosu); kur: TCMB gösterge kuru; nakit: TCMB politika faizi"
 
 
@@ -192,20 +193,36 @@ def load_usdtry(path: Path | str | None = None) -> pd.Series:
     return series.sort_index()
 
 
+def _save_cache(path: Path, have: dict[date, str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    with open(tmp, "w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh, lineterminator="\n")
+        w.writerow(["date", "rate"])
+        w.writerows((d.isoformat(), have[d]) for d in sorted(have))
+    tmp.replace(path)
+
+
 def update_usdtry(start: date, end: date, path: Path | str | None = None, limit: int | None = None,
-                  get=None, sleep=None) -> int:
+                  get=None, sleep=None, budget: float | None = None, clock=None) -> int:
     """Ask TCMB for every weekday in [start, end] not yet in the cache; returns the days added.
-    A 404 (no bulletin) is remembered as an empty rate; a network error is not remembered."""
+    A 404 (no bulletin) is remembered as an empty rate; a network error is not remembered.
+    `budget` (seconds) stops before a request that would start after it; progress is saved every
+    SAVE_EVERY bulletins and at the end, so the next run continues where this one stopped."""
 
     path = Path(path or USD_FILE)
     get = _http_get if get is None else get
     sleep = time.sleep if sleep is None else sleep
+    clock = time.monotonic if clock is None else clock
     have = _cache(path)
     wanted = [d.date() for d in pd.bdate_range(start, end) if d.date() not in have]
     if limit is not None:
         wanted = wanted[:limit]
-    added = {}
+    began = clock()
+    added = 0
     for i, day in enumerate(wanted):
+        if budget is not None and clock() - began >= budget:
+            break
         if i:
             sleep(PAUSE)
         try:
@@ -213,23 +230,21 @@ def update_usdtry(start: date, end: date, path: Path | str | None = None, limit:
         except OSError:
             continue
         if r.status_code == 404:
-            added[day] = ""
+            have[day] = ""
         elif r.status_code == 200:
             try:
                 stamp, rate = parse_bulletin(r.content)
             except ValueError:
                 continue
-            added[day] = f"{rate:.4f}" if stamp == day else ""
+            have[day] = f"{rate:.4f}" if stamp == day else ""
+        else:
+            continue
+        added += 1
+        if added % SAVE_EVERY == 0:
+            _save_cache(path, have)
     if added:
-        have.update(added)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".tmp")
-        with open(tmp, "w", encoding="utf-8", newline="") as fh:
-            w = csv.writer(fh, lineterminator="\n")
-            w.writerow(["date", "rate"])
-            w.writerows((d.isoformat(), have[d]) for d in sorted(have))
-        tmp.replace(path)
-    return len(added)
+        _save_cache(path, have)
+    return added
 
 
 def usd_on(rates: pd.Series, day: date) -> float | None:
@@ -328,9 +343,10 @@ def main(argv: list[str] | None = None) -> int:
     utf8_output()
     parser = argparse.ArgumentParser(description="USD/TRY cache from TCMB bulletins; CPI file check.")
     parser.add_argument("--usd", metavar="START", help="fill the USD/TRY cache from START (YYYY-MM-DD) to today")
+    parser.add_argument("--budget", type=float, default=None, help="stop after this many seconds (progress is kept)")
     args = parser.parse_args(argv)
     if args.usd:
-        added = update_usdtry(date.fromisoformat(args.usd), date.today())
+        added = update_usdtry(date.fromisoformat(args.usd), date.today(), budget=args.budget)
         print(f"{added} gün eklendi; önbellekte {len(load_usdtry())} kur günü")
     state, text = freshness(date.today())
     print(f"Makro veri: {text} ({state})")

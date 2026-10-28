@@ -411,7 +411,9 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 - Akşam raporu son iki haftanın eksik TCMB kur bültenlerini ister.
 - Her ayın 3'ünden sonra yeni TÜFE ayını TCMB tablosundan ekler (ilk görüldüğü günle).
 - `/durum`'daki "Makro veri" satırı ikisinin tarihini gösterir. Yeni ay 8 gün içinde gelmezse ya da kur 5 günden eskiyse UYARI verir.
-- Geçmiş kurları bir kerede doldurmak için: `python -m core.market.macro --usd 2026-01-02` (her gün için bir istek).
+- Geçmiş kurları bir kerede doldurmak için: `python -m core.market.macro --usd 2026-01-02`.
+  - Her gün için bir istek gider; TCMB'de bir istek yaklaşık 1,6 saniye sürüyor.
+  - `--budget 600` 10 dakikada durur. Alınanlar saklanır, bir sonraki çalıştırma kaldığı yerden devam eder.
 
 ## 11. Piyasa rejimi ve sektörler (/piyasa; K-51)
 

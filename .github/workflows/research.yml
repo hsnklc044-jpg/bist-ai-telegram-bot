@@ -64,7 +64,10 @@ jobs:
           key: usdtry-${{ github.run_id }}
           restore-keys: usdtry-
       - name: USD/TRY bulletins (TCMB)
-        run: python -m core.market.macro --usd 2021-12-01 2>&1 | tee macro.txt || true
+        # ~1,6 s per bulletin: at most 8 minutes a week; the cache keeps what was fetched and the
+        # next run continues (the first full fill takes a few Saturdays)
+        timeout-minutes: 10
+        run: python -m core.market.macro --usd 2021-12-01 --budget 480 2>&1 | tee macro.txt || true
       - name: Strategy research
         run: python -m core.backtest.research ${START:+--start "$START"} $RECORDS --run-date "$RUN_DATE" 2>&1 | tee research.txt
       - name: Strategy research, today's list (survivorship-biased comparison)
