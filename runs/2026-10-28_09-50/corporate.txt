@@ -1,0 +1,3 @@
+Kurumsal işlem şüphesi taraması (14.10.2026 sonrası): 1 yeni şüphe
+  SKBNK 19.10.2026 -24.6% sıçrama (çarpan önerisi 0.7542)
+Yapılacak: her satırı KAP'ta (bedelsiz/bedelli/bölünme/temettü) doğrula; doğrulananı kaynağıyla data/corporate_actions.csv'ye ekle. Hiçbir şey otomatik uygulanmadı.

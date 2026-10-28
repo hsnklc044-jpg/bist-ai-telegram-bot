@@ -1,0 +1,8 @@
+İkinci kaynak kontrolü (İş Yatırım, son 30 gün, günlük getiri farkı > 1 puan): 118 hisse | tutarlı 116, fark var 1, kontrol edilemedi 1 | karşılaştırılan 2457 hisse-gün
+Hisseye özgü açıklanamayan fark 1 gün; kayıtlı şirket işlemi günü 0; tek gün kapanış hatası (ertesi gün düzelen) 0
+Yahoo'da henüz yayımlanmamış son seans (27.10.2026): 117 hisse; fark sayılmadı, sonraki çalışmada karşılaştırılır
+XU100 (İş Yatırım'ın BIST 100 değeriyle, 22 gün): tutarlı
+Hisseye özgü farklar (piyasa geneli günler hariç):
+  KPOWR: kontrol edilemedi (ikinci kaynakta veri yok)
+  SKBNK: 19.10.2026 Yahoo -24.6% / İş -3.1%
+Not: iki kaynak da düzeltilmiş fiyat verir ama düzeltme yöntemleri aynı olmayabilir; açıklanamayan farklar ve tek kaynakta olan günler KAP ve üçüncü bir kaynaktan kontrol edilmeden düzeltilmez.
