@@ -21,6 +21,7 @@ from pathlib import Path
 
 from core.config.paths import PRICE_ALARMS_FILE
 from core.infrastructure.csvfiles import open_append, read_rows
+from core.infrastructure.exceptions import PersonalFileError
 from core.market.symbols import normalize_symbol
 
 COLUMNS = ("id", "at", "symbol", "direction", "level", "event", "close")
@@ -149,8 +150,19 @@ def _number(text: str) -> float:
 
 
 def command(words: list[str], path: Path | None = None, now: datetime | None = None) -> str:
-    """The /alarm command's answer (and the file change it asks for)."""
+    """The /alarm command's answer (and the file change it asks for). A damaged file is
+    reported, never written to: nothing is added or removed until it is readable again."""
 
+    path = Path(path or PRICE_ALARMS_FILE)
+    try:
+        _states(path)
+    except (PersonalFileError, ValueError, KeyError) as exc:
+        return (f"⚠️ Alarm dosyası ({path.name}) okunamadı: {exc}\n"
+                "Dosya düzelene kadar alarm kurulmaz ve silinmez; /durum ayrıntıyı gösterir.")
+    return _command(words, path, now)
+
+
+def _command(words: list[str], path: Path, now: datetime | None) -> str:
     words = [w.strip() for w in words if w.strip()]
     if not words:
         alarms = active(path)

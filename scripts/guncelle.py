@@ -63,8 +63,10 @@ def log(msg: str) -> None:
 
 
 def fetch(url: str) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": "QuantBIST-guncelle",
-                                                   "Accept": "application/vnd.github+json"})
+    headers = {"User-Agent": "QuantBIST-guncelle"}
+    if url.startswith(API):  # the API's media type only for the API (not the zip or raw file)
+        headers["Accept"] = "application/vnd.github+json"
+    request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request, timeout=30) as response:
         return response.read()
 

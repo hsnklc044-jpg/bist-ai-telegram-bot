@@ -79,6 +79,14 @@ class CommandTextTest(unittest.TestCase):
         self.assertIn("Kullanım", self.run_words("THYAO", "altında", "dün"))
 
 
+    def test_damaged_file_gives_an_answer_not_a_crash(self):
+        """Öz-tarama v0.66: a damaged alarm file made /alarm raise instead of answering."""
+        self.path.write_text("", encoding="utf-8")
+        for words in ((), ("THYAO", "altında", "240"), ("sil", "1")):
+            with self.subTest(words=words):
+                self.assertIn("price_alarms.csv", self.run_words(*words))
+
+
 class DailyReportTest(unittest.TestCase):
     """The evening report names a crossed alarm and marks it only after the report went out."""
 

@@ -7,6 +7,7 @@ an older version), and when the result goes to Telegram (every outcome but "noth
 import importlib.util
 import json
 import unittest
+import unittest.mock
 from pathlib import Path
 
 PATH = Path(__file__).resolve().parents[1] / "scripts" / "guncelle.py"
@@ -59,6 +60,34 @@ class GreenCommitTest(unittest.TestCase):
     def test_files_come_from_that_exact_commit(self):
         self.assertIn("/abc123/core/__init__.py", g.version_url("abc123"))
         self.assertTrue(g.zip_url("abc123").endswith("/archive/abc123.zip"))
+
+
+class HeadersTest(unittest.TestCase):
+    def test_github_api_header_only_for_the_api(self):
+        """Öz-tarama v0.68: the zip and raw file requests must not carry the API's Accept header."""
+        sent = {}
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def read(self):
+                return b"ok"
+
+        def opener(request, timeout):
+            sent[request.full_url] = request.get_header("Accept")
+            return Response()
+
+        with unittest.mock.patch("urllib.request.urlopen", opener):
+            g.fetch(g.zip_url("abc"))
+            g.fetch(g.version_url("abc"))
+            g.fetch(g.API + "?x=1")
+        self.assertIsNone(sent[g.zip_url("abc")])
+        self.assertIsNone(sent[g.version_url("abc")])
+        self.assertEqual(sent[g.API + "?x=1"], "application/vnd.github+json")
 
 
 class NotifyTest(unittest.TestCase):

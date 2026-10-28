@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.68.1 – 28.10.2026
+- v0.66–v0.68 toplu taramasında iki düzeltme:
+  - Güncelleyici, GitHub API'ye özel başlığı zip ve sürüm dosyası isteklerine de gönderiyordu. Zip indirme bu başlıkla hiç denenmemişti; ilk gerçek kurulumda reddedilebilirdi. Başlık artık yalnız API isteğinde.
+  - Alarm dosyası bozuksa `/alarm` cevap vermek yerine hata veriyordu. Artık dosyanın okunamadığını söylüyor ve dosya düzelene kadar hiçbir şey yazmıyor.
+
 ## v0.68.0 – 28.10.2026
 - PC güncelleyicisi depoya alındı (`scripts/guncelle.py`, `scripts/bildir.py`). Artık yalnız GitHub'da CI'ı yeşil olan sürümü kuruyor ve her sonucu (kuruldu, kurulmadı, geri alındı, hata) Telegram'a "🤖 Otomasyon" olarak yazıyor. Yeni sürüm yoksa sessiz kalıyor.
 

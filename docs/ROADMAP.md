@@ -56,7 +56,7 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.68.0 (güncelleyici depoda: yalnız CI'ı yeşil sürüm, her sonuç Telegram'a).
+- **Son sürüm:** v0.68.1 (v0.66–v0.68 taraması: güncelleyicide API başlığı yalnız API'ye, bozuk alarm dosyasında `/alarm` cevap verir). Öz-denetim sayacı: v0.63.1'den beri 6 sürüm.
 - **PC v0.68.0'da (28.10 08:51, eski güncelleyiciyle son kurulum):** 654 geçti + 4 atlandı, ruff temiz, bot yeniden başladı. "QuantBIST Guncelle" görevi depodaki `scripts\guncelle.py`'ye çevrildi (07:40). Elle deneme 09:05: "GitHub'da CI'ı yeşil son sürüm 0.68.0 (14c56e9)" → GÜNCEL, Telegram'a mesaj yok (bilerek). `bildir.py` denemesi Telegram'a "🤖 Otomasyon" olarak ulaştı.
 - **PC v0.66.0'da (28.10 08:16, kullanıcıyla birlikte `guncelle.py`):** PC v0.59.0'daymış; güncelleme görevi yoktu. 639 geçti + 4 atlandı, ruff temiz, bot yeniden başladı; `/durum` tüm kontroller SAĞLIKLI. "QuantBIST Guncelle" görevi kuruldu, her gün 07:40 (K-27). Geri yükleme testi başarılı. İlk alarm kuruldu (#1 THYAO < 260): bu akşam gerçek veriyle ilk deneme.
 - **Dışarıdan izleme açıldı (27.10 22:23, yerel otomasyon):** iki .env satırında önce örnek metin (`<…kod>`), sonra `.com/` ile kod arasında boşluk vardı (Healthchecks HTTP 400); düzeltilince bot sinyali kabul edildi, `/durum` izleme satırı SAĞLIKLI. Rapor kontrolü ilk sinyalini 28.10 18:30'da alacak. Adresler hiçbir yerde yazdırılmadı.
