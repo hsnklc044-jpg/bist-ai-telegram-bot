@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.89.2 – 28.10.2026 (karar: temel veri kaynağı; keşif karşılaştırması)
+- K-48: temel veri kaynağı KAP. Toplu otomatik çekme, kullanım koşulları teyit edilene kadar kapalı; İş Yatırım seçilmedi (robots.txt `/_layouts/` yasağı).
+- Denetime D13 eklendi: mevcut ikinci fiyat kaynağı İş Yatırım'ın yasak yolunda; karar kullanıcıda.
+- RESEARCH_LOG: profesyonel şablonlar ve eleme grupları, kullanıcının PC keşif sayılarıyla karşılaştırıldı. Yön aynı; elenen grup −%4,1, kalan −%0,3.
+
 ## v0.89.1 – 28.10.2026 (açıklama: eleme grupları)
 - `templates --explain` (`screens.yml`) artık elenen ve kalan hisse-günlerin 20 seanslık olay ortalamasını da yazıyor (maliyet hariç). Kullanıcının PC keşfindeki "elenen grup" sayısıyla karşılaştırma içindir; seçim için kullanılmaz.
 

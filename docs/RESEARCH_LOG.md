@@ -441,3 +441,28 @@ Farkın ölçülen ve olası nedenleri:
 
 Diğerlerinde fark ±0,1 puan; tüm hisseler −%1,0'dan −%0,9'a. **Hiçbir hüküm değişmedi.**
 
+## Not: profesyonel şablonlar ve eleme grupları, keşif (28.10.2026; araştırma programı dışında)
+
+Açıklama çalışması `screens.yml` 40714343039, v0.89.1. Ayarlar: 20 seans, olay ortalaması, maliyet hariç, eleme yok (`ele=hayir`), o günkü BIST 100 üyeleri, giriş ertesi açılış. Kullanıcının PC keşfi de aynı tanımla (eleme öncesi, maliyet hariç) yapıldı.
+
+| | Kullanıcı (PC) | Biz | Örnek | Varsayılan elemelerle (maliyet dahil, gün ortalaması) |
+|---|---|---|---|---|
+| `minervini` | +%1,07 [−1,04; +2,13] | +%1,4 | 12.940 | +%1,2 |
+| `zirveye_yakin` | +%0,47 | +%0,6 | 8.339 | −%0,2 |
+| `dusuk_oynaklik` | +%0,31 | +%0,4 | 14.977 | +%0,1 |
+| `goreli_guc_ust` (6-1) | −%0,24 | +%0,1 | 15.626 | +%0,2 |
+| 12-1 momentum | −%0,58 | hesaplanmadı (şablon değil) | | |
+| Elenen grup (K-45) | −%3,07 [−5,53; −0,06] | −%4,1 | 5.068 | |
+| Kalan grup | | −%0,3 | 71.084 | |
+| Karşılaştırma: tüm hisseler | | | | −%0,6 |
+
+Okuma:
+- **Yön her satırda aynı**, büyüklük 0,1–0,4 puan farklı. Olası nedenler, önceki karşılaştırmadaki gibi:
+  - 12 sıçramalı hisse dışarıda;
+  - sıralar o günkü BIST 100 üyeleri arasında;
+  - IBD RS'nin yaklaşık formülü;
+  - örnek sayma yöntemi.
+- **Elenen grup** iki hesapta da belirgin biçimde zayıf. Bu yalnız geçmişin özeti; canlı izleme (ileri hedef F1) asıl kanıt olacak.
+- **Bu satırda aralık yok.** Karnenin aralıkları (20 seanslık blok bootstrap) haftalık araştırmadaki `templates.txt`'de ve `/tara_sablonlar`'da görünür.
+- **Hiçbiri aday kural değildir. Eşikler bu sonuçlara göre değiştirilmez (K-47).** Minervini'nin olumlu görünmesi de çok sayıda şablon ve kriter denendiği için şans olabilir.
+

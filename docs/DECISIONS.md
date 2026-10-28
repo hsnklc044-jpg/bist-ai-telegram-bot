@@ -4,6 +4,35 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-48. Temel veri kaynağı: KAP; otomatik çekme kullanım koşulu teyidine kadar kapalı. İş Yatırım'ın robots.txt bulgusu (28.10.2026, profesyonel filtreler Aşama 3).**
+
+Kanıt: sayfalar 28.10.2026'da `sources.yml` ile arşivlendi (`research-results: sources/2026-10-28_18-17-26/`, SHA'larıyla).
+
+**İş Yatırım:**
+- `robots.txt` (004, 200) bütün botlara `Disallow: /_layouts/` diyor.
+- Mali tablo uç noktasını kullanan topluluk paketleri de (isyatirimhisse, borsa-mcp) bizim ikinci fiyat kaynağımız da (`/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil`) bu yolun altında.
+- Kullanım koşulları sayfası bulunamadı (005, 006: 404).
+- **Karar:** İş Yatırım temel veri için **seçilmedi**; yeni hiçbir otomatik kullanım eklenmez.
+- **Mevcut kullanım (D13):** haftalık ve olay bazlı fiyat çapraz kontrolü düşük hacimli ve yalnız doğrulama amaçlı. Kullanıcının daha önce onayladığı bir güvenlik kontrolü olduğu için kendiliğinden kapatılmadı.
+  - Kapatılırsa "veri doğruluğu" SLO'su ölçülemez hale gelir.
+  - Karar kullanıcıda: kapat, ya da yazılı izin iste.
+
+**KAP:**
+- Yasal olarak kamuya açık bildirimler.
+- Her bildirimin yayın zamanı ("Gönderim Tarihi") var: look-ahead önlemi için şart.
+- Geçmiş 2018'den derin.
+- Borsadan çıkmış şirketlerin bildirimleri de duruyor: survivorship riski düşük.
+- TMS 29 (2023 sonu sonrası enflasyon düzeltmeli tablolar) bildirimde işaretli.
+- Kullanım koşulları sayfası bu ortamdan bulunamadı (002, 003: 404). `robots.txt` otomatik isteğe "erişim problemi" sayfası döndürdü (001, 666).
+- **Karar:** temel veri kaynağı KAP olacak. **Ama toplu otomatik çekme, kullanım koşulları teyit edilene kadar açılmaz.** Bu en güvenli yol.
+
+**Şimdi kurulan:**
+- `data/fundamentals.csv` deposu: her kalem yayın tarihiyle; yalnız ekleme; yedekte; şema denetimli; `/durum`'da "Temel veri" satırı.
+- Veri girişi ağ kullanmadan, dosyadan içe aktarma ile: KAP'tan elle alınmış ya da lisanslı bir kaynaktan dışa aktarılmış satırlar.
+- Karne ve tarama, bir kalemi yalnız yayın tarihinden **sonraki** seanstan itibaren görür.
+
+**Ücretli sağlayıcılar** (Fintables, Matriks, lisanslı KAP dağıtıcıları) kullanıcı kararıdır; BENİM ADIMLARIM'a yazıldı.
+
 **K-47. Teknik profesyonel şablonlar ve alanları (28.10.2026, profesyonel filtreler Aşama 2).** Dört şablon görevde verildiği gibi kodlandı ve sonuçlara bakılarak değiştirilmez: `minervini`, `zirveye_yakin`, `goreli_guc_ust`, `dusuk_oynaklik`. Belirsiz noktalarda seçilen yol:
 - **52 hafta zirve/dip:** 252 seans, bugün dahil, gün içi en yüksek/en düşük. Eski `zirve_uzaklik` alanı kapanışla hesaplanıyor ve aynı kaldı.
 - **Oranlar:** dil çarpma yazmadığı için "zirvenin %75'i" ve "dibin %30 üstü" `zirve_52h_oran` ve `dip_52h_oran` alanlarıyla yazıldı (kapanış / 52 hafta değeri × 100).

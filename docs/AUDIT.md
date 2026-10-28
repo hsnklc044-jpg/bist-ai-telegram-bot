@@ -77,5 +77,6 @@ PC tarafını doğrulamak için 29.10 otomatik kurulumundan sonra şunları gön
 | # | Önem | Bulgu | Durum |
 |---|---|---|---|
 | D11 | ORTA | Yarım günde (28.10) /durum, 14:30'dan itibaren "KRİTİK · rapor gitmedi", "fiyat 1 seans geride", "kaydı olmayan seans" ve SLO "kayıt bütünlüğü" uyarısı verdi. Kontroller mumun kesinleştiği saati (13:15 + 1:15) esas alıyordu; rapor ise 18:30'da çalışıyor. | ✅ v0.88.2: tek ortak fonksiyon `report_due_day` (18:30 + 1:15, yarım gün dahil, tatil hariç). Rapor, fiyat tazeliği, canlı ölçüm ve SLO penceresi onu kullanıyor (`test_report_due`). |
+| D13 | ORTA | İş Yatırım `robots.txt` bütün botlara `/_layouts/` yolunu yasaklıyor; ikinci fiyat kaynağımız bu yolun altında (`crosscheck.URL`). Kullanım koşulları sayfası bulunamadı. | açık: kullanıcı kararı (K-48). Yeni otomatik kullanım eklenmez; mevcut düşük hacimli doğrulama sürüyor. |
 | D12 | ORTA | /tara'da karne, liste oturumu yazılmadan biterse kullanıcıya önce karne yerine "Önce /tara ile bir tarama yap." gidiyordu, liste sonra geliyordu. Yalnız yavaş PC'de görüldü; CI yeşildi. | ✅ v0.88.2: karne hemen hesaplanıyor, mesajı listeden sonra gidiyor (`asyncio.Event`). Test olaylarla sıralı, uykusuz; 50 tekrarda geçiyor. CI'a "yavaş makine" işi eklendi: tek meşgul çekirdek, iki rastgele test sırası. |
 
