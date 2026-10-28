@@ -32,3 +32,8 @@ jobs:
         run: |
           python -m core.screen.templates --explain 2>&1 | tee explain.txt
           { echo '```'; cat explain.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # Özellik A §3.3: do the support/resistance levels differ from random ones? (descriptive, K-49)
+      - name: Levels study
+        run: |
+          python -m core.analytics.levels_study 2>&1 | tee levels.txt
+          { echo '```'; cat levels.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

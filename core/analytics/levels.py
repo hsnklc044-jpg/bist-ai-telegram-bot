@@ -162,18 +162,10 @@ def levels(df: pd.DataFrame, asof=None) -> list[Level]:
 SERIES = ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu", "kirdi_yukari", "kirdi_asagi")
 
 
-def daily_series(df: pd.DataFrame, recent: int | None = None) -> pd.DataFrame:
-    """The /tara fields on every day, each equal to levels() on the candles cut at that day:
-    the nearest cluster support and resistance (ATR distance), the nearest cluster's strength,
-    and kirdi_yukari / kirdi_asagi (1: the close passed yesterday's nearest resistance / support
-    by more than BREAK_ATR x today's ATR; 0: not; NaN: no level known). `recent`: only the last
-    `recent` days are computed (the live list looks back ≤ 62 sessions), the rest stay NaN."""
+def _pivot_arrays(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """Every fractal top and bottom (same rule as pivots(), vectorised): (day positions, prices)."""
 
-    n, out = len(df), pd.DataFrame(np.nan, index=df.index, columns=list(SERIES))
-    if n < MIN_CANDLES:
-        return out
     high, low, close = (df[c].to_numpy(dtype=float) for c in ("high", "low", "close"))
-    a = atr(df).to_numpy(dtype=float)
     move = np.abs(close / np.r_[np.nan, close[:-1]] - 1)
     hs, ls = pd.Series(high), pd.Series(low)
     left_max, left_min = hs.rolling(N).max().shift(1).to_numpy(), ls.rolling(N).min().shift(1).to_numpy()
@@ -184,52 +176,78 @@ def daily_series(df: pd.DataFrame, recent: int | None = None) -> pd.DataFrame:
         top = ok & (high > left_max) & (high >= right_max)
         bottom = ok & (low < left_min) & (low <= right_min)
     points = sorted([(t, high[t]) for t in np.flatnonzero(top)] + [(t, low[t]) for t in np.flatnonzero(bottom)])
-    times = np.array([p[0] for p in points], dtype=int)
-    prices = np.array([p[1] for p in points], dtype=float)
-    columns = {c: np.full(n, np.nan) for c in SERIES}
-    previous = (np.nan, np.nan)  # yesterday's nearest support and resistance prices
+    return np.array([p[0] for p in points], dtype=int), np.array([p[1] for p in points], dtype=float)
+
+
+def cluster_days(df: pd.DataFrame, recent: int | None = None):
+    """For each day d (position) with a usable ATR: (d, ATR[d], [(level price, its pivot positions)]),
+    each equal to levels()' clusters on the candles cut at d."""
+
+    n = len(df)
+    if n < MIN_CANDLES:
+        return
+    a = atr(df).to_numpy(dtype=float)
+    times, prices = _pivot_arrays(df)
     first_day = MIN_CANDLES - 1 if recent is None else max(MIN_CANDLES - 1, n - recent - 1)
     for d in range(first_day, n):
-        width, last = CLUSTER_ATR * a[d], close[d]
+        width = CLUSTER_ATR * a[d]
         if not width == width or width <= 0:
-            previous = (np.nan, np.nan)
+            yield d, a[d], None
             continue
         start = max(0, d - LOOKBACK + 1)
         pick = (times >= start + N) & (times <= d - N)
         t_now, p_now = times[pick], prices[pick]
-        support = resistance = np.nan
+        groups = []
         if len(p_now):
             order = np.lexsort((t_now, p_now))
             t_now, p_now = t_now[order], p_now[order]
-            group = np.r_[0, np.cumsum(np.diff(p_now) >= width)]
-            best, best_dist = None, np.inf
-            for g in range(group[-1] + 1):
-                members = group == g
-                price = float(np.mean(p_now[members]))
-                if price == last:
-                    continue
-                if price < last and not price <= support:
-                    support = price
-                if price > last and not price >= resistance:
-                    resistance = price
-                dist = abs(price - last) / a[d]
-                if dist < best_dist:
-                    best, best_dist = (price, t_now[members]), dist
-            if best is not None:
-                price, ts = best
-                first, latest = int(ts.min()), int(ts.max())
-                breaks = _breaks(close[first:d + 1], a[first:d + 1], price)
-                columns["seviye_gucu"][d] = strength(int(len(ts)), d - latest, breaks)
-        columns["destek_uzaklik_atr"][d] = (support - last) / a[d]
-        columns["direnc_uzaklik_atr"][d] = (resistance - last) / a[d]
-        if len(p_now):
+            ids = np.r_[0, np.cumsum(np.diff(p_now) >= width)]
+            groups = [(float(np.mean(p_now[ids == g])), t_now[ids == g]) for g in range(ids[-1] + 1)]
+        yield d, a[d], groups
+
+
+def daily_series(df: pd.DataFrame, recent: int | None = None) -> pd.DataFrame:
+    """The /tara fields on every day, each equal to levels() on the candles cut at that day:
+    the nearest cluster support and resistance (ATR distance), the nearest cluster's strength,
+    and kirdi_yukari / kirdi_asagi (1: the close passed yesterday's nearest resistance / support
+    by more than BREAK_ATR x today's ATR; 0: not; NaN: no level known). `recent`: only the last
+    `recent` days are computed (the live list looks back ≤ 62 sessions), the rest stay NaN."""
+
+    n = len(df)
+    columns = {c: np.full(n, np.nan) for c in SERIES}
+    close = df["close"].to_numpy(dtype=float)
+    a_all = atr(df).to_numpy(dtype=float) if n >= MIN_CANDLES else None
+    previous, first = (np.nan, np.nan), None
+    for d, a, groups in cluster_days(df, recent):
+        first = d if first is None else first
+        if groups is None:
+            previous = (np.nan, np.nan)
+            continue
+        last, support, resistance = close[d], np.nan, np.nan
+        best, best_dist = None, np.inf
+        for price, ts in groups:
+            if price == last:
+                continue
+            if price < last and not price <= support:
+                support = price
+            if price > last and not price >= resistance:
+                resistance = price
+            if abs(price - last) / a < best_dist:
+                best, best_dist = (price, ts), abs(price - last) / a
+        if best is not None:
+            price, ts = best
+            breaks = _breaks(close[int(ts.min()):d + 1], a_all[int(ts.min()):d + 1], price)
+            columns["seviye_gucu"][d] = strength(int(len(ts)), d - int(ts.max()), breaks)
+        columns["destek_uzaklik_atr"][d] = (support - last) / a
+        columns["direnc_uzaklik_atr"][d] = (resistance - last) / a
+        if groups:
             prev_support, prev_resistance = previous
-            columns["kirdi_yukari"][d] = float(prev_resistance == prev_resistance and last > prev_resistance + BREAK_ATR * a[d])
-            columns["kirdi_asagi"][d] = float(prev_support == prev_support and last < prev_support - BREAK_ATR * a[d])
+            columns["kirdi_yukari"][d] = float(prev_resistance == prev_resistance and last > prev_resistance + BREAK_ATR * a)
+            columns["kirdi_asagi"][d] = float(prev_support == prev_support and last < prev_support - BREAK_ATR * a)
         previous = (support, resistance)
-    if recent is not None and first_day > MIN_CANDLES - 1:  # the extra day only gave yesterday's levels
+    if recent is not None and first is not None and first > MIN_CANDLES - 1:  # that day only gave yesterday's levels
         for c in SERIES:
-            columns[c][first_day] = np.nan
+            columns[c][first] = np.nan
     return pd.DataFrame(columns, index=df.index)
 
 
@@ -331,6 +349,7 @@ def levels_text(symbol: str, df: pd.DataFrame, day: date | None = None, k: int |
     return "\n".join(lines)
 
 
-__all__ = ["LABEL", "Level", "METHODS", "Pivot", "SERIES", "atr", "classic", "cluster", "count_breaks", "daily_series",
+__all__ = ["LABEL", "Level", "METHODS", "Pivot", "SERIES", "atr", "classic", "cluster", "cluster_days", "count_breaks",
+           "daily_series",
            "last_log_day", "levels", "position_line", "write_log",
            "levels_text", "nearest", "pivots", "round_numbers", "strength"]

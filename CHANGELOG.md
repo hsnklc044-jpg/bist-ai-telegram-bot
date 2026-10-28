@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.93.1 – 28.10.2026 (Özellik A §3.3: anlamlılık ölçümü)
+- `core/analytics/levels_study.py`: kapanış bir küme seviyesine 0,25 ATR'den yakınken sonraki 5 seans "dönüş", "kırılma" ya da "belirsiz" olarak sınıflanıyor. Aynı sayıda rastgele seviyeyle (52 hafta aralığı, sabit tohum) karşılaştırılıyor; fark 20 seanslık blok bootstrap ile %95 aralıkla veriliyor.
+- Tanımlayıcı ölçümdür; hipotez değildir, bütçeden harcamaz. `screens.yml` iş akışında çalışıyor.
+- Seviyeler gün gün `cluster_days` ile tek kaynaktan geliyor; `daily_series` de onu kullanıyor.
+- Doğrulama: `test_levels_study` (elle sınıflama, sayım tutarlılığı, geleceği görme yok).
+
 ## v0.93.0 – 28.10.2026 (Özellik A: /tara alanları, rapor satırı, seviye kaydı)
 - `/tara`'ya beş alan geldi: `destek_uzaklik_atr`, `direnc_uzaklik_atr`, `seviye_gucu`, `kirdi_yukari(direnc)`, `kirdi_asagi(destek)`.
   - Gün gün, geleceği görmeden hesaplanıyor; her gün `levels()`'ın o güne kesilmiş sonucuyla aynı (test).
