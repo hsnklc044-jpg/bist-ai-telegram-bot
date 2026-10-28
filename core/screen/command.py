@@ -109,10 +109,14 @@ def card_lines(card: dict | None, trials: tuple[int, int] | None = None) -> list
         if s.n < C.MIN_SAMPLES or s.mean is None:
             lines.append(f"  {h} seans: yetersiz örnek ({s.n})")
             continue
-        interval = f"%95 aralık [{pct(s.low)}, {pct(s.high)}]" if s.low is not None else "aralık için tarih az"
+        interval = f" %95 [{pct(s.low)}, {pct(s.high)}]" if s.low is not None else " (aralık için gün az)"
         without = f", en kârlı 5 hisse hariç {pct(s.without_top)}" if s.without_top is not None else ""
-        lines.append(f"  {h} seans: ortalama {pct(s.mean)}, medyan {pct(s.median)}, isabet %{s.hit * 100:.0f}, "
-                     f"örnek {s.n} (bağımsız {s.independent}), {interval}{without} → {s.label}")
+        gross = f" (maliyet hariç {pct(s.gross)})" if s.gross is not None else ""
+        day = f"gün ortalaması {pct(s.day_mean)}{interval} · " if s.day_mean is not None else ""
+        base = (f" · tüm hisseler {pct(s.base)}, fark {pct(s.day_mean - s.base)}"
+                if s.base is not None and s.day_mean is not None else "")
+        lines.append(f"  {h} seans: {day}olay ortalaması {pct(s.mean)}{gross}, medyan {pct(s.median)}, "
+                     f"isabet %{s.hit * 100:.0f}, örnek {s.n} (bağımsız {s.independent}){without}{base} → {s.label}")
     if trials:
         lines.append(f"  ⚠️ Veri gözetlemesi: bu oturumda {trials[0]}. deneme; bugüne kadar {trials[1]} farklı kriter "
                      "denendi. Ne kadar çok koşul denenirse iyi görünen bir karnenin şans olma ihtimali o kadar artar.")

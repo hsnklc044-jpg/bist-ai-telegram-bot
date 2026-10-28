@@ -79,7 +79,7 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.81.0 (/tara hazır şablonları; K-38). Öz-denetim sayacı: v0.80.0'dan beri 1.
+- **Son sürüm:** v0.82.0 (karne: gün ortalaması, 20 seanslık blok, tüm hisseler karşılaştırması; K-39). Öz-denetim sayacı: v0.80.0'dan beri 2.
 - **PC'de doğrulandı (28.10 yerel otomasyon, v0.68.0 → v0.75.0):** 699 test geçti (4 atlandı), ruff temiz, `/durum` hepsi SAĞLIKLI, SLO 6/7 hedefte. Dışarıdan izleme çalışıyor (bot sinyali 10:42). Bayram günü rapor görevi "holiday" ile başarılı sinyal gönderiyor; 29.10'da yanlış alarm beklenmiyor, 30.10'da `logs/monitoring.json`'dan doğrulanacak. v0.68.1–v0.75.0 PC'de doğrulandı.
 - **Açık (K-36):** günlük raporun ve canlı ölçümün evreni (`data/universe.csv`, 118 hisse) resmi BIST 100 ile aynı değil: 32 fazla, 14 eksik. Ölçüm sürerken değiştirilmeyecek. Karar ilk canlı ölçüm dönemi bitince (Kasım sonu) verilecek.
 - **/tara paketi (kullanıcı, 28.10):** Aşama 1 ✅ v0.76.0, Aşama 2 ✅ v0.77.0, Aşama 3 ✅ v0.78.0. Sırada Aşama 4 (kayıt/abonelik/ölçüm), 5 (şablonlar), 6 (kalite ve belgeler). **Açık:** BIST 30 listesi kaynağıyla eklenmeli (K-33).

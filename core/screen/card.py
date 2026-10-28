@@ -35,10 +35,11 @@ HISTORY_START = "2023-08-01"
 HORIZONS = (5, 20)
 MIN_SAMPLES = 30
 ROUND_TRIP_COST = 2 * (0.0010 + 0.0005)  # the research costs (RESEARCH_LOG), both ways
-BLOCK = 21
+BLOCK = 20  # sessions per bootstrap block (görev 28.10, Aşama C)
 SAMPLES = 2000
 TOP_EXCLUDED = 5
 CACHE_FILE = LOG_DIR / "screen_cards.json"
+CARD_FORMAT = 2  # bumped when the card's statistics change: older cached cards are recomputed
 CACHE_LIMIT = 500  # cards kept on disk, newest last (öz-denetim 5, Ö18)
 TRIALS_FILE = LOG_DIR / "screen_trials.csv"
 VERSION_FILES = (DATA_DIR / "corporate_actions.csv", DATA_DIR / "price_fix_approvals.csv",
@@ -55,6 +56,9 @@ class CardStats:
     low: float | None = None
     high: float | None = None
     without_top: float | None = None
+    gross: float | None = None  # event mean before costs
+    day_mean: float | None = None  # mean of the daily means (each entry date once); low/high are its interval
+    base: float | None = None  # the same day mean for every eligible stock-day ("tüm hisseler")
 
     @property
     def label(self) -> str:
@@ -89,23 +93,26 @@ def _independent(positions: np.ndarray, horizon: int) -> int:
     return count
 
 
-def _interval(dates: np.ndarray, values: np.ndarray, seed: int = 0) -> tuple[float, float] | tuple[None, None]:
-    """Circular block bootstrap over entry dates (all signals of a date stay together)."""
+def _day_means(dates: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """Mean excess of each entry date, in date order."""
 
     order = np.argsort(dates, kind="stable")
     dates, values = dates[order], values[order]
-    unique, start = np.unique(dates, return_index=True)
-    sums = np.add.reduceat(values, start)
-    counts = np.diff(np.append(start, len(values)))
-    n = len(unique)
+    _, start = np.unique(dates, return_index=True)
+    return np.add.reduceat(values, start) / np.diff(np.append(start, len(values)))
+
+
+def _interval(days: np.ndarray, seed: int = 0) -> tuple[float, float] | tuple[None, None]:
+    """95% circular block bootstrap of the mean of the daily means (blocks of BLOCK sessions)."""
+
+    n = len(days)
     if n < 2 * BLOCK:
         return None, None
     rng = np.random.default_rng(seed)
     blocks = int(np.ceil(n / BLOCK))
     starts = rng.integers(0, n, size=(SAMPLES, blocks))
     index = ((starts[:, :, None] + np.arange(BLOCK)) % n).reshape(SAMPLES, -1)[:, :n]
-    means = sums[index].sum(axis=1) / counts[index].sum(axis=1)
-    low, high = np.quantile(means, [0.025, 0.975])
+    low, high = np.quantile(days[index].mean(axis=1), [0.025, 0.975])
     return float(low), float(high)
 
 
@@ -117,28 +124,31 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
     frames = {s: df.loc[:SCREEN_END] for s, df in frames.items()}
     tables = _tables(query, frames, bench, eligible)
     rows: dict[int, list] = {h: [] for h in horizons}
+    base: dict[int, list] = {h: [] for h in horizons}
     independent = dict.fromkeys(horizons, 0)
     for symbol, table in tables.items():
         df = frames[symbol]
-        mask = query.mask(table).to_numpy() & (table.index >= pd.Timestamp(HISTORY_START))
+        universe = table.index >= pd.Timestamp(HISTORY_START)
         if query.liquidity > 0:  # the list's own floor, measured on that day (öz-denetim 5, Ö17)
-            mask &= (table["islem_tl"] >= query.liquidity).to_numpy()
+            universe &= (table["islem_tl"] >= query.liquidity).to_numpy()
         if eligible is not None:
             if symbol not in eligible.columns:
                 continue
-            mask &= eligible[symbol].reindex(table.index).ffill().fillna(False).astype(bool).to_numpy()
-        if not mask.any():
+            universe &= eligible[symbol].reindex(table.index).ffill().fillna(False).astype(bool).to_numpy()
+        if not universe.any():
             continue
+        mask = query.mask(table).to_numpy() & universe
         b = bench.reindex(df.index)
         entry, bench_entry = df["open"].shift(-1), b["open"].shift(-1)
         for h in horizons:
-            excess = ((df["close"].shift(-h) / entry - 1) - ROUND_TRIP_COST
-                      - (b["close"].shift(-h) / bench_entry - 1)).to_numpy()
-            ok = mask & ~np.isnan(excess)
-            positions = np.flatnonzero(ok)
+            gross = ((df["close"].shift(-h) / entry - 1) - (b["close"].shift(-h) / bench_entry - 1)).to_numpy()
+            excess = gross - ROUND_TRIP_COST
+            every = np.flatnonzero(universe & ~np.isnan(excess))  # "tüm hisseler": the same days without the query
+            base[h].append(pd.DataFrame({"date": df.index[every].to_numpy(), "excess": excess[every]}))
+            positions = np.flatnonzero(mask & ~np.isnan(excess))
             if len(positions):
                 rows[h].append(pd.DataFrame({"symbol": symbol, "date": df.index[positions].to_numpy(),
-                                             "excess": excess[positions]}))
+                                             "excess": excess[positions], "gross": gross[positions]}))
                 independent[h] += _independent(positions, h)
     out = {}
     for h in horizons:
@@ -147,11 +157,15 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
             continue
         events = pd.concat(rows[h], ignore_index=True)
         values = events["excess"].to_numpy()
-        low, high = _interval(events["date"].to_numpy(), values)
+        days = _day_means(events["date"].to_numpy(), values)
+        low, high = _interval(days)
         best = events.groupby("symbol")["excess"].sum().nlargest(TOP_EXCLUDED).index
         rest = events.loc[~events["symbol"].isin(best), "excess"]
+        everyone = pd.concat(base[h], ignore_index=True)
+        base_days = _day_means(everyone["date"].to_numpy(), everyone["excess"].to_numpy())
         out[h] = CardStats(len(values), independent[h], float(values.mean()), float(np.median(values)),
-                           float((values > 0).mean()), low, high, float(rest.mean()) if len(rest) else None)
+                           float((values > 0).mean()), low, high, float(rest.mean()) if len(rest) else None,
+                           float(events["gross"].mean()), float(days.mean()), float(base_days.mean()))
     return out
 
 
@@ -165,7 +179,7 @@ def data_version(files=VERSION_FILES) -> str:
 
     from core.backtest.run import SCREEN_END
 
-    digest = hashlib.sha256(str(SCREEN_END).encode())
+    digest = hashlib.sha256(f"{SCREEN_END}|{CARD_FORMAT}".encode())
     for path in files:
         path = Path(path)
         digest.update(path.read_bytes() if path.exists() else b"-")

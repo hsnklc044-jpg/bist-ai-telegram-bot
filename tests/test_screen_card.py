@@ -75,13 +75,28 @@ class StatisticsTest(unittest.TestCase):
         frames, bench = noisy_market()
         stats = card.history(parse("kapanis>0"), frames, bench, horizons=(20,))[20]
         self.assertGreater(stats.n, 1000)
-        self.assertLess(stats.low, stats.mean)
-        self.assertGreater(stats.high, stats.mean)
+        self.assertLess(stats.low, stats.day_mean)
+        self.assertGreater(stats.high, stats.day_mean)
+        self.assertAlmostEqual(stats.gross - stats.mean, card.ROUND_TRIP_COST)  # cost shown both ways
+        self.assertAlmostEqual(stats.base, stats.day_mean)  # "kapanis>0" holds everywhere: the baseline itself
+        self.assertEqual(card.BLOCK, 20)
         self.assertIsNotNone(stats.median)
         self.assertIsNotNone(stats.without_top)
         self.assertEqual(stats.label, "geçmişte XU100'den ayırt edilemiyor")
         again = card.history(parse("kapanis>0"), frames, bench, horizons=(20,))[20]
         self.assertEqual((again.low, again.high), (stats.low, stats.high))  # fixed seed
+
+    def test_day_average_weights_each_day_once(self):
+        stock_a, stock_b, bench = flat(), flat(), flat()
+        # day 100: both stocks signal (A +10%, B 0%); day 150: only A signals (+20%)
+        for df, day, exit_close in ((stock_a, 100, 110.0), (stock_b, 100, 100.0), (stock_a, 150, 120.0)):
+            df.loc[df.index[day], "close"] = 101.0
+            df.loc[df.index[day + 5], "close"] = exit_close
+        stats = card.history(parse("kapanis 100,5..105"), {"A.IS": stock_a, "B.IS": stock_b}, bench,
+                             horizons=(5,))[5]
+        cost = card.ROUND_TRIP_COST
+        self.assertAlmostEqual(stats.mean, (0.10 + 0.0 + 0.20) / 3 - cost)
+        self.assertAlmostEqual(stats.day_mean, ((0.10 + 0.0) / 2 + 0.20) / 2 - cost)
 
     def test_labels(self):
         self.assertEqual(card.CardStats(n=12).label, "yetersiz örnek")
@@ -97,13 +112,13 @@ class StatisticsTest(unittest.TestCase):
         from core.screen import command
 
         stats = {5: card.CardStats(n=500, independent=90, mean=0.004, median=0.002, hit=0.53, low=-0.002,
-                                   high=0.01, without_top=0.001),
+                                   high=0.01, without_top=0.001, gross=0.007, day_mean=0.003, base=-0.001),
                  20: card.CardStats(n=12)}
         text = "\n".join(command.card_lines(stats, trials=(3, 7)))
-        for part in ("ortalama +%0,4", "medyan +%0,2", "isabet %53", "örnek 500", "bağımsız 90",
-                     "%95 aralık [-%0,2, +%1,0]", "en kârlı 5 hisse hariç +%0,1", "ayırt edilemiyor",
-                     "20 seans: yetersiz örnek (12)", "bu oturumda 3. deneme", "bugüne kadar 7 farklı kriter",
-                     "maliyet dahil"):
+        for part in ("gün ortalaması +%0,3", "%95 [-%0,2, +%1,0]", "olay ortalaması +%0,4", "maliyet hariç +%0,7",
+                     "medyan +%0,2", "isabet %53", "örnek 500", "bağımsız 90", "en kârlı 5 hisse hariç +%0,1",
+                     "tüm hisseler -%0,1", "fark +%0,4", "ayırt edilemiyor", "20 seans: yetersiz örnek (12)",
+                     "bu oturumda 3. deneme", "bugüne kadar 7 farklı kriter", "maliyet dahil"):
             self.assertIn(part, text)
 
 
@@ -144,6 +159,9 @@ class CacheTest(unittest.TestCase):
             before = card.data_version([a])
             a.write_text("symbol,ex_date\nX.IS,2026-10-19\n", encoding="utf-8")
             self.assertNotEqual(card.data_version([a]), before)
+            now = card.data_version([a])
+            with mock.patch.object(card, "CARD_FORMAT", card.CARD_FORMAT + 1):
+                self.assertNotEqual(card.data_version([a]), now)  # a new card format recomputes
 
 
 class AuditFiveTest(unittest.TestCase):

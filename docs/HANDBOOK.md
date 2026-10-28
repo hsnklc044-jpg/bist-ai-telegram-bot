@@ -195,11 +195,12 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 - **Maliyet:** her yönde komisyon %0,10 + kayma %0,05, gidiş-dönüş %0,30 düşülür.
 - **Likidite tabanı:** listedeki taban karnede de uygulanır; o günün 20 günlük ortalama işlem hacmi tabanın altındaysa olay sayılmaz.
 - **Ölçü:** XU100'ün aynı seanslardaki getirisine göre fazla getiri.
-- **Satırda:**
-  - ortalama ve medyan, isabet (XU100'ü geçen olay oranı)
+- **Satırda** (K-39):
+  - **gün ortalaması** ve %95 aralığı: önce her giriş gününün olay ortalaması alınır (her gün bir kez sayılır), sonra 20 seanslık dairesel blok bootstrap yapılır; etiket bu aralığa bakar
+  - olay ortalaması (maliyet dahil, yanında maliyet hariç), medyan, isabet (XU100'ü geçen olay oranı)
   - örnek sayısı ve **bağımsız** olay sayısı (bir hissenin aynı tutma süresine düşen sinyalleri bir sayılır)
-  - %95 blok bootstrap aralığı (21 giriş tarihlik dairesel bloklar; aynı tarihin olayları birlikte taşınır)
   - en kârlı 5 hisse çıkarılınca ortalama
+  - **tüm hisseler**: aynı dönem, aynı evren ve aynı likidite tabanında koşulsuz gün ortalaması, ve koşulun ondan farkı
 - **Etiketler:**
   - örnek 30'dan azsa "yetersiz örnek"
   - aralık sıfırı içeriyorsa "geçmişte XU100'den ayırt edilemiyor"

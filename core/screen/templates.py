@@ -64,7 +64,9 @@ def _card_line(stats: dict | None) -> str:
             parts.append(f"{h} seans yetersiz örnek ({s.n})")
         else:
             interval = f" [{pct(s.low)}, {pct(s.high)}]" if s.low is not None else ""
-            parts.append(f"{h} seans {pct(s.mean)}{interval}, {s.n} örnek → {s.label}")
+            shown = s.day_mean if s.day_mean is not None else s.mean
+            base = f", tüm hisseler {pct(s.base)}" if s.base is not None else ""
+            parts.append(f"{h} seans {pct(shown)}{interval}{base}, {s.n} örnek → {s.label}")
     return "karne: " + "; ".join(parts)
 
 

@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.82.0 – 28.10.2026 (şablon görevi Aşama C: karne)
+- Güven aralığı gün ortalamasıyla hesaplanıyor: her gün bir kez sayılıyor, 20 seanslık bloklarla. Böylece aynı gün çok sinyal veren günler sonucu tek başına sürükleyemiyor.
+- Yeni "tüm hisseler" satırı: koşulsuz ortalama ve koşulun ondan farkı. Sonuç maliyet hariç ve dahil yan yana yazıyor.
+- Eski biçimde önbelleğe alınmış karneler kendiliğinden yenileniyor.
+
 ## v0.81.0 – 28.10.2026 (şablon görevi Aşama B: hazır şablonlar)
 - `/tara_sablonlar`: TradingView taramalarının teknik kısmından altı hazır şablon. `/tara duseni_kiran` gibi adıyla çalışıyor.
 - Her şablonda kaynağı, atlanan koşullar (temel veri yok) ve karnesi yazıyor. Karneler önceden hesaplandığı için liste beklemiyor.
