@@ -93,6 +93,14 @@ FIELDS = {
     "momentum_sira": Field("Göreli güç", "getiri_6a_1a_haric'in taranan evrendeki yüzdelik sırası", "0–100"),
     "beta": Field("Göreli güç", "son 252 seansta XU100'e göre beta", "×"),
     # price position
+    "destek_uzaklik_atr": Field("Seviye", "en yakın küme desteğine uzaklık, ATR (negatif: altta; K-49, teknik seviye)",
+                                "ATR"),
+    "direnc_uzaklik_atr": Field("Seviye", "en yakın küme direncine uzaklık, ATR (pozitif: üstte)", "ATR"),
+    "seviye_gucu": Field("Seviye", "en yakın küme seviyesinin güç puanı (dokunma, yaş, kırılma; sabit formül)", "0–100"),
+    "kirdi_yukari": Field("Seviye", "kirdi_yukari(direnc) ile yazılır: kapanış dünkü en yakın direnci 0,5 ATR'den "
+                                    "fazla geçti", "1/0"),
+    "kirdi_asagi": Field("Seviye", "kirdi_asagi(destek) ile yazılır: kapanış dünkü en yakın desteğin 0,5 ATR'den "
+                                   "fazla altına indi", "1/0"),
     "zirve_52h": Field("Fiyat konumu", "52 hafta (252 seans) en yükseği, bugün dahil", "TL"),
     "dip_52h": Field("Fiyat konumu", "52 hafta (252 seans) en düşüğü, bugün dahil", "TL"),
     "zirve_52h_oran": Field("Fiyat konumu", "kapanış / 52 hafta en yükseği × 100 (95 = zirvenin %95'i)", "%"),
@@ -111,6 +119,7 @@ ALIASES = {"hacim": "hacim_oran", "goreli_guc": "gg_20", "stokastik": "stok_k"}
 RANKED = {"gg_sira": "gg_60", "goreli_guc_yuzdelik": "rs_puan", "momentum_sira": "getiri_6a_1a_haric",
           "oynaklik_sira": "oynaklik_60g"}
 CROSS_SECTIONAL = set(RANKED)
+LEVEL_SERIES = ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu", "kirdi_yukari", "kirdi_asagi")
 SCORE_FRAME = {"ema20": "ema20", "ema50": "ema50", "rsi": "rsi", "macd": "macd", "hacim_oran": "volume_ratio"}
 SUPERTREND = (10, 3.0)
 
@@ -197,13 +206,15 @@ def _supertrend(df: pd.DataFrame, period: int, multiplier: float) -> pd.Series:
 
 
 class _Table:
-    def __init__(self, df: pd.DataFrame, bench_close: pd.Series):
+    def __init__(self, df: pd.DataFrame, bench_close: pd.Series, recent: int | None = None):
+        self.recent = recent
         self.df, self.close = df, df["close"]
         self.bench = bench_close.reindex(df.index)
         self.memo: dict[str, pd.Series] = {}
         self._score = None
         self._macd = None
         self._bb = None
+        self._levels = None
 
     def score(self):
         if self._score is None:
@@ -243,6 +254,12 @@ class _Table:
 
         name, n = split(column)
         df, close = self.df, self.close
+        if name in LEVEL_SERIES:  # support / resistance (core.analytics.levels, K-49), computed once per stock
+            if self._levels is None:
+                from core.analytics.levels import daily_series
+
+                self._levels = daily_series(df, self.recent)
+            return self._levels[name]
         if name == "egim":  # egim(<field>,<n>)
             inner, _, days = column[5:-1].rpartition(",")
             base = self.get(inner)
@@ -367,10 +384,11 @@ class _Table:
         raise KeyError(column)
 
 
-def table(df: pd.DataFrame, bench_close: pd.Series, columns) -> pd.DataFrame:
-    """The requested columns (field keys) for every candle of `df`."""
+def table(df: pd.DataFrame, bench_close: pd.Series, columns, recent: int | None = None) -> pd.DataFrame:
+    """The requested columns (field keys) for every candle of `df`; `recent`: the costly level fields
+    only for the last `recent` candles (the live list; the history card needs them all)."""
 
-    t = _Table(df, bench_close)
+    t = _Table(df, bench_close, recent)
     wanted = list(dict.fromkeys(columns))
     wanted += [RANKED[c] for c in list(wanted) if c in RANKED and RANKED[c] not in wanted]
     return pd.DataFrame({c: t.get(c) for c in wanted}, index=df.index)

@@ -178,6 +178,11 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Göreli güç | `goreli_guc_yuzdelik` | rs_puan'ın taranan evrendeki yüzdelik sırası (Minervini/IBD 'RS rating' yaklaşımı) | 0–100 |
 | Göreli güç | `momentum_sira` | getiri_6a_1a_haric'in taranan evrendeki yüzdelik sırası | 0–100 |
 | Göreli güç | `beta` | son 252 seansta XU100'e göre beta | × |
+| Seviye | `destek_uzaklik_atr` | en yakın küme desteğine uzaklık, ATR (negatif: altta; K-49, teknik seviye) | ATR |
+| Seviye | `direnc_uzaklik_atr` | en yakın küme direncine uzaklık, ATR (pozitif: üstte) | ATR |
+| Seviye | `seviye_gucu` | en yakın küme seviyesinin güç puanı (dokunma, yaş, kırılma; sabit formül) | 0–100 |
+| Seviye | `kirdi_yukari` | kirdi_yukari(direnc) ile yazılır: kapanış dünkü en yakın direnci 0,5 ATR'den fazla geçti | 1/0 |
+| Seviye | `kirdi_asagi` | kirdi_asagi(destek) ile yazılır: kapanış dünkü en yakın desteğin 0,5 ATR'den fazla altına indi | 1/0 |
 | Fiyat konumu | `zirve_52h` | 52 hafta (252 seans) en yükseği, bugün dahil | TL |
 | Fiyat konumu | `dip_52h` | 52 hafta (252 seans) en düşüğü, bugün dahil | TL |
 | Fiyat konumu | `zirve_52h_oran` | kapanış / 52 hafta en yükseği × 100 (95 = zirvenin %95'i) | % |
@@ -364,4 +369,13 @@ Yöntemler (her seviye yöntem adıyla gösterilir):
 - `/seviye THYAO` tam listeyi verir.
 
 Seviyelerin tarihsel olarak rastgele seviyelerden ayırt edilip edilemediği ayrıca ölçülür (RESEARCH_LOG). Ölçüm sonucu çıkana kadar seviyeler yalnız "teknik seviye" olarak gösterilir.
+
+**Günlük rapor:** her açık pozisyonun altında en yakın küme desteği bir bilgi satırı olarak yazılır. Mevcut ATR iz süren stop uyarısının yerine geçmez.
+
+**Kayıt ve /durum:** her akşam rapordan sonra o günün küme seviyeleri, sonuç bilinmeden `logs/levels_log.csv`'ye yazılır. Kayıt yalnız ekleme yapar; bir gün bir kez yazılır. `/durum`'daki "Seviye hesabı" satırı son tarihi gösterir.
+
+**/tara alanları:** `destek_uzaklik_atr`, `direnc_uzaklik_atr`, `seviye_gucu`, `kirdi_yukari(direnc)`, `kirdi_asagi(destek)`.
+- Yalnız küme seviyeleri kullanılır.
+- Her gün, o güne kadarki mumlarla hesaplanır. Karne bu alanları da geleceği görmeden hesaplar.
+- Kırılma, dünkü en yakın seviyenin bugün 0,5 ATR'den fazla geçilmesidir.
 

@@ -7,6 +7,7 @@ import pytest  # noqa: E402
 
 from core import signals_log  # noqa: E402
 from core.alerts import levels  # noqa: E402
+from core.analytics import levels as levels_module  # noqa: E402
 from core.backtest import expectations  # noqa: E402
 from core.fundamentals import store as fundamentals  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
@@ -56,6 +57,7 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(subscriptions, "STATE_FILE", tmp_path / "screen_subscriptions_state.json")
     monkeypatch.setattr(virtual, "VIRTUAL_FILE", tmp_path / "screen_virtual.csv")
     monkeypatch.setattr(fundamentals, "FUNDAMENTALS_FILE", tmp_path / "fundamentals.csv")
+    monkeypatch.setattr(levels_module, "_log_file", lambda: tmp_path / "levels_log.csv")
     # every signal_log write that does not name its file (e.g. /tara through the bot) stays private
     monkeypatch.setattr(signals_log, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")
     monkeypatch.setattr(screen.C, "CACHE_FILE", tmp_path / "screen_cards.json")

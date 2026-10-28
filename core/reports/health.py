@@ -146,6 +146,24 @@ def price_check(now: datetime, bars=adjusted_bars) -> Check:
     return Check("Fiyat verisi", WARN, f"XU100 son kapanış {_date(last)}; {behind} seans geride")
 
 
+def levels_check(path: Path | str | None = None, now: datetime | None = None) -> Check:
+    """Özellik A §2.5: the last day the evening report wrote the levels (logs/levels_log.csv)."""
+
+    from core.analytics.levels import last_log_day
+
+    now = now or now_istanbul()
+    try:
+        last = last_log_day(path)
+    except (OSError, ValueError, IndexError) as exc:
+        return Check("Seviye hesabı", UNKNOWN, f"okunamadı ({type(exc).__name__})")
+    if last is None:
+        return Check("Seviye hesabı", UNKNOWN, "henüz kayıt yok (her akşam rapordan sonra yazılır)")
+    due = due_session(now)
+    if last < due:
+        return Check("Seviye hesabı", WARN, f"son tarih {_date(last)}; {_date(due)} bekleniyordu")
+    return Check("Seviye hesabı", OK, f"son tarih {_date(last)}")
+
+
 def fundamentals_check() -> Check:
     """Fundamental data (K-48): a fact, not a fault, while the store is empty by design."""
 
@@ -607,6 +625,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         disk_check(),
         calendar_check(now),
         fundamentals_check(),
+        levels_check(now=now),
         maintenance_check(now),
         monitoring_check(now),
     ]

@@ -174,6 +174,14 @@ class Compare(Node):
 
 
 @dataclass(frozen=True)
+class LevelBreak(Compare):
+    """kirdi_yukari(direnc) / kirdi_asagi(destek): the 1/0 level-break field equals 1 (K-49)."""
+
+    def text(self, nested: bool = False) -> str:
+        return "kirdi_yukari(direnc)" if self.left.key == "kirdi_yukari" else "kirdi_asagi(destek)"
+
+
+@dataclass(frozen=True)
 class Range(Node):
     operand: Operand
     low: float
@@ -423,6 +431,18 @@ class _Parser:
             b = self.operand()
             self.take("rparen", "Kesişimi ')' ile kapatın.")
             return self.count(Cross(up, a, b))
+        if self.is_word("kirdi_yukari", "kirdi_asagi"):
+            name = self.tok.value
+            target = "direnc" if name == "kirdi_yukari" else "destek"
+            usage = f"{name}({target}) yazın."
+            self.i += 1
+            self.take("lparen", usage)
+            word = self.take("name", usage)
+            if word.value != target:
+                self.error(f"{name} yalnız {target} ile yazılır: {usage}", word.pos)
+            self.take("rparen", usage)
+            self.fields.add(name)
+            return self.count(LevelBreak(Operand(name), ">=", Operand(None, 1.0)))
         if self.is_word("son"):
             self.i += 1
             self.take("lparen", "Pencere için: son(5, kesti_yukari(ema20,ema50)).")
@@ -483,6 +503,8 @@ class _Parser:
             hint = f" '{close[0]}' mi demek istediniz?" if close else " Alanlar: /tara_alanlar"
             self.error(f"'{name}' bilinmeyen alan.{hint}", t.pos)
         name = F.ALIASES.get(name, name)
+        if name in ("kirdi_yukari", "kirdi_asagi"):
+            self.error(f"{name} bir koşuldur: {name}({'direnc' if name == 'kirdi_yukari' else 'destek'}) yazın.", t.pos)
         if name == "egim":
             return self.slope(t)
         if self.tok.kind == "lparen" and F.FIELDS[name].param is not None:

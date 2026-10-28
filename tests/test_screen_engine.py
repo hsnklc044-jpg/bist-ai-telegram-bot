@@ -131,8 +131,9 @@ class FieldTest(unittest.TestCase):
         pd.testing.assert_series_equal(t["atr_yuzde"], sf["volatility"] * 100, check_names=False)
 
     def test_every_field_computes(self):
-        names = [f"{name}>-1000000" for name in fields.FIELDS if name not in fields.CROSS_SECTIONAL | {"egim"}] + [
-            "ema(40)>0", "sma(10)>0", "rsi(7)>0", "roc(5)>-100", "atr(20)>0", "adx(20)>0", "egim(sma200,21)>-100"]
+        names = [f"{name}>-1000000" for name in fields.FIELDS if name not in fields.CROSS_SECTIONAL | {"egim", "kirdi_yukari", "kirdi_asagi"}] + [
+            "ema(40)>0", "sma(10)>0", "rsi(7)>0", "roc(5)>-100", "atr(20)>0", "adx(20)>0", "egim(sma200,21)>-100",
+            "kirdi_yukari(direnc)", "kirdi_asagi(destek)"]
         t = fields.table(self.df, self.bench["close"], sorted({f for n in names for f in parse(n).fields}))
         last = t.iloc[-1]
         for column in t.columns:

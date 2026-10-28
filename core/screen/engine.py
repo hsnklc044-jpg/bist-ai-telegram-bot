@@ -133,7 +133,7 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         elif df.index[-1] != latest:
             result.missing.append((symbol, f"son kapanış {df.index[-1]:%d.%m}"))
         else:
-            tables[symbol] = F.table(df, bench["close"], wanted)
+            tables[symbol] = F.table(df, bench["close"], wanted, recent=LOOKBACK + 2)
             checks[symbol] = E.frame(df, symbol, bench.index, actions).iloc[-1]
     result.scanned = len(tables)
     cut = E.atr_cut([c["atr_pct"] for c in checks.values()]) if query.elimination.move else None

@@ -391,6 +391,9 @@ def build_daily(
                 f"  {p.symbol.removesuffix('.IS')}: {tr(p.quantity)} adet × {tr(price, 2)} = {tr(value)} TL "
                 f"(maliyet {tr(p.average_cost, 2)}; {'+' if pnl >= 0 else '-'}{tr(abs(pnl))} TL / {pct(ret)})"
             )
+            support = guarded(lambda p=p: _support_line(p.symbol), "")
+            if support:
+                lines.append(support)
             alerts += evaluate_position(
                 account, p.symbol, p.quantity, p.opened, adjusted_bars(p.symbol),
                 account_value=total if total > 0 else None,
@@ -628,6 +631,25 @@ def _alarm_hits(day: date) -> tuple[list, str | None]:
     except Exception as exc:  # noqa: BLE001 - the report must still go out
         logger.exception("Price alarms could not be checked")
         return [], f"⚠️ Fiyat alarmları kontrol edilemedi: {exc}"
+
+
+def _support_line(symbol: str) -> str:
+    from core.analytics.levels import position_line
+
+    return position_line(adjusted_bars(symbol))
+
+
+def _record_levels(day: date) -> None:
+    """The day's cluster levels for today's BIST 100, after the report (Özellik A §3.4). Never fatal."""
+
+    from core.analytics.levels import write_log
+
+    try:
+        symbols = _bist100_members() or load_universe()
+        written = write_log(day, {s: adjusted_bars(s) for s in symbols})
+        logger.info("Levels recorded | %d rows", written)
+    except Exception:  # noqa: BLE001 - the report went out already
+        logger.exception("Levels could not be recorded")
 
 
 def _screen_subscriptions(day: date, send) -> None:
@@ -941,6 +963,7 @@ def _run_locked(args) -> DailyResult:
         _mark_alarms(hits)
         logger.info("Daily report sent to Telegram | %s", result.day)
         _screen_subscriptions(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id))
+        _record_levels(result.day)
     return result
 
 

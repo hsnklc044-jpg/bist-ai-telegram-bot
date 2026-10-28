@@ -87,16 +87,14 @@ def count_breaks(close: pd.Series, level: float, atr_series: pd.Series) -> int:
     """How many times the close went to the other side of `level` by more than BREAK_ATR x ATR
     (a new break needs a move back across first)."""
 
-    side, breaks = 0, 0
-    for c, a in zip(close.to_numpy(dtype=float), atr_series.reindex(close.index).to_numpy(dtype=float), strict=True):
-        if not a == a:
-            continue
-        now = 1 if c > level + BREAK_ATR * a else -1 if c < level - BREAK_ATR * a else 0
-        if now and now != side:
-            if side:
-                breaks += 1
-            side = now
-    return breaks
+    return _breaks(close.to_numpy(dtype=float), atr_series.reindex(close.index).to_numpy(dtype=float), level)
+
+
+def _breaks(close: np.ndarray, atr_values: np.ndarray, level: float) -> int:
+    with np.errstate(invalid="ignore"):
+        side = np.where(close > level + BREAK_ATR * atr_values, 1, np.where(close < level - BREAK_ATR * atr_values, -1, 0))
+    side = side[side != 0]
+    return int(np.count_nonzero(side[1:] != side[:-1])) if len(side) > 1 else 0
 
 
 def classic(high: float, low: float, close: float) -> dict[str, float]:
@@ -161,6 +159,145 @@ def levels(df: pd.DataFrame, asof=None) -> list[Level]:
     return sorted(out, key=lambda lv: abs(lv.dist_atr))
 
 
+SERIES = ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu", "kirdi_yukari", "kirdi_asagi")
+
+
+def daily_series(df: pd.DataFrame, recent: int | None = None) -> pd.DataFrame:
+    """The /tara fields on every day, each equal to levels() on the candles cut at that day:
+    the nearest cluster support and resistance (ATR distance), the nearest cluster's strength,
+    and kirdi_yukari / kirdi_asagi (1: the close passed yesterday's nearest resistance / support
+    by more than BREAK_ATR x today's ATR; 0: not; NaN: no level known). `recent`: only the last
+    `recent` days are computed (the live list looks back ≤ 62 sessions), the rest stay NaN."""
+
+    n, out = len(df), pd.DataFrame(np.nan, index=df.index, columns=list(SERIES))
+    if n < MIN_CANDLES:
+        return out
+    high, low, close = (df[c].to_numpy(dtype=float) for c in ("high", "low", "close"))
+    a = atr(df).to_numpy(dtype=float)
+    move = np.abs(close / np.r_[np.nan, close[:-1]] - 1)
+    hs, ls = pd.Series(high), pd.Series(low)
+    left_max, left_min = hs.rolling(N).max().shift(1).to_numpy(), ls.rolling(N).min().shift(1).to_numpy()
+    right_max = hs[::-1].rolling(N).max().shift(1)[::-1].to_numpy()
+    right_min = ls[::-1].rolling(N).min().shift(1)[::-1].to_numpy()
+    ok = ~(move > LIMIT_MOVE)
+    with np.errstate(invalid="ignore"):
+        top = ok & (high > left_max) & (high >= right_max)
+        bottom = ok & (low < left_min) & (low <= right_min)
+    points = sorted([(t, high[t]) for t in np.flatnonzero(top)] + [(t, low[t]) for t in np.flatnonzero(bottom)])
+    times = np.array([p[0] for p in points], dtype=int)
+    prices = np.array([p[1] for p in points], dtype=float)
+    columns = {c: np.full(n, np.nan) for c in SERIES}
+    previous = (np.nan, np.nan)  # yesterday's nearest support and resistance prices
+    first_day = MIN_CANDLES - 1 if recent is None else max(MIN_CANDLES - 1, n - recent - 1)
+    for d in range(first_day, n):
+        width, last = CLUSTER_ATR * a[d], close[d]
+        if not width == width or width <= 0:
+            previous = (np.nan, np.nan)
+            continue
+        start = max(0, d - LOOKBACK + 1)
+        pick = (times >= start + N) & (times <= d - N)
+        t_now, p_now = times[pick], prices[pick]
+        support = resistance = np.nan
+        if len(p_now):
+            order = np.lexsort((t_now, p_now))
+            t_now, p_now = t_now[order], p_now[order]
+            group = np.r_[0, np.cumsum(np.diff(p_now) >= width)]
+            best, best_dist = None, np.inf
+            for g in range(group[-1] + 1):
+                members = group == g
+                price = float(np.mean(p_now[members]))
+                if price == last:
+                    continue
+                if price < last and not price <= support:
+                    support = price
+                if price > last and not price >= resistance:
+                    resistance = price
+                dist = abs(price - last) / a[d]
+                if dist < best_dist:
+                    best, best_dist = (price, t_now[members]), dist
+            if best is not None:
+                price, ts = best
+                first, latest = int(ts.min()), int(ts.max())
+                breaks = _breaks(close[first:d + 1], a[first:d + 1], price)
+                columns["seviye_gucu"][d] = strength(int(len(ts)), d - latest, breaks)
+        columns["destek_uzaklik_atr"][d] = (support - last) / a[d]
+        columns["direnc_uzaklik_atr"][d] = (resistance - last) / a[d]
+        if len(p_now):
+            prev_support, prev_resistance = previous
+            columns["kirdi_yukari"][d] = float(prev_resistance == prev_resistance and last > prev_resistance + BREAK_ATR * a[d])
+            columns["kirdi_asagi"][d] = float(prev_support == prev_support and last < prev_support - BREAK_ATR * a[d])
+        previous = (support, resistance)
+    if recent is not None and first_day > MIN_CANDLES - 1:  # the extra day only gave yesterday's levels
+        for c in SERIES:
+            columns[c][first_day] = np.nan
+    return pd.DataFrame(columns, index=df.index)
+
+
+LOG_COLUMNS = ("day", "symbol", "method", "price", "kind", "strength", "touches", "breaks", "logged_at")
+
+
+def _log_file():
+    from core.config.paths import LOG_DIR
+
+    return LOG_DIR / "levels_log.csv"
+
+
+def last_log_day(path=None) -> date | None:
+    from pathlib import Path
+
+    path = Path(path or _log_file())
+    if not path.exists():
+        return None
+    lines = path.read_text(encoding="utf-8").strip().splitlines()
+    return date.fromisoformat(lines[-1].split(",", 1)[0]) if len(lines) > 1 else None
+
+
+def write_log(day: date, frames: dict[str, pd.DataFrame], path=None, now=None) -> int:
+    """The cluster levels of `day` for every stock, written after the report and before the
+    outcome is known (Özellik A §3.4). Append-only; a day is written once."""
+
+    import csv
+    from pathlib import Path
+
+    from core.infrastructure.csvfiles import open_append
+    from core.market.calendar import now_istanbul
+
+    path = Path(path or _log_file())
+    last = last_log_day(path)
+    if last is not None and last >= day:
+        return 0
+    stamp = (now or now_istanbul()).isoformat(timespec="seconds")
+    rows = []
+    for symbol, df in sorted(frames.items()):
+        cut = df.loc[:pd.Timestamp(day)]
+        if cut.empty or cut.index[-1].date() != day:
+            continue
+        rows += [(day.isoformat(), symbol.removesuffix(".IS"), lv.method, f"{lv.price:.4f}", lv.kind, lv.strength,
+                  lv.touches, lv.breaks, stamp) for lv in levels(cut) if lv.method == "küme"]
+    if rows:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fh, new_file = open_append(path)
+        with fh:
+            writer = csv.writer(fh, lineterminator="\n")
+            if new_file:
+                writer.writerow(LOG_COLUMNS)
+            writer.writerows(rows)
+    return len(rows)
+
+
+def position_line(df: pd.DataFrame) -> str:
+    """The daily report's information line under a position: the nearest cluster support."""
+
+    from core.reports.daily import tr
+
+    supports = [lv for lv in levels(df) if lv.method == "küme" and lv.kind == "destek"]
+    if not supports:
+        return ""
+    lv = max(supports, key=lambda lv: lv.price)
+    distance = f"{lv.dist_atr:+.1f}".replace(".", ",")
+    return f"     en yakın destek {tr(lv.price, 2)} (küme, güç {lv.strength}, {distance} ATR) – {LABEL}"
+
+
 def nearest(found: list[Level], k: int = 3) -> dict[str, list[Level]]:
     supports = sorted((lv for lv in found if lv.kind == "destek"), key=lambda lv: -lv.price)[:k]
     resistances = sorted((lv for lv in found if lv.kind == "direnç"), key=lambda lv: lv.price)[:k]
@@ -194,5 +331,6 @@ def levels_text(symbol: str, df: pd.DataFrame, day: date | None = None, k: int |
     return "\n".join(lines)
 
 
-__all__ = ["LABEL", "Level", "METHODS", "Pivot", "atr", "classic", "cluster", "count_breaks", "levels",
+__all__ = ["LABEL", "Level", "METHODS", "Pivot", "SERIES", "atr", "classic", "cluster", "count_breaks", "daily_series",
+           "last_log_day", "levels", "position_line", "write_log",
            "levels_text", "nearest", "pivots", "round_numbers", "strength"]

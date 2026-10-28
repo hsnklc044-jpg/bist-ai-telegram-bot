@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.93.0 – 28.10.2026 (Özellik A: /tara alanları, rapor satırı, seviye kaydı)
+- `/tara`'ya beş alan geldi: `destek_uzaklik_atr`, `direnc_uzaklik_atr`, `seviye_gucu`, `kirdi_yukari(direnc)`, `kirdi_asagi(destek)`.
+  - Gün gün, geleceği görmeden hesaplanıyor; her gün `levels()`'ın o güne kesilmiş sonucuyla aynı (test).
+  - Canlı listede yalnız son 64 gün hesaplanıyor, karne hepsini hesaplıyor.
+- Günlük raporda her pozisyonun altında en yakın küme desteği bilgi satırı olarak yazıyor. ATR iz süren stop uyarısı aynı.
+- Her akşam rapordan sonra o günün küme seviyeleri `logs/levels_log.csv`'ye yazılıyor (yalnız ekleme, günde bir kez). `/durum`'a "Seviye hesabı: son tarih" satırı eklendi.
+- Doğrulama: `test_levels_fields`, `test_levels_report`.
+
 ## v0.92.0 – 28.10.2026 (Özellik A: destek/direnç seviyeleri, hesap ve görünüm)
 - `core/analytics/levels.py` eklendi (K-49 tasarımıyla birebir): salınım tepe/dip (N=5, kesinleşme 5 seans sonra, tavan/taban günleri hariç), 0,5 ATR kümeleme, kırılma sayısı, sabit güç puanı, klasik günlük ve haftalık pivotlar, 52 hafta, psikolojik seviye, sma50/200.
 - `/seviye THYAO` tam listeyi veriyor. `/analyze` en yakın 3 destek ve 3 direnci ekliyor; görünüm ve ATR satırları değişmedi.

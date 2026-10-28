@@ -119,7 +119,7 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.92.0 (destek/direnç: levels.py, /seviye, /analyze). Öz-denetim sayacı: v0.91.2'den beri 1.
+- **Son sürüm:** v0.93.0 (seviye alanları, rapor satırı, seviye kaydı). Öz-denetim sayacı: v0.91.2'den beri 2.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod sırada.
   - B senaryolar: A bitince.

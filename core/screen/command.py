@@ -251,7 +251,7 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
         lines.append(f"⚠️ /tara bu hisseyi taranmadı sayar: son kapanış {df.index[-1]:%d.%m} "
                      f"(son seans {latest:%d.%m}); değerler {df.index[-1]:%d.%m} kapanışından.")
     wanted = engine.columns(query)
-    table = F.table(df, bench["close"], wanted)
+    table = F.table(df, bench["close"], wanted, recent=engine.LOOKBACK + 2)
     ranked = sorted(query.fields & F.CROSS_SECTIONAL)
     if ranked:  # the same percentile the list uses, among the scanned stocks
         others = {s: F.table(f, bench["close"], ranked) for s, f in frames.items()
