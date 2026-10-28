@@ -1,0 +1,7 @@
+001	666	530	sha256=51b12f552256612246ebc604aa858cfd3e456043c7824acab6736dd46faa7b64	https://www.kap.org.tr/robots.txt
+002	404	12794	sha256=129a6f554795e6364275b3eb2d37121cffa836c494d1d00826e50add12c62cbd	https://www.kap.org.tr/tr/kullanim-kosullari
+003	404	12780	sha256=fc412803d4685efaeea4c5043b7c3ebdebd3f1bab900360997e1f6c57f0a9d6b	https://www.kap.org.tr/tr/yasal-uyari
+004	200	301	sha256=c110d7b23c9f55a336254a98efac42d0e040cb16dfe3a15fabf1d60a5acc6891	https://www.isyatirim.com.tr/robots.txt
+005	404	692	sha256=1cd365baf559093f12cece09b0821d293d021e9b83a367d3492eb55a272f0c8c	https://www.isyatirim.com.tr/tr-tr/Sayfalar/yasal-uyari.aspx
+006	404	699	sha256=09e2bf437a08a7191c439e303ff7085c8b6daefe2a2294b113a3cc4037784e9d	https://www.isyatirim.com.tr/tr-tr/Sayfalar/kullanim-kosullari.aspx
+007	200	159528	sha256=668f270c5aabb0d73ee24b9df608c1202bd344ffc590b773a30c02ea244155c2	https://www.kap.org.tr/tr/
