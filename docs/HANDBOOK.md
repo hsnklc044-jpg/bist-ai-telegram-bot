@@ -240,3 +240,48 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 | `goreli_guc` | `gg_sira>80` | /tara görev örneği (Aşama 5) | — |
 
 Her şablonun yanında ait olduğu araştırma türü yazar: RESEARCH_LOG'daki "Reddedilen fikir türleri" tablosu (27.10.2026'da test edildi, XU100'ü geçmedi). Teknik sinyal: `basit_teknik`, `basit_teknik_3g`, `bebek_teknik`, `asiri_satim`. Tek hissede trend/kırılım: `duseni_kiran`, `tek_tus_trend`, `teknik_temel_ema`, `trend_takibi`, `kirilim`, `sikisma`. Kesitsel momentum: `goreli_guc`.
+
+**CHARTER §9 uyumu (/tara).**
+- `/tara` bir filtredir.
+- Emir vermez; aracı kuruma, deftere ve kişisel `/paper` emirlerine dokunmaz. Sanal köprü kendi ölçüm kitabını her seferinde fiyatlardan yeniden hesaplar ve hiçbir yere emir yazmaz (K-43).
+- Token ya da şifre istemez, okumaz.
+- Hiçbir metinde al/sat/öneri/fırsat/hedef fiyat/en iyi/şampiyon dili yoktur. Liste, karne, abonelik ve sanal köprü mesajları "Filtre sonucudur, yatırım önerisi değildir." satırıyla biter.
+- Karneler holdout'u (02.11.2026 sonrası) okumaz. Şablonlar sonuçlara bakılarak ayarlanmaz ve araştırma programına aday kural değildir.
+- `test_screen_quality` bunları her sürümde denetler: modüllerde emir, defter ve token yok; metinlerde öneri dili yok; son satır sabit.
+
+**BotFather listesi** (bot her açılışta bu listeyi Telegram'a kendisi yükler, `set_my_commands`. Elle girmek gerekirse BotFather → /setcommands → bota bu blok yapıştırılır. Test, listenin bottaki menüyle aynı olduğunu denetler.)
+
+```
+start - komutlar ve düğmeler
+durum - sistem sağlığı ve hedefler
+summary - portföy ve piyasa özeti
+portfolio - pozisyonlar ve kâr/zarar
+alerts - açık risk uyarıları
+performans - canlı ölçüm ve sanal hesap
+rapor_tekrar - kayıtlı günlük raporu yeniden gönder
+report - günlük raporu şimdi üret
+yil - yıllık döküm: satışlar, temettü, komisyon
+stres - pozisyonlar en kötü geçmiş düşüşlerde ne kaybederdi
+alarm - kapanış alarmı: /alarm THYAO altında 240
+tara - göstergeyle filtre: /tara rsi<30 ema20>ema50
+tara_kaydet - taramayı kaydet: /tara_kaydet AD koşullar
+tara_liste - kayıtlı taramalar
+tara_sil - kayıtlı taramayı sil: /tara_sil AD
+tara_abone - her akşam yalnız değişiklikleri gönder: /tara_abone AD
+tara_abonelikler - tarama abonelikleri
+tara_abone_iptal - aboneliği bitir: /tara_abone_iptal AD
+tara_sanal - taramayı ölçüm amaçlı sanal kitapta işlet (varsayılan kapalı)
+tara_alanlar - tarama alanları ve birimleri
+tara_aciklama - bir hissede koşulların değeri: /tara_aciklama THYAO rsi<30
+tara_devam - son taramanın sonraki 15 satırı
+tara_sablonlar - hazır tarama şablonları (TradingView taramalarından)
+top - teknik görünümü en güçlü hisseler
+analyze - tek hisse: /analyze THYAO
+watchlist - takip listesi
+watchadd - listeye ekle: /watchadd EREGL
+watchremove - listeden çıkar
+watchscan - takip listesini tara
+trade - gerçekleşmiş işlemi deftere yaz
+paper - sanal emir
+```
+

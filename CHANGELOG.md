@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.86.1 – 28.10.2026 (/tara Aşama 6: kalite ve belgeler)
+- `test_screen_quality` eklendi. Denetledikleri:
+  - Telegram menü sınırları ve tüm `/tara` komutlarının menüde olması;
+  - HANDBOOK'taki BotFather listesinin menüyle aynı olması;
+  - CHARTER §9: `core/screen`'de emir, defter ve token yok; metinlerde öneri dili yok; son satır sabit.
+- HANDBOOK'a "CHARTER §9 uyumu (/tara)" bölümü ve BotFather listesi yazıldı.
+- /tara görev paketi Aşama 1–6 tamamlandı. Kalan iş: K-36 evren kararı (Kasım sonu) ve BIST30 listesi (kaynak gerekiyor).
+
 ## v0.86.0 – 28.10.2026 (/tara Aşama 5: görev şablonları ve reddedilmiş türler)
 - `/tara_sablonlar`'a görevin beş örnek şablonu eklendi: `trend_takibi`, `asiri_satim`, `kirilim`, `sikisma`, `goreli_guc`.
 - Her şablon ait olduğu reddedilmiş araştırma türünü gösteriyor: "bu tür 27.10.2026'da test edildi, XU100'ü geçmedi" (K-44).
