@@ -30,7 +30,14 @@ EXPECTED = {
     "kirilim": "kapanis>yuksek_20g hacim_oran>1.5",
     "sikisma": "bb_genislik_yuzdelik<10",
     "goreli_guc": "gg_sira>80",
+    # profesyonel filtreler Aşama 2, verildiği gibi (dil çarpma yazmaz: "%75'i" = zirve_52h_oran>=75)
+    "minervini": "kapanis>sma150 kapanis>sma200 sma150>sma200 egim(sma200,21)>0 sma50>sma150 kapanis>sma50 "
+                 "dip_52h_oran>=130 zirve_52h_oran>=75 goreli_guc_yuzdelik>=70",
+    "zirveye_yakin": "zirve_52h_oran>=95",
+    "goreli_guc_ust": "momentum_sira>=80",
+    "dusuk_oynaklik": "oynaklik_sira<=20",
 }
+PRO = ("minervini", "zirveye_yakin", "goreli_guc_ust", "dusuk_oynaklik")
 TV = ("basit_teknik", "basit_teknik_3g", "bebek_teknik", "duseni_kiran", "tek_tus_trend", "teknik_temel_ema")
 
 
@@ -40,7 +47,10 @@ class DefinitionTest(unittest.TestCase):
         for name, t in templates.TEMPLATES.items():
             with self.subTest(name):
                 parse(t.criteria)  # every template is valid /tara
-                self.assertIn("kullanıcının TradingView taraması" if name in TV else "görev örneği", t.source)
+                if name in PRO:
+                    self.assertRegex(t.source, r"\(\d{4}\)")  # author and year
+                else:
+                    self.assertIn("kullanıcının TradingView taraması" if name in TV else "görev örneği", t.source)
 
     def test_each_names_its_rejected_research_type(self):
         text = (Path(__file__).resolve().parents[1] / "docs" / "RESEARCH_LOG.md").read_text(encoding="utf-8")
@@ -49,6 +59,8 @@ class DefinitionTest(unittest.TestCase):
             with self.subTest(name):
                 self.assertIn(f"| {t.rejected} |", table)
         self.assertEqual(templates.TEMPLATES["goreli_guc"].rejected, "Kesitsel momentum")
+        self.assertEqual(templates.TEMPLATES["dusuk_oynaklik"].rejected, "Düşük oynaklık (H1)")
+        self.assertIn("2025 +%88, 2026 −%73", templates.TEMPLATES["goreli_guc_ust"].source)
         listed = templates.list_text(cards={})
         self.assertIn("27.10.2026'da test edildi, XU100'ü geçmedi", listed)
         self.assertIn("RESEARCH_LOG", listed)

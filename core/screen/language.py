@@ -25,7 +25,7 @@ import pandas as pd
 from core.screen import fields as F
 
 MAX_LENGTH = 400
-MA_PERIODS = (5, 10, 20, 40, 50, 100, 200)  # the periods the user's screens use (görev 28.10, Aşama A)
+MA_PERIODS = (5, 10, 20, 40, 50, 100, 150, 200)  # the periods the user's screens use (görev 28.10, Aşama A)
 MAX_CONDITIONS = 15  # the user's own "Düşeni Kıran" screen has 14 price conditions (DECISIONS K-34)
 PARAM_RANGE = (2, 250)
 WINDOW_RANGE = (1, 60)
@@ -483,6 +483,8 @@ class _Parser:
             hint = f" '{close[0]}' mi demek istediniz?" if close else " Alanlar: /tara_alanlar"
             self.error(f"'{name}' bilinmeyen alan.{hint}", t.pos)
         name = F.ALIASES.get(name, name)
+        if name == "egim":
+            return self.slope(t)
         if self.tok.kind == "lparen" and F.FIELDS[name].param is not None:
             self.i += 1
             number = self.take("number", f"{name}(...) içinde bir sayı bekleniyordu: {name}(14).")
@@ -496,6 +498,23 @@ class _Parser:
             self.error(f"{name}({int(param)}) desteklenmiyor; geçerli değerler: "
                        f"{', '.join(str(p) for p in MA_PERIODS)}.", t.pos)
         key = F.key(name, None if param is None else int(param))
+        self.fields.add(key)
+        return Operand(key)
+
+    def slope(self, t) -> Operand:
+        """egim(<field>, <n>): the field's change over n sessions, % (K-47)."""
+
+        usage = "egim(alan, seans) yazın, ör. egim(sma200,21)."
+        self.take("lparen", usage)
+        inner = self.operand()
+        if inner.key is None:
+            self.error("egim(...) içinde bir alan olmalı, sayı değil. " + usage, t.pos)
+        self.take("comma", usage)
+        number = self.take("number", usage)
+        if number.value != int(number.value) or not PARAM_RANGE[0] <= number.value <= PARAM_RANGE[1]:
+            self.error(f"Seans sayısı {PARAM_RANGE[0]} ile {PARAM_RANGE[1]} arasında bir tam sayı olmalı.", number.pos)
+        self.take("rparen", usage)
+        key = f"egim({inner.key},{int(number.value)})"
         self.fields.add(key)
         return Operand(key)
 

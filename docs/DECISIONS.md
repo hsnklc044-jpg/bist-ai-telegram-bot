@@ -4,6 +4,16 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-47. Teknik profesyonel şablonlar ve alanları (28.10.2026, profesyonel filtreler Aşama 2).** Dört şablon görevde verildiği gibi kodlandı ve sonuçlara bakılarak değiştirilmez: `minervini`, `zirveye_yakin`, `goreli_guc_ust`, `dusuk_oynaklik`. Belirsiz noktalarda seçilen yol:
+- **52 hafta zirve/dip:** 252 seans, bugün dahil, gün içi en yüksek/en düşük. Eski `zirve_uzaklik` alanı kapanışla hesaplanıyor ve aynı kaldı.
+- **Oranlar:** dil çarpma yazmadığı için "zirvenin %75'i" ve "dibin %30 üstü" `zirve_52h_oran` ve `dip_52h_oran` alanlarıyla yazıldı (kapanış / 52 hafta değeri × 100).
+- **`egim(alan,n)`:** alanın n seanstaki yüzde değişimi. "sma200 en az 21 seanstır yükseliyor" görevdeki gibi `egim(sma200,21)>0` olarak yazıldı; 21 seanslık net artış demektir, her gün artış değil.
+- **`goreli_guc_yuzdelik`:** `rs_puan`'ın evren içi sırası. `rs_puan` = 0,4×getiri(63) + 0,2×getiri(126) + 0,2×getiri(189) + 0,2×getiri(252), IBD/O'Neil "RS rating" yaklaşımı. IBD'nin tam formülü yayımlanmadığı için bu bir yaklaşımdır ve şablonun kaynağında yazılıdır.
+- **6-1 ve 12-1 momentum:** kapanış[t−21] / kapanış[t−126 ya da t−252] − 1.
+- **Üst ve alt dilimler:** "en üst %20" = sıra ≥ 80, "en düşük %20" = sıra ≤ 20; sıralar 0–100 yüzdeliktir.
+- **Ortak sıra hesabı:** `fields.rank_last` (liste, `/tara_aciklama`) ve `fields.rank_panel` (karne, her gün o günkü üyeler). Eskiden yalnız `gg_sira` için yazılmış üç ayrı kod tek yere toplandı.
+- **Etiketler:** her şablonun kaynağında yazar ve yıl, yanında RESEARCH_LOG'daki reddedilmiş türü yazar. Momentum ve 52 hafta zirvesi "Kesitsel momentum", düşük oynaklık "Düşük oynaklık (H1)", Minervini "Tek hissede trend" türündedir. Hiçbiri araştırma programına aday değildir.
+
 **K-46. "Rapor ne zaman gitmeliydi" tek fonksiyon; yavaş makine CI işi (28.10.2026, D11 ve D12).**
 - `core.market.calendar.report_due_day(now)` bir seans gününü 18:30 + 1:15 = 19:45'ten itibaren "beklenen" sayar. Yarım günler de dahildir: mum 13:15'te kesinleşir ama rapor yine 18:30'da çalışır. Tatil ve hafta sonu hiçbir şey beklemez.
 - Bu fonksiyonu kullananlar: `/durum` rapor ve fiyat kontrolleri, canlı ölçüm denetimi ("kaydı olmayan seans"), SLO penceresi.

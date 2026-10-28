@@ -74,14 +74,8 @@ class CardStats:
 def _tables(query: Query, frames: dict, bench: pd.DataFrame, eligible: pd.DataFrame | None) -> dict:
     wanted = sorted(query.fields | {"islem_tl"})
     tables = {s: F.table(df, bench["close"], wanted) for s, df in frames.items() if not df.empty}
-    if "gg_sira" in query.fields and tables:
-        panel = pd.DataFrame({s: t["gg_60"] for s, t in tables.items()})
-        if eligible is not None:
-            ok = eligible.reindex(index=panel.index, columns=panel.columns).ffill().fillna(False).astype(bool)
-            panel = panel.where(ok)
-        ranks = panel.rank(axis=1, pct=True) * 100
-        for s, t in tables.items():
-            t["gg_sira"] = ranks[s].reindex(t.index)
+    if tables:
+        F.rank_panel(tables, sorted(query.fields & F.CROSS_SECTIONAL), eligible)
     return tables
 
 

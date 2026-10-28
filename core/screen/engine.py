@@ -138,11 +138,8 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
     result.scanned = len(tables)
     cut = E.atr_cut([c["atr_pct"] for c in checks.values()]) if query.elimination.move else None
 
-    if "gg_sira" in query.fields and tables:
-        last = pd.Series({s: t["gg_60"].iloc[-1] for s, t in tables.items()})
-        ranks = last.rank(pct=True) * 100
-        for s, t in tables.items():
-            t.loc[t.index[-1], "gg_sira"] = ranks.get(s)
+    if tables:
+        F.rank_last(tables, sorted(query.fields & F.CROSS_SECTIONAL))
 
     for symbol, t in tables.items():
         row = t.iloc[-1]

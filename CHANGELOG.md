@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.89.0 – 28.10.2026 (profesyonel filtreler Aşama 2: teknik şablonlar)
+- Yeni şablonlar, her biri kaynağı ve reddedilmiş türüyle:
+  - `minervini`: Minervini 2013, trend şablonu;
+  - `zirveye_yakin`: George & Hwang 2004;
+  - `goreli_guc_ust`: Jegadeesh & Titman 1993, 6-1 momentum;
+  - `dusuk_oynaklik`: Ang ve diğ. 2006, Blitz & van Vliet 2007.
+- Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`, `egim(alan,n)`, `getiri_6a_1a_haric`, `getiri_12a_1a_haric`, `oynaklik_60g`, `rs_puan` ve evren içi sıralar `goreli_guc_yuzdelik`, `momentum_sira`, `oynaklik_sira`.
+- Evren içi sıra hesabı tek yerde. Liste, karne ve açıklama aynı yöntemi kullanıyor.
+- HANDBOOK'a "Profesyonel filtreler ve elemeler" bölümü eklendi: kaynak, ne seçtiği, BIST'teki durum, sınırlar (K-47).
+- Doğrulama: `test_screen_pro_fields`. Her alan elle hesapla ya da ta ile birebir eşit; `egim` dili; sıralar listede ve karnede her gün.
+
 ## v0.88.2 – 28.10.2026 (D11 yarım gün yanlış alarmı, D12 karne sırası)
 - **D11:** yarım günde /durum 14:30'dan itibaren "rapor gitmedi", "fiyat 1 seans geride" ve "kaydı olmayan seans" diyordu. Artık hepsi tek fonksiyonla raporun saatini esas alıyor: 18:30 + 1:15, yarım gün dahil, tatil hariç.
 - **D12:** /tara'da yavaş makinede karne listeden önce gidip "Önce /tara ile bir tarama yap." diyebiliyordu. Karnenin mesajı artık her zaman listeden sonra gidiyor.

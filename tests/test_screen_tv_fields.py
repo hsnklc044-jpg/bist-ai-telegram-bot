@@ -67,7 +67,7 @@ class PeriodTest(unittest.TestCase):
         for text in ("ema7>ema20", "ema(30)>0", "sma(15)<kapanis"):
             with self.subTest(text=text), self.assertRaises(ScreenError) as caught:
                 parse(text)
-            self.assertIn("geçerli değerler: 5, 10, 20, 40, 50, 100, 200", str(caught.exception))
+            self.assertIn("geçerli değerler: 5, 10, 20, 40, 50, 100, 150, 200", str(caught.exception))
 
 
 class LengthTest(unittest.TestCase):

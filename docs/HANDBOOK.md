@@ -127,6 +127,7 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Trend | `ema20` | 20 günlük üssel ortalama (canlı analizle aynı) | TL |
 | Trend | `ema50` | 50 günlük üssel ortalama (canlı analizle aynı) | TL |
 | Trend | `ema200` | 200 günlük üssel ortalama | TL |
+| Trend | `egim(alan,n)` | egim(alan, n): alanın n seanstaki yüzde değişimi; egim(sma200,21)>0 = 200 günlük ortalama 21 seanstır yükseliyor | % |
 | Trend | `uzaklik_ema(n)` (varsayılan 20) | kapanışın ema(n)'ye uzaklığı | % |
 | Trend | `uzaklik_sma(n)` (varsayılan 20) | kapanışın sma(n)'ye uzaklığı | % |
 | Trend | `adx(n)` (varsayılan 14) | ADX(n), trendin gücü (yönsüz) | 0–100 |
@@ -145,6 +146,9 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Momentum | `degisim_1h` | son 5 seans değişim (TradingView 'Değ, 1H') | % |
 | Momentum | `degisim_1a` | son 21 seans değişim (TradingView 'Değ/Perf, 1A') | % |
 | Momentum | `degisim_3a` | son 63 seans değişim (TradingView 'Perf, 3A') | % |
+| Momentum | `getiri_6a_1a_haric` | 6 ay getirisi, son 1 ay hariç: kapanış[t−21] / kapanış[t−126] − 1 (Jegadeesh & Titman 6-1) | % |
+| Momentum | `getiri_12a_1a_haric` | 12 ay getirisi, son 1 ay hariç: kapanış[t−21] / kapanış[t−252] − 1 (12-1 momentum) | % |
+| Göreli güç | `rs_puan` | ağırlıklı göreli güç puanı: 0,4×getiri(63) + 0,2×(126, 189, 252) (IBD/O'Neil RS yaklaşımı) | % |
 | Momentum | `getiri_5g` | son 5 seans getiri | % |
 | Momentum | `getiri_20g` | son 20 seans getiri | % |
 | Momentum | `getiri_60g` | son 60 seans getiri | % |
@@ -156,6 +160,8 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Oynaklık | `bb_yuzde` | Bollinger %b ×100 (0 alt bant, 100 üst bant) | % |
 | Oynaklık | `bb_genislik_yuzdelik` | bugünkü genişliğin son 126 seanstaki yüzdelik sırası | 0–100 |
 | Oynaklık | `oynaklik_20g` | 20 günlük tarihsel oynaklık (yıllık) | % |
+| Oynaklık | `oynaklik_60g` | 60 günlük tarihsel oynaklık (yıllık) | % |
+| Oynaklık | `oynaklik_sira` | oynaklik_60g'nin taranan evrendeki yüzdelik sırası (100 = en oynak) | 0–100 |
 | Hacim | `hacim_oran(n)` (varsayılan 20) | bugünkü hacim / önceki n gün ortalaması (20: canlı analizle aynı) | × |
 | Hacim | `hacim_degisim` | bugünkü hacmin dünküne göre değişimi | % |
 | Hacim | `ort_hacim(n)` (varsayılan 30) | n günlük ortalama hacim (adet) | milyon adet |
@@ -169,7 +175,13 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Göreli güç | `gg_20` | son 20 seans getirisi − XU100'ünki | puan |
 | Göreli güç | `gg_60` | son 60 seans getirisi − XU100'ünki | puan |
 | Göreli güç | `gg_sira` | gg_60'ın taranan evrendeki yüzdelik sırası | 0–100 |
+| Göreli güç | `goreli_guc_yuzdelik` | rs_puan'ın taranan evrendeki yüzdelik sırası (Minervini/IBD 'RS rating' yaklaşımı) | 0–100 |
+| Göreli güç | `momentum_sira` | getiri_6a_1a_haric'in taranan evrendeki yüzdelik sırası | 0–100 |
 | Göreli güç | `beta` | son 252 seansta XU100'e göre beta | × |
+| Fiyat konumu | `zirve_52h` | 52 hafta (252 seans) en yükseği, bugün dahil | TL |
+| Fiyat konumu | `dip_52h` | 52 hafta (252 seans) en düşüğü, bugün dahil | TL |
+| Fiyat konumu | `zirve_52h_oran` | kapanış / 52 hafta en yükseği × 100 (95 = zirvenin %95'i) | % |
+| Fiyat konumu | `dip_52h_oran` | kapanış / 52 hafta en düşüğü × 100 (130 = dibin %30 üstü) | % |
 | Fiyat konumu | `zirve_uzaklik` | kapanışın 52 hafta (252 seans) zirvesine uzaklığı | % |
 | Fiyat konumu | `dip_uzaklik` | kapanışın 52 hafta dibine uzaklığı | % |
 | Fiyat konumu | `yuksek_20g` | önceki 20 seansın en yükseği (bugün hariç) | TL |
@@ -250,8 +262,29 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 | `kirilim` | `kapanis>yuksek_20g hacim_oran>1.5` | /tara görev örneği (Aşama 5) | — |
 | `sikisma` | `bb_genislik_yuzdelik<10` | /tara görev örneği (Aşama 5) | — |
 | `goreli_guc` | `gg_sira>80` | /tara görev örneği (Aşama 5) | — |
+| `minervini` | `kapanis>sma150 kapanis>sma200 sma150>sma200 egim(sma200,21)>0 sma50>sma150 kapanis>sma50 dip_52h_oran>=130 zirve_52h_oran>=75 goreli_guc_yuzdelik>=70` | profesyonel filtre (Aşama 2): Minervini (2013), Trend Template; pratisyen kuralı, akademik kanıtı sınırlı. goreli_guc_yuzdelik IBD 'RS rating' yaklaşımıdır | — |
+| `zirveye_yakin` | `zirve_52h_oran>=95` | profesyonel filtre (Aşama 2): George & Hwang (2004), 52 hafta zirvesi ve momentum | — |
+| `goreli_guc_ust` | `momentum_sira>=80` | profesyonel filtre (Aşama 2): Jegadeesh & Titman (1993), 6 ay getirisi, son 1 ay hariç. Bu sistemde kesitsel momentum reddedildi (2025 +%88, 2026 −%73; RESEARCH_LOG) | — |
+| `dusuk_oynaklik` | `oynaklik_sira<=20` | profesyonel filtre (Aşama 2): Ang, Hodrick, Xing & Zhang (2006); Blitz & van Vliet (2007). Bu sistemde H1 düşük oynaklık reddedildi (+%0,9 [−16,5; +18,6]; RESEARCH_LOG) | — |
 
 Her şablonun yanında ait olduğu araştırma türü yazar: RESEARCH_LOG'daki "Reddedilen fikir türleri" tablosu (27.10.2026'da test edildi, XU100'ü geçmedi). Teknik sinyal: `basit_teknik`, `basit_teknik_3g`, `bebek_teknik`, `asiri_satim`. Tek hissede trend/kırılım: `duseni_kiran`, `tek_tus_trend`, `teknik_temel_ema`, `trend_takibi`, `kirilim`, `sikisma`. Kesitsel momentum: `goreli_guc`.
+
+**Profesyonel filtreler ve elemeler** (K-45, K-47). Bunlar filtre ve eleme araçlarıdır, öneri değildir. Kaynakları başka piyasalarda yapılmış çalışmalardır; BIST'teki durumu bu sistemin kendi karnesi gösterir ve karne kanıt sayılmaz. Hiçbirine "güvenilir" ya da "kanıtlanmış" denmez.
+
+| Filtre | Kaynak | Ne seçer / ne eler | BIST'te bilinen durum (bu sistem) | Sınırlar |
+|---|---|---|---|---|
+| Eleme: likidite | Uygulama kuralı (görev) | Önceki 20 seansta ortalama < 15 mn TL'yi eler | Kayma ve uygulanabilirlik içindir, getiri iddiası yok | Eşik enflasyonla eskir; yeniden bakılmalı |
+| Eleme: kurumsal işlem | Uygulama kuralı | Son 60 seansta kayıtlı bedelli, bedelsiz/bölünme ya da halka arz olanı eler | Kayıtlar eksik (D4); kaydı olmayan hisse "bilinmiyor" | KAP'tan otomatik kayıt yok |
+| Eleme: aşırı hareket | Uygulama kuralı | 10 seansta 3 tavan/taban ya da en oynak %5'i eler | Keşifte elenen grup kalan gruptan zayıf göründü; canlı ölçüm sürüyor | Tek dönem; kanıt değil |
+| Eleme: veri sorunu | Veri kalite kuralı | Düzeltilmemiş sıçrama, sıfır hacim, ikinci kaynak farkı | Veri hatasını işleme dönüştürmemek içindir | Yahoo'ya bağlı |
+| `minervini` | Minervini (2013), Trend Template | Uzun vadeli yükselen trendde, 52 hafta dibinden en az %30 yukarıda, zirvesinin en az %75'inde, göreli gücü üst %30'da olan hisseler | Tek hissede trend türü 27.10.2026'da reddedildi; karne ayrıca gösterilir | Pratisyen kuralı; akademik kanıtı sınırlı; `goreli_guc_yuzdelik` IBD RS yaklaşımıdır, birebir değildir |
+| `zirveye_yakin` | George & Hwang (2004) | Kapanışı 52 hafta zirvesinin en az %95'inde olanlar | Geçmiş getiriye dayalı sıralamalar momentum ailesinden sayılıp araştırma programından dışlandı | ABD verisi; BIST'te ayrıca sınanmadı |
+| `goreli_guc_ust` | Jegadeesh & Titman (1993), 6-1 momentum | 6 ay getirisi (son ay hariç) evrenin üst %20'si | Kesitsel momentum reddedildi: 2025 +%88, 2026 −%73 (RESEARCH_LOG) | Rejime çok bağlı |
+| `dusuk_oynaklik` | Ang, Hodrick, Xing & Zhang (2006); Blitz & van Vliet (2007) | 60 günlük oynaklığı evrenin en düşük %20'si | H1 düşük oynaklık reddedildi: +%0,9 [−16,5; +18,6] | Düşük oynaklık "düşük risk" garantisi değildir |
+
+Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`, `egim(alan,n)`, `getiri_6a_1a_haric`, `getiri_12a_1a_haric`, `oynaklik_60g`, `rs_puan`, `goreli_guc_yuzdelik`, `momentum_sira`, `oynaklik_sira`.
+- **Sıralar evren içidir.** Canlı listede taranan hisseler arasında, karnede o günkü BIST 100 üyeleri arasında hesaplanır.
+- **Dil çarpma yazmaz.** "Zirvenin %75'i" `zirve_52h_oran>=75`, "dibin %30 üstü" `dip_52h_oran>=130` olarak yazılır.
 
 **CHARTER §9 uyumu (/tara).**
 - `/tara` bir filtredir.

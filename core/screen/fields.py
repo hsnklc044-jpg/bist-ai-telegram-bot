@@ -31,6 +31,8 @@ FIELDS = {
     "ema20": Field("Trend", "20 günlük üssel ortalama (canlı analizle aynı)", "TL"),
     "ema50": Field("Trend", "50 günlük üssel ortalama (canlı analizle aynı)", "TL"),
     "ema200": Field("Trend", "200 günlük üssel ortalama", "TL"),
+    "egim": Field("Trend", "egim(alan, n): alanın n seanstaki yüzde değişimi; egim(sma200,21)>0 = 200 günlük "
+                           "ortalama 21 seanstır yükseliyor", "%"),
     "uzaklik_ema": Field("Trend", "kapanışın ema(n)'ye uzaklığı", "%", 20),
     "uzaklik_sma": Field("Trend", "kapanışın sma(n)'ye uzaklığı", "%", 20),
     "adx": Field("Trend", "ADX(n), trendin gücü (yönsüz)", "0–100", 14),
@@ -50,6 +52,12 @@ FIELDS = {
     "degisim_1h": Field("Momentum", "son 5 seans değişim (TradingView 'Değ, 1H')", "%"),
     "degisim_1a": Field("Momentum", "son 21 seans değişim (TradingView 'Değ/Perf, 1A')", "%"),
     "degisim_3a": Field("Momentum", "son 63 seans değişim (TradingView 'Perf, 3A')", "%"),
+    "getiri_6a_1a_haric": Field("Momentum", "6 ay getirisi, son 1 ay hariç: kapanış[t−21] / kapanış[t−126] − 1 "
+                                            "(Jegadeesh & Titman 6-1)", "%"),
+    "getiri_12a_1a_haric": Field("Momentum", "12 ay getirisi, son 1 ay hariç: kapanış[t−21] / kapanış[t−252] − 1 "
+                                             "(12-1 momentum)", "%"),
+    "rs_puan": Field("Göreli güç", "ağırlıklı göreli güç puanı: 0,4×getiri(63) + 0,2×(126, 189, 252) "
+                                   "(IBD/O'Neil RS yaklaşımı)", "%"),
     "getiri_5g": Field("Momentum", "son 5 seans getiri", "%"),
     "getiri_20g": Field("Momentum", "son 20 seans getiri", "%"),
     "getiri_60g": Field("Momentum", "son 60 seans getiri", "%"),
@@ -62,6 +70,8 @@ FIELDS = {
     "bb_yuzde": Field("Oynaklık", "Bollinger %b ×100 (0 alt bant, 100 üst bant)", "%"),
     "bb_genislik_yuzdelik": Field("Oynaklık", "bugünkü genişliğin son 126 seanstaki yüzdelik sırası", "0–100"),
     "oynaklik_20g": Field("Oynaklık", "20 günlük tarihsel oynaklık (yıllık)", "%"),
+    "oynaklik_60g": Field("Oynaklık", "60 günlük tarihsel oynaklık (yıllık)", "%"),
+    "oynaklik_sira": Field("Oynaklık", "oynaklik_60g'nin taranan evrendeki yüzdelik sırası (100 = en oynak)", "0–100"),
     # volume
     "hacim_oran": Field("Hacim", "bugünkü hacim / önceki n gün ortalaması (20: canlı analizle aynı)", "×", 20),
     "hacim_degisim": Field("Hacim", "bugünkü hacmin dünküne göre değişimi", "%"),
@@ -78,8 +88,15 @@ FIELDS = {
     "gg_20": Field("Göreli güç", "son 20 seans getirisi − XU100'ünki", "puan"),
     "gg_60": Field("Göreli güç", "son 60 seans getirisi − XU100'ünki", "puan"),
     "gg_sira": Field("Göreli güç", "gg_60'ın taranan evrendeki yüzdelik sırası", "0–100"),
+    "goreli_guc_yuzdelik": Field("Göreli güç", "rs_puan'ın taranan evrendeki yüzdelik sırası (Minervini/IBD "
+                                               "'RS rating' yaklaşımı)", "0–100"),
+    "momentum_sira": Field("Göreli güç", "getiri_6a_1a_haric'in taranan evrendeki yüzdelik sırası", "0–100"),
     "beta": Field("Göreli güç", "son 252 seansta XU100'e göre beta", "×"),
     # price position
+    "zirve_52h": Field("Fiyat konumu", "52 hafta (252 seans) en yükseği, bugün dahil", "TL"),
+    "dip_52h": Field("Fiyat konumu", "52 hafta (252 seans) en düşüğü, bugün dahil", "TL"),
+    "zirve_52h_oran": Field("Fiyat konumu", "kapanış / 52 hafta en yükseği × 100 (95 = zirvenin %95'i)", "%"),
+    "dip_52h_oran": Field("Fiyat konumu", "kapanış / 52 hafta en düşüğü × 100 (130 = dibin %30 üstü)", "%"),
     "zirve_uzaklik": Field("Fiyat konumu", "kapanışın 52 hafta (252 seans) zirvesine uzaklığı", "%"),
     "dip_uzaklik": Field("Fiyat konumu", "kapanışın 52 hafta dibine uzaklığı", "%"),
     "yuksek_20g": Field("Fiyat konumu", "önceki 20 seansın en yükseği (bugün hariç)", "TL"),
@@ -90,7 +107,10 @@ FIELDS = {
     "acilis": Field("Fiyat konumu", "son açılış", "TL"),
 }
 ALIASES = {"hacim": "hacim_oran", "goreli_guc": "gg_20", "stokastik": "stok_k"}
-CROSS_SECTIONAL = {"gg_sira"}  # ranked across the scanned stocks (core.screen.engine)
+# ranked across the scanned stocks (engine), each day's members (card), the list (/tara_aciklama): rank -> base
+RANKED = {"gg_sira": "gg_60", "goreli_guc_yuzdelik": "rs_puan", "momentum_sira": "getiri_6a_1a_haric",
+          "oynaklik_sira": "oynaklik_60g"}
+CROSS_SECTIONAL = set(RANKED)
 SCORE_FRAME = {"ema20": "ema20", "ema50": "ema50", "rsi": "rsi", "macd": "macd", "hacim_oran": "volume_ratio"}
 SUPERTREND = (10, 3.0)
 
@@ -108,6 +128,8 @@ def key(name: str, param: int | None = None) -> str:
 
 
 def split(column: str) -> tuple[str, int | None]:
+    if column.startswith("egim("):
+        return "egim", None
     if "(" in column:
         name, rest = column.split("(", 1)
         return name, int(rest.rstrip(")"))
@@ -221,6 +243,23 @@ class _Table:
 
         name, n = split(column)
         df, close = self.df, self.close
+        if name == "egim":  # egim(<field>,<n>)
+            inner, _, days = column[5:-1].rpartition(",")
+            base = self.get(inner)
+            return (base / base.shift(int(days)) - 1) * 100
+        if name in ("getiri_6a_1a_haric", "getiri_12a_1a_haric"):
+            back = 126 if name.startswith("getiri_6a") else 252
+            return (close.shift(21) / close.shift(back) - 1) * 100
+        if name == "rs_puan":
+            return 0.4 * self._ret(63) + 0.2 * self._ret(126) + 0.2 * self._ret(189) + 0.2 * self._ret(252)
+        if name in ("zirve_52h", "zirve_52h_oran"):
+            top = df["high"].rolling(252, min_periods=252).max()
+            return top if name == "zirve_52h" else close / top * 100
+        if name in ("dip_52h", "dip_52h_oran"):
+            bottom = df["low"].rolling(252, min_periods=252).min()
+            return bottom if name == "dip_52h" else close / bottom * 100
+        if name == "oynaklik_60g":
+            return close.pct_change().rolling(60).std() * math.sqrt(252) * 100
         if column in SCORE_FRAME:
             return self.score()[SCORE_FRAME[column]]
         if name == "hacim_oran":
@@ -309,8 +348,8 @@ class _Table:
         if name in ("gg_20", "gg_60"):
             days = int(name[3:])
             return self._ret(days) - (self.bench / self.bench.shift(days) - 1) * 100
-        if name == "gg_sira":
-            return pd.Series(np.nan, index=df.index)  # filled across stocks by the engine
+        if name in RANKED:
+            return pd.Series(np.nan, index=df.index)  # filled across stocks (rank_last / rank_panel)
         if name == "zirve_uzaklik":
             return (close / close.rolling(252, min_periods=252).max() - 1) * 100
         if name == "dip_uzaklik":
@@ -333,9 +372,31 @@ def table(df: pd.DataFrame, bench_close: pd.Series, columns) -> pd.DataFrame:
 
     t = _Table(df, bench_close)
     wanted = list(dict.fromkeys(columns))
-    if "gg_sira" in wanted and "gg_60" not in wanted:
-        wanted.append("gg_60")
+    wanted += [RANKED[c] for c in list(wanted) if c in RANKED and RANKED[c] not in wanted]
     return pd.DataFrame({c: t.get(c) for c in wanted}, index=df.index)
+
+
+def rank_last(tables: dict[str, pd.DataFrame], ranked) -> None:
+    """Fill each ranked column's LAST row: the percentile of its base among the given tables."""
+
+    for column in ranked:
+        base = pd.Series({s: t[RANKED[column]].iloc[-1] for s, t in tables.items()}, dtype=float)
+        ranks = base.rank(pct=True) * 100
+        for s, t in tables.items():
+            t.loc[t.index[-1], column] = ranks.get(s)
+
+
+def rank_panel(tables: dict[str, pd.DataFrame], ranked, eligible: pd.DataFrame | None = None) -> None:
+    """Fill each ranked column on EVERY day: the percentile among that day's eligible stocks."""
+
+    for column in ranked:
+        panel = pd.DataFrame({s: t[RANKED[column]] for s, t in tables.items()})
+        if eligible is not None:
+            ok = eligible.reindex(index=panel.index, columns=panel.columns).ffill().fillna(False).astype(bool)
+            panel = panel.where(ok)
+        ranks = panel.rank(axis=1, pct=True) * 100
+        for s, t in tables.items():
+            t[column] = ranks[s].reindex(t.index)
 
 
 __all__ = ["ALIASES", "CROSS_SECTIONAL", "FIELDS", "Field", "key", "split", "table"]

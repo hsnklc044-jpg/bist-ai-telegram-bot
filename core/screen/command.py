@@ -237,7 +237,7 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
     text = saved.get(normalize(text), text)
     try:
         query = parse(text)
-        scanned = universe.symbols(query.universe, chat_id) if "gg_sira" in query.fields else []
+        scanned = universe.symbols(query.universe, chat_id) if query.fields & F.CROSS_SECTIONAL else []
     except ScreenError as exc:
         return str(exc)
     frames, bench = (live or _live)(sorted({symbol, *scanned}))
@@ -252,11 +252,12 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
                      f"(son seans {latest:%d.%m}); değerler {df.index[-1]:%d.%m} kapanışından.")
     wanted = engine.columns(query)
     table = F.table(df, bench["close"], wanted)
-    if "gg_sira" in query.fields:
-        others = {s: F.table(f, bench["close"], ["gg_60"])["gg_60"].iloc[-1]
-                  for s, f in frames.items() if f is not None and not f.empty and f.index[-1] == latest}
-        ranks = (pd_series(others).rank(pct=True) * 100) if others else None
-        table.loc[table.index[-1], "gg_sira"] = ranks.get(symbol) if ranks is not None else float("nan")
+    ranked = sorted(query.fields & F.CROSS_SECTIONAL)
+    if ranked:  # the same percentile the list uses, among the scanned stocks
+        others = {s: F.table(f, bench["close"], ranked) for s, f in frames.items()
+                  if s != symbol and f is not None and not f.empty and f.index[-1] == latest}
+        others[symbol] = table
+        F.rank_last(others, ranked)
     tail = table.iloc[-engine.LOOKBACK:]
     lines += [_leaf_line(leaf, tail) for leaf in query.leaves()]
     from core.screen import elimination as E
@@ -272,12 +273,6 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
     lines.append(f"Sonuç: {whole} {'sağlanıyor' if holds else 'sağlanmıyor'} ({df.index[-1]:%d.%m.%Y} kapanışı).")
     lines.append(DISCLAIMER)
     return "\n".join(lines)
-
-
-def pd_series(values: dict):
-    import pandas as pd
-
-    return pd.Series(values, dtype=float)
 
 
 # --- saved screens (append-only CSV; a row with empty criteria deletes; DECISIONS K-41) -----------

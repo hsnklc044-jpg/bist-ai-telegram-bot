@@ -18,7 +18,9 @@ from core.screen.language import parse
 
 SOURCE = "kullanıcının TradingView taraması"
 TASK = "/tara görev örneği (Aşama 5)"
+PRO = "profesyonel filtre (Aşama 2)"
 SIGNAL, TREND, MOMENTUM = "Teknik sinyal / puan", "Tek hissede trend takibi / kırılım", "Kesitsel momentum"
+LOW_VOL = "Düşük oynaklık (H1)"
 
 
 @dataclass(frozen=True)
@@ -62,6 +64,25 @@ TEMPLATES = {
     "kirilim": Template("20 gün kırılımı, hacimli", "kapanis>yuksek_20g hacim_oran>1.5", TASK, "—", TREND),
     "sikisma": Template("Bollinger sıkışması (6 ayın en dar %10'u)", "bb_genislik_yuzdelik<10", TASK, "—", TREND),
     "goreli_guc": Template("Göreli güç, BIST 100'ün üst %20'si (60 seans)", "gg_sira>80", TASK, "—", MOMENTUM),
+    # profesyonel filtreler Aşama 2 (K-47): fixed as the task gave them; sources are practitioners or papers,
+    # none of them is evidence for BIST (the cards say what this market's past shows)
+    "minervini": Template(
+        "Minervini trend şablonu",
+        "kapanis>sma150 kapanis>sma200 sma150>sma200 egim(sma200,21)>0 sma50>sma150 kapanis>sma50 "
+        "dip_52h_oran>=130 zirve_52h_oran>=75 goreli_guc_yuzdelik>=70",
+        f"{PRO}: Minervini (2013), Trend Template; pratisyen kuralı, akademik kanıtı sınırlı. "
+        "goreli_guc_yuzdelik IBD 'RS rating' yaklaşımıdır", "—", TREND),
+    "zirveye_yakin": Template(
+        "52 hafta zirvesine yakın", "zirve_52h_oran>=95",
+        f"{PRO}: George & Hwang (2004), 52 hafta zirvesi ve momentum", "—", MOMENTUM),
+    "goreli_guc_ust": Template(
+        "6-1 momentum, evrenin üst %20'si", "momentum_sira>=80",
+        f"{PRO}: Jegadeesh & Titman (1993), 6 ay getirisi, son 1 ay hariç. Bu sistemde kesitsel momentum "
+        "reddedildi (2025 +%88, 2026 −%73; RESEARCH_LOG)", "—", MOMENTUM),
+    "dusuk_oynaklik": Template(
+        "Düşük oynaklık, evrenin en sakin %20'si", "oynaklik_sira<=20",
+        f"{PRO}: Ang, Hodrick, Xing & Zhang (2006); Blitz & van Vliet (2007). Bu sistemde H1 düşük oynaklık "
+        "reddedildi (+%0,9 [−16,5; +18,6]; RESEARCH_LOG)", "—", LOW_VOL),
 }
 
 
