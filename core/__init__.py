@@ -2,4 +2,4 @@
 QuantBIST core package.
 """
 
-__version__ = "0.86.1"
+__version__ = "0.87.0"

@@ -111,6 +111,14 @@ def warm(load=None) -> None:
         C.cached_history(parse(t.criteria), load or command._history_data)
 
 
+def _skipped_line(command) -> list[str]:
+    skipped = command.history_skipped()
+    if not skipped:
+        return []
+    return [f"Dışarıda (araştırmadaki gibi; çözülmemiş ±%20 sıçrama ya da kısa geçmiş): {len(skipped)} hisse: "
+            + ", ".join(s.removesuffix(".IS") for s in skipped)]
+
+
 def cards_text(load=None) -> str:
     """Every template's full card on real data (the weekly research run prints it)."""
 
@@ -119,6 +127,7 @@ def cards_text(load=None) -> str:
     lines = [f"/tara şablon karneleri ({C.HISTORY_START} – 30.10.2026, o günkü BIST 100 üyeleri, ertesi açılış, "
              "maliyet dahil; keşif, araştırma programı dışında)"]
     data = (load or command._history_data)()
+    lines += _skipped_line(command)
     for name, t in TEMPLATES.items():
         stats = C.history(parse(t.criteria), *data)
         lines += [f"\n{name}: {t.criteria}", *command.card_lines(stats)[1:-1]]
@@ -149,6 +158,7 @@ def explain_text(load=None, horizon: int = 20) -> str:
              "sütunlar: örnek · olay ortalaması maliyet hariç · maliyet dahil · gün ortalaması (maliyet dahil) · "
              "tüm hisseler (gün ortalaması)"]
     data = (load or command._history_data)()
+    lines += _skipped_line(command)
     for name, t in TEMPLATES.items():
         lines.append(f"\n{name}:")
         for label, criteria in variants(t.criteria):

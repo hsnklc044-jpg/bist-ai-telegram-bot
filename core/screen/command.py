@@ -386,22 +386,32 @@ def _live(symbols: list[str]):
 
 
 _HISTORY: dict = {}
+_SKIPPED: list[str] = []
+
+
+def history_skipped() -> list[str]:
+    """The past members the card leaves out, as the research does (unresolved jump, short history)."""
+
+    return list(_SKIPPED)
 
 
 def _history_data():
     """Research-period prices of every BIST 100 member since 2022 and their membership; cut at
-    SCREEN_END by load_frames. Kept for the day."""
+    SCREEN_END by load_frames. The stocks the research leaves out (an unresolved ±20% jump or a
+    short history: tradable_symbols) are left out here too (öz-denetim 6, D1). Kept for the day."""
 
     import pandas as pd
 
-    from core.backtest.run import load_frames
+    from core.backtest.run import load_frames, tradable_symbols
     from core.market.calendar import now_istanbul
     from core.market.membership import ever_members, membership_panel
     from core.market.universe import BENCHMARK
 
     key = now_istanbul().date()
     if key not in _HISTORY:
-        frames = {s: df for s, df in load_frames(ever_members()).items() if not df.empty}
+        keep, skipped = tradable_symbols(ever_members())
+        _SKIPPED[:] = sorted(skipped)
+        frames = {s: df for s, df in load_frames(keep).items() if not df.empty}
         index = pd.DatetimeIndex(sorted(set().union(*(df.index for df in frames.values()))))
         _HISTORY.clear()
         _HISTORY[key] = (frames, load_frames([BENCHMARK])[BENCHMARK], membership_panel(index, list(frames)))

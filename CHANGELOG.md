@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.87.0 – 28.10.2026 (öz-denetim 6 = EVRE 0 denetimi)
+- `docs/AUDIT.md`: mevcut sistemin kanıta dayalı durum raporu. Neyin doğrulandığı, neyin eksik olduğu, neyin buradan doğrulanamadığı (PC'deki kişisel kayıtlar, sanal portföy, yedekler) ayrı ayrı yazıldı.
+- **Hata düzeltmesi (D1):** /tara karnesi, araştırmanın dışarıda bıraktığı çözülmemiş sıçramalı ya da kısa geçmişli hisseleri de sayıyordu. Artık aynı hisseleri dışarıda bırakıyor; şablon karneleri hangilerini bıraktığını yazıyor. Eski karne önbelleği geçersiz sayılıyor ve yeniden hesaplanıyor.
+- Paket güvenlik taraması ilk kez çalıştırıldı: temiz.
+- Doğrulama: `test_screen_card_jumps`.
+
 ## v0.86.1 – 28.10.2026 (/tara Aşama 6: kalite ve belgeler)
 - `test_screen_quality` eklendi. Denetledikleri:
   - Telegram menü sınırları ve tüm `/tara` komutlarının menüde olması;

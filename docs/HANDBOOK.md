@@ -223,6 +223,8 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 - Sonuç `/performans`'ta "SANAL, yalnız ölçüm" etiketiyle görünür; 30 kapanmış işleme kadar "veri birikiyor" yazar.
 - Kişisel `/paper` emirlerine ve deftere dokunmaz; kitap her seferinde fiyatlardan yeniden hesaplanır (K-43).
 
+**Karnede dışarıda kalanlar.** Araştırmadaki gibi, çözülmemiş ±%20 veri sıçraması (düzeltilmemiş bedelli, bedelsiz ya da bölünme) ya da 300 mumdan kısa geçmişi olan hisseler karneye girmez (öz-denetim 6, D1). Şablon karneleri bunların listesini yazar.
+
 **Hazır şablonlar** (`/tara_sablonlar` listeler, `/tara AD` çalıştırır; K-38). Kullanıcının TradingView taramalarının teknik kısmıdır. Filtre şablonudur, öneri değildir. Kodda sabittir ve sonuçlara bakılarak ayarlanmaz. Araştırma programına aday kural değildir. Kayıtlı taramalardan ayrıdır; bir kayıt şablon adını alamaz. Temel veri gerektiren koşullar (piyasa değeri, FSO, beta, gelir artışı, ÖGO, borç/öz kaynak) atlanır ve listede yazılır. Karneleri bot açılışında arka planda hesaplanıp önbelleğe alınır, veri sürümü değişince yenilenir; `/tara_sablonlar` yalnız önbelleği okur, hazır değilse "karne hazırlanıyor" der. Haftalık araştırma bütün şablon karnelerini `templates.txt`'ye yazar.
 
 | Şablon | Koşullar | Kaynak | Atlanan (veri yok) |

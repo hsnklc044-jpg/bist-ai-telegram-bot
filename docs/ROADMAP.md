@@ -65,6 +65,19 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 6 — 28.10.2026 (v0.80.0 → v0.86.1, 10 sürüm) = profesyonel talimatın EVRE 0'ı.** Tam rapor: [AUDIT.md](AUDIT.md).
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| D1 | YÜKSEK | /tara karnesi, araştırmanın dışarıda bıraktığı hisseleri (çözülmemiş ±%20 sıçrama, kısa geçmiş) kullanıyordu | ✅ v0.87.0 |
+| D2 | ORTA | Canlı liste yakın tarihli sıçramalı hisseyi eleyemiyor (CVKMD 03.08) | açık → profesyonel filtreler Aşama 1 |
+| D3 | ORTA | Sıfır hacim göreli hacimde 1,0 ile dolduruluyor (SASA 151 gün) | açık → Aşama 1 veri elemesi; tanım değişikliği ayrı karar |
+| D4 | ORTA | 10 hissede 15 sıçrama `corporate_actions.csv`'de yok | açık: KAP'la tek tek |
+| D5 | DÜŞÜK | Veri lisansları belgesiz | açık → Aşama 3 |
+| D6 | DÜŞÜK | Eski commit'te sohbet kimliği ve eski izleme listesi | kabul (geçmiş yeniden yazılmaz) |
+| D7 | DÜŞÜK | Haftalık paket taraması hiç çalışmamıştı | ✅ 28.10 temiz |
+| D8–D10 | BİLGİ | KPOWR verisiz; tatil dosyası yalnız 2026; likidite bugünü içeriyor | açık, AUDIT.md |
+
 **Öz-denetim 5 — 28.10.2026 (v0.73.0 → v0.79.0, 10 sürüm).** Kapsam: KAP metin aracı, SKBNK düzeltmesi, kanıt dosyası (triage), /tara motoru, Telegram arayüzü, dürüst karne, evren düzeltmesi.
 
 | # | Önem | Bulgu | Durum |
@@ -79,7 +92,8 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.86.1 (/tara Aşama 6: kalite testleri, BotFather listesi, CHARTER §9 uyumu). Öz-denetim sayacı: v0.80.0'dan beri 9; bir sonraki sürüm öz-denetimdir.
+- **Son sürüm:** v0.87.0 (öz-denetim 6 = EVRE 0 denetimi, AUDIT.md; D1 düzeltmesi). Öz-denetim sayacı v0.87.0'da sıfırlandı.
+- **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).
 - **Şablon görevi (28.10):** A ✅ v0.80.0, B ✅ v0.81.0, C ✅ v0.82.0, D ✅ v0.82.1 (tasarım). Açık: şablon karnelerinin gerçek verideki sonuçlarını kullanıcının keşif sayılarıyla karşılaştırmak (araştırma çalışması bekleniyor); temel veri uygulaması ayrı karar.
 - **PC'de doğrulandı (28.10 yerel otomasyon, v0.68.0 → v0.75.0):** 699 test geçti (4 atlandı), ruff temiz, `/durum` hepsi SAĞLIKLI, SLO 6/7 hedefte. Dışarıdan izleme çalışıyor (bot sinyali 10:42). Bayram günü rapor görevi "holiday" ile başarılı sinyal gönderiyor; 29.10'da yanlış alarm beklenmiyor, 30.10'da `logs/monitoring.json`'dan doğrulanacak. v0.68.1–v0.75.0 PC'de doğrulandı.
