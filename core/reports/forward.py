@@ -55,6 +55,9 @@ T95 = (12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.
 VIEW_ORDER = tuple(SIGNAL_VIEW_LABELS.values())
 SYSTEMATIC = "daily"
 SCREENED = "tara"  # /tara matches (core.screen), measured per criterion
+ELIMINATION = "eleme"  # the default /tara elimination's two groups every session (K-53)
+EXPLORATION_REFERENCE = ("keşif (tarama dönemi, kullanıcının PC testi, 20 seans, maliyet hariç): elenen grup "
+                         "−%3,07 [−5,53; −0,06]")
 
 
 # =====================================================
@@ -96,6 +99,25 @@ def log_daily_scores(
         )
         written += 1
 
+    return written
+
+
+def log_elimination_groups(result, path: Path | str | None = None) -> int:
+    """Record the kept ("kalan") and eliminated ("elenen") stocks of one engine result, once per
+    stock and data day. Score is 0 (no view); the reasons go to `details`."""
+
+    if result.day is None:
+        return 0
+    path = Path(path or SIGNAL_LOG_FILE)
+    already = {(r["symbol"], r["data_date"]) for r in _read_log(path) if r["source"] == ELIMINATION}
+    day = result.day.isoformat()
+    written = 0
+    rows = [(m.symbol, "kalan", "") for m in result.matches] + [(s, "elenen", why) for s, why in result.eliminated]
+    for symbol, group, why in rows:
+        if (symbol, day) in already:
+            continue
+        log_signal(ELIMINATION, symbol, 0, group, result.day, details=why, path=path)
+        written += 1
     return written
 
 
@@ -336,6 +358,35 @@ def _drift_reasons(rows: pd.DataFrame, ref: dict, bars) -> list[str]:
 SCREEN_MIN_SAMPLES = 30  # matured /tara records before a number is shown (/tara Aşama 4c)
 
 
+def elimination_lines(rows: pd.DataFrame) -> list[str]:
+    """İleri hedef 1: the eliminated and the kept group, and the day-by-day difference (elenen −
+    kalan), against XU100 after the record. A number only from SCREEN_MIN_SAMPLES eliminated records."""
+
+    lines = ["", "🧹 Eleme filtresi (canlı) → kayıttan sonraki getirinin XU100'den farkı (ortalama, %95 aralık; "
+                 "filtre ölçümü, öneri değil)", f"  {EXPLORATION_REFERENCE}"]
+    if rows.empty:
+        return lines + ["  Henüz olgunlaşmış kayıt yok; veri birikiyor (her akşam BIST 100'ün elenen ve kalan "
+                        f"hisseleri kaydedilir, ilk sonuç 5 seans sonra, sayı için en az {SCREEN_MIN_SAMPLES} elenen kaydı)."]
+    for h in (5, 20):
+        part = rows[rows["horizon"] == h]
+        gone, kept = part[part["view"] == "elenen"], part[part["view"] == "kalan"]
+        if gone.empty and kept.empty:
+            continue
+        if len(gone) < SCREEN_MIN_SAMPLES:
+            lines.append(f"  {h} seans: veri birikiyor ({len(gone)}/{SCREEN_MIN_SAMPLES} elenen kaydı, {len(kept)} kalan kaydı)")
+            continue
+        a, b = summarize(gone), summarize(kept)
+        diff = (gone.groupby("day")["excess"].mean() - kept.groupby("day")["excess"].mean()).dropna()
+        d = summarize(pd.DataFrame({"day": diff.index, "excess": diff.to_numpy(), "horizon": h, "view": "fark"}))
+        text = (f"  {h} seans: elenen {pct(a.mean)} [{pct(a.low)}, {pct(a.high)}] ({a.records} kayıt) · "
+                f"kalan {pct(b.mean)} [{pct(b.low)}, {pct(b.high)}] ({b.records} kayıt)" if b else
+                f"  {h} seans: elenen {pct(a.mean)} [{pct(a.low)}, {pct(a.high)}] ({a.records} kayıt)")
+        if d is not None:
+            text += f" · fark {pct(d.mean)} [{pct(d.low)}, {pct(d.high)}] ({d.days} gün, {d.periods} bağımsız dönem)"
+        lines.append(text)
+    return lines
+
+
 def screening_lines(screened: pd.DataFrame) -> list[str]:
     """The "Taramalar" section: each /tara criterion (with its hash) from the day it was recorded."""
 
@@ -410,8 +461,9 @@ def forward_report(
                     lines += [f"      neden? {r}" for r in _drift_reasons(part[part["view"] == view], ref, bars)]
 
     lines += screening_lines(scored[scored["source"] == SCREENED])
+    lines += elimination_lines(scored[scored["source"] == ELIMINATION])
 
-    asked = scored[~scored["source"].isin([SYSTEMATIC, SCREENED])]
+    asked = scored[~scored["source"].isin([SYSTEMATIC, SCREENED, ELIMINATION])]
     if not asked.empty:
         matured = int((asked["horizon"] == asked["horizon"].min()).sum())
         lines += [

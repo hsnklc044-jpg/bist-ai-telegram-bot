@@ -4,6 +4,17 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-53. Eleme filtresinin canlı ölçümü (29.10.2026, ileri hedef 1).**
+- **Ne ölçülür:** her akşam bugünkü BIST 100'e `/tara`'nın varsayılan eleme ayarları uygulanır (K-45: likidite, kurumsal, hareket, veri; ikinci kaynak şüphelileri dahil). Koşul her hissenin sağladığı `kapanis>0`'dır, böylece yalnız eleme ayırır.
+  - Elenenler "elenen", kalanlar "kalan" görünümüyle `signal_log`'a "eleme" kaynağıyla yazılır. Puan 0'dır; eleme nedeni `details` sütununa girer.
+  - Her hisse ve veri günü için bir kez yazılır.
+- **Nasıl ölçülür:** canlı ölçümle aynı tanım. Giriş ertesi açılıştır; 5 ve 20 seans tutulur; sonuç XU100'e göre farktır.
+  - Gruplar ayrı ayrı özetlenir.
+  - "Fark", gün gün (elenen ortalaması − kalan ortalaması) serisinin ortalamasıdır. Aralığı mevcut `summarize`'ın çakışmayan dönemleriyle hesaplanır.
+  - En az 30 olgun elenen kaydından önce sayı gösterilmez.
+- **Referans:** kullanıcının PC keşif testinde elenen grup −%3,07 [−5,53; −0,06] (20 seans, maliyet hariç, tarama dönemi). Bu bir referanstır, kanıt değildir. Asıl soru ileri veride tekrar edip etmediği.
+- **Değişmeyen:** teknik görünümün canlı ölçümü ve onun karar ölçütü (H, Kasım sonu). Yeni kaynak "sorulan kayıtlar" sayımına girmez.
+
 **K-52. C kapısı açıldı; TÜFE kaynağı TCMB tablosu; yeni aylar ilk görüldüğü günle (29.10.2026).**
 - **Kapı:** kullanıcı 28.10 akşamı "daha da ötesini yapabilirsin" dedi. Bir önceki mesajım "'C'yi şimdi başlat' yazarsanız başlarım" diyordu; bunu C'nin kapısını açma onayı olarak okudum.
   - D'nin kapısı açılmadı: KAP kullanım koşulunun teyidi ek ön koşuldur.

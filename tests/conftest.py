@@ -12,7 +12,7 @@ from core.backtest import expectations  # noqa: E402
 from core.fundamentals import store as fundamentals  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
 from core.market import macro, store  # noqa: E402
-from core.reports import daily, health, runs, slo  # noqa: E402
+from core.reports import daily, forward, health, runs, slo  # noqa: E402
 from core.screen import command as screen  # noqa: E402
 from core.screen import subscriptions, virtual  # noqa: E402
 
@@ -65,6 +65,7 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(levels_module, "_log_file", lambda: tmp_path / "levels_log.csv")
     # every signal_log write that does not name its file (e.g. /tara through the bot) stays private
     monkeypatch.setattr(signals_log, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")
+    monkeypatch.setattr(forward, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")  # daily and elimination records
     monkeypatch.setattr(screen.C, "CACHE_FILE", tmp_path / "screen_cards.json")
     monkeypatch.setattr(screen.C, "TRIALS_FILE", tmp_path / "screen_trials.csv")
     screen.C._MEMORY.clear()

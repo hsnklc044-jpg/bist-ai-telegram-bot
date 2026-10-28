@@ -727,15 +727,31 @@ def _with_weekly_line(text: str, day: date) -> str:
 def _record_scores() -> str:
     """Record every stock's view for the live measurement; never fatal. Returns a warning line or ""."""
 
-    from core.reports.forward import log_daily_scores
+    from core.reports.forward import log_daily_scores, log_elimination_groups
 
     try:
         written = log_daily_scores(load_universe())
         logger.info("Daily scores recorded | %d stocks", written)
-        return ""
     except Exception as exc:  # noqa: BLE001 - the report must still go out, and say what is missing
         logger.exception("Daily score recording failed")
         return f"⚠️ Canlı ölçüm kaydı yazılamadı ({type(exc).__name__}: {exc}); bu gün ölçümden eksik kalır"
+    try:
+        logger.info("Elimination groups recorded | %d stocks", log_elimination_groups(_elimination_result()))
+    except Exception as exc:  # noqa: BLE001 - one extra measurement never stops the report
+        logger.exception("Elimination recording failed")
+        return f"⚠️ Eleme ölçümü kaydı yazılamadı ({type(exc).__name__}: {exc}); bu gün eksik kalır"
+    return ""
+
+
+def _elimination_result():
+    """Today's BIST 100 through the default /tara elimination (K-45), with a condition every stock meets."""
+
+    from core.screen import engine, universe
+    from core.screen.command import _live
+    from core.screen.language import parse
+
+    frames, bench = _live(universe.symbols("bist100"))
+    return engine.run(parse("kapanis>0"), frames, bench, universe.suspects())
 
 
 def _notify_failure(error: Exception, log_name: str) -> None:

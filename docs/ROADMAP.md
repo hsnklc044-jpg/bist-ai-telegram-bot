@@ -196,8 +196,11 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.95.7 (eski kur kullanılmıyor; Ö34). Öz-denetim sayacı: v0.95.4'ten beri 3.
-- **İleri hedefler:** 2027 tatilleri ✅ v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit). Kalan: elenen ve kalan grubun canlı izlenmesi, haftalık kayıtlı tarama özeti.
+- **Son sürüm:** v0.96.0 (eleme filtresinin canlı ölçümü). Öz-denetim sayacı: v0.95.4'ten beri 4.
+- **İleri hedefler:**
+  - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
+  - ✅ Elenen ve kalan grubun canlı izlenmesi, v0.96.0 (K-53). İlk sonuç 30.10 kaydından 5 seans sonra.
+  - Kalan: haftalık kayıtlı tarama özeti. Kayıtlı taramalar PC'de kişisel dosyada; cumartesi araştırması onları göremez. Cuma raporuna eklenmesi tasarım kararı bekliyor.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
   - B senaryolar: A bitince.

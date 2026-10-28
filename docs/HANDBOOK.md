@@ -244,6 +244,12 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 
 **Canlı ölçüm.** Bulunan her hisse `signal_log`'a "tara" kaynağıyla, kriter metni ve özetiyle yazılır. `/performans` "Taramalar" bölümünde her kriterin 5 ve 20 seans sonucunu kriter özetiyle ayrı gösterir. 30 olgun örnekten azsa sayı yerine "veri birikiyor" yazar.
 
+**Elemenin canlı ölçümü (K-53).** Her akşam BIST 100'e varsayılan eleme uygulanır. Elenenler ve kalanlar ayrı ayrı kaydedilir. `/performans`'taki "🧹 Eleme filtresi (canlı)" bölümü şunları gösterir:
+- iki grubun 5 ve 20 seans sonra XU100'e göre sonucu;
+- aralarındaki fark, aralığıyla.
+
+Keşif testinde elenen grup %3,07 geride kalmıştı. Bunun ileri veride tekrar edip etmediği burada görülür. En az 30 olgun elenen kaydından önce sayı yerine "veri birikiyor" yazar.
+
 **Kayıt.** `/tara_kaydet AD koşullar`, sonra `/tara AD`. `/tara_liste` kayıtları gösterir, `/tara_sil AD` siler. Kayıtlar `data/screens.csv`'de tutulur: yalnız ekleme, yedeğe dahil, `/durum` kontrol eder. Silme, o ada boş koşullu yeni bir satır yazar; önceki satırlar değişmez (K-41).
 
 **Abonelik.** `/tara_abone AD` (kayıtlı tarama ya da şablon, en fazla 5). Her işlem günü 18:30 raporundan sonra çalışır ve yalnız listeye giren ve çıkan hisseleri gönderir; değişiklik yoksa mesaj gelmez. Rapor gitmeyen gün (tatil) çalışmaz. İlk mesaj listenin tamamıdır. `/tara_abonelikler` listeler, `/tara_abone_iptal AD` bitirir. Kayıtlar `data/screen_subscriptions.csv`'de tutulur: yalnız ekleme, yedekte (K-42).

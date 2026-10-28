@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.96.0 – 29.10.2026 (ileri hedef 1: eleme filtresinin canlı ölçümü)
+- Her akşam bugünkü BIST 100'e `/tara`'nın varsayılan elemesi uygulanıyor. Elenen ve kalan hisseler canlı ölçüme "eleme" kaynağıyla ayrı ayrı yazılıyor (K-53).
+- `/performans`'a "🧹 Eleme filtresi (canlı)" bölümü geldi.
+  - İki grubun 5 ve 20 seans sonra XU100'e göre sonucu ve gün gün farkı, %95 aralıkla.
+  - Keşif referansı (elenen −%3,07) yanında yazıyor.
+  - 30 olgun elenen kaydından önce "veri birikiyor".
+- Teknik görünümün canlı ölçümü ve karar ölçütü değişmedi. Bu ölçüm hata verirse rapor gidiyor ve bir uyarı satırı ekleniyor.
+- Doğrulama: `test_elimination_live` (6 test). Kayıt günde bir kez yazılıyor; fark elle hesaplanıyor; bölüm "sorulan kayıtlar"a karışmıyor; günlük rapora bağlantı ve hata yolu denetleniyor. Testlerde kayıt dosyası geçici klasörde.
+
 ## v0.95.7 – 29.10.2026 (Ö34: eski kur hiçbir zaman kullanılmıyor)
 - Gerçek veride ilk araştırma çalışmasında XU100'ün USD getirisi +%383 çıktı; doğrusu yaklaşık +%56. Kur önbelleği yarı doluydu ve bitiş günü için aylarca eski bir kur kullanılmıştı. Bu bir deneme çalışmasıydı; PC'deki rapor etkilenmedi.
 - Bir günün kuru artık en çok 10 gün eski olabilir (9 günlük bayram tatili sığar). Daha eskiyse "USD: kur yok" yazar.

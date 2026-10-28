@@ -51,6 +51,7 @@ Hiçbir model al/sat önerisi üretmez; çıktılar "kural çıktısıdır, öne
 | M22 | Sunucu kararı | `core/reports/server_decision.py` | DÜŞÜK | bağımsız doğrulanmadı; karar 13.11 | testler |
 | M24 | Dört bazlı sonuç (nominal/reel/USD/nakit) | `core/market/macro.py` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış testler | testler, v0.95.0 |
 | M25 | Piyasa rejimi ve sektör göreli gücü (/piyasa) | `core/market/regime.py` | ORTA | bağımsız doğrulanmadı; elle hesaplanmış testler | testler, v0.95.1 |
+| M26 | Eleme filtresinin canlı ölçümü | `core/reports/forward.py` (`log_elimination_groups`, `elimination_lines`) | ORTA | bağımsız doğrulanmadı; elle hesaplanmış fark testi | testler, v0.96.0 |
 | M23 | Rapor zamanı ve seans takvimi | `core/market/calendar.py` | ORTA | bağımsız doğrulanmadı | testler; tatil 29.10 PC kanıtı bekleniyor |
 
 Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı sürümde girerler.
@@ -245,6 +246,17 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
   - Yüksek oynaklık diğerlerinden önce gelir.
   - Sektör endeks verisinin Yahoo'daki varlığı ilk PC çalışmasında doğrulanacak; yoksa "veri yok" yazar.
 - **Doğrulama:** bağımsız doğrulanmadı. Elle hesaplanmış testler var (trend, yüzdelik, genişlik, göreli güç) ve geleceği görmeme testi var.
+- **Risk:** ORTA.
+
+### M26 Eleme filtresinin canlı ölçümü
+- **Amaç:** M6 eleme filtresinin ileri veride ayırt edici olup olmadığını ölçmek (K-53).
+- **Girdi:** bugünkü BIST 100, varsayılan eleme ayarları, fiyat deposu.
+- **Çıktı:** `signal_log`'da "eleme" kaynağı; `/performans` "Eleme filtresi (canlı)".
+- **Varsayımlar:** canlı ölçümle aynı giriş, ufuk ve XU100 karşılaştırması. Fark, gün gün iki grubun ortalamasından hesaplanır.
+- **Sınırlar:**
+  - Bağımsız dönem sayısı azdır; 20 seanslık sonuç aylar sürer.
+  - Elenen grup küçüktür (birkaç hisse), bu yüzden en az 30 kayıttan önce sayı yok.
+- **Doğrulama:** bağımsız doğrulanmadı. Kayıt tek seferlik, elle hesaplanmış fark ve rapor testleri var.
 - **Risk:** ORTA.
 
 ## Yüksek riskli modeller (F3 sırası)
