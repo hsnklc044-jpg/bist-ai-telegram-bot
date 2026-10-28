@@ -68,9 +68,6 @@ RESEARCH_MAX_AGE = timedelta(days=8)  # weekly on Saturdays
 _http_get = None  # tests replace it so that no test reaches the network
 RESEARCH_API = "https://api.github.com/repos/hsnklc044-jpg/bist-ai-telegram-bot/actions/workflows/research.yml/runs"
 
-# the scheduled report runs at 18:30; a session counts as due once this
-# much time has passed after its candle became final
-REPORT_GRACE = timedelta(hours=1, minutes=15)
 BACKUP_MAX_AGE = timedelta(days=4)
 
 
@@ -93,9 +90,11 @@ def _session_start(day: date) -> datetime:
 
 
 def due_session(now: datetime) -> date:
-    """The latest session whose daily report should already have gone out."""
+    """The latest session whose daily report should already have gone out (core.market.calendar)."""
 
-    return last_final_session_date(now - REPORT_GRACE)
+    from core.market.calendar import report_due_day
+
+    return report_due_day(now)
 
 
 def report_check(now: datetime, path: Path | str | None = None) -> Check:
@@ -138,7 +137,7 @@ def price_check(now: datetime, bars=adjusted_bars) -> Check:
         return Check("Fiyat verisi", UNKNOWN, "XU100 verisi yok")
 
     last = bench.index[-1].date()
-    expected = last_final_session_date(now)
+    expected = due_session(now)  # prices arrive with the 18:30 report (D11)
     behind = sessions_between(last, expected)
 
     if behind <= 0:

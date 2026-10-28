@@ -40,15 +40,17 @@ class LockTest(unittest.TestCase):
     def test_concurrent_runs_do_the_work_once(self):
         done, busy = [], []
         start = threading.Barrier(2)
+        refused = threading.Event()  # the holder keeps the lock until the other run was refused
 
         def work():
             start.wait()
             try:
                 with runs.report_lock():
-                    time.sleep(0.2)  # e.g. filling paper orders
+                    refused.wait(10)  # e.g. filling paper orders; no sleep, so a slow machine cannot reorder it
                     done.append(1)
             except runs.ReportBusy:
                 busy.append(1)
+                refused.set()
 
         threads = [threading.Thread(target=work) for _ in range(2)]
         for t in threads:

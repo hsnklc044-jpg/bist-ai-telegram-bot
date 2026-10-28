@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.88.2 – 28.10.2026 (D11 yarım gün yanlış alarmı, D12 karne sırası)
+- **D11:** yarım günde /durum 14:30'dan itibaren "rapor gitmedi", "fiyat 1 seans geride" ve "kaydı olmayan seans" diyordu. Artık hepsi tek fonksiyonla raporun saatini esas alıyor: 18:30 + 1:15, yarım gün dahil, tatil hariç.
+- **D12:** /tara'da yavaş makinede karne listeden önce gidip "Önce /tara ile bir tarama yap." diyebiliyordu. Karnenin mesajı artık her zaman listeden sonra gidiyor.
+- CI'a "yavaş makine" işi eklendi: tek meşgul çekirdek, iki rastgele test sırası. Kilit testi uykudan olaya geçirildi.
+- AUDIT.md'de PC satırları doğrulandı: kişisel kayıtlar, sanal portföy, yedek SHA testi, PC sürümü.
+- Doğrulama:
+  - `test_report_due`: 28.10 14:30 ve 18:00 SAĞLIKLI, 19:45 KRİTİK; normal gün 18:00 SAĞLIKLI; 29.10 bayram bir şey beklemiyor.
+  - `test_screen_telegram`: karne listeden önce biterse de sıra doğru, 50 tekrar.
+
 ## v0.88.1 – 28.10.2026 (veri: FENER ve CVKMD bedellileri)
 - `corporate_actions.csv`'ye 3 kaynaklı satır eklendi: FENER 23.06.2025 (%400, 1 TL), FENER 29.12.2025 (%400, 2 TL), CVKMD 03.08.2026 (%170, 1 TL). Kaynaklar: KAP 1452776, 1466238, 1656455 ve KAP'ı aktaran bir haber (DATA_CORRECTIONS).
 - Bu iki hisse artık /tara'da "düzeltilmemiş sıçrama" nedeniyle elenmeyecek. Doğrulama: ikinci kaynakla karşılaştırma (Actions `datacheck`).

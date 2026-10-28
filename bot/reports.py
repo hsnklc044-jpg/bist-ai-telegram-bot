@@ -113,25 +113,32 @@ async def screen_cmd(
     await reply(update, "⏳ Taranıyor (geçmiş karne ile birlikte)...")
     result, trials = await asyncio.to_thread(screen.screen_list, query, chat)
     card_task = asyncio.ensure_future(asyncio.to_thread(screen.C.cached_history, query, screen._history_data))
+    listed = asyncio.Event()  # set once the list went out and its session is written (D12)
     try:
         history = await asyncio.wait_for(asyncio.shield(card_task), CARD_WAIT)
     except asyncio.TimeoutError:  # the list goes out now, the card when it is ready
         history = screen.PENDING
-        task = asyncio.ensure_future(_card_later(update, chat, card_task))
+        task = asyncio.ensure_future(_card_later(update, chat, card_task, listed))
         _BACKGROUND.add(task)
         task.add_done_callback(_BACKGROUND.discard)
     except Exception:  # noqa: BLE001 - the list still goes out
         logger.exception("History card failed")
         history = None
-    text = await asyncio.to_thread(screen.finish, query, chat, result, trials, history)
-    await reply(update, text, _screen_buttons(chat))
+    try:
+        text = await asyncio.to_thread(screen.finish, query, chat, result, trials, history)
+        await reply(update, text, _screen_buttons(chat))
+    finally:
+        listed.set()
 
 
 CARD_WAIT = 60  # seconds the list waits for its history card (Aşama 3, madde 10)
 _BACKGROUND: set = set()
 
 
-async def _card_later(update, chat, card_task) -> None:
+async def _card_later(update, chat, card_task, listed: asyncio.Event) -> None:
+    """The card in its own message, always AFTER the list: computing starts at once, sending
+    waits for `listed` (D12: a card that ended first went out as 'Önce /tara ...')."""
+
     from core.screen import command as screen
 
     try:
@@ -139,6 +146,7 @@ async def _card_later(update, chat, card_task) -> None:
     except Exception:  # noqa: BLE001
         logger.exception("History card failed")
         history = None
+    await listed.wait()
     await reply(update, screen.card_later(chat, history))
 
 

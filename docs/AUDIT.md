@@ -25,10 +25,10 @@ Profesyonel geliştirme talimatının (28.10.2026) ilk adımı ve öz-denetim 6.
 | Veri lisansları | ⚠️ belgesiz (D5) | Yahoo (yfinance, resmi olmayan API) ve İş Yatırım (resmi olmayan uç nokta) için kullanım koşulları hiçbir belgede yazılı değil. |
 | Felaket kurtarma | ✅ doğrulandı (CI'da) | `dr-drill` 27.10'da başarılı. PC'deki gerçek yedekler buradan görülmez. |
 | Holdout ve geleceği görme | ✅ doğrulandı | Karne holdout'u iki yerde keser; kesim kaldırılırsa test kırmızı olur. Giriş ertesi açılışta. Sanal köprüde geleceği görme testi var. |
-| Kişisel kayıtlar (defter, sanal emirler, izleme, alarmlar, canlı ölçüm, hesap değeri) | ❓ doğrulanamadı | Yalnız PC'de. Son kanıt kullanıcının 28.10 sabahki `/durum`'u. Bugünkü hali görülmedi. |
-| Sanal portföy raporu | ❓ doğrulanamadı | PC'de; `/performans` çıktısı gerekiyor. |
-| PC'deki fiyat veritabanı, loglar, yedek bütünlüğü (SHA) | ❓ doğrulanamadı | PC'de. `/durum` "Yedek" satırı ve `python -m core.backup --test-restore` gerekiyor. |
-| PC'de çalışan sürüm | ❓ doğrulanamadı | Son kanıt v0.75.0. 29.10 07:40'taki otomatik kurulum en yeni yeşil sürümü kuracak. |
+| Kişisel kayıtlar (defter, sanal emirler, izleme, alarmlar, canlı ölçüm, hesap değeri) | ✅ doğrulandı (PC, 28.10) | `/durum`: şema 5/5 uyumlu, kişisel dosyalar 5/5 sonuna kadar okundu. Yedekte equity_log 3, defter 1, sanal emir 1, fiyat alarmı 1, signal_log 351 satır, izleme listesi 1 kullanıcı. |
+| Sanal portföy raporu | ✅ doğrulandı (PC, 28.10) | `/performans` çalışıyor: sanal hesap 27.10'da 99.924 TL; 23–27.10 −%0,1 (XU100 +%0,3); Taramalar "veri birikiyor", sanal köprü kapalı. |
+| PC'deki fiyat veritabanı, loglar, yedek bütünlüğü (SHA) | ✅ doğrulandı (PC, 28.10) | `core.backup --test-restore` BAŞARILI, canlı dosyalara dokunmadı (quantbist_2026-10-28.zip; marketdb 27.10 bütünlük ok). Yedek 28.10 14:27, dışarıdan izleme açık. PC'deki fiyat kalite tablosu Actions'takiyle birebir aynı (28.10 14:32). |
+| PC'de çalışan sürüm | ✅ doğrulandı (PC, 28.10) | v0.88.0 kurulu (14:30). Kurulumdan önce geçici kopyada 830 test geçti, ruff temiz; bot tek kopya. v0.88.1 PC'de kurulmadı: geçici kopyada 1 test kırıldı (D12). |
 
 ## Bulgular (öz-denetim 6)
 
@@ -70,4 +70,12 @@ PC tarafını doğrulamak için 29.10 otomatik kurulumundan sonra şunları gön
 
    Çıktıyı yapıştır. Bu komut son yedekleri geçici bir klasöre açar ve SHA kontrolüyle okur. Kişisel dosyalara dokunmaz; yalnız sonucunu yedek testi kaydına (`logs/`) bir satır olarak ekler.
 
-Bunlar gelene kadar bu satırlar "doğrulanamadı" olarak kalır.
+**28.10 öğleden sonra geldi** (PC'deki yerel oturum çalıştırdı): yukarıdaki dört satır doğrulandı. SLO o an 6/7; eksik olan "kayıt bütünlüğü" yarım gün yanlış alarmıydı (D11).
+
+## Sonradan bulunanlar (28.10.2026)
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| D11 | ORTA | Yarım günde (28.10) /durum, 14:30'dan itibaren "KRİTİK · rapor gitmedi", "fiyat 1 seans geride", "kaydı olmayan seans" ve SLO "kayıt bütünlüğü" uyarısı verdi. Kontroller mumun kesinleştiği saati (13:15 + 1:15) esas alıyordu; rapor ise 18:30'da çalışıyor. | ✅ v0.88.2: tek ortak fonksiyon `report_due_day` (18:30 + 1:15, yarım gün dahil, tatil hariç). Rapor, fiyat tazeliği, canlı ölçüm ve SLO penceresi onu kullanıyor (`test_report_due`). |
+| D12 | ORTA | /tara'da karne, liste oturumu yazılmadan biterse kullanıcıya önce karne yerine "Önce /tara ile bir tarama yap." gidiyordu, liste sonra geliyordu. Yalnız yavaş PC'de görüldü; CI yeşildi. | ✅ v0.88.2: karne hemen hesaplanıyor, mesajı listeden sonra gidiyor (`asyncio.Event`). Test olaylarla sıralı, uykusuz; 50 tekrarda geçiyor. CI'a "yavaş makine" işi eklendi: tek meşgul çekirdek, iki rastgele test sırası. |
+

@@ -22,6 +22,26 @@ jobs:
       # CHARTER §2: coverage of core+bot never drops; the gate only moves up (core/reports/slo.py COVERAGE_GATE)
       - run: python -X warn_default_encoding -W error::EncodingWarning -m pytest -q --cov=core --cov=bot --cov-report=term --cov-fail-under=91
 
+  # D12 (28.10.2026): a race between the /tara list and its card failed only on the slower PC.
+  # Here the suite runs on ONE core shared with a busy loop, in two seeded random orders.
+  slow-machine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Tests on one busy core, two random orders
+        run: |
+          taskset -c 0 sh -c 'while :; do :; done' &
+          busy=$!
+          for seed in ${{ github.run_id }} $(( ${{ github.run_id }} + 1 )); do
+            QB_SHUFFLE_SEED=$seed taskset -c 0 python -X warn_default_encoding -W error::EncodingWarning -m pytest -q -p no:cacheprovider || { kill $busy; exit 1; }
+          done
+          kill $busy
+
   docker:
     runs-on: ubuntu-latest
     steps:

@@ -109,16 +109,15 @@ def fake_update(sent, chat=CHAT, data=None):
 
 
 class BotTest(Base):
-    def run_screen(self, sent, args, card_seconds=0.0, wait=60):
-        """/tara through the bot with the test market; the card takes `card_seconds`."""
-        import time
+    def run_screen(self, sent, args, card=None, wait=60, finish=None):
+        """/tara through the bot with the test market. `card` replaces the history computation and
+        `finish` wraps the list's own step, so tests order the two with events, never with sleeps."""
 
         from bot import reports
 
-        real_list = command.screen_list
+        real_list, real_finish = command.screen_list, command.finish
 
-        def card(query, load):
-            time.sleep(card_seconds)
+        def quick(query, load):
             return {5: command.C.CardStats(n=3), 20: command.C.CardStats(n=3)}
 
         async def go():
@@ -128,18 +127,70 @@ class BotTest(Base):
         with mock.patch.object(command, "screen_list",
                                side_effect=lambda q, chat: real_list(q, chat, live=self.kwargs()["live"],
                                                                      suspects=set())), \
-                mock.patch.object(command.C, "cached_history", side_effect=card), \
+                mock.patch.object(command.C, "cached_history", side_effect=card or quick), \
+                mock.patch.object(command, "finish", side_effect=(lambda *a, **k: finish(real_finish, *a, **k))
+                                  if finish else real_finish), \
                 mock.patch.object(reports, "CARD_WAIT", wait):
             asyncio.run(go())
 
-    def test_slow_card_comes_in_its_own_message(self):
-        sent = []
-        self.run_screen(sent, ["rsi>0"], card_seconds=0.3, wait=0.05)
+    def slow_card(self):
+        """A card that is still running when CARD_WAIT ends: it waits for `release`."""
+        import threading
+
+        release, done = threading.Event(), threading.Event()
+
+        def card(query, load):
+            release.wait(10)
+            done.set()
+            return {5: command.C.CardStats(n=3), 20: command.C.CardStats(n=3)}
+
+        return card, release, done
+
+    def check_order(self, sent):
         texts = [t for t, _ in sent]
+        self.assertEqual(len(texts), 3, texts)
         self.assertTrue(texts[0].startswith("⏳"))
         self.assertIn("karne hesaplanıyor; hazır olunca ayrı mesajla gelecek", texts[1])
         self.assertIn("📒 Geçmiş karne", texts[2])
         self.assertIn("yetersiz örnek (3)", texts[2])
+
+    def test_slow_card_comes_in_its_own_message(self):
+        card, release, _ = self.slow_card()
+
+        def finish(real, *a, **k):
+            text = real(*a, **k)
+            release.set()  # the card ends after the list's own step
+            return text
+
+        sent = []
+        self.run_screen(sent, ["rsi>0"], card=card, wait=0.01, finish=finish)
+        self.check_order(sent)
+
+    def test_card_that_ends_before_the_list_still_comes_after_it(self):
+        """D12 (PC, 28.10.2026): the card finished while the list was still being written; it went
+        out first and said 'Önce /tara ile bir tarama yap.' The card now always follows the list."""
+        for _ in range(50):
+            card, release, done = self.slow_card()
+
+            def finish(real, *a, **k):
+                release.set()
+                done.wait(10)  # the card is ready before the list's session is written
+                return real(*a, **k)
+
+            sent = []
+            self.run_screen(sent, ["rsi>0"], card=card, wait=0.01, finish=finish)
+            self.check_order(sent)
+
+    def test_a_failing_list_step_never_leaves_the_card_waiting(self):
+        card, release, _ = self.slow_card()
+
+        def finish(real, *a, **k):
+            release.set()
+            raise RuntimeError("yazılamadı")
+
+        sent = []
+        with self.assertRaises(RuntimeError):
+            self.run_screen(sent, ["rsi>0"], card=card, wait=0.01, finish=finish)
 
     def test_fast_card_is_under_the_list(self):
         sent = []

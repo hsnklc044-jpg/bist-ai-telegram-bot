@@ -59,10 +59,12 @@ class SloResult:
 
 
 def _sessions(now: datetime) -> list[date]:
-    """Session days in the window that should be complete by now (today only after 19:00)."""
+    """Session days in the window that should be complete by now (today once its report is due, D11)."""
+
+    from core.market.calendar import report_due_day
 
     days = [now.date() - timedelta(days=i) for i in range(WINDOW.days)][::-1]
-    if now.time() < DEADLINE:
+    if report_due_day(now) < now.date():
         days = days[:-1]
     return [d for d in days if is_session_day(d)]
 

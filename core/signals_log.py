@@ -182,7 +182,9 @@ def audit_log(
     result.days = sorted(days)
     result.late = sorted(late)
     if result.days:
-        expected = last_final_session_date(now)
+        from core.market.calendar import report_due_day
+
+        expected = report_due_day(now)  # the records are written by the 18:30 report (D11)
         day, missing = result.days[0], []
         while day < expected:
             day += timedelta(days=1)

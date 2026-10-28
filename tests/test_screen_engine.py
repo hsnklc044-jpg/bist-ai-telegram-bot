@@ -264,9 +264,11 @@ class LiveTest(unittest.TestCase):
         tracer = sys.gettrace()  # coverage traces every line (~2x slower): measure the code, not the tracer
         sys.settrace(None)
         try:
-            started = time.perf_counter()
+            # CPU time of this process, not the wall clock: a busy shared core (CI's slow-machine job,
+            # a loaded PC) stretches the wall clock without the code getting any slower (K-46)
+            started = time.process_time()
             engine.run(query, frames, bench)
-            elapsed = time.perf_counter() - started
+            elapsed = time.process_time() - started
         finally:
             sys.settrace(tracer)
         self.assertLess(elapsed, 5.0)

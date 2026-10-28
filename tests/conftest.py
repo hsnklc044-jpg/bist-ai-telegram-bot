@@ -15,6 +15,19 @@ from core.screen import command as screen  # noqa: E402
 from core.screen import subscriptions, virtual  # noqa: E402
 
 
+def pytest_collection_modifyitems(config, items):
+    """QB_SHUFFLE_SEED=<n>: run the tests in a seeded random order (CI's slow-machine job), so a
+    test that only passes after another one, or a race a slow PC shows (D12), is caught in CI too.
+    The seed is printed; the same seed gives the same order."""
+
+    seed = os.environ.get("QB_SHUFFLE_SEED")
+    if seed:
+        import random
+
+        random.Random(seed).shuffle(items)
+        print(f"\ntest sırası karıştırıldı: QB_SHUFFLE_SEED={seed}")
+
+
 @pytest.fixture(autouse=True)
 def _private_run_files(tmp_path, monkeypatch):
     """Tests never touch the real report lock, logs/runs.csv or data/market.db."""

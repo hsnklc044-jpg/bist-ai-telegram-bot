@@ -4,6 +4,19 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-46. "Rapor ne zaman gitmeliydi" tek fonksiyon; yavaş makine CI işi (28.10.2026, D11 ve D12).**
+- `core.market.calendar.report_due_day(now)` bir seans gününü 18:30 + 1:15 = 19:45'ten itibaren "beklenen" sayar. Yarım günler de dahildir: mum 13:15'te kesinleşir ama rapor yine 18:30'da çalışır. Tatil ve hafta sonu hiçbir şey beklemez.
+- Bu fonksiyonu kullananlar: `/durum` rapor ve fiyat kontrolleri, canlı ölçüm denetimi ("kaydı olmayan seans"), SLO penceresi.
+- Rapor çalışmasının kendi içindeki kontroller (`daily` içinde "bayat veri" ve tazelik) mumun kesinleştiği saati kullanmaya devam eder, çünkü 18:30'da mum zaten kesindir.
+- SLO'nun "zamanında" eşiği (19:00) ayrı bir ölçüttür ve değişmedi.
+- **Tolerans:** 1:15 eski değer olarak korundu. Normal günde de 18:00 ile 19:45 arasında alarm yok; 19:45'te gönderim yoksa KRİTİK.
+- **Karne sırası:** karnenin mesajı her zaman listeden sonra gider. Hesaplama beklemez, yalnız gönderim bekler. Liste adımı hata verirse olay yine kurulur ve karne asılı kalmaz.
+- **Yavaş makine CI işi:** testler tek çekirdekte, aynı çekirdeği meşgul eden bir döngüyle ve tohumlu iki rastgele sırayla çalışır (`QB_SHUFFLE_SEED`, conftest). Yeni paket eklenmedi.
+- CI'ın bir işi kırmızıysa güncelleyici o sürümü kurmaz. Yanlış alarmla bir sürüm kaçabilir; bu, kırık bir sürümü kurmaktan daha güvenli.
+- Zamana bağlı testler tarandı:
+  - `test_runs` eşzamanlı kilit testi `sleep(0.2)` yerine olayla çalışıyor.
+  - Hız testi (`test_screen_engine`, < 5 sn) artık duvar saatini değil işlemin CPU süresini ölçüyor. Yerel provada meşgul tek çekirdekte duvar saati 6 sn tuttu; kod yavaşlamadan test kırılıyordu. Ölçüt aynı kaldı, yalnız doğru şey ölçülüyor.
+
 **K-45. Eleme filtreleri: tanımlar ve belirsiz noktalarda seçilen en güvenli yol (28.10.2026, profesyonel filtreler Aşama 1).**
 Dört filtre her /tara sonucuna varsayılan olarak uygulanır ve tek tek kapatılabilir. Elenen her hisse nedeniyle yazılır. Belirsiz noktalardaki seçimler:
 - **Likidite:** önceki 20 tam seans, bugün hariç (talimat).

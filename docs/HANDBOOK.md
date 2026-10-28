@@ -56,6 +56,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 ## 5. Sağlık nasıl okunur
 
 - `/durum`: bileşenlerin şu anki durumu + "📐 SLO (son 7 gün)" (CHARTER §2 hedefleri). "Bilinmiyor" = ölçülemedi, asla "sağlıklı" sayılmaz.
+- **"Gecikti" ne zaman denir:** bir seans gününün raporu, fiyatı ve canlı ölçüm kaydı o gün 19:45'ten itibaren beklenir (rapor 18:30, tolerans 1:15). Yarım günler de aynıdır; tatil ve hafta sonu hiçbir şey beklemez (K-46). 19:45'ten önce gün içindeki "bugün yok" uyarıları hata değildir ve gösterilmez.
 - Bir şey bozulursa: **OPERATIONS §8** (kesinti tablosu: ne olur / nasıl fark edilir / nasıl toparlanır / kimin işi).
 - Log'da arama: OPERATIONS §7b.
 

@@ -123,6 +123,28 @@ def last_final_session_date(now: datetime | None = None) -> date:
     return day
 
 
+REPORT_TIME = time(18, 30)  # the scheduled daily report, on half days too
+REPORT_TOLERANCE = timedelta(hours=1, minutes=15)
+
+
+def report_due_day(now: datetime | None = None) -> date:
+    """
+    The latest session whose daily report (and with it the price update and the live-measurement
+    records) should already exist: a session day counts from REPORT_TIME + REPORT_TOLERANCE on that
+    day. Half days are no exception: their candle is final at 13:15, but the report still runs at
+    18:30 (D11, 28.10.2026). Every "is it late?" check uses this one function.
+    """
+
+    now = (now or now_istanbul()).astimezone(ISTANBUL)
+    day = now.date()
+    deadline = datetime.combine(day, REPORT_TIME, tzinfo=ISTANBUL) + REPORT_TOLERANCE
+    if not is_session_day(day) or now < deadline:
+        day -= timedelta(days=1)
+    while not is_session_day(day):
+        day -= timedelta(days=1)
+    return day
+
+
 def drop_open_candle(
     df: pd.DataFrame,
     now: datetime | None = None,
@@ -193,6 +215,7 @@ __all__ = [
     "holidays",
     "is_session_day",
     "last_final_session_date",
+    "report_due_day",
     "now_istanbul",
     "session_final",
     "sessions_between",
