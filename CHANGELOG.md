@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.94.1 – 28.10.2026 (C/D/E/F paketi: yol haritası, kaynaklar, model envanteri; kod yok)
+- ROADMAP'e dört başlık eklendi: C piyasa bağlamı, D olay takvimi, E risk bütçesi, F model riski. Her birinde koşul, en erken tarih ve bitti ölçütü var. Kapıların okunuşu DECISIONS K-51'de.
+- K-51'de C'nin tasarımı var: reel/USD/nakit formülleri, TÜFE'nin ileri taşınması ve sabit rejim tanımı. Hepsi sonuç görülmeden yazıldı.
+- Yeni `docs/DATA_SOURCES.md`: her kaynağın kullanımı ve kullanım koşulu.
+  - EVDS şartları ve TCMB kur XML'i Actions ile arşivlendi; ikisi de kaynak gösterilerek kullanılabilir.
+  - TÜİK koşulu teyit edilemedi, bu yüzden elle giriş yolu seçildi.
+  - Borsa İstanbul'un telif bildirimi, bilginin yazılı izinsiz saklanmasını yasaklıyor. Bu yüzden sektör dosyası kullanılmıyor.
+  - Mevcut BIST 100 değişiklik dosyası ve sayfa arşivi bu bildirimle çelişebilir; yeni bulgu D14 olarak kaydedildi ve kullanıcı kararı bekliyor.
+- Yeni `docs/MODELS.md` (F1): 23 model; amaç, girdi, varsayım, sınır, doğrulama durumu ve risk. 8'i yüksek risk; bağımsız doğrulama sırası yazılı.
+- Kod değişmedi; C ve D'nin kodu kapı açılınca yazılacak.
+
 ## v0.94.0 – 28.10.2026 (Özellik A tamam: ölçüm sonucu, not, web)
 - Anlamlılık ölçümü gerçek veride çalıştı:
   - gerçek küme seviyelerinde dönüş %31,3, rastgele seviyelerde %31,0;

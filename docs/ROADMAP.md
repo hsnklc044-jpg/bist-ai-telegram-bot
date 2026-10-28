@@ -117,12 +117,60 @@ Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı ku
 
 Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter kümesi dışı her şey reddedilir; holdout karnede iki yerde kesilir (kesim kaldırılınca test kırmızı); giriş ertesi açılış; düğmeler yalnız izinli sohbete cevap verir; KAP'tan gelen hiçbir şey kendiliğinden veriye yazılmaz (SKBNK elle, kanıtla); ATR/ADX hızlı sürümleri kütüphaneyle bit bit aynı. **Kritik ya da yüksek bulgu yok.**
 
+## Özellik ve yönetişim paketi C, D, E, F (kullanıcı, 28.10.2026)
+
+Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Özellik B. Kullanıcı başka belgeyi kastediyorsa tarihler değişir. Koşulu oluşmamış iş için boş iş üretilmez.
+
+### C – Piyasa bağlamı ve reel getiri
+- **Koşul:** A'nın bitti ölçütü, yani PC'de `logs/levels_log.csv`'nin akşam raporuyla yazıldığının kanıtı. Kapı açılana kadar yalnız C1 tasarımı ve kaynak araştırması yapılır.
+- **Durum:**
+  - C1 tasarımı ✅ (K-51; rejim tanımı sonuç görülmeden).
+  - Kaynaklar ✅ DATA_SOURCES.md: EVDS koşulu arşivli; TCMB kurları XML'i uygun.
+  - Açık kaynak işleri:
+    - TÜİK yazılı koşulu bulunamadı; robots.txt izin veriyor, elle giriş yolu seçildi.
+    - **Sektör ataması kullanıcı kararı bekliyor:** Borsa İstanbul'un telif bildirimi bilginin izinsiz saklanmasını yasaklıyor (AUDIT D14). Bu kısım kapı açılsa da karara kadar "bilinmiyor" gösterir.
+- **En erken:** kod 31.10 (30.10 akşam kanıtı gelirse).
+- **Bitti ölçütü:**
+  - nominal / reel / USD / nakit sonuçları günlük raporda, `/performans`'ta ve araştırma raporunda;
+  - `/piyasa` çalışıyor; sektör bilgisi `/analyze` ve `/tara`'da (`sektor`, `sektor_goreli_guc`, `rejim`);
+  - kaynaklar DATA_SOURCES.md'de, tazelikleri `/durum`'da;
+  - elle hesaplanmış reel/USD testleri; TÜFE yayımından önce görünmez testi.
+
+### D – Olay takvimi ve KAP izleme
+- **Koşul:** C ile aynı (A'nın bitti ölçütü). Ek ön koşul: KAP kullanım koşulunun teyidi (K-48); teyit yoksa yalnız mevcut elle/Actions yolu kullanılır.
+- **En erken:** kod 31.10. Bitti ölçütü en az 10 iş günü PC kanıtı istediği için kapanış en erken ~14.11.
+- **Bitti ölçütü:**
+  - günlük raporda "📅 Yaklaşan olaylar (7 gün)" ve "📰 Bugünkü KAP bildirimleri";
+  - KRİTİK olay ayrı mesajla, bir kez; `/takvim` çalışıyor;
+  - kurumsal işlem önerisi (onayla) ve `/trade` uyarısı test edilmiş;
+  - en az 10 iş günü PC'de çalışmış; kaçırılan bildirim yok, varsa nedeni yazılı.
+
+### E – Portföy risk bütçesi ve yapı analizi
+- **Koşul:** C'nin bitti ölçütü (sektör verisi).
+- **En erken:** C bittikten sonraki gün. C'nin süresi ve sektör kaynağı kararı (D14) belli olmadığından tarih yok.
+- **Bitti ölçütü:**
+  - `/risk [gerçek|sanal]`, `/risk ekle`, `/risk denge` ("hesap sonucu, öneri değil") testleriyle çalışıyor;
+  - sınır uyarıları `alerts_log`'a giriyor ve tekrar etmiyor;
+  - `data/risk_limits.csv` kişisel ve yedekte; HANDBOOK'ta örnek dosyalı "risk bütçemi nasıl tanımlarım" bölümü var.
+
+### F – Model riski yönetimi ve bağımsız doğrulama
+- **Koşul:** F1 envanteri hemen; gerisi B'nin bitti ölçütünden sonra.
+- **Durum:** F1 ✅ docs/MODELS.md (23 model, 8'i yüksek risk; doğrulama sırası yazılı).
+- **En erken:** B'nin kapısı A'nın bitti ölçütüne bağlı. B'nin kendi bitti ölçütünde canlı kayıt olduğundan F2+ Kasım'dan önce açılmaz.
+- **Bitti ölçütü:**
+  - MODELS.md eksiksiz;
+  - bütün yüksek riskli modellerin bağımsız doğrulama raporu (`docs/validation/<model>.md`; ayrı oturum ya da alt ajan);
+  - değişiklik kontrolü sürüm notlarında işliyor;
+  - izleme eşikleri `/durum`'da;
+  - doğrulama takvimi MAINTENANCE.md'de.
+
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.94.0 (Özellik A tamam; PC kanıtı bekleniyor). Öz-denetim sayacı: v0.91.2'den beri 4.
+- **Son sürüm:** v0.94.1 (C/D/E/F paketi yol haritasında; DATA_SOURCES ve MODELS belgeleri). Öz-denetim sayacı: v0.91.2'den beri 5.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
   - B senaryolar: A bitince.
+  - C, D, E, F paketi: aşağıdaki dört başlık. Şu an açık olanlar yalnız C1 tasarımı ve kaynak araştırması ile F1 envanteri.
 - **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).
 - **Şablon görevi (28.10):** A ✅ v0.80.0, B ✅ v0.81.0, C ✅ v0.82.0, D ✅ v0.82.1 (tasarım). Açık: şablon karnelerinin gerçek verideki sonuçlarını kullanıcının keşif sayılarıyla karşılaştırmak (araştırma çalışması bekleniyor); temel veri uygulaması ayrı karar.

@@ -4,6 +4,55 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-51. C/D/E/F paketi: kapıların okunuşu ve C1 tasarımı (28.10.2026; sonuç görülmeden yazıldı).**
+
+**Kapılar.** Paket C ve D için "Talimat 1'in", F için "Talimat 2'nin" bitti ölçütünü şart koşuyor. Bu adlarla bir belge depoda yok. Yüklenen PROFESYONEL_TALIMAT_1'de ne "bitti ölçütü" ne de "§2" var. Özellik A ise "Talimat 1 §2" ile veri borcunu anıyordu.
+- **Okuyuş:** Talimat 1 = Özellik Talimatı A (destek/direnç), Talimat 2 = Özellik Talimatı B (senaryolar). Gerekçe: paket C/D'yi "Talimat 1'den sonra", E'yi "C'den sonra" sıralıyor. F'nin doğrulayacağı modeller arasında "senaryolar" var; bu model B bitmeden yok.
+- **Ek koşul:** A'nın kendi giriş kapısı olan veri borcu da kapandı (K-50). Böylece iki okuyuşun ikisinde de C/D'nin kapısı aynı noktada açılır: A'nın bitti ölçütü, yani PC'de seviye kaydının yazıldığının kanıtı.
+- **Kanıt:** en erken 30.10 akşam raporu (29.10 bayram).
+- **Düzeltme:** kullanıcı başka bir belgeyi kastediyorsa bu karar değişir; o zamana kadar kod yazılmaz.
+
+**C1.1 Kaynaklar** (ayrıntı docs/DATA_SOURCES.md):
+- **USD/TRY:** TCMB gösterge kuru XML'i, `ForexBuying`.
+  - d gününün kuru d bülteninden alınır (yaklaşık 15:30, kapanıştan önce). Bülten yoksa son bülten ileri taşınır.
+  - İkinci kaynak Yahoo `USDTRY=X`. Fark %1'i aşarsa `/durum`'da veri notu çıkar; değer değiştirilmez.
+  - EVDS anahtarı yalnız XML yolu kapanırsa gerekir.
+- **TÜFE:** TÜİK bülteni, otomatik çekme yok (koşul teyit edilmedi). Her ay elle tek satır girilir, yayım tarihi ve kaynakla.
+- **Faiz:** mevcut `data/cash/policy_rate.csv`.
+- **Sektör:** Borsa İstanbul'un pay–endeks dosyası (`hisse_endeks_ds.csv`) kullanılmaz. Telif bildirimi bilginin yazılı izinsiz saklanmasını yasaklıyor (AUDIT D14).
+  - Kalan yollar: Borsa İstanbul'dan yazılı izin, KAP şirket kartı (koşul teyit bekliyor) ya da Yahoo sektörü (farklı sınıflama, adıyla yazılır).
+  - Seçim kullanıcı kararıdır. O zamana kadar sektör "bilinmiyor" olur. C'nin sektör kısmı bu karara, reel/USD/nakit ve rejim kısmı yalnız kapıya bağlıdır.
+  - Sektör endeks fiyatları Yahoo'dan gelir (mevcut kaynak).
+
+**C1.2 Reel getiri** = (1 + nominal) / (TÜFE_son / TÜFE_baş) − 1.
+- Her ucun TÜFE'si o gün **bilinen** son değerdir. Bir değer yayım gününün ertesi gününden itibaren kullanılır; temel veri deposuyla aynı ve daha güvenli kural.
+- Ay içi tahmin yok. Bu yüzden bir aydan kısa pencerede reel getiri nominale eşit ya da ona çok yakın çıkabilir. Çıktıda "TÜFE: son yayımlanan (AA.YYYY), tahmin değil" yazar.
+
+**USD getiri** = (1 + nominal) × (kur_baş / kur_son) − 1.
+
+**Nakde göre:** mevcut nakit hesabı (K-22 RESEARCH_PROGRAM birincil ölçütü değişmez; dört baz ek bilgidir).
+
+**C1.3 Piyasa rejimi** (sabit; eşikler sonuçlara göre ayarlanmaz). Her gün yalnız o günün kapanışına kadarki veriyle hesaplanır:
+- **Trend:** XU100 kapanışı 200 seanslık basit ortalamasının üstünde ya da altında.
+- **Oynaklık:** XU100 günlük log getirilerinin 20 seanslık standart sapması. Bu değerin önceki 252 seans içindeki yüzdeliği bulunur; ≥ 80 ise "yüksek oynaklık".
+- **Genişlik:** o gün BIST 100 üyesi olan (geçmiş üyelik) hisselerden kapanışı kendi EMA50'sinin üstünde olanların oranı. Tanım Talimat 1 Evre 4'ten alındı.
+- **Etiket:**
+  - "yüksek oynaklık": oynaklık yüzdeliği ≥ 80; diğerlerinden önce gelir.
+  - "yükseliş": trend üstte ve genişlik ≥ %50.
+  - "düşüş": trend altta ve genişlik < %50.
+  - "karışık": diğer durumlar.
+  - "bilinmiyor": herhangi bir girdi yok (200 seans geçmiş, 252 yüzdelik penceresi ya da 20'den az üye).
+- **Kullanım:** rejim bir etikettir, sinyal değildir. `/tara`'da yalnız filtre olarak kullanılır. Araştırma raporundaki 63 seanslık rejim (`reliability.market_regime`, MODELS M19) ayrı kalır ve adı ayrı yazılır.
+
+**C1.4 Sektör göreli gücü:**
+- Sektör endeksinin 1, 5 ve 20 seanslık getirisi eksi XU100'ünki (puan).
+- Hisse için: 20 seanslık getirisi eksi sektör endeksininki.
+- Sektör endeksi fiyatı yoksa "bilinmiyor".
+
+**C1.5 Veri yeri:** `data/macro/` (kaynaklı kamu verisi, kişisel değil): `usdtry.csv`, `cpi.csv`, `sectors.csv` (hisse, sektör, endeks kodu, kaynak, tarih). Tazelik `/durum`'da görünür. Bunların hepsi kapı açılınca yazılır.
+
+**Tasarım dışı kalanlar:** D, E ve F'nin tasarımı kendi kapıları açılınca yazılır ("koşulu oluşmamış iş için boş iş üretilmez"). Tek istisna F1 envanteridir (docs/MODELS.md).
+
 **K-50. Veri borcunun kapatılma biçimi (28.10.2026, Özellik Talimatı A'nın kapısı).**
 - **Kurumsal işlemler:** her sıçrama kaynaklı bir kurumsal işlem satırıyla kapatıldı; oranı fiyattan tahmin eden `--apply-suggestions` kullanılmadı.
   - Kaynak tercih sırası: KAP metni (Actions `kap.yml` ile alınır), aracı kurum duyurusu, KAP'ı aktaran haber.
