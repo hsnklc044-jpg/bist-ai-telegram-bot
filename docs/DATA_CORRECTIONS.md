@@ -131,3 +131,30 @@ Denetimde 10 hissede 15 çözülmemiş ±%20 sıçrama bulundu. Bunlardan bugün
 - **Doğrulama:** satırlar eklendikten sonra Actions `datacheck` ikinci kaynakla (İş Yatırım'ın düzeltilmiş fiyatları) karşılaştırır. **Sonuç (datacheck 40682879776, 28.10.2026 14:50):** 01.05.2025'ten bugüne iki hisse de İş Yatırım'la tutarlı. 748 hisse-gün karşılaştırıldı; açıklanamayan fark 0, ertesi gün düzelen tek gün kapanış hatası 1.
 - **Kalanlar (açık):** FENER 09.12.2024 (%152,57 bedelli; fiyat doğrulanmadı), ADEL, ASUZU, BJKAS, EUREN, GOLTS, GSRAY, TSPOR, TUKAS. Bunlar bugünkü listede değil ya da sıçramaları 252 seanstan eski. Araştırma ve karne bu hisseleri bütünüyle dışarıda bırakmaya devam eder (FENER'in 2024 satırı da çözülene kadar).
 
+## Veri borcu kapatıldı: 12 sıçrama, KERVT, KPOWR (v0.91.0, 28.10.2026; Özellik Talimatı A'nın giriş kapısı)
+
+**Kurumsal işlemler** (`corporate_actions.csv`, her satır kaynaklı; Yahoo'daki kopukluk gününe yazıldı):
+
+| Hisse | Satır | İşlem | Kaynak |
+|---|---|---|---|
+| ADEL | 02.01.2024 | %1000 bedelsiz | Fintables; asıl bölünme 04.09.2024. Yahoo 2024 öncesini düzeltmemiş: ikinci kaynakla 02.01.2024 sonrası birebir aynı |
+| BJKAS | 03.07.2024 | %400 bedelli, 1 TL | haber |
+| BJKAS | 07.04.2025 | %400 bedelli, lot başına 2 TL | haber (KAP metnini aktaran) |
+| EUREN | 02.12.2024 | %176,32 bedelsiz | haber |
+| FENER | 09.12.2024 | %152,57 bedelli, 1 TL | haber; fiyat KAP'tan değil, ikinci kaynakla doğrulanır |
+| GSRAY | 23.12.2024 | %400 bedelli, 1 TL | aracı kurum duyurusu |
+| GSRAY | 30.06.2025 | %150 bedelli, 1 TL | KAP 1453492, 1456031 |
+| TSPOR | 09.09.2024 | %200 bedelli, 1 TL | KAP 1333938 |
+| TSPOR | 19.06.2025 | sermaye %85,33 azaltımı + eş zamanlı %581,82 bedelli, 1 TL | KAP 1463632. Yeni satır türü `reduction_rights`: azaltım çarpanı `factor` sütununda |
+| TUKAS | 03.02.2025 | %205,64 bedelsiz | haber |
+
+**Mum istisnaları** (yeni dosya `data/candle_exceptions.csv`; ikinci kaynak: `datacheck/2026-10-28_18-55.txt`):
+- **ASUZU 27.06.2022 `drop`:** Yahoo mumu bozuk (dört fiyat da 35,13; İş Yatırım'da kapanış 39,27). Mum atılır; iki seanslık +%19 hareket gerçektir.
+- **GOLTS 15.04.2024 `real_move`:** Yahoo'da 09.04.2024 yarım günü yok. İş Yatırım'da 417,12 → 458,69 → 504,51, yani iki tavan. +%21 veri sıçraması değildir; kalite raporu ve "veri sorunu" elemesi onu saymaz.
+
+**Kodlar:**
+- **KERVT → BESLR:** kod 02.06.2025'te değişti (Kerevitaş → Besler Gıda; Borsa İstanbul duyurusu). Üyelik eşlemesine eklendi; fiyatlar BESLR koduyla indirilir. KERVT'in 2023'teki BIST 100 üyeliği artık verisiz değil.
+- **KPOWR rapor evreninden çıkarıldı:** Yahoo, İş Yatırım ve resmî BIST 100 listelerinde yok; web aramasında böyle bir BIST kodu bulunamadı. Satırın kendi notu "teyit bekliyor" diyordu. Git geçmişinde duruyor, geri alınabilir (K-50).
+
+**Doğrulama:** satırlar eklendikten sonra Actions `datacheck` bu hisseleri 2022'den bugüne İş Yatırım'ın düzeltilmiş fiyatlarıyla karşılaştırır. Sonuç bu bölüme eklenir.
+

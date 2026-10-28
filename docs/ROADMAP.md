@@ -92,9 +92,9 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.90.1 (K-49 destek/direnç tasarımı). Öz-denetim sayacı: v0.87.0'dan beri 8.
+- **Son sürüm:** v0.91.0 (veri borcu kapatıldı; K-50). Öz-denetim sayacı: v0.87.0'dan beri 9; bir sonraki sürüm öz-denetim 7.
 - **Özellik talimatları (28.10):**
-  - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Kod, veri borcu kapanınca: 12 sıçrama, KPOWR, KERVT.
+  - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0 (ikinci kaynak doğrulaması bekleniyor). Kod sırada.
   - B senaryolar: A bitince.
 - **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).

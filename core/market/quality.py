@@ -164,7 +164,10 @@ def check_symbol(
     symbol: str,
     trading_days: pd.DatetimeIndex | None = None,
     market_wide: set[pd.Timestamp] | None = None,
+    exceptions=None,
 ) -> SymbolQuality:
+    from core.market.corrections import real_moves
+
     if df.empty:
         return SymbolQuality(symbol=symbol, candles=0, first=None, last=None)
 
@@ -185,8 +188,9 @@ def check_symbol(
     returns = df["close"].pct_change().dropna()
     big = returns[returns.abs() > DAILY_LIMIT]
 
+    real = real_moves(symbol, exceptions)  # moves a second source showed real (data/candle_exceptions.csv)
     for day, change in big.items():
-        if market_wide and day in market_wide:
+        if (market_wide and day in market_wide) or day.date() in real:
             continue
         result.jumps.append(
             Jump(

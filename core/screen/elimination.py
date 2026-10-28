@@ -33,7 +33,8 @@ MIN_FOR_RANK = 20
 JUMP, JUMP_WINDOW = 0.20, 252
 ZERO_WINDOW, ZERO_DAYS = 20, 3
 LISTING_GRACE = 5  # sessions after the store's first day that still count as "traded since the start"
-KINDS = {"rights": "bedelli", "bonus": "bedelsiz/bölünme", "split": "bedelsiz/bölünme"}
+KINDS = {"rights": "bedelli", "bonus": "bedelsiz/bölünme", "split": "bedelsiz/bölünme",
+         "reduction_rights": "azaltım+bedelli"}
 NOTE = ("kurumsal işlem yalnız data/corporate_actions.csv'deki kayıtlardan bilinir; kaydı olmayan hissede "
         "bilinmiyor (elenmez)")
 OPTIONS = ("ele", "ele_likidite", "ele_kurumsal", "ele_hareket", "ele_veri")
@@ -78,7 +79,7 @@ def _dated(events: pd.Series, window: int) -> pd.Series:
     return events.where(events != "").replace("", np.nan).ffill(limit=window - 1).fillna("")
 
 
-def frame(df: pd.DataFrame, symbol: str, store_index: pd.DatetimeIndex, actions) -> pd.DataFrame:
+def frame(df: pd.DataFrame, symbol: str, store_index: pd.DatetimeIndex, actions, exceptions=None) -> pd.DataFrame:
     """Per session: previous-20 liquidity, limit days, ATR%, and the corporate and data labels."""
 
     from core.strategy.score import average_true_range
@@ -104,7 +105,10 @@ def frame(df: pd.DataFrame, symbol: str, store_index: pd.DatetimeIndex, actions)
     out["corporate"] = _dated(corporate, CORPORATE_WINDOW)
 
     jumps = pd.Series("", index=df.index, dtype=object)
-    jumped = move > JUMP
+    from core.market.corrections import real_moves
+
+    real = pd.DatetimeIndex([pd.Timestamp(d) for d in real_moves(symbol, exceptions)])
+    jumped = (move > JUMP) & ~df.index.normalize().isin(real)
     jumps[jumped] = [f"veri: düzeltilmemiş sıçrama {d:%d.%m}" for d in df.index[jumped]]
     out["jump"] = _dated(jumps, JUMP_WINDOW)
     out["zero_days"] = (volume <= 0).astype(int).rolling(ZERO_WINDOW, min_periods=1).sum()

@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.91.0 – 28.10.2026 (veri borcu: 12 sıçrama, KERVT, KPOWR)
+- `corporate_actions.csv`'ye 10 kaynaklı satır eklendi: ADEL, BJKAS×2, EUREN, FENER 2024, GSRAY×2, TSPOR×2, TUKAS.
+- TSPOR'un 2025'teki birleşik işlemi (sermaye azaltımı + bedelli) için yeni satır türü eklendi: `reduction_rights`.
+- Yeni `data/candle_exceptions.csv`: ASUZU'nun bozuk mumu atılıyor, GOLTS'un eksik yarım gün üstündeki gerçek hareketi sıçrama sayılmıyor.
+- KERVT → BESLR kod eşlemesi eklendi. KPOWR rapor evreninden çıkarıldı (hiçbir kaynakta yok).
+- Doğrulama: `test_candle_exceptions`, `test_corrections` (azaltım+bedelli formülü elle). İkinci kaynak karşılaştırması Actions'ta (DATA_CORRECTIONS).
+
 ## v0.90.1 – 28.10.2026 (tasarım: destek/direnç seviyeleri)
 - K-49: Özellik Talimatı A'nın tasarımı sonuç görülmeden yazıldı. Kapsadığı: yöntemler (fraktal N=5, 0,5 ATR kümeleme, klasik pivotlar, 52 hafta, psikolojik, ortalamalar), sabit güç formülü, kırılma ve rol değişimi tanımı, anlamlılık ölçümü ve canlı kayıt. Kod, veri borcu kapısı açılınca yazılacak.
 

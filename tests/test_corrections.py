@@ -115,6 +115,35 @@ class CorporateActionKindsTest(unittest.TestCase):
         fixed = corrections.apply_corporate_actions(df, "X.IS", [action])
         self.assertLess(fixed["close"].pct_change().abs().max(), 1e-9)
 
+    def test_capital_reduction_with_simultaneous_rights(self):
+        """TSPOR 19.06.2025 (KAP 1463632): capital cut by 85.333% (7.5 bn -> 1.1 bn TL, each share
+        x 7.5/1.1) and at the same time a 581.818% rights issue at 1 TL. On a 0.90 TL stock:
+        after the cut 0.90 x 6.8182 = 6.136; TERP = (6.136 + 5.8182 x 1) / 6.8182 = 1.7533."""
+        reduction, ratio = 7.5 / 1.1, 6.4 / 1.1
+        terp = (0.90 * reduction + ratio * 1.0) / (1 + ratio)
+        self.assertAlmostEqual(terp, 0.90 + ratio / (1 + ratio), places=12)
+        df = self.frame(0.90, terp)
+        ex = df.index[5].date()
+        action = corrections.CorporateAction("X.IS", ex, kind="reduction_rights", ratio=ratio, price=1.0,
+                                             factor=reduction)
+        self.assertAlmostEqual(action.resolve(df), terp / 0.90)
+        fixed = corrections.apply_corporate_actions(df, "X.IS", [action])
+        self.assertLess(fixed["close"].pct_change().abs().max(), 1e-9)
+
+    def test_reduction_rights_row_needs_both_numbers(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "ca.csv"
+            path.write_text("symbol,ex_date,kind,ratio,price,factor,source,note\n"
+                            "X.IS,2025-06-19,reduction_rights,5.8181818,1,,kaynak,azaltım çarpanı yok\n"
+                            "Y.IS,2025-06-19,reduction_rights,5.8181818,1,6.8181818,kaynak,tam\n", encoding="utf-8")
+            problems = []
+            actions = corrections.load_corporate_actions(path, problems)
+        self.assertEqual([a.symbol for a in actions], ["Y.IS"])
+        self.assertEqual(len(problems), 1)
+
     def test_bonus_formula(self):
         action = corrections.CorporateAction("X.IS", date(2025, 4, 8), kind="bonus", ratio=10.0)
         self.assertAlmostEqual(action.resolve(self.frame(800, 800 / 11)), 1 / 11)

@@ -38,6 +38,7 @@ INDEX_SIZE = 100
 ALIASES = {
     "EFORC": "EFOR",  # inferred: EFORC added 2025-04, EFOR removed 2026-10 (chain only consistent if same stock)
     "IPEKE": "TRENJ",  # 24.11.2025
+    "KERVT": "BESLR",  # 02.06.2025 (Kerevitaş → Besler Gıda; Borsa İstanbul duyurusu, D4)
     "KOZAA": "TRMET",  # 24.11.2025
     "KOZAL": "TRALT",  # 24.11.2025
 }

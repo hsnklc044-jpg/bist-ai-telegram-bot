@@ -41,6 +41,7 @@ from __future__ import annotations
 import csv
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 
 import pandas as pd
 
@@ -62,7 +63,7 @@ CANCELLED_SESSIONS: frozenset[date] = frozenset(
 PRICE_COLUMNS = ("open", "high", "low", "close")
 
 
-KINDS = ("factor", "bonus", "rights")
+KINDS = ("factor", "bonus", "rights", "reduction_rights")
 
 
 @dataclass(frozen=True)
@@ -87,6 +88,12 @@ class CorporateAction:
                 return None
             p = float(before.iloc[-1])
             return (p + self.ratio * self.price) / ((1 + self.ratio) * p)
+        if self.kind == "reduction_rights":  # capital cut (each share x factor), then rights at once (TSPOR 2025)
+            before = raw.loc[raw.index < pd.Timestamp(self.ex_date), "close"]
+            if before.empty:
+                return None
+            p = float(before.iloc[-1])
+            return (self.factor * p + self.ratio * self.price) / ((1 + self.ratio) * p)
         return self.factor
 
 
@@ -124,8 +131,10 @@ def load_corporate_actions(path=None, problems: list[str] | None = None) -> list
                         raise ValueError(f"unknown kind {kind!r}")
                     if kind == "factor" and not action.factor:
                         raise ValueError("kind=factor needs a factor")
-                    if kind in ("bonus", "rights") and not action.ratio:
+                    if kind in ("bonus", "rights", "reduction_rights") and not action.ratio:
                         raise ValueError(f"kind={kind} needs a ratio")
+                    if kind == "reduction_rights" and not action.factor:
+                        raise ValueError("kind=reduction_rights needs the reduction multiplier in factor")
                     actions.append(action)
                 except (KeyError, ValueError, AttributeError) as exc:
                     logger.warning("Bad corporate action row %s | %s", row, exc)
@@ -138,6 +147,61 @@ def load_corporate_actions(path=None, problems: list[str] | None = None) -> list
         pass
 
     return actions
+
+
+CANDLE_EXCEPTIONS_FILE = DATA_DIR / "candle_exceptions.csv"
+CANDLE_ACTIONS = ("drop", "real_move")
+
+
+@dataclass(frozen=True)
+class CandleException:
+    """One candle a second source showed wrong (drop) or one ±20% move it showed real (real_move)."""
+
+    symbol: str
+    date: date
+    action: str
+    source: str
+    note: str = ""
+
+
+def load_candle_exceptions(path=None, problems: list[str] | None = None) -> list[CandleException]:
+    """data/candle_exceptions.csv; a row without a known action or a source is skipped and named."""
+
+    path = Path(path or CANDLE_EXCEPTIONS_FILE)
+    if not path.exists():
+        return []
+    rows: list[CandleException] = []
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            try:
+                item = CandleException(row["symbol"].strip().upper(), date.fromisoformat(row["date"].strip()),
+                                       row["action"].strip(), (row.get("source") or "").strip(),
+                                       (row.get("note") or "").strip())
+                if item.action not in CANDLE_ACTIONS:
+                    raise ValueError(f"unknown action {item.action!r}")
+                if not item.source:
+                    raise ValueError("no source")
+                rows.append(item)
+            except (KeyError, ValueError, AttributeError) as exc:
+                if problems is not None:
+                    problems.append(f"candle_exceptions.csv satır {reader.line_num} okunamadı: {exc}")
+    return rows
+
+
+def real_moves(symbol: str, rows: list[CandleException] | None = None) -> set[date]:
+    rows = load_candle_exceptions() if rows is None else rows
+    return {r.date for r in rows if r.symbol == symbol.upper() and r.action == "real_move"}
+
+
+def apply_candle_exceptions(df: pd.DataFrame, symbol: str, rows: list[CandleException] | None = None) -> pd.DataFrame:
+    """Drop the candles a second source showed broken (ASUZU 27.06.2022)."""
+
+    rows = load_candle_exceptions() if rows is None else rows
+    dropped = [pd.Timestamp(r.date) for r in rows if r.symbol == symbol.upper() and r.action == "drop"]
+    if df.empty or not dropped:
+        return df
+    return df[~df.index.normalize().isin(pd.DatetimeIndex(dropped))]
 
 
 def drop_cancelled_sessions(df: pd.DataFrame) -> pd.DataFrame:
@@ -302,12 +366,17 @@ def clean(
 ) -> pd.DataFrame:
     """All corrections, in order (price fixes only when turned on)."""
 
-    df = apply_corporate_actions(drop_cancelled_sessions(df), symbol, actions)
+    df = apply_corporate_actions(apply_candle_exceptions(drop_cancelled_sessions(df), symbol), symbol, actions)
     return apply_price_fixes(df, symbol) if _price_fixes else df
 
 
 __all__ = [
     "CANCELLED_SESSIONS",
+    "CANDLE_EXCEPTIONS_FILE",
+    "CandleException",
+    "apply_candle_exceptions",
+    "load_candle_exceptions",
+    "real_moves",
     "CORPORATE_ACTIONS_FILE",
     "APPROVALS_FILE",
     "PriceFixGateError",

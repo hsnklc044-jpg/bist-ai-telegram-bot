@@ -4,6 +4,18 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-50. Veri borcunun kapatılma biçimi (28.10.2026, Özellik Talimatı A'nın kapısı).**
+- **Kurumsal işlemler:** her sıçrama kaynaklı bir kurumsal işlem satırıyla kapatıldı; oranı fiyattan tahmin eden `--apply-suggestions` kullanılmadı.
+  - Kaynak tercih sırası: KAP metni (Actions `kap.yml` ile alınır), aracı kurum duyurusu, KAP'ı aktaran haber.
+  - KAP metni olmayan satırlarda bu, notta yazılıdır. Fiyat kopukluğuyla tutarlılık ve ikinci kaynak doğrulaması şarttır.
+- **Kurumsal işlem olmayan sıçramalar** için yeni `data/candle_exceptions.csv`, iki eylemle:
+  - `drop`: ikinci kaynağın gösterdiği bozuk mum atılır. Uydurma bir fiyat konmaz; mum yok sayılır.
+  - `real_move`: ikinci kaynağın gösterdiği gerçek hareket (ör. Yahoo'da eksik bir seansın üstünden iki tavan) sıçrama sayılmaz.
+  - Kaynaksız satır okunmaz. İkinci kaynağın fiyatı depoya yazılmaz (K-21 aynen).
+- **KPOWR rapor evreninden çıkarıldı.** Hiçbir kaynakta yok ve evren listesi zaten "teyit bekliyor" diyordu. Rapor bu hisse için hiçbir zaman veri üretmedi, yani rapor değişmez. K-36 evren kararı Kasım sonunda ayrıca verilecek.
+- **KERVT kod değişikliği (BESLR)** üyelik eşlemesine eklendi.
+- Bu değişikliklerle karne ve araştırmanın dışarıda bıraktığı hisse listesi boşalmalı. Kalan olursa adıyla yazılır, kapı kapalı kalır.
+
 **K-49. Destek ve direnç seviyeleri: tasarım (yalnız tasarım; 28.10.2026, Özellik Talimatı A §1).** Kod, veri borcu kapısı açılınca yazılır: çözülmemiş sıçramalar, KPOWR ve KERVT. Talimatın andığı "Talimat 1 §2" belgesi depoda yok; kapının içeriği talimattaki parantezden alındı. Aşağıdaki her sabit sonuçlar görülmeden yazıldı ve sonuçlara bakılarak değiştirilmez. Yeni bir değer yeni bir yöntem sayılır.
 
 **Girdi:** düzeltilmiş (kurumsal işlemleri uygulanmış) kapanmış günlük mumlar. Düzeltilmemiş sıçraması olan hisse için seviye hesaplanmaz ("veri sorunu", K-45). Bu yüzden kapı şart. Bakış penceresi 252 seans. ATR = ATR14 (Wilder).
