@@ -321,6 +321,35 @@ def _drift_reasons(rows: pd.DataFrame, ref: dict, bars) -> list[str]:
         return [f"nedenler hesaplanamadı: {exc}"]
 
 
+SCREEN_MIN_SAMPLES = 30  # matured /tara records before a number is shown (/tara Aşama 4c)
+
+
+def screening_lines(screened: pd.DataFrame) -> list[str]:
+    """The "Taramalar" section: each /tara criterion (with its hash) from the day it was recorded."""
+
+    from core.screen.command import criterion_hash
+
+    lines = ["", "🔎 Taramalar (/tara kriterleri) → kayıttan sonraki getirinin XU100'den farkı (ortalama, %95 "
+                 "aralık; filtre sonucu, öneri değil)"]
+    if screened.empty:
+        return lines + ["  Henüz olgunlaşmış kayıt yok; veri birikiyor (her /tara sonucu kaydedilir, ilk sonuç "
+                        f"5 seans sonra, sayı için en az {SCREEN_MIN_SAMPLES} örnek)."]
+    for criterion in sorted(screened["view"].unique()):
+        for h in (5, 20):
+            part = screened[(screened["view"] == criterion) & (screened["horizon"] == h)]
+            stats = summarize(part)
+            if stats is None:
+                continue
+            head, tail = f"  {criterion} · {h} seans: ", f" · özet {criterion_hash(criterion)}"
+            if stats.records < SCREEN_MIN_SAMPLES:
+                lines.append(head + f"veri birikiyor ({stats.records}/{SCREEN_MIN_SAMPLES} örnek)" + tail)
+                continue
+            lines.append(head + f"{pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
+                         f"| {stats.records} kayıt, {stats.days} gün, isabet %{stats.hit_rate * 100:.0f} "
+                         f"→ {_verdict(stats)}" + tail)
+    return lines
+
+
 def forward_report(
     signal_path: Path | str | None = None,
     equity_path: Path | str | None = None,
@@ -368,18 +397,7 @@ def forward_report(
                 if "sapma" in drifted:
                     lines += [f"      neden? {r}" for r in _drift_reasons(part[part["view"] == view], ref, bars)]
 
-    screened = scored[scored["source"] == SCREENED]
-    if not screened.empty:
-        lines += ["", "🔎 /tara kriterleri → sonraki getirinin XU100'den farkı (ortalama, %95 aralık; filtre "
-                      "sonucu, öneri değil)"]
-        for criterion in sorted(screened["view"].unique()):
-            for h in (5, 20):
-                stats = summarize(screened[(screened["view"] == criterion) & (screened["horizon"] == h)])
-                if stats is None:
-                    continue
-                lines.append(f"  {criterion} · {h} seans: {pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
-                             f"| {stats.records} kayıt, {stats.days} gün, isabet %{stats.hit_rate * 100:.0f} "
-                             f"→ {_verdict(stats)}")
+    lines += screening_lines(scored[scored["source"] == SCREENED])
 
     asked = scored[~scored["source"].isin([SYSTEMATIC, SCREENED])]
     if not asked.empty:

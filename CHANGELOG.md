@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.84.0 – 28.10.2026 (/tara Aşama 4c: /performans "Taramalar")
+- `/performans` artık her zaman bir "Taramalar" bölümü gösteriyor. Her /tara kriteri için kayıttan sonraki 5 ve 20 seanslık getiri, kriter özetiyle birlikte yazılıyor. 30'dan az olgun örnek varsa sayı yok, "veri birikiyor (n/30 örnek)" yazıyor.
+- Doğrulama: `test_screen_performance`.
+
 ## v0.83.0 – 28.10.2026 (/tara Aşama 4a–4b: kayıt listesi, silme, abonelik)
 - `/tara_abone AD`: kayıtlı tarama ya da şablon her işlem günü 18:30 raporundan sonra çalışıyor. Yalnız giren/çıkan hisseler gönderiliyor; değişiklik yoksa mesaj yok. Rapor gitmeyen gün (tatil) çalışmıyor. `/tara_abonelikler` ve `/tara_abone_iptal AD` de eklendi. Kayıtlar yeni kişisel dosya `data/screen_subscriptions.csv`'de (yalnız ekleme, yedekte, `/durum` denetler; K-42).
 - `/tara_liste` kayıtlı taramaları gösteriyor. `/tara_sil AD` bir taramayı siliyor.
