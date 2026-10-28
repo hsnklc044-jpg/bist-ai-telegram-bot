@@ -112,16 +112,50 @@ def cards_text(load=None) -> str:
     return "\n".join(lines)
 
 
+def variants(criteria: str) -> list[tuple[str, str]]:
+    """The same template under each definition that can differ from the user's own PC test."""
+
+    out = [("şablon (likidite 10 mn TL)", criteria), ("likidite=0", f"{criteria} likidite=0")]
+    if "goreli_hacim" in criteria:
+        out.append(("20 günlük hacim (hacim_oran)", criteria.replace("goreli_hacim", "hacim_oran")))
+        out.append(("20 günlük hacim, likidite=0", criteria.replace("goreli_hacim", "hacim_oran") + " likidite=0"))
+    return out
+
+
+def explain_text(load=None, horizon: int = 20) -> str:
+    """Why the cards differ from the user's numbers (RESEARCH_LOG): each variant's samples, the
+    event mean with and without costs, the day mean. Explains, never selects (K-38)."""
+
+    from core.screen import command
+
+    def pct(x):
+        return "—" if x is None else f"{x * 100:+.1f}%".replace(".", ",")
+
+    lines = [f"/tara şablon farkları, {horizon} seans ({C.HISTORY_START} – 30.10.2026). Yalnız açıklama içindir; "
+             "seçim için kullanılmaz, şablonlar değişmez.",
+             "sütunlar: örnek · olay ortalaması maliyet hariç · maliyet dahil · gün ortalaması (maliyet dahil) · "
+             "tüm hisseler (gün ortalaması)"]
+    data = (load or command._history_data)()
+    for name, t in TEMPLATES.items():
+        lines.append(f"\n{name}:")
+        for label, criteria in variants(t.criteria):
+            s = C.history(parse(criteria), *data, horizons=(horizon,))[horizon]
+            lines.append(f"  {label}: {s.n} · {pct(s.gross)} · {pct(s.mean)} · {pct(s.day_mean)} · {pct(s.base)}")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     from core.infrastructure.console import utf8_output
 
     utf8_output()
-    print(cards_text())
+    print(explain_text() if "--explain" in (argv or []) else cards_text())
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(main(sys.argv[1:]))
 
 
-__all__ = ["TEMPLATES", "Template", "cards_text", "list_text", "main", "warm"]
+__all__ = ["TEMPLATES", "Template", "cards_text", "explain_text", "list_text", "main", "variants", "warm"]

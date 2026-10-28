@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.84.1 – 28.10.2026 (şablon farklarının açıklaması)
+- `python -m core.screen.templates --explain` ve elle başlatılan `screens.yml` iş akışı eklendi. Her şablonu, kullanıcının PC denemesinden farklı olabilecek tanımlarla yeniden hesaplıyor: likidite tabanı, 10/20 günlük göreli hacim, maliyet hariç/dahil, olay ve gün ortalaması. Yalnız açıklama içindir; şablonlar değişmiyor.
+
 ## v0.84.0 – 28.10.2026 (/tara Aşama 4c: /performans "Taramalar")
 - `/performans` artık her zaman bir "Taramalar" bölümü gösteriyor. Her /tara kriteri için kayıttan sonraki 5 ve 20 seanslık getiri, kriter özetiyle birlikte yazılıyor. 30'dan az olgun örnek varsa sayı yok, "veri birikiyor (n/30 örnek)" yazıyor.
 - Doğrulama: `test_screen_performance`.

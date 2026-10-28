@@ -1,0 +1,34 @@
+name: Screen templates explain
+
+# Why the /tara template cards differ from the user's own PC numbers
+# (docs/RESEARCH_LOG.md): each template under each definition that can
+# differ (liquidity floor, 10- or 20-day relative volume, costs). Explains,
+# never selects; the output is in the run log and its summary page.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  explain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download prices
+        run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+      - name: Template variants
+        run: |
+          python -m core.screen.templates --explain 2>&1 | tee explain.txt
+          { echo '```'; cat explain.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

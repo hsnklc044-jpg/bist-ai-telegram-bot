@@ -124,6 +124,40 @@ class CardsTextTest(unittest.TestCase):
         self.assertEqual(done, [1])
 
 
+class ExplainTest(unittest.TestCase):
+    """Why the cards differ from the user's own PC numbers (RESEARCH_LOG): the same template under
+    each definition that can differ. Explains, never selects: the templates stay as they are."""
+
+    def test_variants(self):
+        frames, bench = market()
+        text = templates.explain_text(load=lambda: (frames, bench, None))
+        for name in templates.TEMPLATES:
+            self.assertIn(f"{name}:", text)
+        self.assertIn("şablon (likidite 10 mn TL)", text)
+        self.assertIn("likidite=0", text)
+        self.assertIn("20 günlük hacim", text)
+        self.assertIn("maliyet hariç", text)
+        self.assertIn("tüm hisseler", text)
+        self.assertIn("seçim için kullanılmaz", text)
+
+    def test_volume_variant_only_where_relative_volume_is_used(self):
+        self.assertEqual(templates.variants(templates.TEMPLATES["teknik_temel_ema"].criteria)[-1][0], "likidite=0")
+        names = [n for n, _ in templates.variants(templates.TEMPLATES["bebek_teknik"].criteria)]
+        self.assertIn("20 günlük hacim (hacim_oran)", names)
+        crit = dict(templates.variants(templates.TEMPLATES["bebek_teknik"].criteria))["20 günlük hacim (hacim_oran)"]
+        self.assertIn("hacim_oran>1", crit)
+        self.assertNotIn("goreli_hacim", crit)
+
+    def test_main_explain(self):
+        import io
+        from contextlib import redirect_stdout
+
+        with mock.patch.object(templates, "explain_text", return_value="açıklama"), \
+                redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(templates.main(["--explain"]), 0)
+        self.assertIn("açıklama", out.getvalue())
+
+
 class BotTest(unittest.TestCase):
     def test_command_and_help(self):
         from bot.handlers import COMMANDS, MENU

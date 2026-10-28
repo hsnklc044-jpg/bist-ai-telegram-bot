@@ -79,7 +79,7 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.84.0 (/performans "Taramalar"). Öz-denetim sayacı: v0.80.0'dan beri 5.
+- **Son sürüm:** v0.84.1 (şablon farklarının açıklaması). Öz-denetim sayacı: v0.80.0'dan beri 6.
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal (varsayılan kapalı, ayrı ölçüm defteri).
 - **Şablon görevi (28.10):** A ✅ v0.80.0, B ✅ v0.81.0, C ✅ v0.82.0, D ✅ v0.82.1 (tasarım). Açık: şablon karnelerinin gerçek verideki sonuçlarını kullanıcının keşif sayılarıyla karşılaştırmak (araştırma çalışması bekleniyor); temel veri uygulaması ayrı karar.
 - **PC'de doğrulandı (28.10 yerel otomasyon, v0.68.0 → v0.75.0):** 699 test geçti (4 atlandı), ruff temiz, `/durum` hepsi SAĞLIKLI, SLO 6/7 hedefte. Dışarıdan izleme çalışıyor (bot sinyali 10:42). Bayram günü rapor görevi "holiday" ile başarılı sinyal gönderiyor; 29.10'da yanlış alarm beklenmiyor, 30.10'da `logs/monitoring.json`'dan doğrulanacak. v0.68.1–v0.75.0 PC'de doğrulandı.
