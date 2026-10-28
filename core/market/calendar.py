@@ -16,6 +16,9 @@ For history (backtests, data quality) the trading days are still
 whatever days XU100 has candles for.
 
 Source: Borsa İstanbul announcement of 4 December 2025 (2026 holidays).
+2027 is PROVISIONAL: the fixed days of Law 2429 and Diyanet's 2027 calendar (Ramazan Bayramı
+9-11 March, eve 8 March; Kurban Bayramı 16-19 May, eve Saturday 15 May). Borsa İstanbul announces
+its own list in December; until a year is confirmed /durum says so, and warns once it is near.
 """
 
 from __future__ import annotations
@@ -36,6 +39,7 @@ ISTANBUL = ZoneInfo("Europe/Istanbul")
 SESSION_FINAL = time(18, 15)
 HALF_DAY_FINAL = time(13, 15)  # half-day closing auction ends about 12:40
 HOLIDAYS_FILE = DATA_DIR / "bist_holidays.csv"
+PROVISIONAL = {2027: "Kanun 2429 ve Diyanet 2027 takvimi"}  # years not yet confirmed by Borsa İstanbul
 
 
 @dataclass(frozen=True)

@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.94.2 – 28.10.2026 (2027 tatil takvimi)
+- `data/bist_holidays.csv` 2027'nin 13 gününü içeriyor: 11 tam tatil ve 2 yarım gün (8 Mart Ramazan Bayramı arifesi, 28 Ekim). Kaynaklar: 2429 sayılı Kanun'daki sabit günler ve Diyanet'in 2027 takvimi. Ramazan Bayramı 9–11 Mart; Kurban Bayramı 16–19 Mayıs, 19 Mayıs'la çakışıyor, arifesi cumartesiye denk geliyor.
+- Hafta sonuna düşen günler (1 Mayıs, 15–16 Mayıs) dosyada yok.
+- 2027 "geçici" sayılıyor, çünkü Borsa İstanbul'un kendi listesi Aralık'ta çıkacak.
+  - `/durum` şimdi "2027 geçici" notu gösteriyor. Aralık'tan itibaren teyit için uyarı veriyor.
+  - Ocak 2027'de bot artık "tatil takvimi yok" demeyecek; tatil günlerinde yanlış "rapor gitmedi" alarmı vermeyecek.
+- Doğrulama: `test_calendar.Holidays2027Test` (günler, bayram sonrası son seans, seans sayımı) ve güncellenmiş `/durum` testi.
+
 ## v0.94.1 – 28.10.2026 (C/D/E/F paketi: yol haritası, kaynaklar, model envanteri; kod yok)
 - ROADMAP'e dört başlık eklendi: C piyasa bağlamı, D olay takvimi, E risk bütçesi, F model riski. Her birinde koşul, en erken tarih ve bitti ölçütü var. Kapıların okunuşu DECISIONS K-51'de.
 - K-51'de C'nin tasarımı var: reel/USD/nakit formülleri, TÜFE'nin ileri taşınması ve sabit rejim tanımı. Hepsi sonuç görülmeden yazıldı.

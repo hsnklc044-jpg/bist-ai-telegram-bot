@@ -42,6 +42,7 @@ from core.config.paths import (
 )
 from core.market.calendar import (
     ISTANBUL,
+    PROVISIONAL,
     SESSION_FINAL,
     covered_until,
     holidays,
@@ -190,7 +191,13 @@ def calendar_check(now: datetime) -> Check:
         return Check("Tatil takvimi", UNKNOWN, f"{now.year} yılı tatilleri data/bist_holidays.csv'de yok")
     if until == now.year and now.month == 12:
         return Check("Tatil takvimi", WARN, f"{until + 1} tatilleri henüz eklenmedi{soon}")
-    return Check("Tatil takvimi", OK, f"{until} sonuna kadar{soon}")
+    near = now.year + 1 if now.month == 12 else now.year
+    pending = sorted(y for y in PROVISIONAL if y <= near)
+    if pending:
+        years = ", ".join(f"{y} ({PROVISIONAL[y]})" for y in pending)
+        return Check("Tatil takvimi", WARN, f"{years} geçici; Borsa İstanbul duyurusuyla teyit edin{soon}")
+    later = "".join(f"; {y} geçici" for y in sorted(PROVISIONAL) if y <= until)
+    return Check("Tatil takvimi", OK, f"{until} sonuna kadar{later}{soon}")
 
 
 PYTHON_END_OF_LIFE = date(2027, 10, 31)  # Python 3.11 security support ends (python.org)
