@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.69.0 – 28.10.2026
+- `/performans`: bir görünümün canlı sonucu geçmişten anlamlı saparsa altında "neden?" satırları çıkar. Sistem dört olası nedeni kendisi sınar: sapma birkaç hisseden mi, tek bir günden mi geliyor; piyasa geçmişten farklı mıydı; ölçülen hisselerde kurumsal işlem var mıydı. Sapma yokken hiçbir şey eklenmez.
+
 ## v0.68.1 – 28.10.2026
 - v0.66–v0.68 toplu taramasında iki düzeltme:
   - Güncelleyici, GitHub API'ye özel başlığı zip ve sürüm dosyası isteklerine de gönderiyordu. Zip indirme bu başlıkla hiç denenmemişti; ilk gerçek kurulumda reddedilebilirdi. Başlık artık yalnız API isteğinde.

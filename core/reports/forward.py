@@ -190,11 +190,11 @@ def score_log(
     horizons: tuple[int, ...] = HORIZONS,
     bars=adjusted_bars,
 ) -> pd.DataFrame:
-    """One row per (record, horizon) that has matured: source, view, day, horizon, excess."""
+    """One row per (record, horizon) that has matured: source, view, day, horizon, excess, symbol."""
 
     records = pd.DataFrame(_read_log(Path(path or SIGNAL_LOG_FILE)))
     if records.empty:
-        return pd.DataFrame(columns=["source", "view", "day", "horizon", "excess"])
+        return pd.DataFrame(columns=["source", "view", "day", "horizon", "excess", "symbol"])
 
     # unreadable rows (cut-off line, garbage) are skipped here and counted by audit_log (Kayıt sağlığı)
     records["day"] = pd.to_datetime(records["data_date"], format="%Y-%m-%d", errors="coerce")
@@ -213,10 +213,11 @@ def score_log(
             excess = forward_excess(cache[r.symbol], bench, day, h)
             if excess is not None:
                 out.append(
-                    {"source": r.source, "view": r.view, "day": day, "horizon": h, "excess": excess}
+                    {"source": r.source, "view": r.view, "day": day, "horizon": h, "excess": excess,
+                     "symbol": r.symbol}
                 )
 
-    return pd.DataFrame(out, columns=["source", "view", "day", "horizon", "excess"])
+    return pd.DataFrame(out, columns=["source", "view", "day", "horizon", "excess", "symbol"])
 
 
 @dataclass
@@ -305,6 +306,19 @@ def _drift(stats: ViewStats, ref: dict | None) -> str:
     return " → ⚠️ geçmişten anlamlı sapma (nedeni RESEARCH_LOG'a yazılır)"
 
 
+def _drift_reasons(rows: pd.DataFrame, ref: dict, bars) -> list[str]:
+    """The tested causes of a drift (core.reports.drift); never fatal to the report."""
+
+    from core.market.corrections import load_corporate_actions
+    from core.reports.drift import reasons
+
+    try:
+        return reasons(rows, ref, bars(BENCHMARK)["close"], load_corporate_actions())
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Drift reasons failed")
+        return [f"nedenler hesaplanamadı: {exc}"]
+
+
 def forward_report(
     signal_path: Path | str | None = None,
     equity_path: Path | str | None = None,
@@ -340,14 +354,17 @@ def forward_report(
                 if stats is None:
                     continue
                 ref = reference.get((view, int(h)))
+                drifted = _drift(stats, ref)
                 lines.append(
                     f"  {view:<14} {pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
                     f"| {stats.records} kayıt, {stats.days} gün ({stats.periods} bağımsız dönem), "
                     f"isabet %{stats.hit_rate * 100:.0f} "
                     f"→ {_verdict(stats)}"
                     + (f" | geçmiş {pct(ref['mean'])}, isabet %{ref['hit_rate'] * 100:.0f}" if ref else "")
-                    + _drift(stats, ref)
+                    + drifted
                 )
+                if "sapma" in drifted:
+                    lines += [f"      neden? {r}" for r in _drift_reasons(part[part["view"] == view], ref, bars)]
 
     asked = scored[scored["source"] != SYSTEMATIC]
     if not asked.empty:
