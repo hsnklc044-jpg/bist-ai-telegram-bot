@@ -4,6 +4,19 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-43. /tara_sanal: ayrı, ölçüm amaçlı sanal kitap; varsayılan kapalı (28.10.2026, /tara Aşama 4d).**
+- Kurallar görevde yazıldığı gibidir ve sonuçlara bakılarak değiştirilmez:
+  - eşit ağırlık, en çok 5 pozisyon, 20 seans tutma;
+  - stop = giriş − 2 × sinyal günündeki ATR14;
+  - sinyal kapanışta, giriş ertesi açılışta, alfabetik sırayla;
+  - maliyet her yönde %0,15.
+- Kriter açıldığı anda dondurulur. Kayıtlı tarama sonradan değişse de kitap eski kriterle sürer; değişiklik için kapatılıp yeniden açılır ve bu yeni bir başlangıç olur.
+- Kitap hiçbir yere yazılmaz. Her `/performans`'ta açılış tarihinden bugüne, yalnız o güne kadarki fiyatlarla yeniden hesaplanır.
+- Neden: kişisel `/paper` emirlerine (`data/paper_orders.csv`) ve deftere dokunmamak (test kaynak kodu da denetler), ve fiyat düzeltmesinde kitabın kendiliğinden düzelmesi.
+- `data/screen_virtual.csv` yalnız aç/kapat satırlarını tutar: kişisel, yalnız ekleme, yedekte, şeması denetlenir.
+- En çok 3 kitap açık olabilir. 30 kapanmış işlemden önce "veri birikiyor" yazılır.
+- `/performans`'ta "SANAL, yalnız ölçüm" etiketiyle, kişisel sanal hesaptan ayrı gösterilir.
+
 **K-42. /tara aboneliği raporun arkasından, yalnız değişiklik (28.10.2026, /tara Aşama 4b).**
 - `/tara_abone AD` kayıtlı bir taramayı ya da hazır bir şablonu izler. 18:30 raporu gönderildikten hemen sonra çalışır (`daily._screen_subscriptions`).
 - Rapor gitmeyen gün (tatil, yeni mum yok, ikinci çalıştırma) abonelik de çalışmaz. Tatil takvimi böylece aynen izlenir.

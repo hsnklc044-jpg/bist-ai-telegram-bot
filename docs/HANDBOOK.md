@@ -217,6 +217,12 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 
 **Abonelik.** `/tara_abone AD` (kayıtlı tarama ya da şablon, en fazla 5). Her işlem günü 18:30 raporundan sonra çalışır ve yalnız listeye giren ve çıkan hisseleri gönderir; değişiklik yoksa mesaj gelmez. Rapor gitmeyen gün (tatil) çalışmaz. İlk mesaj listenin tamamıdır. `/tara_abonelikler` listeler, `/tara_abone_iptal AD` bitirir. Kayıtlar `data/screen_subscriptions.csv`'de tutulur: yalnız ekleme, yedekte (K-42).
 
+**Sanal köprü.** `/tara_sanal AD` kayıtlı bir taramayı ya da şablonu ölçüm amaçlı bir sanal kitapta işletir. Varsayılan kapalıdır; `/tara_sanal AD kapat` kapatır, `/tara_sanal` durumu gösterir.
+- Kurallar önceden yazılıdır: eşit ağırlık, en çok 5 pozisyon, 20 seans, 2 ATR stop, ertesi açılışta giriş, maliyet dahil.
+- Kriter açıldığı anda dondurulur.
+- Sonuç `/performans`'ta "SANAL, yalnız ölçüm" etiketiyle görünür; 30 kapanmış işleme kadar "veri birikiyor" yazar.
+- Kişisel `/paper` emirlerine ve deftere dokunmaz; kitap her seferinde fiyatlardan yeniden hesaplanır (K-43).
+
 **Hazır şablonlar** (`/tara_sablonlar` listeler, `/tara AD` çalıştırır; K-38). Kullanıcının TradingView taramalarının teknik kısmıdır. Filtre şablonudur, öneri değildir. Kodda sabittir ve sonuçlara bakılarak ayarlanmaz. Araştırma programına aday kural değildir. Kayıtlı taramalardan ayrıdır; bir kayıt şablon adını alamaz. Temel veri gerektiren koşullar (piyasa değeri, FSO, beta, gelir artışı, ÖGO, borç/öz kaynak) atlanır ve listede yazılır. Karneleri bot açılışında arka planda hesaplanıp önbelleğe alınır, veri sürümü değişince yenilenir; `/tara_sablonlar` yalnız önbelleği okur, hazır değilse "karne hazırlanıyor" der. Haftalık araştırma bütün şablon karnelerini `templates.txt`'ye yazar.
 
 | Şablon | Koşullar | Kaynak | Atlanan (veri yok) |

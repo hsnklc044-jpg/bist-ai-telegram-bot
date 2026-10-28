@@ -307,6 +307,17 @@ async def unsubscribe_screen(
                                                 update.effective_chat.id))
 
 
+async def screen_virtual(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_sanal [AD [kapat]]: the measurement-only virtual book (off by default)."""
+
+    from core.screen import virtual
+
+    await reply(update, await asyncio.to_thread(virtual.command_text, list(context.args or [])))
+
+
 async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

@@ -407,3 +407,27 @@ Kullanıcının TradingView taramalarının teknik kısmı, PC'de keşif amaçl�
 
 Hiçbiri XU100'den ayırt edilemedi. **Bu bir keşiftir, aday kural değildir; bütçeden harcanmaz.** Tür olarak "Reddedilen fikir türleri" tablosundaki teknik sinyal / tek hissede trend türüyle aynıdır. Aynı şablonların maliyet dahil karnesi haftalık araştırmada `templates.txt`'de yazılır (`/tara_sablonlar` aynısını gösterir). Sayılar farklı çıkarsa nedeni bu bölüme eklenir.
 
+**Bizim sonuçlarımız ve farkın nedenleri (28.10.2026; araştırma çalışması 40668554066, açıklama çalışması `screens.yml` 40672060244).** Sütunlar: 20 seans, olay ortalaması maliyet hariç (kullanıcınınkiyle aynı tanım) · örnek sayısı · olay ortalaması 20 günlük hacim tanımıyla · bizim karar etiketimiz.
+
+| Şablon | Kullanıcı (maliyet hariç) | Biz (maliyet hariç) | Örnek: kullanıcı / biz (bağımsız) | 20 günlük hacimle | Karne (maliyet dahil, gün ortalaması) |
+|---|---|---|---|---|---|
+| 06 `basit_teknik` | −%0,3 · 516 | −%1,3 | 516 / 663 (593) | −%1,5 · 638 | −%1,4 [−3,2; +0,5], ayırt edilemiyor |
+| 08 `bebek_teknik` | −%0,0 | −%0,4 | — / 17788 | −%0,4 | −%1,1 [−2,0; −0,3], XU100'ün gerisinde |
+| 10 `duseni_kiran` | −%0,9 · 693 | −%0,6 | 693 / 955 (581) | **+%0,3** · 936 | −%1,2 [−3,0; +0,6], ayırt edilemiyor |
+| `tek_tus_trend` | +%0,5 · 1249 | +%0,7 | 1249 / 4009 (688) | — | +%0,3 [−0,9; +1,4], ayırt edilemiyor |
+| 05 `teknik_temel_ema` | +%0,3 | +%0,5 | — / 31829 | — | −%0,1 [−0,7; +0,6], ayırt edilemiyor |
+| tüm hisseler | −%0,5 | yaklaşık −%0,7 (maliyet dahil −%1,0) | | | |
+
+Sonuç: **hükümler aynı.** Hiçbir şablon XU100'ü geçmiyor. Bizim aralıklarımız kullanıcınınkilerle örtüşüyor; yön aynı, büyüklük 0–1 puan farklı.
+
+Farkın ölçülen ve olası nedenleri:
+1. **Maliyet (ölçüldü).** Karne maliyet dahildir (gidiş-dönüş %0,3). Kullanıcının sayıları maliyet hariçtir. Yukarıdaki karşılaştırma maliyet hariç yapıldı.
+2. **Ortalama türü (ölçüldü).** Karnedeki aralık, gün ortalamasının aralığıdır: her giriş günü bir kez sayılır. Olay ortalaması kalabalık günlere ağırlık verir. Fark çoğu şablonda 0,1–0,5 puan.
+3. **Hacim tanımı (ölçüldü).** `goreli_hacim` TradingView'in varsayılanı gibi 10 günlüktür. 20 günlük oranla (`hacim_oran`) düşeni kıran −%0,6'dan +%0,3'e çıkıyor; diğerlerinde fark 0,1–0,4 puan. Yine de hiçbiri ayırt edilebilir hale gelmiyor.
+4. **Likidite tabanı (ölçüldü): etkisi yok.** O günkü BIST 100 üyelerinin hepsi 10 mn TL'nin üstünde.
+5. **Örnek sayıları (olası, doğrulanamadı).** Kullanıcının sayıları bizim toplam olay sayımız ile bağımsız olay sayımız arasında (516 – 593/663; 693 – 581/955; 1249 – 688/4009). Kullanıcı bir hissenin tutma süresi içindeki tekrar sinyallerini ayıklamış ya da farklı bir dönem veya evren kullanmış olabilir. Kullanıcının betiği görülmeden kesinleştirilemez; **açık**.
+6. **Kesişim günü (tanım farkı).** `basit_teknik` kesişimi yalnız o günkü mumda arar; `basit_teknik_3g` son 3 seansta arar. Kullanıcının hangi tanımı kullandığı bilinmiyor. İki tanım da XU100'ün gerisinde.
+7. **Eksik koşullar (aynı).** İki tarafta da temel veri koşulları (piyasa değeri, F/S, beta, gelir artışı vb.) uygulanmadı; bu fark yaratmaz.
+
+**Bu açıklamalar şablon seçmek ya da şablon değiştirmek için kullanılmaz (K-38).**
+

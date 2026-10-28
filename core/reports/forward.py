@@ -416,6 +416,13 @@ def forward_report(
     except (OSError, ValueError) as exc:
         lines += ["", f"⚠️ Kayıt sağlığı denetlenemedi: {exc}"]
 
+    try:
+        from core.screen import virtual
+
+        lines += virtual.report_lines()
+    except Exception as exc:  # noqa: BLE001 - the rest of the report still goes out
+        lines += ["", f"⚠️ Sanal köprü hesaplanamadı: {exc}"]
+
     paper = paper_vs_market(equity_path, bars=bars)
     lines += ["", "💼 Sanal hesap"]
     if paper is None:

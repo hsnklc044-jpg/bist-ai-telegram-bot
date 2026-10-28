@@ -2,6 +2,23 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.85.0 – 28.10.2026 (/tara Aşama 4d: sanal köprü + şablon farkları)
+- `/tara_sanal AD` (varsayılan kapalı): kayıtlı bir tarama ya da şablon, önceden yazılmış kurallarla ölçüm amaçlı bir sanal kitapta işliyor. Kurallar: eşit ağırlık, en çok 5 pozisyon, 20 seans, 2 ATR stop, ertesi açılış.
+- Sonuç `/performans`'ta "SANAL" etiketiyle görünüyor. Kişisel `/paper` emirlerine ve deftere dokunmuyor (K-43).
+- RESEARCH_LOG: şablon karnelerimizi senin PC sayılarınla karşılaştırdım. Hükümler aynı: hiçbir şablon XU100'ü geçmiyor. Farkın nedenleri:
+  - maliyet;
+  - olay ve gün ortalaması;
+  - 10/20 günlük hacim tanımı (düşeni kıranda en büyük etki);
+  - likidite tabanı etkisiz;
+  - örnek sayısı farkı açık.
+- Doğrulama: `test_screen_virtual`. Kapsananlar:
+  - varsayılan kapalı ve kapalıyken fiyat okunmuyor;
+  - ertesi açılışta giriş, 20 seansta çıkış, en çok 5 pozisyon, stop;
+  - başlangıçtan önceki sinyal yok sayılıyor;
+  - geleceği görme yok;
+  - `paper_orders` oluşmuyor;
+  - yedek, şema ve gitignore.
+
 ## v0.84.1 – 28.10.2026 (şablon farklarının açıklaması)
 - `python -m core.screen.templates --explain` ve elle başlatılan `screens.yml` iş akışı eklendi. Her şablonu, kullanıcının PC denemesinden farklı olabilecek tanımlarla yeniden hesaplıyor: likidite tabanı, 10/20 günlük göreli hacim, maliyet hariç/dahil, olay ve gün ortalaması. Yalnız açıklama içindir; şablonlar değişmiyor.
 
