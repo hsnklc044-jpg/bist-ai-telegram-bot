@@ -159,14 +159,18 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 
 **Sonuç boşsa** cevap bir koşul hunisi gösterir: her koşulu tek başına kaç hissenin sağladığı, öncekilerle birlikte kaç hissenin kaldığı ve en çok eleyen koşul.
 
-**TradingView karşılıkları** (kullanıcının 28.10.2026 taramaları; `tests/test_screen_user_screens.py` bunları kabul ölçütü olarak çalıştırır):
+**TradingView karşılıkları** (kullanıcının 28.10.2026'da gönderdiği 8 tarama; `tests/test_screen_user_screens.py` bunları kabul ölçütü olarak çalıştırır):
 
-| Tarama | /tara | Sistemde olmayan |
+| Tarama | /tara | Sistemde olmayan / not |
 |---|---|---|
 | GÜÇLÜ TREND FİLTRESİ (GÜVENLİ PORTFÖY) | `kapanis>ema50 ema50>ema200 rsi 63..68 adx 25..40 ort_hacim(30)>20 getiri(21) 7..22 getiri(63) 15..55 ema20>ema50 beta 0,9..1,3` | Pys değ > 20 milyar TL (piyasa değeri verisi yok) |
 | 11. Trend Sahibi Şişmemiş Hisseler | `kapanis>ema50 kapanis>ema200 rsi<65 hacim_degisim>10 hacim_oran(10)>2` | HO derecelendirmesi 'Güçlü al' (al/sat etiketi, eklenmez) |
 | 10. Düşeni Kıran Hisse ve Harekete Hazır EMA | `kapanis<yuksek_20g rsi 50..70 hacim_oran(10)>1,5 ema(5)>ema(10) ema(10)>ema20 ema20>ema(40) ema50>ema(100) ema(100)>ema200 vwma(20)<kapanis getiri_5g<15 getiri(21)<20 cci(20)>-100 kapanis>acilis hacim_oran(10)>1` | Borsa piyasası (pazar bilgisi yok) |
 | 8. Bebek hisse taraması | `hacim_oran(10)>1 mom(10)>0` | Pys değ 1–2 milyar TL (piyasa değeri verisi yok); FSO < 1 (temel veri yok) |
+| Trend başlayan + formasyon tamamlamak üzere hisseler | `kapanis>ema50 ema50>ema200 rsi 55..70 hacim_oran(10)>1,8 adx>20 getiri(21) 5..25 kapanis>ema20 getiri_5g<10 kapanis>ema200` | — |
+| GOLDENCROSS | `kesti_yukari(ema50,ema200) kapanis>ema200 rsi>50 hacim_oran(10)>1,5 macd>0 adx>20` | kesişim yalnız o günkü mumda aranır; son 5 seans için son(5, kesti_yukari(ema50,ema200)) |
+| BIST TEK TUŞ TREND | `kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ort_hacim(30)>10 getiri(21)<30 beta 0,8..1,5 kapanis>ema20 getiri(63)<60` | Pys değ > 10 milyar TL (piyasa değeri verisi yok) |
+| ERKEN TREND | `kapanis>ema20 kapanis<ema50 rsi 45..55 adx 15..22 hacim_oran(10)>1 ort_hacim(10)>10` | — |
 
 Eşlemeler: Perf 1A ≈ `getiri(21)`, 3A ≈ `getiri(63)`, Değ 1H ≈ `getiri_5g`; Göreceli hacim ≈ `hacim_oran(10)`; Ort. hacim 30G = `ort_hacim(30)` (milyon adet); Fiyat < Yüksek 1A ≈ `kapanis<yuksek_20g`; Mom 10 = `mom(10)`. Piyasa değeri, FSO ve borsa pazarı için veri yok. "HO derecelendirmesi: Güçlü al" bir al/sat etiketidir, eklenmez (CHARTER §9).
 

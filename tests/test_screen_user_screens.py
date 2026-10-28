@@ -31,6 +31,20 @@ USER_SCREENS = {
     "bebek_hisse": ("8. Bebek hisse taraması",
                     "hacim_oran(10)>1 mom(10)>0",
                     ["Pys değ 1–2 milyar TL (piyasa değeri verisi yok)", "FSO < 1 (temel veri yok)"]),
+    "trend_baslayan": ("Trend başlayan + formasyon tamamlamak üzere hisseler",
+                       "kapanis>ema50 ema50>ema200 rsi 55..70 hacim_oran(10)>1,8 adx>20 getiri(21) 5..25 "
+                       "kapanis>ema20 getiri_5g<10 kapanis>ema200",
+                       []),
+    "goldencross": ("GOLDENCROSS",
+                    "kesti_yukari(ema50,ema200) kapanis>ema200 rsi>50 hacim_oran(10)>1,5 macd>0 adx>20",
+                    ["kesişim yalnız o günkü mumda aranır; son 5 seans için son(5, kesti_yukari(ema50,ema200))"]),
+    "tek_tus_trend": ("BIST TEK TUŞ TREND",
+                      "kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ort_hacim(30)>10 getiri(21)<30 beta 0,8..1,5 "
+                      "kapanis>ema20 getiri(63)<60",
+                      ["Pys değ > 10 milyar TL (piyasa değeri verisi yok)"]),
+    "erken_trend": ("ERKEN TREND",
+                    "kapanis>ema20 kapanis<ema50 rsi 45..55 adx 15..22 hacim_oran(10)>1 ort_hacim(10)>10",
+                    []),
 }
 
 
