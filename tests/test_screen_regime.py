@@ -52,6 +52,13 @@ class LiveTest(unittest.TestCase):
         self.assertEqual([m.symbol for m in result.matches], ["A.IS"])
         self.assertEqual(result.regime, "düşüş")
 
+    def test_a_stock_without_prices_does_not_break_the_regime(self):
+        # öz-denetim 8: the live list passes None / empty frames for stocks without data
+        frames = {**self.frames, "B.IS": None, "C.IS": pd.DataFrame()}
+        result = engine.run(parse("kapanis>100,5 rejim=dusus ele=hayir"), frames, self.bench, actions=[])
+        self.assertEqual(result.regime, "bilinmiyor")  # one stock: no breadth
+        self.assertTrue(result.regime_blocked)
+
     def test_a_small_universe_takes_todays_bist100_label(self):
         q = parse("kapanis>100,5 rejim=dusus ele=hayir evren=izleme")
         with mock.patch("core.market.regime.today_label", return_value="düşüş") as today:

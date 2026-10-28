@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.95.4 – 29.10.2026 (öz-denetim 8: iki düzeltme)
+- `/tara ... rejim=` canlı listede fiyatı olmayan bir hisse varken çöküyordu (Ö27). Verisiz hisseler artık rejim hesabının dışında kalıyor.
+- Rejim filtreli bir abonelik listesi rejim değişince boşalıyor. Mesaj artık bunun nedenini yazıyor: bugünkü rejim ve filtre (Ö28).
+- Öz-denetim 8'in bulguları ROADMAP'te; kritik ya da yüksek bulgu yok.
+
 ## v0.95.3 – 29.10.2026 (Talimat C: araştırma raporunda dört baz)
 - Araştırma raporunda strateji tablosunun altına yeni bir bölüm eklendi: her stratejinin ve XU100'ün toplam getirisi nominal, reel, USD ve nakde göre. Ek bilgidir; birincil ölçüt (XU100'e göre fazla getiri, Bonferroni aralığı) değişmedi.
 - Haftalık araştırma iş akışı, TCMB kur bültenlerini 01.12.2021'den bu yana dolduruyor (`python -m core.market.macro --usd`). Her gün bir kez soruluyor ve GitHub önbelleğinde tutuluyor. İlk çalışma yaklaşık 10 dakika uzun sürecek.

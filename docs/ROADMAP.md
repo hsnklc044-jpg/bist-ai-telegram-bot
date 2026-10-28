@@ -65,6 +65,31 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 8 — 29.10.2026 (v0.91.2 → v0.95.3, 10 sürüm).** Kapsam: `git diff 8d98938..4131e34 -- core bot .github`:
+- 2027 tatil takvimi ve geçici yıl uyarısı;
+- dört bazlı sonuç (`macro.py`, rapor, `/performans`, araştırma);
+- rejim ve `/piyasa`;
+- `/tara rejim=`;
+- araştırma iş akışındaki kur önbelleği.
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö27 | ORTA | `/tara ... rejim=` canlı listede fiyatı olmayan bir hisse (boş ya da `None` tablo) varken rejim hesabında çöküyordu. Komut hata verirdi. | ✅ v0.95.4: verisiz hisseler rejim hesabından çıkarılıyor (`test_screen_regime`). |
+| Ö28 | DÜŞÜK | Rejim değişince `rejim=` filtreli abonelik "Çıkanlar: hepsi" diyordu ama nedenini yazmıyordu. | ✅ v0.95.4: mesaj bugünkü rejimi ve filtreyi yazıyor (`test_screen_subscriptions`). |
+| Ö29 | DÜŞÜK | PC 14 günden uzun kapalı kalırsa kur önbelleğinde boşluk olur. O günler için bir önceki kur kullanılır: eski bir kur, ama geleceği görme yok. | kabul: `python -m core.market.macro --usd TARİH` doldurur; `/durum` kur 5 günden eskiyse uyarır. |
+| Ö30 | BİLGİ | 2027 geçici kalırsa `/durum` Aralık'tan itibaren uyarır. Teyit için kod sürümü gerekir (`calendar.PROVISIONAL`). | kabul: MAINTENANCE'ta Aralık işi. |
+| Ö31 | BİLGİ | Geçmiş TÜFE yayım tarihleri kuraldan geliyor (iki kaynaklı istisna). Bilinmeyen başka bir erteleme olduysa değer birkaç gün erken görünmüş olabilir. | kabul: K-52'de sınır olarak yazılı; birincil ölçüt bunu kullanmıyor. |
+| Ö32 | DÜŞÜK | Yahoo ile ikinci kaynak kur karşılaştırması (K-51) henüz yok. | açık: C'nin kalan işi. |
+
+**Kontrol edilenler:**
+- **Geleceği görme yok.** TÜFE yayımın ertesi gününden önce görünmüyor (test). Rejim etiketinde gelecek değişince geçmiş değişmiyor (test). Karne, etiketleri tarama dönemi sonunda kesilmiş veriyle hesaplıyor; holdout'a girmiyor.
+- **Testlerde ağ yok.** `conftest` TCMB isteklerini kapatıyor ve kur dosyalarını geçici klasöre yönlendiriyor.
+- **Depoya kişisel ya da önbellek dosyası girmiyor.** `usdtry.csv` ve `cpi_local.csv` git dışında. `cpi.csv` kaynaklı kamu verisi; TCMB şartı kaynak gösterilerek kullanıma izin veriyor.
+- **Yeni ek satırlar raporu durdurmuyor.** Hata olursa log'a yazılıp atlanıyor.
+- **Hiçbir yeni metinde öneri kelimesi yok** (test).
+
+**Kritik ya da yüksek bulgu yok.** Sayaç v0.95.4'te sıfırlandı.
+
 **Öz-denetim 7 — 28.10.2026 (v0.87.0 → v0.91.1, 11 sürüm).** Kapsam:
 - eleme filtreleri ve karnede gün gün uygulanması;
 - D11 (tek `report_due_day`), D12 (karne sırası, yavaş makine CI işi);
@@ -174,7 +199,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.95.3 (C: araştırma raporunda dört baz). Öz-denetim sayacı: v0.91.2'den beri 10; **öz-denetim sırada**.
+- **Son sürüm:** v0.95.4 (öz-denetim 8 düzeltmeleri). Öz-denetim sayacı: v0.95.4'te sıfırlandı.
 - **İleri hedefler:** 2027 tatilleri ✅ v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit). Kalan: elenen ve kalan grubun canlı izlenmesi, haftalık kayıtlı tarama özeti.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).

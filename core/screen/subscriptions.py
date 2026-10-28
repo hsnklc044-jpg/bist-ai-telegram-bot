@@ -134,7 +134,8 @@ def _codes(symbols) -> str:
     return ", ".join(s.removesuffix(".IS") for s in sorted(symbols))
 
 
-def _message(name: str, criteria: str, day: date, now: list[str], before: list[str] | None) -> str | None:
+def _message(name: str, criteria: str, day: date, now: list[str], before: list[str] | None,
+             note: str = "") -> str | None:
     from core.screen.command import DISCLAIMER
 
     head = f"🔔 Tarama aboneliği: {name} ({criteria}) · veri {day:%d.%m.%Y}"
@@ -150,6 +151,8 @@ def _message(name: str, criteria: str, day: date, now: list[str], before: list[s
         if left:
             body.append(f"➖ Çıkanlar: {_codes(left)}")
         body.append(f"Şimdi {len(now)} hisse.")
+    if note:
+        body.append(note)
     return "\n".join([head, *body, f"Ayrıntı ve karne: /tara {name}", DISCLAIMER])
 
 
@@ -174,13 +177,16 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
             chat_id = int(chat) if str(chat).lstrip("-").isdigit() else None
             frames, bench = (live or _live)((universe_of or universe.symbols)(query.universe, chat_id))
             found = universe.suspects() if suspects is None else suspects
-            symbols = sorted(m.symbol for m in engine.run(query, frames, bench, found).matches)
+            result = engine.run(query, frames, bench, found)
+            symbols = sorted(m.symbol for m in result.matches)
         except Exception as exc:  # noqa: BLE001 - one screen never stops the others or the report
             logger.exception("Subscription %s failed", name)
             out.messages.append(f"⚠️ Tarama aboneliği {name} bugün çalıştırılamadı: {exc}")
             continue
         before = previous.get("symbols") if previous and previous.get("criteria") == criteria else None
-        message = _message(name, criteria, day, symbols, before)
+        note = (f"(bugünkü rejim {result.regime}; rejim={query.regime} filtresi bugün listeyi boş bırakır, /piyasa)"
+                if result.regime_blocked else "")
+        message = _message(name, criteria, day, symbols, before, note)
         if message:
             out.messages.append(message)
         out.state[name] = {"day": day.isoformat(), "criteria": criteria, "symbols": symbols}

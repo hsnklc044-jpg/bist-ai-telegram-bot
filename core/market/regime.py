@@ -76,6 +76,7 @@ def components(bench_close: pd.Series, frames: dict, eligible: pd.DataFrame | No
     out["vol20"] = np.log(close).diff().rolling(VOL_WINDOW).std()
     out["vol_pct"] = _percentile_of_previous(out["vol20"], VOL_HISTORY)
 
+    frames = {s: df for s, df in frames.items() if df is not None and not df.empty}  # stocks without prices
     if frames:
         closes = pd.DataFrame({s: df["close"] for s, df in frames.items()}).reindex(close.index)
         counts = closes.notna().cumsum()

@@ -91,6 +91,25 @@ class RunTest(Files):
         for word in ("al ", "sat ", "öneri", "fırsat"):
             self.assertNotIn(word, out.messages[0].replace(command.DISCLAIMER, "").lower())
 
+    def test_a_regime_change_says_why_the_list_emptied(self):
+        # öz-denetim 8: rejim= empties the list on another regime's day; the message names it
+        frames, bench = market()
+        command.save_text(["dusus_rsi", "rsi<30", "ele=hayir", "rejim=dusus"], path=self.paths["saved_path"], now=NOW)
+        self.sub("dusus_rsi")
+        import pandas as pd
+
+        def regime_is(name):
+            return mock.patch("core.market.regime.labels",
+                              return_value=pd.Series(name, index=bench.index, dtype=object))
+
+        with regime_is("düşüş"):
+            first = self.run_on(DAY, frames, bench)
+        subscriptions.save_state(first, self.state)
+        with regime_is("yükseliş"):
+            out = self.run_on(date(2026, 10, 30), frames, bench)
+        self.assertIn("➖ Çıkanlar: S00", out.messages[0])
+        self.assertIn("bugünkü rejim yükseliş", out.messages[0])
+
     def test_same_data_day_twice_runs_once(self):
         frames, bench = market()
         self.sub("dusuk")
