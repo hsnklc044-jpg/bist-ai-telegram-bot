@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.89.1 – 28.10.2026 (açıklama: eleme grupları)
+- `templates --explain` (`screens.yml`) artık elenen ve kalan hisse-günlerin 20 seanslık olay ortalamasını da yazıyor (maliyet hariç). Kullanıcının PC keşfindeki "elenen grup" sayısıyla karşılaştırma içindir; seçim için kullanılmaz.
+
 ## v0.89.0 – 28.10.2026 (profesyonel filtreler Aşama 2: teknik şablonlar)
 - Yeni şablonlar, her biri kaynağı ve reddedilmiş türüyle:
   - `minervini`: Minervini 2013, trend şablonu;

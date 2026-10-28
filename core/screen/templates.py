@@ -165,6 +165,20 @@ def variants(criteria: str) -> list[tuple[str, str]]:
     return out
 
 
+def elimination_lines(data, horizon: int, pct) -> list[str]:
+    """The eliminated and the kept stock-days, event mean before costs (K-45): kept from the card of
+    'every stock' with the default eliminations, eliminated as the rest of the same events."""
+
+    every = C.history(parse("kapanis>0 ele=hayir"), *data, horizons=(horizon,))[horizon]
+    kept = C.history(parse("kapanis>0"), *data, horizons=(horizon,))[horizon]
+    out = [f"\nEleme grupları ({horizon} seans, olay ortalaması maliyet hariç; aralıksız):",
+           f"  kalan: {kept.n} · {pct(kept.gross)}"]
+    gone = every.n - kept.n
+    if gone > 0 and every.gross is not None and kept.gross is not None:
+        out.append(f"  elenen: {gone} · {pct((every.gross * every.n - kept.gross * kept.n) / gone)}")
+    return out
+
+
 def explain_text(load=None, horizon: int = 20) -> str:
     """Why the cards differ from the user's numbers (RESEARCH_LOG): each variant's samples, the
     event mean with and without costs, the day mean. Explains, never selects (K-38)."""
@@ -180,6 +194,7 @@ def explain_text(load=None, horizon: int = 20) -> str:
              "tüm hisseler (gün ortalaması)"]
     data = (load or command._history_data)()
     lines += _skipped_line(command)
+    lines += elimination_lines(data, horizon, pct)
     for name, t in TEMPLATES.items():
         lines.append(f"\n{name}:")
         for label, criteria in variants(t.criteria):

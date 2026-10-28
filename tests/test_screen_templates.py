@@ -169,6 +169,8 @@ class ExplainTest(unittest.TestCase):
         self.assertIn("maliyet hariç", text)
         self.assertIn("tüm hisseler", text)
         self.assertIn("seçim için kullanılmaz", text)
+        self.assertIn("Eleme grupları", text)
+        self.assertIn("kalan:", text)
 
     def test_volume_variant_only_where_relative_volume_is_used(self):
         self.assertEqual(templates.variants(templates.TEMPLATES["teknik_temel_ema"].criteria)[-1][0], "ele=hayir")
