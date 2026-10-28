@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.90.1 – 28.10.2026 (tasarım: destek/direnç seviyeleri)
+- K-49: Özellik Talimatı A'nın tasarımı sonuç görülmeden yazıldı. Kapsadığı: yöntemler (fraktal N=5, 0,5 ATR kümeleme, klasik pivotlar, 52 hafta, psikolojik, ortalamalar), sabit güç formülü, kırılma ve rol değişimi tanımı, anlamlılık ölçümü ve canlı kayıt. Kod, veri borcu kapısı açılınca yazılacak.
+
 ## v0.90.0 – 28.10.2026 (profesyonel filtreler Aşama 3: yayın tarihli temel veri deposu)
 - `data/fundamentals.csv` deposu eklendi: her kalem yayın tarihiyle; yalnız ekleme; yedekte; şema denetimli; git'e girmez.
 - Bir seans, bir kalemi yalnız yayın gününden sonraki seanstan itibaren görür (`as_of`, `panel`). Düzeltilmiş tablolar yeni satır olarak eklenir. TMS 29 tabloları işaretli.

@@ -4,6 +4,49 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-49. Destek ve direnç seviyeleri: tasarım (yalnız tasarım; 28.10.2026, Özellik Talimatı A §1).** Kod, veri borcu kapısı açılınca yazılır: çözülmemiş sıçramalar, KPOWR ve KERVT. Talimatın andığı "Talimat 1 §2" belgesi depoda yok; kapının içeriği talimattaki parantezden alındı. Aşağıdaki her sabit sonuçlar görülmeden yazıldı ve sonuçlara bakılarak değiştirilmez. Yeni bir değer yeni bir yöntem sayılır.
+
+**Girdi:** düzeltilmiş (kurumsal işlemleri uygulanmış) kapanmış günlük mumlar. Düzeltilmemiş sıçraması olan hisse için seviye hesaplanmaz ("veri sorunu", K-45). Bu yüzden kapı şart. Bakış penceresi 252 seans. ATR = ATR14 (Wilder).
+
+**Yöntemler** (her seviye yöntem adıyla gösterilir):
+1. **Salınım tepe/dip (`fraktal`, N = 5).**
+   - t günü tepedir, eğer `yüksek[t] > max(yüksek[t−5..t−1])` ve `yüksek[t] ≥ max(yüksek[t+1..t+5])`. Dip simetrik, düşüklerle.
+   - Tepe ancak t+5 kapandıktan sonra kesinleşir. O güne kadar hiçbir hesap onu görmez.
+   - Kapanıştan kapanışa ±%9,5'i aşan günlerin (tavan/taban) tepe ve dipleri sayılmaz: fiyat orada serbest oluşmadı, kilitlendi.
+2. **Kümeleme (`küme`).**
+   - Tepe ve dipler fiyata göre sıralanır. Bir öncekine 0,5 ATR'den (hesap günündeki ATR) yakın olan aynı kümeye girer.
+   - Seviye fiyatı = kümedeki tepe/diplerin ortalaması.
+   - Dokunma sayısı = kümedeki tepe/dip sayısı. Son dokunma = en yeni tepe/dibin tarihi.
+   - **Kırılma:** kapanış seviyenin öbür tarafına 0,5 ATR'den fazla geçerse bir kırılma sayılır. Fiyat tekrar geçmeden aynı yönde yeni kırılma sayılmaz.
+3. **Klasik pivotlar (`pivot_gün`, `pivot_hafta`).** Önceki günün ve önceki tamamlanmış haftanın yüksek (Y), düşük (D) ve kapanışından (K):
+   - P = (Y+D+K)/3
+   - R1 = 2P−D, D1 = 2P−Y
+   - R2 = P+(Y−D), D2 = P−(Y−D)
+4. **Diğerleri:**
+   - `52h_zirve`, `52h_dip`: 252 seans, gün içi yüksek/düşük.
+   - `psikolojik`: fiyatın büyüklüğüne göre yuvarlak sayı. Adım = 10^⌊log10(fiyat)⌋ / 2: 270 TL'de 50 (250, 300); 27 TL'de 5; 2,7 TL'de 0,5. Yalnız fiyatın iki yanındaki en yakın ikisi.
+   - `sma50`, `sma200`.
+5. **Hacim yoğunluğu: uygulanmaz** (isteğe bağlıydı). Gün içi veri yok; günlük mumla yapılan "profil" yanıltıcı olur.
+
+**Tür (rol değişimi):** her gün mevcut kapanışa göre belirlenir. Altındaki seviye destek, üstündeki direnç. Kırılan direnç bu yolla kendiliğinden desteğe döner. Kırılma sayısı seviyenin geçmişinde kalır.
+
+**Güç puanı** (yalnız `küme` seviyeleri; diğer yöntemlerin puanı yok, "—"):
+- güç = 100 × (1 − e^(−dokunma/2)) × e^(−yaş/252) × 0,5^kırılma
+- yaş = son dokunmadan bu yana geçen seans
+- Tam sayıya yuvarlanır.
+
+**Uzaklık:** (seviye − kapanış) / ATR ve aynı fark yüzde olarak.
+
+**Gösterim etiketi:** "teknik seviye, öneri değil". "Güçlü destek" gibi bir iddia yok. Anlamlılık ölçümü (§3.3) fark göstermezse her seviyenin yanında "tarihsel olarak rastgele seviyeden ayırt edilemedi" yazar.
+
+**Anlamlılık ölçümü (tanımlayıcı, bütçe dışı):**
+- Tarama döneminde (2023-08 – 30.10.2026, holdout yok), kapanış bir `küme` seviyesine 0,25 ATR'den yakın kapandığında bir "yaklaşma" sayılır.
+- Sonraki 5 seansta fiyat seviyeden geldiği yöne 1 ATR uzaklaşırsa "dönüş", seviyenin öbür yanına 0,5 ATR geçerse "kırılma", ikisi de olmazsa "belirsiz".
+- Aynı hisse ve günde, [52h dip, 52h zirve] aralığında düzgün rastgele seçilmiş aynı sayıda sahte seviyeyle karşılaştırılır (sabit tohum).
+- Fark, gün bazlı blok bootstrap ile %95 aralıkla yazılır.
+
+**Canlı kayıt:** her akşam rapordan sonra `logs/levels_log.csv`. Satır: tarih, hisse, yöntem, fiyat, tür, güç, dokunma. Yalnız ekleme. Sonuç bilinmeden yazılır.
+
 **K-48. Temel veri kaynağı: KAP; otomatik çekme kullanım koşulu teyidine kadar kapalı. İş Yatırım'ın robots.txt bulgusu (28.10.2026, profesyonel filtreler Aşama 3).**
 
 Kanıt: sayfalar 28.10.2026'da `sources.yml` ile arşivlendi (`research-results: sources/2026-10-28_18-17-26/`, SHA'larıyla).
