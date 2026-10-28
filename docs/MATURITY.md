@@ -10,7 +10,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 |---|---|
 | Günlük rapor çalışıyor | PC: 27.10 18:30 raporu otomatik kurulan sürümle gitti, sayılar elle sağlandı (runs.csv 18:30:01→18:30:39). 26.10 18:30 raporu gönderildi (`/durum` "Günlük rapor: son gönderilen 26.10.2026 kapanışı (26.10 18:30)", 27.10 16:19). Testler: `test_daily`, `test_report_numbers` (elle hesaplanan sayılar), `test_write_safety.SendRetryTest` |
 | Bot çalışıyor | PC: tek bot, "QuantBIST Bot" görevi (27.10 10:15:20, iki süreç tek kopya); `/durum` "Telegram botu: çalışıyor (son sinyal 16:17)". Testler: `test_bot`, `test_bot_handlers`, `test_scheduler` |
-| Yedek alınıyor ve doğrulanıyor | PC: `quantbist_2026-10-27.zip` (27.10 14:24 "5 dosya, doğrulandı"; 16:11). Testler: `test_backup`, `test_backup_restore`, `test_disaster_recovery` |
+| Yedek alınıyor ve doğrulanıyor | PC: `quantbist_2026-10-27.zip` (27.10 14:24 "5 dosya, doğrulandı"; 16:11). Geri yükleme testi PC'de 28.10 08:20 başarılı (`--test-restore`: 5 kişisel dosya + fiyat veritabanı, canlı dosyalara dokunulmadı). Testler: `test_backup`, `test_backup_restore`, `test_disaster_recovery` |
 | /durum çalışıyor | PC: 27.10 14:26 (v0.48.1) ve 16:19 (v0.55.0) tüm kontroller SAĞLIKLI. Testler: `test_health`, `test_health_ops`, `test_slo` |
 | Kod kalitesi | CI #130 (v0.55.3) ve #131 yeşil: ruff, 569 test, kapsam %91 kapısı |
 
@@ -28,7 +28,7 @@ Kullanıcının "olgunluk merdiveni" döngüsü (27.10.2026). CHARTER ve dönem 
 
 | Çıkış kanıtı | Durum |
 |---|---|
-| 30 gün kullanıcı müdahalesi olmadan çalışma (yerel otomasyon kurulumları + haftalık raporlar) | ⏳ |
+| 30 gün kullanıcı müdahalesi olmadan çalışma (yerel otomasyon kurulumları + haftalık raporlar) | ⏳ sayaç 28.10'da başladı: güncelleme görevi yoktu, PC v0.59.0'da kalmıştı; 28.10 08:16 elle v0.66.0 kuruldu (639 geçti + 4 atlandı, ruff temiz), "QuantBIST Guncelle" görevi her gün 07:40 (K-27). İlk kanıt: bir sonraki sürümün kendiliğinden kurulması |
 | Süresi dolacak her şey için önceden uyarı (tatil takvimi, endeks listesi, paket sürümleri, token) | ✅ 27.10: tatil ✅, endeks ✅, Python ✅ (`test_health_ops.MaintenanceCalendarTest`, `QuarterlyReviewDateTest`); paket sürümleri (haftalık pip-audit) ✅; token ✅: Telegram token'ının süresi yok; iptal/sızma durumu [SPOF.md](SPOF.md) "Telegram token" ve DISASTER_RECOVERY §3'te (bot hemen durur, izleme alarmı) |
 | Tek arıza noktası analizi (PC, internet, Yahoo, Telegram, GitHub) ve B planları | ⚠️ analiz [SPOF.md](SPOF.md) (27.10, `test_disaster_recovery.SpofDocTest`); T-1 rapor metni diske ✅ v0.57.0; Y-1 ikinci kaynakla bilgi mesajı ✅ v0.58.0 (K-21). Kalan: PC'nin fark edilmesi izleme adreslerine bağlı |
 | Sunucu kararı SLO verisiyle, DECISIONS'ta | ⏳ ölçüt önceden yazıldı (K-23, 27.10): pencere 02.11–13.11, karar 14.11. Not: bot hedefi 7/24. Kullanıcı 27.10: PC gece kapanmıyor/uyumuyor; doğrulaması heartbeats.csv'deki "uyku/askı" saatleri (haftalık SLO tablosu) |
