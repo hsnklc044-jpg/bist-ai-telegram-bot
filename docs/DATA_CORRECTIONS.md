@@ -107,5 +107,5 @@ Her cumartesi araştırma çalışması `kap.txt`: son 14 günde evrendeki hisse
 - **Fiyat:** ham kapanış 16.10'da 4,89, 19.10'da 3,69. Kopukluk Yahoo'da ve İş Yatırım'da aynı gün, 19.10 (`research-results` `datacheck/2026-10-28_09-59.txt`). İş Yatırım'ın düzeltilmiş serisi düzeltmeyi 19.10'a koyuyor: katsayı 3,97/5,10 ≈ 0,778. Teorik katsayı (4,89 + 0,4) / (1,4 × 4,89) ≈ 0,773.
 - **Sorun:** satır 22.10'daydı (rüçhan başlangıcı). Düzeltilmiş seride iki sahte hareket oluşuyordu: 19.10 −%24,6 (İş −%3,1) ve 22.10 +%15,7 (İş −%7,9). Kaynak: `datacheck/2026-10-28_10-01.txt`.
 - **Düzeltme:** satır 19.10'a, yani fiyat kopukluğunun olduğu güne taşındı (projenin kuralı: satır sıçrama gününe konur). KAP tarihleri ve kanıt satırın notunda.
-- **Doğrulama:** sonraki `datacheck` (SKBNK, düzeltilmiş seri) 19.10 ve 22.10'da fark göstermemeli.
+- **Doğrulama ✅:** `datacheck/2026-10-28_10-05.txt` (SKBNK, düzeltilmiş seri, 01.09–bugün): tutarlı, 40 hisse-günde açıklanamayan fark 0.
 
