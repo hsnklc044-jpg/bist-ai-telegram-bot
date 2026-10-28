@@ -1,0 +1,57 @@
+Aşama 3 – ön kayıtlı hipotezler (docs/RESEARCH_LOG.md; H2/H3 nakdi: plan değişikliği 1).
+Evren: geçmiş BIST 100 üyeliği | 10 pozisyon | komisyon %0,10 + kayma %0,05 her yön
+
+A3-H1 Düşük oynaklık (60 seans, en sakin 10, aylık)
+  2023-08-01: yıllık +15.4% (XU100 +14.6%), MaxDD -38.5% (XU100 -26.5%), Sharpe 0.71, işlem 161
+  2024-01-02: yıllık +11.4% (XU100 +14.5%), MaxDD -38.5% (XU100 -26.5%), Sharpe 0.59, işlem 140
+  XU100'e göre fazla getiri (yıllık, %98.3 GA): +0.4% [-17.1%, +18.9%] anlamlı değil
+  En kârlı 5 hisse (BIMAS, CCOLA, REEDR, AEFES, SELEC) olmadan yıllık +5.7%
+
+  ✗ birincil ölçüt (aralık sıfırın üstünde)
+  ✗ kapı 1: iki başlangıçta da XU100'ün üstünde
+  ✗ kapı 2: en kârlı 5 hisse olmadan XU100'ün üstünde
+  ✗ kapı 3: en büyük düşüş XU100'den kötü değil
+
+  KARAR: red – kural ayarlanmaz, sonuç RESEARCH_LOG'a yazılır
+
+A3-H2 Endeks trendi (XU100 > 200 seans ort., aylık; değilse nakit)
+  Fazla getiri aralığı yıllık, %98.3 GA (Bonferroni, 3 hipotez)
+  [nakit: politika faizi, stopajlı]
+    2023-08-01: yıllık +21.2% (XU100 +14.6%), MaxDD -22.5% (XU100 -26.5%), Sharpe 0.99, işlem 3, piyasada %80
+    2024-01-02: yıllık +22.2% (XU100 +14.4%), MaxDD -22.5% (XU100 -26.5%), Sharpe 1.10, işlem 3, piyasada %77
+    fazla getiri: +4.9% [-8.9%, +19.8%] anlamlı değil
+    XU100'ün üstünde kalınan takvim yılı: 2/4
+  [nakit: politika faizi − 3 puan, stopajlı]
+    2023-08-01: yıllık +20.6% (XU100 +14.6%), MaxDD -22.5% (XU100 -26.5%), Sharpe 0.97, işlem 3, piyasada %80
+    2024-01-02: yıllık +21.5% (XU100 +14.4%), MaxDD -22.5% (XU100 -26.5%), Sharpe 1.07, işlem 3, piyasada %77
+    fazla getiri: +4.4% [-9.3%, +19.2%] anlamlı değil
+    XU100'ün üstünde kalınan takvim yılı: 2/4
+  [bilgi: nakit %0] 2023-08-01: yıllık +12.3%, MaxDD -24.4%
+
+  ✗/✗ birincil ölçüt (aralık sıfırın üstünde)  (politika / −3 puan)
+  ✓/✓ kapı 1: iki başlangıçta da XU100'ün üstünde  (politika / −3 puan)
+  ✗/✗ kapı 2: en az 3 takvim yılında XU100'ün üstünde  (politika / −3 puan)
+  ✓/✓ kapı 3: en büyük düşüş XU100'den kötü değil  (politika / −3 puan)
+
+  KARAR: red – kural ayarlanmaz, sonuç RESEARCH_LOG'a yazılır
+
+A3-H3 Ay dönümü (son 3 + ilk 3 seans XU100; değilse nakit)
+  Fazla getiri aralığı yıllık, %98.3 GA (Bonferroni, 3 hipotez)
+  [nakit: politika faizi, stopajlı]
+    2023-08-01: yıllık +27.1% (XU100 +14.6%), MaxDD -11.3% (XU100 -26.5%), Sharpe 1.87, işlem 40, piyasada %28
+    2024-01-02: yıllık +22.7% (XU100 +14.4%), MaxDD -11.3% (XU100 -26.5%), Sharpe 1.56, işlem 35, piyasada %29
+    fazla getiri: +8.1% [-17.3%, +34.8%] anlamlı değil
+    XU100'ün üstünde kalınan takvim yılı: 3/4
+  [nakit: politika faizi − 3 puan, stopajlı]
+    2023-08-01: yıllık +25.1% (XU100 +14.6%), MaxDD -11.4% (XU100 -26.5%), Sharpe 1.75, işlem 40, piyasada %28
+    2024-01-02: yıllık +20.8% (XU100 +14.4%), MaxDD -11.4% (XU100 -26.5%), Sharpe 1.45, işlem 35, piyasada %29
+    fazla getiri: +6.5% [-19.0%, +33.2%] anlamlı değil
+    XU100'ün üstünde kalınan takvim yılı: 3/4
+  [bilgi: nakit %0] 2023-08-01: yıllık +1.4%, MaxDD -22.3%
+
+  ✗/✗ birincil ölçüt (aralık sıfırın üstünde)  (politika / −3 puan)
+  ✓/✓ kapı 1: iki başlangıçta da XU100'ün üstünde  (politika / −3 puan)
+  ✓/✓ kapı 2: en az 3 takvim yılında XU100'ün üstünde  (politika / −3 puan)
+  ✓/✓ kapı 3: en büyük düşüş XU100'den kötü değil  (politika / −3 puan)
+
+  KARAR: red – kural ayarlanmaz, sonuç RESEARCH_LOG'a yazılır
