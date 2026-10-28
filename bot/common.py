@@ -27,8 +27,13 @@ def split_message(
 async def reply(
     update: Update,
     text: str,
+    reply_markup=None,
 ) -> None:
-    """Reply with text, splitting it if needed."""
+    """Reply with text, split on whole lines if needed; buttons go under the last part."""
 
-    for part in split_message(text):
-        await update.effective_message.reply_text(part)
+    parts = split_message(text)
+    for i, part in enumerate(parts):
+        if reply_markup is not None and i == len(parts) - 1:
+            await update.effective_message.reply_text(part, reply_markup=reply_markup)
+        else:
+            await update.effective_message.reply_text(part)

@@ -43,6 +43,9 @@ FIELDS = {
     "stok_k": Field("Momentum", "stokastik %K (14)", "0–100"),
     "stok_d": Field("Momentum", "stokastik %D (3)", "0–100"),
     "roc": Field("Momentum", "n günlük değişim oranı", "%", 10),
+    "mom": Field("Momentum", "momentum: kapanış − n seans önceki kapanış", "TL", 10),
+    "cci": Field("Momentum", "CCI(n), emtia kanal endeksi", "puan", 20),
+    "getiri": Field("Momentum", "son n seans getiri (1 ay ≈ 21, 3 ay ≈ 63)", "%", 20),
     "getiri_5g": Field("Momentum", "son 5 seans getiri", "%"),
     "getiri_20g": Field("Momentum", "son 20 seans getiri", "%"),
     "getiri_60g": Field("Momentum", "son 60 seans getiri", "%"),
@@ -56,13 +59,17 @@ FIELDS = {
     "bb_genislik_yuzdelik": Field("Oynaklık", "bugünkü genişliğin son 126 seanstaki yüzdelik sırası", "0–100"),
     "oynaklik_20g": Field("Oynaklık", "20 günlük tarihsel oynaklık (yıllık)", "%"),
     # volume
-    "hacim_oran": Field("Hacim", "bugünkü hacim / önceki 20 gün ortalaması (canlı analizle aynı)", "×"),
+    "hacim_oran": Field("Hacim", "bugünkü hacim / önceki n gün ortalaması (20: canlı analizle aynı)", "×", 20),
+    "hacim_degisim": Field("Hacim", "bugünkü hacmin dünküne göre değişimi", "%"),
+    "ort_hacim": Field("Hacim", "n günlük ortalama hacim (adet)", "milyon adet", 30),
+    "vwma": Field("Hacim", "hacim ağırlıklı ortalama fiyat, n gün", "TL", 20),
     "obv_egim": Field("Hacim", "OBV'nin 20 günlük değişimi / 20 günlük toplam hacim", "%"),
     "islem_tl": Field("Hacim", "20 günlük ortalama işlem hacmi", "milyon TL"),
     # relative strength
     "gg_20": Field("Göreli güç", "son 20 seans getirisi − XU100'ünki", "puan"),
     "gg_60": Field("Göreli güç", "son 60 seans getirisi − XU100'ünki", "puan"),
     "gg_sira": Field("Göreli güç", "gg_60'ın taranan evrendeki yüzdelik sırası", "0–100"),
+    "beta": Field("Göreli güç", "son 252 seansta XU100'e göre beta", "×"),
     # price position
     "zirve_uzaklik": Field("Fiyat konumu", "kapanışın 52 hafta (252 seans) zirvesine uzaklığı", "%"),
     "dip_uzaklik": Field("Fiyat konumu", "kapanışın 52 hafta dibine uzaklığı", "%"),
@@ -206,6 +213,27 @@ class _Table:
         df, close = self.df, self.close
         if column in SCORE_FRAME:
             return self.score()[SCORE_FRAME[column]]
+        if name == "hacim_oran":
+            from core.strategy.score import volume_ratio_series
+
+            return volume_ratio_series(df["volume"], n)
+        if name == "hacim_degisim":
+            return (df["volume"] / df["volume"].shift(1) - 1) * 100
+        if name == "ort_hacim":
+            return df["volume"].rolling(n).mean() / 1e6
+        if name == "vwma":
+            return (close * df["volume"]).rolling(n).sum() / df["volume"].rolling(n).sum()
+        if name == "mom":
+            return close - close.shift(n)
+        if name == "cci":
+            from ta.trend import CCIIndicator
+
+            return CCIIndicator(df["high"], df["low"], close, window=n).cci()
+        if name == "getiri":
+            return self._ret(n)
+        if name == "beta":
+            r, m = close.pct_change(), self.bench.pct_change()
+            return r.rolling(252, min_periods=252).cov(m) / m.rolling(252, min_periods=252).var()
         if column == "atr_yuzde":
             return self.score()["volatility"] * 100
         if name in ("ema", "ema200"):

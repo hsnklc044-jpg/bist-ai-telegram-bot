@@ -31,7 +31,9 @@ class HandlerRegistrationTest(unittest.TestCase):
         app = ApplicationBuilder().token("123:ABC").build()
         register_handlers(app, chat_id=777)
 
-        handlers = [h for group in app.handlers.values() for h in group]
+        from telegram.ext import CommandHandler
+
+        handlers = [h for group in app.handlers.values() for h in group if isinstance(h, CommandHandler)]
         commands = {c for h in handlers for c in h.commands}
 
         self.assertEqual(commands, {name for name, _ in COMMANDS})

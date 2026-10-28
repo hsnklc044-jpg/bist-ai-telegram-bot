@@ -8,6 +8,7 @@ from __future__ import annotations
 from telegram import Update
 from telegram.ext import (
     Application,
+    CallbackQueryHandler,
     CommandHandler,
     ContextTypes,
     filters,
@@ -20,7 +21,11 @@ from bot.reports import (
     price_alarm,
     resend,
     save_screen,
+    screen_button,
     screen_cmd,
+    screen_explain,
+    screen_fields,
+    screen_more,
     status,
     stress_test,
     summary,
@@ -62,6 +67,9 @@ COMMANDS = (
     ("alarm", price_alarm),
     ("tara", screen_cmd),
     ("tara_kaydet", save_screen),
+    ("tara_alanlar", screen_fields),
+    ("tara_aciklama", screen_explain),
+    ("tara_devam", screen_more),
 )
 
 # Telegram's "Menu" list (set when the bot starts); /help is the same as /start
@@ -79,6 +87,9 @@ MENU = (
     ("alarm", "kapanış alarmı: /alarm THYAO altında 240"),
     ("tara", "göstergeyle filtre: /tara rsi<30 ema20>ema50"),
     ("tara_kaydet", "taramayı kaydet: /tara_kaydet AD koşullar"),
+    ("tara_alanlar", "tarama alanları ve birimleri"),
+    ("tara_aciklama", "bir hissede koşulların değeri: /tara_aciklama THYAO rsi<30"),
+    ("tara_devam", "son taramanın sonraki 15 satırı"),
     ("top", "teknik görünümü en güçlü hisseler"),
     ("analyze", "tek hisse: /analyze THYAO"),
     ("watchlist", "takip listesi"),
@@ -156,5 +167,8 @@ def register_handlers(
                 filters=allowed,
             )
         )
+
+    # the /tara buttons; the chat is checked inside (a callback has no message filter)
+    app.add_handler(CallbackQueryHandler(screen_button, pattern=r"^tara:"))
 
     app.add_error_handler(on_error)

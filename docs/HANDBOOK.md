@@ -89,7 +89,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 - Pencere: `son(5, kesti_yukari(...))` (koşul son 5 seansın birinde sağlandıysa).
 - Mantık: `ve` / `veya` / `değil` ve parantez. Yan yana yazılan koşullar "ve" sayılır.
 - Ondalıklar virgülle yazılabilir: `1,5`.
-- Sınırlar: en çok 300 karakter, en çok 10 koşul.
+- Sınırlar: en çok 300 karakter, en çok 15 koşul (K-34).
 - Hatalı yazımda mesaj hatanın yerini `^` ile gösterir ve en yakın alanı önerir. Ayrıştırıcı kendi yazdığımız kod; yazılan hiçbir şey çalıştırılmaz (eval/exec yok).
 
 **Seçenekler.**
@@ -123,6 +123,9 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Momentum | `stok_k` | stokastik %K (14) | 0–100 |
 | Momentum | `stok_d` | stokastik %D (3) | 0–100 |
 | Momentum | `roc(n)` (varsayılan 10) | n günlük değişim oranı | % |
+| Momentum | `mom(n)` (varsayılan 10) | momentum: kapanış − n seans önceki kapanış | TL |
+| Momentum | `cci(n)` (varsayılan 20) | CCI(n), emtia kanal endeksi | puan |
+| Momentum | `getiri(n)` (varsayılan 20) | son n seans getiri (1 ay ≈ 21, 3 ay ≈ 63) | % |
 | Momentum | `getiri_5g` | son 5 seans getiri | % |
 | Momentum | `getiri_20g` | son 20 seans getiri | % |
 | Momentum | `getiri_60g` | son 60 seans getiri | % |
@@ -134,12 +137,16 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Oynaklık | `bb_yuzde` | Bollinger %b ×100 (0 alt bant, 100 üst bant) | % |
 | Oynaklık | `bb_genislik_yuzdelik` | bugünkü genişliğin son 126 seanstaki yüzdelik sırası | 0–100 |
 | Oynaklık | `oynaklik_20g` | 20 günlük tarihsel oynaklık (yıllık) | % |
-| Hacim | `hacim_oran` | bugünkü hacim / önceki 20 gün ortalaması (canlı analizle aynı) | × |
+| Hacim | `hacim_oran(n)` (varsayılan 20) | bugünkü hacim / önceki n gün ortalaması (20: canlı analizle aynı) | × |
+| Hacim | `hacim_degisim` | bugünkü hacmin dünküne göre değişimi | % |
+| Hacim | `ort_hacim(n)` (varsayılan 30) | n günlük ortalama hacim (adet) | milyon adet |
+| Hacim | `vwma(n)` (varsayılan 20) | hacim ağırlıklı ortalama fiyat, n gün | TL |
 | Hacim | `obv_egim` | OBV'nin 20 günlük değişimi / 20 günlük toplam hacim | % |
 | Hacim | `islem_tl` | 20 günlük ortalama işlem hacmi | milyon TL |
 | Göreli güç | `gg_20` | son 20 seans getirisi − XU100'ünki | puan |
 | Göreli güç | `gg_60` | son 60 seans getirisi − XU100'ünki | puan |
 | Göreli güç | `gg_sira` | gg_60'ın taranan evrendeki yüzdelik sırası | 0–100 |
+| Göreli güç | `beta` | son 252 seansta XU100'e göre beta | × |
 | Fiyat konumu | `zirve_uzaklik` | kapanışın 52 hafta (252 seans) zirvesine uzaklığı | % |
 | Fiyat konumu | `dip_uzaklik` | kapanışın 52 hafta dibine uzaklığı | % |
 | Fiyat konumu | `yuksek_20g` | önceki 20 seansın en yükseği (bugün hariç) | TL |
@@ -147,6 +154,21 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Fiyat konumu | `bosluk` | açılışın önceki kapanışa göre boşluğu | % |
 | Fiyat konumu | `kapanis` | son kapanış | TL |
 | Fiyat konumu | `acilis` | son açılış | TL |
+
+**Komutlar.** `/tara` (kılavuz ve 5 örnek) · `/tara KRİTER` · `/tara_alanlar` · `/tara_aciklama KOD KRİTER` (o hissede her koşulun değeri, ✓/✗) · `/tara_devam` (sonraki 15 satır). Cevabın altında düğmeler var: Devam, Karne, Kaydet. Kaydet düğmesi kopyalanacak hazır komutu verir. Uzun cevaplar satırlar bölünmeden parçalanır.
+
+**Sonuç boşsa** cevap bir koşul hunisi gösterir: her koşulu tek başına kaç hissenin sağladığı, öncekilerle birlikte kaç hissenin kaldığı ve en çok eleyen koşul.
+
+**TradingView karşılıkları** (kullanıcının 28.10.2026 taramaları; `tests/test_screen_user_screens.py` bunları kabul ölçütü olarak çalıştırır):
+
+| Tarama | /tara | Sistemde olmayan |
+|---|---|---|
+| GÜÇLÜ TREND FİLTRESİ (GÜVENLİ PORTFÖY) | `kapanis>ema50 ema50>ema200 rsi 63..68 adx 25..40 ort_hacim(30)>20 getiri(21) 7..22 getiri(63) 15..55 ema20>ema50 beta 0,9..1,3` | Pys değ > 20 milyar TL (piyasa değeri verisi yok) |
+| 11. Trend Sahibi Şişmemiş Hisseler | `kapanis>ema50 kapanis>ema200 rsi<65 hacim_degisim>10 hacim_oran(10)>2` | HO derecelendirmesi 'Güçlü al' (al/sat etiketi, eklenmez) |
+| 10. Düşeni Kıran Hisse ve Harekete Hazır EMA | `kapanis<yuksek_20g rsi 50..70 hacim_oran(10)>1,5 ema(5)>ema(10) ema(10)>ema20 ema20>ema(40) ema50>ema(100) ema(100)>ema200 vwma(20)<kapanis getiri_5g<15 getiri(21)<20 cci(20)>-100 kapanis>acilis hacim_oran(10)>1` | Borsa piyasası (pazar bilgisi yok) |
+| 8. Bebek hisse taraması | `hacim_oran(10)>1 mom(10)>0` | Pys değ 1–2 milyar TL (piyasa değeri verisi yok); FSO < 1 (temel veri yok) |
+
+Eşlemeler: Perf 1A ≈ `getiri(21)`, 3A ≈ `getiri(63)`, Değ 1H ≈ `getiri_5g`; Göreceli hacim ≈ `hacim_oran(10)`; Ort. hacim 30G = `ort_hacim(30)` (milyon adet); Fiyat < Yüksek 1A ≈ `kapanis<yuksek_20g`; Mom 10 = `mom(10)`. Piyasa değeri, FSO ve borsa pazarı için veri yok. "HO derecelendirmesi: Güçlü al" bir al/sat etiketidir, eklenmez (CHARTER §9).
 
 **Karne nasıl okunur.**
 - Aynı koşulların 2023-08 – 30.10.2026 verisindeki geçmişidir. Holdout (02.11.2026 sonrası) hiç okunmaz.

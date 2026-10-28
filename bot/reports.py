@@ -102,9 +102,97 @@ async def screen_cmd(
     from core.screen import command as screen
 
     words = list(context.args or [])
+    chat = update.effective_chat.id
     if words:
         await reply(update, "⏳ Taranıyor (geçmiş karne ile birlikte)...")
-    await reply(update, await asyncio.to_thread(screen.screen_text, words, update.effective_chat.id))
+    text = await asyncio.to_thread(screen.screen_text, words, chat)
+    await reply(update, text, _screen_buttons(chat) if words and chat in screen.SESSIONS else None)
+
+
+def _screen_buttons(chat_id):
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+    from core.screen import command as screen
+
+    row = [InlineKeyboardButton("Devam ▶", callback_data="tara:devam")] if screen.has_more(chat_id) else []
+    row += [InlineKeyboardButton("Karne", callback_data="tara:karne"),
+            InlineKeyboardButton("Kaydet", callback_data="tara:kaydet")]
+    return InlineKeyboardMarkup([row])
+
+
+def _allowed_chat() -> int:
+    from core.infrastructure.settings import require_bot_settings
+
+    return require_bot_settings().chat_id
+
+
+async def screen_button(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """The buttons under a /tara answer; only the allowed chat is answered (like the commands)."""
+
+    from core.screen import command as screen
+
+    query = update.callback_query
+    await query.answer()
+    chat = query.message.chat.id
+    if chat != _allowed_chat():
+        return
+    action = (query.data or "").partition(":")[2]
+    if action == "devam":
+        text = screen.more_text(chat)
+        markup = _screen_buttons(chat) if screen.has_more(chat) else None
+    elif action == "karne":
+        text, markup = screen.card_text(chat), None
+    elif action == "kaydet":
+        text, markup = screen.save_hint(chat), None
+    else:
+        return
+    for i, part in enumerate(_split(text)):
+        await query.message.reply_text(part, **({"reply_markup": markup} if markup and i == len(_split(text)) - 1 else {}))
+
+
+def _split(text: str) -> list[str]:
+    from bot.common import split_message
+
+    return split_message(text)
+
+
+async def screen_fields(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_alanlar: every field with its unit."""
+
+    from core.screen import command as screen
+
+    await reply(update, screen.fields_text())
+
+
+async def screen_explain(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_aciklama KOD koşullar: each condition's value for one stock."""
+
+    from core.screen import command as screen
+
+    await reply(update, await asyncio.to_thread(screen.explain_text, list(context.args or []),
+                                                update.effective_chat.id))
+
+
+async def screen_more(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tara_devam: the next 15 rows of the last /tara."""
+
+    from core.screen import command as screen
+
+    chat = update.effective_chat.id
+    text = screen.more_text(chat)
+    await reply(update, text, _screen_buttons(chat) if screen.has_more(chat) else None)
 
 
 async def save_screen(

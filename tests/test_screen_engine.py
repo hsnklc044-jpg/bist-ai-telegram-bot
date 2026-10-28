@@ -93,12 +93,12 @@ class ParserTest(unittest.TestCase):
 
     def test_limits(self):
         with self.assertRaises(ScreenError) as caught:
-            parse("rsi<30 " * 11)
-        self.assertIn("en fazla 10 koşul", str(caught.exception))
+            parse("rsi<30 " * 16)
+        self.assertIn("en fazla 15 koşul", str(caught.exception))
         with self.assertRaises(ScreenError) as caught:
             parse("rsi<30 ve " + "x" * 300)
         self.assertIn("en fazla 300 karakter", str(caught.exception))
-        parse(" ve ".join(["rsi<30"] * 10))  # exactly ten is fine
+        parse(" ve ".join(["rsi<30"] * 15))  # exactly fifteen is fine
 
     def test_no_eval_anywhere(self):
         import inspect
@@ -257,10 +257,19 @@ class LiveTest(unittest.TestCase):
     def test_full_bist100_scan_is_fast(self):
         frames = {f"S{i:02d}.IS": walk(1250, 0.0003, 200 + i) for i in range(100)}  # five years, as on the PC
         bench = walk(1250, 0.0, 8)
-        started = time.perf_counter()
-        engine.run(parse("ema20>ema50 ve rsi 30..70 ve son(5, kesti_yukari(macd,macd_sinyal)) ve gg_sira>50 "
-                         "ve supertrend>0 ve adx>20 ve bb_genislik_yuzdelik<50"), frames, bench)
-        self.assertLess(time.perf_counter() - started, 5.0)
+        import sys
+
+        query = parse("ema20>ema50 ve rsi 30..70 ve son(5, kesti_yukari(macd,macd_sinyal)) ve gg_sira>50 "
+                      "ve supertrend>0 ve adx>20 ve bb_genislik_yuzdelik<50")
+        tracer = sys.gettrace()  # coverage traces every line (~2x slower): measure the code, not the tracer
+        sys.settrace(None)
+        try:
+            started = time.perf_counter()
+            engine.run(query, frames, bench)
+            elapsed = time.perf_counter() - started
+        finally:
+            sys.settrace(tracer)
+        self.assertLess(elapsed, 5.0)
 
 
 class UniverseTest(unittest.TestCase):

@@ -101,6 +101,7 @@ class Result:
     missing: list[tuple[str, str]] = field(default_factory=list)  # (symbol, why)
     illiquid: list[str] = field(default_factory=list)
     scanned: int = 0
+    funnel: list = field(default_factory=list)  # (condition, alone, cumulative) when nothing matched
 
 
 def columns(query: Query) -> list[str]:
@@ -142,6 +143,9 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
             result.matches.append(Match(symbol, latest.date(), {c: float(row[c]) for c in t.columns},
                                         describe(query.root, tail)))
 
+    if not result.matches:
+        result.funnel = funnel(query, {s: t for s, t in tables.items() if s not in result.illiquid})
+
     if query.order in ORDER_KEYS:
         column, descending = ORDER_KEYS[query.order]
 
@@ -152,6 +156,20 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
 
         result.matches.sort(key=sort_key)
     return result
+
+
+def funnel(query: Query, tables: dict) -> list[tuple[str, int, int]]:
+    """For each top-level condition: how many scanned stocks meet it alone, and how many are left
+    after it and every condition before it (the cumulative count is only meaningful for 've')."""
+
+    parts = list(query.root.children) if isinstance(query.root, L.And) else [query.root]
+    tails = [t.iloc[-LOOKBACK:] for t in tables.values()]
+    out, alive = [], [True] * len(tails)
+    for part in parts:
+        holds = [bool(part.mask(t).iloc[-1]) for t in tails]
+        alive = [a and h for a, h in zip(alive, holds, strict=True)]
+        out.append((part.text(False), sum(holds), sum(alive)))
+    return out
 
 
 def time_note(day: date, now: datetime) -> str:

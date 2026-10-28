@@ -41,11 +41,11 @@ def average_true_range(high: pd.Series, low: pd.Series, close: pd.Series, window
     return pd.Series(data=atr, index=true_range.index, name="atr")
 
 
-def volume_ratio_series(volume: pd.Series) -> pd.Series:
-    """Today's volume / mean of the previous 20 days; zero volume = missing."""
+def volume_ratio_series(volume: pd.Series, window: int = 20) -> pd.Series:
+    """Today's volume / mean of the previous `window` days (20 in the score); zero volume = missing."""
 
     v = volume.where(volume > 0)
-    average = v.shift(1).rolling(20, min_periods=1).mean()
+    average = v.shift(1).rolling(window, min_periods=1).mean()
     ratio = (v / average).round(2)
 
     return ratio.where(average > 0).fillna(1.0)

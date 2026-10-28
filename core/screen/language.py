@@ -9,7 +9,7 @@ Nothing the user types is ever executed; it only becomes a tree of known nodes.
     options: evren=bist100|bist30|izleme · likidite=10 (million TL, 0 = off) ·
              sirala=alfabetik|goreli_guc|hacim|rsi
 
-At most 300 characters and 10 conditions. Errors name the place (a caret under the normalized
+At most 300 characters and 15 conditions. Errors name the place (a caret under the normalized
 text) and the nearest valid field.
 """
 
@@ -19,12 +19,13 @@ import difflib
 import re
 from dataclasses import dataclass, field
 
+import numpy as np
 import pandas as pd
 
 from core.screen import fields as F
 
 MAX_LENGTH = 300
-MAX_CONDITIONS = 10
+MAX_CONDITIONS = 15  # the user's own "Düşeni Kıran" screen has 14 price conditions (DECISIONS K-34)
 PARAM_RANGE = (2, 250)
 WINDOW_RANGE = (1, 60)
 EXAMPLE = "Örnek: /tara rsi<30 ema20>ema50"
@@ -107,8 +108,8 @@ def _number(x: float) -> str:
     return f"{x:g}"
 
 
-def _known(series: pd.Series) -> pd.Series:
-    return series.astype("boolean")
+# Three-valued logic on numpy arrays: each node gives (value, known). A missing input is unknown,
+# and only a known True ever matches; "değil" of unknown stays unknown (Kleene logic).
 
 
 @dataclass(frozen=True)
@@ -120,29 +121,41 @@ class Operand:
     def text(self) -> str:
         return self.key if self.key is not None else _number(self.value)
 
-    def series(self, t: pd.DataFrame):
-        return t[self.key] if self.key is not None else self.value
+    def array(self, t: pd.DataFrame) -> np.ndarray:
+        if self.key is None:
+            return np.full(len(t), self.value, dtype=float)
+        return t[self.key].to_numpy(dtype=float)
 
 
 class Node:
     leaf = False
 
-    def truth(self, t: pd.DataFrame) -> pd.Series:  # nullable boolean (NA where unknown)
+    def truth(self, t: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
         raise NotImplementedError
 
     def mask(self, t: pd.DataFrame) -> pd.Series:
-        return self.truth(t).fillna(False).astype(bool)
+        value, known = self.truth(t)
+        return pd.Series(value & known, index=t.index)
 
     def leaves(self) -> list[Node]:
         return [self]
 
 
-def _compare(left, op: str, right, index) -> pd.Series:
-    l_s = left if isinstance(left, pd.Series) else pd.Series(left, index=index, dtype=float)
-    r_s = right if isinstance(right, pd.Series) else pd.Series(right, index=index, dtype=float)
-    result = {"<": l_s < r_s, ">": l_s > r_s, "<=": l_s <= r_s, ">=": l_s >= r_s}[op].astype("boolean")
-    result[l_s.isna() | r_s.isna()] = pd.NA
-    return result
+_OPS = {"<": np.less, ">": np.greater, "<=": np.less_equal, ">=": np.greater_equal}
+
+
+def _compare(left: np.ndarray, op: str, right: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    known = ~(np.isnan(left) | np.isnan(right))
+    with np.errstate(invalid="ignore"):
+        value = _OPS[op](left, right) & known
+    return value, known
+
+
+def _shift(a: np.ndarray) -> np.ndarray:
+    out = np.empty_like(a)
+    out[0] = np.nan
+    out[1:] = a[:-1]
+    return out
 
 
 @dataclass(frozen=True)
@@ -156,7 +169,7 @@ class Compare(Node):
         return f"{self.left.text}{self.op}{self.right.text}"
 
     def truth(self, t):
-        return _compare(self.left.series(t), self.op, self.right.series(t), t.index)
+        return _compare(self.left.array(t), self.op, self.right.array(t))
 
 
 @dataclass(frozen=True)
@@ -170,8 +183,10 @@ class Range(Node):
         return f"{self.operand.text} {_number(self.low)}..{_number(self.high)}"
 
     def truth(self, t):
-        x = self.operand.series(t)
-        return _compare(x, ">=", self.low, t.index) & _compare(x, "<=", self.high, t.index)
+        x = self.operand.array(t)
+        known = ~np.isnan(x)
+        with np.errstate(invalid="ignore"):
+            return (x >= self.low) & (x <= self.high) & known, known
 
 
 @dataclass(frozen=True)
@@ -185,13 +200,13 @@ class Cross(Node):
         return f"kesti_{'yukari' if self.up else 'asagi'}({self.a.text},{self.b.text})"
 
     def truth(self, t):
-        a, b = self.a.series(t), self.b.series(t)
-        a = a if isinstance(a, pd.Series) else pd.Series(a, index=t.index, dtype=float)
-        b = b if isinstance(b, pd.Series) else pd.Series(b, index=t.index, dtype=float)
-        now = (a > b) if self.up else (a < b)
-        before = (a.shift(1) <= b.shift(1)) if self.up else (a.shift(1) >= b.shift(1))
-        known = a.notna() & b.notna() & a.shift(1).notna() & b.shift(1).notna()
-        return _known((now & before & known))
+        a, b = self.a.array(t), self.b.array(t)
+        pa, pb = _shift(a), _shift(b)
+        known = ~(np.isnan(a) | np.isnan(b) | np.isnan(pa) | np.isnan(pb))
+        with np.errstate(invalid="ignore"):
+            now = (a > b) if self.up else (a < b)
+            before = (pa <= pb) if self.up else (pa >= pb)
+        return now & before & known, np.ones(len(a), dtype=bool)
 
 
 @dataclass(frozen=True)
@@ -203,8 +218,11 @@ class Within(Node):
         return f"son({self.days},{self.child.text(False)})"
 
     def truth(self, t):
-        hit = self.child.mask(t).astype(float)
-        return _known(hit.rolling(self.days, min_periods=1).max() > 0)
+        value, known = self.child.truth(t)
+        hits = np.cumsum((value & known).astype(int))
+        before = np.concatenate([np.zeros(self.days, dtype=int), hits[:-self.days]]) if len(hits) > self.days \
+            else np.zeros(len(hits), dtype=int)
+        return (hits - before) > 0, np.ones(len(hits), dtype=bool)
 
     def leaves(self):
         return [self]
@@ -218,7 +236,8 @@ class Not(Node):
         return f"degil {self.child.text(True)}"
 
     def truth(self, t):
-        return ~self.child.truth(t)
+        value, known = self.child.truth(t)
+        return known & ~value, known
 
     def leaves(self):
         return self.child.leaves()
@@ -233,10 +252,11 @@ class And(Node):
         return f"({s})" if nested else s
 
     def truth(self, t):
-        out = self.children[0].truth(t)
+        value, known = self.children[0].truth(t)
         for c in self.children[1:]:
-            out = out & c.truth(t)
-        return out
+            v, k = c.truth(t)
+            value, known = value & v, (known & k) | (known & ~value) | (k & ~v)
+        return value & known, known
 
     def leaves(self):
         return [leaf for c in self.children for leaf in c.leaves()]
@@ -250,10 +270,11 @@ class Or(Node):
         return "(" + " veya ".join(c.text(True) for c in self.children) + ")"
 
     def truth(self, t):
-        out = self.children[0].truth(t)
+        value, known = self.children[0].truth(t)
         for c in self.children[1:]:
-            out = out | c.truth(t)
-        return out
+            v, k = c.truth(t)
+            value, known = value | v, (known & k) | value | v
+        return value, known
 
     def leaves(self):
         return [leaf for c in self.children for leaf in c.leaves()]
@@ -278,7 +299,7 @@ class Query:
             options.append(f"likidite={_number(self.liquidity)}")
         return " ".join([self.root.text(False), *options])
 
-    def truth(self, t: pd.DataFrame) -> pd.Series:
+    def truth(self, t: pd.DataFrame):
         return self.root.truth(t)
 
     def mask(self, t: pd.DataFrame) -> pd.Series:

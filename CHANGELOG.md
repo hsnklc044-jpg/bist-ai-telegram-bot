@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.77.0 – 28.10.2026 (/tara Aşama 2: Telegram arayüzü)
+- Yeni komutlar: `/tara_alanlar` (tüm alanlar ve birimleri), `/tara_aciklama THYAO rsi<30` (o hissede her koşulun değeri ve sağlanıp sağlanmadığı), `/tara_devam` (sonraki 15 satır).
+- Cevabın altında Devam, Karne ve Kaydet düğmeleri var. Uzun cevaplar satırlar bölünmeden parçalanıyor.
+- Sonuç boşsa koşul hunisi gösteriliyor: hangi koşul kaç hisse bıraktı, en çok eleyen hangisi.
+- Kullanıcının dört TradingView taraması kabul ölçütü oldu. Bunlar için yeni alanlar eklendi: CCI, VWMA, momentum, beta, getiri(n), ortalama hacim (adet), hacim değişimi, hacim_oran(n). Koşul sınırı 15'e çıktı. Karşılık tablosu HANDBOOK §8'de.
+
 ## v0.76.0 – 28.10.2026 (/tara Aşama 1: motor)
 - `/tara` yeni motora geçti. Yaklaşık 40 alan var: trend, momentum, oynaklık, hacim, göreli güç ve fiyat konumu (tam liste HANDBOOK §8).
 - Yazımda yeni olanaklar: aralık (`rsi 30..50`), kesişim (`kesti_yukari(ema20,ema50)`), pencere (`son(5, ...)`), `ve / veya / değil` ve parantez. Hatalı yazımda hatanın yeri gösteriliyor ve en yakın alan öneriliyor ("'rsi' mi demek istediniz?").

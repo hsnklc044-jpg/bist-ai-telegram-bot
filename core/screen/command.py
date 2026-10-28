@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import re
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
@@ -52,11 +53,6 @@ def _line(m: engine.Match) -> str:
 
 
 def format_result(result: engine.Result, card: dict | None, note: str = "", rows: int = MAX_ROWS) -> str:
-    import pandas as pd
-
-    from core.backtest.run import SCREEN_END
-    from core.reports.daily import pct
-
     q = result.query
     lines = [f"🔎 /tara {q.text}"]
     if note:
@@ -69,6 +65,11 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
             lines.append(f"(+{len(result.matches) - rows} hisse daha: /tara_devam)")
     else:
         lines.append("Koşulları sağlayan hisse yok.")
+        if result.funnel:
+            lines.append(f"Koşul hunisi ({result.scanned} hisse tarandı; her koşul tek başına / öncekilerle birlikte):")
+            lines += [f"  {text}: tek başına {alone}, birlikte {together}" for text, alone, together in result.funnel]
+            worst = min(result.funnel, key=lambda f: f[1])
+            lines.append(f"  en çok eleyen: {worst[0]} (tek başına {worst[1]} hisse)")
     if result.illiquid:
         names = ", ".join(s.removesuffix(".IS") for s in result.illiquid[:10])
         more = f" +{len(result.illiquid) - 10}" if len(result.illiquid) > 10 else ""
@@ -78,21 +79,182 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
         lines.append("Veri eksik (taranmadı): " + "; ".join(f"{s.removesuffix('.IS')} ({why})"
                                                              for s, why in result.missing))
     lines.append("")
-    if card is None:
-        lines.append("📒 Geçmiş karne hesaplanamadı.")
-    else:
-        lines.append(f"📒 Geçmiş karne ({C.HISTORY_START[:7]} – {pd.Timestamp(SCREEN_END):%d.%m.%Y}, "
-                     "holdout öncesi; o günkü BIST 100 üyeleri; ertesi açılıştan itibaren XU100'e göre fazla getiri):")
-        for h in sorted(card):
-            mean, hit, n = card[h]
-            if n < C.MIN_SAMPLES:
-                lines.append(f"  {h} seans: yetersiz örnek ({n})")
-            else:
-                lines.append(f"  {h} seans: ortalama {pct(mean)}, isabet %{hit * 100:.0f}, örnek {n}")
-        lines.append("  Geçmişin özetidir. Koşullar serbestçe denenebildiği için bir kuralın işe yaradığına "
-                     "kanıt sayılmaz (araştırma programı dışında; örnekler zaman içinde çakışır).")
+    lines += card_lines(card)
     lines.append(DISCLAIMER)
     return "\n".join(lines)
+
+
+def card_lines(card: dict | None) -> list[str]:
+    import pandas as pd
+
+    from core.backtest.run import SCREEN_END
+    from core.reports.daily import pct
+
+    if card is None:
+        return ["📒 Geçmiş karne hesaplanamadı."]
+    lines = [f"📒 Geçmiş karne ({C.HISTORY_START[:7]} – {pd.Timestamp(SCREEN_END):%d.%m.%Y}, "
+             "holdout öncesi; o günkü BIST 100 üyeleri; ertesi açılıştan itibaren XU100'e göre fazla getiri):"]
+    for h in sorted(card):
+        mean, hit, n = card[h]
+        if n < C.MIN_SAMPLES:
+            lines.append(f"  {h} seans: yetersiz örnek ({n})")
+        else:
+            lines.append(f"  {h} seans: ortalama {pct(mean)}, isabet %{hit * 100:.0f}, örnek {n}")
+    lines.append("  Geçmişin özetidir. Koşullar serbestçe denenebildiği için bir kuralın işe yaradığına "
+                 "kanıt sayılmaz (araştırma programı dışında; örnekler zaman içinde çakışır).")
+    return lines
+
+
+# --- the chat's last screen: /tara_devam and the buttons --------------------------------------------
+
+
+@dataclass
+class Session:
+    result: engine.Result
+    card: dict | None
+    offset: int = MAX_ROWS
+
+
+SESSIONS: dict = {}  # chat id -> Session (memory only; a restart forgets it)
+
+
+def _criteria(query) -> str:
+    return query.text + (f" sirala={query.order}" if query.order != "alfabetik" else "")
+
+
+def more_text(chat_id) -> str:
+    session = SESSIONS.get(chat_id)
+    if session is None:
+        return "Önce /tara ile bir tarama yap."
+    matches = session.result.matches
+    if session.offset >= len(matches):
+        return "Liste bitti; başka hisse yok."
+    start, end = session.offset, min(session.offset + MAX_ROWS, len(matches))
+    session.offset = end
+    lines = [f"🔎 /tara {session.result.query.text} · {start + 1}–{end} / {len(matches)}"]
+    lines += [_line(m) for m in matches[start:end]]
+    if end < len(matches):
+        lines.append(f"(+{len(matches) - end} hisse daha: /tara_devam)")
+    lines.append(DISCLAIMER)
+    return "\n".join(lines)
+
+
+def has_more(chat_id) -> bool:
+    session = SESSIONS.get(chat_id)
+    return session is not None and session.offset < len(session.result.matches)
+
+
+def card_text(chat_id) -> str:
+    session = SESSIONS.get(chat_id)
+    if session is None:
+        return "Önce /tara ile bir tarama yap."
+    return "\n".join([f"🔎 /tara {session.result.query.text}", *card_lines(session.card), DISCLAIMER])
+
+
+def save_hint(chat_id) -> str:
+    session = SESSIONS.get(chat_id)
+    if session is None:
+        return "Önce /tara ile bir tarama yap."
+    return ("Kaydetmek için bu satırı kopyala, AD yerine bir ad yaz (harf, rakam, _):\n"
+            f"/tara_kaydet AD {_criteria(session.result.query)}")
+
+
+def fields_text() -> str:
+    from core.screen import fields as F
+
+    lines = ["🔎 /tara alanları (birimleriyle). Parametre alanlar: ema(50), rsi(7), roc(5), atr(20), adx(20)."]
+    group = None
+    for name, f in F.FIELDS.items():
+        if f.group != group:
+            group = f.group
+            lines.append(f"\n{group}")
+        shown = f"{name}(n), varsayılan {f.param}" if f.param else name
+        lines.append(f"  {shown}: {f.text} [{f.unit}]")
+    lines.append("\nKısaltmalar: hacim = hacim_oran, goreli_guc = gg_20. Örnekler için /tara.")
+    lines.append(DISCLAIMER)
+    return "\n".join(lines)
+
+
+EXPLAIN_USAGE = "Kullanım: /tara_aciklama KOD koşullar (ör. /tara_aciklama THYAO rsi<30 ema20>ema50)"
+
+
+def _leaf_line(leaf, tail) -> str:
+    holds = bool(leaf.mask(tail).iloc[-1])
+    row = tail.iloc[-1]
+    from core.screen import language as L
+
+    if isinstance(leaf, L.Within):
+        detail = "son pencerede " + ("sağlandı" if holds else "sağlanmadı")
+    elif isinstance(leaf, L.Cross):
+        detail = ", ".join(f"{engine.label(o.key)} {engine.value_text(o.key, row[o.key])}"
+                           for o in (leaf.a, leaf.b) if o.key is not None)
+    elif isinstance(leaf, L.Range):
+        detail = f"{engine.label(leaf.operand.key)} {engine.value_text(leaf.operand.key, row[leaf.operand.key])}"
+    else:
+        detail = ", ".join(f"{engine.label(o.key)} {engine.value_text(o.key, row[o.key])}"
+                           for o in (leaf.left, leaf.right) if o.key is not None)
+    return f"{'✓' if holds else '✗'} {leaf.text()} — {detail}"
+
+
+def explain_text(words: list[str], chat_id=None, live=None, history_data=None, signal_path=None, saved_path=None,
+                 now: datetime | None = None, suspects=None) -> str:
+    from core.market.calendar import now_istanbul
+    from core.screen import fields as F
+    from core.screen import language as L
+
+    now = now or now_istanbul()
+    if len(words) < 2:
+        return EXPLAIN_USAGE
+    code = normalize(words[0]).upper().removesuffix(".IS")
+    symbol = f"{code}.IS"
+    text = " ".join(words[1:])
+    try:
+        saved = load_saved(saved_path)
+    except Exception:  # noqa: BLE001
+        saved = {}
+    text = saved.get(normalize(text), text)
+    try:
+        query = parse(text)
+        scanned = universe.symbols(query.universe, chat_id) if "gg_sira" in query.fields else []
+    except ScreenError as exc:
+        return str(exc)
+    frames, bench = (live or _live)(sorted({symbol, *scanned}))
+    df = frames.get(symbol)
+    if df is None or df.empty:
+        return f"{code} için fiyat verisi yok (BIST kodu doğru mu?).\n{DISCLAIMER}"
+    lines = [f"🔎 /tara_aciklama {code}: {query.text}"]
+    latest = bench.index[-1]
+    found = universe.suspects() if suspects is None else suspects
+    if df.index[-1] != latest:
+        lines.append(f"⚠️ /tara bu hisseyi taranmadı sayar: son kapanış {df.index[-1]:%d.%m} "
+                     f"(son seans {latest:%d.%m}); değerler {df.index[-1]:%d.%m} kapanışından.")
+    elif code in found:
+        lines.append("⚠️ /tara bu hisseyi taranmadı sayar: ikinci kaynakta fark var (düzeltme bekliyor).")
+    wanted = engine.columns(query)
+    table = F.table(df, bench["close"], wanted)
+    if "gg_sira" in query.fields:
+        others = {s: F.table(f, bench["close"], ["gg_60"])["gg_60"].iloc[-1]
+                  for s, f in frames.items() if f is not None and not f.empty and f.index[-1] == latest}
+        ranks = (pd_series(others).rank(pct=True) * 100) if others else None
+        table.loc[table.index[-1], "gg_sira"] = ranks.get(symbol) if ranks is not None else float("nan")
+    tail = table.iloc[-engine.LOOKBACK:]
+    lines += [_leaf_line(leaf, tail) for leaf in query.leaves()]
+    liquidity = table["islem_tl"].iloc[-1]
+    if query.liquidity > 0:
+        ok = liquidity >= query.liquidity
+        lines.append(f"{'✓' if ok else '✗'} likidite {engine.value_text('islem_tl', liquidity)} "
+                     f"(taban {query.liquidity:g} mn TL{'' if ok else '; altında olduğu için taranmaz'})")
+    holds = bool(query.mask(tail).iloc[-1])
+    whole = "koşulların hepsi" if isinstance(query.root, (L.And, L.Compare, L.Range, L.Cross)) else "ifade"
+    lines.append(f"Sonuç: {whole} {'sağlanıyor' if holds else 'sağlanmıyor'} ({df.index[-1]:%d.%m.%Y} kapanışı).")
+    lines.append(DISCLAIMER)
+    return "\n".join(lines)
+
+
+def pd_series(values: dict):
+    import pandas as pd
+
+    return pd.Series(values, dtype=float)
 
 
 # --- saved screens (CSV until Aşama 4) ------------------------------------------------------------
@@ -195,9 +357,7 @@ def screen_text(words: list[str], chat_id=None, live=None, history_data=None, si
         saved = {}
     if not text:
         return help_text(saved)
-    key = normalize(text)
-    if key in saved:
-        text = saved[key]
+    text = saved.get(normalize(text), text)
     try:
         query = parse(text)
         symbols = universe.symbols(query.universe, chat_id)
@@ -216,8 +376,10 @@ def screen_text(words: list[str], chat_id=None, live=None, history_data=None, si
     details = f"kriter={query.text};ozet={criterion_hash(query.text)}"
     for m in result.matches:  # live measurement: every match, not only the rows shown
         log_signal(SOURCE, m.symbol, None, query.text, m.day, m.close, details=details, path=signal_path, now=now)
+    if chat_id is not None:
+        SESSIONS[chat_id] = Session(result, history)
     return format_result(result, history, engine.time_note(result.day, now))
 
 
-__all__ = ["DISCLAIMER", "SOURCE", "criterion_hash", "format_result", "help_text", "load_saved", "save_text",
-           "screen_text"]
+__all__ = ["DISCLAIMER", "SESSIONS", "SOURCE", "card_text", "criterion_hash", "explain_text", "fields_text",
+           "format_result", "has_more", "help_text", "load_saved", "more_text", "save_hint", "save_text", "screen_text"]
