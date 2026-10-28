@@ -79,8 +79,8 @@ Kontrol edilenler: ayrıştırıcıda eval/exec yok, izin verilen karakter küme
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.85.0 (/tara_sanal; K-43). Öz-denetim sayacı: v0.80.0'dan beri 7.
-- **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Sırada: Aşama 5 (görevdeki beş örnek şablon + reddedilmiş tür bağlantıları), Aşama 6 (kalan testler, BotFather listesi, CHARTER §9 uyumu).
+- **Son sürüm:** v0.86.0 (görev şablonları + reddedilmiş türler; K-44). Öz-denetim sayacı: v0.80.0'dan beri 8.
+- **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Sırada: Aşama 6 (kalan testler, BotFather listesi, CHARTER §9 uyumu).
 - **Şablon görevi (28.10):** A ✅ v0.80.0, B ✅ v0.81.0, C ✅ v0.82.0, D ✅ v0.82.1 (tasarım). Açık: şablon karnelerinin gerçek verideki sonuçlarını kullanıcının keşif sayılarıyla karşılaştırmak (araştırma çalışması bekleniyor); temel veri uygulaması ayrı karar.
 - **PC'de doğrulandı (28.10 yerel otomasyon, v0.68.0 → v0.75.0):** 699 test geçti (4 atlandı), ruff temiz, `/durum` hepsi SAĞLIKLI, SLO 6/7 hedefte. Dışarıdan izleme çalışıyor (bot sinyali 10:42). Bayram günü rapor görevi "holiday" ile başarılı sinyal gönderiyor; 29.10'da yanlış alarm beklenmiyor, 30.10'da `logs/monitoring.json`'dan doğrulanacak. v0.68.1–v0.75.0 PC'de doğrulandı.
 - **Açık (K-36):** günlük raporun ve canlı ölçümün evreni (`data/universe.csv`, 118 hisse) resmi BIST 100 ile aynı değil: 32 fazla, 14 eksik. Ölçüm sürerken değiştirilmeyecek. Karar ilk canlı ölçüm dönemi bitince (Kasım sonu) verilecek.

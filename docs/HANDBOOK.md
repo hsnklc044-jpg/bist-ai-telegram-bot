@@ -233,3 +233,10 @@ Eşlemeler (TradingView adlarıyla alanlar da var, K-37): Perf/Değ 1A = `degisi
 | `duseni_kiran` | `kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis` | kullanıcının TradingView taraması 10 (ve 3, aynı EMA dizilimi) | — |
 | `tek_tus_trend` | `kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis degisim_3a<60` | kullanıcının TradingView taraması BIST TEK TUŞ TREND | piyasa değeri > 10 milyar TL; beta 0,8–1,5 (fiyattan hesaplanır, `beta` alanı var; şablon görevdeki tanımla bırakıldı) |
 | `teknik_temel_ema` | `kapanis>ema50 ema50>ema200` | kullanıcının TradingView taraması 05 | piyasa değeri > 2 milyar TL, gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak |
+| `trend_takibi` | `ema20>ema50 ema50>ema200 adx>20` | /tara görev örneği (Aşama 5) | — |
+| `asiri_satim` | `rsi<30 kapanis>ema200` | /tara görev örneği (Aşama 5) | — |
+| `kirilim` | `kapanis>yuksek_20g hacim_oran>1.5` | /tara görev örneği (Aşama 5) | — |
+| `sikisma` | `bb_genislik_yuzdelik<10` | /tara görev örneği (Aşama 5) | — |
+| `goreli_guc` | `gg_sira>80` | /tara görev örneği (Aşama 5) | — |
+
+Her şablonun yanında ait olduğu araştırma türü yazar: RESEARCH_LOG'daki "Reddedilen fikir türleri" tablosu (27.10.2026'da test edildi, XU100'ü geçmedi). Teknik sinyal: `basit_teknik`, `basit_teknik_3g`, `bebek_teknik`, `asiri_satim`. Tek hissede trend/kırılım: `duseni_kiran`, `tek_tus_trend`, `teknik_temel_ema`, `trend_takibi`, `kirilim`, `sikisma`. Kesitsel momentum: `goreli_guc`.

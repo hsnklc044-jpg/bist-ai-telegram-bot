@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.86.0 – 28.10.2026 (/tara Aşama 5: görev şablonları ve reddedilmiş türler)
+- `/tara_sablonlar`'a görevin beş örnek şablonu eklendi: `trend_takibi`, `asiri_satim`, `kirilim`, `sikisma`, `goreli_guc`.
+- Her şablon ait olduğu reddedilmiş araştırma türünü gösteriyor: "bu tür 27.10.2026'da test edildi, XU100'ü geçmedi" (K-44).
+- Doğrulama: `test_screen_templates` (koşullar verildiği gibi; her tür RESEARCH_LOG tablosunda var).
+
 ## v0.85.0 – 28.10.2026 (/tara Aşama 4d: sanal köprü + şablon farkları)
 - `/tara_sanal AD` (varsayılan kapalı): kayıtlı bir tarama ya da şablon, önceden yazılmış kurallarla ölçüm amaçlı bir sanal kitapta işliyor. Kurallar: eşit ağırlık, en çok 5 pozisyon, 20 seans, 2 ATR stop, ertesi açılış.
 - Sonuç `/performans`'ta "SANAL" etiketiyle görünüyor. Kişisel `/paper` emirlerine ve deftere dokunmuyor (K-43).

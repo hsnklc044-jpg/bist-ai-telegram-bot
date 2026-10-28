@@ -24,7 +24,14 @@ EXPECTED = {
     "tek_tus_trend": "kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 "
                      "ema20<kapanis degisim_3a<60",
     "teknik_temel_ema": "kapanis>ema50 ema50>ema200",
+    # /tara görevi Aşama 5, verildiği gibi
+    "trend_takibi": "ema20>ema50 ema50>ema200 adx>20",
+    "asiri_satim": "rsi<30 kapanis>ema200",
+    "kirilim": "kapanis>yuksek_20g hacim_oran>1.5",
+    "sikisma": "bb_genislik_yuzdelik<10",
+    "goreli_guc": "gg_sira>80",
 }
+TV = ("basit_teknik", "basit_teknik_3g", "bebek_teknik", "duseni_kiran", "tek_tus_trend", "teknik_temel_ema")
 
 
 class DefinitionTest(unittest.TestCase):
@@ -33,7 +40,18 @@ class DefinitionTest(unittest.TestCase):
         for name, t in templates.TEMPLATES.items():
             with self.subTest(name):
                 parse(t.criteria)  # every template is valid /tara
-                self.assertIn("kullanıcının TradingView taraması", t.source)
+                self.assertIn("kullanıcının TradingView taraması" if name in TV else "görev örneği", t.source)
+
+    def test_each_names_its_rejected_research_type(self):
+        text = (Path(__file__).resolve().parents[1] / "docs" / "RESEARCH_LOG.md").read_text(encoding="utf-8")
+        table = text.split("## Reddedilen fikir türleri", 1)[1].split("\n---\n", 1)[0]
+        for name, t in templates.TEMPLATES.items():
+            with self.subTest(name):
+                self.assertIn(f"| {t.rejected} |", table)
+        self.assertEqual(templates.TEMPLATES["goreli_guc"].rejected, "Kesitsel momentum")
+        listed = templates.list_text(cards={})
+        self.assertIn("27.10.2026'da test edildi, XU100'ü geçmedi", listed)
+        self.assertIn("RESEARCH_LOG", listed)
 
     def test_left_out_conditions_are_named(self):
         self.assertIn("piyasa değeri", templates.TEMPLATES["bebek_teknik"].skipped)

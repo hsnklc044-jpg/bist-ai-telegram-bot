@@ -4,6 +4,18 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-44. Görevin beş örnek şablonu eklendi, her şablon reddedilmiş türünü gösteriyor (28.10.2026, /tara Aşama 5).** `trend_takibi`, `asiri_satim`, `kirilim`, `sikisma` ve `goreli_guc` görevde yazıldığı gibi kodlandı.
+- Görevdeki "fiyat > ema200" `kapanis>ema200` olarak yazıldı.
+- "Son 20 günün en yükseği" bugün hariç alındı (`yuksek_20g`). Bugün dahil edilirse kapanış ondan büyük olamaz.
+- "6 ayın en düşük %10'u" 126 seanslık yüzdelik sıradır (`bb_genislik_yuzdelik<10`).
+
+Her şablonun yanında RESEARCH_LOG'daki "Reddedilen fikir türleri" tablosundan türü yazar: "bu tür 27.10.2026'da test edildi, XU100'ü geçmedi". Eşleme:
+- **Teknik sinyal:** RSI ve hacim koşulları.
+- **Tek hissede trend/kırılım:** EMA dizilimi, kırılım ve sıkışma (dryup_breakout'un akrabası).
+- **Kesitsel momentum:** göreli güç sırası.
+
+Test, her türün tabloda adıyla durduğunu denetler. Şablonlar yine aday kural değildir.
+
 **K-43. /tara_sanal: ayrı, ölçüm amaçlı sanal kitap; varsayılan kapalı (28.10.2026, /tara Aşama 4d).**
 - Kurallar görevde yazıldığı gibidir ve sonuçlara bakılarak değiştirilmez:
   - eşit ağırlık, en çok 5 pozisyon, 20 seans tutma;
