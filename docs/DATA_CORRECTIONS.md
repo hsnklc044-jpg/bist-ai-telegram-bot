@@ -100,3 +100,12 @@ Kullanıcının PC'deki incelemesi 7 kritik kayıt buldu: açılış = en yükse
 ## KAP duyuruları (v0.62.0)
 
 Her cumartesi araştırma çalışması `kap.txt`: son 14 günde evrendeki hisseler için KAP'ta yayımlanan sermaye artırımı/azaltımı ve kâr payı duyuruları. Sermaye işleminin `corporate_actions.csv`'de kaydı yoksa "⚠️ kayıtta yok" ve KAP bağlantısı yazılır. Satır, duyuru metnindeki oran ve hak kullanım günüyle elle eklenir (DECISIONS K-24); haftalık sıçrama taraması (`corporate.txt`) aynı işlemi fiyat tarafından yakalar.
+
+## SKBNK %40 bedelli: satır 22.10'dan 19.10'a (v0.73.1, 28.10.2026)
+
+- **Olay (KAP'ın kendi metni, bildirim 1685136, `kap.yml` detail ile alındı):** %40 bedelli, 1 TL; rüçhan hakkı kullanımı 22.10–05.11.2026, kayıt tarihi 23.10, SPK onayı 16.10.
+- **Fiyat:** ham kapanış 16.10'da 4,89, 19.10'da 3,69. Kopukluk Yahoo'da ve İş Yatırım'da aynı gün, 19.10 (`research-results` `datacheck/2026-10-28_09-59.txt`). İş Yatırım'ın düzeltilmiş serisi düzeltmeyi 19.10'a koyuyor: katsayı 3,97/5,10 ≈ 0,778. Teorik katsayı (4,89 + 0,4) / (1,4 × 4,89) ≈ 0,773.
+- **Sorun:** satır 22.10'daydı (rüçhan başlangıcı). Düzeltilmiş seride iki sahte hareket oluşuyordu: 19.10 −%24,6 (İş −%3,1) ve 22.10 +%15,7 (İş −%7,9). Kaynak: `datacheck/2026-10-28_10-01.txt`.
+- **Düzeltme:** satır 19.10'a, yani fiyat kopukluğunun olduğu güne taşındı (projenin kuralı: satır sıçrama gününe konur). KAP tarihleri ve kanıt satırın notunda.
+- **Doğrulama:** sonraki `datacheck` (SKBNK, düzeltilmiş seri) 19.10 ve 22.10'da fark göstermemeli.
+

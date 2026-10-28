@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.73.1 – 28.10.2026
+- SKBNK'nın %40 bedelli sermaye artırımı düzeltmesi doğru güne (19.10) taşındı. Önceki kayıt (22.10) düzeltilmiş seride iki sahte hareket üretiyordu. Doğrulama: KAP'ın kendi metni (yeni araçla getirildi) ve Yahoo ile İş Yatırım'ın aynı gün gösterdiği fiyat kopukluğu.
+
 ## v0.73.0 – 28.10.2026
 - KAP bildiriminin metni artık GitHub'dan getirilebiliyor: `kap.yml` iş akışına bildirim numarası verilince metni research-results dalına yazılıyor. Bir şirket işleminin tarihi elle KAP'ta aranmak yerine KAP'ın kendi metninden doğrulanıyor. İlk kullanım: SKBNK bedelli tarihi.
 
