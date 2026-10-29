@@ -2,6 +2,23 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.97.0 – 29.10.2026 (Özellik B: senaryo şablonları ve /senaryo)
+- Üç şablon sonuç görülmeden K-55'e yazıldı (c7b25ea) ve aynen kodlandı (`core/analytics/scenarios.py`): destek tepkisi, direnç kırılımı, trend içi geri çekilme.
+- Her senaryo şunları hesaplıyor:
+  - giriş varsayımı (ertesi açılış), geçersizlik, hedef;
+  - maliyet sonrası R (her yön %0,10 + %0,05); R < 1,5 "elverişsiz";
+  - adet hesabı: risk bütçesi ve likidite sınırı; yalnız hesap, emir değil;
+  - tavan/taban riski.
+- Sonuç kuralı karne ve canlı kayıt için ortak: hedef, geçersizlik ya da 20 seans. Aynı seans ikisi birden olursa geçersizlik sayılıyor. Tavan ya da taban açılışında dolmuyor.
+- Yeni `/senaryo THYAO` ve `/senaryo THYAO giris 240 gecersiz 232 hedef 262 [risk=%0,5]`. Her çıktı "Kural çıktısıdır, öneri değildir…" satırıyla bitiyor. HANDBOOK §12 "senaryo nedir, ne değildir".
+- Doğrulama: `test_scenarios` (14 test).
+  - R, sonuç, boşluk, aynı seans, süre ve tavan kuralları elle hesaplanıyor.
+  - Her tetiklenen günde şablon kuralları sağlanıyor.
+  - Gelecek değişince geçmiş değişmiyor.
+  - Öneri kelimesi yok.
+  - Adet elle hesaplanıyor.
+  - Komut ayrıştırma ve bot kaydı denetleniyor.
+
 ## v0.96.1 – 29.10.2026 (K-54: devredilen kararlar)
 - **İş Yatırım ikinci kaynağı kapatıldı (D13).** Sitenin robots.txt'si kullandığımız yolu bütün otomatik erişime yasaklıyor. Hiçbir istek gitmiyor.
   - Haftalık özet "kapalı" yazıyor.

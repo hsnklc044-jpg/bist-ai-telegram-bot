@@ -348,6 +348,7 @@ top - teknik görünümü en güçlü hisseler
 analyze - tek hisse: /analyze THYAO
 seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
 piyasa - piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)
+senaryo - senaryo hesabı: /senaryo THYAO (giriş, geçersizlik, hedef, R; öneri değil)
 watchlist - takip listesi
 watchadd - listeye ekle: /watchadd EREGL
 watchremove - listeden çıkar
@@ -446,4 +447,29 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 **Rejim bir etikettir, sinyal değildir.** Hiçbir yerde "al/sat zamanı" anlamında kullanılmaz. Araştırma raporundaki eski "yükselen/düşen/yatay" ayrımı (63 seanslık XU100 getirisi) ayrı bir tanımdır ve öyle kalır.
 
 **Hisselerin sektörü henüz gösterilmiyor.** Borsa İstanbul'un pay–sektör listesi telif bildirimi nedeniyle izinsiz saklanamıyor (AUDIT D14); kaynak kararı kullanıcıda.
+
+## 12. Senaryolar (/senaryo; K-55)
+
+**Senaryo nedir:** önceden sabitlenmiş bir kuralın bir hisse için hesapladığı seviyelerdir: giriş varsayımı, geçersizlik, hedef ve maliyet sonrası R. İsterseniz kendi seviyelerinizle de hesaplatabilirsiniz. Bir **hesap aracıdır**.
+
+**Ne değildir:** al/sat önerisi, hedef fiyat tahmini ya da "kanıtlanmış" bir yöntem değildir. Kararı her zaman siz verirsiniz. Sanal emir yalnız `/paper` ile verirseniz oluşur. Her çıktının son satırı: "Kural çıktısıdır, öneri değildir. Karar ve sorumluluk kullanıcıdadır."
+
+**Komutlar:**
+- `/senaryo THYAO`: üç şablonun bugünkü durumu. Koşul varsa seviyeleri, R'yi, adet hesabını ve tavan/taban riskini gösterir.
+- `/senaryo THYAO giris 240 gecersiz 232 hedef 262`: kendi seviyelerinizle R, maliyet ve adet. `risk=%0,5` ile risk bütçesini değiştirebilirsiniz (varsayılan %1, en çok %5).
+
+**Şablonlar** (parametreleri sonuç görülmeden sabitlendi, değişmez):
+
+| Şablon | Koşul | Geçersizlik | Hedef |
+|---|---|---|---|
+| Destek tepkisi | kapanışın altındaki en yakın küme desteği, güç ≥ 50, kapanışa ≤ 0,5 ATR | destek − 1 ATR | en yakın direnç |
+| Direnç kırılımı | dünkü en yakın direnç 0,5 ATR'den fazla aşıldı, hacim ≥ 1,5 × 20 gün ortalaması | direnç − 1 ATR | sonraki direnç ya da 2R |
+| Trend içi geri çekilme | sma50 > sma200, kapanış > sma50, kapanış sma20'ye ≤ 0,5 ATR | en yakın destek − 1 ATR (yoksa sma50 − 1 ATR) | en yakın direnç ya da 2R |
+
+**Hesap ayrıntıları:**
+- Giriş ertesi açılış varsayılır. Bugün gösterilen R kapanışla yaklaşık hesaplanır.
+- Maliyet her yön %0,10 komisyon + %0,05 kayma. R < 1,5 olan senaryo "elverişsiz" diye işaretlenir.
+- Adet = (hesap değeri × risk bütçesi) ÷ (giriş − geçersizlik). Hesap değeri sanal hesabın son kaydıdır. Önceki 20 seansın ortalama TL hacminin %5'iyle sınırlanır.
+- Tek seansta ±%10 limit hareketi geçersizliği atlayabilir; stop garanti değildir.
+- Seviyeler tarihsel olarak rastgele seviyelerden ayırt edilemedi (K-49).
 

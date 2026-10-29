@@ -196,7 +196,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.96.1 (K-54 kararları: İş Yatırım kapalı, Yahoo riski, sektör yok, B ve E açık). Öz-denetim sayacı: v0.95.4'ten beri 5.
+- **Son sürüm:** v0.97.0 (B: şablonlar ve /senaryo). Öz-denetim sayacı: v0.95.4'ten beri 6.
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
@@ -204,7 +204,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - Kalan: haftalık kayıtlı tarama özeti. Kayıtlı taramalar PC'de kişisel dosyada; cumartesi araştırması onları göremez. Cuma raporuna eklenmesi tasarım kararı bekliyor.
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
-  - B senaryolar: A bitince.
+  - B senaryolar: ✅ şablon tasarımı K-55 (c7b25ea, sonuçtan önce); ✅ v0.97.0 `/senaryo` (iki kullanım). Kalan: `/tara senaryo(...)`, karne ve RESEARCH_LOG, canlı kayıt ve `/performans`, isteğe bağlı ölçüm kitabı.
   - C, D, E, F paketi: aşağıdaki dört başlık. Şu an açık olanlar yalnız C1 tasarımı ve kaynak araştırması ile F1 envanteri.
 - **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).

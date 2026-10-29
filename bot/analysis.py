@@ -143,6 +143,17 @@ def _level_block(symbol: str, k: int | None) -> str:
         return ""
 
 
+async def scenario_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /senaryo: scenario templates or the user's own levels (K-55; a calculator, not advice)."""
+
+    from core.analytics import scenarios
+
+    await reply(update, await asyncio.to_thread(scenarios.command_text, list(context.args or [])))
+
+
 async def market_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
