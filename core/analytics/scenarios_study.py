@@ -101,7 +101,7 @@ def summarize(events: list) -> Card:
     card.timeout = float((decided["result"] == "süre doldu").mean())
     card.mean_r = float(decided["r"].mean())
     card.excess = float(decided["excess"].mean())
-    card.low, card.high = _interval(decided.groupby("day")["r"].mean())
+    card.low, card.high = _interval(decided.groupby("day")["r"].mean().dropna())
     streak = best = 0
     for result in decided["result"]:
         streak = streak + 1 if result == "geçersizlik" else 0

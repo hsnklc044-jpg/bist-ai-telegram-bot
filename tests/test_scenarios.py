@@ -65,6 +65,14 @@ class OutcomeTest(unittest.TestCase):
         self.assertIsNone(S.outcome(candles(rows[:10]), 0, 95.0, 110.0))  # not decided yet
         self.assertIsNone(S.outcome(candles(rows[:1]), 0, 95.0, 110.0))  # no next open yet
 
+    def test_an_open_beyond_the_levels_is_not_filled(self):
+        # K-55 addendum (29.10, found on the first real card): a gap past invalidation or target leaves
+        # no scenario to enter; it was an undefined R before
+        below = candles([(100, 100, 100, 100), (94, 96, 93, 95)])
+        above = candles([(100, 100, 100, 100), (106, 107, 105, 106)])
+        self.assertEqual(S.outcome(below, 0, 95.0, 110.0).result, "dolmadı")
+        self.assertEqual(S.outcome(above, 0, 90.0, 105.0).result, "dolmadı")
+
     def test_a_limit_open_is_not_filled(self):
         df = candles([(100, 100, 100, 100), (109.6, 110, 109, 110), (110, 120, 109, 115)])
         self.assertEqual(S.outcome(df, 0, 95.0, 112.0).result, "dolmadı")

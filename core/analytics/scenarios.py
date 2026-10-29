@@ -143,8 +143,8 @@ def outcome(df: pd.DataFrame, t: int, invalidation: float, target: float, horizo
         return None
     o, h, lo, c = (df[k].to_numpy(dtype=float) for k in ("open", "high", "low", "close"))
     entry = o[t + 1]
-    if abs(entry / c[t] - 1) > LIMIT_MOVE:
-        return Outcome("dolmadı")
+    if abs(entry / c[t] - 1) > LIMIT_MOVE or not invalidation < entry < target:
+        return Outcome("dolmadı")  # a limit open, or a gap past invalidation / target: nothing to enter
     risk = entry * (1 + COST) - invalidation * (1 - COST)
 
     def done(kind, price, i):

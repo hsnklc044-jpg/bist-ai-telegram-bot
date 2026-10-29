@@ -10,6 +10,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - **Giriş varsayımı:** t+1 açılışı.
   - t+1 açılışı t kapanışının %9,5 üstündeyse (tavan) ya da altındaysa (taban) senaryo dolmaz: "dolmadı".
   - Canlı çıktıda giriş henüz bilinmediği için R, t kapanışıyla yaklaşık olarak gösterilir ve bu yazılır.
+  - **Ek (29.10, ilk gerçek karnede görülen tanımsız durum; parametre değişikliği değil):** t+1 açılışı geçersizliğin altında ya da hedefin üstündeyse girilecek senaryo kalmamıştır: "dolmadı". Önceden R tanımsız kalıyordu ve karne aralığı hesaplanamıyordu.
 - **Maliyet:** her yön %0,10 komisyon + %0,05 kayma (c = %0,15).
   - R = (hedef·(1−c) − giriş·(1+c)) ÷ (giriş·(1+c) − geçersizlik·(1−c)).
   - **R < 1,5: "elverişsiz".** Geçersizlik girişin altında değilse ya da hedef girişin üstünde değilse senaryo kurulmaz.
