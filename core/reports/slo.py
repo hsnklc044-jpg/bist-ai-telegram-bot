@@ -279,6 +279,8 @@ ACCURACY_MAX_AGE = timedelta(days=8)
 
 def accuracy(now: datetime, data: dict | None) -> SloResult:
     name = "Veri doğruluğu"
+    if data and data.get("disabled"):
+        return SloResult(name, UNKNOWN, None, data.get("reason") or "ikinci kaynak kapalı (D13)")
     if not data or not data.get("checked"):
         return SloResult(name, UNKNOWN, None, "ikinci kaynak özeti alınamadı (haftalık araştırma, crosscheck/latest.json)")
     day = date.fromisoformat(data["date"])

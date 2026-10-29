@@ -4,6 +4,30 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-54. Kullanıcı kararları devretti; bekleyen kaynak ve kapı kararları (29.10.2026).** Kullanıcı: "karar kısımlarını bana sormana gerek yok, en profesyonel haline getirmek için onay gerekmeden devam et". Kesin sınırlar aynen geçerli. Bunlar kullanıcı istese bile benim yapamayacağım şeylerdir: gerçek para, aracı kurum, ödeme, hesap açma, şifre ya da token, al/sat önerisi, KAP/Telegram içeriğini yeniden yayımlamak, git geçmişini yeniden yazmak, kişisel kayıt silmek. Kaynak koşulları 29.10'da yeniden arşivlendi: `sources/2026-10-29_09-28-44`.
+
+1. **D13 – İş Yatırım: otomatik kullanım kapatıldı.**
+   - Gerekçe: robots.txt bütün botlara `Disallow: /_layouts/` diyor; veri ucumuz bu yolun altında. Kural: otomatik çekmeyi yasaklayan kaynak kullanılmaz. Kaynak isteğe bağlı bir ikinci kaynaktı.
+   - Uygulama: `crosscheck.ENABLED = False`, tek nokta.
+   - Bedel: "Veri doğruluğu" SLO'su "bilinmiyor (D13)" olur. Yahoo çökünce gelen bilgi mesajı gelmez. Kurumsal işlem şüphelerinde ikinci kaynak kanıtı yoktur; KAP metni ve fiyat kopukluğu kalır.
+   - Karşılaştırma kodu duruyor ve kayıtlı veriyle test ediliyor.
+2. **D15 (yeni) – Yahoo'nun şartları da otomatik toplamayı yasaklıyor.** Arşiv `007.html`: "access or collect data … using any automated means … without our express, prior permission".
+   - Ücretsiz ve otomatik çekmeye izin veren bir BIST gün sonu fiyat kaynağı bulunamadı. Borsa İstanbul saklamayı yasaklıyor (D14); İş Yatırım ve Yahoo otomatik erişimi yasaklıyor; geri kalanlar ücretli.
+   - Sistem fiyat olmadan çalışmaz. Uyumlu çözüm lisanslı (ücretli) bir veri kaynağıdır; ödeme kararı benim veremeyeceğim kararlardandır.
+   - **Karar:** mevcut kişisel, ticari olmayan ve düşük hacimli kullanım (günde bir toplu indirme) belgelenmiş risk olarak sürer. Yahoo kullanımı genişletilmez: hisse başına ek sorgu ya da sayfa kazıma yok.
+   - Kullanıcıya seçenek olarak yazıldı (AUDIT D15).
+3. **D14 – Sektör ataması: kaynak yok, "bilinmiyor".**
+   - Borsa İstanbul listesi saklanamıyor.
+   - KAP şirket kartı: koşulu teyit edilmedi, ayrıca kullanıcı kuralı KAP içeriğini depoya koymayı yasaklıyor.
+   - Yahoo sektörü hisse başına ek sorgu ister, yani D15'i genişletir.
+   - Tahminle sektör (örneğin korelasyonla) C3 gereği yapılmaz.
+   - Sonuç: C, sektör kısmı dışında tamam sayılır. `/piyasa`'daki sektör endeksi fiyatları (dört ana endeks, mevcut toplu indirmenin içinde) kalır.
+4. **E'nin kapısı açıldı.** Sektör yoğunlaşması sınırı, sektör kaynağı olmadığı için etkin değildir ve "bilinmiyor" yazar. Risk bütçesinin geri kalanı sektöre bağlı değil.
+5. **B'nin kapısı açıldı.** A'nın kodu tamamlandı; PC kanıtı (seviye kaydı, 30.10 akşamı) izlenmeye devam ediyor. Şablonlar sonuç görülmeden DECISIONS'a yazılır.
+6. **KAP koşulu:** kullanım koşulu sayfası bulunamadı (404). robots.txt GitHub sunucusuna hata sayfası döndü.
+   - Mevcut düşük hacimli kullanım (haftalık KAP kontrolü, elle `kap.yml`) sürer. KAP metni depoya girmez.
+   - D (günlük otomatik KAP izleme) koşul bulunana kadar kapalı kalır. Bu, otomatik kullanımın genişlemesi olurdu.
+
 **K-53. Eleme filtresinin canlı ölçümü (29.10.2026, ileri hedef 1).**
 - **Ne ölçülür:** her akşam bugünkü BIST 100'e `/tara`'nın varsayılan eleme ayarları uygulanır (K-45: likidite, kurumsal, hareket, veri; ikinci kaynak şüphelileri dahil). Koşul her hissenin sağladığı `kapanis>0`'dır, böylece yalnız eleme ayırır.
   - Elenenler "elenen", kalanlar "kalan" görünümüyle `signal_log`'a "eleme" kaynağıyla yazılır. Puan 0'dır; eleme nedeni `details` sütununa girer.

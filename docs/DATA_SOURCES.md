@@ -13,8 +13,8 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 
 | Kaynak | Ne için | Erişim | Koşul | Durum |
 |---|---|---|---|---|
-| Yahoo Finance (yfinance) | günlük fiyat deposu, XU100 | resmi olmayan API | yazılı lisans yok; kişisel kullanım | **kullanımda**, koşul belgesiz (D5) |
-| İş Yatırım | ikinci kaynak doğrulaması | resmi olmayan uç nokta | robots.txt `/_layouts/` yolunu yasaklıyor (D13) | **kullanımda, düşük hacim**; kullanıcı kararı bekliyor |
+| Yahoo Finance (yfinance) | günlük fiyat deposu, XU100, sektör endeksleri, USDTRY ikinci kaynak | resmi olmayan API | şartlar otomatik toplamayı izinsiz yasaklıyor (D15, arşivli) | **kullanımda, kabul edilmiş risk** (K-54): günde bir toplu indirme, genişletilmez |
+| İş Yatırım | ikinci kaynak doğrulaması | resmi olmayan uç nokta | robots.txt `/_layouts/` yolunu yasaklıyor (D13) | **kapalı** (K-54, v0.96.1) |
 | KAP | kurumsal işlem metinleri, temel veri | Actions `kap.yml`, elle | kullanım koşulu teyit edilmedi | metin yalnız doğrulama için okunur; otomatik temel veri çekme **kapalı** (K-48) |
 | TCMB politika faizi | nakit karşılaştırması | elle, `data/cash/policy_rate.csv` | TCMB, kaynak gösterilerek | **kullanımda** |
 | TCMB gösterge kurları (XML) | USD/TRY (kullanımda, v0.95.0) | `tcmb.gov.tr/kurlar/` | robots.txt izin veriyor; site şartları: kaynak gösterilerek yayımlanabilir, **ticari kullanım yazılı izne tabi** (arşivli) | **planlı**; kişisel, ticari olmayan kullanım |
@@ -27,13 +27,17 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 
 ### Yahoo Finance
 - **Kullanım:** `core/market/provider.py` ve `update.py`. Günlük OHLCV ve XU100 için yfinance kullanılır; kurumsal işlem düzeltmesi bizde yapılır (DATA_CORRECTIONS).
-- **Koşul:** yfinance resmi bir API değildir. Yahoo'nun kullanım koşulları kişisel kullanım dışını sınırlar. Bu proje kişiseldir; veri depoya konmaz (`market.db` git dışında).
-- **Risk:** uç nokta haber vermeden değişebilir. İkinci kaynak (İş Yatırım) ve Veri doğruluğu SLO'su bunu izler.
+- **Koşul:** yfinance resmi bir API değildir. Yahoo'nun şartları otomatik yollarla veri toplamayı açık izin olmadan yasaklıyor (arşiv `sources/2026-10-29_09-28-44/007.html`, AUDIT D15).
+- **Karar (K-54):** ücretsiz ve uyumlu bir BIST kaynağı olmadığı için mevcut kişisel, ticari olmayan, günde bir toplu indirme kabul edilmiş risk olarak sürer.
+  - Kullanım genişletilmez: hisse başına ek sorgu ya da sayfa yok.
+  - Veri depoya konmaz (`market.db` git dışında).
+  - Uyumlu çözüm lisanslı bir veri kaynağıdır; bu bir ödeme kararıdır ve kullanıcınındır.
+- **Risk:** uç nokta haber vermeden değişebilir. İkinci kaynak kapalı olduğu için (D13) Veri doğruluğu SLO'su "bilinmiyor"; fiyat kalitesini yalnız `quality` denetimi ve kurumsal işlem kayıtları izliyor.
 
 ### İş Yatırım
 - **Kullanım:** haftalık ikinci kaynak özeti (`crosscheck`), şüpheli gün doğrulaması (`datacheck.yml`). Fiyatı depoya yazılmaz (K-21).
 - **Koşul:** 28.10.2026'da robots.txt'nin kullandığımız `/_layouts/` yolunu yasakladığı görüldü (AUDIT D13). Temel veri kaynağı olarak seçilmedi (K-48).
-- **Karar:** kullanıcıda. Bu arada aynı düşük hacimle sürüyor.
+- **Karar (K-54):** otomatik istek kapatıldı (`crosscheck.ENABLED = False`). 29.10'da robots.txt yeniden arşivlendi; yasak aynen duruyor.
 
 ### KAP
 - **Kullanım:** kurumsal işlem satırlarının kaynağı. Bildirim metni Actions'ta okunur; satıra yalnız bildirim numarası ve özet yazılır, metin depoya girmez.

@@ -176,7 +176,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - en az 10 iş günü PC'de çalışmış; kaçırılan bildirim yok, varsa nedeni yazılı.
 
 ### E – Portföy risk bütçesi ve yapı analizi
-- **Koşul:** C'nin bitti ölçütü (sektör verisi).
+- **Koşul:** ✅ açıldı (K-54). Sektör sınırı kaynak olmadığı için etkin değil.
 - **En erken:** C bittikten sonraki gün. C'nin süresi ve sektör kaynağı kararı (D14) belli olmadığından tarih yok.
 - **Bitti ölçütü:**
   - `/risk [gerçek|sanal]`, `/risk ekle`, `/risk denge` ("hesap sonucu, öneri değil") testleriyle çalışıyor;
@@ -196,7 +196,8 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.96.0 (eleme filtresinin canlı ölçümü). Öz-denetim sayacı: v0.95.4'ten beri 4.
+- **Son sürüm:** v0.96.1 (K-54 kararları: İş Yatırım kapalı, Yahoo riski, sektör yok, B ve E açık). Öz-denetim sayacı: v0.95.4'ten beri 5.
+- **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
   - ✅ Elenen ve kalan grubun canlı izlenmesi, v0.96.0 (K-53). İlk sonuç 30.10 kaydından 5 seans sonra.

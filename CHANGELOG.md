@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.96.1 – 29.10.2026 (K-54: devredilen kararlar)
+- **İş Yatırım ikinci kaynağı kapatıldı (D13).** Sitenin robots.txt'si kullandığımız yolu bütün otomatik erişime yasaklıyor. Hiçbir istek gitmiyor.
+  - Haftalık özet "kapalı" yazıyor.
+  - "Veri doğruluğu" SLO'su nedeniyle birlikte "bilinmiyor" diyor.
+  - Karşılaştırma kodu kayıtlı veriyle test edilmeye devam ediyor.
+- **Yahoo riski belgelendi (yeni bulgu D15, yüksek).** Yahoo'nun şartları da otomatik veri toplamayı yasaklıyor. Ücretsiz ve uyumlu bir BIST kaynağı bulunamadı. Mevcut kişisel, günde bir toplu indirme kabul edilmiş risk olarak sürüyor ve genişletilmeyecek. Uyumlu çözüm lisanslı veri; bu bir ödeme kararı.
+- **Sektör ataması yapılmayacak (D14).** Uyumlu bir kaynak yok ve tahmin edilmiyor. C sektör dışında tamam.
+- **B (senaryolar) ve E (risk bütçesi) açıldı.**
+- Doğrulama: `test_isyatirim_off` (kaynak kapalıyken ağ isteği yok, bekleme yok; özet ve SLO metni) ve `test_second_source` (kapalı durum).
+
 ## v0.96.0 – 29.10.2026 (ileri hedef 1: eleme filtresinin canlı ölçümü)
 - Her akşam bugünkü BIST 100'e `/tara`'nın varsayılan elemesi uygulanıyor. Elenen ve kalan hisseler canlı ölçüme "eleme" kaynağıyla ayrı ayrı yazılıyor (K-53).
 - `/performans`'a "🧹 Eleme filtresi (canlı)" bölümü geldi.

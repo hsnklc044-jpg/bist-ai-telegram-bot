@@ -47,6 +47,16 @@ from core.infrastructure.logger import get_logger
 logger = get_logger(__name__)
 
 URL = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/HisseTekil"
+# D13 (DECISIONS K-54): the site's robots.txt disallows /_layouts/ for every bot (archived
+# research-results sources/2026-10-29_09-28-44/001.html). No automated request is sent; the
+# comparison code stays and is tested with recorded data.
+ENABLED = False
+DISABLED_REASON = ("İş Yatırım ikinci kaynak kapalı: sitenin robots.txt'si /_layouts/ yolunu bütün otomatik "
+                   "erişime yasaklıyor (D13, K-54)")
+
+
+class SourceDisabled(RuntimeError):
+    """The second source is switched off (D13)."""
 RETURN_TOLERANCE = 0.01  # 1 percentage point
 MARKET_WIDE_SHARE = 0.20  # a date where this share of checked stocks differ is a source-level issue
 RETRIES = 3
@@ -64,6 +74,8 @@ def fetch_isyatirim(code: str, start: date, end: date, get=None, sleep=None, ret
 
     import time
 
+    if get is None and not ENABLED:
+        raise SourceDisabled(DISABLED_REASON)
     sleep = sleep or time.sleep
     pieces, piece_start = [], start
     while piece_start <= end:
@@ -477,6 +489,16 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--inspect", nargs="*", default=None, metavar="KOD:YYYY-MM-DD",
                         help="show our raw candle and İş Yatırım's around these days, nothing else")
     args = parser.parse_args(argv)
+
+    if not ENABLED:
+        print(DISABLED_REASON)
+        if args.summary:
+            import json
+
+            Path(args.summary).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.summary).write_text(json.dumps({"date": date.today().isoformat(), "disabled": True,
+                                                      "reason": DISABLED_REASON}, indent=1), encoding="utf-8")
+        return
 
     if args.inspect:
         items = []

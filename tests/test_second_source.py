@@ -59,11 +59,19 @@ class SecondSourceTriesOnceTest(unittest.TestCase):
             calls.append(1)
             raise ConnectionError("down")
 
-        with mock.patch("core.market.crosscheck._fetch_piece", side_effect=get), \
+        with mock.patch("core.market.crosscheck.ENABLED", True), \
+                mock.patch("core.market.crosscheck._fetch_piece", side_effect=get), \
                 mock.patch("time.sleep") as slept:
             self.assertIsNone(daily._second_source_note(DAY, ["THYAO.IS"]))
         self.assertEqual(len(calls), 1)
         slept.assert_not_called()
+
+    def test_switched_off_asks_nothing(self):
+        """D13 (K-54): with the source off there is no request and no message."""
+        calls = []
+        with mock.patch("core.market.crosscheck._fetch_piece", side_effect=lambda *a, **k: calls.append(1)):
+            self.assertIsNone(daily._second_source_note(DAY, ["THYAO.IS"]))
+        self.assertEqual(calls, [])
 
 
 class StaleDaySendsSecondSourceOnceTest(unittest.TestCase):
