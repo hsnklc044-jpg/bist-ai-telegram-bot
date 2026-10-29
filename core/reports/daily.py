@@ -1002,9 +1002,13 @@ def _risk_budget(account, values, frames, total, bench, perf, day, limits=None) 
     try:
         from core.alerts import budget
 
-        limits = budget.load_limits(account) if limits is None else limits
+        problems: list[str] = []
+        limits = budget.load_limits(account, problems=problems) if limits is None else limits
         table = budget.rows(budget.measure(values, frames, total, bench, perf), limits)
-        return budget.summary_line(table), budget.evaluate_limits(account, table, day)
+        line = budget.summary_line(table)
+        if problems:  # validation M28: a mistyped limit is never silently off
+            line += f"; ⚠️ risk_limits.csv'de {len(problems)} satır sorunlu (/risk)"
+        return line, budget.evaluate_limits(account, table, day)
     except Exception:  # noqa: BLE001 - extra information; the report still goes out
         logger.exception("Risk budget failed")
         return "", []

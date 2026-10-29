@@ -2,6 +2,26 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.8 – 29.10.2026 (bağımsız doğrulama M28: /risk denge; M16 raporu)
+- **M28 (risk bütçesi) değişti; yeniden doğrulama gerekir.**
+- **`/risk denge` gerçek hesapta artık sınıra gerçekten döndürüyor** (YÜKSEK).
+  - Gerçek hesabın değeri yalnız hisselerden oluşuyor, satış toplamı da küçültüyor. Hesap artık küçülen toplama göre çözülüyor ve her ağırlık sınıra inene kadar tekrarlanıyor. Doğrulamadaki örnek: %46,3 eskiden %42,7'ye iniyordu, artık %40'ın altına iniyor.
+  - Her azaltmadan sonra hesap yeniden ölçülüyor ve "azaltma sonrası" satırı yazılıyor.
+  - Satışla ulaşılamayan sınır hesaplanmıyor, nedeniyle söyleniyor:
+    - gerçek hesapta oynaklık ve 1 günlük kayıp (nakit yok, eşit azaltma oranı değiştirmez);
+    - hisse sayısı yetmediğinde tek hisse sınırı (2 hisseyle en büyük pay en az %50);
+    - zirveden düşüş (gerçekleşmiş kayıp).
+- **Ölçülemeyen sınır artık "sınırlar içinde" sayılmıyor** (ORTA); günlük satır "ölçülemedi" diyor.
+- **data/risk_limits.csv sorunları artık görünüyor** (ORTA): /risk tablosunda ve günlük satırda.
+  - nan ve inf değerleri reddediliyor.
+  - Noktalı virgüllü dosya (Türkçe Excel) okunuyor.
+  - İki kez yazılmış sınır söyleniyor; satır sırası yerine sıkı olan geçerli.
+- **M16 (veri kalitesi) bağımsız doğrulaması:** kısıtlı kullanılabilir (docs/validation/M16.md).
+  - Temiz seride yanlış eleme yok (74.900 getiride 0).
+  - %30 ve üstü kayıtsız bedelsiz ile bölünmeler %93–100 yakalanıyor.
+  - YÜKSEK bulgu: ikinci kaynak kapalı olduğu için ±%10 içindeki hatalar görünmüyor (tek günlük ×1,05 hatalı kapanış, düz mum).
+- Doğrulama: `test_risk_budget_validation` (12 test, önce kırmızıydı).
+
 ## v0.99.7 – 29.10.2026 (M15 D-7; M12 doğrulama raporu)
 - **data/corporate_actions.csv silinirse artık söyleniyor** (doğrulama M15 D-7). Önceden bütün geçmişler sessizce düzeltmesiz kalıyordu; artık günlük raporun sorun listesinde görünüyor.
 - **M12 (portföy riski) bağımsız doğrulaması:** kısıtlı kullanılabilir (docs/validation/M12.md).
@@ -11,7 +31,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
   - YÜKSEK bulgu yok. İki ORTA bulgu stres raporunda: fiyatsız pozisyon sessizce düşüyor; pencere seans değil satır sayıyor.
 - **M28 (risk bütçesi) bağımsız doğrulaması:** kısıtlı kullanılabilir (docs/validation/M28.md).
   - Ölçüler elle hesapla aynı: Euler katkısı, oynaklık, beta, likidite, düşüş, %80 sarı eşiği.
-  - YÜKSEK bulgu: `/risk denge` gerçek hesapta sınıra geri götürmüyor. Sıradaki sürümde düzeltiliyor; o zamana kadar gerçek hesapta kullanmayın.
+  - YÜKSEK bulgu: `/risk denge` gerçek hesapta sınıra geri götürmüyor (v0.99.8'de düzeltildi).
 
 ## v0.99.6 – 29.10.2026 (bağımsız doğrulama M15: erken düzeltme ve etiketler)
 - **M15 değişti; yeniden doğrulama gerekir.**

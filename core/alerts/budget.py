@@ -55,7 +55,10 @@ def load_limits(account: str, path: Path | None = None, problems: list | None = 
         return {}
     out: dict[str, float] = {}
     with open(path, encoding="utf-8-sig", newline="") as fh:
-        for n, row in enumerate(csv.DictReader(fh), start=2):
+        first = fh.readline()
+        fh.seek(0)
+        delimiter = ";" if ";" in first and "," not in first else ","  # Excel in Turkish saves with ";" (M28)
+        for n, row in enumerate(csv.DictReader(fh, delimiter=delimiter), start=2):
             who, name = (row.get("account") or "").strip().lower(), (row.get("limit") or "").strip().lower()
             if who not in ("hepsi", ACCOUNTS[account], "gerçek"):
                 if who not in ("gercek", "sanal", "gerçek") and problems is not None:
@@ -67,10 +70,15 @@ def load_limits(account: str, path: Path | None = None, problems: list | None = 
                 value = float((row.get("value") or "").replace(",", ".")) / 100
             except ValueError:
                 value = None
-            if name not in NAMES or value is None or value <= 0:
+            if name not in NAMES or value is None or not math.isfinite(value) or value <= 0:
                 if problems is not None:
                     problems.append(f"{path.name} satır {n}: '{name}' sınırı okunamadı")
                 continue
+            if name in out:  # validation M28: row order must not decide; the stricter one holds
+                if problems is not None:
+                    problems.append(f"{path.name} satır {n}: '{name}' sınırı iki kez yazılmış; sıkı olanı "
+                                    f"({_pct(min(out[name], value))}) kullanılıyor")
+                value = min(out[name], value)
             out[name] = value
     return out
 
@@ -215,12 +223,15 @@ def summary_line(table: list[Row]) -> str:
     """One line for the daily report."""
 
     flagged = [r for r in table if r.state in ("sarı", "kırmızı")]
+    # validation M28: a limit that could not be measured is never "within"
+    unmeasured = [r for r in table if r.limit and r.state not in ("yeşil", "sarı", "kırmızı")]
     if not any(r.limit for r in table):
         return "🛡 Risk bütçesi: sınır tanımlı değil (/risk)"
-    if not flagged:
+    parts = [f"{NAMES[r.name]} {r.state} (kullanım %{r.value / r.limit * 100:.0f})" for r in flagged]
+    parts += [f"{NAMES[r.name]} ölçülemedi" for r in unmeasured]
+    if not parts:
         return "🛡 Risk bütçesi: tanımlı sınırlar içinde (/risk)"
-    return "🛡 Risk bütçesi: " + ", ".join(f"{NAMES[r.name]} {r.state} (kullanım %{r.value / r.limit * 100:.0f})"
-                                         for r in flagged) + " (/risk)"
+    return "🛡 Risk bütçesi: " + ", ".join(parts) + " (/risk)"
 
 
 def what_if(values: dict[str, float], total: float, symbol: str, quantity: float, price: float,
@@ -232,32 +243,88 @@ def what_if(values: dict[str, float], total: float, symbol: str, quantity: float
     return out, total if paper else total + quantity * price
 
 
+def after_cuts(quantities: dict[str, float], prices: dict[str, float], cuts: dict[str, int], total: float,
+               paper: bool) -> tuple[dict[str, float], float]:
+    """Values and account total after the cuts: the paper account keeps the proceeds as cash, the
+    real account's value is its shares only, so it shrinks by the proceeds."""
+
+    values = {s: max(q - cuts.get(s, 0), 0) * prices[s] for s, q in quantities.items()}
+    return values, total if paper else sum(values.values())
+
+
+def _single_reachable(m: Measures, limit: float, paper: bool) -> bool:
+    # the real account is all shares: with n stocks the largest is at least 1/n of it
+    return paper or len(m.weights) * limit >= 1 - 1e-12
+
+
 def rebalance(m: Measures, limits: dict[str, float], prices: dict[str, float],
-              quantities: dict[str, float]) -> dict[str, int]:
-    """Shares to reduce per position to return within the limits (arithmetic only)."""
+              quantities: dict[str, float], paper: bool = True) -> dict[str, int]:
+    """
+    Shares to reduce per position to return within the limits (arithmetic only). Validation M28:
+    the real account's total falls with each sale, so the single-stock cut is solved on the shrinking
+    total and repeated until every weight is within; an equal cut cannot change its volatility or
+    1-day loss (no cash), so nothing is computed for those there (rebalance_notes says why).
+    """
 
     cuts: dict[str, int] = {}
     single = limits.get("tek_hisse")
-    if single:
-        for s, w in m.weights.items():
-            if w > single:
-                cuts[s] = math.ceil((w - single) * m.total / prices[s])
+    if single and m.weights and _single_reachable(m, single, paper):
+        held = {s: q for s, q in quantities.items() if s in m.weights}
+        for _ in range(4 * len(held) + 4):
+            values, total = after_cuts(held, prices, cuts, m.total, paper)
+            over = [(s, v) for s, v in values.items() if total > 0 and v / total > single + 1e-12]
+            if not over:
+                break
+            s, v = max(over, key=lambda kv: kv[1])
+            # paper: (v − x) / T ≤ L; real: (v − x) / (T − x) ≤ L
+            x = v - single * total if paper else (v - single * total) / (1 - single)
+            cuts[s] = cuts.get(s, 0) + max(1, math.ceil(x / prices[s] - 1e-9))
     factors = [limits[n] / v for n, v in (("oynaklik", m.volatility), ("var_1g", m.var))
                if limits.get(n) and v and v > limits[n]]
-    if factors:
+    if factors and paper:
         keep = min(factors)
         for s, q in quantities.items():
             cuts[s] = max(cuts.get(s, 0), math.ceil(q * (1 - keep)))
     return cuts
 
 
-def rebalance_text(account_name: str, cuts: dict[str, int], prices: dict[str, float]) -> str:
+def rebalance_notes(m: Measures, limits: dict[str, float], paper: bool) -> list[str]:
+    """Limits that selling cannot reach, said instead of computed (validation M28)."""
+
+    notes = []
+    single = limits.get("tek_hisse")
+    if single and m.weights and max(m.weights.values()) > single and not _single_reachable(m, single, paper):
+        n = len(m.weights)
+        notes.append(f"tek hisse: gerçek hesabın değeri yalnız hisselerden oluşur; {n} hisseyle en büyük pay en az "
+                     f"{_pct(1 / n, 0)}. Satışla {_pct(single, 0)} sınırına inilemez.")
+    if not paper:
+        for name, value in (("oynaklik", m.volatility), ("var_1g", m.var)):
+            if limits.get(name) and value and value > limits[name]:
+                notes.append(f"{NAMES[name]}: gerçek hesapta nakit sayılmadığı için eşit azaltma oranı değiştirmez; "
+                             "hangi hissenin azaltılacağı bir seçimdir, sistem seçmez.")
+    for name, value in (("oynaklik", m.volatility), ("var_1g", m.var)):
+        if limits.get(name) and value is None:
+            notes.append(f"{NAMES[name]}: ölçülemedi; azaltma hesaplanmadı.")
+    if limits.get("dusus") and m.drawdown is not None and m.drawdown > limits["dusus"]:
+        notes.append(f"zirveden düşüş {_pct(m.drawdown)}: gerçekleşmiş kayıptır, satışla geri alınmaz.")
+    return notes
+
+
+def rebalance_text(account_name: str, cuts: dict[str, int], prices: dict[str, float],
+                   notes: list[str] | None = None, after: list[Row] | None = None) -> str:
     from core.reports.daily import tr
 
+    notes = notes or []
+    if not cuts and notes:
+        return "\n".join([f"⚖️ {account_name} hesap: azaltma hesabı yok ({LABEL})"] + [f"  • {n}" for n in notes])
     if not cuts:
         return f"⚖️ {account_name} hesap tanımlı sınırların içinde; azaltma hesabı yok ({LABEL})."
     lines = [f"⚖️ Sınırlara dönmek için gereken azaltma – {account_name} hesap ({LABEL})"]
     lines += [f"  {_code(s)}: {n} adet (~{tr(n * prices[s])} TL)" for s, n in sorted(cuts.items())]
+    if after:
+        lines.append("Azaltma sonrası yeniden ölçüldü: " + ", ".join(
+            f"{NAMES[r.name]} {_pct(r.value)} ({r.state})" for r in after if r.limit and r.value is not None))
+    lines += [f"  • {n}" for n in notes]
     lines.append("Yalnız matematik; işlem ya da emir oluşturulmaz.")
     return "\n".join(lines)
 
@@ -343,13 +410,21 @@ def command_text(words: list[str]) -> str:
         return str(exc)
     st = account_state(account)
     name = ACCOUNTS[account].replace("gercek", "gerçek")
-    limits = load_limits(account)
+    problems: list[str] = []
+    limits = load_limits(account, problems=problems)
+    warn = "".join(f"\n⚠️ {p}" for p in problems)
     m = measure(st.values, st.frames, st.total, st.bench, st.perf)
     table = rows(m, limits)
     if action == "table":
-        return table_text(name, m, table)
+        return table_text(name, m, table) + warn
     if action == "rebalance":
-        return rebalance_text(name, rebalance(m, limits, st.prices, st.quantities), st.prices)
+        paper = account == "paper"
+        cuts = rebalance(m, limits, st.prices, st.quantities, paper=paper)
+        after = None
+        if cuts:  # validation M28: every cut is re-measured, so the claim "back within" is checked
+            values, total = after_cuts(st.quantities, st.prices, cuts, st.total, paper)
+            after = rows(measure(values, st.frames, total, st.bench, st.perf), limits)
+        return rebalance_text(name, cuts, st.prices, rebalance_notes(m, limits, paper), after) + warn
     symbol, quantity = extra
     from core.reports.daily import adjusted_bars
 
@@ -378,4 +453,4 @@ def web_rows(account: str) -> dict:
 
 
 __all__ = ["AccountState", "account_state", "command_text", "parse_args", "web_rows", "LABEL", "LIMITS_FILE", "Measures", "Row", "drawdown", "evaluate_limits", "load_limits", "measure",
-           "rebalance", "rebalance_text", "rows", "state", "summary_line", "table_text", "what_if"]
+           "after_cuts", "rebalance", "rebalance_notes", "rebalance_text", "rows", "state", "summary_line", "table_text", "what_if"]
