@@ -48,6 +48,13 @@ class CheckTest(unittest.TestCase):
         reports = V.reports(self.dir)
         self.assertEqual(reports["M15"].verdict, "kısıtlı kullanılabilir")
 
+    def test_the_validators_own_layout(self):
+        (self.dir / "M14.md").write_text("# M14\n\n- Tarih: 29.10.2026\n- Kapsam: x\n\n## 5. Karar\n\n"
+                                         "**KISITLI KULLANILABİLİR.** Ayrıntı.\n", encoding="utf-8")
+        report = V.reports(self.dir)["M14"]
+        self.assertEqual(report.day, date(2026, 10, 29))
+        self.assertEqual(report.verdict, "kısıtlı kullanılabilir")
+
     def test_unusable_is_a_warning(self):
         self.report("M15", "2026-10-29", "kullanılamaz")
         self.assertEqual(V.status(date(2026, 10, 30), self.dir)[0], "warn")

@@ -27,15 +27,40 @@ class Report:
     verdict: str
 
 
+VERDICTS = ("kısıtlı kullanılabilir", "kullanılamaz", "kullanılabilir")  # the longest match first
+
+
+def _day(text: str) -> date | None:
+    m = re.search(r"^[-*\s]*\**Tarih\**:?\**\s*(\d{4})-(\d{2})-(\d{2})", text, flags=re.M) or \
+        re.search(r"^[-*\s]*\**Tarih\**:?\**\s*(\d{2})\.(\d{2})\.(\d{4})", text, flags=re.M)
+    if not m:
+        return None
+    a, b, c = (int(x) for x in m.groups())
+    return date(a, b, c) if a > 31 else date(c, b, a)
+
+
+def _verdict(text: str) -> str | None:
+    """'Karar: …' on one line, or the first verdict word under a '## … Karar' heading."""
+
+    lowered = text.replace("İ", "i").replace("I", "ı").lower()
+    m = re.search(r"^[-*\s]*\**karar\**:\**\s*(.+)$", lowered, flags=re.M)
+    part = m.group(1) if m else None
+    if part is None:
+        h = re.search(r"^#+[^\n]*karar[^\n]*\n(.*?)(?=^#|\Z)", lowered, flags=re.M | re.S)
+        part = h.group(1) if h else None
+    if part is None:
+        return None
+    return next((v for v in VERDICTS if v in part), None)
+
+
 def reports(folder: Path | None = None) -> dict[str, Report]:
     folder = Path(folder or VALIDATION_DIR)
     out = {}
     for path in sorted(folder.glob("M*.md")) if folder.exists() else []:
         text = path.read_text(encoding="utf-8")
-        day = re.search(r"^\**Tarih:?\**:?\s*(\d{4}-\d{2}-\d{2})", text, flags=re.M)
-        verdict = re.search(r"^\**Karar:?\**:?\s*(.+)$", text, flags=re.M)
+        day, verdict = _day(text), _verdict(text)
         if day and verdict:
-            out[path.stem] = Report(path.stem, date.fromisoformat(day.group(1)), verdict.group(1).strip().rstrip("."))
+            out[path.stem] = Report(path.stem, day, verdict)
     return out
 
 
