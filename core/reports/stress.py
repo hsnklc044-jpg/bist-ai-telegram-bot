@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 LENGTHS = (1, 5, 20)
+BAYRAM_SLACK = 5  # weekdays a holiday may take in years the holiday file does not cover
 ACCOUNT_NAMES = {"real": "Gerçek hesap", "paper": "Sanal hesap"}
 
 
@@ -48,18 +49,32 @@ class Scenario:
         return sum(r.value * r.change for r in self.rows)
 
 
+def _complete(base: pd.Timestamp, end: pd.Timestamp, n: int) -> bool:
+    """n data rows really are n sessions (validation M12: a gap in the data made a longer fall
+    look like one session)."""
+
+    from core.market.calendar import holidays, sessions_between
+
+    known = {d.year for d in holidays()}
+    sessions = sessions_between(base.date(), end.date())
+    slack = 0 if {base.year, end.year} <= known else BAYRAM_SLACK
+    return sessions - n <= slack
+
+
 def worst_windows(close: pd.Series, lengths=LENGTHS) -> list[Window]:
-    """The worst `n`-session change of `close` for each n (one window per length)."""
+    """The worst complete `n`-session change of `close` for each n (one window per length)."""
 
     close = close.dropna()
     found = []
     for n in lengths:
         if len(close) <= n:
             continue
-        change = close / close.shift(n) - 1
-        end = change.idxmin()
-        position = close.index.get_loc(end)
-        found.append(Window(n, close.index[position - n], end, float(change.loc[end])))
+        change = (close / close.shift(n) - 1).dropna().sort_values()
+        for end, value in change.items():
+            base = close.index[close.index.get_loc(end) - n]
+            if _complete(base, end, n):
+                found.append(Window(n, base, end, float(value)))
+                break
     return found
 
 
@@ -74,12 +89,17 @@ def scenario(window: Window, values: dict[str, float], frames: dict[str, pd.Data
     return result
 
 
-def format_report(scenarios: list[Scenario], account: str, total: float) -> str:
+def format_report(scenarios: list[Scenario], account: str, total: float, unpriced: list[str] | None = None) -> str:
     from core.reports.daily import DISCLAIMER, pct, tr
 
     lines = [f"🧯 Stres testi – {ACCOUNT_NAMES.get(account, account)}", ""]
+    missing = ("⚠️ Fiyatı yok, teste katılmadı: " + ", ".join(s.removesuffix(".IS") for s in unpriced)) \
+        if unpriced else None  # validation M12: never dropped silently
     if not scenarios or not scenarios[0].rows:
-        return "\n".join(lines + ["Açık pozisyon yok; test edilecek bir şey yok.", "", DISCLAIMER])
+        body = [missing] if missing else ["Açık pozisyon yok; test edilecek bir şey yok."]
+        return "\n".join(lines + body + ["", DISCLAIMER])
+    if missing:
+        lines += [missing, ""]
     lines.append("Bugünkü pozisyonlar, XU100'ün kayıtlı geçmişindeki en kötü düşüşleri yaşasaydı:")
     for s in scenarios:
         w = s.window
@@ -105,12 +125,13 @@ def stress_text(account: str = "real") -> str:
     entries = load_ledger()
     holdings, invested = value_holdings(entries, account)
     values = {h.position.symbol: h.value for h in holdings if not pd.isna(h.value)}
+    unpriced = [h.position.symbol for h in holdings if pd.isna(h.value)]
     total = invested + (cash_balance(entries, account) if account == "paper" else 0.0)
     if not values:
-        return format_report([], account, total)
+        return format_report([], account, total, unpriced)
     frames = {s: adjusted_bars(s) for s in values}
     windows = worst_windows(adjusted_bars(BENCHMARK)["close"])
-    return format_report([scenario(w, values, frames) for w in windows], account, total)
+    return format_report([scenario(w, values, frames) for w in windows], account, total, unpriced)
 
 
 def parse_account(words: list[str]) -> str:

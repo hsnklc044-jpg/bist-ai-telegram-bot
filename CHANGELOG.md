@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.10 – 29.10.2026 (bağımsız doğrulama M12: stres testi; M24 raporu)
+- **M12 (portföy riski) değişti; yeniden doğrulama gerekir.**
+- **Stres pencereleri artık seans sayıyor, satır değil** (ORTA).
+  - XU100 verisinde boşluk varsa daha uzun bir düşüş "1 seans" gibi görünüyordu. Doğrulamadaki örnek: 19.01 → 29.01, −%20.
+  - Eksik veriye denk gelen pencere atlanıyor, sıradaki en kötü tam pencere alınıyor.
+  - Tatiller sayılmıyor. Tatil dosyasının kapsadığı yıllarda (2026–2027) seans sayısı tam tutmalı; daha eski yıllarda bir bayram uzunluğu (5 iş günü) pay var.
+- **Fiyatı olmayan pozisyon artık stres testinde adıyla yazılıyor** (ORTA). Önceden sessizce düşüyordu.
+- **M24 (dört bazlı sonuç) bağımsız doğrulaması:** kısıtlı kullanılabilir (docs/validation/M24.md).
+  - 11 elle hesaplanmış durum kodla aynı.
+  - TÜFE dosyası kendi içinde tutarlı: 57 ayda 12 aylık zincir ile yıllık arasındaki en büyük fark 0,03 puan.
+  - YÜKSEK bulgu yok. ORTA: TÜFE penceresi gerçek pencereden yaklaşık bir ay geride; kısa pencerede reel = nominal bir sayı gibi gösteriliyor.
+- Doğrulama: `test_stress_validation` (3 test, önce kırmızıydı).
+
 ## v0.99.9 – 29.10.2026 (bağımsız doğrulama M16: ±%10 içindeki hatalar)
 - **M16 (veri kalitesi) değişti; yeniden doğrulama gerekir.**
 - **Mumun kendi içinden üç yeni kontrol** (YÜKSEK bulgu: ikinci kaynak kapalıyken ±%10 içindeki hatalar görünmüyordu).
