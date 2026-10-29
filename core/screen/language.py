@@ -184,6 +184,14 @@ class LevelBreak(Compare):
 
 
 @dataclass(frozen=True)
+class ScenarioCondition(Compare):
+    """senaryo(<template>): the K-55 template's 1/0 field equals 1 (Özellik B)."""
+
+    def text(self, nested: bool = False) -> str:
+        return f"senaryo({self.left.key.removeprefix('senaryo_')})"
+
+
+@dataclass(frozen=True)
 class Range(Node):
     operand: Operand
     low: float
@@ -448,6 +456,18 @@ class _Parser:
             self.take("rparen", usage)
             self.fields.add(name)
             return self.count(LevelBreak(Operand(name), ">=", Operand(None, 1.0)))
+        if self.is_word("senaryo"):
+            from core.analytics.scenarios import TEMPLATES
+
+            usage = f"senaryo(şablon) yazın; şablonlar: {', '.join(TEMPLATES)}."
+            self.i += 1
+            self.take("lparen", usage)
+            word = self.take("name", usage)
+            if word.value not in TEMPLATES:
+                self.error(f"Bilinmeyen senaryo '{word.value}'. {usage}", word.pos)
+            self.take("rparen", usage)
+            self.fields.add(f"senaryo_{word.value}")
+            return self.count(ScenarioCondition(Operand(f"senaryo_{word.value}"), ">=", Operand(None, 1.0)))
         if self.is_word("son"):
             self.i += 1
             self.take("lparen", "Pencere için: son(5, kesti_yukari(ema20,ema50)).")
@@ -508,6 +528,8 @@ class _Parser:
             hint = f" '{close[0]}' mi demek istediniz?" if close else " Alanlar: /tara_alanlar"
             self.error(f"'{name}' bilinmeyen alan.{hint}", t.pos)
         name = F.ALIASES.get(name, name)
+        if name in F.SCENARIO_SERIES:
+            self.error(f"{name} bir koşuldur: senaryo({name.removeprefix('senaryo_')}) yazın.", t.pos)
         if name in ("kirdi_yukari", "kirdi_asagi"):
             self.error(f"{name} bir koşuldur: {name}({'direnc' if name == 'kirdi_yukari' else 'destek'}) yazın.", t.pos)
         if name == "egim":

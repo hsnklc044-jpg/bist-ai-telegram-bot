@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.97.2 – 29.10.2026 (Özellik B: /tara senaryo(...))
+- `/tara senaryo(destek_tepkisi)`, `senaryo(direnc_kirilimi)`, `senaryo(trend_geri_cekilme)`: şablonun bugün kurulduğu hisseler. Diğer koşullarla birleşiyor.
+- Değer, şablonun kendi gün gün sinyali. Liste ve karne aynı tanımı kullanıyor; geleceği görmüyor.
+- Alan adı doğrudan yazılırsa doğru yazımı gösteren bir hata çıkıyor. HANDBOOK alan tablosu güncellendi.
+- Doğrulama: `test_scenarios_screen` (yazım, hatalı şablon, değerin şablon sinyaline eşitliği) ve alan tamlığı testi.
+
 ## v0.97.1 – 29.10.2026 (Özellik B: karne ve canlı kayıt)
 - **Karne** (`core/analytics/scenarios_study.py`). Tarama dönemi; holdout okunmuyor; BIST 100 geçmiş üyeliği; günün varsayılan elemesi. Her şablon için olay sayısı, hedef / geçersizlik / süre doldu oranları, ortalama R ve %95 aralığı (20 seanslık blok bootstrap), en kötü geçersizlik serisi, XU100'e göre fark.
   - PC'de cuma akşamları ya da önbellek yoksa raporla hesaplanıyor, `/senaryo`'da görünüyor.

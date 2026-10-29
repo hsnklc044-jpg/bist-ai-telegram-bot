@@ -187,6 +187,9 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Seviye | `seviye_gucu` | en yakın küme seviyesinin güç puanı (dokunma, yaş, kırılma; sabit formül) | 0–100 |
 | Seviye | `kirdi_yukari` | kirdi_yukari(direnc) ile yazılır: kapanış dünkü en yakın direnci 0,5 ATR'den fazla geçti | 1/0 |
 | Seviye | `kirdi_asagi` | kirdi_asagi(destek) ile yazılır: kapanış dünkü en yakın desteğin 0,5 ATR'den fazla altına indi | 1/0 |
+| Senaryo | `senaryo_destek_tepkisi` | senaryo(destek_tepkisi) ile yazılır: K-55 destek tepkisi şablonu bugün kuruldu | 1/0 |
+| Senaryo | `senaryo_direnc_kirilimi` | senaryo(direnc_kirilimi) ile yazılır: K-55 direnç kırılımı şablonu bugün kuruldu | 1/0 |
+| Senaryo | `senaryo_trend_geri_cekilme` | senaryo(trend_geri_cekilme) ile yazılır: K-55 trend içi geri çekilme şablonu bugün kuruldu | 1/0 |
 | Fiyat konumu | `zirve_52h` | 52 hafta (252 seans) en yükseği, bugün dahil | TL |
 | Fiyat konumu | `dip_52h` | 52 hafta (252 seans) en düşüğü, bugün dahil | TL |
 | Fiyat konumu | `zirve_52h_oran` | kapanış / 52 hafta en yükseği × 100 (95 = zirvenin %95'i) | % |
@@ -456,7 +459,8 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 
 **Komutlar:**
 - `/senaryo THYAO`: üç şablonun bugünkü durumu. Koşul varsa seviyeleri, R'yi, adet hesabını ve tavan/taban riskini gösterir.
-- `/senaryo THYAO giris 240 gecersiz 232 hedef 262`: kendi seviyelerinizle R, maliyet ve adet. `risk=%0,5` ile risk bütçesini değiştirebilirsiniz (varsayılan %1, en çok %5).
+- `/senaryo THYAO giris 240 gecersiz 232 hedef 262`: kendi seviyelerinizle R, maliyet ve adet.
+- `/tara senaryo(destek_tepkisi)`: şablonun bugün kurulduğu hisseler. Diğer koşullarla birleşir, örneğin `senaryo(trend_geri_cekilme) rsi<50`. Karne de aynı gün gün sinyali kullanır. `risk=%0,5` ile risk bütçesini değiştirebilirsiniz (varsayılan %1, en çok %5).
 
 **Şablonlar** (parametreleri sonuç görülmeden sabitlendi, değişmez):
 

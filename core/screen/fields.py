@@ -101,6 +101,12 @@ FIELDS = {
                                     "fazla geçti", "1/0"),
     "kirdi_asagi": Field("Seviye", "kirdi_asagi(destek) ile yazılır: kapanış dünkü en yakın desteğin 0,5 ATR'den "
                                    "fazla altına indi", "1/0"),
+    "senaryo_destek_tepkisi": Field("Senaryo", "senaryo(destek_tepkisi) ile yazılır: K-55 destek tepkisi şablonu "
+                                               "bugün kuruldu", "1/0"),
+    "senaryo_direnc_kirilimi": Field("Senaryo", "senaryo(direnc_kirilimi) ile yazılır: K-55 direnç kırılımı şablonu "
+                                                "bugün kuruldu", "1/0"),
+    "senaryo_trend_geri_cekilme": Field("Senaryo", "senaryo(trend_geri_cekilme) ile yazılır: K-55 trend içi geri "
+                                                   "çekilme şablonu bugün kuruldu", "1/0"),
     "zirve_52h": Field("Fiyat konumu", "52 hafta (252 seans) en yükseği, bugün dahil", "TL"),
     "dip_52h": Field("Fiyat konumu", "52 hafta (252 seans) en düşüğü, bugün dahil", "TL"),
     "zirve_52h_oran": Field("Fiyat konumu", "kapanış / 52 hafta en yükseği × 100 (95 = zirvenin %95'i)", "%"),
@@ -120,6 +126,7 @@ RANKED = {"gg_sira": "gg_60", "goreli_guc_yuzdelik": "rs_puan", "momentum_sira":
           "oynaklik_sira": "oynaklik_60g"}
 CROSS_SECTIONAL = set(RANKED)
 LEVEL_SERIES = ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu", "kirdi_yukari", "kirdi_asagi")
+SCENARIO_SERIES = ("senaryo_destek_tepkisi", "senaryo_direnc_kirilimi", "senaryo_trend_geri_cekilme")
 SCORE_FRAME = {"ema20": "ema20", "ema50": "ema50", "rsi": "rsi", "macd": "macd", "hacim_oran": "volume_ratio"}
 SUPERTREND = (10, 3.0)
 
@@ -215,6 +222,7 @@ class _Table:
         self._macd = None
         self._bb = None
         self._levels = None
+        self._scenarios = None
 
     def score(self):
         if self._score is None:
@@ -260,6 +268,12 @@ class _Table:
 
                 self._levels = daily_series(df, self.recent)
             return self._levels[name]
+        if name in SCENARIO_SERIES:  # the K-55 templates (core.analytics.scenarios), computed once per stock
+            if self._scenarios is None:
+                from core.analytics.scenarios import signals
+
+                self._scenarios = signals(df, self.recent)
+            return self._scenarios[name.removeprefix("senaryo_")]["ok"].astype(float)
         if name == "egim":  # egim(<field>,<n>)
             inner, _, days = column[5:-1].rpartition(",")
             base = self.get(inner)
