@@ -88,6 +88,7 @@ data/screens.csv
 data/screen_subscriptions.csv
 data/screen_virtual.csv
 data/fundamentals.csv
+data/risk_limits.csv
 data/signal_log.csv
 data/equity_log.csv
 data/backups/

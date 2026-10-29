@@ -2,6 +2,23 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.98.0 – 29.10.2026 (Talimat E: risk bütçesi)
+- Tasarım K-56'da sonuç görülmeden yazıldı (575237e) ve aynen uygulandı (`core/alerts/budget.py`).
+- **Sınırlar:** kullanıcının `data/risk_limits.csv` dosyası; kişisel, yedekte, şema denetiminde, git dışında.
+  - Ölçülen sınırlar: tek hisse, portföy oynaklığı (60 seans), zirveden düşüş, 1 günlük %95 kayıp (250 seans).
+  - Tek sektör sınırı "bilinmiyor", çünkü sektör kaynağı yok.
+  - Durumlar yeşil / sarı (≥ %80) / kırmızı.
+- **Ek ölçüler:** risk katkısı, beta, etkin pozisyon sayısı, kapanma süresi (20 seans hacminin %20'si), birlikte hareket eden çiftler.
+- **Komutlar:** `/risk [gercek|sanal]`; `/risk ekle THYAO 100` (ya şöyle olsaydı; emir yok); `/risk denge` (sınırlara dönüş matematiği; "hesap sonucu, öneri değil").
+- **Rapor ve uyarılar:** günlük raporda her hesabın altında tek satırlık özet var. Sarı ve kırmızı sınırlar `alerts_log`'a "risk_siniri" kuralıyla giriyor ve tekrar etmiyor.
+- **Web:** `/risk/sanal`, `/risk/gercek`.
+- HANDBOOK §13 "risk bütçemi nasıl tanımlarım", örnek dosyayla.
+- Doğrulama: `test_risk_budget` (15 test).
+  - İki hisse, korelasyon 1: oynaklık 1,5σ, risk katkısı ⅓ ve ⅔, beta 1,5; elle hesaplanıyor.
+  - Kapanma süresi, düşüş, sınır dosyası okuma ve durum eşikleri denetleniyor.
+  - Ya şöyle olsaydı ve denge elle hesaplanıyor.
+  - Uyarı önemi, fiyatı olmayan pozisyon, komut ayrıştırma, bot, web, yedek ve şema denetleniyor.
+
 ## v0.97.3 – 29.10.2026 (senaryo sonucu: boşluklu açılış)
 - İlk gerçek karnede görüldü: ertesi açılış geçersizliğin altına ya da hedefin üstüne boşlukla açılınca R tanımsız kalıyordu ve destek tepkisinin aralığı hesaplanamıyordu.
 - Artık böyle bir açılışta girilecek senaryo yok: "dolmadı", tavan/taban açılışı gibi. K-55'e ek olarak yazıldı; şablon parametreleri değişmedi.

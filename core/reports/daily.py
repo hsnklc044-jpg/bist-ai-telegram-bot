@@ -417,6 +417,13 @@ def build_daily(
             )
             lines.append(risk.line())
             alerts += evaluate_portfolio(account, risk, day)
+            budget_line, budget_alerts = _risk_budget(
+                account, {p.symbol: value for p, _, value in rows},
+                {p.symbol: adjusted_bars(p.symbol) for p, _, _ in rows}, total, bench["close"] if not bench.empty
+                else pd.Series(dtype=float), growth if len(growth) >= 2 else None, day)
+            if budget_line:
+                lines.append(budget_line)
+            alerts += budget_alerts
         alerts += evaluate_account(account, growth)
 
     events = guarded(lambda: update_alert_log(alerts, day, paths.alerts, write=record_alerts), [])
@@ -963,6 +970,20 @@ def _send_second_source(args) -> str:
     except Exception:  # noqa: BLE001 - a stale day stays a stale day, never an error
         logger.exception("Second-source message not sent")
         return ""
+
+
+def _risk_budget(account, values, frames, total, bench, perf, day, limits=None) -> tuple[str, list]:
+    """Talimat E: one line and the limit alerts; never fatal (K-56)."""
+
+    try:
+        from core.alerts import budget
+
+        limits = budget.load_limits(account) if limits is None else limits
+        table = budget.rows(budget.measure(values, frames, total, bench, perf), limits)
+        return budget.summary_line(table), budget.evaluate_limits(account, table, day)
+    except Exception:  # noqa: BLE001 - extra information; the report still goes out
+        logger.exception("Risk budget failed")
+        return "", []
 
 
 def _basis_line(growth: pd.Series) -> str:

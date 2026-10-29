@@ -62,6 +62,18 @@ def dashboard(request: Request):
         )
 
 
+@app.get("/risk/{account}")
+def risk_route(account: str):
+    """The /risk table as JSON (Talimat E §E2.5): measures and the user's limits, no advice."""
+
+    from core.alerts import budget
+
+    names = {"sanal": "paper", "gercek": "real"}
+    if account not in names:
+        return JSONResponse(status_code=400, content={"status": "error", "message": "hesap: sanal ya da gercek"})
+    return budget.web_rows(names[account])
+
+
 @app.get("/seviye/{code}")
 def levels_route(code: str):
     """The same list as /seviye (Özellik A §2.2): teknik seviye, öneri değil."""

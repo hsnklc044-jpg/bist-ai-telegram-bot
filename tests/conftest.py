@@ -6,7 +6,7 @@ os.environ["QUANTBIST_LOG_FILE"] = ""
 import pytest  # noqa: E402
 
 from core import signals_log  # noqa: E402
-from core.alerts import levels  # noqa: E402
+from core.alerts import budget, levels  # noqa: E402
 from core.analytics import levels as levels_module  # noqa: E402
 from core.analytics import scenarios as scenarios_module  # noqa: E402
 from core.analytics import scenarios_study  # noqa: E402
@@ -60,6 +60,7 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(virtual, "VIRTUAL_FILE", tmp_path / "screen_virtual.csv")
     monkeypatch.setattr(fundamentals, "FUNDAMENTALS_FILE", tmp_path / "fundamentals.csv")
     monkeypatch.setattr(scenarios_study, "CARDS_FILE", tmp_path / "scenario_cards.json")
+    monkeypatch.setattr(budget, "LIMITS_FILE", tmp_path / "risk_limits.csv")
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
     monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")

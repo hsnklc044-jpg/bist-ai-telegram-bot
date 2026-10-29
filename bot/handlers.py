@@ -15,6 +15,7 @@ from telegram.ext import (
 )
 
 from bot.analysis import analyze, levels_cmd, market_cmd, scenario_cmd, top
+from bot.commands_risk import risk
 from bot.portfolio import alerts, paper, portfolio, report, trade
 from bot.reports import (
     delete_screen,
@@ -60,6 +61,7 @@ COMMANDS = (
     ("seviye", levels_cmd),
     ("piyasa", market_cmd),
     ("senaryo", scenario_cmd),
+    ("risk", risk),
     ("watchadd", watchadd),
     ("watchremove", watchremove),
     ("watchlist", watchlist),
@@ -119,6 +121,7 @@ MENU = (
     ("seviye", "destek/direnç seviyeleri: /seviye THYAO (öneri değil)"),
     ("piyasa", "piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)"),
     ("senaryo", "senaryo hesabı: /senaryo THYAO (giriş, geçersizlik, hedef, R; öneri değil)"),
+    ("risk", "risk bütçesi: /risk, /risk ekle THYAO 100, /risk denge (öneri değil)"),
     ("watchlist", "takip listesi"),
     ("watchadd", "listeye ekle: /watchadd EREGL"),
     ("watchremove", "listeden çıkar"),

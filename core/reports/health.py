@@ -35,6 +35,7 @@ from core.config.paths import (
     MARKET_DB,
     PAPER_ORDERS_FILE,
     PRICE_ALARMS_FILE,
+    RISK_LIMITS_FILE,
     SCREEN_SUBSCRIPTIONS_FILE,
     SCREEN_VIRTUAL_FILE,
     SCREENS_FILE,
@@ -425,6 +426,7 @@ def _personal_readers() -> dict:
     from core.alerts import levels
     from core.alerts.log import open_alerts
     from core.screen import command as screen
+    from core.alerts import budget
     from core.fundamentals import store as fundamentals
     from core.screen import subscriptions, virtual
     from core.ledger import load_ledger
@@ -442,6 +444,7 @@ def _personal_readers() -> dict:
         SCREEN_SUBSCRIPTIONS_FILE: subscriptions.active,
         SCREEN_VIRTUAL_FILE: virtual.books,
         FUNDAMENTALS_FILE: fundamentals.load,
+        RISK_LIMITS_FILE: lambda p: budget.load_limits("paper", p),
         repository.WATCHLIST_FILE: lambda p: repository.load_watchlist(),
     }
 
@@ -481,6 +484,7 @@ SCHEMAS = {
     SCREEN_VIRTUAL_FILE: ({"at", "name", "criteria", "action"},),
     FUNDAMENTALS_FILE: ({"symbol", "period_end", "published_at", "item", "value", "unit", "consolidated",
                          "inflation_adjusted", "source", "recorded_at"},),
+    RISK_LIMITS_FILE: ({"account", "limit", "value", "note"},),
 }
 
 

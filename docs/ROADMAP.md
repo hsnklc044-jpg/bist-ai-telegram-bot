@@ -177,6 +177,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ### E – Portföy risk bütçesi ve yapı analizi
 - **Koşul:** ✅ açıldı (K-54). Sektör sınırı kaynak olmadığı için etkin değil.
+- **Durum:** ✅ tasarım K-56 (575237e, sonuçtan önce); ✅ v0.98.0 `/risk`, `/risk ekle`, `/risk denge`, günlük rapor satırı, `alerts_log` uyarıları, web `/risk/{hesap}`, HANDBOOK §13 örnek dosyayla. Kalan: web panelinde grafik (sektör ağırlığı yok; risk katkısı grafiği sonraki iş).
 - **En erken:** C bittikten sonraki gün. C'nin süresi ve sektör kaynağı kararı (D14) belli olmadığından tarih yok.
 - **Bitti ölçütü:**
   - `/risk [gerçek|sanal]`, `/risk ekle`, `/risk denge` ("hesap sonucu, öneri değil") testleriyle çalışıyor;
@@ -196,7 +197,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.97.3 (senaryo boşluklu açılış). Öz-denetim sayacı: v0.95.4'ten beri 9.
+- **Son sürüm:** v0.98.0 (E: risk bütçesi). Öz-denetim sayacı: v0.95.4'ten beri 10; **öz-denetim sırada**.
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).

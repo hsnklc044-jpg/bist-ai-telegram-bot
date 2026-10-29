@@ -352,6 +352,7 @@ analyze - tek hisse: /analyze THYAO
 seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
 piyasa - piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)
 senaryo - senaryo hesabı: /senaryo THYAO (giriş, geçersizlik, hedef, R; öneri değil)
+risk - risk bütçesi: /risk, /risk ekle THYAO 100, /risk denge (öneri değil)
 watchlist - takip listesi
 watchadd - listeye ekle: /watchadd EREGL
 watchremove - listeden çıkar
@@ -481,4 +482,41 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 - Her şablonun tarama dönemindeki karnesi `/senaryo` çıktısında görünür: olay sayısı, hedef / geçersizlik / süre doldu oranları, ortalama R ve aralığı, en kötü seri, XU100'e göre fark. Cuma akşamları raporla yeniden hesaplanır. Holdout okunmaz.
 - Her akşam BIST 100'de tetiklenen senaryolar, sonucu bilinmeden `logs/scenarios_log.csv`'ye yazılır. `/performans` "Senaryolar" bölümü bunları karneyle aynı kuralla puanlar. 30 sonuçlanan kayıttan önce "veri birikiyor" yazar.
 - Karne de canlı kayıt da kanıt değildir. "İşe yarıyor" iddiası yalnız a5 döngüsüyle sınanır (en erken 28.04.2027).
+
+## 13. Risk bütçesi (/risk; K-56)
+
+Sınırları siz koyarsınız; sistem ölçer ve sınıra yaklaşınca ya da aşılınca söyler. **Öneri vermez.**
+
+**Risk bütçemi nasıl tanımlarım.** `data/risk_limits.csv` dosyasını oluşturun. Kişiseldir; yedeğe girer, git'e girmez. Değerler yüzde olarak yazılır. `account` sütunu `gercek`, `sanal` ya da `hepsi` olur:
+
+```
+account,limit,value,note
+hepsi,tek_hisse,20,bir hisse hesabın en çok %20'si
+hepsi,oynaklik,35,yıllık portföy oynaklığı
+sanal,dusus,15,hesabın zirveden en çok %15 düşüşü
+hepsi,var_1g,4,kötü bir günde (%95) en çok %4 kayıp
+```
+
+| Sınır | Ölçü |
+|---|---|
+| `tek_hisse` | en büyük pozisyonun hesaba oranı |
+| `tek_sektor` | sektör kaynağı olmadığı için "bilinmiyor" (K-54) |
+| `oynaklik` | son 60 seansla yıllık portföy oynaklığı |
+| `dusus` | hesabın en yüksek değerinden bugüne düşüşü (para giriş-çıkışı arındırılmış) |
+| `var_1g` | 250 seanslık tarihsel 1 günlük %95 kayıp |
+
+Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil" der; ölçü yine gösterilir.
+
+**Durumlar:** 🟢 yeşil (kullanım < %80), 🟡 sarı (≥ %80), 🔴 kırmızı (aşıldı). Sarı ve kırmızı sınırlar uyarı kaydına girer ve günlük raporun "Risk uyarıları" bölümünde görünür. Aynı uyarı her gün tekrarlanmaz. Her hesabın altında tek satırlık "🛡 Risk bütçesi" özeti çıkar.
+
+**Komutlar:**
+- `/risk` ya da `/risk gercek`: tablo. Ayrıca risk katkısı (her pozisyonun portföy oynaklığındaki payı), beta, etkin pozisyon sayısı, kapanma süresi (20 seans ortalama hacmin %20'siyle kaç gün) ve birlikte hareket eden çiftler.
+- `/risk ekle THYAO 100`: son kapanışla 100 adet eklenseydi sınırlar nasıl değişirdi. **Emir oluşturmaz.**
+- `/risk denge`: tanımlı sınırlara dönmek için gereken azaltma, yalnız matematik ("hesap sonucu, öneri değil").
+  - Tek hisse sınırını aşan pozisyon sınıra indirilir.
+  - Oynaklık ya da 1 günlük kayıp aşılmışsa bütün pozisyonlar aynı oranda küçültülür.
+
+**Diğer:**
+- Gerçek ve sanal hesap hiçbir hesapta karışmaz. Fiyatı olmayan pozisyon hesaptan düşmez; "hesaplanamadı" yazılır.
+- Web panelinde aynı tablo: `/risk/sanal`, `/risk/gercek` (JSON).
 
