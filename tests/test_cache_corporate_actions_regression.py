@@ -14,11 +14,13 @@ class CorporateActionCacheTest(unittest.TestCase):
         idx = pd.to_datetime([
             "2025-01-02", "2025-01-03", "2025-01-06"
         ])
+        # unadjusted raw data: the 0.8 action shows as a −20% ex-date gap (an already adjusted
+        # history would be skipped, validation M15)
         raw = pd.DataFrame({
-            "open": [100.] * 3,
-            "high": [110.] * 3,
-            "low": [90.] * 3,
-            "close": [100.] * 3,
+            "open": [100., 100., 80.],
+            "high": [110., 110., 88.],
+            "low": [90., 90., 72.],
+            "close": [100., 100., 80.],
             "volume": [1000.] * 3,
         }, index=idx)
 
@@ -59,7 +61,7 @@ class CorporateActionCacheTest(unittest.TestCase):
                     after["close"].iloc[0], 80.
                 )
                 self.assertAlmostEqual(
-                    after["close"].iloc[-1], 100.
+                    after["close"].iloc[-1], 80.
                 )
             finally:
                 corrections.use_corporate_actions(None)

@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.5 – 29.10.2026 (bağımsız doğrulama M15: çift düzeltme)
+- **M15 (fiyat düzeltmeleri) değişti; yeniden doğrulama gerekir.**
+- **Yahoo bir bölünmeyi sonradan kendisi düzeltirse katsayımız artık ikinci kez uygulanmıyor** (doğrulamanın ORTA bulgusu).
+  - Önceden aynı düzeltme iki kez yapılıyordu ve sahte bir sıçrama çıkıyordu. Örnek: %100 bedelsiz sonrası 10 → 10,2 olağan bir gün, +%104 görünürdü.
+  - Kural: ham açılış ±%10 limit içindeyse ama katsayıyla limit dışına çıkacaksa, veri zaten düzeltilmiş sayılıyor. Satır uygulanmıyor ve günlük rapordaki sorun listesinde adıyla yazılıyor.
+  - Ham verideki sıçraması zaten limit dışında olan satırlar (ör. AYGAZ veri hatası, bedelsizler) eskisi gibi uygulanıyor.
+- Önbellek testinin fikstürü, ham veride izi olmayan bir katsayı kullanıyordu (imkânsız +%25 sıçrama). Gerçekçi hale getirildi.
+- Doğrulama: `test_double_adjustment`. Düzeltilmemiş veri düzeltiliyor; zaten düzeltilmiş veri olduğu gibi kalıyor ve raporda adı geçiyor; küçük katsayılı gerçek hareket yine düzeltiliyor.
+
 ## v0.99.4 – 29.10.2026 (bağımsız doğrulama M15: kurumsal işlem satırları)
 - **M15 (fiyat düzeltmeleri) değişti; yeniden doğrulama gerekir.**
 - **data/corporate_actions.csv'deki bozuk satırlar artık reddediliyor** (doğrulamanın ORTA bulgusu). Önceden bu satırlar fiyat geçmişini sessizce bozabiliyordu. Reddedilen satırın gerekçesi günlük rapordaki sorun listesine yazılıyor. Reddedilen satırlar:

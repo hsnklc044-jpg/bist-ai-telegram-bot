@@ -59,6 +59,14 @@ DISCLAIMER = "Bilgi amaçlıdır, yatırım tavsiyesi değildir. Bot AL/SAT öne
 UNCONFIRMED_WORDS = ("teyit bekl", "teyitsiz", "teyit edilmedi", "doğrulanmadı", "doğrulanacak", "kesinleşmedi")
 
 
+def corporate_action_problems(problems: list[str]) -> list[str]:
+    """Unreadable rows plus the actions skipped because the provider already adjusted them (M15)."""
+
+    from core.market.corrections import double_adjusted
+
+    return problems + sorted(double_adjusted().values())
+
+
 def is_unconfirmed(note: str) -> bool:
     """A corporate-action note that says it is not confirmed yet (Turkish case folding; validation M11)."""
 
@@ -363,6 +371,7 @@ def build_daily(
     ranks = liquidity_ranks(frames)
     action_problems: list[str] = []
     actions = load_corporate_actions(problems=action_problems)
+    action_problems = corporate_action_problems(action_problems)
     unconfirmed = {
         a.symbol: a.note
         for a in actions

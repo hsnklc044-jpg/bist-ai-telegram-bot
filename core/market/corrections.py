@@ -251,11 +251,48 @@ def apply_corporate_actions(
         if not factor:
             logger.warning("Corporate action skipped (no factor) | %s", action)
             continue
+        if _already_adjusted(raw, action, factor):
+            continue
         before = df.index < pd.Timestamp(action.ex_date)
         df.loc[before, list(PRICE_COLUMNS)] *= factor
         df.loc[before, "volume"] /= factor
 
     return df
+
+
+# BIST's ±10% session limit, rounded to the price tick (as core.market.quality.SESSION_LIMIT)
+SESSION_LIMIT = 0.105
+_double_adjusted: dict[tuple[str, str], str] = {}
+
+
+def double_adjusted() -> dict[tuple[str, str], str]:
+    """Actions left out because the provider already adjusted them, (symbol, ex_date) → reason."""
+
+    return _double_adjusted
+
+
+def _already_adjusted(raw: pd.DataFrame, action: CorporateAction, factor: float) -> bool:
+    """
+    Validation M15: the raw ex-date open is a normal session, but with the factor applied it would be
+    beyond the limit. The provider has adjusted the history itself; a second adjustment would make a
+    fake jump. Such an action is skipped and named.
+    """
+
+    ex = pd.Timestamp(action.ex_date)
+    before, after = raw.loc[raw.index < ex, "close"], raw.loc[raw.index >= ex, "open"]
+    if before.empty or after.empty or not before.iloc[-1]:
+        return False
+    gap = float(after.iloc[0]) / float(before.iloc[-1])
+    adjusted_gap = gap / factor
+    if abs(gap - 1) > SESSION_LIMIT or abs(adjusted_gap - 1) <= SESSION_LIMIT:
+        return False
+    text = (f"{action.symbol.removesuffix('.IS')} {action.ex_date:%d.%m.%Y} {action.kind}: veri zaten düzeltilmiş "
+            f"görünüyor (ham açılış {gap - 1:+.1%}, düzeltmeyle {adjusted_gap - 1:+.1%} olurdu); uygulanmadı, "
+            "data/corporate_actions.csv satırını kontrol edin")
+    if (action.symbol, action.ex_date.isoformat()) not in _double_adjusted:
+        logger.warning("Corporate action skipped (provider already adjusted) | %s", action)
+    _double_adjusted[(action.symbol, action.ex_date.isoformat())] = text
+    return True
 
 
 _price_fixes: dict[str, dict[pd.Timestamp, float]] | None = None
@@ -400,6 +437,7 @@ __all__ = [
     "drop_cancelled_sessions",
     "apply_corporate_actions",
     "clean",
+    "double_adjusted",
     "apply_price_fixes",
     "load_price_fixes",
     "use_price_fixes",
