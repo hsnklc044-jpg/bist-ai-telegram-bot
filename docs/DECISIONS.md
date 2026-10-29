@@ -4,6 +4,58 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-57. Profesyonel filtreler Aşama 4: temel puanlar (29.10.2026; formüller veri görülmeden sabitlendi).**
+
+**Kaynak ve dönemler:**
+- Kaynak `data/fundamentals.csv` (K-48, yayın tarihli). Bir değer yayımın ertesi gününden itibaren kullanılır.
+- **Dönem:** en son yayımlanan dönem (t) ve bir yıl önceki aynı dönem (t−1). Türkiye'de ara dönem tabloları yılbaşından kümülatiftir, aynı çeyrekler karşılaştırılır.
+- **TMS 29:** t ile t−1'in enflasyon düzeltmesi farklıysa (biri 1, diğeri 0) değişim içeren ölçüler hesaplanmaz: "TMS 29 geçişi".
+- Bir kalem eksikse o ölçü "veri yok" olur. Eksik kalem sıfır sayılmaz.
+- Dönen/kısa vadeli ayrımı olmayan bilançolarda (`current_assets` yok, örneğin bankalar) Altman Z ve Beneish M "uygulanamaz" olur. Sektör bilgisi yok (K-54); ayrım bilanço yapısından yapılır.
+
+**1. Piotroski F (0–9; Piotroski 2000).** Her biri 1 puan:
+- ROA > 0 (net kâr ÷ toplam varlık);
+- işletme nakit akışı > 0;
+- ΔROA > 0;
+- işletme nakit akışı > net kâr;
+- Δ(uzun vadeli finansal borç ÷ toplam varlık) < 0;
+- Δ(dönen varlık ÷ kısa vadeli yükümlülük) > 0;
+- ödenmiş sermaye artmadı;
+- Δ brüt marj > 0;
+- Δ(hasılat ÷ toplam varlık) > 0.
+Bir bileşen hesaplanamazsa puan "kısmi (n/9 bileşen)" olarak gösterilir, tam puan sayılmaz.
+
+**2. Altman Z'' (gelişen piyasalar sürümü, Altman 2005).** Z'' = 3,25 + 6,56·X1 + 3,26·X2 + 6,72·X3 + 1,05·X4.
+- X1 = (dönen varlık − kısa vadeli yükümlülük) ÷ toplam varlık.
+- X2 = geçmiş yıllar kârları ÷ toplam varlık.
+- X3 = FVÖK ÷ toplam varlık.
+- X4 = özkaynak ÷ toplam yükümlülük.
+- Okuma (Altman): < 1,1 sıkıntı bölgesi; 1,1–2,6 gri; > 2,6 güvenli bölge.
+
+**3. Beneish M (8 değişkenli, Beneish 1999).** M = −4,84 + 0,920·DSRI + 0,528·GMI + 0,404·AQI + 0,892·SGI + 0,115·DEPI − 0,172·SGAI + 4,679·TATA − 0,327·LVGI.
+- DSRI = (alacak ÷ hasılat)_t ÷ (…)_{t−1}.
+- GMI = brüt marj_{t−1} ÷ brüt marj_t.
+- AQI = (1 − (dönen + MDV) ÷ TV)_t ÷ (…)_{t−1}.
+- SGI = hasılat_t ÷ hasılat_{t−1}.
+- DEPI = (amortisman ÷ (amortisman + MDV))_{t−1} ÷ (…)_t.
+- SGAI = (GYG ÷ hasılat)_t ÷ (…)_{t−1}.
+- LVGI = ((KVY + UV finansal borç) ÷ TV)_t ÷ (…)_{t−1}.
+- TATA = (net kâr − işletme nakit akışı) ÷ TV_t.
+- Okuma: M > −1,78 "kazanç kalitesi incelenmeli" (Beneish). Bu bir uyarı etiketidir, hile tespiti değildir.
+
+**4. Sihirli formül bileşenleri (Greenblatt 2005).**
+- Kazanç getirisi = FVÖK ÷ (piyasa değeri + finansal borç − nakit).
+- Sermaye getirisi = FVÖK ÷ ((dönen varlık − kısa vadeli yükümlülük) + MDV).
+- Piyasa değeri = son kapanış × ödenmiş sermaye (nominal 1 TL = 1 pay).
+- Sıra, evren içinde iki sıranın toplamıdır (`/tara` evreni).
+
+**5. Kalite + değer (Novy-Marx 2013).**
+- Brüt kârlılık = brüt kâr ÷ toplam varlık.
+- Defter/piyasa = özkaynak ÷ piyasa değeri.
+- Birleşik sıra iki sıranın ortalamasıdır.
+
+**Gösterim ve sınama:** `/temel THYAO` her ölçünün değerini, bileşenlerini ve dönemini gösterir; veri yoksa "veri yok" der. Bunlar kural çıktısıdır, öneri değildir. Hiçbir puan sonuçlara bakılarak ayarlanmaz. "Kârlılık + değer" hipotezi yalnız Aşama 5'in ön kaydı ve kullanıcının onayıyla sınanır.
+
 **K-56. Talimat E: risk bütçesi, ölçüler ve pencereler (29.10.2026; sonuç görülmeden).** Sistem ölçer; sınırları kullanıcı koyar. Öneri yok.
 
 **Sınır dosyası `data/risk_limits.csv`:**
