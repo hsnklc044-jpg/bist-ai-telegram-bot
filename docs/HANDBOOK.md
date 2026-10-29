@@ -305,6 +305,11 @@ Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`
 - **Dil çarpma yazmaz.** "Zirvenin %75'i" `zirve_52h_oran>=75`, "dibin %30 üstü" `dip_52h_oran>=130` olarak yazılır.
 
 **Temel veri deposu** (`data/fundamentals.csv`, K-48). Her kalem **yayın tarihiyle** saklanır. Bir seans, bir kalemi ancak yayın gününden sonraki seanstan itibaren görür; 18:30'da gönderilen bir bilanço o gün kullanılmaz. Bu yüzden karne ve tarama geleceği görmez.
+
+**Temel puanlar (`/temel THYAO`, K-57).** Veri geldikçe çalışır; o zamana kadar "veri yok" der.
+- Puanlar: Piotroski F (0–9), Altman Z'' (gelişen piyasalar), Beneish M (kazanç kalitesi uyarısı; hile tespiti değil), Greenblatt kazanç ve sermaye getirisi, Novy-Marx brüt kârlılık ve defter/piyasa.
+- En son yayımlanan dönem bir yıl önceki aynı dönemle karşılaştırılır.
+- Kalem eksikse "veri yok" yazar, sıfır sayılmaz. Banka gibi dönen/kısa vadeli ayrımı olmayan bilançolarda Altman ve Beneish "uygulanamaz" olur. Enflasyon muhasebesi (TMS 29) geçişinde değişim içeren ölçüler hesaplanmaz.
 - Düzeltilmiş (restated) tablo yeni bir satırdır. Her gün en yeni dönemin en yeni yayını geçerlidir; hiçbir şey üzerine yazılmaz.
 - `inflation_adjusted` sütunu TMS 29 tablolarını işaretler (2023 yıl sonundan itibaren; 1/0/boş). Büyüme oranları iki dönemi karıştırmaz.
 - **Veri girişi:** yalnız dosyadan içe aktarma: `python -m core.fundamentals.store --import DOSYA`. Her satır denetlenir: kod, tarih, yayın tarihi > dönem sonu, bilinen kalem, sayı, kaynak. Reddedilenler satır numarası ve nedeniyle yazılır.
@@ -353,6 +358,7 @@ seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
 piyasa - piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)
 senaryo - senaryo hesabı: /senaryo THYAO (giriş, geçersizlik, hedef, R; öneri değil)
 risk - risk bütçesi: /risk, /risk ekle THYAO 100, /risk denge (öneri değil)
+temel - temel puanlar: /temel THYAO (Piotroski, Altman, Beneish; veri gelince)
 watchlist - takip listesi
 watchadd - listeye ekle: /watchadd EREGL
 watchremove - listeden çıkar

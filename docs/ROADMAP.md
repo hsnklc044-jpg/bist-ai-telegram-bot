@@ -220,7 +220,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.98.1 (kayıtlı taramaların cuma özeti). Öz-denetim sayacı: v0.98.0'dan beri 1.
+- **Son sürüm:** v0.99.0 (profesyonel filtreler Aşama 4–5). Öz-denetim sayacı: v0.98.0'dan beri 2.
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
@@ -230,7 +230,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
   - B senaryolar: ✅ şablon tasarımı K-55 (c7b25ea, sonuçtan önce); ✅ v0.97.0 `/senaryo` (iki kullanım). ✅ v0.97.1 karne (cuma akşamı ve GitHub `screens.yml`), canlı kayıt ve `/performans` "Senaryolar". ✅ v0.97.2 `/tara senaryo(...)`. ✅ karne RESEARCH_LOG'da (29.10: üçünde de ortalama R sıfırdan ayırt edilemedi). Kalan: isteğe bağlı ölçüm kitabı, canlı kaydın PC kanıtı.
   - C, D, E, F paketi: aşağıdaki dört başlık. Şu an açık olanlar yalnız C1 tasarımı ve kaynak araştırması ile F1 envanteri.
-- **Profesyonel filtreler görevi (28.10):** Aşama 1 eleme filtreleri → 2 teknik profesyonel şablonlar → 3 temel veri kaynağı (karar + uygulama) → 4 temel/karma puanlar → 5 araştırma ön kaydı taslağı (kullanıcı onayı bekler).
+- **Profesyonel filtreler görevi (28.10):** Aşama 1–3 ✅; Aşama 4 ✅ v0.99.0 (K-57 formüller, `/temel`; veri gelene kadar "veri yok"); Aşama 5 ✅ a5 ön kayıt taslağı (RESEARCH_LOG; onaylanmadı, veri ve tarih koşulu bekliyor). Kalan: temel puanların `/tara` alanı olarak eklenmesi (veri gelince anlamlı).
 - **/tara Aşama 4 sırası:** 4a kayıt listesi/silme ✅ v0.83.0 → 4b abonelik ✅ v0.83.0 → 4c /performans "Taramalar" ✅ v0.84.0 → 4d /tara_sanal ✅ v0.85.0. Aşama 5 ✅ v0.86.0. Aşama 6 ✅ v0.86.1 (kalan testler, BotFather listesi, CHARTER §9 uyumu).
 - **Şablon görevi (28.10):** A ✅ v0.80.0, B ✅ v0.81.0, C ✅ v0.82.0, D ✅ v0.82.1 (tasarım). Açık: şablon karnelerinin gerçek verideki sonuçlarını kullanıcının keşif sayılarıyla karşılaştırmak (araştırma çalışması bekleniyor); temel veri uygulaması ayrı karar.
 - **PC'de doğrulandı (28.10 yerel otomasyon, v0.68.0 → v0.75.0):** 699 test geçti (4 atlandı), ruff temiz, `/durum` hepsi SAĞLIKLI, SLO 6/7 hedefte. Dışarıdan izleme çalışıyor (bot sinyali 10:42). Bayram günü rapor görevi "holiday" ile başarılı sinyal gönderiyor; 29.10'da yanlış alarm beklenmiyor, 30.10'da `logs/monitoring.json`'dan doğrulanacak. v0.68.1–v0.75.0 PC'de doğrulandı.

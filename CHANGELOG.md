@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.0 – 29.10.2026 (profesyonel filtreler Aşama 4 ve 5)
+- **Aşama 4 – temel puanlar** (`core/fundamentals/scores.py`). Formüller K-57'de veri görülmeden sabitlendi (1d5f434): Piotroski F, Altman Z'' (gelişen piyasalar), Beneish M, Greenblatt (kazanç getirisi, sermaye getirisi), Novy-Marx (brüt kârlılık, defter/piyasa).
+  - Yayın tarihli depodan okunuyor; değer yayımın ertesi gününden itibaren kullanılıyor.
+  - En son dönem bir yıl önceki aynı dönemle karşılaştırılıyor.
+  - Eksik kalem "veri yok"; banka benzeri bilançoda "uygulanamaz"; TMS 29 geçişinde değişim ölçüleri hesaplanmıyor.
+- Yeni `/temel THYAO`. Depo şu an boş, bu yüzden "veri yok" diyor.
+- **Aşama 5 – a5 ön kayıt taslağı** ("kârlılık + değer", H6). RESEARCH_LOG ve RESEARCH_PROGRAM'da; durumu "taslak, onaylanmadı". Onay koşulları: yayın tarihli temel veri, kaynağın kullanım koşulu ve 6 ay kuralı (en erken 27.10.2027). Test yok.
+- Doğrulama: `test_fundamental_scores` (10 test).
+  - Dört puan elle hesaplanıyor; kısmi Piotroski tam sayılmıyor.
+  - Banka benzeri bilanço ve yayından önce görünmeme denetleniyor.
+  - TMS 29 geçişi, metin ve komut denetleniyor.
+
 ## v0.98.1 – 29.10.2026 (ileri hedef 3: kayıtlı taramaların haftalık özeti)
 - Cuma raporunda yeni "📌 Kayıtlı taramalar" bölümü. Her kayıtlı taramanın canlı sonucu gösteriliyor: aynı kriterin `/tara` kayıtlarında 20 seans (yoksa 5) sonra XU100'e göre fark, aralıkla. 30 kayıttan önce "veri birikiyor".
 - Kayıtlı taramalar PC'de kişisel dosyada olduğu için özet cumartesi araştırmasında değil, cuma raporunda.

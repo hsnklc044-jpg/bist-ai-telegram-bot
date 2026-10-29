@@ -54,13 +54,13 @@ Hiçbir model al/sat önerisi üretmez; çıktılar "kural çıktısıdır, öne
 | M26 | Eleme filtresinin canlı ölçümü | `core/reports/forward.py` (`log_elimination_groups`, `elimination_lines`) | ORTA | bağımsız doğrulanmadı; elle hesaplanmış fark testi | testler, v0.96.0 |
 | M27 | Senaryo şablonları (/senaryo) | `core/analytics/scenarios.py` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış testler; karne sırada | testler, v0.97.0 |
 | M28 | Risk bütçesi (/risk) | `core/alerts/budget.py` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış iki hisseli testler | testler, v0.98.0 |
+| M29 | Temel puanlar (/temel) | `core/fundamentals/scores.py` | ORTA | bağımsız doğrulanmadı; elle hesaplanmış testler; veri yok | testler, v0.99.0 |
 | M23 | Rapor zamanı ve seans takvimi | `core/market/calendar.py` | ORTA | bağımsız doğrulanmadı | testler; tatil 29.10 PC kanıtı bekleniyor |
 
 Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı sürümde girerler.
 - **C:** hisse sektörü (kaynak kararı bekliyor; reel/dolar getiri M24, rejim M25 olarak girdi).
 - **D:** olay takvimi önem sınıfı.
 - **E:** risk bütçesi.
-- **Profesyonel filtreler Aşama 4:** piotroski, altman_z, beneish_m, sihirli_formul, kalite_deger.
 
 ## Ayrıntı
 

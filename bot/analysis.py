@@ -143,6 +143,17 @@ def _level_block(symbol: str, k: int | None) -> str:
         return ""
 
 
+async def fundamentals_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /temel SYMBOL: the K-57 fundamental scores, or "veri yok"."""
+
+    from core.fundamentals import scores
+
+    await reply(update, await asyncio.to_thread(scores.command_text, list(context.args or [])))
+
+
 async def scenario_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

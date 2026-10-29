@@ -30,6 +30,7 @@ MATURITY S4 ("deneme bütçesi, holdout ve ön kayıtla en az bir tam döngü").
 | a2 (aday kurallar) | 26.10.2026 | 4 kural | ön kayıtsız, bütçe öncesi | hepsi red |
 | a3 (Aşama 3) | 27.10.2026 | H1–H3 | 3/3, ön kayıtlı | hepsi taramada red; holdout'a giren yok |
 | a4 | ön kayıt 28.10.2026; tarama en erken 27.04.2027 | H4 eşit ağırlık, H5 düşük işlem hacmi | 2/3 | ön kayıtlı ([RESEARCH_LOG](RESEARCH_LOG.md) "a4 ön kaydı"); onay Claude'da (K-28) |
+| a5 (taslak) | en erken 27.10.2027 (6 ay kuralı) | H6 kârlılık + değer (taslak) | — | **taslak, onaylanmadı**: temel veri deposu boş; onay koşulları RESEARCH_LOG "a5 ön kayıt taslağı" |
 
 ## 4. S4 için "tam döngü" ne zaman sayılır
 

@@ -384,6 +384,30 @@ Research çalışması 40488966701 (kod v0.48.0, `runs/2026-10-27_13-30/phase3.t
 
 ---
 
+## a5 ön kayıt taslağı — ONAYLANMADI (profesyonel filtreler Aşama 5, 29.10.2026)
+
+Bu bir **taslaktır**. Hiçbir veride hesaplanmadı; hesaplanamaz da, çünkü temel veri deposu (`data/fundamentals.csv`, K-48) boş. Onaylanana kadar test yapılmaz. Onaydan sonra bu bölüm bir ön kayıt olarak dondurulur ve değiştirilmez.
+
+**Onay koşulları** (hepsi gerekli; onay K-28/K-54 gereği Claude'da, gerekçesiyle yazılır):
+1. Tarama dönemini kapsayan (2023-08-01'den, tercihen 2018'den) yayın tarihli temel veri. En az BIST 100 geçmiş üyelerinin %90'ı için hasılat, brüt kâr, toplam varlık, özkaynak ve ödenmiş sermaye.
+2. Verinin kaynağı ve kullanım koşulu DATA_SOURCES'ta. Otomatik çekme ancak koşul izin veriyorsa.
+3. a4 taraması (27.04.2027) tamamlanmış ve 6 ay kuralı sağlanmış olmalı: en erken 27.10.2027.
+
+**H6 – Kârlılık + değer (Novy-Marx 2013).** Parametreler sabit; formüller K-57.
+- Her ayın ilk seansında, o gün BIST 100 üyesi olan ve iki ölçüsü de hesaplanabilen hisseler sıralanır:
+  - brüt kârlılık (brüt kâr ÷ toplam varlık; son yayımlanan dönem, yıllıklaştırılmamış kümülatif değil son 4 çeyrek toplamı);
+  - defter/piyasa (özkaynak ÷ (kapanış × ödenmiş sermaye)).
+- İki sıranın ortalaması en iyi 10 hisse eşit ağırlıkla alınır ve bir ay tutulur.
+- **Bankalar ve dönen/kısa vadeli ayrımı olmayan bilançolar dışarıda.** Brüt kâr kavramı yok.
+- **TMS 29:** enflasyon düzeltmeli ve düzeltmesiz dönemler sıralamada karıştırılmaz. 2023 yıl sonu öncesi ve sonrası iki ayrı alt dönem olarak da raporlanır.
+
+**Test kuralları** (a4 ile aynı):
+- Tarama 2023-08-01 – 30.10.2026, holdout kapalı; maliyet her yön %0,10 + %0,05.
+- **Birincil ölçüt:** XU100'e göre günlük fazla getirinin 21 seanslık blok bootstrap GA'sı tamamen sıfırın üstünde. Bonferroni a5'teki hipotez sayısına göre.
+- **Sağlamlık kapıları:** iki başlangıç tarihi; en kârlı 5 hisse hariç; MaxDD XU100'den kötü değil; ayrıca TMS 29 öncesi ve sonrası alt dönemlerin ikisinde de XU100'ün üstünde.
+- **Holdout:** taramayı geçerse en az 250 seans ileri veri.
+- **Kabul edilirse:** yalnız canlı ölçüm ve sanal hesap. Gerçek para, emir ya da öneri yok.
+
 ## a4 ön kaydı — ONAYLANDI (Claude, kullanıcının devriyle, 28.10.2026; değiştirilmez)
 
 Bu bölüm, **iki kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve bu commit'le zaman damgalandı. Kullanıcı 28.10.2026'da hipotez onayını Claude'a bıraktı (DECISIONS K-28). Onaydan sonra hipotezler, parametreler, maliyet, ölçüt ve kapılar değiştirilmez; sonuç ne olursa olsun bu bölümün altına yazılır.

@@ -19,6 +19,7 @@ Komutlar:
 /piyasa – piyasa rejimi (yükseliş/düşüş/karışık/yüksek oynaklık), genişlik ve dört ana sektör (etiket, sinyal değil)
 /senaryo THYAO – senaryo şablonları: giriş varsayımı, geçersizlik, hedef, R ve adet hesabı (hesap aracı, öneri değil); /senaryo THYAO giris 240 gecersiz 232 hedef 262
 /risk [gercek|sanal] – risk bütçesi: sınırlarının kullanımı; /risk ekle THYAO 100 (ya şöyle olsaydı), /risk denge (hesap sonucu, öneri değil)
+/temel THYAO – temel puanlar: Piotroski F, Altman Z'', Beneish M, Greenblatt, Novy-Marx (yayın tarihli veriden; veri yoksa 'veri yok')
 /summary – portföy ve piyasa özeti
 /watchlist – takip listesi
 /watchadd EREGL – listeye ekle
