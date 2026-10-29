@@ -14,6 +14,16 @@ from core.market import corrections
 HEADER = "symbol,ex_date,kind,ratio,price,factor,source,note\n"
 
 
+class MissingFileTest(unittest.TestCase):
+    def test_a_missing_file_is_said(self):
+        # validation M15 D-7: a deleted file silently left every history unadjusted
+        problems = []
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(corrections.load_corporate_actions(Path(tmp) / "yok.csv", problems), [])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("bulunamadı", problems[0])
+
+
 class LoaderTest(unittest.TestCase):
     def load(self, *rows):
         with tempfile.TemporaryDirectory() as tmp:

@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.7 – 29.10.2026 (M15 D-7; M12 doğrulama raporu)
+- **data/corporate_actions.csv silinirse artık söyleniyor** (doğrulama M15 D-7). Önceden bütün geçmişler sessizce düzeltmesiz kalıyordu; artık günlük raporun sorun listesinde görünüyor.
+- **M12 (portföy riski) bağımsız doğrulaması:** kısıtlı kullanılabilir (docs/validation/M12.md).
+  - Hesaplar doğru: 11 elle hesaplanmış durumda VaR ve etkin pozisyon sayısı kodla aynı çıktı.
+  - Stres pencereleri, kaba kuvvet aramasıyla 300 seride aynı.
+  - Sentetik veride VaR aşımı yaklaşık %5 (Kupiec p = 0,19).
+  - YÜKSEK bulgu yok. İki ORTA bulgu stres raporunda: fiyatsız pozisyon sessizce düşüyor; pencere seans değil satır sayıyor.
+- **M28 (risk bütçesi) bağımsız doğrulaması:** kısıtlı kullanılabilir (docs/validation/M28.md).
+  - Ölçüler elle hesapla aynı: Euler katkısı, oynaklık, beta, likidite, düşüş, %80 sarı eşiği.
+  - YÜKSEK bulgu: `/risk denge` gerçek hesapta sınıra geri götürmüyor. Sıradaki sürümde düzeltiliyor; o zamana kadar gerçek hesapta kullanmayın.
+
 ## v0.99.6 – 29.10.2026 (bağımsız doğrulama M15: erken düzeltme ve etiketler)
 - **M15 değişti; yeniden doğrulama gerekir.**
 - **İşlem tarihi gelmemiş satır artık bugünkü fiyatları değiştirmiyor** (D-3).

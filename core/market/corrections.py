@@ -159,7 +159,9 @@ def load_corporate_actions(path=None, problems: list[str] | None = None) -> list
                             f"({(row.get('symbol') or '?').strip()}: {exc}); bu hissenin geçmiş fiyatları düzeltilmedi"
                         )
     except FileNotFoundError:
-        pass
+        if problems is not None:  # validation M15 D-7: never silent
+            problems.append(f"{Path(path).name} bulunamadı; kurumsal işlem düzeltmesi yapılmadı (bölünme ve bedelsizler sahte "
+                            "sıçrama gibi görünür)")
 
     return actions
 

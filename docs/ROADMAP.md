@@ -228,6 +228,8 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 | M14 hesap ve defter | kısıtlı kullanılabilir | alım günü getirisi; sanal hesaba şirket işlemi girilemiyor | FIFO + bedelli maliyet satırı | ✅ iki YÜKSEK v0.99.2'de düzeltildi; yeniden doğrulama gerekir |
 | M15 fiyat düzeltmeleri | kısıtlı kullanılabilir | — | ~~Yahoo sonradan düzeltirse çift düzeltme~~ (v0.99.5); ~~CSV satırları denetlenmiyor~~ (v0.99.4); "ham" fiyat temettü düzeltmeli | ORTA'lar ve D-3/D-7 kapandı (v0.99.4–6); açık: yeniden doğrulama |
 | M11 pozisyon uyarıları | kısıtlı kullanılabilir | iz süren stop yalnız yukarı gitmiyor, uyarı çok sık | stop backtest'tekiyle aynı değil; teyitsiz işlem kelime kontrolü kırılgan; eksik veride sessiz | ✅ YÜKSEK ve iki ORTA v0.99.3'te düzeltildi; açık: stopun ayrı karnesi yok (backtest sabit stopu ölçüyor); yeniden doğrulama gerekir |
+| M12 portföy riski | kısıtlı kullanılabilir | — | stres raporu fiyatsız pozisyonu sessizce düşürüyor; pencere seans değil satır sayıyor; aşımlar kümeleniyor (oynaklık rejimi) | sıradaki işler |
+| M28 risk bütçesi | kısıtlı kullanılabilir | /risk denge gerçek hesabı sınıra döndürmüyor (satış toplamı küçültüyor; eşit kesinti ağırlığı değiştirmiyor) | ölçülemeyen satır "sınırlar içinde" deniyor; sınır dosyası sorunları gösterilmiyor; nan/inf kabul; fiyatsız pozisyon toplamı şişiriyor | sıradaki iş: YÜKSEK |
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
