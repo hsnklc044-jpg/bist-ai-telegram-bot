@@ -13,6 +13,22 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+
+## 29.10.2026 – Dört baz gerçek veride doğrulandı (Talimat C; ek bilgi, hipotez değil)
+Araştırma çalışması `runs/2026-10-29_02-44`, v0.95.7. Dönem 01.08.2023 → 27.10.2026. XU100 al-tut:
+- nominal +%55,6;
+- reel −%51,9 (TÜFE 09.2026'ya kadar);
+- USD −%15,7;
+- nakde göre −%53,3.
+
+Elle kontrol:
+- TÜFE zinciri (07.2023–09.2026) 3,2315 kat → 1,556 / 3,2315 − 1 = −%51,8.
+- Kur yaklaşık 26,9 → 49,70 (TCMB bülteni) → 1,556 / 1,848 − 1 = −%15,8.
+
+İkisi de raporla tutarlı. İlk denemedeki +%383'lük USD hatası (Ö34) kapanmış görünüyor.
+
+Okuma: bu dönemde XU100 TL olarak yükseldi, ama enflasyona, dolara ve politika faiziyle tutulan nakde göre geride kaldı. Stratejilerin hiçbiri reel olarak pozitif değil (en iyisi trend kuralı, reel −%10,9). Birincil ölçüt (XU100'e göre fazla getiri) ve önceki ret kararları değişmez.
+
 ## Reddedilen fikir türleri — özet (27.10.2026, MATURITY S4)
 
 Aşağıdaki kayıtların özeti; ayrıntı ve sayılar ilgili bölümlerde. 2023-08 – 2026-10 arasında (yaklaşık 3,2 yıl, geçmiş BIST 100 üyeliği, maliyet dahil) test edilen 13 kuralın (6 ana tablo, 4 aday kural, Aşama 3'ün 3 hipotezi) hiçbiri XU100'ü istatistiksel olarak geçmedi. Aynı veride bu türlerin yeni varyantlarını denemek veri gözetlemesi olur; bu yüzden **yeniden denenmez**.
