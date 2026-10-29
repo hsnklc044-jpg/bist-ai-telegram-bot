@@ -14,6 +14,23 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 ---
 
 
+
+## 29.10.2026 – Senaryo şablonlarının karnesi (Özellik B §4.1; K-55; tanımlayıcı, hipotez değil)
+`screens.yml`, v0.97.3. Tarama dönemi 2023-08-01 → 2026-10-30; holdout yok; BIST 100 geçmiş üyeliği; varsayılan eleme; maliyet sonrası (her yön %0,15). Şablonlar sonuçtan önce commit edildi (c7b25ea). R aralığı %95, 20 seanslık blok bootstrap.
+
+| Şablon | Olay (hisse) | Hedef | Geçersizlik | Süre doldu | Ortalama R [%95] | En kötü seri | XU100'e göre | Dolmadı |
+|---|---|---|---|---|---|---|---|---|
+| Destek tepkisi | 1142 (145) | %49 | %48 | %2 | −0,15 [−0,23; 0,01] | 24 | −1,0 puan | 27 |
+| Direnç kırılımı | 1742 (157) | %67 | %27 | %6 | +0,01 [−0,07; 0,06] | 8 | −0,1 puan | 184 |
+| Trend içi geri çekilme | 5968 (143) | %64 | %29 | %7 | −0,00 [−0,05; 0,08] | 22 | +0,3 puan | 373 |
+
+Okuma:
+- Üç şablonun hiçbirinde maliyet sonrası ortalama R'nin sıfırdan farklı olduğu gösterilemedi; aralıkların hepsi sıfırı içeriyor. Destek tepkisi ortalamada en kötüsü.
+- Yüksek hedef oranı (%64–67) kazanç anlamına gelmiyor. Hedefler yakın olduğu için hedefe ulaşmanın kazancı, geçersizlik kaybını ancak karşılıyor.
+- Bu, K-49'un "seviyeler rastgeleden ayırt edilemedi" sonucuyla tutarlı.
+- İlk karne (v0.97.1) ile fark: boşluklu açılışlar artık "dolmadı" (K-55 eki). Rakamların yönü aynı kaldı.
+- Şablon parametreleri bu sonuca göre değiştirilmeyecek (K-55). "İşe yarıyor" iddiası yalnız a5 döngüsüyle (ön kayıt, bütçe, holdout; en erken 28.04.2027) sınanabilir.
+
 ## 29.10.2026 – Dört baz gerçek veride doğrulandı (Talimat C; ek bilgi, hipotez değil)
 Araştırma çalışması `runs/2026-10-29_02-44`, v0.95.7. Dönem 01.08.2023 → 27.10.2026. XU100 al-tut:
 - nominal +%55,6;
