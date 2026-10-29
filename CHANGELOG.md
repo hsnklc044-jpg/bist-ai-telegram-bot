@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.9 – 29.10.2026 (bağımsız doğrulama M16: ±%10 içindeki hatalar)
+- **M16 (veri kalitesi) değişti; yeniden doğrulama gerekir.**
+- **Mumun kendi içinden üç yeni kontrol** (YÜKSEK bulgu: ikinci kaynak kapalıyken ±%10 içindeki hatalar görünmüyordu).
+  - Açılış artık yüksek–düşük aralığında mı diye denetleniyor; dışındaysa "hatalı OHLC".
+  - Düz mum (açılış = yüksek = düşük = kapanış, işlem var; BERA 27.06.2022 türü) listeleniyor.
+  - Ertesi gün açılışı önceki kapanışa geri dönen tek günlük mum listeleniyor. Kural: girişte ve çıkışta en az %3 boşluk, ters yönde, geri dönüş %1,5 içinde. ×1,05 tek günlük hata bu türden.
+  - Liste bilgi amaçlı; hisse dışlanmıyor, çünkü gerçek hareketi hatalı olandan ayırmak ikinci kaynak ister. Backtest dışlaması değişmedi (yalnız ±%20 sıçramalar).
+- Test yardımcısı `make_ohlcv` artık açılışı aralık içinde üretiyor. Önceki hali gerçekte olamayacak mumlar üretiyordu; rastgele çekiliş sırası korundu, bütün testler aynı sonucu veriyor.
+- Doğrulama: `test_candle_integrity` (6 test, önce kırmızıydı). Temiz seride liste boş; kalıcı +%5 hareket listelenmiyor.
+
 ## v0.99.8 – 29.10.2026 (bağımsız doğrulama M28: /risk denge; M16 raporu)
 - **M28 (risk bütçesi) değişti; yeniden doğrulama gerekir.**
 - **`/risk denge` gerçek hesapta artık sınıra gerçekten döndürüyor** (YÜKSEK).

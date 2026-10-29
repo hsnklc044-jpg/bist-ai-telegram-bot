@@ -33,13 +33,17 @@ def make_ohlcv(
     spread = np.abs(rng.normal(0, vol / 2, rows))
     index = pd.bdate_range(end=end, periods=rows)
 
+    open_ = close * (1 + rng.normal(0, vol / 4, rows))
+    volume = rng.integers(1_000_000, 5_000_000, rows).astype(float)  # same draw order as before
+
+    # the open stays inside the high–low range, as on a real candle (validation M16 checks it)
     return pd.DataFrame(
         {
-            "open": close * (1 + rng.normal(0, vol / 4, rows)),
-            "high": close * (1 + spread),
-            "low": close * (1 - spread),
+            "open": open_,
+            "high": np.maximum(close * (1 + spread), open_),
+            "low": np.minimum(close * (1 - spread), open_),
             "close": close,
-            "volume": rng.integers(1_000_000, 5_000_000, rows).astype(float),
+            "volume": volume,
         },
         index=index,
     )

@@ -52,6 +52,10 @@ DAILY_LIMIT = 0.20
 SESSION_LIMIT = 0.105
 MARKET_WIDE_SHARE = 0.5
 ZERO_VOLUME_LIMIT = 0.02
+# validation M16: a whole candle off for one day — it opens away from the previous close and the next
+# day opens back near it. Listed only; a real gap and its reversal look the same without a 2nd source.
+REVERSAL_GAP = 0.03
+REVERSAL_BACK = 0.015
 
 
 @dataclass
@@ -76,6 +80,8 @@ class SymbolQuality:
     jumps: list[Jump] = field(default_factory=list)
     bad_ohlc: int = 0
     breaches: list[Jump] = field(default_factory=list)
+    flat_days: list[str] = field(default_factory=list)  # traded, yet open = high = low = close (listed)
+    reversals: list[str] = field(default_factory=list)  # one-day candle that the next open undoes (listed)
 
     @property
     def zero_volume_share(self) -> float:
@@ -216,8 +222,20 @@ def check_symbol(
         (df["high"] < df["low"])
         | (df["close"] > df["high"] * 1.001)
         | (df["close"] < df["low"] * 0.999)
+        | (df["open"] > df["high"] * 1.001)  # validation M16: the open was never checked
+        | (df["open"] < df["low"] * 0.999)
     )
     result.bad_ohlc = int(bad.sum())
+
+    flat = (df["open"] == df["high"]) & (df["high"] == df["low"]) & (df["low"] == df["close"]) & (df["volume"] > 0)
+    result.flat_days = [d.date().isoformat() for d in df.index[flat]]
+
+    previous_close, next_open = df["close"].shift(1), df["open"].shift(-1)
+    gap_in, gap_out = df["open"] / previous_close - 1, next_open / df["close"] - 1
+    back = (next_open / previous_close - 1).abs()
+    undone = (gap_in.abs() >= REVERSAL_GAP) & (gap_out.abs() >= REVERSAL_GAP) & (gap_in * gap_out < 0) \
+        & (back <= REVERSAL_BACK)
+    result.reversals = [d.date().isoformat() for d in df.index[undone.fillna(False)]]
 
     return result
 
@@ -257,6 +275,15 @@ def format_report(report: list[SymbolQuality]) -> str:
             "data/corporate_actions.csv dosyasına ekleyin ya da --apply-suggestions kullanın:",
         ]
         lines += [f"  {symbol},{j.date},{j.suggested_factor},{j.change:+.1%}" for symbol, j in jumps]
+
+    flats = [(q.symbol, d) for q in report for d in q.flat_days]
+    reversals = [(q.symbol, d) for q in report for d in q.reversals]
+    if flats or reversals:
+        lines += ["", "Bilgi: mumun kendi içinde şüpheli günler (doğrulama M16; ikinci kaynak kapalı olduğundan "
+                      "hisseler dışlanmaz). KAP/Borsa İstanbul'dan bakıp gerekirse data/candle_exceptions.csv'ye "
+                      "ekleyin:"]
+        lines += [f"  {s},{d},düz mum (açılış = yüksek = düşük = kapanış, işlem var)" for s, d in flats]
+        lines += [f"  {s},{d},ertesi gün geri dönen tek günlük mum (hatalı kapanış olabilir)" for s, d in reversals]
 
     breaches = [(q.symbol, b) for q in report for b in q.breaches]
     drops = sorted((x for x in breaches if x[1].change < 0), key=lambda x: x[1].change)
