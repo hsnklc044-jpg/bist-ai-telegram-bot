@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.2 – 29.10.2026 (bağımsız doğrulama M14'ün iki YÜKSEK bulgusu)
+- **M14 (hesap ve defter) değişti; yeniden doğrulama gerekir.**
+- **Gerçek hesabın getirisi alım günlerinde yanlıştı.** Yeni alınan paranın kazancı yalnız eski değere bölünüyordu. Örnek: 10.000 TL'ye 10.000 TL eklenip fiyat %5 artınca +%9,9 yazıyordu; büyük bir alımda +%293'e kadar çıkıyordu.
+  - Artık Modified Dietz kullanılıyor: konan para dönemin başından, çekilen para sonundan sayılıyor. Aynı örnek +%5,0.
+  - Bu endeksi kullanan "bu yana" satırı, risk bütçesindeki düşüş ve hesap düşüşü uyarısı da düzeldi.
+  - Eski bir testin beklentisi eski formüle göre yazılmıştı. Elle yeniden hesaplanıp güncellendi: 5 TL komisyon, 10.005 TL'ye göre −%0,05.
+- **Sanal hesaba bedelsiz/bedelli girilemiyordu.** %100 bedelsiz, sanal pozisyonu yarıya düşmüş gösteriyordu.
+  - Artık `/trade bedelsiz THYAO 900 sanal` (bedelli ve temettü için de) sanal hesaba yazıyor.
+  - Sanal alım ve satış yine yalnız `/paper` emriyle.
+- Doğrulama: `test_performance_index` (doğrulayıcının örnekleri, büyük alım, satış ve temettü günü, sanal hesap) ve `test_paper_corporate`.
+
 ## v0.99.1 – 29.10.2026 (Talimat F: bağımsız doğrulama başladı)
 - F'nin kapısı açıldı (K-58).
 - Yüksek riskli 11 model için bağımsız doğrulama başladı. Her rapor modeli geliştirmemiş ayrı bir alt ajandan geliyor: geliştirme notlarını görmüyor, yalnız kod, test, belge ve veriyle çalışıyor.

@@ -157,13 +157,14 @@ class RealAccountFlowsTest(unittest.TestCase):
 
     def test_buying_more_is_not_a_gain(self):
         # 22.10: 100 AAA = 5.000 TL. 23.10: 100 more bought at 50 (+5 TL fee); price still 50.
-        # value 10.000; money in 5.005 → (10.000 − 5.005) / 5.000 − 1 = −0,10% (the fee), not +100%
+        # value 10.000; money in 5.005 → gain 10.000 − 5.000 − 5.005 = −5 TL on the 10.005 TL at work
+        # = −0,05% (the fee), not +100% (Modified Dietz, validation M14)
         with tempfile.TemporaryDirectory() as tmp:
             real, _ = self.run_report(Path(tmp), [
                 Entry(date(2026, 6, 1), "real", "AAA", "buy", 100, 50.0, 0.0),
                 Entry(date(2026, 10, 23), "real", "AAA", "buy", 100, 50.0, 5.0),
             ], previous_value=5000.0)
-        self.assertIn("Günlük değişim -%0,10", real)
+        self.assertIn("Günlük değişim -%0,05", real)
 
     def test_selling_half_is_not_a_drawdown(self):
         # 22.10: 200 AAA = 10.000 TL. 23.10: 100 sold at 50 (5 TL fee) → value 5.000, money out 4.995

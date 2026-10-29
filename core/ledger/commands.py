@@ -14,7 +14,7 @@ Parsing of ledger commands typed in Telegram (no Telegram imports, so it can be 
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime
 
 from core.ledger.book import LedgerError
@@ -33,7 +33,8 @@ TRADE_USAGE = (
     "/trade sat THYAO 40 290,25\n"
     "/trade bedelsiz THYAO 900\n"
     "/trade bedelli THYAO 100 [fiyat, varsayılan 1]\n"
-    "/trade temettü THYAO 100 3,25 [GG.AA.YYYY] (100 pay, pay başına net 3,25 TL)"
+    "/trade temettü THYAO 100 3,25 [GG.AA.YYYY] (100 pay, pay başına net 3,25 TL)\n"
+    "Sanal hesaptaki şirket işlemleri için sona 'sanal' yazın: /trade bedelsiz THYAO 900 sanal"
 )
 PAPER_USAGE = (
     "Kullanım:\n/paper al THYAO 100\n/paper al THYAO 100 gerekçeniz (isteğe bağlı, kayda geçer)\n"
@@ -77,12 +78,23 @@ class TradeCommand:
     price: float
     fee: float | None  # None = use the default commission
     day: date | None  # None = today
+    account: str = "real"  # "paper" only for bonus / rights / dividend (validation M14)
 
 
 def parse_trade(args: list[str]) -> TradeCommand:
     if len(args) < 3:
         raise LedgerError(TRADE_USAGE)
+    paper = bool(args) and args[-1].lower() == "sanal"
+    if paper:
+        args = args[:-1]
+        if len(args) < 3:
+            raise LedgerError(TRADE_USAGE)
     side, symbol, quantity = _side(args[0]), args[1], parse_number(args[2])
+    if paper and side in ("buy", "sell"):
+        raise LedgerError("Sanal hesapta alım ve satış /paper emriyle verilir (ertesi açılışta dolar): "
+                          "/paper al THYAO 100. 'sanal' yalnız bedelsiz, bedelli ve temettü içindir.")
+    if paper:
+        return replace(parse_trade(args), account="paper")
     rest = args[3:]
     day = None
     if rest and any(c in rest[-1] for c in "./-") and rest[-1].count(".") + rest[-1].count("/") + rest[-1].count("-") == 2:

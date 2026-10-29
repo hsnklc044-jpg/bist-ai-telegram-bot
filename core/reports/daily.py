@@ -140,9 +140,12 @@ def performance_index(equity: pd.Series, entries, account: str) -> pd.Series:
     The account's growth with money moved in or out left out (1.0 at the first record).
 
     The real account's value is the market value of its shares: a buy raises it and a sale
-    lowers it with no gain or loss. Between two records the return is
-        (value now − money put in since the last record) / value at the last record − 1,
-    money put in = what was paid for buys and rights minus what sales brought (after fees).
+    lowers it with no gain or loss. Between two records (Modified Dietz, weights 1 and 0):
+        gain = value now − value at the last record − money put in
+        return = gain / (value at the last record + money put in, if positive)
+    money put in = what was paid for buys and rights minus what sales and dividends brought
+    (after fees). Money put in works from the start of the period, money taken out leaves at
+    its end; dividing by the old value alone made a buy day's return explode (validation M14).
     The paper account's value includes its cash, so its trades move nothing in or out.
     """
 
@@ -160,8 +163,9 @@ def performance_index(equity: pd.Series, entries, account: str) -> pd.Series:
     values = equity.to_numpy(dtype=float)
     growth = [1.0]
     for i in range(1, len(values)):
-        previous = values[i - 1]
-        r = (values[i] - flows.iloc[i]) / previous - 1 if previous > 0 else 0.0
+        previous, flow = values[i - 1], flows.iloc[i]
+        base = previous + max(flow, 0.0)
+        r = (values[i] - previous - flow) / base if base > 0 else 0.0
         growth.append(growth[-1] * (1 + r))
     return pd.Series(growth, index=equity.index, dtype=float)
 

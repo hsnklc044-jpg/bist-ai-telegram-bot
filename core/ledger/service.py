@@ -56,12 +56,13 @@ def _record_trade(cmd: TradeCommand, ledger_path: Path | str | None = None, toda
     if fee is None:
         fee = round(cmd.quantity * cmd.price * COMMISSION, 2) if cmd.side in ("buy", "sell") else 0.0
     entry = append_entry(
-        Entry(cmd.day or today, "real", cmd.symbol, cmd.side, cmd.quantity, cmd.price, fee, "telegram"),
+        Entry(cmd.day or today, cmd.account, cmd.symbol, cmd.side, cmd.quantity, cmd.price, fee, "telegram"),
         ledger_path or LEDGER_FILE,
         today=today,
     )
     return (
-        f"✅ Deftere yazıldı (#{entry.id}): {entry.date:%d.%m.%Y} {SIDE_NAMES[entry.side]} "
+        f"✅ Deftere yazıldı (#{entry.id}){' – Sanal hesap' if entry.account == 'paper' else ''}: "
+        f"{entry.date:%d.%m.%Y} {SIDE_NAMES[entry.side]} "
         f"{entry.symbol.removesuffix('.IS')} {tr(entry.quantity)} adet × {tr(entry.price, 2)} TL, "
         f"komisyon {tr(entry.fee, 2)} TL\nYanlışsa ters işlemle düzeltin (defter silinmez)."
     )

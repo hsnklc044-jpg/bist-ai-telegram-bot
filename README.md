@@ -121,7 +121,7 @@ python -m core.backtest.research --universe today  # karşılaştırma: bugünk�
 | `/summary` | Piyasa, gerçek ve sanal hesap, açık risk uyarıları (salt okunur; AL/SAT kararı içermez) |
 | `/watchlist`, `/watchadd EREGL`, `/watchremove EREGL`, `/watchscan` | Takip listesi |
 | `/portfolio` | Pozisyonlar ve kâr/zarar (gerçek ve sanal hesap) |
-| `/trade al THYAO 100 285,50 [komisyon] [GG.AA.YYYY]` | Gerçekleşmiş işlemi deftere yaz (`sat`, `bedelsiz`, `bedelli` de olur) |
+| `/trade al THYAO 100 285,50 [komisyon] [GG.AA.YYYY]` | Gerçekleşmiş işlemi deftere yaz (`sat`, `bedelsiz`, `bedelli` de olur). Sanal hesaptaki bedelsiz, bedelli ya da temettü için sona `sanal`: `/trade bedelsiz THYAO 900 sanal` |
 | `/paper al THYAO 100 [gerekçe]`, `/paper sat THYAO 50`, `/paper iptal 3`, `/paper` | Sanal emir; bir sonraki açılıştan dolar (09:40'tan önce verilirse aynı günün açılışından). Gerekçe isteğe bağlı, kayda geçer |
 | `/alerts` | Açık risk uyarıları |
 | `/report` | Günlük raporu şimdi üret |
