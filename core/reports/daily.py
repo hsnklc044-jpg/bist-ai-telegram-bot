@@ -56,7 +56,14 @@ logger = get_logger(__name__)
 
 ACCOUNT_NAMES = {"real": "Gerçek hesap", "paper": "Sanal hesap"}
 DISCLAIMER = "Bilgi amaçlıdır, yatırım tavsiyesi değildir. Bot AL/SAT önerisi vermez."
-UNCONFIRMED_WORDS = ("teyit", "doğrulanmadı")
+UNCONFIRMED_WORDS = ("teyit bekl", "teyitsiz", "teyit edilmedi", "doğrulanmadı", "doğrulanacak", "kesinleşmedi")
+
+
+def is_unconfirmed(note: str) -> bool:
+    """A corporate-action note that says it is not confirmed yet (Turkish case folding; validation M11)."""
+
+    text = (note or "").replace("İ", "i").replace("I", "ı").lower()
+    return any(w in text for w in UNCONFIRMED_WORDS)
 
 
 @dataclass
@@ -359,7 +366,7 @@ def build_daily(
     unconfirmed = {
         a.symbol: a.note
         for a in actions
-        if any(w in a.note.lower() for w in UNCONFIRMED_WORDS)
+        if is_unconfirmed(a.note)
     }
 
     lines = [f"🗓 QuantBIST günlük rapor – {day:%d.%m.%Y} kapanışı", ""]

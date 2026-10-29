@@ -220,14 +220,14 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.99.2 (M14'ün YÜKSEK bulguları düzeltildi). Öz-denetim sayacı: v0.98.0'dan beri 4.
+- **Son sürüm:** v0.99.3 (M11 stop düzeltmesi). Öz-denetim sayacı: v0.98.0'dan beri 5.
 - **Bağımsız doğrulama bulguları (F3, önem sırasıyla):**
 
 | Model | Karar | YÜKSEK | ORTA | Durum |
 |---|---|---|---|---|
 | M14 hesap ve defter | kısıtlı kullanılabilir | alım günü getirisi; sanal hesaba şirket işlemi girilemiyor | FIFO + bedelli maliyet satırı | ✅ iki YÜKSEK v0.99.2'de düzeltildi; yeniden doğrulama gerekir |
 | M15 fiyat düzeltmeleri | kısıtlı kullanılabilir | — | Yahoo sonradan düzeltirse çift düzeltme; CSV satırları denetlenmiyor; "ham" fiyat temettü düzeltmeli | açık: ORTA'lar sıradaki işler |
-| M11 pozisyon uyarıları | kısıtlı kullanılabilir | iz süren stop yalnız yukarı gitmiyor, uyarı çok sık | stop backtest'tekiyle aynı değil; teyitsiz işlem kelime kontrolü kırılgan; eksik veride sessiz | sırada |
+| M11 pozisyon uyarıları | kısıtlı kullanılabilir | iz süren stop yalnız yukarı gitmiyor, uyarı çok sık | stop backtest'tekiyle aynı değil; teyitsiz işlem kelime kontrolü kırılgan; eksik veride sessiz | ✅ YÜKSEK ve iki ORTA v0.99.3'te düzeltildi; açık: stopun ayrı karnesi yok (backtest sabit stopu ölçüyor); yeniden doğrulama gerekir |
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).

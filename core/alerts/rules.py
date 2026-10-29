@@ -64,6 +64,18 @@ def _locked_down_streak(df: pd.DataFrame) -> int:
     return streak
 
 
+def stop_level(df: pd.DataFrame, opened: date) -> float | None:
+    """Trailing stop that only moves up (validation M11): each day's level is the highest close
+    since entry − STOP_ATR_MULTIPLE × that day's ATR; the stop is the highest level so far."""
+
+    atr = _atr(df, cfg.ATR_WINDOW)
+    since = df.index >= pd.Timestamp(opened)
+    if not since.any():
+        return None
+    levels = (df["close"][since].cummax() - cfg.STOP_ATR_MULTIPLE * atr[since]).dropna()
+    return float(levels.max()) if len(levels) else None
+
+
 def evaluate_position(
     account: str,
     symbol: str,
@@ -100,15 +112,18 @@ def evaluate_position(
     def add(rule, severity, value, threshold, message):
         out.append(Alert(account, symbol, rule, severity, float(value), float(threshold), day, message))
 
-    # 1. Stop level (same measure as the backtest's ATR stop, trailing from the entry)
+    # 1. Trailing stop from the entry, only moving up (validation M11; not the backtest's fixed stop)
     atr = _atr(df, cfg.ATR_WINDOW).iloc[-1]
-    since = df[df.index >= pd.Timestamp(opened)]
-    if not pd.isna(atr) and not since.empty:
-        stop = float(since["close"].max()) - cfg.STOP_ATR_MULTIPLE * float(atr)
+    stop = stop_level(df, opened)
+    if stop is None or pd.isna(atr):
+        add("stop_hesaplanamadi", 1, len(df), cfg.ATR_WINDOW,
+            f"iz süren stop hesaplanamadı ({len(df)} mum; ATR{cfg.ATR_WINDOW} için yeterli değil ya da alış "
+            "tarihinden sonra mum yok)")
+    else:
         if close < stop:
             add("stop", 3, close, stop,
                 f"kapanış {_n(close)}, iz süren stop seviyesinin ({_n(stop)}) altında "
-                f"(alıştan beri en yüksek kapanış − {cfg.STOP_ATR_MULTIPLE:g} × ATR)")
+                f"(alıştan beri en yüksek kapanış − {cfg.STOP_ATR_MULTIPLE:g} × ATR; stop yalnız yukarı gider)")
         elif close - stop < cfg.STOP_NEAR_ATR * float(atr):
             add("stop_yakin", 2, close, stop,
                 f"kapanış {_n(close)}, stop seviyesine ({_n(stop)}) {cfg.STOP_NEAR_ATR:g} ATR'den yakın")

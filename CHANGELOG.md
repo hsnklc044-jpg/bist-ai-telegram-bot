@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.3 – 29.10.2026 (bağımsız doğrulama M11: iz süren stop)
+- **M11 (pozisyon uyarıları) değişti; yeniden doğrulama gerekir.**
+- **İz süren stop artık yalnız yukarı gidiyor** (doğrulamanın YÜKSEK bulgusu).
+  - Önce her gün "alıştan beri en yüksek kapanış − 2 × ATR" yeniden hesaplanıyordu. ATR büyüyünce stop aşağı kayıyordu (günlerin %38'inde), uyarı neredeyse her gün açılıp kapanıyordu.
+  - Artık stop, o güne kadarki en yüksek seviye. Fiyat altına inince uyarı açık kalıyor, gidip gelmiyor.
+- **Stop hesaplanamazsa artık söyleniyor.** ATR için mum yetmezse ya da alıştan sonra mum yoksa düşük önemli "stop hesaplanamadı" uyarısı çıkıyor; önceden stop sessizce kayboluyordu.
+- **Teyitsiz kurumsal işlem kontrolü sağlamlaştı** (ORTA). Türkçe büyük harfi tanıyor ("TEYİT BEKLİYOR"); "teyit edildi" artık teyitsiz sayılmıyor.
+- Doğrulama: `test_stop_ratchet`. ATR büyürken stop düşmüyor; elle hesaplanan en yüksek seviyeye eşit; uyarı açık kalıyor; az mum ve teyit ifadeleri denetleniyor.
+
 ## v0.99.2 – 29.10.2026 (bağımsız doğrulama M14'ün iki YÜKSEK bulgusu)
 - **M14 (hesap ve defter) değişti; yeniden doğrulama gerekir.**
 - **Gerçek hesabın getirisi alım günlerinde yanlıştı.** Yeni alınan paranın kazancı yalnız eski değere bölünüyordu. Örnek: 10.000 TL'ye 10.000 TL eklenip fiyat %5 artınca +%9,9 yazıyordu; büyük bir alımda +%293'e kadar çıkıyordu.
