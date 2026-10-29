@@ -110,6 +110,7 @@ def load_corporate_actions(path=None, problems: list[str] | None = None) -> list
 
     path = path or CORPORATE_ACTIONS_FILE
     actions: list[CorporateAction] = []
+    seen: set[tuple] = set()
 
     try:
         with open(path, encoding="utf-8-sig", newline="") as fh:
@@ -127,6 +128,19 @@ def load_corporate_actions(path=None, problems: list[str] | None = None) -> list
                         price=_number(row.get("price")) or 1.0,
                         source=(row.get("source") or "").strip(),
                     )
+                    # validation M15: rows that would corrupt prices silently are refused with a reason
+                    if not action.source and "source" in (reader.fieldnames or []):
+                        raise ValueError("kaynak yok")
+                    if action.ex_date.weekday() >= 5:
+                        raise ValueError("tarih hafta sonu")
+                    if (action.symbol, action.ex_date, kind) in seen:
+                        raise ValueError("aynı hisse, tarih ve tür tekrar ediyor (iki kez uygulanırdı)")
+                    if action.ratio is not None and action.ratio <= 0:
+                        raise ValueError("oran pozitif olmalı")
+                    if action.factor is not None and not 0 < action.factor < 20:
+                        raise ValueError("katsayı 0 ile 20 arasında olmalı")
+                    if kind in ("rights", "reduction_rights") and _number(row.get("price")) is None:
+                        raise ValueError("bedelli fiyatı yazılmamış (1 TL varsayılmaz)")
                     if kind not in KINDS:
                         raise ValueError(f"unknown kind {kind!r}")
                     if kind == "factor" and not action.factor:
@@ -136,6 +150,7 @@ def load_corporate_actions(path=None, problems: list[str] | None = None) -> list
                     if kind == "reduction_rights" and not action.factor:
                         raise ValueError("kind=reduction_rights needs the reduction multiplier in factor")
                     actions.append(action)
+                    seen.add((action.symbol, action.ex_date, kind))
                 except (KeyError, ValueError, AttributeError) as exc:
                     logger.warning("Bad corporate action row %s | %s", row, exc)
                     if problems is not None:

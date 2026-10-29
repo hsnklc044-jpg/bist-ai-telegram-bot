@@ -296,7 +296,7 @@ def apply_suggestions(report: list[SymbolQuality], path=None) -> int:
         note = f"otomatik öneri {jump.change:+.1%} (KAP ile doğrulanmadı)"
         if old_format:
             return f"{symbol},{jump.date},{jump.suggested_factor},{note}"
-        return f"{symbol},{jump.date},factor,,,{jump.suggested_factor},,{note}"
+        return f"{symbol},{jump.date},factor,,,{jump.suggested_factor},otomatik öneri,{note}"
 
     rows = [
         row(q.symbol, j)

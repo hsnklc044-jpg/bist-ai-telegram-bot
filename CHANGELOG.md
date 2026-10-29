@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.4 – 29.10.2026 (bağımsız doğrulama M15: kurumsal işlem satırları)
+- **M15 (fiyat düzeltmeleri) değişti; yeniden doğrulama gerekir.**
+- **data/corporate_actions.csv'deki bozuk satırlar artık reddediliyor** (doğrulamanın ORTA bulgusu). Önceden bu satırlar fiyat geçmişini sessizce bozabiliyordu. Reddedilen satırın gerekçesi günlük rapordaki sorun listesine yazılıyor. Reddedilen satırlar:
+  - kaynağı boş satır;
+  - hafta sonu tarihi;
+  - aynı hisse, tarih ve tür ikinci kez (iki kez uygulanırdı);
+  - sıfır ya da eksi oran;
+  - 0–20 dışındaki katsayı;
+  - fiyatı yazılmamış bedelli (eskiden 1 TL varsayılıyordu).
+- Otomatik öneriler (`--apply-suggestions`) kaynak olarak "otomatik öneri" yazıyor. Kaynak sütunu olmayan eski biçimli dosyalar okunmaya devam ediyor.
+- Doğrulama: `test_corporate_rows`, her red nedeni için bir test. Depodaki dosyanın 29 satırının hepsi temiz yükleniyor.
+
 ## v0.99.3 – 29.10.2026 (bağımsız doğrulama M11: iz süren stop)
 - **M11 (pozisyon uyarıları) değişti; yeniden doğrulama gerekir.**
 - **İz süren stop artık yalnız yukarı gidiyor** (doğrulamanın YÜKSEK bulgusu).

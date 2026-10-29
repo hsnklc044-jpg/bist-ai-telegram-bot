@@ -45,7 +45,7 @@ class CorrectionsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = pathlib.Path(tmp) / "ca.csv"
             path.write_text(
-                "symbol,ex_date,factor,note\nhekts.is,2024-09-09,0.35,test\nbad,row,x,\n",
+                "symbol,ex_date,factor,source,note\nhekts.is,2024-09-09,0.35,https://kap,test\nbad,row,x,,\n",
                 "utf-8",
             )
             actions = corrections.load_corporate_actions(path)
