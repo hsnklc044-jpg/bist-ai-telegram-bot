@@ -4,6 +4,49 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-55. Özellik B: üç senaryo şablonu (29.10.2026; SONUÇ GÖRÜLMEDEN commit edildi, parametreler bundan sonra değişmez).** Bu bir hesap aracıdır, öneri sistemi değildir. Seviyeler K-49'un küme seviyeleridir. Bir günün seviyeleri yalnız o güne kadarki mumlarla hesaplanır. ATR = o günün ATR14'ü.
+
+**Ortak kurallar** (sinyal günü t, kapanıştan sonra):
+- **Giriş varsayımı:** t+1 açılışı.
+  - t+1 açılışı t kapanışının %9,5 üstündeyse (tavan) ya da altındaysa (taban) senaryo dolmaz: "dolmadı".
+  - Canlı çıktıda giriş henüz bilinmediği için R, t kapanışıyla yaklaşık olarak gösterilir ve bu yazılır.
+- **Maliyet:** her yön %0,10 komisyon + %0,05 kayma (c = %0,15).
+  - R = (hedef·(1−c) − giriş·(1+c)) ÷ (giriş·(1+c) − geçersizlik·(1−c)).
+  - **R < 1,5: "elverişsiz".** Geçersizlik girişin altında değilse ya da hedef girişin üstünde değilse senaryo kurulmaz.
+- **Sonuç** (karne ve canlı kayıt aynı tanımla), t+1'den itibaren her seans için:
+  - Açılış geçersizliğin altındaysa çıkış açılıştan (boşluk). Değilse düşük ≤ geçersizlik ise çıkış geçersizlikten.
+  - Açılış hedefin üstündeyse çıkış açılıştan. Değilse yüksek ≥ hedef ise çıkış hedeften.
+  - **Aynı seans ikisi birden: geçersizlik sayılır** (temkinli).
+  - 20 seansta hiçbiri olmazsa 20. seansın kapanışından çıkılır: "süre doldu".
+  - Sonuç maliyet sonrası R olarak (kâr ÷ giriş riski) ve aynı süredeki XU100'e göre fark olarak yazılır.
+- **Tavan/taban riski:** çıktıda her zaman yazılır: geçersizliğe uzaklık % olarak ve "tek seansta ±%10 limit hareketi geçersizliği atlayabilir". Son 10 seansta limit günü varsa ayrıca belirtilir.
+
+**1. `destek_tepkisi`**
+- Koşul: kapanışın altındaki en yakın küme desteği S, güç puanı ≥ 50 ve kapanış − S ≤ 0,5 ATR.
+- Geçersizlik: S − 1 ATR.
+- Hedef: kapanışın üstündeki en yakın küme direnci. Yoksa senaryo kurulmaz.
+
+**2. `direnc_kirilimi`**
+- Koşul: dünün kapanışın üstündeki en yakın küme direnci D, bugün kapanışla 0,5 ATR'den fazla aşılmış (K-49 kırılım tanımı) ve hacim ≥ 1,5 × önceki 20 seansın ortalaması.
+- Geçersizlik: D − 1 ATR.
+- Hedef: bugünkü seviyelerde kapanışın üstündeki en yakın küme direnci. Yoksa giriş + 2 × (giriş − geçersizlik).
+
+**3. `trend_geri_cekilme`**
+- Koşul: sma50 > sma200, kapanış > sma50 ve |kapanış − sma20| ≤ 0,5 ATR.
+- Geçersizlik: kapanışın altındaki en yakın küme desteği − 1 ATR. Yoksa sma50 − 1 ATR.
+- Hedef: kapanışın üstündeki en yakın küme direnci. Yoksa giriş + 2 × (giriş − geçersizlik).
+
+**Adet hesabı (yalnız gösterilir):**
+- Risk tutarı = hesap değeri × risk bütçesi (varsayılan %1; kullanıcı `risk=%0,5` yazabilir).
+- Adet = taban(risk tutarı ÷ (giriş − geçersizlik)).
+- Likidite sınırı: adet × giriş ≤ önceki 20 seansın ortalama TL hacminin %5'i. Hangisi küçükse o yazılır ve nedeni belirtilir.
+- Sanal emir yalnız kullanıcının `/paper` komutuyla oluşur.
+
+**Ölçüm:**
+- Karne: tarama dönemi; holdout yok; BIST 100 geçmiş üyeleri; eleme varsayılanları. Şunlar ölçülür: olay sayısı, hedef / geçersizlik / süre doldu oranları, ortalama R (maliyet sonrası), en kötü ardışık geçersizlik serisi, XU100'e göre fark.
+- Canlı kayıt: her akşam tetiklenenler `logs/scenarios_log.csv` dosyasına sonuç bilinmeden yazılır. `/performans` "Senaryolar" bölümü sonuçları gösterir.
+- "İşe yaradığı" iddiası yalnız a5 döngüsüyle sınanabilir (ön kayıt, bütçe, holdout; en erken 28.04.2027).
+
 **K-54. Kullanıcı kararları devretti; bekleyen kaynak ve kapı kararları (29.10.2026).** Kullanıcı: "karar kısımlarını bana sormana gerek yok, en profesyonel haline getirmek için onay gerekmeden devam et". Kesin sınırlar aynen geçerli. Bunlar kullanıcı istese bile benim yapamayacağım şeylerdir: gerçek para, aracı kurum, ödeme, hesap açma, şifre ya da token, al/sat önerisi, KAP/Telegram içeriğini yeniden yayımlamak, git geçmişini yeniden yazmak, kişisel kayıt silmek. Kaynak koşulları 29.10'da yeniden arşivlendi: `sources/2026-10-29_09-28-44`.
 
 1. **D13 – İş Yatırım: otomatik kullanım kapatıldı.**
