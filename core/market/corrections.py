@@ -251,6 +251,8 @@ def apply_corporate_actions(
         if not factor:
             logger.warning("Corporate action skipped (no factor) | %s", action)
             continue
+        if pd.Timestamp(action.ex_date) > raw.index[-1]:
+            continue  # not traded yet (validation M15 D-3): applied from its first session
         if _already_adjusted(raw, action, factor):
             continue
         before = df.index < pd.Timestamp(action.ex_date)

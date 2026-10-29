@@ -6,7 +6,7 @@ git ile sürümlenen ayrı dosyalardan uygulanır. Hiçbir düzeltme depoya geri
 | Katman | Dosya | Varsayılan | Etkilediği sütunlar | Geri alma |
 |---|---|---|---|---|
 | Şirket işlemleri | `data/corporate_actions.csv` | açık | İşlem tarihinden **önceki** tüm günlerde açılış, en yüksek, en düşük ve kapanış × katsayı; hacim ÷ katsayı | Satırı silmek (git geçmişinde kalır) |
-| Seanssız günler | `data/bist_holidays.csv` + `core/market/corrections.py` | açık | O gün tamamen çıkarılır | Satırı silmek |
+| Seanssız günler | `core/market/corrections.py` (`CANCELLED_SESSIONS`: 08.02.2023) | açık | O gün tamamen çıkarılır. `data/bist_holidays.csv` takvim için; fiyatlardan gün silmez (doğrulama M15 D-7) | Satırı silmek |
 | Tek gün kapanış düzeltmeleri | `research-results` dalı, `datacheck/latest_price_fixes.csv` | **kapalı** | Yalnız kapanış; en yüksek ve en düşük bu kapanışı içerecek şekilde genişletilir | Kullanılmaz; yalnız `--price-fixes` ile izole deneyde açılır |
 
 Katsayı hesabı:

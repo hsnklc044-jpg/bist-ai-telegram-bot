@@ -44,6 +44,14 @@ class DoubleAdjustmentTest(unittest.TestCase):
         df = C.apply_corporate_actions(frame([10.0, 10.0, 9.8, 9.8]), "AAA.IS", [small])
         self.assertAlmostEqual(df["close"].iloc[0], 9.7)  # 9.8/9.7 = +1%: possible, applied
 
+    def test_a_future_dated_row_waits_for_its_session(self):
+        # validation M15 D-3: a row entered before its ex-date rescaled today's prices early (11,0 → 6,0)
+        later = C.CorporateAction("AAA.IS", pd.Timestamp("2026-03-10").date(), kind="bonus", ratio=1.0, source="x")
+        raw = frame([10.0, 10.5, 11.0])
+        df = C.apply_corporate_actions(raw, "AAA.IS", [later])
+        self.assertEqual(list(df["close"]), [10.0, 10.5, 11.0])
+        self.assertEqual(C.double_adjusted(), {})
+
     def test_the_daily_report_shows_it(self):
         from core.reports import daily
 

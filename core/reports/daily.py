@@ -83,7 +83,11 @@ class Paths:
 
 
 def raw_bars(symbol: str) -> pd.DataFrame:
-    """Final raw candles: share prices as traded (ledger quantities match these)."""
+    """
+    Final candles without our corporate actions (ledger quantities match these). Not truly as traded
+    for old days: Yahoo's series (auto_adjust) already carries its own dividend and split
+    adjustments (validation M15 O-3). Today's close is the traded price.
+    """
 
     return drop_open_candle(drop_cancelled_sessions(store.read(symbol)))
 

@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.6 – 29.10.2026 (bağımsız doğrulama M15: erken düzeltme ve etiketler)
+- **M15 değişti; yeniden doğrulama gerekir.**
+- **İşlem tarihi gelmemiş satır artık bugünkü fiyatları değiştirmiyor** (D-3).
+  - Önceden satır önceden girildiğinde bütün geçmiş, son gün dahil, erken yeni ölçeğe geçiyordu. Doğrulamadaki örnekte kapanış 11,0 iken 6,0 görünüyordu; /tara seviyeleri ve stoplar da kayıyordu.
+  - Artık satır, işlem gününün ilk mumu gelince uygulanıyor.
+- **"Ham" fiyatın tanımı düzeltildi** (O-3). `raw_bars` belgesi artık doğruyu söylüyor: eski günlerde Yahoo'nun kendi temettü ve bölünme düzeltmesi var; yalnız bizim düzeltmelerimiz yok. Bugünkü kapanış işlem fiyatı. Bedelli katsayısındaki etkisi küçük; doğrulamanın örneğinde 0,5500 yerine 0,5526.
+- docs/DATA_CORRECTIONS.md'deki seanssız gün satırı koda uyduruldu (D-7). Fiyatlardan yalnız 08.02.2023 çıkarılıyor; tatil dosyası takvim için.
+- Doğrulama: `test_double_adjustment::test_a_future_dated_row_waits_for_its_session` (önce kırmızıydı).
+
 ## v0.99.5 – 29.10.2026 (bağımsız doğrulama M15: çift düzeltme)
 - **M15 (fiyat düzeltmeleri) değişti; yeniden doğrulama gerekir.**
 - **Yahoo bir bölünmeyi sonradan kendisi düzeltirse katsayımız artık ikinci kez uygulanmıyor** (doğrulamanın ORTA bulgusu).

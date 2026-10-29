@@ -226,7 +226,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 | Model | Karar | YÜKSEK | ORTA | Durum |
 |---|---|---|---|---|
 | M14 hesap ve defter | kısıtlı kullanılabilir | alım günü getirisi; sanal hesaba şirket işlemi girilemiyor | FIFO + bedelli maliyet satırı | ✅ iki YÜKSEK v0.99.2'de düzeltildi; yeniden doğrulama gerekir |
-| M15 fiyat düzeltmeleri | kısıtlı kullanılabilir | — | ~~Yahoo sonradan düzeltirse çift düzeltme~~ (v0.99.5); ~~CSV satırları denetlenmiyor~~ (v0.99.4); "ham" fiyat temettü düzeltmeli | açık: "ham" etiketi; yeniden doğrulama |
+| M15 fiyat düzeltmeleri | kısıtlı kullanılabilir | — | ~~Yahoo sonradan düzeltirse çift düzeltme~~ (v0.99.5); ~~CSV satırları denetlenmiyor~~ (v0.99.4); "ham" fiyat temettü düzeltmeli | ORTA'lar ve D-3/D-7 kapandı (v0.99.4–6); açık: yeniden doğrulama |
 | M11 pozisyon uyarıları | kısıtlı kullanılabilir | iz süren stop yalnız yukarı gitmiyor, uyarı çok sık | stop backtest'tekiyle aynı değil; teyitsiz işlem kelime kontrolü kırılgan; eksik veride sessiz | ✅ YÜKSEK ve iki ORTA v0.99.3'te düzeltildi; açık: stopun ayrı karnesi yok (backtest sabit stopu ölçüyor); yeniden doğrulama gerekir |
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
