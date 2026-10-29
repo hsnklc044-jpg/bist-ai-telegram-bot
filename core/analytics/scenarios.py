@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -217,7 +218,9 @@ def scenario_text(symbol: str, df: pd.DataFrame, account: float | None = None, r
             lines.append(f"— {TITLES[name]}: koşul bugün yok")
         card = (cards or {}).get(name)
         if card:
-            lines.append(f"     karne (tarama dönemi): {card}")
+            lines.append(f"     karne (tarama dönemi, kanıt değil): {card}")
+        elif cards is None:
+            lines.append("     karne: henüz hesaplanmadı (cuma akşamı raporla hesaplanır)")
     lines += ["Destek/direnç seviyeleri tarihsel olarak rastgele seviyelerden ayırt edilemedi (K-49).", DISCLAIMER]
     return "\n".join(lines)
 
@@ -238,6 +241,94 @@ def custom_text(symbol: str, df: pd.DataFrame, entry: float, invalidation: float
         lines.append(_limit_line(df, entry, invalidation))
     lines.append(DISCLAIMER)
     return "\n".join(lines)
+
+
+# --- live record (§4.2) -------------------------------------------------------------------------
+
+LOG_COLUMNS = ["date", "symbol", "template", "close", "invalidation", "target", "r_approx"]
+LIVE_MIN = 30  # decided records before an average is shown
+
+
+def log_file() -> Path:
+    from core.config.paths import LOG_DIR
+
+    return LOG_DIR / "scenarios_log.csv"
+
+
+def write_log(day, frames: dict[str, pd.DataFrame], path: Path | None = None) -> int:
+    """Today's triggered scenarios, before anyone knows how they end; once per data day."""
+
+    import csv
+
+    path = Path(path or log_file())
+    if path.exists():
+        with open(path, encoding="utf-8", newline="") as fh:
+            if any(r["date"] == day.isoformat() for r in csv.DictReader(fh)):
+                return 0
+    rows = []
+    for symbol, df in sorted(frames.items()):
+        if df is None or df.empty or df.index[-1].date() != day or len(df) < L.MIN_CANDLES:
+            continue
+        table = signals(df, recent=2)
+        close = float(df["close"].iloc[-1])
+        for name in TEMPLATES:
+            row = table[name].iloc[-1]
+            if bool(row["ok"]):
+                r = r_value(close, row["invalidation"], row["target"])
+                rows.append([day.isoformat(), symbol, name, f"{close:.6g}", f"{row['invalidation']:.6g}",
+                             f"{row['target']:.6g}", "" if r is None else f"{r:.4f}"])
+    new = not path.exists()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh, lineterminator="\n")
+        if new:
+            w.writerow(LOG_COLUMNS)
+        w.writerows(rows)
+    return len(rows)
+
+
+def performance_lines(path: Path | None = None, bars=None) -> list[str]:
+    """/performans "Senaryolar": the logged scenarios, scored with the card's rule (§4.2)."""
+
+    import csv
+
+    if bars is None:
+        from core.reports.daily import adjusted_bars as bars
+    path = Path(path or log_file())
+    head = ["", "🧭 Senaryolar (canlı kayıt; sonuç bilinmeden yazıldı, K-55) → hedef / geçersizlik / süre doldu, "
+                "ortalama R (maliyet sonrası; kural çıktısı, öneri değil)"]
+    if not path.exists():
+        return head + ["  Henüz kayıt yok; her akşam tetiklenen senaryolar logs/scenarios_log.csv'ye yazılır."]
+    with open(path, encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    cache: dict[str, pd.DataFrame] = {}
+    results: dict[str, list[Outcome]] = {name: [] for name in TEMPLATES}
+    waiting = dict.fromkeys(TEMPLATES, 0)
+    for r in rows:
+        if r.get("template") not in results:
+            continue
+        df = cache.setdefault(r["symbol"], bars(r["symbol"]))
+        stamp = pd.Timestamp(r["date"])
+        if df is None or df.empty or stamp not in df.index:
+            waiting[r["template"]] += 1
+            continue
+        o = outcome(df, int(df.index.get_loc(stamp)), float(r["invalidation"]), float(r["target"]))
+        if o is None:
+            waiting[r["template"]] += 1
+        else:
+            results[r["template"]].append(o)
+    lines = list(head)
+    for name in TEMPLATES:
+        decided = [o for o in results[name] if o.result != "dolmadı"]
+        if len(decided) < LIVE_MIN:
+            lines.append(f"  {TITLES[name]}: veri birikiyor ({len(decided)}/{LIVE_MIN} sonuçlanan, {waiting[name]} süren)")
+            continue
+        share = lambda kind: f"%{sum(o.result == kind for o in decided) / len(decided) * 100:.0f}"  # noqa: E731
+        mean_r = sum(o.r for o in decided) / len(decided)
+        lines.append(f"  {TITLES[name]}: {len(decided)} sonuçlanan · hedef {share('hedef')}, geçersizlik "
+                     f"{share('geçersizlik')}, süre doldu {share('süre doldu')} · ortalama R {num(mean_r, 2)} · "
+                     f"{waiting[name]} süren")
+    return lines
 
 
 def _number(text: str) -> float:
@@ -299,7 +390,9 @@ def command_text(words: list[str]) -> str:
     account = account_value()
     if levels:
         return custom_text(f"{code}.IS", df, *levels, account=account, risk=risk)
-    return scenario_text(f"{code}.IS", df, account=account, risk=risk)
+    from core.analytics.scenarios_study import load_lines
+
+    return scenario_text(f"{code}.IS", df, account=account, risk=risk, cards=load_lines() or None)
 
 
 __all__ = ["COST", "DISCLAIMER", "HORIZON", "MIN_R", "Outcome", "TEMPLATES", "TITLES", "command_text", "custom_text", "outcome", "parse_args",

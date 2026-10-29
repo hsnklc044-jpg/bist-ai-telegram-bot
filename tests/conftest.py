@@ -8,6 +8,8 @@ import pytest  # noqa: E402
 from core import signals_log  # noqa: E402
 from core.alerts import levels  # noqa: E402
 from core.analytics import levels as levels_module  # noqa: E402
+from core.analytics import scenarios as scenarios_module  # noqa: E402
+from core.analytics import scenarios_study  # noqa: E402
 from core.backtest import expectations  # noqa: E402
 from core.fundamentals import store as fundamentals  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
@@ -57,12 +59,14 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(subscriptions, "STATE_FILE", tmp_path / "screen_subscriptions_state.json")
     monkeypatch.setattr(virtual, "VIRTUAL_FILE", tmp_path / "screen_virtual.csv")
     monkeypatch.setattr(fundamentals, "FUNDAMENTALS_FILE", tmp_path / "fundamentals.csv")
+    monkeypatch.setattr(scenarios_study, "CARDS_FILE", tmp_path / "scenario_cards.json")
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
     monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")
     monkeypatch.setattr(macro, "_second_fetch", offline)
     monkeypatch.setattr(macro, "_http_get", offline)
     monkeypatch.setattr(levels_module, "_log_file", lambda: tmp_path / "levels_log.csv")
+    monkeypatch.setattr(scenarios_module, "log_file", lambda: tmp_path / "scenarios_log.csv")
     # every signal_log write that does not name its file (e.g. /tara through the bot) stays private
     monkeypatch.setattr(signals_log, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")
     monkeypatch.setattr(forward, "SIGNAL_LOG_FILE", tmp_path / "signal_log.csv")  # daily and elimination records

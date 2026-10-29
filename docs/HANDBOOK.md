@@ -473,3 +473,8 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 - Tek seansta ±%10 limit hareketi geçersizliği atlayabilir; stop garanti değildir.
 - Seviyeler tarihsel olarak rastgele seviyelerden ayırt edilemedi (K-49).
 
+**Karne ve canlı kayıt:**
+- Her şablonun tarama dönemindeki karnesi `/senaryo` çıktısında görünür: olay sayısı, hedef / geçersizlik / süre doldu oranları, ortalama R ve aralığı, en kötü seri, XU100'e göre fark. Cuma akşamları raporla yeniden hesaplanır. Holdout okunmaz.
+- Her akşam BIST 100'de tetiklenen senaryolar, sonucu bilinmeden `logs/scenarios_log.csv`'ye yazılır. `/performans` "Senaryolar" bölümü bunları karneyle aynı kuralla puanlar. 30 sonuçlanan kayıttan önce "veri birikiyor" yazar.
+- Karne de canlı kayıt da kanıt değildir. "İşe yarıyor" iddiası yalnız a5 döngüsüyle sınanır (en erken 28.04.2027).
+

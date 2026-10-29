@@ -657,6 +657,35 @@ def _record_levels(day: date) -> None:
         logger.exception("Levels could not be recorded")
 
 
+def _record_scenarios(day: date) -> None:
+    """Özellik B §4.2: today's triggered scenarios of the BIST 100 into logs/scenarios_log.csv."""
+
+    try:
+        from core.analytics import scenarios
+        from core.screen import universe
+        from core.screen.command import _live
+
+        frames, _bench = _live(universe.symbols("bist100"))
+        logger.info("Scenarios recorded | %d", scenarios.write_log(day, frames))
+    except Exception:  # noqa: BLE001 - the report was already sent
+        logger.exception("Scenario recording failed")
+
+
+def _refresh_scenario_cards(day: date) -> None:
+    """On Fridays (or with no cache yet) the templates' card is recomputed for /senaryo."""
+
+    try:
+        from core.analytics import scenarios_study as study
+
+        if day.weekday() != FRIDAY and study.CARDS_FILE.exists():
+            return
+        from core.screen import command
+
+        study.save(study.study(command._history_data()))
+    except Exception:  # noqa: BLE001 - the report was already sent
+        logger.exception("Scenario card refresh failed")
+
+
 def _screen_subscriptions(day: date, send) -> None:
     """/tara subscriptions after the report went out: only the changes, each its own message.
     The state is kept once they went out. Never fatal (DECISIONS K-42)."""
@@ -1015,6 +1044,8 @@ def _run_locked(args) -> DailyResult:
         logger.info("Daily report sent to Telegram | %s", result.day)
         _screen_subscriptions(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id))
         _record_levels(result.day)
+        _record_scenarios(result.day)
+        _refresh_scenario_cards(result.day)
     return result
 
 

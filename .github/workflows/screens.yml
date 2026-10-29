@@ -37,3 +37,7 @@ jobs:
         run: |
           python -m core.analytics.levels_study 2>&1 | tee levels.txt
           { echo '```'; cat levels.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Scenario template cards (K-55, screening period)
+        run: |
+          python -m core.analytics.scenarios_study 2>&1 | tee scenarios.txt
+          { echo '```'; cat scenarios.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

@@ -2,6 +2,20 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.97.1 – 29.10.2026 (Özellik B: karne ve canlı kayıt)
+- **Karne** (`core/analytics/scenarios_study.py`). Tarama dönemi; holdout okunmuyor; BIST 100 geçmiş üyeliği; günün varsayılan elemesi. Her şablon için olay sayısı, hedef / geçersizlik / süre doldu oranları, ortalama R ve %95 aralığı (20 seanslık blok bootstrap), en kötü geçersizlik serisi, XU100'e göre fark.
+  - PC'de cuma akşamları ya da önbellek yoksa raporla hesaplanıyor, `/senaryo`'da görünüyor.
+  - GitHub'da `screens.yml` iş akışında yazdırılıyor.
+- **Canlı kayıt:** her akşam tetiklenen senaryolar, sonucu bilinmeden, günde bir kez `logs/scenarios_log.csv`'ye yazılıyor. `/performans`'a "🧭 Senaryolar" bölümü geldi; karneyle aynı kuralla puanlıyor. 30 sonuçlanan kayıttan önce "veri birikiyor".
+- Hata olursa rapor etkilenmiyor (log'a yazılıyor).
+- Doğrulama: `test_scenarios_study` ve `test_scenarios_live` (10 test).
+  - Özet elle hesaplanıyor.
+  - Karne ve canlı kayıt aynı sonuç kuralını kullanıyor.
+  - Holdout değişince karne değişmiyor.
+  - Kayıt günde bir kez yazılıyor.
+  - Cuma ve önbellek kuralı denetleniyor.
+  - Hatalar raporu durdurmuyor.
+
 ## v0.97.0 – 29.10.2026 (Özellik B: senaryo şablonları ve /senaryo)
 - Üç şablon sonuç görülmeden K-55'e yazıldı (c7b25ea) ve aynen kodlandı (`core/analytics/scenarios.py`): destek tepkisi, direnç kırılımı, trend içi geri çekilme.
 - Her senaryo şunları hesaplıyor:

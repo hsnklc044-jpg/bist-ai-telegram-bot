@@ -462,6 +462,12 @@ def forward_report(
 
     lines += screening_lines(scored[scored["source"] == SCREENED])
     lines += elimination_lines(scored[scored["source"] == ELIMINATION])
+    try:
+        from core.analytics.scenarios import performance_lines
+
+        lines += performance_lines(bars=bars)
+    except Exception as exc:  # noqa: BLE001 - the rest of the report still goes out
+        lines += ["", f"⚠️ Senaryolar hesaplanamadı: {exc}"]
 
     asked = scored[~scored["source"].isin([SYSTEMATIC, SCREENED, ELIMINATION])]
     if not asked.empty:
