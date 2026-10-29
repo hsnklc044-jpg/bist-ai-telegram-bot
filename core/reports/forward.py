@@ -358,6 +358,40 @@ def _drift_reasons(rows: pd.DataFrame, ref: dict, bars) -> list[str]:
 SCREEN_MIN_SAMPLES = 30  # matured /tara records before a number is shown (/tara Aşama 4c)
 
 
+def saved_screen_lines(signal_path=None, saved_path=None, bars=adjusted_bars, scored: pd.DataFrame | None = None) -> list[str]:
+    """İleri hedef 3: each saved screen's live result (the "tara" records of its criterion), for Fridays."""
+
+    from core.screen.command import load_saved
+    from core.screen.language import ScreenError, parse
+
+    saved = load_saved(saved_path)
+    if not saved:
+        return []
+    if scored is None:
+        scored = score_log(signal_path, bars=bars)
+    screened = scored[scored["source"] == SCREENED]
+    lines = ["📌 Kayıtlı taramalar (canlı; kayıttan sonraki getirinin XU100'den farkı; filtre sonucu, öneri değil):"]
+    for name, criteria in sorted(saved.items()):
+        try:
+            text = parse(criteria).text
+        except ScreenError:
+            lines.append(f"  {name}: kriter okunamadı")
+            continue
+        part = screened[screened["view"] == text]
+        shown = False
+        for h in (20, 5):
+            stats = summarize(part[part["horizon"] == h]) if not part.empty else None
+            if stats is not None and stats.records >= SCREEN_MIN_SAMPLES:
+                lines.append(f"  {name} ({text}): {h} seans {pct(stats.mean)} [{pct(stats.low)}, {pct(stats.high)}] "
+                             f"({stats.records} kayıt, {stats.days} gün)")
+                shown = True
+                break
+        if not shown:
+            n = int((part["horizon"] == 5).sum()) if not part.empty else 0
+            lines.append(f"  {name} ({text}): veri birikiyor ({n}/{SCREEN_MIN_SAMPLES})")
+    return lines
+
+
 def elimination_lines(rows: pd.DataFrame) -> list[str]:
     """İleri hedef 1: the eliminated and the kept group, and the day-by-day difference (elenen −
     kalan), against XU100 after the record. A number only from SCREEN_MIN_SAMPLES eliminated records."""
@@ -513,6 +547,7 @@ def weekly_line(
     signal_path: Path | str | None = None,
     equity_path: Path | str | None = None,
     bars=adjusted_bars,
+    saved_path: Path | str | None = None,
 ) -> str:
     """One or two lines for the Friday report; details stay in /performans."""
 
@@ -548,6 +583,10 @@ def weekly_line(
     chart = weekly_chart(equity_path, bars=bars)
     if chart:
         lines.append(chart)
+    try:
+        lines += saved_screen_lines(signal_path, saved_path, bars=bars, scored=scored)
+    except Exception:  # noqa: BLE001 - the Friday line still goes out
+        logger.exception("Saved screen summary failed")
 
     return "\n".join(lines)
 

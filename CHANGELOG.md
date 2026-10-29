@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.98.1 – 29.10.2026 (ileri hedef 3: kayıtlı taramaların haftalık özeti)
+- Cuma raporunda yeni "📌 Kayıtlı taramalar" bölümü. Her kayıtlı taramanın canlı sonucu gösteriliyor: aynı kriterin `/tara` kayıtlarında 20 seans (yoksa 5) sonra XU100'e göre fark, aralıkla. 30 kayıttan önce "veri birikiyor".
+- Kayıtlı taramalar PC'de kişisel dosyada olduğu için özet cumartesi araştırmasında değil, cuma raporunda.
+- Doğrulama: `test_weekly_screens` (bölüm, eşik, kayıtsız durum, cuma satırı).
+
 ## v0.98.0 – 29.10.2026 (Talimat E: risk bütçesi)
 - Tasarım K-56'da sonuç görülmeden yazıldı (575237e) ve aynen uygulandı (`core/alerts/budget.py`).
 - **Sınırlar:** kullanıcının `data/risk_limits.csv` dosyası; kişisel, yedekte, şema denetiminde, git dışında.

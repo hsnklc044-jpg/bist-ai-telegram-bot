@@ -49,7 +49,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Her 5 dk | Bot yaşam sinyali (`logs/heartbeats.csv`, Healthchecks) | `/durum` "Telegram botu" ve SLO "Bot ayakta kalma" |
 | 18:30 (iş günü) | Fiyat güncelleme, rapor, yedek, canlı ölçüm kaydı | Telegram raporu; `logs/runs.csv`; `RUN daily …` satırı |
 | 20:00 (iş günü) | Sağlık kontrolü; sorun varsa tek mesaj | Telegram |
-| Cuma raporu | Canlı ölçüm özeti, haftalık sistem özeti, SLO tablosu | Telegram |
+| Cuma raporu | Canlı ölçüm özeti, kayıtlı taramaların canlı sonucu, haftalık sistem özeti, SLO tablosu | Telegram |
 | Cumartesi | GitHub araştırması | GitHub Actions > Research; `research-results` dalı |
 | Pazartesi | Paket güvenlik taraması | GitHub Actions > Security |
 

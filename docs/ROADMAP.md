@@ -220,12 +220,12 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.98.0 (E: risk bütçesi). Öz-denetim 9 yapıldı; sayaç sıfırlandı.
+- **Son sürüm:** v0.98.1 (kayıtlı taramaların cuma özeti). Öz-denetim sayacı: v0.98.0'dan beri 1.
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
   - ✅ Elenen ve kalan grubun canlı izlenmesi, v0.96.0 (K-53). İlk sonuç 30.10 kaydından 5 seans sonra.
-  - Kalan: haftalık kayıtlı tarama özeti. Kayıtlı taramalar PC'de kişisel dosyada; cumartesi araştırması onları göremez. Cuma raporuna eklenmesi tasarım kararı bekliyor.
+  - ✅ Haftalık kayıtlı tarama özeti, v0.98.1. Kayıtlı taramalar PC'de kişisel dosyada olduğu için cumartesi araştırması yerine cuma raporunda; 30 kayıttan önce "veri birikiyor".
 - **Özellik talimatları (28.10):**
   - A destek/direnç: tasarım ✅ v0.90.1 (K-49). Veri borcu ✅ v0.91.0–v0.91.1: ikinci kaynakla doğrulandı; dışarıda yalnız PAHOL var, o da kısa geçmiş, borç değil. **Kapı açık.** Kod ✅ v0.92.0–v0.94.0: levels.py, /seviye, /analyze, /tara alanları, rapor satırı, kayıt, /durum, web, ölçüm (ayırt edilemedi). Bitti ölçütünden kalan: PC'de seviye kaydının yazıldığının kanıtı. İlk rapor 30.10'da (29.10 bayram).
   - B senaryolar: ✅ şablon tasarımı K-55 (c7b25ea, sonuçtan önce); ✅ v0.97.0 `/senaryo` (iki kullanım). ✅ v0.97.1 karne (cuma akşamı ve GitHub `screens.yml`), canlı kayıt ve `/performans` "Senaryolar". ✅ v0.97.2 `/tara senaryo(...)`. ✅ karne RESEARCH_LOG'da (29.10: üçünde de ortalama R sıfırdan ayırt edilemedi). Kalan: isteğe bağlı ölçüm kitabı, canlı kaydın PC kanıtı.
