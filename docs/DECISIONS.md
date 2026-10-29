@@ -74,6 +74,8 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - Geçersizlik: kapanışın altındaki en yakın küme desteği − 1 ATR. Yoksa sma50 − 1 ATR.
 - Hedef: kapanışın üstündeki en yakın küme direnci. Yoksa giriş + 2 × (giriş − geçersizlik).
 
+**Not (öz-denetim 9, Ö35):** "giriş + 2 × (giriş − geçersizlik)" hedefi sinyal günü sabitlenir. O gün giriş bilinmediği için kapanışla kurulur. Ertesi açılış farklıysa gerçekleşen R 2'den biraz sapar; geleceği görmemenin bedelidir.
+
 **Adet hesabı (yalnız gösterilir):**
 - Risk tutarı = hesap değeri × risk bütçesi (varsayılan %1; kullanıcı `risk=%0,5` yazabilir).
 - Adet = taban(risk tutarı ÷ (giriş − geçersizlik)).

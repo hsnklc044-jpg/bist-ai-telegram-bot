@@ -65,6 +65,29 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 9 — 29.10.2026 (v0.95.5 → v0.98.0, 10 sürüm).** Kapsam: `git diff 7b7480b..5a0eeaf -- core bot .github`:
+- kur süre sınırı ve ikinci kaynak;
+- eleme canlı ölçümü;
+- İş Yatırım'ın kapatılması;
+- senaryolar (şablonlar, karne, canlı kayıt, `/tara senaryo`);
+- risk bütçesi.
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö35 | DÜŞÜK | Senaryolarda "2R" hedefi, giriş bilinmeden hesaplandığı için sinyal günü kapanışıyla kuruluyor (giriş + 2 × risk yerine kapanış + 2 × risk). Ertesi açılış farklıysa gerçek R 2'den biraz sapar. | kabul: hedef sinyal günü sabitlenmeli (geleceği görmemek için); K-55'e not olarak düşüldü. |
+| Ö36 | BİLGİ | Kapsam %92,4'ten %91,6'ya indi; kapı %91. Yeni modüllerin hata yolları (ağ, bozuk dosya) kısmen testsiz. | açık: sonraki sürümlerde hata yolu testleri eklenecek. |
+| Ö37 | BİLGİ | Cuma karnesi (senaryolar) akşam raporunun ardından bütün geçmişle hesaplanıyor. GitHub'da 26 sn sürdü; PC'de birkaç dakika sürebilir. Rapor zaten gönderilmiş oluyor. | kabul: rapor görevinin 30 dakikalık sınırı içinde. |
+| Ö38 | BİLGİ | `datacheck.yml` iş akışı İş Yatırım kapalıyken yalnız kapalı olduğunu yazıyor. | kabul (D13). |
+
+**Kontrol edilenler:**
+- **Geleceği görme yok.** Senaryo sinyalleri (test), karne holdout'u (test), rejim, TÜFE ve eleme ölçümü.
+- **Testlerde ağ ve kişisel dosya yok.** Kur, TÜFE, sınır, senaryo kaydı, karne önbelleği ve eleme kaydı geçici klasörde. Yazma koruması testi geçiyor.
+- **Hiçbir çıktıda öneri dili yok** (test). `/risk ekle` ve `/risk denge` emir oluşturmuyor; senaryolarda sanal emir yalnız `/paper` ile.
+- **Gerçek ve sanal hesap karışmıyor** (`account_state` tek hesap okuyor).
+- **Yeni kişisel dosya** `risk_limits.csv` yedekte, şema denetiminde ve git dışında (test).
+
+**Kritik ya da yüksek bulgu yok.** Sayaç v0.98.0'da sıfırlandı.
+
 **Öz-denetim 8 — 29.10.2026 (v0.91.2 → v0.95.3, 10 sürüm).** Kapsam: `git diff 8d98938..4131e34 -- core bot .github`:
 - 2027 tatil takvimi ve geçici yıl uyarısı;
 - dört bazlı sonuç (`macro.py`, rapor, `/performans`, araştırma);
@@ -197,7 +220,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.98.0 (E: risk bütçesi). Öz-denetim sayacı: v0.95.4'ten beri 10; **öz-denetim sırada**.
+- **Son sürüm:** v0.98.0 (E: risk bütçesi). Öz-denetim 9 yapıldı; sayaç sıfırlandı.
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).
