@@ -104,6 +104,8 @@ GUIDANCE = {
     "Yedek": ("bir arızada kişisel kayıtlar kaybolabilir", "python -m core.backup ve BACKUP_DIR klasörü"),
     "Disk": ("yedek ve kayıtlar yazılamayabilir", "diskte yer açın"),
     "Tatil takvimi": ("tatil günleri eksik rapor sayılabilir", "data/bist_holidays.csv'yi güncelleyin"),
+    "Model doğrulama": ("doğrulanmamış ya da süresi geçmiş bir modelin sayılarına güvenilir",
+                        "docs/validation/ ve MAINTENANCE.md (yeniden doğrulama)"),
     "Makro veri": ("reel ve dolar bazlı sonuçlar eski veriyle hesaplanır",
                    "akşam raporu TCMB'den kendiliğinden tamamlar; internet bağlantısı, python -m core.market.macro"),
     "GitHub araştırması": ("haftalık araştırma sonucu yok", "GitHub Actions > Research"),
@@ -118,7 +120,7 @@ GUIDANCE = {
 SEVERITY = {
     "Fiyat veritabanı": "KRİTİK", "Veri şeması": "KRİTİK", "Kişisel dosyalar": "KRİTİK", "Günlük rapor": "YÜKSEK", "Yedek": "YÜKSEK",
     "Canlı ölçüm kaydı": "YÜKSEK", "Telegram botu": "YÜKSEK", "Disk": "YÜKSEK", "Fiyat verisi": "ORTA",
-    "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "Makro veri": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK", "Dışarıdan izleme": "DÜŞÜK", "Bakım takvimi": "ORTA",
+    "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "Makro veri": "DÜŞÜK", "Model doğrulama": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK", "Dışarıdan izleme": "DÜŞÜK", "Bakım takvimi": "ORTA",
 }
 LEVELS = ["KRİTİK", "YÜKSEK", "ORTA", "DÜŞÜK"]
 

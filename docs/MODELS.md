@@ -262,15 +262,19 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
 
 ## Yüksek riskli modeller (F3 sırası)
 
-Bağımsız doğrulama F'nin kapısı açılınca bu sırayla yapılır. Sıra, kişisel kaydı ya da her gün okunan rakamı etkileyen modelden başlar:
+Bağımsız doğrulama 29.10.2026'da başladı (K-58). Sıra, kişisel kaydı ya da her gün okunan rakamı etkileyen modelden başlar:
 1. M15 fiyat düzeltmeleri.
-2. M16 veri kalitesi.
-3. M14 hesap ve defter.
-4. M11 pozisyon uyarıları.
+2. M14 hesap ve defter.
+3. M11 pozisyon uyarıları.
+4. M16 veri kalitesi.
 5. M12 portföy riski.
-6. M1 teknik skor.
-7. M5 karne.
-8. M8 seviyeler.
-9. M24 dört bazlı sonuç.
+6. M28 risk bütçesi.
+7. M24 dört bazlı sonuç.
+8. M1 teknik skor.
+9. M5 karne.
+10. M8 seviyeler.
+11. M27 senaryolar.
+
+Durum `/durum` "Model doğrulama" satırında ve `docs/validation/` klasöründe.
 
 F7 gereği, doğrulama raporu gelene kadar bu modellerin çıktısına "doğrulanmadı" etiketi eklenmesi F'nin uygulama işidir. Kapı açılmadan kod değişmez.

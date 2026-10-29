@@ -209,7 +209,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ### F – Model riski yönetimi ve bağımsız doğrulama
 - **Koşul:** F1 envanteri hemen; gerisi B'nin bitti ölçütünden sonra.
-- **Durum:** F1 ✅ docs/MODELS.md (25 model, 9'u yüksek risk; doğrulama sırası yazılı).
+- **Durum:** F1 ✅ docs/MODELS.md (29 model, 11'i yüksek risk). F kapısı açıldı (K-58). ✅ v0.99.1 `/durum` "Model doğrulama" ve MAINTENANCE takvimi. F2: ilk üç bağımsız doğrulama (M15, M14, M11) alt ajanlarla sürüyor.
 - **En erken:** B'nin kapısı A'nın bitti ölçütüne bağlı. B'nin kendi bitti ölçütünde canlı kayıt olduğundan F2+ Kasım'dan önce açılmaz.
 - **Bitti ölçütü:**
   - MODELS.md eksiksiz;
@@ -220,7 +220,7 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (27.10.2026, kod v0.56.0)
 
-- **Son sürüm:** v0.99.0 (profesyonel filtreler Aşama 4–5). Öz-denetim sayacı: v0.98.0'dan beri 2.
+- **Son sürüm:** v0.99.1 (F: doğrulama durumu). Öz-denetim sayacı: v0.98.0'dan beri 3.
 - **Kullanıcı kararları devretti (29.10, K-54).** Döngü onay beklemeden ilerliyor. Sınırlar aynı.
 - **İleri hedefler:**
   - ✅ 2027 tatilleri, v0.94.2 (geçici; Aralık'ta Borsa İstanbul duyurusuyla teyit).

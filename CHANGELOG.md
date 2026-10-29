@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.1 – 29.10.2026 (Talimat F: bağımsız doğrulama başladı)
+- F'nin kapısı açıldı (K-58).
+- Yüksek riskli 11 model için bağımsız doğrulama başladı. Her rapor modeli geliştirmemiş ayrı bir alt ajandan geliyor: geliştirme notlarını görmüyor, yalnız kod, test, belge ve veriyle çalışıyor.
+- `/durum`'a "Model doğrulama" satırı geldi: kaç yüksek riskli modelin geçerli raporu var. Süresi geçen ya da "kullanılamaz" çıkan model UYARI veriyor.
+- Doğrulama takvimi MAINTENANCE.md'de: yüksek risk yılda bir, orta risk iki yılda bir.
+- Doğrulama: `test_model_validation` (kayıt MODELS.md ile aynı; durumlar; süre; `/durum` satırı).
+
 ## v0.99.0 – 29.10.2026 (profesyonel filtreler Aşama 4 ve 5)
 - **Aşama 4 – temel puanlar** (`core/fundamentals/scores.py`). Formüller K-57'de veri görülmeden sabitlendi (1d5f434): Piotroski F, Altman Z'' (gelişen piyasalar), Beneish M, Greenblatt (kazanç getirisi, sermaye getirisi), Novy-Marx (brüt kârlılık, defter/piyasa).
   - Yayın tarihli depodan okunuyor; değer yayımın ertesi gününden itibaren kullanılıyor.

@@ -4,6 +4,21 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-58. Talimat F'nin geri kalanı açıldı; bağımsız doğrulama başladı (29.10.2026).**
+- **Kapı:** F'nin kapısı "B'nin bitti ölçütü"ydü. B'den kalan tek şey canlı senaryo kaydının PC kanıtı. Var olan modellerin doğrulanması o kanıta bağlı değil. Kullanıcının devriyle (K-54) F2 şimdi başlıyor; B'nin kanıtı ayrıca izleniyor.
+- **Bağımsızlık (F3):** her doğrulama, modeli geliştirmemiş ayrı bir alt ajan tarafından yapılır.
+  - Doğrulayıcı DECISIONS, ROADMAP, CHANGELOG ve git geçmişini görmez; yalnız kodu, testleri, kullanıcı belgelerini ve veriyi görür.
+  - Yalnız `docs/validation/<model>.md` yazar.
+  - Sıra MODELS.md'deki yüksek risk sırasıdır.
+- **Rapor biçimi (F2):** kavramsal sağlamlık, elle hesaplanmış örneklerle uygulama doğruluğu, sonuç analizi, sınırlamalar ve karar. Raporda "Tarih: YYYY-MM-DD" ve "Karar: kullanılabilir / kısıtlı kullanılabilir / kullanılamaz" satırları zorunlu.
+  - YÜKSEK bulgu düzeltilmeden model "kullanılabilir" sayılmaz.
+  - Bulgular önem sırasıyla ROADMAP'e yazılır.
+- **İzleme (F5–F6):**
+  - `/durum` "Model doğrulama" satırı kaç yüksek riskli modelin doğrulandığını gösterir.
+  - Süresi geçen (yüksek risk 1 yıl, orta risk 2 yıl) ya da "kullanılamaz" çıkan model UYARI verir.
+  - Takvim MAINTENANCE.md'de.
+- **Değişiklik kontrolü (F4):** bir modelin hesabını değiştiren sürüm, CHANGELOG'da modelin kodunu (M..) ve "yeniden doğrulama gerekir" notunu yazar. Bu notu öz-denetim denetler.
+
 **K-57. Profesyonel filtreler Aşama 4: temel puanlar (29.10.2026; formüller veri görülmeden sabitlendi).**
 
 **Kaynak ve dönemler:**

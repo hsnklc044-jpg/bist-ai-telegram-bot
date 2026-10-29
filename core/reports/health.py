@@ -633,6 +633,18 @@ def macro_check(now: datetime) -> Check:
     return Check("Makro veri", {"ok": OK, "warn": WARN}.get(state, UNKNOWN), text)
 
 
+def validation_check(now: datetime) -> Check:
+    """Talimat F: how many high-risk models have a current independent validation report."""
+
+    try:
+        from core.reports import validation
+
+        state, text = validation.status(now.date())
+    except Exception as exc:  # noqa: BLE001 - /durum must still answer
+        return Check("Model doğrulama", UNKNOWN, f"okunamadı: {type(exc).__name__}")
+    return Check("Model doğrulama", {"ok": OK, "warn": WARN}.get(state, INFO), text)
+
+
 def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool = True) -> list[Check]:
     now = now or now_istanbul()
     checks = [
@@ -649,6 +661,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         calendar_check(now),
         fundamentals_check(),
         macro_check(now),
+        validation_check(now),
         levels_check(now=now),
         maintenance_check(now),
         monitoring_check(now),

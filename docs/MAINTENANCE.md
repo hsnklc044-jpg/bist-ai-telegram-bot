@@ -31,6 +31,7 @@ CHARTER J2. `/durum`'daki "Bakım takvimi" ve "Tatil takvimi" satırları süres
 | İş | Ne zaman | Nasıl |
 |---|---|---|
 | TÜFE ve kur verisi | aylık (kendiliğinden) | Akşam raporu her ayın 3'ünden sonra TCMB tablosundan yeni ayı ekler. `/durum` "Makro veri" 8 gün gecikirse uyarır. Yılda bir, PC'nin eklediği aylar depodaki `data/macro/cpi.csv`'ye taşınır (Claude, arşivli sayfayla). |
+| Model doğrulama (Talimat F) | yüksek risk yılda bir, orta risk iki yılda bir; her hesap değişikliğinden sonra | `docs/validation/<model>.md`, ayrı bir alt ajan yapar (K-58). `/durum` "Model doğrulama" süresi geçeni uyarır. |
 | Yeni yılın tatil takvimi | Aralık | `data/bist_holidays.csv`. 2027 satırları geçici olarak girildi (Kanun 2429 ve Diyanet 2027 takvimi). Borsa İstanbul'un Aralık duyurusuyla karşılaştırılır, fark varsa düzeltilir, sonra `calendar.PROVISIONAL`'dan çıkarılır. `/durum` Aralık'tan itibaren geçici yıl için uyarır. |
 | Paket sürümleri | Yılda bir ya da güvenlik bulgusunda | Kilit dosyasını yükselt, tam test, küçük sürüm |
 | Python sürümü | 3.11 desteği 31.10.2027'de biter | `/durum` 120 gün önce uyarır; geçiş planı DECISIONS'a |
