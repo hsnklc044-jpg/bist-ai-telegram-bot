@@ -4,6 +4,43 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 27.10.2026
 
+**K-56. Talimat E: risk bütçesi, ölçüler ve pencereler (29.10.2026; sonuç görülmeden).** Sistem ölçer; sınırları kullanıcı koyar. Öneri yok.
+
+**Sınır dosyası `data/risk_limits.csv`:**
+- Kişisel; yedeğe ve şema denetimine girer; git'e girmez.
+- Sütunlar: `account` (gercek / sanal / hepsi), `limit`, `value` (yüzde), `note`.
+- Sınırlar:
+  - `tek_hisse`: bir pozisyonun hesaba oranı.
+  - `tek_sektor`: sektör kaynağı olmadığı için (K-54) ölçülmez, "bilinmiyor".
+  - `oynaklik`: yıllık portföy oynaklığı.
+  - `dusus`: hesabın zirveden düşüşü.
+  - `var_1g`: 1 günlük %95 tarihsel kayıp.
+- Dosya yoksa ya da bir sınır yazılmamışsa yalnız ölçülür ve "sınır tanımlı değil" yazar.
+
+**Ölçüler** (pencereler sabit):
+- **Ağırlık:** pozisyon değeri ÷ hesap değeri (sanal hesapta nakit dahil; gerçek hesapta yalnız hisse değeri, çünkü nakit izlenmiyor).
+- **Portföy oynaklığı:** son 60 seansın günlük getirilerinden kovaryans Σ; σ = √(wᵀΣw) × √252.
+- **Risk katkısı:** w_i·(Σw)_i ÷ (wᵀΣw), yüzde olarak; toplamı %100.
+- **Beta:** son 250 seansta bugünkü ağırlıklarla portföy getirisinin XU100'e göre kovaryans ÷ varyansı.
+- **Korelasyon kümeleri:** 60 seansta korelasyonu ≥ 0,80 olan çiftler (mevcut kural).
+- **Etkin pozisyon sayısı:** mevcut tanım.
+- **1 günlük kayıp:** mevcut tarihsel VaR (250 seans, %95).
+- **Likidite:** pozisyonun kapanması için gereken gün = pozisyon değeri ÷ (önceki 20 seansın ortalama TL hacmi × %20 katılım).
+- **Düşüş:** hesap performans endeksinin (alım-satım nakit akışı arındırılmış) en yüksek değerinden bugüne düşüşü.
+- **Stres:** mevcut `/stres`'e bağlantı verilir.
+- **Durum:** kullanım = ölçü ÷ sınır. Yeşil < %80, sarı ≥ %80, kırmızı > %100.
+- **Hesaplanamayanlar:** fiyatı olmayan pozisyon sessizce düşmez, "hesaplanamadı: nedeni" yazılır. Gerçek ve sanal hesap hiçbir hesapta karışmaz.
+
+**Komutlar:**
+- `/risk [gercek|sanal]`: tablo (varsayılan sanal).
+- `/risk ekle THYAO 100 [gercek|sanal]`: son kapanışla 100 adet eklenseydi tablo nasıl değişirdi. Emir oluşturmaz.
+- `/risk denge [gercek|sanal]`: tanımlı sınırlara dönmek için gereken azaltma, yalnız matematik.
+  - `tek_hisse` aşan pozisyon sınıra indirilir.
+  - Oynaklık ya da VaR aşılırsa bütün pozisyonlar aynı oranda (sınır ÷ ölçü) küçültülür.
+  - Etiket: "hesap sonucu, öneri değil".
+
+**Uyarılar:** sarı ve kırmızı sınırlar mevcut uyarı kaydına (`alerts_log`) "risk_siniri:<ad>" kuralıyla girer. Aynı uyarı tekrar etmez (mevcut sistem). Günlük raporda tek satırlık risk bütçesi özeti çıkar.
+
 **K-55. Özellik B: üç senaryo şablonu (29.10.2026; SONUÇ GÖRÜLMEDEN commit edildi, parametreler bundan sonra değişmez).** Bu bir hesap aracıdır, öneri sistemi değildir. Seviyeler K-49'un küme seviyeleridir. Bir günün seviyeleri yalnız o güne kadarki mumlarla hesaplanır. ATR = o günün ATR14'ü.
 
 **Ortak kurallar** (sinyal günü t, kapanıştan sonra):
