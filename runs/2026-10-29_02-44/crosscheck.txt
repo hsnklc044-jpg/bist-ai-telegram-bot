@@ -1,0 +1,6 @@
+İkinci kaynak kontrolü (İş Yatırım, son 30 gün, günlük getiri farkı > 1 puan): 117 hisse | tutarlı 117, fark var 0, kontrol edilemedi 0 | karşılaştırılan 2457 hisse-gün
+Hisseye özgü açıklanamayan fark 0 gün; kayıtlı şirket işlemi günü 1; tek gün kapanış hatası (ertesi gün düzelen) 0
+Yahoo'da henüz yayımlanmamış son seans (28.10.2026): 117 hisse; fark sayılmadı, sonraki çalışmada karşılaştırılır
+XU100 (İş Yatırım'ın BIST 100 değeriyle, 21 gün): tutarlı
+Hisseye özgü farklar (piyasa geneli günler hariç):
+Not: iki kaynak da düzeltilmiş fiyat verir ama düzeltme yöntemleri aynı olmayabilir; açıklanamayan farklar ve tek kaynakta olan günler KAP ve üçüncü bir kaynaktan kontrol edilmeden düzeltilmez.
