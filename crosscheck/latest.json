@@ -1,7 +1,5 @@
 {
- "date": "2026-10-29",
- "checked": 117,
- "differing": [],
- "unchecked": [],
- "share": 0.0
+ "date": "2026-10-31",
+ "disabled": true,
+ "reason": "\u0130\u015f Yat\u0131r\u0131m ikinci kaynak kapal\u0131: sitenin robots.txt'si /_layouts/ yolunu b\u00fct\u00fcn otomatik eri\u015fime yasakl\u0131yor (D13, K-54)"
 }
