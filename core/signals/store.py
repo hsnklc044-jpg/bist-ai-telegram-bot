@@ -15,6 +15,7 @@ day: /tara and new signals are refused. Virtual only: no order, no broker. Rule 
 
 from __future__ import annotations
 
+import math
 import sqlite3
 from dataclasses import dataclass
 from datetime import date
@@ -32,7 +33,9 @@ logger = get_logger(__name__)
 CAPITAL = 100_000.0
 SIZE = 10_000.0
 BREAKER = 0.06
+RISK = 0.01  # K-67: a stop may cost at most 1% of the cash box
 OPEN_STATES = ("bekliyor", "acik")
+PENDING = "onay_bekliyor"
 DISCLAIMER = "Sanal kayıttır; emir oluşturulmaz. Kural çıktısıdır, öneri değildir."
 
 SCHEMA = """
@@ -43,9 +46,12 @@ CREATE TABLE IF NOT EXISTS signals (
     signal_close REAL NOT NULL,
     proba REAL,
     source TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'bekliyor',   -- bekliyor, acik, hedef, stop, sure, dolmadi
+    status TEXT NOT NULL DEFAULT 'bekliyor',   -- onay_bekliyor, bekliyor, acik, hedef, stop, sure, dolmadi,
+                                               -- reddedildi, zaman_asimi, iptal
     entry_date TEXT, entry_price REAL, stop REAL, target REAL,
     exit_date TEXT, exit_price REAL, r REAL,
+    qty INTEGER,                      -- K-67: lots (NULL: the fixed SIZE of K-60)
+    peak REAL,                        -- K-67: highest price since the entry (the trailing stop's anchor)
     UNIQUE (created, symbol)
 );
 CREATE TABLE IF NOT EXISTS breaker (
@@ -65,6 +71,10 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)
+    have = {r["name"] for r in conn.execute("PRAGMA table_info(signals)")}
+    for column, kind in (("qty", "INTEGER"), ("peak", "REAL")):  # books written before K-67
+        if column not in have:
+            conn.execute(f"ALTER TABLE signals ADD COLUMN {column} {kind}")
     return conn
 
 
@@ -82,6 +92,9 @@ class Signal:
     exit_price: float | None
     r: float | None
     proba: float | None
+    qty: int | None = None
+    peak: float | None = None
+    signal_close: float | None = None
 
     @classmethod
     def of(cls, row: sqlite3.Row) -> Signal:
@@ -90,7 +103,13 @@ class Signal:
 
         return cls(row["id"], d(row["created"]), row["symbol"], row["status"], d(row["entry_date"]),
                    row["entry_price"], row["stop"], row["target"], d(row["exit_date"]), row["exit_price"], row["r"],
-                   row["proba"])
+                   row["proba"], row["qty"], row["peak"], row["signal_close"])
+
+    @property
+    def notional(self) -> float:
+        """The money in the position: lots × entry (K-67), or the fixed SIZE (K-60)."""
+
+        return self.qty * self.entry_price if self.qty and self.entry_price else SIZE
 
 
 def signals(conn: sqlite3.Connection, states=None) -> list[Signal]:
@@ -105,7 +124,7 @@ def blocked(conn: sqlite3.Connection, day: date) -> bool:
 
 
 def add(conn: sqlite3.Connection, day: date, symbol: str, close: float, proba: float | None = None,
-        source: str = "tara-ml") -> int | None:
+        source: str = "tara-ml", qty: int | None = None, status: str = "bekliyor") -> int | None:
     """Record a signal of `day`; None when one exists for the stock that day. Refused while the
     breaker holds."""
 
@@ -116,9 +135,52 @@ def add(conn: sqlite3.Connection, day: date, symbol: str, close: float, proba: f
     if blocked(conn, day):
         raise BreakerTripped(f"şalter açık: {day:%d.%m.%Y} için yeni sinyal alınmadı")
     with conn:
-        cur = conn.execute("INSERT OR IGNORE INTO signals (created, symbol, signal_close, proba, source) "
-                           "VALUES (?, ?, ?, ?, ?)", (day.isoformat(), symbol, close, proba, source))
+        cur = conn.execute("INSERT OR IGNORE INTO signals (created, symbol, signal_close, proba, source, qty, status) "
+                           "VALUES (?, ?, ?, ?, ?, ?, ?)", (day.isoformat(), symbol, close, proba, source, qty, status))
     return cur.lastrowid if cur.rowcount else None
+
+
+def cash(conn: sqlite3.Connection) -> tuple[float, float]:
+    """(realized cash box, free cash): CAPITAL + closed results; minus the open positions' cost."""
+
+    every = signals(conn)
+    box = CAPITAL + sum(s.notional * s.r for s in every if s.r is not None and s.exit_date is not None)
+    used = sum(s.notional if s.entry_price else (s.qty or 0) * (s.signal_close or 0) or SIZE
+               for s in every if s.status in OPEN_STATES)
+    return box, box - used
+
+
+def size_position(box: float, free: float, price: float, risk: float = RISK, stop: float = STOP) -> int:
+    """K-67: the lots whose stop costs `risk` of the box, at most what the free cash buys."""
+
+    if not price > 0:
+        return 0
+    lots = math.floor(box * risk / (price * stop))
+    return max(0, min(lots, math.floor(max(free, 0.0) / price)))
+
+
+def decide(conn: sqlite3.Connection, signal_id: int, enter: bool, today: date) -> str:
+    """A button on a /tara ai card: enter (the next session's open) or reject. Returns the outcome."""
+
+    from core.signals import panic
+
+    row = conn.execute("SELECT * FROM signals WHERE id = ?", (signal_id,)).fetchone()
+    if row is None:
+        return "yok"
+    s = Signal.of(row)
+    if s.status != PENDING:
+        return f"zaten:{s.status}"
+    if not enter:
+        new = "reddedildi"
+    elif panic.active() or blocked(conn, today):
+        return "kilitli"
+    elif s.created != today:
+        new = "zaman_asimi"  # the card's analysis is old and its entry open may have passed
+    else:
+        new = "bekliyor"
+    with conn:
+        conn.execute("UPDATE signals SET status = ? WHERE id = ?", (new, signal_id))
+    return new
 
 
 def _days(index: pd.Index) -> pd.DatetimeIndex:
@@ -146,21 +208,28 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     entry_day = after_days[0].date().isoformat()
     if not entry > 0 or (not before.empty and entry / float(before["close"].iloc[-1]) - 1 >= LIMIT_MOVE):
         return {"status": "dolmadi", "entry_date": entry_day, "r": None}
-    stop, target = entry * (1 - STOP), entry * (1 + TARGET)
-    out = {"status": "acik", "entry_date": entry_day, "entry_price": entry, "stop": stop, "target": target}
+    first_stop, target = entry * (1 - STOP), entry * (1 + TARGET)
     sessions = after_days.unique()
     window = after[after_days <= sessions[min(HORIZON, len(sessions)) - 1]]
     window_days = _days(window.index)
     lows, highs, opens = (window[k].to_numpy(dtype=float) for k in ("low", "high", "open"))
-    hit = np.flatnonzero((lows <= stop) | (highs >= target))
+    # K-67 trailing stop: STOP below the highest price seen BEFORE each candle (a candle's own high
+    # cannot lift its own stop: the order inside a candle is unknown); it only moves up
+    peak_before = np.maximum.accumulate(np.r_[entry, highs[:-1]])
+    trail = np.maximum(first_stop, peak_before * (1 - STOP))
+    peak = float(max(entry, highs.max()))
+    out = {"status": "acik", "entry_date": entry_day, "entry_price": entry, "target": target, "peak": peak,
+           "stop": max(first_stop, peak * (1 - STOP))}
+    hit = np.flatnonzero((lows <= trail) | (highs >= target))
     if len(hit):
         i = hit[0]
-        if lows[i] <= stop:  # both in one candle counts as the stop
-            status, price = "stop", min(stop, opens[i])
+        if lows[i] <= trail[i]:  # both in one candle counts as the stop
+            status, price = "stop", min(trail[i], opens[i])
         else:
             status, price = "hedef", max(target, opens[i])
         return out | {"status": status, "exit_date": window_days[i].date().isoformat(), "exit_price": price,
-                      "r": price / entry - 1 - COST}
+                      "r": price / entry - 1 - COST, "stop": float(trail[i]),
+                      "peak": float(max(entry, highs[: i + 1].max()))}
     if expire and len(sessions) >= HORIZON:
         price = float(window["close"].iloc[-1])
         return out | {"status": "sure", "exit_date": window_days[-1].date().isoformat(), "exit_price": price,
@@ -182,7 +251,8 @@ def update(conn: sqlite3.Connection, bars, expire: bool = True) -> list[Signal]:
         except Exception as exc:  # noqa: BLE001 - one stock's bad data must not stop the others
             logger.warning("Signal follow failed | %s | %s", s.symbol, exc)
             continue
-        if not state or (state["status"] == s.status and state.get("exit_date") is None and s.entry_price):
+        if not state or (state["status"] == s.status and state.get("exit_date") is None and s.entry_price
+                         and state.get("peak") == s.peak):
             continue
         cols = ", ".join(f"{k} = ?" for k in state)
         with conn:
@@ -204,14 +274,14 @@ def equity(conn: sqlite3.Connection, bars, days) -> pd.Series:
             if s.entry_price is None or s.entry_date is None or pd.Timestamp(s.entry_date) > day:
                 continue
             if s.exit_date is not None and pd.Timestamp(s.exit_date) <= day:
-                value += SIZE * (s.r or 0.0)
+                value += s.notional * (s.r or 0.0)
                 continue
             if s.symbol not in closes:
                 df = bars(s.symbol)
                 closes[s.symbol] = df["close"] if df is not None and not df.empty else pd.Series(dtype=float)
             seen = closes[s.symbol][closes[s.symbol].index <= day]
             if not seen.empty:
-                value += SIZE * (float(seen.iloc[-1]) / s.entry_price - 1)
+                value += s.notional * (float(seen.iloc[-1]) / s.entry_price - 1)
         out[day] = value
     return pd.Series(out, dtype=float)
 
@@ -221,8 +291,8 @@ def realized(conn: sqlite3.Connection, day: date) -> float:
     at the start of that day (CAPITAL + everything closed before it)."""
 
     closed = [s for s in signals(conn) if s.exit_date is not None and s.r is not None]
-    start = CAPITAL + SIZE * sum(s.r for s in closed if s.exit_date < day)
-    today_tl = SIZE * sum(s.r for s in closed if s.exit_date == day)
+    start = CAPITAL + sum(s.notional * s.r for s in closed if s.exit_date < day)
+    today_tl = sum(s.notional * s.r for s in closed if s.exit_date == day)
     return today_tl / start if start > 0 else 0.0
 
 
@@ -275,7 +345,8 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     closed = [s for s in every if s.status in ("hedef", "stop", "sure")]
     open_ = [s for s in every if s.status in OPEN_STATES]
     hits = sum(s.status == "hedef" for s in closed)
-    realized_value = CAPITAL + SIZE * sum(s.r for s in closed if s.r is not None)
+    pending = sum(s.status == PENDING for s in every)
+    realized_value = CAPITAL + sum(s.notional * s.r for s in closed if s.r is not None)
 
     def pct(x):
         return f"%{x * 100:+.2f}".replace(".", ",")
@@ -286,25 +357,34 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     def px(x):
         return f"{x:.2f}".replace(".", ",")
 
-    rows, open_pnl = [], 0.0
+    rows, open_pnl, at_risk = [], 0.0, 0.0
     for s in open_:
         code = s.symbol.removesuffix(".IS")
+        lots = f"{s.qty} lot, " if s.qty else ""
         if s.status == "bekliyor" or not s.entry_price:
-            rows.append(f"  {code}: giriş bekliyor (sinyal {s.created:%d.%m})")
+            rows.append(f"  {code}: {lots}giriş ertesi açılışta (onay {s.created:%d.%m})")
             continue
         price = _last_price(bars, s.symbol)
         if price is None:
-            rows.append(f"  {code}: giriş {px(s.entry_price)}, son fiyat yok")
+            rows.append(f"  {code}: {lots}giriş {px(s.entry_price)}, son fiyat yok")
             continue
         r = price / s.entry_price - 1
-        open_pnl += SIZE * r
-        rows.append(f"  {code}: giriş {px(s.entry_price)} → son {px(price)} ({pct(r)}, {tl(SIZE * r)}); "
-                    f"stop {px(s.stop)}, hedef {px(s.target)}")
+        open_pnl += s.notional * r
+        to_stop = s.notional * (s.stop / s.entry_price - 1) if s.stop else None  # the result if the stop hits now
+        at_risk += max(0.0, -(to_stop or 0.0))
+        rows.append(f"  {code}: {lots}giriş {px(s.entry_price)} → son {px(price)} ({pct(r)}, {tl(s.notional * r)})")
+        rows.append(f"     iz süren stop {px(s.stop)} (zirve {px(s.peak or s.entry_price)} − %{STOP * 100:.0f}), "
+                    f"stopta sonuç {tl(to_stop or 0.0)}; kâr al {px(s.target)}")
     value = realized_value + open_pnl
     lines = [f"🧪 Sanal kasa: {tl(value)} ({pct(value / CAPITAL - 1)}); gerçekleşmiş {tl(realized_value)}, "
              f"açık pozisyonlar {tl(open_pnl)}",
              f"Açık sinyal {len(open_)}, kapanan {len(closed)}"
-             + (f", hedefe ulaşan %{hits / len(closed) * 100:.0f}" if closed else ""), *rows]
+             + (f", hedefe ulaşan %{hits / len(closed) * 100:.0f}" if closed else "")
+             + (f"; onay bekleyen kart {pending}" if pending else ""),
+             *rows]
+    if open_:
+        lines.append(f"Dinamik risk: bütün stoplar şimdi gelse kasanın %{at_risk / max(realized_value, 1) * 100:.2f}'i "
+                     f"({tl(at_risk)}) gider.".replace(".", ",", 1))
     from core.signals import panic
 
     if panic.active():

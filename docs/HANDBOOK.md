@@ -543,3 +543,16 @@ Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil
 - **Şalter (K-65):** O gün kapanan sanal işlemlerin net zararı defterin %6'sına ulaşırsa bot o gün için kendini kilitler: `/tara`, tarama abonelikleri ve yeni sinyal reddedilir. Ertesi gün kilit kendiliğinden kalkar. Açık pozisyonların kâğıt zararı sayılmaz.
 - Gerçek parayla emir yok, aracı kurum bağlantısı yok. Kural çıktısıdır, öneri değildir.
 
+### 14.1 v3.0: butonla onay, %1 risk lotu, iz süren stop (K-67)
+
+- **Kart:** `/tara ai` %60 üstü kartın altına [✅ İşleme Gir] ve [❌ İptal Et] düğmelerini koyar. Siz basmadan pozisyon açılmaz.
+  - İşleme Gir: ertesi seans açılışında sanal giriş yapılır, takip başlar.
+  - İptal Et: kart atılır.
+  - Düğme yalnız kartın günü geçerlidir.
+- **Lot:** lot = (kasa × %1) ÷ (fiyat × %2), boş nakitle sınırlı. Örnek: 105.430 TL kasa, 250 TL fiyat → 210 lot (~52.500 TL). Stop gelirse ~1.054 TL (%1) gider.
+  - Bu kural pozisyonu kasanın yaklaşık yarısı yapar.
+  - Boşluklu açılışta kayıp %1'i aşabilir.
+- **İz süren stop:** Stop, girişten bu yana görülen en yüksek fiyatın %2 altıdır ve yalnız yukarı gider. %4 kâr al aynen durur.
+  - `/durum` her pozisyonun zirvesini, güncel stopunu, stop gelirse sonucu ve toplam "dinamik risk"i gösterir.
+- **`/panik`:** Onay bekleyen kartları da iptal eder. Kilit varken düğmeler işlem açmaz.
+

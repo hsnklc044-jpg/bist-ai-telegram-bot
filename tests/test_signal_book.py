@@ -36,7 +36,9 @@ class BookTest(unittest.TestCase):
         self.assertEqual(S.signals(self.conn)[0].status, "bekliyor")  # no next session yet
         S.update(self.conn, lambda s: df.iloc[:2])
         s = S.signals(self.conn)[0]
-        self.assertEqual((s.status, s.entry_price, s.stop, s.target), ("acik", 100.0, 98.0, 104.0))
+        # K-67: the entry day's high 101 lifts the trailing stop to 101 × 0,98 = 98,98
+        self.assertEqual((s.status, s.entry_price, s.target, s.peak), ("acik", 100.0, 104.0, 101.0))
+        self.assertAlmostEqual(s.stop, 98.98)
         S.update(self.conn, lambda s: df)
         s = S.signals(self.conn)[0]
         self.assertEqual((s.status, s.exit_date), ("hedef", date(2026, 11, 4)))

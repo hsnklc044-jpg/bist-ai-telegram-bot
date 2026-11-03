@@ -113,9 +113,58 @@ async def _screen_ai(update: Update) -> None:
         messages = await asyncio.to_thread(ai.live, now_istanbul().date())
     except Exception:  # noqa: BLE001 - the user gets an answer, the log the details
         logger.exception("/tara ai failed")
-        messages = ["/tara ai şu an çalışmadı (veri ya da model sorunu); ayrıntı logs/quantbist.log içinde."]
-    for text in messages:
-        await update.effective_message.reply_text(text, parse_mode="HTML")
+        messages = [("/tara ai şu an çalışmadı (veri ya da model sorunu); ayrıntı logs/quantbist.log içinde.", None)]
+    for text, card in messages:
+        markup = None
+        if card is not None:  # K-67: nothing is entered until the user presses a button
+            from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+            markup = InlineKeyboardMarkup([[InlineKeyboardButton("✅ İşleme Gir", callback_data=f"sinyal:gir:{card}"),
+                                            InlineKeyboardButton("❌ İptal Et", callback_data=f"sinyal:iptal:{card}")]])
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=markup)
+
+
+SIGNAL_OUTCOME = {
+    "bekliyor": "✅ İşleme girildi: ertesi seans açılışında sanal giriş, takip başladı (/durum).",
+    "reddedildi": "❌ İptal edildi: sinyal çöpe atıldı.",
+    "zaman_asimi": "⌛ Kartın süresi doldu (yalnız kartın günü geçerli); sinyal açılmadı.",
+    "kilitli": "⛔ Panik kilidi ya da şalter açık: işlem açılmadı.",
+    "yok": "Bu kart defterde bulunamadı.",
+}
+
+
+def signal_decision(signal_id: int, enter: bool) -> str:
+    from core.market.calendar import now_istanbul
+    from core.signals import store
+
+    conn = store.connect()
+    try:
+        outcome = store.decide(conn, signal_id, enter, now_istanbul().date())
+    finally:
+        conn.close()
+    if outcome.startswith("zaten:"):
+        return f"Bu kart için karar zaten verilmiş ({outcome.split(':', 1)[1]})."
+    return SIGNAL_OUTCOME[outcome]
+
+
+async def signal_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """[✅ İşleme Gir] / [❌ İptal Et] under a /tara ai card; the same whitelist as the commands."""
+
+    query = update.callback_query
+    await query.answer()
+    user = query.from_user.id if query.from_user else None
+    if query.message.chat.id != _allowed_chat() or user != _allowed_user():
+        return
+    parts = (query.data or "").split(":")
+    if len(parts) != 3 or parts[1] not in ("gir", "iptal") or not parts[2].isdigit():
+        return
+    action, signal_id = parts[1], int(parts[2])
+    text = await asyncio.to_thread(signal_decision, signal_id, action == "gir")
+    try:  # the card shows the decision and loses its buttons
+        await query.edit_message_reply_markup(reply_markup=None)
+    except Exception:  # noqa: BLE001 - an old card may not be editable; the answer still goes out
+        logger.warning("Card buttons could not be removed")
+    await query.message.reply_text(text)
 
 
 async def screen_cmd(

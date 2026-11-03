@@ -41,7 +41,7 @@ Portföy ve risk:
 /yil – yıllık döküm: satış sonuçları, temettü, komisyon (/yil 2026 sanal)
 /alarm THYAO altında 240 – kapanış alarmı (akşam raporunda bir kez); %5 de olur (son kapanışa göre); /alarm liste, /alarm sil 1
 /tara rsi<30 ema20>ema50 – hisseleri kendi gösterge koşullarınla filtrele, geçmiş karnesiyle (/tara: kılavuz ve örnekler; /tara_alanlar, /tara_aciklama THYAO rsi<30, /tara_devam, /tara_kaydet AD koşullar, /tara_liste, /tara_sil AD). Filtredir, öneri değildir
-/tara ai – BIST 30'da teknik tetik (dip dönüşü) arar, her adayı AI katmanına sorar: %60 ve üstü onay mesajı (güven skoru, giriş bölgesi, %2 stop, %4 kâr al), altı 'AI Reddi'. Katman doğrulanmadıkça bilgi amaçlıdır
+/tara ai – BIST 30'da teknik tetik (dip dönüşü) arar, her adayı AI katmanına sorar: %60 ve üstü onay mesajı (güven skoru, giriş bölgesi, %2 stop, %4 kâr al), altı 'AI Reddi'. Onaylı kartın altındaki [✅ İşleme Gir] düğmesiyle sanal pozisyon açılır (lot %1 risk kuralıyla, stop iz süren), [❌ İptal Et] ile atılır
 /tara_sablonlar – hazır şablonlar (TradingView taramalarının teknik kısmı) ve karneleri; /tara AD ile çalışır
 /tara_abone AD – kayıtlı tarama ya da şablon her işlem günü 18:30 raporundan sonra çalışır, yalnız giren/çıkan hisseler gelir (/tara_abonelikler, /tara_abone_iptal AD)
 /tara_sanal AD – taramayı önceden yazılmış kurallarla ölçüm amaçlı sanal kitapta işletir (varsayılan kapalı; /performans'ta "sanal" etiketiyle; /paper'a dokunmaz)

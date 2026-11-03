@@ -33,6 +33,8 @@ class Candidate:
     bb: float
     macd_hist: float
     proba: float | None
+    lots: int = 0  # K-67: the lots whose 2% stop costs 1% of the cash box
+    box: float = 0.0
 
 
 def candidates(frames: dict[str, pd.DataFrame], model) -> list[Candidate]:
@@ -65,6 +67,17 @@ def _n(x: float, d: int = 2) -> str:
     return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def _sizing(c: Candidate) -> list[str]:
+    if not c.lots:
+        return ["<b>Lot:</b> hesaplanamadı (kasada boş nakit yok)"]
+    cost = c.lots * c.close
+    risk = c.lots * c.close * STOP
+    return [f"<b>Lot (%1 risk kalkanı):</b> {_n(c.lots, 0)} adet × ~{_n(c.close)} = ~{_n(cost, 0)} TL "
+            f"(kasanın %{_n(cost / c.box * 100, 0)}'i)",
+            f"<i>Stop gelirse ~{_n(risk, 0)} TL (kasa {_n(c.box, 0)} TL'nin %1'i); boşluklu açılışta kayıp daha "
+            "büyük olabilir. Bu kural tek hisseye kasanın büyük bir kısmını ayırır.</i>"]
+
+
 def message(c: Candidate, validated: bool) -> str:
     """HTML (Telegram parse_mode="HTML"): the rich approval, or the rejection line."""
 
@@ -75,40 +88,54 @@ def message(c: Candidate, validated: bool) -> str:
         return f"🤖 {code}: teknik tetik var, AI olasılığı hesaplanamadı (model ya da veri yok)."
     if c.proba < APPROVE:
         return f"🚫 <b>AI Reddi</b>: {code} – olasılık %{_n(c.proba * 100, 0)} (eşik %{_n(APPROVE * 100, 0)})"
-    state = "doğrulandı (K-64)" if validated else "⚠️ model örneklem dışı ölçümde geçmedi (K-64): bilgi amaçlı, deftere yazılmadı"
+    state = ("doğrulandı (K-64)" if validated else
+             "⚠️ model örneklem dışı ölçümde geçmedi (K-64): kendiliğinden işlem açılmaz, işleme girmek sizin kararınız")
     return "\n".join([
         f"✅ <b>AI onayı: {code}</b>",
         f"<b>Teknik durum:</b> RSI {_n(c.rsi, 1)} · Stoch %K {_n(c.stoch_k, 1)} · Bollinger %b {_n(c.bb)} · "
         "MACD histogramı sıfırın altında yükseliyor",
         f"<b>ML güven skoru:</b> %{_n(c.proba * 100, 0)}",
         f"<b>Giriş bölgesi:</b> ertesi seans açılışı (son kapanış {_n(c.close)} TL)",
-        f"<b>Zarar durdur (%2):</b> ~{_n(c.close * (1 - STOP))} TL · <b>Kâr al (%4):</b> ~{_n(c.close * (1 + TARGET))} TL",
-        "<i>Stop ve hedef gerçek girişe (açılış fiyatı) göre kesinleşir.</i>",
+        f"<b>Zarar durdur (%2, iz süren):</b> ~{_n(c.close * (1 - STOP))} TL · <b>Kâr al (%4):</b> "
+        f"~{_n(c.close * (1 + TARGET))} TL",
+        "<i>Stop ve hedef gerçek girişe (açılış fiyatı) göre kesinleşir; stop zirveyi %2 geriden izler.</i>",
+        *_sizing(c),
         f"<b>Doğrulama:</b> {state}",
         f"<i>{DISCLAIMER}</i>",
     ])
 
 
-def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None) -> list[str]:
-    """The messages of one /tara ai; approved signals go to the paper book only when validated."""
+def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None) -> list[tuple[str, int | None]]:
+    """(message, card id) of one /tara ai. An approved candidate is written to the paper book as
+    "onay_bekliyor" with its lots; it is entered only when the user presses [✅ İşleme Gir]
+    (K-67). The id is None for every other message (no buttons)."""
+
+    from core.ml.signal_filter import APPROVE
+    from core.signals import store
 
     found = candidates(frames, model)
     if not found:
-        return [f"🔎 /tara ai: bugün BIST 30'da teknik tetik (dip dönüşü) olan hisse yok. {DISCLAIMER}"]
-    out = [f"🔎 /tara ai: {len(found)} hissede teknik tetik; AI katmanına soruldu."]
-    for c in found:
-        out.append(message(c, validated))
-        if validated and c.proba is not None and c.proba >= 0.60:
-            try:
-                from core.signals import store
-
-                conn = store.connect(book)
+        return [(f"🔎 /tara ai: bugün BIST 30'da teknik tetik (dip dönüşü) olan hisse yok. {DISCLAIMER}", None)]
+    out: list[tuple[str, int | None]] = [(f"🔎 /tara ai: {len(found)} hissede teknik tetik; AI katmanına soruldu.",
+                                          None)]
+    conn = None
+    try:
+        for c in found:
+            card = None
+            if c.proba is not None and c.proba >= APPROVE:
                 try:
-                    store.add(conn, day, c.symbol, c.close, c.proba, source="tara-ai")
-                finally:
-                    conn.close()
-            except Exception as exc:  # noqa: BLE001 - the message still goes out
-                logger.warning("AI signal not recorded | %s | %s", c.symbol, exc)
+                    conn = conn or store.connect(book)
+                    box, free = store.cash(conn)
+                    c.box, c.lots = box, store.size_position(box, free, c.close)
+                    if c.lots:
+                        card = store.add(conn, day, c.symbol, c.close, c.proba, source="tara-ai", qty=c.lots,
+                                         status=store.PENDING)
+                except Exception as exc:  # noqa: BLE001 - the message still goes out, without buttons
+                    logger.warning("AI card not recorded | %s | %s", c.symbol, exc)
+            out.append((message(c, validated), card))
+    finally:
+        if conn is not None:
+            conn.close()
     return out
 
 

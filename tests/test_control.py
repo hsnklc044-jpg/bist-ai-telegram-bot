@@ -15,6 +15,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
+from core.ml.features import COST
 from core.screen import ai
 from core.signals import panic
 from core.signals import store as S
@@ -93,7 +94,10 @@ class CashBoxTest(unittest.TestCase):
         # entry 100 → last 102,50: +2,50% of 10.000 TL = +250 TL open; realized 100.000
         self.assertIn("Sanal kasa: 100.250 TL (%+0,25)", text)
         self.assertIn("açık pozisyonlar 250 TL", text)
-        self.assertIn("A: giriş 100,00 → son 102,50 (%+2,50, 250 TL); stop 98,00, hedef 104,00", text)
+        self.assertIn("A: giriş 100,00 → son 102,50 (%+2,50, 250 TL)", text)
+        # trailing stop: peak 101 (the entry day's high) − 2% = 98,98; at the stop −1,02% of 10.000 TL
+        self.assertIn("iz süren stop 98,98 (zirve 101,00 − %2), stopta sonuç -102 TL; kâr al 104,00", text)
+        self.assertIn("Dinamik risk", text)
 
 
 class AiTest(unittest.TestCase):
@@ -104,9 +108,9 @@ class AiTest(unittest.TestCase):
         text = ai.message(self.candidate(0.64), validated=False)
         self.assertIn("AI onayı: THYAO", text)
         self.assertIn("ML güven skoru:</b> %64", text)
-        self.assertIn("Zarar durdur (%2):</b> ~245,00 TL", text)
+        self.assertIn("Zarar durdur (%2, iz süren):</b> ~245,00 TL", text)
         self.assertIn("Kâr al (%4):</b> ~260,00 TL", text)
-        self.assertIn("deftere yazılmadı", text)
+        self.assertIn("işleme girmek sizin kararınız", text)
         self.assertIn("doğrulandı", ai.message(self.candidate(0.64), validated=True))
 
     def test_rejection_and_threshold(self):
@@ -127,14 +131,16 @@ class AiTest(unittest.TestCase):
                 tempfile.TemporaryDirectory() as tmp:
             book = Path(tmp) / "signals.db"
             out = ai.run(date(2026, 11, 3), {"A.IS": df}, Fixed(), validated=False, book=book)
-            self.assertIn("1 hissede teknik tetik", out[0])
-            self.assertIn("AI onayı: A", out[1])
-            self.assertFalse(book.exists())  # not validated: nothing recorded
-            ai.run(date(2026, 11, 3), {"A.IS": df}, Fixed(), validated=True, book=book)
+            self.assertIn("1 hissede teknik tetik", out[0][0])
+            self.assertIn("AI onayı: A", out[1][0])
+            self.assertIn("Lot (%1 risk kalkanı)", out[1][0])
             conn = S.connect(book)
-            self.assertEqual([s.symbol for s in S.signals(conn)], ["A.IS"])
+            (card,) = S.signals(conn)
             conn.close()
-        self.assertIn("teknik tetik (dip dönüşü) olan hisse yok", ai.run(date(2026, 11, 3), {}, None, False)[0])
+            self.assertEqual((out[1][1], card.status), (card.id, S.PENDING))  # waits for the button
+            self.assertEqual(card.qty, S.size_position(S.CAPITAL, S.CAPITAL, float(df["close"].iloc[-1])))
+            self.assertEqual(S.signals(S.connect(book), S.OPEN_STATES), [])  # not followed before the button
+        self.assertIn("teknik tetik (dip dönüşü) olan hisse yok", ai.run(date(2026, 11, 3), {}, None, False)[0][0])
 
     def test_bot_sends_html(self):
         from bot import reports
@@ -148,7 +154,7 @@ class AiTest(unittest.TestCase):
         update = fake_update([])
         update.effective_message.reply_text = reply_text
         with mock.patch("core.signals.store.locked", return_value=False), \
-                mock.patch("core.screen.ai.live", return_value=["<b>x</b>"]):
+                mock.patch("core.screen.ai.live", return_value=[("<b>x</b>", None)]):
             asyncio.run(reports.screen_cmd(update, SimpleNamespace(args=["ai"])))
         self.assertEqual(sent[-1], ("<b>x</b>", "HTML"))
 
@@ -181,7 +187,7 @@ class LiveModelTest(unittest.TestCase):
                     mock.patch("core.reports.daily.adjusted_bars", side_effect=lambda s: frames.get("R0.IS")), \
                     mock.patch.object(SF, "validated", return_value=False):
                 out = ai.live(date(2026, 11, 3))
-        self.assertTrue(out[0].startswith("🔎 /tara ai"))
+        self.assertTrue(out[0][0].startswith("🔎 /tara ai"))
 
     def test_weekly_refit_and_panic_since(self):
         from core.reports import daily
@@ -197,3 +203,134 @@ class LiveModelTest(unittest.TestCase):
             self.assertIsNone(panic.since(lock))
             panic.trigger(date(2026, 11, 3), lock=lock, book=Path(tmp) / "yok.db")
             self.assertIsNotNone(panic.since(lock))
+
+
+class ApprovalTest(unittest.TestCase):
+    """K-67: the buttons, the 1% risk lots and the trailing stop."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.book = Path(tmp.name) / "signals.db"
+        self.lock = Path(tmp.name) / "panic.lock"
+        patcher = mock.patch.object(panic, "PANIC_FILE", self.lock)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.conn = S.connect(self.book)
+        self.addCleanup(self.conn.close)
+
+    def card(self, day=date(2026, 11, 3), symbol="A.IS", qty=200):
+        return S.add(self.conn, day, symbol, 250.0, 0.7, source="tara-ai", qty=qty, status=S.PENDING)
+
+    def test_lots_by_hand(self):
+        # 1% of 105.430 TL = 1.054,30 TL; a 2% stop at 250 TL costs 5 TL a lot → 210 lots (52.500 TL)
+        self.assertEqual(S.size_position(105_430.0, 105_430.0, 250.0), 210)
+        self.assertEqual(S.size_position(105_430.0, 30_000.0, 250.0), 120)  # only what the free cash buys
+        self.assertEqual(S.size_position(100_000.0, 0.0, 250.0), 0)
+        self.assertEqual(S.size_position(100_000.0, 100_000.0, 0.0), 0)
+
+    def test_cash_counts_open_positions(self):
+        self.card(qty=100)
+        S.decide(self.conn, 1, True, date(2026, 11, 3))
+        box, free = S.cash(self.conn)
+        self.assertEqual((box, free), (S.CAPITAL, S.CAPITAL - 100 * 250.0))  # waiting entry: lots × card price
+
+    def test_enter_reject_expire_lock_and_once(self):
+        a, b, c, d = (self.card(symbol=s) for s in ("A.IS", "B.IS", "C.IS", "D.IS"))
+        today = date(2026, 11, 3)
+        self.assertEqual(S.decide(self.conn, a, True, today), "bekliyor")
+        self.assertEqual(S.decide(self.conn, a, False, today), "zaten:bekliyor")
+        self.assertEqual(S.decide(self.conn, b, False, today), "reddedildi")
+        self.assertEqual(S.decide(self.conn, c, True, date(2026, 11, 4)), "zaman_asimi")
+        panic.trigger(today, book=self.book)
+        self.assertEqual(S.decide(self.conn, d, True, today), "zaten:iptal")  # panic cancelled the waiting card
+        with self.assertRaises(S.BreakerTripped):  # no new card while locked
+            S.add(self.conn, today, "E.IS", 250.0, 0.7, qty=10, status=S.PENDING)
+        panic.release()
+        e = S.add(self.conn, today, "E.IS", 250.0, 0.7, qty=10, status=S.PENDING)
+        with mock.patch.object(panic, "active", return_value=True):
+            self.assertEqual(S.decide(self.conn, e, True, today), "kilitli")  # a button cannot enter while locked
+        self.assertEqual(S.decide(self.conn, 999, True, today), "yok")
+
+    def test_trailing_stop_by_hand(self):
+        sid = self.card(day=date(2026, 11, 2), qty=100)
+        S.decide(self.conn, sid, True, date(2026, 11, 2))
+        # entry 100 (03.11 open). The stop before each day: 98 (100 × 0,98), then 103 × 0,98 = 100,94,
+        # 103,5 × 0,98 = 101,43, 103,9 × 0,98 = 101,82; the target 104 is never touched. On 06.11 the low 101
+        # reaches 101,82: stop at 101,82, a +1,82% gain locked in (before the cost)
+        df = bars([(100, 100, 100, 100), (100, 103, 99.5, 102), (102, 103.5, 101.5, 103), (103, 103.9, 103.6, 103.8),
+                   (103.8, 103.9, 101, 101.5)])
+        S.update(self.conn, lambda s: df)
+        s = S.signals(self.conn)[0]
+        self.assertEqual(s.status, "stop")
+        self.assertAlmostEqual(s.exit_price, 103.9 * 0.98)
+        self.assertAlmostEqual(s.r, s.exit_price / 100 - 1 - COST)
+        self.assertGreater(s.r, 0)  # the trailing stop locked in a gain
+
+    def test_old_book_is_upgraded(self):
+        import sqlite3
+
+        old = Path(self.book.parent) / "old.db"
+        raw = sqlite3.connect(old)
+        raw.execute("CREATE TABLE signals (id INTEGER PRIMARY KEY AUTOINCREMENT, created TEXT NOT NULL, symbol TEXT "
+                    "NOT NULL, signal_close REAL NOT NULL, proba REAL, source TEXT NOT NULL, status TEXT NOT NULL "
+                    "DEFAULT 'bekliyor', entry_date TEXT, entry_price REAL, stop REAL, target REAL, exit_date TEXT, "
+                    "exit_price REAL, r REAL, UNIQUE (created, symbol))")
+        raw.execute("INSERT INTO signals (created, symbol, signal_close, source) VALUES ('2026-11-02', 'A.IS', 1, 'x')")
+        raw.commit()
+        raw.close()
+        conn = S.connect(old)
+        self.assertEqual(S.signals(conn)[0].qty, None)
+        self.assertEqual(S.signals(conn)[0].notional, S.SIZE)
+        conn.close()
+
+    def test_button_callback(self):
+        from bot import reports
+        from tests.test_screen_telegram import CHAT, fake_update
+
+        sid = self.card()
+        got, edits = [], []
+
+        def update_for(data, user=None):
+            u = fake_update(got, data=data, user=user)
+
+            async def edit_markup(**kw):
+                edits.append(kw)
+
+            u.callback_query.edit_message_reply_markup = edit_markup
+            return u
+
+        with mock.patch("bot.reports._allowed_chat", return_value=CHAT), \
+                mock.patch("core.signals.store.SIGNALS_DB", self.book), \
+                mock.patch("core.config.paths.SIGNALS_DB", self.book), \
+                mock.patch("core.market.calendar.now_istanbul",
+                           return_value=__import__("datetime").datetime(2026, 11, 3, 15, 0)):
+            asyncio.run(reports.signal_button(update_for(f"sinyal:gir:{sid}", user=999), SimpleNamespace()))
+            self.assertEqual([t for t, _ in got if t != "<answer>"], [])  # another user: nothing happens
+            asyncio.run(reports.signal_button(update_for(f"sinyal:gir:{sid}"), SimpleNamespace()))
+            asyncio.run(reports.signal_button(update_for(f"sinyal:iptal:{sid}"), SimpleNamespace()))
+            asyncio.run(reports.signal_button(update_for("sinyal:bozuk:x"), SimpleNamespace()))
+        texts = [t for t, _ in got if t != "<answer>"]
+        self.assertIn("İşleme girildi", texts[0])
+        self.assertIn("zaten verilmiş", texts[1])
+        self.assertEqual(len(texts), 2)
+        self.assertEqual(edits[0], {"reply_markup": None})  # the card lost its buttons
+
+    def test_card_has_buttons(self):
+        from bot import reports
+        from tests.test_screen_telegram import fake_update
+
+        sent = []
+
+        async def reply_text(text, **kw):
+            sent.append((text, kw.get("reply_markup")))
+
+        update = fake_update([])
+        update.effective_message.reply_text = reply_text
+        with mock.patch("core.signals.store.locked", return_value=False), \
+                mock.patch("core.screen.ai.live", return_value=[("kart", 7), ("ret", None)]):
+            asyncio.run(reports.screen_cmd(update, SimpleNamespace(args=["ai"])))
+        buttons = [b.callback_data for row in sent[1][1].inline_keyboard for b in row]
+        self.assertEqual(buttons, ["sinyal:gir:7", "sinyal:iptal:7"])
+        self.assertIsNone(sent[2][1])
+

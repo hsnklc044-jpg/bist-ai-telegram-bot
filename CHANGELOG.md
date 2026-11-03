@@ -2,6 +2,25 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.29 – 03.11.2026 (v3.0: butonla onay, %1 risk lotu, iz süren stop)
+- **Manuel onay odası (K-67):** `/tara ai`'nin %60 üstü kartlarının altında [✅ İşleme Gir] ve [❌ İptal Et] düğmeleri var.
+  - Basılana kadar pozisyon açılmaz; kart defterde "onay bekliyor" olarak durur.
+  - İşleme Gir: ertesi seans açılışında sanal giriş, takip başlar; düğmeler kalkar ve sonuç yazılır.
+  - İptal Et: kart atılır. Ertesi gün basılırsa "süresi doldu".
+  - Düğmeler kullanıcı kimliği listesinden geçer; panik ya da şalter açıkken işlem açmaz.
+- **%1 risk kalkanı:** Kartta lot sayısı ve toplam maliyet var. Lot = kasa × %1 ÷ (fiyat × %2), boş nakitle sınırlı. Kart, pozisyonun kasadaki payını ve boşluklu açılış riskini yazıyor.
+- **İz süren stop:** Stop, zirvenin %2 altını yalnız yukarı yönde izliyor; bir mumun kendi yükseği o mumun stopunu yükseltmiyor.
+  - `/durum` zirveyi, güncel stopu, stop gelirse sonucu ve toplam dinamik riski gösteriyor.
+- **Panik:** Onay bekleyen kartları da iptal ediyor.
+- Eski defter dosyaları yeni sütunlarla (lot, zirve) otomatik yükseltiliyor.
+- Doğrulama: `test_control` (ApprovalTest, 7 yeni test):
+  - elle lot: 105.430 TL, 250 TL → 210 lot;
+  - nakit sınırı;
+  - giriş, iptal, süre dolumu, kilit ve tek seferlik karar;
+  - iz süren stop elle (zirve 103,9 → stop 101,82, kâr kilitlendi);
+  - eski defter yükseltmesi;
+  - başka kullanıcının düğmesi yok sayılıyor.
+
 ## v0.99.28 – 03.11.2026 (çift yönlü yönetim)
 - **Kullanıcı kimliği listesi:** Komutlar ve `/tara` düğmeleri yalnız `.env`'deki CHAT_ID sohbetinden ve USER_ID kullanıcısından gelirse işleniyor. USER_ID boşsa CHAT_ID kullanılıyor; özel sohbette ikisi aynı.
 - **`/panik`:** Açık ve bekleyen sanal sinyalleri iptal ediyor ve sistemi kilitliyor: saatlik takip, günlük sinyal adımı, tarama abonelikleri, yeni sinyal ve `/tara` duruyor. Kilit dosyada, yeniden başlatmada sürüyor. **`/devam`** kilidi kaldırıyor.

@@ -33,6 +33,7 @@ from bot.reports import (
     screen_subscriptions,
     screen_templates,
     screen_virtual,
+    signal_button,
     status,
     stress_test,
     subscribe_screen,
@@ -209,5 +210,6 @@ def register_handlers(
 
     # the /tara buttons; the chat is checked inside (a callback has no message filter)
     app.add_handler(CallbackQueryHandler(screen_button, pattern=r"^tara:"))
+    app.add_handler(CallbackQueryHandler(signal_button, pattern=r"^sinyal:"))  # K-67 approval buttons
 
     app.add_error_handler(on_error)

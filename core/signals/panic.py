@@ -2,7 +2,7 @@
 QuantBIST
 /panik and /devam (03.11.2026 request): the emergency stop of the paper signal system.
 
-/panik cancels every waiting or open paper signal (status "iptal", no result is counted) and
+/panik cancels every paper signal waiting for a button, waiting for its entry or open (status "iptal", no result is counted) and
 writes data/panic.lock. While the lock exists, nothing runs on its own and nothing new starts:
 no hourly tracking, no daily signal step, no screen subscription, no new signal, no /tara. The bot
 itself keeps answering /durum, /panik and /devam, so the stop can be lifted from the phone; the
@@ -50,7 +50,7 @@ def trigger(day: date, lock: Path | str | None = None, book: Path | str | None =
     try:
         with conn:
             cur = conn.execute("UPDATE signals SET status = 'iptal', exit_date = ?, r = NULL "
-                               "WHERE status IN ('bekliyor', 'acik')", (day.isoformat(),))
+                               "WHERE status IN ('onay_bekliyor', 'bekliyor', 'acik')", (day.isoformat(),))
         logger.warning("PANIC: system locked, %d paper signals cancelled", cur.rowcount)
         return cur.rowcount
     finally:

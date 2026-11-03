@@ -4,6 +4,24 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-67. v3.0: butonla manuel onay, %1 risk lot hesabı, iz süren stop (03.11.2026).**
+- **Manuel onay:**
+  - `/tara ai`'nin %60 üstü kartları "onay bekliyor" olarak deftere yazılır ve altına [✅ İşleme Gir] [❌ İptal Et] düğmeleri eklenir.
+  - İşleme Gir: sinyal "bekliyor" olur, ertesi seans açılışında girilir ve takip başlar. İptal Et: "reddedildi".
+  - Düğme yalnız kartın günü geçerlidir; ertesi gün basılırsa "zaman aşımı" olur, çünkü analiz eskimiştir ve giriş açılışı geçmiş olabilir.
+  - Panik kilidi ya da şalter açıkken düğme işlem açmaz. Düğmeler komutlarla aynı kullanıcı kimliği listesinden geçer.
+- **K-64 ile ilişkisi:** Model doğrulanmadığı için sistem kendiliğinden işlem açmaz. Düğmeyle giren pozisyon kullanıcının kendi sanal kararıdır. Kartta "model doğrulanmadı" uyarısı kalır.
+- **Lot hesabı:** lot = taban(kasa × %1 ÷ (fiyat × %2)), eldeki nakitle sınırlı.
+  - Kasa = gerçekleşmiş sanal kasa. Nakit = kasa − açık pozisyonların maliyeti.
+  - Bu kural pozisyonu kasanın %50'si yapar; kart bunu ve boşluklu açılışta kaybın %1'i aşabileceğini yazar.
+  - Lot kart anındaki son kapanışla hesaplanır; giriş ertesi açılış olduğundan maliyet biraz değişir.
+- **İz süren stop:**
+  - Stop, girişten bu yana görülen en yüksek fiyatın %2 altıdır; başlangıçta giriş × 0,98, yalnız yukarı gider.
+  - Aynı mumun yükseği o mumun stopunu yükseltmez; mum içi sıra bilinmez.
+  - %4 kâr al aynen kalır. /durum zirveyi ve güncel stopu gösterir.
+  - Bu kural, ML etiketlerinin ölçtüğü sabit %2 stoptan farklıdır. Defter artık ölçülen kuralı değil, kullanıcının işlem kuralını izler.
+- **Panik:** "onay bekliyor" kartları da iptal eder; düğmeler kilitliyken işlem açmaz.
+
 **K-66. Çift yönlü yönetim: kullanıcı kimliği listesi, /panik ve /devam, /tara ai, /durum kasası (03.11.2026).**
 - **Kullanıcı kimliği listesi:** Komutlar ve düğmeler yalnız CHAT_ID sohbetinden ve USER_ID kullanıcısından gelirse işlenir. USER_ID boşsa CHAT_ID kullanılır; özel sohbette ikisi aynıdır.
 - **/panik:**

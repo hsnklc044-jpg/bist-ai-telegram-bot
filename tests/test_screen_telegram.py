@@ -245,7 +245,8 @@ class BotTest(Base):
         app = SimpleNamespace(add_handler=added.append, add_error_handler=lambda h: None)
         register_handlers(app, CHAT)
         callbacks = [h for h in added if isinstance(h, CallbackQueryHandler)]
-        self.assertEqual(len(callbacks), 1)
+        # the /tara buttons and the K-67 approval buttons; each checks the chat and the user inside
+        self.assertEqual(sorted(h.pattern.pattern for h in callbacks), ["^sinyal:", "^tara:"])
 
 
 if __name__ == "__main__":
