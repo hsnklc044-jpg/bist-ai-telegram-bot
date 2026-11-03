@@ -164,6 +164,21 @@ def create_backup(
     return Backup(path=path, files=sorted(manifest["files"]))
 
 
+def catch_up(today: date, target: Path | None = None, create=None):
+    """The bot's evening step (v0.99.33): on a session day without today's backup, take it.
+    The 18:30 report normally has; 02.11.2026 had none because the report did not run."""
+
+    from core.market.calendar import is_session_day
+
+    if not is_session_day(today):
+        return None
+    target = Path(target or backup_dir())
+    if (target / f"{PREFIX}{today:%Y-%m-%d}.zip").exists():
+        return None
+    create = create_backup if create is None else create
+    return create(target=target)
+
+
 def _daily_backups(target: Path) -> list[Path]:
     """Dated daily backups only (not the safety copies made before a restore)."""
 

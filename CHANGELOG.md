@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.33 – 03.11.2026 (yedeği rapor almazsa bot alıyor)
+- 02.11'de yedek yoktu, çünkü o gün 18:30 raporu çalışmamıştı. Artık sürekli açık olan bot her seans günü 21:00'de bakıyor: günün yedeği (`quantbist_YYYY-AA-GG.zip`) yoksa kendisi alıyor. Rapor yedeği zaten aldıysa hiçbir şey yapmıyor. Tatil günlerinde de bir şey yapmıyor.
+- Hata botu durdurmuyor, log'a yazılıyor. Eksik gün `/durum`'un Yedek SLO'sunda görünmeye devam ediyor.
+- Doğrulama: `test_scheduler` (BackupCatchUpTest): eksik yedek alınıyor; var olana dokunulmuyor; 29.10 (bayram) atlanıyor; iş kaydediliyor ve hatada sessiz kalıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.32 – 03.11.2026 (kuru bot saatlik tazeliyor)
 - Kur artık yalnız 18:30 raporuna bağlı değil. Sürekli açık olan bot saatte bir, önbellekte eksik olan son iki haftanın TCMB bültenlerini soruyor (en çok 10 istek, 30 sn). Önbellek tamsa hiç istek atmıyor. Rapor bir akşam kuru alamazsa bir saat içinde telafi ediliyor (03.11: kur 23.10'da kalmıştı).
 - Günün bülteni 16:00'dan önce sorulmuyor. TCMB bülteni ~15:30'da yayımlıyor; daha önce gelen 404 "o gün bülten yok" diye kalıcı kaydedilirdi.

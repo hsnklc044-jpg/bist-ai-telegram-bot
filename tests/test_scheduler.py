@@ -198,3 +198,46 @@ class MacroRefreshTest(unittest.TestCase):
         with mock.patch("core.market.macro.refresh_usd", return_value=2) as refresh:
             asyncio.run(scheduler.macro_refresh_job(SimpleNamespace()))
         refresh.assert_called_once()
+
+
+class BackupCatchUpTest(unittest.TestCase):
+    """v0.99.33: 02.11.2026 had no backup (the report did not run); the always-on bot fills the gap at 21:00."""
+
+    def _run(self, day, have_today):
+        import tempfile
+        from datetime import date  # noqa: F401
+        from pathlib import Path
+
+        from core import backup
+
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp)
+            if have_today:
+                (target / f"quantbist_{day:%Y-%m-%d}.zip").write_bytes(b"x")
+            made = []
+            result = backup.catch_up(day, target=target, create=lambda **kw: made.append(kw) or "yeni")
+            return result, made
+
+    def test_missing_backup_is_taken(self):
+        from datetime import date
+
+        result, made = self._run(date(2026, 11, 2), have_today=False)
+        self.assertEqual(result, "yeni")
+        self.assertEqual(len(made), 1)
+
+    def test_existing_backup_is_left_alone(self):
+        from datetime import date
+
+        self.assertEqual(self._run(date(2026, 11, 3), have_today=True), (None, []))
+
+    def test_no_session_no_backup(self):
+        from datetime import date
+
+        self.assertEqual(self._run(date(2026, 10, 29), have_today=False), (None, []))  # Cumhuriyet Bayramı
+
+    def test_job_registered_and_quiet_on_error(self):
+        app = _app()
+        self.assertTrue(scheduler.schedule_backup_catch_up(app))
+        self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.BACKUP_JOB)), 1)
+        with mock.patch("core.backup.catch_up", side_effect=OSError("disk")):
+            asyncio.run(scheduler.backup_catch_up_job(SimpleNamespace()))  # logged, never raised

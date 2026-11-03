@@ -221,6 +221,32 @@ def schedule_signal_tracking(app: Application, chat_id: int) -> bool:
     return True
 
 
+BACKUP_JOB = "backup_catch_up"
+BACKUP_AT = time(21, 0, tzinfo=ISTANBUL)  # after the 18:30 report and the 20:00 watch
+
+
+async def backup_catch_up_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """v0.99.33: a session day never ends without a backup, even when the report did not run."""
+
+    from core import backup
+    from core.market.calendar import now_istanbul
+
+    try:
+        made = await asyncio.to_thread(backup.catch_up, now_istanbul().date())
+        if made:
+            logger.info("Backup caught up by the bot | %s", made.path.name)
+    except Exception:  # noqa: BLE001 - the bot never stops on this; /durum shows the missing day
+        logger.exception("Backup catch-up failed")
+
+
+def schedule_backup_catch_up(app: Application) -> bool:
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_daily(backup_catch_up_job, time=BACKUP_AT, days=WEEKDAYS, name=BACKUP_JOB,
+                            job_kwargs=LATE_START)
+    return True
+
+
 MACRO_JOB = "macro_refresh"
 
 

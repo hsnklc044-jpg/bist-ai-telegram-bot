@@ -9,6 +9,7 @@ from telegram.ext import Application, ApplicationBuilder
 
 from bot.handlers import register_handlers
 from bot.scheduler import (
+    schedule_backup_catch_up,
     schedule_daily_report,
     schedule_heartbeat,
     schedule_macro_refresh,
@@ -70,6 +71,7 @@ def build_app() -> Application:
     schedule_report_watch(app, config.chat_id)
     schedule_heartbeat(app)
     schedule_macro_refresh(app)
+    schedule_backup_catch_up(app)
     schedule_signal_tracking(app, config.chat_id)
 
     return app
