@@ -54,6 +54,7 @@ from core.config.paths import (
     SCREEN_VIRTUAL_FILE,
     SCREENS_FILE,
     SIGNAL_LOG_FILE,
+    SIGNALS_DB,
     WATCHLIST_FILE,
 )
 from core.infrastructure import settings as _settings  # noqa: F401 - loads .env (BACKUP_DIR)
@@ -74,6 +75,7 @@ PERSONAL_FILES = (
     SCREEN_VIRTUAL_FILE,
     FUNDAMENTALS_FILE,
     RISK_LIMITS_FILE,
+    SIGNALS_DB,  # SQLite; written only by the daily run, briefly
 )
 MANIFEST = "manifest.json"
 PREFIX = "quantbist_"

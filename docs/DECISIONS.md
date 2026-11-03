@@ -4,6 +4,14 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-60. Sanal sinyal defteri SQLite'ta; %6 şalter (03.11.2026).**
+- **Dosya:** `data/signals.db`. Kişisel dosya; depoya girmez (`data/*.db`), günlük yedeğe girer.
+- **Kurallar:** Takip, ML etiketleriyle aynı kurallarla yapılıyor: ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans, aynı seansta ikisi birden stop sayılır, tavan açılışta giriş yok, %0,15 maliyet. Ölçülen ile izlenen aynı şey olsun diye.
+- **Sanal bakiye:** 100.000 TL; her sinyal 10.000 TL.
+- **Fiyat:** Takip seans sonu kesin mumlarla yapılıyor. Yahoo'nun gün içi fiyatı 15 dakika gecikmeli ve tavan/taban sırasını bilmiyor.
+- **Şalter:** Defterin değeri bir seansta %6 veya daha fazla düşerse, o seansın kapanışında üretilen sinyaller kaydedilmez. Ertesi kapanışta kayıt yeniden açılır.
+- **Sınır:** Gerçek parayla emir ve aracı kurum bağlantısı yok.
+
 **K-59. BIST 30 tarama robotu hedefi; ML filtresi yalnız örneklem dışı ölçümle açılır (03.11.2026).**
 - **Talep:** Kullanıcı yeni mimariyi verdi: BIST 30, genişletilmiş göstergeler, RandomForest filtresi (%60 eşik), SQLite sinyal kaydı (%2 stop, %4 hedef), günlük %6 sanal zarar şalteri, `/tara` ve `/durum` bağlantısı. Bütün adımlara onay verdi. Sınırlar aynı: gerçek parayla emir yok, aracı kurum bağlantısı yok.
 - **Göstergeler:** pandas-ta yerine mevcut `ta` kütüphanesi kullanıldı (pandas-ta numpy 2 ile açılmıyor). Eksik olan CMF eklendi; diğerleri zaten vardı.

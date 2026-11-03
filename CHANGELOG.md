@@ -2,6 +2,20 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.14 – 03.11.2026 (BIST 30 hedefi, adım 3: sanal sinyal defteri)
+- **Yeni: `core/signals/store.py`.** Sinyaller SQLite'a (`data/signals.db`) yazılıyor ve fiyatlarla izleniyor.
+  - Durumlar: bekliyor → açık → hedef / stop / süre doldu; tavan açılışta "dolmadı".
+  - Kurallar ML etiketleriyle aynı (K-60). Sanal bakiye 100.000 TL, sinyal başına 10.000 TL.
+- **Şalter:** Defter bir seansta %6 veya daha fazla düşerse o kapanışın sinyalleri kaydedilmiyor.
+- **Defter değeri:** Her kapanışta kapanan sonuçlar ve açık pozisyonların o günkü değeri.
+- Defter dosyası kişisel: depoya girmiyor, günlük yedeğe giriyor.
+- Doğrulama: `test_signal_book` (6 test, elle hesaplanmış):
+  - hedef;
+  - boşlukla stop;
+  - süre dolumu;
+  - tavan açılış;
+  - iki pozisyonun %30 düşüşünde defterin tam −%6 düşmesi ve şalterin o günü kapatıp ertesi günü açması.
+
 ## v0.99.13 – 03.11.2026 (BIST 30 hedefi, adım 2: ML filtresi)
 - **Yeni: `core/ml/`.** RandomForest filtresi, şu kuralın hedefe önce ulaşıp ulaşmayacağını tahmin ediyor: "ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans".
   - Öznitelikler: EMA 50/200 mesafeleri, hacim anomalisi (önceki 20 seansa göre z-puanı), RSI, ADX, ATR, Bollinger %b, CMF, Stochastic, OBV eğimi, oynaklık, 5 ve 20 günlük getiri.
