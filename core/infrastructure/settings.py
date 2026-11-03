@@ -51,6 +51,7 @@ class Settings:
     bot_token: str
     chat_id: int
     debug: bool = False
+    user_id: int = 0  # USER_ID: only this Telegram user is answered (0: the CHAT_ID, a private chat's user)
     app_name: str = "QuantBIST"
     version: str = __version__
 
@@ -60,6 +61,7 @@ def load_settings() -> Settings:
         bot_token=os.getenv("BOT_TOKEN", "").strip(),
         chat_id=_int_env("CHAT_ID"),
         debug=_bool_env("QUANTBIST_DEBUG"),
+        user_id=_int_env("USER_ID"),
     )
 
 

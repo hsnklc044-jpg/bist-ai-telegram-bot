@@ -100,6 +100,24 @@ LOCKED_TEXT = ("⛔ Şalter açık: bugün kapanan sanal işlemlerin zararı %6 
                "kilitledi; tarama yarın yeniden açılır (DECISIONS K-65). /durum ile defteri görün.")
 
 
+PANIC_TEXT = "⛔ Panik kilidi açık: tarama durduruldu. Kaldırmak için /devam."
+
+
+async def _screen_ai(update: Update) -> None:
+    from core.market.calendar import now_istanbul
+    from core.screen import ai
+
+    await reply(update, "⏳ BIST 30 taranıyor, adaylar AI katmanına soruluyor (ilk seferde model eğitilir, "
+                        "birkaç dakika sürebilir)...")
+    try:
+        messages = await asyncio.to_thread(ai.live, now_istanbul().date())
+    except Exception:  # noqa: BLE001 - the user gets an answer, the log the details
+        logger.exception("/tara ai failed")
+        messages = ["/tara ai şu an çalışmadı (veri ya da model sorunu); ayrıntı logs/quantbist.log içinde."]
+    for text in messages:
+        await update.effective_message.reply_text(text, parse_mode="HTML")
+
+
 async def screen_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
@@ -111,9 +129,14 @@ async def screen_cmd(
     from core.signals import store
 
     if await asyncio.to_thread(store.locked, now_istanbul().date()):
-        await reply(update, LOCKED_TEXT)
+        from core.signals import panic
+
+        await reply(update, PANIC_TEXT if panic.active() else LOCKED_TEXT)
         return
     words = list(context.args or [])
+    if [w.lower() for w in words] == ["ai"]:  # the technical trigger + the AI confirmation layer
+        await _screen_ai(update)
+        return
     chat = update.effective_chat.id
     query, answer = screen.resolve(words, chat)
     if query is None:
@@ -176,6 +199,12 @@ def _allowed_chat() -> int:
     return require_bot_settings().chat_id
 
 
+def _allowed_user() -> int:
+    from core.infrastructure.settings import settings
+
+    return settings.user_id or _allowed_chat()
+
+
 async def screen_button(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
@@ -187,7 +216,8 @@ async def screen_button(
     query = update.callback_query
     await query.answer()
     chat = query.message.chat.id
-    if chat != _allowed_chat():
+    user = query.from_user.id if query.from_user else None
+    if chat != _allowed_chat() or user != _allowed_user():  # the same whitelist as the commands
         return
     action = (query.data or "").partition(":")[2]
     if action == "devam":

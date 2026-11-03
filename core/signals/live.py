@@ -33,10 +33,10 @@ def _line(s) -> str:
 def track(today: date, path: Path | str | None = None, load=None) -> list[str]:
     """One hourly pass; the messages for what changed (empty when nothing did)."""
 
-    from core.signals import store
+    from core.signals import panic, store
 
     path = Path(path or SIGNALS_DB)
-    if not path.exists():
+    if not path.exists() or panic.active():
         return []
     try:
         conn = store.connect(path)

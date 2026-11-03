@@ -155,10 +155,10 @@ class DailyStepTest(unittest.TestCase):
             path = Path(tmp) / "signals.db"
             text = book.run(date(2026, 11, 2), lambda s: df.iloc[:1], {"A.IS": df.iloc[:1]}, path,
                             enabled=lambda: True, probabilities=lambda frames: {"A.IS": 0.8})
-            self.assertIn("açık 1", text)
+            self.assertIn("Açık sinyal 1", text)
             off = book.run(date(2026, 11, 3), lambda s: df.iloc[:2], {"B.IS": df.iloc[:2]}, path,
                            enabled=lambda: False, probabilities=lambda frames: {"B.IS": 0.9})
-            self.assertIn("açık 1", off)  # a closed filter records nothing
+            self.assertIn("Açık sinyal 1", off)  # a closed filter records nothing
             done = book.run(date(2026, 11, 4), lambda s: df, None, path, enabled=lambda: False)
             self.assertIn("kapanan 1", done)
             self.assertIn("hedefe ulaşan %100", done)
@@ -180,11 +180,13 @@ class DailyStepTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "signals.db"
-            self.assertEqual(health.signal_book_lines(datetime(2026, 11, 3, 19), None, path), [])
+            empty = health.signal_book_lines(datetime(2026, 11, 3, 19), None, path)
+            self.assertIn("Sanal kasa: 100.000 TL; sinyal defteri boş", empty[1])
+            self.assertFalse(path.exists())
             S.connect(path).close()
             with mock.patch("core.ml.ml_filter.load", return_value=None):
                 lines = health.signal_book_lines(datetime(2026, 11, 3, 19), None, path)
-        self.assertIn("Sanal sinyal defteri", lines[1])
+        self.assertIn("Sanal kasa: 100.000 TL", lines[1])
         self.assertIn("ML filtresi kapalı (ölçüm yok)", lines[2])
 
 

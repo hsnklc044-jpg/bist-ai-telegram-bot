@@ -109,6 +109,10 @@ def add(conn: sqlite3.Connection, day: date, symbol: str, close: float, proba: f
     """Record a signal of `day`; None when one exists for the stock that day. Refused while the
     breaker holds."""
 
+    from core.signals import panic
+
+    if panic.active():
+        raise BreakerTripped("panik kilidi açık (/devam ile kalkar): yeni sinyal alınmadı")
     if blocked(conn, day):
         raise BreakerTripped(f"şalter açık: {day:%d.%m.%Y} için yeni sinyal alınmadı")
     with conn:
@@ -234,8 +238,12 @@ def check_breaker(conn: sqlite3.Connection, day: date) -> float:
 
 
 def locked(day: date, path: Path | str | None = None) -> bool:
-    """For /tara and the scans: is the breaker on today? Never creates the book file."""
+    """For /tara and the scans: is the breaker on today, or the panic lock? Never creates the book file."""
 
+    from core.signals import panic
+
+    if panic.active():
+        return True
     path = Path(path or SIGNALS_DB)
     if not path.exists():
         return False
@@ -250,20 +258,57 @@ def locked(day: date, path: Path | str | None = None) -> bool:
         return False
 
 
+def _last_price(bars, symbol: str) -> float | None:
+    try:
+        df = bars(symbol)
+        return float(df["close"].iloc[-1]) if df is not None and not df.empty else None
+    except Exception as exc:  # noqa: BLE001 - /durum must still answer
+        logger.warning("Last price failed | %s | %s", symbol, exc)
+        return None
+
+
 def summary(conn: sqlite3.Connection, bars, day: date) -> str:
-    """The /durum lines: book value, open and closed signals, hit rate, breaker."""
+    """The /durum lines: the virtual cash box (realized and with the open signals at their last
+    price), each open signal's live profit or loss, the hit rate and the breaker."""
 
     every = signals(conn)
     closed = [s for s in every if s.status in ("hedef", "stop", "sure")]
     open_ = [s for s in every if s.status in OPEN_STATES]
-    value = equity(conn, bars, [day]).iloc[0]
     hits = sum(s.status == "hedef" for s in closed)
+    realized_value = CAPITAL + SIZE * sum(s.r for s in closed if s.r is not None)
 
     def pct(x):
-        return f"%{x * 100:+.1f}".replace(".", ",")
+        return f"%{x * 100:+.2f}".replace(".", ",")
 
-    lines = [f"🧪 Sanal sinyal defteri: {value:,.0f} TL ({pct(value / CAPITAL - 1)}); açık {len(open_)}, "
-             f"kapanan {len(closed)}" + (f", hedefe ulaşan %{hits / len(closed) * 100:.0f}" if closed else "")]
+    def tl(x):
+        return f"{x:,.0f}".replace(",", ".") + " TL"
+
+    def px(x):
+        return f"{x:.2f}".replace(".", ",")
+
+    rows, open_pnl = [], 0.0
+    for s in open_:
+        code = s.symbol.removesuffix(".IS")
+        if s.status == "bekliyor" or not s.entry_price:
+            rows.append(f"  {code}: giriş bekliyor (sinyal {s.created:%d.%m})")
+            continue
+        price = _last_price(bars, s.symbol)
+        if price is None:
+            rows.append(f"  {code}: giriş {px(s.entry_price)}, son fiyat yok")
+            continue
+        r = price / s.entry_price - 1
+        open_pnl += SIZE * r
+        rows.append(f"  {code}: giriş {px(s.entry_price)} → son {px(price)} ({pct(r)}, {tl(SIZE * r)}); "
+                    f"stop {px(s.stop)}, hedef {px(s.target)}")
+    value = realized_value + open_pnl
+    lines = [f"🧪 Sanal kasa: {tl(value)} ({pct(value / CAPITAL - 1)}); gerçekleşmiş {tl(realized_value)}, "
+             f"açık pozisyonlar {tl(open_pnl)}",
+             f"Açık sinyal {len(open_)}, kapanan {len(closed)}"
+             + (f", hedefe ulaşan %{hits / len(closed) * 100:.0f}" if closed else ""), *rows]
+    from core.signals import panic
+
+    if panic.active():
+        lines.append(f"⛔ Panik kilidi açık ({panic.since()}): takip ve taramalar durdu. Kaldırmak için /devam.")
     if blocked(conn, day):
         lines.append(f"⛔ Şalter açık: bugün kapanan işlemlerin zararı %{BREAKER * 100:.0f} sınırına ulaştı; "
                      "bugün tarama ve yeni sinyal yok.")

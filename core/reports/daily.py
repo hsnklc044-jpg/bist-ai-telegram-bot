@@ -724,8 +724,21 @@ def _signal_book(day: date) -> None:
             members = ml_filter.liquid_members(_live(_bist100())[0])
             frames = {s: df for s, df in _live(sorted(members(pd.Timestamp(day))))[0].items() if df is not None}
         logger.info("%s", book.run(day, raw_bars, frames))
+        _refit_signal_model(day)
     except Exception:  # noqa: BLE001 - the report was already sent
         logger.exception("Signal book step failed")
+
+
+def _refit_signal_model(day: date) -> None:
+    """/tara ai's model (K-64) is retrained on Fridays with every label known by then."""
+
+    from core.ml import signal_filter as S
+    from core.signals import panic
+
+    if day.weekday() != FRIDAY or panic.active():
+        return
+    frames, members = S._daily()
+    logger.info("Signal model refit | rows %d", S.fit_live(frames, members, day))
 
 
 def _bist100() -> list[str]:
@@ -756,7 +769,7 @@ def _screen_subscriptions(day: date, send) -> None:
     from core.screen import subscriptions
     from core.signals import store
 
-    if store.locked(day):  # K-65: the breaker stops every scan for the rest of the day
+    if store.locked(day):  # K-65: the breaker (or the panic lock) stops every scan
         logger.warning("Screen subscriptions skipped: circuit breaker on")
         return
     try:

@@ -2,6 +2,21 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.28 – 03.11.2026 (çift yönlü yönetim)
+- **Kullanıcı kimliği listesi:** Komutlar ve `/tara` düğmeleri yalnız `.env`'deki CHAT_ID sohbetinden ve USER_ID kullanıcısından gelirse işleniyor. USER_ID boşsa CHAT_ID kullanılıyor; özel sohbette ikisi aynı.
+- **`/panik`:** Açık ve bekleyen sanal sinyalleri iptal ediyor ve sistemi kilitliyor: saatlik takip, günlük sinyal adımı, tarama abonelikleri, yeni sinyal ve `/tara` duruyor. Kilit dosyada, yeniden başlatmada sürüyor. **`/devam`** kilidi kaldırıyor.
+- **`/durum`:** Sanal kasa (gerçekleşmiş + açık pozisyonlar), her açık sinyalin anlık kâr/zararı, stop ve hedefi, panik ve şalter durumu.
+- **`/tara ai`:** BIST 30'da teknik tetik → AI onay katmanı.
+  - Olasılık ≥ %60: zengin mesaj (teknik durum, güven skoru, giriş bölgesi, %2 stop, %4 kâr al).
+  - Altı: "AI Reddi: olasılık %X".
+  - Katman doğrulanmadığı için (K-64) mesajlar "bilgi amaçlı" etiketli; deftere sinyal yazılmıyor.
+  - Model ilk kullanımda eğitiliyor, her Cuma yeniden eğitiliyor.
+- Doğrulama: `test_control` (8 test) ve kullanıcı kimliği testleri:
+  - başka kullanıcının düğmesi yok sayılıyor;
+  - panik iptal ediyor, kilitliyor, `/devam` açıyor;
+  - kasa elle hesapla aynı: giriş 100 → 102,50 = +250 TL;
+  - onay ve ret mesajları; doğrulanmamışken deftere yazılmıyor.
+
 ## v0.99.27 – 03.11.2026 (sinyal onay katmanı ölçüldü: geçmedi)
 - **Günlük BIST 100:** accuracy %62,4 (her şeye "hayır" diyen model %66,4).
   - Onaylanan 42 sinyalin isabeti %26,2, taban %33,6; tabandan kötü.

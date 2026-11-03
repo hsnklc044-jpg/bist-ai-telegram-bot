@@ -331,7 +331,9 @@ Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`
 
 ```
 start - komutlar ve düğmeler
-durum - sistem sağlığı ve hedefler
+durum - sistem sağlığı, sanal kasa ve açık sinyaller
+panik - acil durdurma: açık sanal sinyalleri iptal et, sistemi kilitle
+devam - panik kilidini kaldır
 summary - portföy ve piyasa özeti
 portfolio - pozisyonlar ve kâr/zarar
 alerts - açık risk uyarıları
@@ -341,7 +343,7 @@ report - günlük raporu şimdi üret
 yil - yıllık döküm: satışlar, temettü, komisyon
 stres - pozisyonlar en kötü geçmiş düşüşlerde ne kaybederdi
 alarm - kapanış alarmı: /alarm THYAO altında 240
-tara - göstergeyle filtre: /tara rsi<30 ema20>ema50
+tara - göstergeyle filtre: /tara rsi<30 ema20>ema50 · /tara ai: teknik tetik + AI onayı
 tara_kaydet - taramayı kaydet: /tara_kaydet AD koşullar
 tara_liste - kayıtlı taramalar
 tara_sil - kayıtlı taramayı sil: /tara_sil AD

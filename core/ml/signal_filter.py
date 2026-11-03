@@ -141,6 +141,58 @@ def decide(model, row: pd.DataFrame) -> tuple[float, str]:
     return p, ("onaylandı" if p >= APPROVE else "yalancı sinyal")
 
 
+# --- live model ----------------------------------------------------------------------------------
+
+
+def model_file():
+    from core.config.paths import LOG_DIR
+
+    return LOG_DIR / "signal_model.joblib"
+
+
+def report_file(zaman: str = "gunluk"):
+    from core.config.paths import LOG_DIR
+
+    return LOG_DIR / f"signal_filter_{zaman}.json"
+
+
+def validated(zaman: str = "gunluk") -> bool:
+    """True only after the out-of-sample evaluation passed (K-64); a missing or broken report is False."""
+
+    try:
+        return bool(json.loads(report_file(zaman).read_text(encoding="utf-8")).get("passed"))
+    except (OSError, ValueError):
+        return False
+
+
+def fit_live(frames: dict[str, pd.DataFrame], members, today, path=None, make=fit) -> int:
+    """Train on every daily event whose label was known before `today`; returns the rows used."""
+
+    import joblib
+
+    x, y = SPEC["gunluk"]
+    rows = events(frames, x, y, members, before=pd.Timestamp(today))
+    rows = rows[rows["label_end"] < pd.Timestamp(today)]
+    if len(rows) < 100 or rows["label"].nunique() < 2:
+        return 0
+    model, params = make(rows)
+    path = path or model_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump({"model": model, "params": params, "rows": len(rows), "trained": str(today)}, path)
+    return len(rows)
+
+
+def load_live(path=None) -> dict | None:
+    import joblib
+
+    path = path or model_file()
+    try:
+        return joblib.load(path) if path.exists() else None
+    except Exception as exc:  # noqa: BLE001 - a broken file means "no model", never a crash
+        logger.warning("Signal model unreadable | %s", exc)
+        return None
+
+
 # --- evaluation ----------------------------------------------------------------------------------
 
 
@@ -272,5 +324,5 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["APPROVE", "FEATURES", "SPEC", "Report", "decide", "evaluate", "events", "features", "fit", "labels",
-           "main", "text"]
+__all__ = ["APPROVE", "FEATURES", "SPEC", "Report", "decide", "evaluate", "events", "features", "fit", "fit_live",
+           "labels", "load_live", "main", "model_file", "text", "validated"]

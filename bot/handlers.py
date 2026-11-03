@@ -16,6 +16,7 @@ from telegram.ext import (
 
 from bot.analysis import analyze, fundamentals_cmd, levels_cmd, market_cmd, scenario_cmd, top
 from bot.commands_risk import risk
+from bot.control import panic_cmd, resume_cmd
 from bot.portfolio import alerts, paper, portfolio, report, trade
 from bot.reports import (
     delete_screen,
@@ -74,6 +75,8 @@ COMMANDS = (
     ("report", report),
     ("performans", performance),
     ("durum", status),
+    ("panik", panic_cmd),
+    ("devam", resume_cmd),
     ("rapor_tekrar", resend),
     ("yil", yearly),
     ("stres", stress_test),
@@ -95,7 +98,9 @@ COMMANDS = (
 # Telegram's "Menu" list (set when the bot starts); /help is the same as /start
 MENU = (
     ("start", "komutlar ve düğmeler"),
-    ("durum", "sistem sağlığı ve hedefler"),
+    ("durum", "sistem sağlığı, sanal kasa ve açık sinyaller"),
+    ("panik", "acil durdurma: açık sanal sinyalleri iptal et, sistemi kilitle"),
+    ("devam", "panik kilidini kaldır"),
     ("summary", "portföy ve piyasa özeti"),
     ("portfolio", "pozisyonlar ve kâr/zarar"),
     ("alerts", "açık risk uyarıları"),
@@ -105,7 +110,7 @@ MENU = (
     ("yil", "yıllık döküm: satışlar, temettü, komisyon"),
     ("stres", "pozisyonlar en kötü geçmiş düşüşlerde ne kaybederdi"),
     ("alarm", "kapanış alarmı: /alarm THYAO altında 240"),
-    ("tara", "göstergeyle filtre: /tara rsi<30 ema20>ema50"),
+    ("tara", "göstergeyle filtre: /tara rsi<30 ema20>ema50 · /tara ai: teknik tetik + AI onayı"),
     ("tara_kaydet", "taramayı kaydet: /tara_kaydet AD koşullar"),
     ("tara_liste", "kayıtlı taramalar"),
     ("tara_sil", "kayıtlı taramayı sil: /tara_sil AD"),
@@ -181,15 +186,17 @@ async def on_error(
 def register_handlers(
     app: Application,
     chat_id: int,
+    user_id: int = 0,
 ) -> None:
     """
     Register Telegram handlers.
 
-    Only messages from `chat_id` are answered; everyone
+    Only messages from `chat_id` AND from the Telegram user `user_id` are answered (user ID
+    whitelisting; 0 means the chat's own user, as in a private chat chat id = user id); everyone
     else is ignored.
     """
 
-    allowed = filters.Chat(chat_id=chat_id)
+    allowed = filters.Chat(chat_id=chat_id) & filters.User(user_id=user_id or chat_id)
 
     for command, callback in COMMANDS:
         app.add_handler(

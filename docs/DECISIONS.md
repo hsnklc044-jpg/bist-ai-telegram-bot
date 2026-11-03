@@ -4,6 +4,21 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-66. Çift yönlü yönetim: kullanıcı kimliği listesi, /panik ve /devam, /tara ai, /durum kasası (03.11.2026).**
+- **Kullanıcı kimliği listesi:** Komutlar ve düğmeler yalnız CHAT_ID sohbetinden ve USER_ID kullanıcısından gelirse işlenir. USER_ID boşsa CHAT_ID kullanılır; özel sohbette ikisi aynıdır.
+- **/panik:**
+  - Bekleyen ve açık sanal sinyalleri "iptal" yapar; sonuçları sayılmaz.
+  - `data/panic.lock` dosyasını yazar. Kilit sürerken saatlik takip, günlük sinyal adımı, tarama abonelikleri, yeni sinyal, haftalık model eğitimi ve /tara durur.
+  - Bot kapanmaz. Tam kapansaydı Windows görevi 5 dakika sonra yeniden başlatırdı ve telefondan /devam verilemezdi. Bu yüzden "ana döngü" bot süreci değil, otomatik işler olarak yorumlandı.
+  - Kilit dosyada olduğu için yeniden başlatmada sürer. /devam kilidi kaldırır.
+- **/durum:** Sanal kasa (gerçekleşmiş ve açık pozisyonlar son fiyattan), her açık sinyalin anlık kâr/zararı, stop ve hedefi, panik ve şalter durumu. Defter yoksa dosya oluşturulmaz, kasa 100.000 TL yazılır.
+- **/tara ai:**
+  - BIST 30 günlük mumlarında dip dönüşü tetiği; her aday sinyal onay katmanına (K-64) soruluyor.
+  - Olasılık ≥ 0,60 ise zengin mesaj: hisse, teknik durum, güven skoru, giriş bölgesi, %2 stop, %4 kâr al. Altındaysa "AI Reddi: olasılık %X".
+  - Katman örneklem dışı ölçümde geçmedi; bu sürece mesajlar "doğrulanmamış, bilgi amaçlı" etiketi taşır ve sanal deftere sinyal yazılmaz (K-64'e bağlı kalındı).
+  - "Alım bölgesi" yerine "giriş bölgesi (ertesi seans açılışı)" yazılır; stop ve hedef gerçek açılışa göre kesinleşir.
+- **Model:** İlk /tara ai'de yoksa eğitilir, sonra her Cuma günlük raporun ardından o güne kadar bilinen tüm etiketlerle yeniden eğitilir.
+
 **K-65. Sinyal defteri: seans içi saatlik takip; şalter kapanan işlem zararına göre; kilit /tara'yı da kapsar (03.11.2026).**
 - **Talep:** Kullanıcı açık sinyallerin yfinance güncel fiyatlarıyla gerçek zamanlı denetlenmesini istedi. Şalterin tanımı: "bir gün içinde gerçekleşen ve kapanan zararlar %6'ya ulaşırsa bot o gün tüm taramaları ve sinyal üretimini durdurur, kendini kilitler".
 - **Takip:**

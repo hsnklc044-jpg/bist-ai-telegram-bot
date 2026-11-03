@@ -677,8 +677,14 @@ def signal_book_lines(now: datetime, bars, path=None) -> list[str]:
     from core.config.paths import SIGNALS_DB
 
     path = path or SIGNALS_DB
-    if not path.exists():
-        return []
+    if not path.exists():  # no book yet: the cash box is untouched; the file is not created
+        from core.signals import panic
+
+        lines = ["", f"🧪 Sanal kasa: {100_000:,} TL".replace(",", ".") + "; sinyal defteri boş (ML katmanı "
+                 "örneklem dışı ölçümü geçmediği için sinyal yazılmıyor)"]
+        if panic.active():
+            lines.append("⛔ Panik kilidi açık: takip ve taramalar durdu. Kaldırmak için /devam.")
+        return lines
     try:
         from core.ml import ml_filter
         from core.reports.daily import raw_bars

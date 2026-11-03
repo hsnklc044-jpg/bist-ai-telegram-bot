@@ -95,7 +95,7 @@ class SplitTest(unittest.TestCase):
         self.assertTrue(all(p.endswith("\n") for p in parts[:-1]))  # every cut at a line end
 
 
-def fake_update(sent, chat=CHAT, data=None):
+def fake_update(sent, chat=CHAT, data=None, user=None):
     async def reply_text(text, **kw):
         sent.append((text, kw.get("reply_markup")))
 
@@ -103,9 +103,10 @@ def fake_update(sent, chat=CHAT, data=None):
         sent.append(("<answer>", None))
 
     message = SimpleNamespace(reply_text=reply_text, chat=SimpleNamespace(id=chat))
-    query = SimpleNamespace(data=data, answer=answer, message=message) if data else None
+    who = SimpleNamespace(id=chat if user is None else user)
+    query = SimpleNamespace(data=data, answer=answer, message=message, from_user=who) if data else None
     return SimpleNamespace(message=message, effective_message=message, effective_chat=SimpleNamespace(id=chat),
-                           callback_query=query)
+                           effective_user=who, callback_query=query)
 
 
 class BotTest(Base):

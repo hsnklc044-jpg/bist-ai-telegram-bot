@@ -64,7 +64,7 @@ def build_app() -> Application:
 
     app = ApplicationBuilder().token(config.bot_token).post_init(_start_up).build()
 
-    register_handlers(app, config.chat_id)
+    register_handlers(app, config.chat_id, config.user_id)
     schedule_daily_report(app)
     schedule_report_watch(app, config.chat_id)
     schedule_heartbeat(app)

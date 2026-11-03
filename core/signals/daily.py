@@ -24,8 +24,11 @@ def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=Non
 
     from core.config.paths import SIGNALS_DB
     from core.ml import ml_filter
-    from core.signals import store
+    from core.signals import panic, store
 
+    if panic.active():
+        logger.warning("Signal book step skipped: panic lock")
+        return "⛔ Panik kilidi açık: sinyal defteri durduruldu (/devam ile kalkar)."
     enabled = ml_filter.enabled if enabled is None else enabled
     if not Path(path or SIGNALS_DB).exists() and not enabled():
         return ""  # no book yet and nothing could be recorded: no file is created

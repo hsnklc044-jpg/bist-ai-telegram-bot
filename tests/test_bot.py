@@ -29,7 +29,7 @@ class HandlerRegistrationTest(unittest.TestCase):
         from bot.handlers import COMMANDS, register_handlers
 
         app = ApplicationBuilder().token("123:ABC").build()
-        register_handlers(app, chat_id=777)
+        register_handlers(app, chat_id=777, user_id=555)
 
         from telegram.ext import CommandHandler
 
@@ -38,8 +38,32 @@ class HandlerRegistrationTest(unittest.TestCase):
 
         self.assertEqual(commands, {name for name, _ in COMMANDS})
 
-        for handler in handlers:
-            self.assertEqual(handler.filters.chat_ids, frozenset({777}))
+        for handler in handlers:  # the chat AND the user (user ID whitelisting)
+            self.assertEqual(handler.filters.base_filter.chat_ids, frozenset({777}))
+            self.assertEqual(handler.filters.and_filter.user_ids, frozenset({555}))
+
+    def test_user_defaults_to_the_chat(self):
+        from telegram.ext import ApplicationBuilder, CommandHandler
+
+        from bot.handlers import register_handlers
+
+        app = ApplicationBuilder().token("123:ABC").build()
+        register_handlers(app, chat_id=777)
+        handler = next(h for g in app.handlers.values() for h in g if isinstance(h, CommandHandler))
+        self.assertEqual(handler.filters.and_filter.user_ids, frozenset({777}))
+
+    def test_buttons_refuse_another_user(self):
+        import asyncio
+        from types import SimpleNamespace
+        from unittest import mock
+
+        from bot.reports import screen_button
+        from tests.test_screen_telegram import CHAT, fake_update
+
+        got = []
+        with mock.patch("bot.reports._allowed_chat", return_value=CHAT):
+            asyncio.run(screen_button(fake_update(got, data="tara:devam", user=999), SimpleNamespace(args=[])))
+        self.assertEqual(got, [("<answer>", None)])  # the spinner is closed; nothing else is sent
 
 
 class AnalysisFormatTest(unittest.TestCase):
