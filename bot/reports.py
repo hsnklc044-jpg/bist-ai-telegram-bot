@@ -103,12 +103,32 @@ LOCKED_TEXT = ("⛔ Şalter açık: bugün kapanan sanal işlemlerin zararı %6 
 PANIC_TEXT = "⛔ Panik kilidi açık: tarama durduruldu. Kaldırmak için /devam."
 
 
+AI_BUSY_TEXT = "⏳ Önceki /tara ai hâlâ çalışıyor; bitince sonucu gelecek."
+
+
+def _ai_running() -> bool:
+    return any(getattr(t, "quantbist_ai", False) and not t.done() for t in _BACKGROUND)
+
+
+async def _start_screen_ai(update: Update) -> None:
+    """/tara ai runs in the background: updates are handled one at a time, so a scan that trains its
+    model for minutes kept /panik waiting (03.11.2026 22:48). The handler returns at once."""
+
+    if _ai_running():
+        await reply(update, AI_BUSY_TEXT)
+        return
+    await reply(update, "⏳ BIST 30 taranıyor, adaylar AI katmanına soruluyor (ilk seferde model eğitilir, "
+                        "birkaç dakika sürebilir). Bu arada /panik ve diğer komutlar çalışır...")
+    task = asyncio.ensure_future(_screen_ai(update))
+    task.quantbist_ai = True
+    _BACKGROUND.add(task)
+    task.add_done_callback(_BACKGROUND.discard)
+
+
 async def _screen_ai(update: Update) -> None:
     from core.market.calendar import now_istanbul
     from core.screen import ai
 
-    await reply(update, "⏳ BIST 30 taranıyor, adaylar AI katmanına soruluyor (ilk seferde model eğitilir, "
-                        "birkaç dakika sürebilir)...")
     try:
         messages = await asyncio.to_thread(ai.live, now_istanbul().date())
     except Exception:  # noqa: BLE001 - the user gets an answer, the log the details
@@ -184,7 +204,7 @@ async def screen_cmd(
         return
     words = list(context.args or [])
     if [w.lower() for w in words] == ["ai"]:  # the technical trigger + the AI confirmation layer
-        await _screen_ai(update)
+        await _start_screen_ai(update)
         return
     chat = update.effective_chat.id
     query, answer = screen.resolve(words, chat)

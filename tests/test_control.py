@@ -22,6 +22,14 @@ from core.signals import store as S
 from tests.test_signal_book import bars
 
 
+async def _tara_ai(update):
+    """/tara ai and the background scan it starts (the handler itself returns at once)."""
+    from bot import reports
+
+    await reports.screen_cmd(update, SimpleNamespace(args=["ai"]))
+    await asyncio.gather(*reports._BACKGROUND)
+
+
 class PanicTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
@@ -143,7 +151,6 @@ class AiTest(unittest.TestCase):
         self.assertIn("teknik tetik (dip dönüşü) olan hisse yok", ai.run(date(2026, 11, 3), {}, None, False)[0][0])
 
     def test_bot_sends_html(self):
-        from bot import reports
         from tests.test_screen_telegram import fake_update
 
         sent = []
@@ -155,7 +162,7 @@ class AiTest(unittest.TestCase):
         update.effective_message.reply_text = reply_text
         with mock.patch("core.signals.store.locked", return_value=False), \
                 mock.patch("core.screen.ai.live", return_value=[("<b>x</b>", None)]):
-            asyncio.run(reports.screen_cmd(update, SimpleNamespace(args=["ai"])))
+            asyncio.run(_tara_ai(update))
         self.assertEqual(sent[-1], ("<b>x</b>", "HTML"))
 
 
@@ -317,7 +324,6 @@ class ApprovalTest(unittest.TestCase):
         self.assertEqual(edits[0], {"reply_markup": None})  # the card lost its buttons
 
     def test_card_has_buttons(self):
-        from bot import reports
         from tests.test_screen_telegram import fake_update
 
         sent = []
@@ -329,8 +335,66 @@ class ApprovalTest(unittest.TestCase):
         update.effective_message.reply_text = reply_text
         with mock.patch("core.signals.store.locked", return_value=False), \
                 mock.patch("core.screen.ai.live", return_value=[("kart", 7), ("ret", None)]):
-            asyncio.run(reports.screen_cmd(update, SimpleNamespace(args=["ai"])))
+            asyncio.run(_tara_ai(update))
         buttons = [b.callback_data for row in sent[1][1].inline_keyboard for b in row]
         self.assertEqual(buttons, ["sinyal:gir:7", "sinyal:iptal:7"])
         self.assertIsNone(sent[2][1])
 
+
+
+class ResponsivenessTest(unittest.TestCase):
+    def test_tara_ai_does_not_block_panik(self):
+        # 03.11.2026 22:48: /panik waited behind a /tara ai that was training its model (updates are handled
+        # one at a time). /tara ai now returns at once; its work runs in the background.
+        import threading
+
+        from bot import control, reports
+        from tests.test_screen_telegram import fake_update
+
+        release = threading.Event()
+        sent = []
+
+        def slow_live(day):
+            release.wait(5)
+            return [("bitti", None)]
+
+        async def scenario():
+            update = fake_update(sent)
+            with mock.patch("core.signals.store.locked", return_value=False), \
+                    mock.patch("core.screen.ai.live", side_effect=slow_live), \
+                    mock.patch("bot.control.panic_text", return_value="panik işlendi"):
+                await asyncio.wait_for(reports.screen_cmd(update, SimpleNamespace(args=["ai"])), 1)
+                await asyncio.wait_for(control.panic_cmd(update, SimpleNamespace(args=[])), 1)
+                self.assertEqual(sent[-1][0], "panik işlendi")  # before /tara ai finished
+                release.set()
+                await asyncio.gather(*reports._BACKGROUND)
+            self.assertEqual(sent[-1][0], "bitti")
+
+        asyncio.run(scenario())
+
+
+    def test_second_tara_ai_waits_for_the_first(self):
+        import threading
+
+        from bot import reports
+        from tests.test_screen_telegram import fake_update
+
+        release = threading.Event()
+        sent = []
+
+        def slow_live(day):
+            release.wait(5)
+            return [("bitti", None)]
+
+        async def scenario():
+            update = fake_update(sent)
+            with mock.patch("core.signals.store.locked", return_value=False), \
+                    mock.patch("core.screen.ai.live", side_effect=slow_live) as live:
+                await reports.screen_cmd(update, SimpleNamespace(args=["ai"]))
+                await reports.screen_cmd(update, SimpleNamespace(args=["ai"]))
+                self.assertEqual(sent[-1][0], reports.AI_BUSY_TEXT)
+                release.set()
+                await asyncio.gather(*reports._BACKGROUND)
+            self.assertEqual(live.call_count, 1)
+
+        asyncio.run(scenario())

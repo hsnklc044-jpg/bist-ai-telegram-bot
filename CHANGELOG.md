@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.30 – 03.11.2026 (/panik artık /tara ai'yi beklemiyor)
+- **Hata:** 03.11.2026 22:48'de `/tara ai` modelini eğitirken gönderilen `/panik` ve `/devam` iki dakika cevapsız kaldı. Bot komutları sırayla işliyor; uzun tarama acil durdurmayı arkasında bekletiyordu.
+- **Düzeltme:** `/tara ai` artık arka planda çalışıyor; komut hemen dönüyor, sonuç bitince geliyor. Bu arada `/panik`, `/durum` ve diğer komutlar anında cevaplanıyor.
+  - Panik tarama sürerken basılırsa, tarama sonunda kart deftere yazılmıyor (kilit `add`'i reddediyor), düğmeler de "kilitli" diyor.
+  - İkinci bir `/tara ai` ilki bitmeden gelirse model iki kez eğitilmiyor: "önceki hâlâ çalışıyor" cevabı veriliyor.
+- `/durum`'daki boş defter satırı güncellendi: sistem kendiliğinden sinyal yazmıyor, `/tara ai` kartındaki ✅ ile kullanıcı giriyor.
+- Doğrulama: `test_control` (ResponsivenessTest): tarama bitmeden `/panik` cevaplanıyor; ikinci `/tara ai` bekletiliyor, model bir kez çağrılıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.29 – 03.11.2026 (v3.0: butonla onay, %1 risk lotu, iz süren stop)
 - **Manuel onay odası (K-67):** `/tara ai`'nin %60 üstü kartlarının altında [✅ İşleme Gir] ve [❌ İptal Et] düğmeleri var.
   - Basılana kadar pozisyon açılmaz; kart defterde "onay bekliyor" olarak durur.

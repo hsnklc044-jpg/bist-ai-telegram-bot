@@ -680,8 +680,8 @@ def signal_book_lines(now: datetime, bars, path=None) -> list[str]:
     if not path.exists():  # no book yet: the cash box is untouched; the file is not created
         from core.signals import panic
 
-        lines = ["", f"🧪 Sanal kasa: {100_000:,} TL".replace(",", ".") + "; sinyal defteri boş (ML katmanı "
-                 "örneklem dışı ölçümü geçmediği için sinyal yazılmıyor)"]
+        lines = ["", f"🧪 Sanal kasa: {100_000:,} TL".replace(",", ".") + "; sinyal defteri boş (sistem kendiliğinden "
+                 "sinyal yazmaz: ML katmanı örneklem dışı ölçümü geçmedi; /tara ai kartındaki ✅ ile siz girersiniz)"]
         if panic.active():
             lines.append("⛔ Panik kilidi açık: takip ve taramalar durdu. Kaldırmak için /devam.")
         return lines
