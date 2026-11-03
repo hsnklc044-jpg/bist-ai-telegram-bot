@@ -50,3 +50,12 @@ jobs:
         run: |
           python -m core.ml.ml_filter --universe bist100 2>&1 | tee ml100.txt
           { echo '```'; cat ml100.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # K-62: the second rule, written before this measurement
+      - name: ML filter goreli20 (BIST 30 approximation)
+        run: |
+          python -m core.ml.ml_filter --universe bist30 --rule goreli20 2>&1 | tee ml30r.txt
+          { echo '```'; cat ml30r.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: ML filter goreli20 (BIST 100)
+        run: |
+          python -m core.ml.ml_filter --universe bist100 --rule goreli20 2>&1 | tee ml100r.txt
+          { echo '```'; cat ml100r.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

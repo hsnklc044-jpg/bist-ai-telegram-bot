@@ -4,6 +4,7 @@ change when the future changes (no look-ahead); a training label must be known b
 year (purging); on a random walk the filter must stay off, and it must find a planted edge.
 """
 
+import math
 import tempfile
 import unittest
 from pathlib import Path
@@ -175,3 +176,63 @@ class LiveModelTest(unittest.TestCase):
             proba = live.probabilities({**frames, "KISA.IS": walk(100, 9)}, path)
         self.assertEqual(sorted(proba), ["S0.IS", "S1.IS", "S2.IS"])  # too short a history is left out
         self.assertTrue(all(0 <= p <= 1 for p in proba.values()))
+
+
+class RelativeRuleTest(unittest.TestCase):
+    """K-62 "goreli20", written before any measurement."""
+
+    def test_label_by_hand(self):
+        n = 25
+        close = np.full(n, 100.0)
+        close[20] = 110.0  # stock: entry 100 (open of day 1), exit 110 at the close of day 20
+        df = candles(np.full(n, 100.0), np.maximum(close, 100.0), np.full(n, 99.0), close)
+        bench = pd.Series(1000.0, index=df.index)
+        bench.iloc[20] = 1080.0  # XU100 +8%
+        out = F.relative_labels(df, bench)
+        self.assertEqual(out["label"].iloc[0], 1)  # +10% − cost beats +8%
+        self.assertAlmostEqual(out["r"].iloc[0], (0.10 - F.COST) - 0.08)
+        self.assertEqual(out["label_end"].iloc[0], df.index[20])
+        bench.iloc[20] = 1100.0  # XU100 +10%: the cost decides
+        self.assertEqual(F.relative_labels(df, bench)["label"].iloc[0], 0)
+        self.assertTrue(out["label"].iloc[n - 20:].isna().all())  # the future is not known yet
+
+    def test_limit_up_open_and_unknown_rule(self):
+        df = candles([100, 110] + [110] * 22, [100, 110] + [110] * 22, [100, 110] + [110] * 22,
+                     [100, 110] + [110] * 22)
+        self.assertTrue(np.isnan(F.relative_labels(df, pd.Series(1000.0, index=df.index))["label"].iloc[0]))
+        with self.assertRaises(ValueError):
+            F.dataset({}, rule="bilinmeyen")
+
+    def test_test_days_are_spaced_and_interval_by_dates(self):
+        frames = {f"S{i}.IS": walk(1800, 90 + i) for i in range(4)}
+        bench = walk(1800, 99)["close"]
+        data = F.dataset(frames, rule="goreli20", bench_close=bench)
+        seen = []
+
+        class Spy:
+            def fit(self, x, y):
+                return self
+
+            def predict_proba(self, x):
+                seen.append(len(x))
+                return np.tile([0.4, 0.6], (len(x), 1))  # every row is a signal
+
+        report = M.walk_forward(data, "deneme", first_year=2018, make_model=Spy, rule="goreli20")
+        for fold in report.folds:
+            year = data[data["date"].dt.year == fold.year]
+            self.assertEqual(fold.test_rows, len(year[year["date"].isin(sorted(year["date"].unique())[::20])]))
+        lo, hi = report.interval
+        self.assertLess(lo, report.precision)
+        self.assertGreater(hi, report.precision)
+        self.assertGreater(hi - lo, 2 * 1.96 * math.sqrt(0.25 / report.signals) * 0.9)  # not narrower than Wilson
+        self.assertIn("goreli20", M.text(report))
+
+    def test_random_walk_stays_off(self):
+        from sklearn.ensemble import RandomForestClassifier
+
+        frames = {f"R{i}.IS": walk(1800, 110 + i) for i in range(6)}
+        data = F.dataset(frames, rule="goreli20", bench_close=walk(1800, 120)["close"])
+        report = M.walk_forward(data, "deneme", first_year=2018, rule="goreli20",
+                                make_model=lambda: RandomForestClassifier(n_estimators=40, max_depth=4,
+                                                                          min_samples_leaf=50, random_state=0))
+        self.assertFalse(report.passed)

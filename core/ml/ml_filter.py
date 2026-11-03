@@ -26,13 +26,20 @@ import numpy as np
 import pandas as pd
 
 from core.config.paths import LOG_DIR
-from core.ml.features import FEATURES, HORIZON, STOP, TARGET
+from core.ml.features import FEATURES, HORIZON, RELATIVE_HORIZON, STOP, TARGET
 
 THRESHOLD = 0.60
 MIN_SIGNALS = 100
 PROBA = 0.5
 FIRST_TEST_YEAR = 2020
 REPORT_FILE = LOG_DIR / "ml_report.json"
+REPORT_FILES = {"stop_hedef": REPORT_FILE, "goreli20": LOG_DIR / "ml_report_goreli20.json"}
+RULE_TEXT = {
+    "stop_hedef": f"ertesi açılışta giriş, %{STOP * 100:.0f} stop, %{TARGET * 100:.0f} hedef, en çok {HORIZON} seans",
+    "goreli20": f"ertesi açılıştan {RELATIVE_HORIZON}. seans kapanışına hisse getirisi XU100'ü geçer mi "
+                "(maliyet sonrası; test günleri 20 seans arayla, aralık tarih blok bootstrap)",
+}
+BOOTSTRAP = 2000
 DISCLAIMER = "Kural çıktısıdır, öneri değildir. Karar ve sorumluluk kullanıcıdadır."
 
 
@@ -87,6 +94,7 @@ class Report:
     reason: str = ""
     importances: dict[str, float] = field(default_factory=dict)
     holdout_used: bool = False
+    rule: str = "stop_hedef"
     settings: dict = field(default_factory=lambda: {"stop": STOP, "target": TARGET, "horizon": HORIZON,
                                                     "threshold": THRESHOLD, "min_signals": MIN_SIGNALS,
                                                     "proba": PROBA})
@@ -98,11 +106,28 @@ def train_rows(data: pd.DataFrame, before: pd.Timestamp) -> pd.DataFrame:
     return data[data["label_end"] < before]
 
 
+def date_bootstrap(chosen: pd.DataFrame, repeats: int = BOOTSTRAP, seed: int = 0) -> tuple[float, float]:
+    """95% interval of the precision, resampling whole test dates (stocks of one day move together)."""
+
+    per_day = chosen.groupby("date")["label"].agg(["sum", "count"])
+    if per_day.empty:
+        return (math.nan, math.nan)
+    rng = np.random.default_rng(seed)
+    pick = rng.integers(0, len(per_day), size=(repeats, len(per_day)))
+    hits, counts = per_day["sum"].to_numpy()[pick].sum(axis=1), per_day["count"].to_numpy()[pick].sum(axis=1)
+    lo, hi = np.percentile(hits / counts, [2.5, 97.5])
+    return (float(lo), float(hi))
+
+
 def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST_TEST_YEAR, holdout: bool = False,
-                 make_model=model) -> Report:
+                 make_model=model, rule: str = "stop_hedef") -> Report:
+    """stop_hedef (K-59): every test day, Wilson interval. goreli20 (K-62): test days 20 sessions
+    apart (no overlapping test labels of one stock) and a date-bootstrap interval."""
+
     cut = holdout_start()
     data = data if holdout else data[(data["date"] < cut)]
-    report = Report(universe, len(data), holdout_used=holdout)
+    report = Report(universe, len(data), holdout_used=holdout, rule=rule)
+    spacing = RELATIVE_HORIZON if rule == "goreli20" else 1
     years = sorted(y for y in data["date"].dt.year.unique() if y >= first_year)
     picked, outcomes = [], []
     importances = np.zeros(len(FEATURES))
@@ -112,6 +137,9 @@ def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST
         if not holdout:
             train = train[train["label_end"] < cut]
         test = data[data["date"].dt.year == year]
+        if spacing > 1:
+            days = sorted(test["date"].unique())[::spacing]
+            test = test[test["date"].isin(days)]
         if len(train) < 1000 or train["label"].nunique() < 2 or test.empty:
             continue
         m = make_model()
@@ -135,7 +163,7 @@ def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST
                                          strict=True), key=lambda kv: -kv[1]))
     if report.signals:
         report.precision = report.hits / report.signals
-        report.interval = wilson(report.hits, report.signals)
+        report.interval = date_bootstrap(chosen) if rule == "goreli20" else wilson(report.hits, report.signals)
         report.mean_r_signals = float(chosen["r"].mean())
     if report.signals < MIN_SIGNALS:
         report.reason = f"sinyal sayısı az ({report.signals} < {MIN_SIGNALS})"
@@ -155,12 +183,12 @@ def text(report: Report) -> str:
         return "—" if x is None or (isinstance(x, float) and math.isnan(x)) else f"%{x * 100:.1f}".replace(".", ",")
 
     lines = [f"🤖 ML filtresi ({report.universe}): {'AÇIK' if report.passed else 'KAPALI'} – {report.reason}",
-             f"Kural: ertesi açılışta giriş, %{STOP * 100:.0f} stop, %{TARGET * 100:.0f} hedef, en çok {HORIZON} "
-             "seans; ölçüm yalnız eğitimde görülmemiş yıllarda.",
+             f"Kural ({report.rule}): {RULE_TEXT[report.rule]}; ölçüm yalnız eğitimde görülmemiş yıllarda.",
              f"Sinyal {report.signals}, isabet {pct(report.precision)} (%95 aralık {pct(report.interval[0])}–"
-             f"{pct(report.interval[1])}); tüm girişlerde hedefe ulaşma {pct(report.base_rate)}.",
-             f"Ortalama net sonuç: sinyallerde {pct(report.mean_r_signals)}, tüm girişlerde {pct(report.mean_r_all)} "
-             "(maliyet dahil)."]
+             f"{pct(report.interval[1])}); tüm girişlerde {'XU100’ü geçen' if report.rule == 'goreli20' else 'hedefe ulaşan'} "
+             f"{pct(report.base_rate)}.",
+             f"Ortalama net sonuç{' (XU100’e göre fark)' if report.rule == 'goreli20' else ''}: sinyallerde "
+             f"{pct(report.mean_r_signals)}, tüm girişlerde {pct(report.mean_r_all)} (maliyet dahil)."]
     for f in report.folds:
         lines.append(f"  {f.year}: {f.signals} sinyal, isabet "
                      f"{pct(f.hits / f.signals) if f.signals else '—'}, taban {pct(f.base_rate)}")
@@ -221,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     utf8_output()
     parser = argparse.ArgumentParser(description="ML filter, out-of-sample evaluation")
     parser.add_argument("--universe", choices=("bist30", "bist100"), default="bist30")
+    parser.add_argument("--rule", choices=tuple(REPORT_FILES), default="stop_hedef")
     args = parser.parse_args(argv)
     events, stable = load_changes(), load_stable()
     codes = stable | {c for c in events}
@@ -232,8 +261,13 @@ def main(argv: list[str] | None = None) -> int:
         from core.market.membership import members_on
 
         members, name = (lambda d: {f"{c}.IS" for c in members_on(pd.Timestamp(d).date())}), "BIST 100"
-    report = walk_forward(dataset(frames, members), name)
-    save(report)
+    bench = None
+    if args.rule == "goreli20":
+        from core.market.universe import BENCHMARK
+
+        bench = adjusted_bars(BENCHMARK)["close"]
+    report = walk_forward(dataset(frames, members, args.rule, bench), name, rule=args.rule)
+    save(report, REPORT_FILES[args.rule])
     print(text(report))
     return 0
 

@@ -80,15 +80,47 @@ def labels(df: pd.DataFrame, stop: float = STOP, target: float = TARGET, horizon
                         index=df.index)
 
 
-def dataset(frames: dict[str, pd.DataFrame], members=None) -> pd.DataFrame:
-    """Pooled rows (date, symbol, features, label). `members(date) -> set of symbols` keeps a
-    stock only on the days it was in the universe (point in time)."""
+RELATIVE_HORIZON = 20
+RULES = ("stop_hedef", "goreli20")
 
+
+def relative_labels(df: pd.DataFrame, bench_close: pd.Series, horizon: int = RELATIVE_HORIZON) -> pd.DataFrame:
+    """K-62 "goreli20": 1 when the stock, entered at the next open and closed at the close of
+    session t+horizon, beats XU100's close-to-close return over t..t+horizon after COST."""
+
+    o, c = df["open"].to_numpy(dtype=float), df["close"].to_numpy(dtype=float)
+    bench = bench_close.reindex(df.index).to_numpy(dtype=float)
+    n = len(df)
+    label = np.full(n, np.nan)
+    ret = np.full(n, np.nan)
+    end = np.full(n, None, dtype=object)
+    t = np.arange(n - horizon)
+    if len(t):
+        entry, exit_ = o[t + 1], c[t + horizon]
+        stock = exit_ / entry - 1 - COST
+        market = bench[t + horizon] / bench[t] - 1
+        ok = (entry > 0) & (entry / c[t] - 1 < LIMIT_MOVE) & np.isfinite(stock) & np.isfinite(market)
+        label[t[ok]] = (stock[ok] > market[ok]).astype(float)
+        ret[t[ok]] = stock[ok] - market[ok]  # the excess return over XU100
+        end[t[ok]] = df.index[t[ok] + horizon]
+    return pd.DataFrame({"label": label, "r": ret, "label_end": pd.to_datetime(pd.Series(end, index=df.index))},
+                        index=df.index)
+
+
+def dataset(frames: dict[str, pd.DataFrame], members=None, rule: str = "stop_hedef",
+            bench_close: pd.Series | None = None) -> pd.DataFrame:
+    """Pooled rows (date, symbol, features, label). `members(date) -> set of symbols` keeps a
+    stock only on the days it was in the universe (point in time). `rule`: stop_hedef (K-59) or
+    goreli20 (K-62, needs XU100's closes)."""
+
+    if rule not in RULES:
+        raise ValueError(f"bilinmeyen kural {rule!r}")
     parts = []
     for symbol, df in frames.items():
         if df is None or len(df) < 250:
             continue
-        part = features(df).join(labels(df))
+        target = relative_labels(df, bench_close) if rule == "goreli20" else labels(df)
+        part = features(df).join(target)
         part["symbol"] = symbol
         parts.append(part)
     if not parts:
@@ -100,4 +132,5 @@ def dataset(frames: dict[str, pd.DataFrame], members=None) -> pd.DataFrame:
     return data.dropna(subset=[*FEATURES, "label"]).sort_values(["date", "symbol"]).reset_index(drop=True)
 
 
-__all__ = ["COST", "FEATURES", "HORIZON", "STOP", "TARGET", "dataset", "features", "labels"]
+__all__ = ["COST", "FEATURES", "HORIZON", "RELATIVE_HORIZON", "RULES", "STOP", "TARGET", "dataset", "features",
+           "labels", "relative_labels"]

@@ -2,6 +2,20 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.19 – 03.11.2026 (ML filtresi, ikinci kural: goreli20)
+- **Yeni kural, ölçümden önce yazıldı (K-62).** Soru: "Hisse, ertesi açılıştan 20. seans kapanışına kadar, maliyetten sonra XU100'ü geçer mi?"
+  - Öznitelikler ve model ilk kuralla aynı.
+- **Daha dürüst ölçüm.**
+  - Test günleri 20 seans arayla seçiliyor; aynı hissenin test etiketleri üst üste binmiyor.
+  - İsabetin %95 aralığı, test tarihleri yeniden örneklenerek hesaplanıyor (aynı gün birlikte hareket eden hisseler bağımsız sayılmıyor).
+- `python -m core.ml.ml_filter --rule goreli20`; sonuç `logs/ml_report_goreli20.json`. Canlı filtre ve sanal defter ilk kurala bağlı kalıyor; bu kural geçerse bağlama ayrı adım.
+- Doğrulama:
+  - elle hesaplanmış etiket: +%10'a karşı XU100 +%8 → 1; XU100 +%10 → maliyet yüzünden 0;
+  - tavan açılış;
+  - 20 seans aralıklı test günleri;
+  - bootstrap aralığı Wilson aralığından dar değil;
+  - rastgele veride filtre kapalı.
+
 ## v0.99.18 – 03.11.2026 (PC kurulumunda bulunan üç hata)
 - **Testler gerçek `data\signals.db` dosyasını oluşturuyordu.** PC'deki kurulumun yazma denetimi yakaladı. Günlük defter adımı, ML filtresi kapalıyken ve defter henüz yokken artık dosya oluşturmuyor.
 - **`cloudpickle` kilit dosyasına eklendi.** joblib'in bağımlılığı; kurulum "paketler farklı" diyordu.
