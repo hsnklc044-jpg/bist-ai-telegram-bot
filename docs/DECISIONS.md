@@ -4,6 +4,13 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-61. Codex dosyaları incelendi; hiçbiri ana koda alınmadı (03.11.2026).**
+- **Kaynak:** Kullanıcı Codex ile yapılan işleri `codex/bist30` dalına gönderdi (`codex_import/`, 4 dosya, 214 satır).
+- **`quantbist-verified-fixes-...patch`:** `setup.ps1` git kontrolü ve `test_runs` saat sabitlemesi. İkisi de kodda zaten var.
+- **`price_fix_gate.py` ve `safe_research.py`:** Fiyat düzeltme onay kapısı. `core/market/corrections.py` aynı kapıyı zaten uyguluyor; üstüne kaynak zorunluluğu ve tek özel kopyadan okuma da var. Codex sürümü PC'deki tek bir araştırma veritabanının SHA'sına sabitli, başka makinede çalışmaz.
+- **`local_pc_audit_m.py`:** Denetim raporunu `docs/` içine yazıyor. PC yolları herkese açık depoya girerdi; alınmadı.
+- Dal olduğu gibi duruyor; silinmedi.
+
 **K-60. Sanal sinyal defteri SQLite'ta; %6 şalter (03.11.2026).**
 - **Dosya:** `data/signals.db`. Kişisel dosya; depoya girmez (`data/*.db`), günlük yedeğe girer.
 - **Kurallar:** Takip, ML etiketleriyle aynı kurallarla yapılıyor: ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans, aynı seansta ikisi birden stop sayılır, tavan açılışta giriş yok, %0,15 maliyet. Ölçülen ile izlenen aynı şey olsun diye.
