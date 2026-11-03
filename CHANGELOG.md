@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.24 – 03.11.2026 (dip dönüşü ölçüldü: geçmedi)
+- **Gerçek veride ölçüm** (BIST 30, 1 yıl saatlik, 30/30 hisse): 576 olay.
+  - 16 mum sonra ortalama −%0,22; rastgele saatlerde −%0,19.
+  - Fark −%0,02 (%95 aralık −%0,61 … +%0,55); kazançlı olay %48.
+- Tetik bota bağlanmadı (K-63); eşikler değiştirilmedi. Ayrıntı: RESEARCH_LOG.
+
 ## v0.99.23 – 03.11.2026 (dip dönüşü tetiğinin ölçümü)
 - **Yeni: `core/analytics/dip_study.py`.** Kural ölçümden önce yazıldı (K-63).
   - Olay: tetiğin oluştuğu saatin kapanışı; aynı hissede 16 mum içinde gelen yeni tetik ayrı olay sayılmıyor.

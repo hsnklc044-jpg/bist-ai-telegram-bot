@@ -575,3 +575,14 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
 - **Gözlem:** BIST 100'de dört yılın dördünde de model tabanın 2–4 puan üstünde. Ancak aralığın alt ucu (%41,5) tabanın (%41,7) hemen altında kalıyor; istatistik olarak ayırt edilemiyor. Bu, gözlem olarak not edildi; kural ve eşik değiştirilmedi.
 - **Taban oranın %50'nin altında olmasının nedeni:** XU100 birkaç büyük hissenin ağırlığıyla yükseldi. Ortalama bir hisse endeksi 20 seansta çoğunlukla geçemedi.
 
+## 03.11.2026 – "Dip dönüşü" tetiği, saatlik (K-63, ölçümden önce yazıldı)
+
+- **Tetik:** (RSI < 35 veya Stoch %K < 20) ve Bollinger %b ≤ 0,10 ve MACD histogramı sıfırın altında yükseliyor.
+- **Veri:** BIST 30, son 1 yıl saatlik, 30/30 hisse, 63.299 mum. 02.11.2026 sonrası kullanılmadı. Kaynak: Actions çalışması 41640612621.
+- **Sonuç:** 576 olay, 30 hisse.
+  - 16 mum sonra ortalama −%0,22; aynı hisselerin rastgele saatlerinde −%0,19.
+  - Fark −%0,02; %95 aralık −%0,61 ile +%0,55 arası.
+  - Kazançlı olay oranı %48. 8 mumda fark −%0,07 (yan sonuç).
+- **Karar:** Geçmedi. Tetik rastgele saatlerden ayırt edilemiyor. Bota bağlanmadı; eşikler değiştirilmedi.
+- **Bugünkü dört ölçümün ortak sonucu:** stop/hedef ML, göreli 20 seans ML, dip dönüşü ve önceki seviyeler/senaryolar. Fiyat ve hacimden türetilen teknik kurallar bu verilerde maliyet sonrası rastgeleden ayırt edilemiyor.
+
