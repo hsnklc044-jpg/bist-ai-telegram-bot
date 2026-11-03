@@ -1,0 +1,34 @@
+DR drill 2026-11-03_15-25 (483b5b36b7d8bcacfd635a9cdb743191f1d1c8c0): success
+run: https://github.com/hsnklc044-jpg/bist-ai-telegram-bot/actions/runs/41634784666
+🩺 QuantBIST v0.99.18 durum – 03.11.2026 15:24
+⚠️ UYARI: dikkat gereken bileşen var
+
+❔ BİLİNMİYOR · Telegram botu: yaşam sinyali yok (bot v0.37.0 öncesi ya da hiç başlamadı)
+❔ BİLİNMİYOR · Günlük rapor: henüz gönderim kaydı yok (kayıt v0.22.0 ile başladı)
+✅ SAĞLIKLI · Fiyat verisi: XU100 son kapanış 02.11.2026
+✅ SAĞLIKLI · Fiyat veritabanı: bütünlük ok (14 MB)
+❔ BİLİNMİYOR · Canlı ölçüm kaydı: signal_log.csv yok
+❔ BİLİNMİYOR · Sanal hesap kaydı: equity_log.csv yok
+✅ SAĞLIKLI · Veri şeması: 2 dosya bu sürümle uyumlu
+✅ SAĞLIKLI · Kişisel dosyalar: 3 dosya sonuna kadar okundu
+⚠️ UYARI · Yedek: quantbist_2026-11-03.zip (03.11 15:24); yedek verilerle aynı diskte; disk arızasında ikisi birlikte kaybolur. BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın
+✅ SAĞLIKLI · Disk: 32.1 GB boş
+✅ SAĞLIKLI · Tatil takvimi: 2027 sonuna kadar; 2027 geçici
+ℹ️ BİLGİ · Temel veri: veri yok. KAP'tan otomatik çekme kullanım koşulları teyit edilene kadar kapalı (K-48); içe aktarma: python -m core.fundamentals.store --import DOSYA
+⚠️ UYARI · Makro veri: TÜFE 09.2026, kur önbelleği boş
+ℹ️ BİLGİ · Model doğrulama: yüksek riskli modellerin 6/11'i bağımsız doğrulandı (M11 kısıtlı kullanılabilir, M12 kısıtlı kullanılabilir, M14 kısıtlı kullanılabilir, M16 kısıtlı kullanılabilir, M24 kısıtlı kullanılabilir, M28 kısıtlı kullanılabilir)
+❔ BİLİNMİYOR · Seviye hesabı: henüz kayıt yok (her akşam rapordan sonra yazılır)
+✅ SAĞLIKLI · Bakım takvimi: sonraki BIST 100 dönemi 01.01.2027
+ℹ️ BİLGİ · Dışarıdan izleme: kurulmadı (isteğe bağlı): .env'de HC_REPORT_URL ve HC_BOT_URL yok; OPERATIONS §7
+✅ SAĞLIKLI · GitHub araştırması: son çalışma 31.10 13:22: success
+
+📐 SLO (son 7 gün): 1/7 hedefte, 5 ölçülemiyor
+  ❔ Rapor teslimi: — (hedef ≥ %99 seans 19:00'a kadar) · runs.csv yok
+  ❔ Bot ayakta kalma: — (hedef ≥ %98) · veri birikiyor; en az 1 günlük yaşam sinyali gerekir
+  ❔ Veri tazeliği: — (hedef ≥ %98 hisse 19:00'da güncel) · freshness.csv yok (ilk raporla başlar)
+  ❔ Veri doğruluğu: — (hedef ≤ %1 hisse ikinci kaynaktan farklı) · İş Yatırım ikinci kaynak kapalı: sitenin robots.txt'si /_layouts/ yolunu bütün otomatik erişime yasaklıyor (D13, K-54)
+  ⚠️ Yedek: — (hedef her gün + haftalık geri yükleme testi) · 0/0 seans günü yedekli; ölçüm 03.11'de başladı; geri yükleme testi 03.11 başarılı
+  ❔ Kayıt bütünlüğü: — (hedef 0 bozuk / tekrar / eksik) · signal_log.csv yok
+  ✅ Kalite (CI, kapsam): — (hedef CI yeşil, kapsam ≥ %90) · son CI 03.11 14:05 (b1c362c): success; testler, ruff ve kapsam kapısı %91 geçti
+
+Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.
