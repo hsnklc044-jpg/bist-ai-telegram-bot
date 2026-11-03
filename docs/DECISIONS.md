@@ -4,6 +4,19 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-63. "Dip dönüşü" tetiğinin ölçümü; ölçümden ÖNCE yazıldı (03.11.2026).**
+- **Karar:** Saatlik tetik bota bağlanmadan önce ölçülecek. Ölçülmemiş bir kuralın her saat bildirilmesi kanıtsız sinyal yayınlamak olur.
+- **Veri:** BIST 30'un (`core/config/bist30.py`) Yahoo'dan son 1 yıllık saatlik mumları. 02.11.2026 ve sonrası (holdout) kullanılmaz.
+- **Olay:** Tetiğin (`core.market.extended.trigger_mask`) doğru olduğu saatin kapanışı. Aynı hissede önceki olaydan sonraki 16 mum içinde gelen tetik yeni olay sayılmaz; üst üste binen sonuçlar böylece ayrılır.
+- **Sonuç:** Ertesi saatin açılışında giriş, 16 mum (yaklaşık 2 seans) sonraki kapanışta çıkış; %0,15 maliyet düşülür. Yan sonuç olarak 8 mum da raporlanır, ama karar 16 mumla verilir.
+- **Karşılaştırma:** Aynı hisselerin tüm saatlerinden aynı kuralla (ertesi açılış → 16 mum sonra kapanış, maliyetli) yapılan girişlerin ortalaması. Fark = olay ortalaması − taban ortalaması.
+- **%95 aralığı:** Gün blok bootstrap (aynı gündeki olaylar birlikte yeniden örneklenir), 2000 tekrar, tohum 0.
+- **Geçme koşulu:**
+  - en az 100 olay;
+  - farkın aralığının alt ucu > 0;
+  - olayların maliyet sonrası ortalaması > 0.
+- **Sonrası:** Geçerse saatlik tarama bota "kural çıktısı" olarak bağlanır. Geçmezse bağlanmaz ve sonuç olduğu gibi kaydedilir. Tetiğin eşikleri (RSI 35, Stoch 20, %b 0,10) sonuca göre değiştirilmez.
+
 **K-62. ML filtresi için ikinci kural; ölçümden ÖNCE yazıldı (03.11.2026).**
 - **Neden:** İlk kural (K-59: %2 stop / %4 hedef) örneklem dışında %34 isabet verdi; taban %33,8. Rastgeleden ayırt edilemedi. Eşik gevşetilmiyor. Kullanıcı farklı ve önceden tanımlı bir kuralla yeniden denemeyi istedi.
 - **Kural "goreli20":** Etiket şu soruya evet ise 1: "Hisse, ertesi açılıştan 20. seansın kapanışına kadar, %0,15 maliyetten sonra XU100'ün aynı dönemdeki getirisini geçti mi?"
