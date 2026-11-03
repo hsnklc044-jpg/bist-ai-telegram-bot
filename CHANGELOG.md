@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.42 – 04.11.2026 (bağımsız ikinci kaynak: elle indirilen dosya; K-70)
+- **Talimat:** Kullanıcının 04.11 güvenilirlik talimatı DECISIONS K-70 olarak kaydedildi: yedi madde, kabul ölçütleri ve tamamlanma koşulu. Kullanıcının istediği üç modülün kurallara uygun biçimi de oraya yazıldı.
+- **Yeni modül `core/market/second_source.py`:**
+  - Kökeni birincil kaynak (Yahoo) olan kaynak reddediliyor; Yahoo'yu Yahoo'yla karşılaştırmak her zaman "%100 doğru" gösterirdi.
+  - Onayı ve koşul belgesi olmayan ağ kaynağı hiç çalışmıyor; robots.txt aşılmıyor.
+  - Hata olursa yalnız sıradaki bağımsız kaynağa geçiliyor. Hiçbiri yoksa sonuç "ölçülemiyor".
+  - İlk kaynak, kullanıcının indirdiği fiyat dosyası: `python -m core.market.second_source --dosya DOSYA.csv --kaynak "…"`. Virgül ya da noktalı virgül ayraç, ondalık virgül ve gün.ay.yıl tarih okunuyor.
+  - Karşılaştırma kuralları ve toleransı mevcut `crosscheck.compare` ile aynı, değişmedi.
+- **SLO:** "Veri doğruluğu", dosya özetiyle haftalık araştırma özetinden hangisi yeniyse onu kullanıyor ve kaynağı yazıyor. Kapalı ya da eksik özet gerçek bir ölçümün yerine geçmiyor.
+- Doğrulama: `test_independent_source` (10 test): birincil kaynak reddi; onaysız ağ kaynağı çalışmıyor; geri düşüş yalnız bağımsız kaynağa; iki dosya biçimi; bozuk dosya reddi; dosyaya konmuş %5'lik fark yakalanıyor; SLO yeni özeti seçiyor; komut özeti yazıyor, Yahoo kökenli dosyayı reddediyor, bozuk hisse kontrolü durdurmuyor. Not: modülün ilk taslağı testten önce yazıldı; SLO bağlantısı önce kırmızı test, sonra kod sırasıyla yapıldı.
+
 ## v0.99.41 – 04.11.2026 (güvenilirlik denetimi; model doğrulama sayımı düzeltildi)
 - **Denetim:** Kullanıcının 04.11 güvenilirlik talimatına göre `docs/AUDIT.md` "EVRE 1" yazıldı. Her tamamlanma ölçütünün bugünkü durumu kanıtıyla birlikte yazıldı, bulgular önem sırasına kondu, iş sırası belirlendi. Sistem "tam güvenilir" değil; ölçütlerin çoğunda örneklem yetersiz ya da ölçüm yok.
 - **Hata 1:** `/durum` "6/11 doğrulandı" diyordu. M15'in raporundaki "## 5. Karar: **kısıtlı kullanılabilir**" satırı okunmuyordu.

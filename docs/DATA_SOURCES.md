@@ -77,6 +77,13 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 - **Yeni aylar:** akşam raporu her ayın 3'ünden sonra TCMB tablosunu bir kez okur. Yeni ayı `data/macro/cpi_local.csv`'ye ekler (yerel, git dışı). Yayım tarihi olarak **ilk görüldüğü gün** yazılır: gerçek açıklamadan önce olamaz, bu yüzden geleceği görme yoktur. Depodaki satır her zaman yerel satırdan önce gelir.
 - **Ay içi tahmin yok:** son açıklanan ay ileri taşınır. Bir aydan kısa pencerede reel getiri nominale eşit çıkabilir; çıktı bunu yazar.
 
+### Elle indirilen fiyat dosyası (ikinci kaynak, v0.99.42)
+
+- **Ne:** Kullanıcının kendi indirdiği fiyat dosyası (aracı kurum dışa aktarımı, Borsa İstanbul bülteni vb.). Sütunlar: `date, code, close`.
+- **Koşul:** Ağ erişimi yok, otomatik toplama yok. Kullanıcı dosyayı kendi hakkıyla indirir.
+- **Kural:** Kökeni Yahoo olan dosya reddedilir; doğrulama birincil kaynağa geri düşmez (K-70).
+- **Komut:** `python -m core.market.second_source --dosya DOSYA.csv --kaynak "nereden geldiği"`. Özet `logs/price_second_source.json`'a yazılır ve "Veri doğruluğu" SLO'sunda kaynağıyla görünür.
+
 ### Borsa İstanbul
 - **Telif bildirimi** (`sources/2026-10-28_20-28-55/001.html`):
   - "Kullanıcılar bilgi ve dokümanları, sadece bilgi edinme amacıyla kullanabilir."

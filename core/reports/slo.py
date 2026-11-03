@@ -289,9 +289,27 @@ def accuracy(now: datetime, data: dict | None) -> SloResult:
     differing = data.get("differing", [])
     share = len(differing) / data["checked"]
     text = f"{day:%d.%m}: {len(differing)}/{data['checked']} hisse farklı"
+    if data.get("source"):
+        text += f" (kaynak: {data['source']})"
     if share > 0.01:
         return SloResult(name, WARN, 1 - share, f"{text}; şüpheli: {', '.join(differing)}")
     return SloResult(name, OK, 1 - share, text + (f" ({', '.join(differing)})" if differing else ""))
+
+
+def pick_accuracy(local: dict | None, remote: dict | None) -> dict | None:
+    """The newer of the user's file check (core.market.second_source) and the weekly research summary;
+    a disabled or missing summary never beats a real one (v0.99.42)."""
+
+    def day(d):
+        try:
+            return date.fromisoformat(d["date"]) if d and d.get("checked") else None
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    a, b = day(local), day(remote)
+    if a and (b is None or a >= b):
+        return local
+    return remote if (b or remote) else local
 
 
 def fetch_accuracy(get=None) -> dict | None:
@@ -388,12 +406,19 @@ def measure(now: datetime, folder: Path | None = None) -> list[SloResult]:
         report_delivery(now, paths["runs"]),
         bot_uptime(now, paths["beats"]),
         freshness(now, paths["fresh"]),
-        accuracy(now, _local_json(folder / "crosscheck.json") if folder is not None else fetch_accuracy()),
+        accuracy(now, _local_json(folder / "crosscheck.json") if folder is not None else
+                 pick_accuracy(_local_json(_second_source_file()), fetch_accuracy())),
         backup_slo(now, paths["backups"], paths["restores"]),
         integrity(now, paths["signal"], check_personal=folder is None),
         quality(now) if folder is None else SloResult("Kalite (CI, kapsam)", UNKNOWN, None, "testte sorgulanmaz"),
     ]
     return results
+
+
+def _second_source_file() -> Path:
+    from core.market.second_source import SUMMARY_FILE
+
+    return SUMMARY_FILE
 
 
 def _local_json(path: Path) -> dict | None:

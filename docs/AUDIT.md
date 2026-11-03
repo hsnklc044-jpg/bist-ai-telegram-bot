@@ -56,10 +56,13 @@ Get-ScheduledTask -TaskName "QuantBIST*" | Get-ScheduledTaskInfo | Select-Object
 
 ## İş sırası (döngü)
 
+Kullanıcı 04.11'de bu sırayı resmi talimat yaptı (DECISIONS K-70). Aşağıdaki numaralar denetim sırasıdır; K-70'teki madde numaraları farklıdır.
+
+
 1. ✅ v0.99.41: Model doğrulama sayımı düzeltildi; M30, M31 ve M32 envantere eklendi (bulgu 1).
 2. Yedek ve telafi hatalarında Telegram uyarısı (bulgu 2).
 3. Sinyal kaydını genişlet: gerekçe, risk, geçerlilik, XU100 karşılaştırması, kazanan ve kaybeden ölçümü (bulgu 4).
-4. Elle indirilen ikinci kaynak dosyasıyla karşılaştırma (bulgu 3); otomatik erişim açılmaz.
+4. ✅ v0.99.42 (altyapı): Elle indirilen fiyat dosyası Yahoo'yla karşılaştırılıyor; özet "Veri doğruluğu" SLO'suna giriyor. Kabul ölçütü (20 seansta ≥ %99) için kullanıcının dosyası gerekiyor. Otomatik erişim açılmadı.
 5. Eksik bağımsız doğrulamalar (M31, M32, M30, M1, M5, M8, M27), örneklem dışı ve sızıntı kontrolüyle; başarısız olan kısıtlı kalır.
 6. `/durum` metninin sadeleştirilmesi; ölçülemeyen satırlar "ölçülemiyor" kalır.
 

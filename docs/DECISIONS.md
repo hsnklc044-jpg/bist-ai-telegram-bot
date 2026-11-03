@@ -2,6 +2,24 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 04.11.2026
+
+**K-70. Güvenilirlik talimatı resmi iş sırası (kullanıcı, 04.11.2026).**
+- **Genel kural:** Eksik veri tahminle ya da sonradan doldurulmaz. Başarısız model başarılı raporlanmaz. Yeni bir kaynağa otomatik erişim, kullanım koşulları doğrulanıp kullanıcı onaylamadan açılmaz.
+- **Maddeler ve kabul ölçütleri:**
+  1. Eksik günlerin nedeni: 30.10 ve 02.11; veri girilmez. Neden AUDIT'e yazılır; tekrar ederse uyaran bir kontrol olur.
+  2. Yedek güvencesi: hata ya da telafi Telegram'a bildirilir. 20 seans %100 yedek ve her hafta başarılı geri yükleme.
+  3. Veri doğruluğu: elle indirilen dosya Yahoo'yla gün gün karşılaştırılır. 20 seansta hisselerin ≥ %99'u tutarlı.
+  4. Sinyal kaydı ve sanal portföy: gerekçe, risk ve geçerlilik kaydedilir; BIST 100 karşılaştırması yapılır; kazanan ve kaybedenler ayrı ölçülür. Açıklanamayan fark 0.
+  5. Model doğrulama: sırayla M31, M32, M30, M1, M5, M8, M27. 14/14 raporlu; geçemeyen kısıtlı kalır.
+  6. Temel veri: KAP'tan elle indirilen CSV içe aktarılır. En az 10 hissede hesaplar elle doğrulanır.
+  7. İzleme: Windows görevleri PC'den doğrulanır; ölçülemeyen SLO "ölçülemiyor" gösterilir.
+- **Tamamlanma:** Bütün SLO'lar en az 20 seans hedefte kalır ve 14/14 model raporlu olur. Bu sağlanmadan sistem "tam güvenilir" sayılmaz.
+- **Mimari notu (aynı gün):** Kullanıcı üç modül istedi: otomatik yedekli veri yönlendiricisi, ağırlık düşüren RiskController ve dosya izleyen KAP ETL'si. Uygulanan biçimleri:
+  - Doğrulama kaynağı birincil kaynağa (Yahoo) asla geri düşmez. Bağımsız kaynak yoksa sonuç "ölçülemiyor" olur. robots.txt aşılmaz (`core/market/second_source.py`).
+  - Modeller sinyal ağırlığı taşımadığı için RiskController yerine bir model kapısı (ModelGate) yapılacak: doğrulanmamış ya da kullanılamaz bir yüksek riskli model hiçbir şeyi otomatik değiştiremez.
+  - KAP ETL'si, botun düzenli baktığı bir posta kutusu klasörüyle (`data/inbox/temel/`) yapılacak. Otomatik çekme kapalı kalır.
+
 ## 03.11.2026
 
 **K-69. Sürekli açık bot, raporun kaçırdığı günlük işleri telafi eder (03.11.2026, v0.99.30–v0.99.34).**
