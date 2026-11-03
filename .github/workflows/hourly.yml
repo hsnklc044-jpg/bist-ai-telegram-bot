@@ -50,3 +50,9 @@ jobs:
           print(extended.scan(data.frames).to_string(index=False))
           PY
           { echo '```'; cat hourly.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # K-63: the dip trigger measured on the last year (written before this measurement)
+      - name: Dip trigger study
+        if: inputs.tickers == ''
+        run: |
+          python -m core.analytics.dip_study 2>&1 | tee dip.txt
+          { echo '```'; cat dip.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

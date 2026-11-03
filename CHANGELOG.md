@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.23 – 03.11.2026 (dip dönüşü tetiğinin ölçümü)
+- **Yeni: `core/analytics/dip_study.py`.** Kural ölçümden önce yazıldı (K-63).
+  - Olay: tetiğin oluştuğu saatin kapanışı; aynı hissede 16 mum içinde gelen yeni tetik ayrı olay sayılmıyor.
+  - Sonuç: ertesi saat açılışında giriş, 16 mum sonra çıkış, maliyet düşülü.
+  - Karşılaştırma: aynı hisselerin tüm saatlerinden aynı kuralla girişler.
+  - %95 aralığı gün blok bootstrap ile. 02.11.2026 sonrası kullanılmıyor.
+- "Hourly data check" iş akışı ölçümü de çalıştırıyor.
+- Doğrulama: `test_dip_study` (7 test):
+  - elle hesaplanmış getiri;
+  - olay ayıklama kuralı;
+  - rastgele veride geçmiyor; gömülü gerçek etkiyi buluyor;
+  - holdout kesiliyor.
+
 ## v0.99.22 – 03.11.2026 (BIST 30 kodları düzeltildi, saatlik veride tek tek yeniden deneme)
 - **Listede iki kod düzeltildi** (gerçek Yahoo verisiyle denendi, Actions 41637982348):
   - EKOY.IS → **EKGYO.IS** (Emlak Konut): EKOY Yahoo'da yok.
