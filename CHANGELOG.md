@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.21 – 03.11.2026 (iki gerçek veri sonucu)
+- **ML ikinci kural (goreli20) ölçüldü: filtre kapalı.**
+  - Yaklaşık BIST 30: isabet %45,9, taban %44,6.
+  - BIST 100: isabet %45,0, taban %41,7.
+  - BIST 100'de model her yıl tabanın biraz üstünde, ama fark güven aralığı içinde. Eşik değiştirilmedi. Ayrıntı: RESEARCH_LOG.
+- **Saatlik veri gerçek Yahoo'da denendi.**
+  - 27/30 hisse geldi (57.023 mum).
+  - EKOY.IS ve KOZAL.IS için Yahoo "veri yok" diyor; ISCTR.IS'den kullanılabilir mum gelmedi.
+  - "Hourly data check" iş akışına hisse girişi ve verisi gelmeyen hisse için ham veri tanısı eklendi.
+
 ## v0.99.20 – 03.11.2026 (BIST 30 listesi, saatlik veri, genişletilmiş göstergeler)
 - **BIST 30 listesi** `core/config/bist30.py` ve `data/bist30.csv` dosyalarında (kullanıcının verdiği 30 hisse). `/tara evren=bist30` artık çalışıyor. EKOY.IS Yahoo'da bulunmayabilir (EKGYO kastedilmiş olabilir); indirici verisi gelmeyen hisseyi adıyla raporluyor.
 - **Saatlik veri: `core/market/hourly.py`.**

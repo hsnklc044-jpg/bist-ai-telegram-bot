@@ -5,6 +5,11 @@ name: Hourly data check
 
 on:
   workflow_dispatch:
+    inputs:
+      tickers:
+        description: "Virgülle ayrılmış kodlar (boş: BIST 30 listesi)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -25,11 +30,20 @@ jobs:
           cache: pip
       - run: pip install -r requirements.lock
       - name: Download and scan
+        env:
+          TICKERS: ${{ inputs.tickers }}
         run: |
           python - <<'PY' 2>&1 | tee hourly.txt
+          import os
           from core.market import extended, hourly
-          data = hourly.load_hourly()
+          wanted = [t.strip().upper() for t in os.environ.get("TICKERS", "").split(",") if t.strip()]
+          data = hourly.load_hourly(wanted or None)
           print(data.summary())
+          import yfinance as yf
+          for t in sorted(data.missing):  # why: what Yahoo returns for it alone
+              raw = yf.download(t, period="1y", interval="1h", auto_adjust=True, progress=False)
+              print(f"tanı {t}: {len(raw)} satır" + (f", boş hücre {int(raw.isna().sum().sum())}, "
+                    f"ilk {raw.index[0]}, son {raw.index[-1]}" if len(raw) else ""))
           for t, df in sorted(data.frames.items()):
               print(f"{t}: {len(df)} mum, {df.index[0]:%d.%m.%Y %H:%M} -> {df.index[-1]:%d.%m.%Y %H:%M}")
           print("Tetik (son saat):")

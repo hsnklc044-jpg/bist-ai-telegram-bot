@@ -559,3 +559,19 @@ Yıllara göre (BIST 30 yaklaşığı): 2023 %34,0 / taban %33,0; 2024 %37,3 / %
 - %2 / %4 kuralında maliyetle başa baş isabet yaklaşık %36. Taban oran (%33–34) bunun altında; yani kuralın kendisi ortalamada küçük bir kayıp.
 - Eşik sonuca bakılarak değiştirilmeyecek (önceki kural: şablon eşikleri sonuca göre ayarlanmaz).
 
+## 03.11.2026 – ML filtresi, ikinci kural "goreli20" (K-62, ölçümden önce yazıldı)
+
+- **Kural:** Hisse, ertesi açılıştan 20. seans kapanışına kadar, maliyetten sonra XU100'ü geçer mi?
+- **Ölçüm:** Test günleri 20 seans arayla seçildi; %95 aralığı tarih blok bootstrap ile hesaplandı. Holdout kullanılmadı. Kaynak: Actions çalışması 41635970219.
+
+| Evren | Sinyal | İsabet (%95 aralık) | Taban | XU100'e göre ortalama fark (sinyal / tümü) |
+|---|---|---|---|---|
+| Yaklaşık BIST 30 | 907 | %45,9 (%41,5–50,5) | %44,6 | +%0,2 / −%0,6 |
+| BIST 100 | 2.413 | %45,0 (%41,5–48,8) | %41,7 | −%0,4 / −%1,0 |
+
+Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %45,5 / %42,0; 2026 %45,3 / %43,3.
+
+- **Sonuç:** Filtre kapalı. İsabet %60'ın çok altında.
+- **Gözlem:** BIST 100'de dört yılın dördünde de model tabanın 2–4 puan üstünde. Ancak aralığın alt ucu (%41,5) tabanın (%41,7) hemen altında kalıyor; istatistik olarak ayırt edilemiyor. Bu, gözlem olarak not edildi; kural ve eşik değiştirilmedi.
+- **Taban oranın %50'nin altında olmasının nedeni:** XU100 birkaç büyük hissenin ağırlığıyla yükseldi. Ortalama bir hisse endeksi 20 seansta çoğunlukla geçemedi.
+
