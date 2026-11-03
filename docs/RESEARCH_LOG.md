@@ -586,3 +586,22 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
 - **Karar:** Geçmedi. Tetik rastgele saatlerden ayırt edilemiyor. Bota bağlanmadı; eşikler değiştirilmedi.
 - **Bugünkü dört ölçümün ortak sonucu:** stop/hedef ML, göreli 20 seans ML, dip dönüşü ve önceki seviyeler/senaryolar. Fiyat ve hacimden türetilen teknik kurallar bu verilerde maliyet sonrası rastgeleden ayırt edilemiyor.
 
+## 03.11.2026 – Sinyal onay katmanı, meta-etiketleme (K-64, ölçümden önce yazıldı)
+
+- **Yöntem:** Dip dönüşü tetiğinin olaylarını RandomForest onaylıyor ya da reddediyor; onay eşiği olasılık ≥ 0,60.
+  - Ayarlar yalnız eğitim verisi içinde seçildi.
+  - Değerlendirme: 5 dış kat, temizlenmiş.
+  - Kaynak: Actions çalışmaları 41645852277 (günlük) ve 41645846675 (saatlik).
+
+| Veri | Olay / test | Accuracy | Taban oran | "Hep hayır" doğruluğu | Onaylanan | Onaylı isabet (%95) |
+|---|---|---|---|---|---|---|
+| BIST 100 günlük (X=10, Y=%3) | 745 / 497 | %62,4 | %33,6 | %66,4 | 42 | %26,2 (%14,0–39,0) |
+| BIST 30 saatlik (X=16, Y=%1,5) | 571 / 381 | %74,5 | %23,6 | %76,4 | 39 | %41,0 (%27,8–64,3) |
+
+- **Karar:** İkisi de geçmedi. Onaylı sinyal sayısı 50'nin altında (42 ve 39).
+- **Günlük:** Onaylananlar tabandan daha kötü.
+- **Saatlik:** Onaylananların isabeti (%41) tabanın (%23,6) üstünde; aralığın alt ucu da tabanın üstünde. Ama yalnız 39 olay var, önceden yazılan 50 koşulu sağlanmadı.
+  - Bu bir gözlem olarak not edildi; kural ve eşik değiştirilmedi.
+  - Saatlik veri yalnız 1 yılı kapsıyor. Aynı kural, holdout sonrası biriken yeni verilerde (02.11.2026 sonrası) yeniden ölçülecek; bu, gerçek ileri test olur. Erken tarih: 03.02.2027.
+- **Accuracy notu:** İki modelin doğruluğu da her şeye "hayır" diyen modelinkinin altında (%62,4'e karşı %66,4; %74,5'e karşı %76,4). Yüksek görünen doğruluk, düşük taban orandan geliyor.
+

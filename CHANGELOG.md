@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.27 – 03.11.2026 (sinyal onay katmanı ölçüldü: geçmedi)
+- **Günlük BIST 100:** accuracy %62,4 (her şeye "hayır" diyen model %66,4).
+  - Onaylanan 42 sinyalin isabeti %26,2, taban %33,6; tabandan kötü.
+- **Saatlik BIST 30:** accuracy %74,5 ("hep hayır" %76,4).
+  - Onaylanan 39 sinyalin isabeti %41,0, taban %23,6.
+  - Umut verici ama örnek, önceden yazılan 50'nin altında.
+- Katman bota bağlanmadı; eşikler değiştirilmedi. Saatlik kural 02.11.2026 sonrası yeni veride ileri test olarak yeniden ölçülecek (en erken 03.02.2027). Ayrıntı: RESEARCH_LOG.
+
 ## v0.99.26 – 03.11.2026 (sinyal defteri: seans içi takip ve kilitlenen şalter)
 - **Seans içi takip** (`core/signals/live.py`): Bot işlem günlerinde 10:00–19:00 arası her saat açık sinyallerin hisselerini saatlik mumlarla denetliyor. Giriş, hedef ve stop olunca Telegram'a yazıyor. Seans sonunda günlük mumlarla tekrar denetleniyor; süre dolumu orada kapanıyor.
 - **Şalterin yeni tanımı (K-65):** O gün kapanan sanal işlemlerin net zararı defterin %6'sına ulaşırsa bot o gün kendini kilitliyor; `/tara`, tarama abonelikleri ve yeni sinyal reddediliyor. Ertesi gün kilit kalkıyor.
