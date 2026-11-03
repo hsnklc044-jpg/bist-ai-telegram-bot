@@ -221,6 +221,27 @@ def schedule_signal_tracking(app: Application, chat_id: int) -> bool:
     return True
 
 
+MACRO_JOB = "macro_refresh"
+
+
+async def macro_refresh_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """v0.99.32: the USD/TRY rate no longer waits for the 18:30 report (it stuck at 23.10.2026)."""
+
+    from core.market import macro
+    from core.market.calendar import now_istanbul
+
+    await asyncio.to_thread(macro.refresh_usd, now_istanbul().replace(tzinfo=None))
+
+
+def schedule_macro_refresh(app: Application) -> bool:
+    """Every hour the bot asks TCMB for the bulletins the cache is missing (none when it is complete)."""
+
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_repeating(macro_refresh_job, interval=3600, first=300, name=MACRO_JOB)
+    return True
+
+
 HEARTBEAT_JOB = "heartbeat"
 
 

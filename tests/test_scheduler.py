@@ -188,3 +188,13 @@ class SleepWakeTest(unittest.TestCase):
         with mock.patch.dict("os.environ", {scheduler.ENV: "18:30"}):
             scheduler.schedule_daily_report(app)
         self.assertGreaterEqual(self.grace(app, scheduler.JOB_NAME), 3 * 3600)
+
+
+class MacroRefreshTest(unittest.TestCase):
+    def test_registered_hourly_and_runs_refresh(self):
+        app = _app()
+        self.assertTrue(scheduler.schedule_macro_refresh(app))
+        self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.MACRO_JOB)), 1)
+        with mock.patch("core.market.macro.refresh_usd", return_value=2) as refresh:
+            asyncio.run(scheduler.macro_refresh_job(SimpleNamespace()))
+        refresh.assert_called_once()

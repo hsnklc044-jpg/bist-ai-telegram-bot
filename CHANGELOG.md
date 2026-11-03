@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.32 – 03.11.2026 (kuru bot saatlik tazeliyor)
+- Kur artık yalnız 18:30 raporuna bağlı değil. Sürekli açık olan bot saatte bir, önbellekte eksik olan son iki haftanın TCMB bültenlerini soruyor (en çok 10 istek, 30 sn). Önbellek tamsa hiç istek atmıyor. Rapor bir akşam kuru alamazsa bir saat içinde telafi ediliyor (03.11: kur 23.10'da kalmıştı).
+- Günün bülteni 16:00'dan önce sorulmuyor. TCMB bülteni ~15:30'da yayımlıyor; daha önce gelen 404 "o gün bülten yok" diye kalıcı kaydedilirdi.
+- Hata botu durdurmuyor, yalnız log'a ve `logs/usd_fetch.json`'a yazılıyor.
+- Doğrulama: `test_macro` (RefreshTest): 14:00'te bitiş dün, 16:00'da bugün; hata 0 döndürüyor. `test_scheduler` (MacroRefreshTest): iş saatlik kaydediliyor ve tazelemeyi çağırıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.31 – 03.11.2026 (kur neden eski kaldı, /durum söylüyor)
 - **Sorun:** `/durum` kuru 23.10.2026'da takılı gösterdi ama nedenini söylemedi. TCMB bülteni çekilirken bağlantı hatası, HTTP hatası ve okunamayan dosya sessizce atlanıyordu.
 - **Teşhis:** Her bülten çekişi `logs/usd_fetch.json`'a yazılıyor: kaç bülten soruldu, kaçı eklendi, kalanı neden olmadı (bağlantı hatası, HTTP kodu, bülten okunamadı, bülten tarihi farklı). Sorun olursa log'a da uyarı düşüyor.

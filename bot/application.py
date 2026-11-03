@@ -11,6 +11,7 @@ from bot.handlers import register_handlers
 from bot.scheduler import (
     schedule_daily_report,
     schedule_heartbeat,
+    schedule_macro_refresh,
     schedule_report_watch,
     schedule_signal_tracking,
 )
@@ -68,6 +69,7 @@ def build_app() -> Application:
     schedule_daily_report(app)
     schedule_report_watch(app, config.chat_id)
     schedule_heartbeat(app)
+    schedule_macro_refresh(app)
     schedule_signal_tracking(app, config.chat_id)
 
     return app

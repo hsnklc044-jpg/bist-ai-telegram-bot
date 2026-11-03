@@ -288,6 +288,24 @@ def update_usdtry(start: date, end: date, path: Path | str | None = None, limit:
     return added
 
 
+BULLETIN_HOUR = 16  # TCMB publishes the day's bulletin at about 15:30 Istanbul time
+
+
+def refresh_usd(now: datetime, update=None) -> int:
+    """The bot's hourly step (v0.99.32): the last two weeks' missing bulletins, at most 10 requests
+    in 30 s. Today is asked only after BULLETIN_HOUR: a 404 before publication would be remembered
+    as 'no bulletin' for good. Nothing is asked when the cache is complete; errors only reach the log."""
+
+    update = update_usdtry if update is None else update
+    today = now.date()
+    end = today if now.hour >= BULLETIN_HOUR else today - timedelta(days=1)
+    try:
+        return update(today - timedelta(days=14), end, limit=10, budget=30)
+    except Exception:  # noqa: BLE001 - the bot never stops on this
+        logger.exception("USD/TRY refresh failed")
+        return 0
+
+
 def _save_fetch(path: Path, result: dict) -> None:
     import json
 

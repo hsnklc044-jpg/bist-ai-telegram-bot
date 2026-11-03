@@ -393,3 +393,37 @@ class FreshnessTest(Files):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RefreshTest(Files):
+    """v0.99.32: the always-on bot refreshes the rate every hour instead of waiting for the 18:30 report."""
+
+    def _calls(self, now):
+        from datetime import datetime  # noqa: F401 - the argument type
+
+        calls = []
+
+        def fake(start, end, **kwargs):
+            calls.append((start, end, kwargs))
+            return 0
+
+        macro.refresh_usd(now, update=fake)
+        return calls
+
+    def test_today_only_after_the_bulletin(self):
+        from datetime import datetime
+
+        # 14:00: today's bulletin is not out; a 404 would be remembered as "no bulletin" for good
+        (start, end, kw), = self._calls(datetime(2026, 11, 4, 14, 0))
+        self.assertEqual((start, end), (date(2026, 10, 21), date(2026, 11, 3)))
+        self.assertEqual((kw["limit"], kw["budget"]), (10, 30))
+        (start, end, _), = self._calls(datetime(2026, 11, 4, 16, 0))
+        self.assertEqual(end, date(2026, 11, 4))
+
+    def test_errors_never_reach_the_bot(self):
+        from datetime import datetime
+
+        def broken(*a, **k):
+            raise RuntimeError("x")
+
+        self.assertEqual(macro.refresh_usd(datetime(2026, 11, 4, 16, 0), update=broken), 0)

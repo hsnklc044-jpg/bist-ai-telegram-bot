@@ -434,6 +434,7 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 - Kur ikinci kaynaktan da denetlenir. Akşam raporu son iki haftanın Yahoo kurunu TCMB bülteniyle karşılaştırır. Yahoo'nun günlük kapanışı başka bir saatte alındığı için küçük fark olağandır. Fark %1'i aşarsa "Makro veri" UYARI verir; hiçbir değer değiştirilmez.
 - Geçmiş kurları bir kerede doldurmak için: `python -m core.market.macro --usd 2026-01-02`.
 - Kur 5 günden eskiyse `/durum` son denemenin sonucunu yazar (`logs/usd_fetch.json`): kaç bülten soruldu, kaçı eklendi, hata türü. Boş kaydedilen günleri yeniden sormak için: `python -m core.market.macro --usd 2026-10-20 --yeniden` (v0.99.31).
+- Bot açıkken eksik kur bültenlerini saatte bir kendisi sorar; günün bülteni 16:00'dan sonra (v0.99.32).
   - Her gün için bir istek gider; TCMB'de bir istek yaklaşık 1,6 saniye sürüyor.
   - `--budget 600` 10 dakikada durur. Alınanlar saklanır, bir sonraki çalıştırma kaldığı yerden devam eder.
 
