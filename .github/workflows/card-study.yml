@@ -1,0 +1,33 @@
+name: Card rule study
+
+# DECISIONS K-68 (written before the measurement): the /tara ai card's own rule (daily dip trigger,
+# next open, 2% trailing stop, 4% target, 10 sessions) on BIST 30 before the holdout. Measures,
+# never selects; the output is in the run log and its summary page.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download prices
+        run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+      - name: Card rule (K-68)
+        run: |
+          python -m core.analytics.card_study 2>&1 | tee card.txt
+          { echo '```'; cat card.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

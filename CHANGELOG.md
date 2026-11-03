@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.36 – 03.11.2026 (kartın kendi kuralı ölçülüyor, K-68)
+- Kartın önerdiği kural hiç ölçülmemişti: dip dönüşü tetiği, ertesi açılışta giriş, %2 iz süren stop, %4 kâr al, en çok 10 seans. Ölçüm kuralı ölçümden önce DECISIONS K-68'e yazıldı.
+- Modül `core/analytics/card_study.py`: sanal defterin takip fonksiyonunu birebir kullanıyor. Tetik olaylarını aynı hisselerin bütün seanslarından girilen aynı kuralla karşılaştırıyor; aralık gün blok bootstrap ile hesaplanıyor. Holdout okunmuyor.
+- GitHub Actions'ta yeni iş akışı: "Card rule study" (`card-study.yml`, elle başlatılıyor).
+- Doğrulama: `test_card_study` (6 test): elle hesaplanmış bir iz süren stop işlemi; açık kalan son satırlar dışarıda kalıyor; olaylar arası 10 seans boşluk; rastgele yürüyüş geçmiyor; holdout okunmuyor; az olayda doğru gerekçe.
+
 ## v0.99.35 – 03.11.2026 (kart, modelin gerçek geçmiş isabetini yazıyor)
 - `/tara ai` kartı eskiden yalnız "model geçmedi" diyordu. Artık ✅'e basmadan önce ölçülen rakamı da gösteriyor. Örnek: "Geçmiş ölçüm: onaylanan 42 sinyalde isabet %26,2, tüm tetiklerde %33,6 (onay isabeti artırmadı; isabet: 10 seans sonra kapanış ≥ +%3; BIST 100, örneklem dışı, K-64, Actions 41645852277)".
 - Kaynak: Bilgisayarda daha yeni bir örneklem dışı rapor (`logs/signal_filter_gunluk.json`) varsa o kullanılıyor. Yoksa RESEARCH_LOG'a yazılmış K-64 sonucu kullanılıyor; ölçüm GitHub Actions'ta yapıldığı için bilgisayarda genelde rapor yok. Rakam ya da eşik değiştirilmedi.

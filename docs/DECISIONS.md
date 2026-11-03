@@ -4,6 +4,23 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-68. Kartın kendi kuralının ölçümü; ölçümden ÖNCE yazıldı (03.11.2026).**
+- **Neden:** `/tara ai` kartı dip dönüşü tetiğinde ertesi açılışta girişi, %2 iz süren stopu, %4 kâr alı ve en çok 10 seansı önerir (K-67). Bu kural hiç ölçülmedi. K-63 saatlik veride 16 mum sonra kapanışı ölçtü; K-64 ise 10 seans sonra en az +%3 etiketini. Modül: `core/analytics/card_study.py`.
+- **Veri:** BIST 30 listesindeki hisselerin (`core/config/bist30.py`) düzeltilmiş günlük mumları. Göstergeler ısındıktan sonraki dönem; 02.11.2026 ve sonrası (holdout) kullanılmaz. Bugünkü listenin geçmişe uygulanması hayatta kalma yanlılığı taşır; sonuç bunu not eder.
+- **Olay:** Günlük `trigger_mask`'ın doğru olduğu seans. Aynı hissede önceki olaydan sonraki 10 seans içinde gelen tetik yeni olay sayılmaz.
+- **Sonuç:** Sanal defterin takip fonksiyonu (`core.signals.store._follow`) birebir kullanılır.
+  - Ertesi açılışta giriş; %2 iz süren stop; %4 kâr al; 10. seansın kapanışında süre dolumu.
+  - Aynı mumda ikisi birden olursa stop sayılır; boşlukta açılış fiyatı kullanılır; %0,15 maliyet düşülür.
+  - Açılış önceki kapanışın %9,5 üstündeyse işlem dolmamış sayılır.
+- **Karşılaştırma (taban):** Aynı hisselerin tüm seanslarından aynı giriş ve çıkış kuralıyla yapılan işlemlerin ortalama net getirisi. Fark = olay ortalaması − taban ortalaması.
+- **%95 aralığı:** Gün blok bootstrap, 2000 tekrar, tohum 0.
+- **Geçme koşulu:**
+  - en az 100 olay;
+  - farkın %95 aralığının alt ucu 0'ın üstünde;
+  - olayların maliyet sonrası ortalaması 0'ın üstünde.
+- **Raporlanan:** olay sayısı; hedef, stop ve süre dolumu oranları; ortalama net getiri (olay ve taban); fark ve aralığı.
+- **Geçerse ya da geçmezse:** Kartın "Geçmiş ölçüm" satırına bu sonuç da eklenir. Kural, eşik ya da parametre sonuca bakılarak değiştirilmez.
+
 **K-67. v3.0: butonla manuel onay, %1 risk lot hesabı, iz süren stop (03.11.2026).**
 - **Manuel onay:**
   - `/tara ai`'nin %60 üstü kartları "onay bekliyor" olarak deftere yazılır ve altına [✅ İşleme Gir] [❌ İptal Et] düğmeleri eklenir.
