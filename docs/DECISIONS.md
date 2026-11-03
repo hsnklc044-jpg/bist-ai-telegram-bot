@@ -4,6 +4,22 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-62. ML filtresi için ikinci kural; ölçümden ÖNCE yazıldı (03.11.2026).**
+- **Neden:** İlk kural (K-59: %2 stop / %4 hedef) örneklem dışında %34 isabet verdi; taban %33,8. Rastgeleden ayırt edilemedi. Eşik gevşetilmiyor. Kullanıcı farklı ve önceden tanımlı bir kuralla yeniden denemeyi istedi.
+- **Kural "goreli20":** Etiket şu soruya evet ise 1: "Hisse, ertesi açılıştan 20. seansın kapanışına kadar, %0,15 maliyetten sonra XU100'ün aynı dönemdeki getirisini geçti mi?"
+  - XU100 getirisi t kapanışından t+20 kapanışına ölçülür.
+  - Tavan açılışta giriş yok.
+  - Etiketin bilindiği gün t+20'dir.
+- **Öznitelikler:** K-59'dakilerle aynı; hiçbiri eklenmedi ya da çıkarılmadı.
+- **Model:** K-59'dakiyle aynı; ayarlar değişmedi.
+- **Ölçüm:**
+  - takvim yılı bazında genişleyen pencere, temizleme (purge) ve holdout aynı;
+  - test günleri 20 seans arayla seçilir, böylece aynı hissenin test etiketleri üst üste binmez;
+  - isabetin %95 aralığı, test tarihleri yeniden örneklenerek hesaplanır (tarih blok bootstrap, 2000 tekrar, tohum 0). Aynı gündeki hisseler birlikte hareket ettiği için tek tek bağımsız sayılmaz.
+- **Açılma koşulu (K-59 ile aynı):** en az 100 sinyal, isabet ≥ %60 ve aralığın alt ucu taban oranın üstünde.
+- **Evren:** yaklaşık BIST 30 ve BIST 100; ikisi de raporlanır.
+- **Bağlama:** Kural geçerse sanal deftere bağlamak ayrı bir adım olacak (defter şimdilik stop/hedef kuralıyla çalışıyor). Geçmezse sonuç olduğu gibi kaydedilir.
+
 **K-61. Codex dosyaları incelendi; hiçbiri ana koda alınmadı (03.11.2026).**
 - **Kaynak:** Kullanıcı Codex ile yapılan işleri `codex/bist30` dalına gönderdi (`codex_import/`, 4 dosya, 214 satır).
 - **`quantbist-verified-fixes-...patch`:** `setup.ps1` git kontrolü ve `test_runs` saat sabitlemesi. İkisi de kodda zaten var.
