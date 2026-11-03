@@ -45,9 +45,21 @@ class CpiTest(Files):
         # nominal +5% while known CPI rose 1%: real = 1.05 / 1.01 - 1
         real = macro.real_return(0.05, date(2026, 9, 10), date(2026, 10, 10), cpi)
         self.assertAlmostEqual(real, 1.05 / 1.01 - 1)
-        # inside one month nothing new is published: real equals nominal (no estimate)
-        self.assertAlmostEqual(macro.real_return(0.05, date(2026, 9, 10), date(2026, 9, 30), cpi), 0.05)
+        # validation M24 (ORTA): nothing new published in the window is said, not shown as real = nominal
+        self.assertIsNone(macro.real_return(0.05, date(2026, 9, 10), date(2026, 9, 30), cpi))
+        basis = macro.four_basis(0.05, date(2026, 9, 10), date(2026, 9, 30), cpi=cpi, usd=pd.Series(dtype=float),
+                                 cash=None)
+        self.assertIn("reel: dönemde yeni TÜFE yayımlanmadı", basis.line())
         self.assertIsNone(macro.real_return(0.05, date(2026, 8, 1), date(2026, 9, 30), cpi))  # start unknown
+
+    def test_the_start_takes_the_month_before_it(self):
+        # validation M24 (ORTA): a window from 03.01.2022 took December 2021's +13,58% (published
+        # that day) although the window starts after December. The start level is the end of the
+        # month before the start month; only the end is limited to what was published by then.
+        cpi = self.cpi("2021-11,3.51,21.3,2021-12-03,x\n", "2021-12,13.58,36.1,2022-01-03,x\n",
+                       "2022-01,11.10,48.7,2022-02-03,x\n")
+        real = macro.real_return(0.10, date(2022, 1, 3), date(2022, 2, 10), cpi)
+        self.assertAlmostEqual(real, 1.10 / 1.1110 - 1)  # January only (was 1.10 / (1.1358 × 1.1110))
 
     def test_one_year_by_hand(self):
         rows = [f"2025-{m:02d},1.00,0,2025-{m + 1:02d}-03,x\n" for m in range(1, 12)]

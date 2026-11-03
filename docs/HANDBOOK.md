@@ -410,7 +410,7 @@ Yöntemler (her seviye yöntem adıyla gösterilir):
 
 Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda her hesabın ve `/performans`'ta sanal hesabın ve aynı dönemdeki XU100'ün altında bir satır daha çıkar:
 
-`21.10.2026'den bu yana: nominal +%2,0 · reel +%2,0 (TÜFE 09.2026'ya kadar, tahmin yok) · USD +%1,6 · nakde göre +%1,0`
+`21.10.2026'den bu yana: nominal +%2,0 · reel: dönemde yeni TÜFE yayımlanmadı · USD +%1,6 · nakde göre +%1,0`
 
 | Baz | Anlamı | Veri |
 |---|---|---|
@@ -420,7 +420,7 @@ Türkiye'de nominal TL getirisi tek başına yanıltıcıdır. Günlük raporda 
 | nakde göre | aynı parayı politika faiziyle (stopaj sonrası) tutmaya göre | `data/cash/policy_rate.csv` |
 
 **Okurken:**
-- Ay içinde enflasyon tahmin edilmez. Son açıklanan ay kullanılır; kısa bir pencerede reel ile nominal aynı çıkabilir.
+- Ay içinde enflasyon tahmin edilmez. Başlangıç, başlangıç ayından önceki ayın sonu; bitiş, bitiş gününden önce açıklanmış son ay. Pencerede yeni ay açıklanmadıysa satır "dönemde yeni TÜFE yayımlanmadı" der; reel sayı yazılmaz. Bitişteki gecikme bilinçli: henüz açıklanmamış ay tahmin edilmez (doğrulama M24).
 - Bir veri yoksa satır bunu söyler ("reel: TÜFE yok", "USD: kur yok"); sıfır yazmaz.
 - Bu satırlar ek bilgidir. Canlı ölçümün ölçütü (XU100'e göre) ve araştırmanın birincil ölçütü değişmez.
 

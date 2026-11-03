@@ -154,9 +154,26 @@ def update_cpi(today: date, repo: Path | str | None = None, local: Path | str | 
     return True
 
 
+def cpi_window(cpi: pd.DataFrame, start: date, end: date) -> tuple[KnownCpi | None, KnownCpi | None]:
+    """
+    (start level, end level). Validation M24: the start is the end of the month BEFORE the start
+    month — a past level, so it only has to be published by `end` (taking the month published by
+    `start` added a whole month before the window: 03.01.2022 took December 2021's +13,58%). The
+    end is the last month published before `end`; the months after it are never estimated.
+    """
+
+    b = cpi_known(cpi, end)
+    before = str(pd.Period(start, "M") - 1)
+    if b is None or before not in cpi.index or cpi.loc[before, "published"] >= pd.Timestamp(end):
+        return None, b
+    return KnownCpi(before, float(cpi.loc[before, "index"])), b
+
+
 def real_return(nominal: float, start: date, end: date, cpi: pd.DataFrame) -> float | None:
-    a, b = cpi_known(cpi, start), cpi_known(cpi, end)
-    if a is None or b is None:
+    """None when the start is not covered or no new month was published in the window."""
+
+    a, b = cpi_window(cpi, start, end)
+    if a is None or b is None or b.period <= a.period:
         return None
     return (1 + nominal) / (b.index / a.index) - 1
 
@@ -334,13 +351,14 @@ class FourBasis:
     cash: float | None
     cpi_period: str | None
     cash_note: str = "faiz yok"
+    real_note: str = "TÜFE yok"
 
     def line(self) -> str:
         from core.reports.daily import pct
 
         parts = [f"nominal {pct(self.nominal)}"]
         if self.real is None:
-            parts.append("reel: TÜFE yok")
+            parts.append(f"reel: {self.real_note}")
         else:
             month = datetime.strptime(self.cpi_period, "%Y-%m")
             parts.append(f"reel {pct(self.real)} (TÜFE {month:%m.%Y}'ya kadar, tahmin yok)")
@@ -358,6 +376,11 @@ def four_basis(nominal: float, start: date, end: date, cpi=_DEFAULT, usd=_DEFAUL
     cash = policy_cash() if cash is _DEFAULT else cash
     known = cpi_known(cpi, end) if len(cpi) else None
     real = real_return(nominal, start, end, cpi) if len(cpi) else None
+    real_note = "TÜFE yok"
+    if real is None and len(cpi):
+        a, b = cpi_window(cpi, start, end)
+        if a is not None and b is not None and b.period <= a.period:
+            real_note = "dönemde yeni TÜFE yayımlanmadı"  # validation M24: not shown as real = nominal
     usd_value = usd_return(nominal, start, end, usd) if len(usd) else None
     cash_value, cash_note = None, "faiz yok"
     if cash is not None:
@@ -367,7 +390,7 @@ def four_basis(nominal: float, start: date, end: date, cpi=_DEFAULT, usd=_DEFAUL
         else:
             cash_value = (1 + nominal) / growth.factor - 1
     return FourBasis(nominal, real, usd_value, cash_value, known.period if known and real is not None else None,
-                     cash_note)
+                     cash_note, real_note)
 
 
 def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None = None,

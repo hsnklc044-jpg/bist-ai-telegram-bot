@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.11 – 29.10.2026 (bağımsız doğrulama M24: TÜFE penceresi)
+- **M24 (dört bazlı sonuç) değişti; yeniden doğrulama gerekir.**
+- **Reel getirinin başlangıcı düzeltildi** (ORTA). Başlangıç artık başlangıç ayından önceki ayın sonu. Önceden başlangıç gününde açıklanmış son ay alınıyordu. Örnek: 03.01.2022'de başlayan pencereye Aralık 2021'in %13,58'i giriyordu, reel 10,8 puan düşük çıkıyordu. Bitiş eskisi gibi; açıklanmamış ay tahmin edilmez.
+- **Pencerede yeni TÜFE yoksa artık "dönemde yeni TÜFE yayımlanmadı" yazıyor** (ORTA). Önceden reel = nominal bir sayı olarak gösteriliyordu.
+- Eski davranışı sabitleyen iki test yeni davranışa göre güncellendi.
+
 ## v0.99.10 – 29.10.2026 (bağımsız doğrulama M12: stres testi; M24 raporu)
 - **M12 (portföy riski) değişti; yeniden doğrulama gerekir.**
 - **Stres pencereleri artık seans sayıyor, satır değil** (ORTA).

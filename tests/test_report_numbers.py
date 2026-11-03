@@ -111,8 +111,8 @@ class ReportByHandTest(unittest.TestCase):
         self.assertIn("AAA: 100 adet × 60,00 = 6.000 TL (maliyet 50,05; +995 TL / +%19,9)", text)
         self.assertIn("Günlük değişim +%20,00", text)
         # Talimat C: the same growth since the first record on four bases; one day inside a month
-        # has no new CPI, so real equals nominal (carried forward, never estimated)
-        self.assertIn("22.10.2026'den bu yana: nominal +%20,0 · reel +%20,0 (TÜFE 09.2026'ya kadar, tahmin yok)", text)
+        # has no new CPI: said, not shown as real = nominal (validation M24; never estimated)
+        self.assertIn("22.10.2026'den bu yana: nominal +%20,0 · reel: dönemde yeni TÜFE yayımlanmadı", text)
         self.assertIn("USD: kur yok", text)  # the cache is empty in tests (no network)
         self.assertIn("nakde göre +%19,9", text)
         self.assertIn("Değer 100.098 TL (nakit 98.998 TL, hisse 1.100 TL)", text)
