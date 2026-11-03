@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.17 – 03.11.2026 (temiz kurulum betiği)
+- **Yeni: `scripts/yeni_kurulum.ps1`.** Güncel sürümü eski klasörün yanına, yeni bir klasöre kurar.
+  - `.env` dosyasını ve `data\` içindeki kişisel dosyaları (izleme listesi, defter, sanal emirler, `market.db`) kopyalar; sürümdeki dosyaların üzerine eski kopya yazmaz.
+  - `setup.ps1` ile ortamı kurar ve testleri çalıştırır.
+  - Eski klasörü yalnız okur: hiçbir şeyi silmez, durdurmaz, değiştirmez. Hedef klasör varsa durur.
+- Doğrulama: `test_install_script`. Silme/durdurma komutu yok; yalnız eksik dosyalar kopyalanıyor; gizli bilgi yok; Windows PowerShell 5.1 için yalnız ASCII.
+
 ## v0.99.16 – 03.11.2026 (ML filtresinin ilk gerçek ölçümü)
 - **Sonuç: ML filtresi kapalı.** Gerçek veride, eğitimde görülmemiş 2023–2026 yıllarında ölçüldü:
   - yaklaşık BIST 30: isabet %34,0, tüm girişlerde hedefe ulaşma %33,8;
