@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.38 – 03.11.2026 (belgeler eksiksiz: K-68 sonucu, K-69, yol haritası)
+- Bugünkü işlerin belge denetimi yapıldı; bulunan altı eksik kapatıldı.
+  - DECISIONS: K-68'e sonuç eklendi (GEÇMEDİ, Actions 41716706686).
+  - DECISIONS: Yeni karar K-69: sürekli açık bot raporun kaçırdığı işleri telafi ediyor (arka plan `/tara ai`, saatlik kur, 21:00 yedek, süreç başına geçici dosya).
+  - DECISIONS: Kur önbelleği notu güncellendi.
+  - ROADMAP: "Kaldığım yer" 03.11 durumuna getirildi; tarihli açık işler yazıldı: 03.02.2027 ileri test, Kasım sonu K-36 kararı, Aralık'ta tatil teyidi. Ö29'un durumu güncellendi.
+  - HANDBOOK: "Card rule study" iş akışı zaman çizelgesine eklendi.
+- Kod değişmedi.
+
 ## v0.99.37 – 03.11.2026 (K-68 sonucu: kartın kuralı geçmedi, kart bunu söylüyor)
 - **Ölçüm (Actions 41716706686):** 207 tetik, 30 hisse. Ortalama net %+0,10, rastgele seanslarda %-0,09; fark %+0,19, %95 aralık %-0,25 – %+0,61. Hedef %26, stop %74, süre dolumu %0. GEÇMEDİ: tetik günleri rastgele girişten ayırt edilemiyor. Ayrıntı RESEARCH_LOG'da.
 - `/tara ai` kartına yeni satır eklendi: "Kartın kuralı geçmişte (K-68): 207 tetikte hedef %26, stop %74; ortalama net %+0,10, rastgele seanslar %-0,09 (…; rastgele girişten ayırt edilemedi)". Bilgisayarda daha yeni bir `logs/card_study.json` varsa satır onu gösteriyor.

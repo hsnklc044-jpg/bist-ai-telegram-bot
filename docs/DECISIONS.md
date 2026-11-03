@@ -4,6 +4,16 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-69. Sürekli açık bot, raporun kaçırdığı günlük işleri telafi eder (03.11.2026, v0.99.30–v0.99.34).**
+- **Neden:** 03.11'de kur 23.10'da takılı kaldı ve 02.11'in yedeği yoktu. Bunların ikisi de yalnız 18:30 raporuna bağlıydı. Ayrıca uzun süren bir `/tara ai`, `/panik`'i iki dakika bekletti.
+- **Karar:**
+  - `/tara ai` arka planda çalışır; aynı anda yalnız bir tane. Acil durdurma hiçbir komutun arkasında beklemez.
+  - Bot saatte bir, eksik TCMB kur bültenlerini sorar (en çok 10 istek, 30 sn). Günün bülteni 16:00'dan önce sorulmaz; erken gelen 404 kalıcı "bülten yok" kaydı olurdu.
+  - Bot her seans günü 21:00'de günün yedeğine bakar; yoksa alır.
+  - Her kur çekişinin sonucu `logs/usd_fetch.json`'a yazılır; kur 5 günden eskiyse `/durum` nedeni gösterir.
+  - Bot ve rapor iki ayrı süreç olduğundan her atomik kayıt kendi geçici dosyasını kullanır (`ad.<pid>.tmp`).
+- **Sınır:** Bot geçmiş günleri dolduramaz. Kaçırılan canlı ölçüm kaydı (30.10) geri gelmez; 7 günlük SLO penceresinden çıkınca uyarı kalkar.
+
 **K-68. Kartın kendi kuralının ölçümü; ölçümden ÖNCE yazıldı (03.11.2026).**
 - **Neden:** `/tara ai` kartı dip dönüşü tetiğinde ertesi açılışta girişi, %2 iz süren stopu, %4 kâr alı ve en çok 10 seansı önerir (K-67). Bu kural hiç ölçülmedi. K-63 saatlik veride 16 mum sonra kapanışı ölçtü; K-64 ise 10 seans sonra en az +%3 etiketini. Modül: `core/analytics/card_study.py`.
 - **Veri:** BIST 30 listesindeki hisselerin (`core/config/bist30.py`) düzeltilmiş günlük mumları. Göstergeler ısındıktan sonraki dönem; 02.11.2026 ve sonrası (holdout) kullanılmaz. Bugünkü listenin geçmişe uygulanması hayatta kalma yanlılığı taşır; sonuç bunu not eder.
@@ -20,6 +30,10 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
   - olayların maliyet sonrası ortalaması 0'ın üstünde.
 - **Raporlanan:** olay sayısı; hedef, stop ve süre dolumu oranları; ortalama net getiri (olay ve taban); fark ve aralığı.
 - **Geçerse ya da geçmezse:** Kartın "Geçmiş ölçüm" satırına bu sonuç da eklenir. Kural, eşik ya da parametre sonuca bakılarak değiştirilmez.
+- **Sonuç (03.11.2026, Actions 41716706686): GEÇMEDİ.**
+  - 207 olay, 30 hisse. Ortalama net %+0,10; taban %-0,09; fark %+0,19, %95 aralık %-0,25 – %+0,61. Aralık sıfırı içeriyor.
+  - Hedef %26, stop %74, süre dolumu %0.
+  - Kart bu sonucu v0.99.37'den beri gösteriyor. Kural değiştirilmedi. Yeni bir kural ancak önce burada yazılıp 02.11.2026 sonrası veride ölçülebilir.
 
 **K-67. v3.0: butonla manuel onay, %1 risk lot hesabı, iz süren stop (03.11.2026).**
 - **Manuel onay:**
@@ -340,7 +354,7 @@ Bir bileşen hesaplanamazsa puan "kısmi (n/9 bileşen)" olarak gösterilir, tam
   - Geçmiş aylar: kural (ayın 3'ü; hafta sonuysa pazartesi) ve iki kaynaklı istisna.
   - PC'nin eklediği yeni aylar: ilk görüldüğü gün. Bu tarih gerçek açıklamadan önce olamaz.
   - Bilinen sınır: kaynağı olmayan başka bir erteleme olduysa, geçmişte en çok birkaç gün erken görülmüş olabilir. Etkisi bir aylık TÜFE'nin birkaç günlük kayması kadardır; birincil ölçüt bunu kullanmaz.
-- **Kur önbelleği:** `data/macro/usdtry.csv` yerel ve git dışındadır. Akşam raporu son 14 günden eksik bültenleri ister (en çok 10 istek). Bülteni olmayan gün (tatil, yarım gün; 404) hatırlanır, ağ hatası hatırlanmaz.
+- **Kur önbelleği:** `data/macro/usdtry.csv` yerel ve git dışındadır. Akşam raporu ve v0.99.32'den beri bot da (saatte bir, K-69) son 14 günden eksik bültenleri ister (en çok 10 istek). Bülteni olmayan gün (tatil, yarım gün; 404) hatırlanır, ağ hatası hatırlanmaz.
 - **Gösterim:** dört baz yalnız ek satırdır.
   - Günlük raporda her hesabın altında "ilk kayıttan bu yana".
   - `/performans`'ta sanal hesap ve aynı dönemin XU100'ü.

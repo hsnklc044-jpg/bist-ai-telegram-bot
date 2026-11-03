@@ -99,7 +99,7 @@ Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı ku
 |---|---|---|---|
 | Ö27 | ORTA | `/tara ... rejim=` canlı listede fiyatı olmayan bir hisse (boş ya da `None` tablo) varken rejim hesabında çöküyordu. Komut hata verirdi. | ✅ v0.95.4: verisiz hisseler rejim hesabından çıkarılıyor (`test_screen_regime`). |
 | Ö28 | DÜŞÜK | Rejim değişince `rejim=` filtreli abonelik "Çıkanlar: hepsi" diyordu ama nedenini yazmıyordu. | ✅ v0.95.4: mesaj bugünkü rejimi ve filtreyi yazıyor (`test_screen_subscriptions`). |
-| Ö29 | DÜŞÜK | PC 14 günden uzun kapalı kalırsa kur önbelleğinde boşluk olur. O günler için bir önceki kur kullanılır: eski bir kur, ama geleceği görme yok. | kabul: `python -m core.market.macro --usd TARİH` doldurur; `/durum` kur 5 günden eskiyse uyarır. |
+| Ö29 | DÜŞÜK | PC 14 günden uzun kapalı kalırsa kur önbelleğinde boşluk olur. O günler için bir önceki kur kullanılır: eski bir kur, ama geleceği görme yok. | kabul: `python -m core.market.macro --usd TARİH` doldurur; `/durum` kur 5 günden eskiyse uyarır. ✅ v0.99.31–32 (K-69): bot saatte bir eksik bültenleri soruyor; kur eskirse `/durum` nedeni yazıyor; `--yeniden` boş kaydedilen günleri yeniden soruyor. |
 | Ö30 | BİLGİ | 2027 geçici kalırsa `/durum` Aralık'tan itibaren uyarır. Teyit için kod sürümü gerekir (`calendar.PROVISIONAL`). | kabul: MAINTENANCE'ta Aralık işi. |
 | Ö31 | BİLGİ | Geçmiş TÜFE yayım tarihleri kuraldan geliyor (iki kaynaklı istisna). Bilinmeyen başka bir erteleme olduysa değer birkaç gün erken görünmüş olabilir. | kabul: K-52'de sınır olarak yazılı; birincil ölçüt bunu kullanmıyor. |
 | Ö34 | YÜKSEK (bulundu, zarar yok) | Gerçek veride ilk araştırma raporunda XU100'ün USD getirisi +%383 çıktı, doğrusu yaklaşık +%56. Yarı dolmuş kur önbelleğinde bitiş günü için aylarca eski kur kullanılmıştı. Bu yalnız deneme çalışmasında görüldü; PC'de önbellek son iki haftayla dolduğu için rapor etkilenmedi. | ✅ v0.95.7: 10 günden eski kur hiçbir zaman kullanılmıyor ("kur yok"). Önbellek önce dönemin iki ucunu dolduruyor. Doldurma başlangıcı araştırmanın başlangıcına bağlandı. |
@@ -218,7 +218,17 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - izleme eşikleri `/durum`'da;
   - doğrulama takvimi MAINTENANCE.md'de.
 
-## Kaldığım yer (27.10.2026, kod v0.56.0)
+## Kaldığım yer (03.11.2026, kod v0.99.37)
+
+- **ML ve sinyal katmanı (K-59 – K-68):** Ölçülen her kural rastgele girişten ayırt edilemedi: K-59 stop/hedef ML, K-62 göreli getiri, K-63 saatlik dip tetiği, K-64 onay katmanı, K-68 kartın kendi kuralı. Sistem kendiliğinden sinyal yazmıyor. `/tara ai` kartları düğmeyle elle girilebiliyor (K-67); kart iki geçmiş ölçüm satırını da gösteriyor.
+- **Operasyon (K-69):** `/panik` hiçbir komutu beklemiyor. Bot eksik kuru saatte bir, eksik yedeği 21:00'de tamamlıyor. Geri yükleme testi PC'de 03.11 23:29'da başarılı.
+- **Açık, tarihi belli işler:**
+  - Saatlik onay katmanının ileri testi: 02.11.2026 sonrası veriyle, en erken 03.02.2027 (K-64). Kural değişmeden ölçülecek.
+  - Günlük rapor evreni ile resmi BIST 100 farkı (K-36): ilk canlı ölçüm dönemi bitince, Kasım sonu.
+  - 2027 tatil takvimi: Aralık'ta Borsa İstanbul duyurusuyla teyit.
+- **Kendiliğinden kapanacak uyarılar:** 30.10 canlı ölçüm kaydı (07.11 civarı) ve 02.11 yedeği (10.11 civarı) 7 günlük pencereden çıkınca. "Bot ayakta kalma" SLO'su 04.11'den itibaren ölçülecek.
+
+## Önceki durum (27.10.2026, kod v0.56.0)
 
 - **Son sürüm:** v0.99.3 (M11 stop düzeltmesi). Öz-denetim sayacı: v0.98.0'dan beri 5.
 - **Bağımsız doğrulama bulguları (F3, önem sırasıyla):**

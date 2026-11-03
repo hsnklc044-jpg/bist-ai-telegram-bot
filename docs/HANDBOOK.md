@@ -54,6 +54,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Cuma raporu | Canlı ölçüm özeti, kayıtlı taramaların canlı sonucu, haftalık sistem özeti, SLO tablosu | Telegram |
 | Cumartesi | GitHub araştırması | GitHub Actions > Research; `research-results` dalı |
 | Pazartesi | Paket güvenlik taraması | GitHub Actions > Security |
+| Elle | Kartın kuralının ölçümü (K-68) | GitHub Actions > Card rule study; özet sayfası |
 
 ## 5. Sağlık nasıl okunur
 
