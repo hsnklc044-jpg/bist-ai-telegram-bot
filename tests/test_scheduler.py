@@ -235,9 +235,36 @@ class BackupCatchUpTest(unittest.TestCase):
 
         self.assertEqual(self._run(date(2026, 10, 29), have_today=False), (None, []))  # Cumhuriyet Bayramı
 
-    def test_job_registered_and_quiet_on_error(self):
+    def _job(self, **patch):
+        sent = []
+
+        async def send_message(chat_id, text):
+            sent.append((chat_id, text))
+
+        context = SimpleNamespace(bot=SimpleNamespace(send_message=send_message), job=SimpleNamespace(chat_id=777))
+        with mock.patch("core.backup.catch_up", **patch):
+            asyncio.run(scheduler.backup_catch_up_job(context))  # never raises
+        return sent
+
+    def test_job_registered_and_failure_is_reported(self):
+        # K-70 madde 2: a failed backup reaches Telegram, not only the log
         app = _app()
-        self.assertTrue(scheduler.schedule_backup_catch_up(app))
+        self.assertTrue(scheduler.schedule_backup_catch_up(app, 777))
         self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.BACKUP_JOB)), 1)
-        with mock.patch("core.backup.catch_up", side_effect=OSError("disk")):
-            asyncio.run(scheduler.backup_catch_up_job(SimpleNamespace()))  # logged, never raised
+        sent = self._job(side_effect=OSError("disk dolu"))
+        self.assertEqual(len(sent), 1)
+        self.assertEqual(sent[0][0], 777)
+        self.assertIn("Yedek alınamadı", sent[0][1])
+        self.assertIn("disk dolu", sent[0][1])
+
+    def test_a_catch_up_is_reported(self):
+        from pathlib import Path
+
+        made = SimpleNamespace(path=Path("quantbist_2026-11-04.zip"), files=["a", "b"])
+        sent = self._job(return_value=made)
+        self.assertEqual(len(sent), 1)
+        self.assertIn("raporu almamıştı", sent[0][1])
+        self.assertIn("quantbist_2026-11-04.zip", sent[0][1])
+
+    def test_nothing_to_do_is_silent(self):
+        self.assertEqual(self._job(return_value=None), [])

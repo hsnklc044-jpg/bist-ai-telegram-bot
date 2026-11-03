@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.43 – 04.11.2026 (yedek hatası ve telafisi Telegram'a bildiriliyor; K-70 madde 2)
+- 21:00 yedek kontrolü yedek alamazsa Telegram'a "⚠️ Yedek alınamadı" mesajı gidiyor; mesajda hata ve ne yapılacağı yazıyor. Eskiden yalnız log'a yazılıyordu.
+- 18:30 raporu yedeği almamışsa ve bot 21:00'de aldıysa bu da bildiriliyor (dosya adı ve sayısı). Raporun neden çalışmadığına bakmak gerekiyor.
+- Yapılacak bir şey yoksa mesaj gitmiyor: rapor yedeği almıştır ya da seans yoktur.
+- Raporun kendi yedek hatası zaten rapor mesajında "⚠️ Yedek alınamadı" satırıyla gidiyordu; değişmedi.
+- Doğrulama: `test_scheduler` (BackupCatchUpTest, 3 yeni test): hata bildiriliyor, telafi bildiriliyor, yapılacak iş yoksa sessiz. Önce kırmızı, sonra yeşil.
+
 ## v0.99.42 – 04.11.2026 (bağımsız ikinci kaynak: elle indirilen dosya; K-70)
 - **Talimat:** Kullanıcının 04.11 güvenilirlik talimatı DECISIONS K-70 olarak kaydedildi: yedi madde, kabul ölçütleri ve tamamlanma koşulu. Kullanıcının istediği üç modülün kurallara uygun biçimi de oraya yazıldı.
 - **Yeni modül `core/market/second_source.py`:**

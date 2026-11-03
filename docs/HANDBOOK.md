@@ -50,7 +50,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | 18:30 (iş günü) | Fiyat güncelleme, rapor, yedek, canlı ölçüm kaydı | Telegram raporu; `logs/runs.csv`; `RUN daily …` satırı |
 | Saatte bir | Eksik TCMB kur bültenleri (günün bülteni 16:00'dan sonra; önbellek tamsa istek yok) | `/durum` Makro veri; `logs/usd_fetch.json` |
 | 20:00 (iş günü) | Sağlık kontrolü; sorun varsa tek mesaj | Telegram |
-| 21:00 (seans günü) | Günün yedeği yoksa bot alır (rapor çalışmadıysa) | `/durum` Yedek; log |
+| 21:00 (seans günü) | Günün yedeği yoksa bot alır (rapor çalışmadıysa); alırsa ya da alamazsa Telegram'a yazar | Telegram; `/durum` Yedek; log |
 | Cuma raporu | Canlı ölçüm özeti, kayıtlı taramaların canlı sonucu, haftalık sistem özeti, SLO tablosu | Telegram |
 | Cumartesi | GitHub araştırması | GitHub Actions > Research; `research-results` dalı |
 | Pazartesi | Paket güvenlik taraması | GitHub Actions > Security |

@@ -71,7 +71,7 @@ def build_app() -> Application:
     schedule_report_watch(app, config.chat_id)
     schedule_heartbeat(app)
     schedule_macro_refresh(app)
-    schedule_backup_catch_up(app)
+    schedule_backup_catch_up(app, config.chat_id)
     schedule_signal_tracking(app, config.chat_id)
 
     return app

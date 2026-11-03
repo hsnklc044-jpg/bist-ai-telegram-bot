@@ -233,17 +233,26 @@ async def backup_catch_up_job(context: ContextTypes.DEFAULT_TYPE) -> None:
 
     try:
         made = await asyncio.to_thread(backup.catch_up, now_istanbul().date())
-        if made:
-            logger.info("Backup caught up by the bot | %s", made.path.name)
-    except Exception:  # noqa: BLE001 - the bot never stops on this; /durum shows the missing day
+    except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told (K-70)
         logger.exception("Backup catch-up failed")
+        text = (f"⚠️ Yedek alınamadı (21:00 kontrolü): {type(exc).__name__}: {str(exc)[:200]}. "
+                "Günün yedeği yok; /durum'un Yedek satırı bunu gösterir. Diski ve OneDrive klasörünü kontrol edin.")
+    else:
+        if not made:
+            return  # the report already took it, or no session today
+        logger.info("Backup caught up by the bot | %s", made.path.name)
+        text = (f"💾 Günün yedeğini 18:30 raporu almamıştı; bot 21:00'de aldı: {made.path.name} "
+                f"({len(made.files)} dosya, doğrulandı). Raporun neden çalışmadığına logs/runs.csv'den bakın.")
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if chat:
+        await context.bot.send_message(chat, text)
 
 
-def schedule_backup_catch_up(app: Application) -> bool:
+def schedule_backup_catch_up(app: Application, chat_id: int | None = None) -> bool:
     if app.job_queue is None:
         return False
     app.job_queue.run_daily(backup_catch_up_job, time=BACKUP_AT, days=WEEKDAYS, name=BACKUP_JOB,
-                            job_kwargs=LATE_START)
+                            job_kwargs=LATE_START, chat_id=chat_id)
     return True
 
 
