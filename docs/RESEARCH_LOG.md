@@ -542,3 +542,20 @@ Okuma:
 - **Gösterimdeki karşılığı (talimat §3.3):** seviyeler yine gösterilir. Her çıktıda (`/seviye`, `/analyze`, rapor satırı, web) "tarihsel olarak rastgele seviyeden ayırt edilemedi" notu durur.
 - Bu bir hipotez testi değildir; seviyeler bir kurala dönüştürülmedi. Canlı kayıt (`logs/levels_log.csv`) sonuç bilinmeden yazılmaya devam eder; ileride aynı ölçüm ileri veride tekrarlanır.
 
+## 03.11.2026 – ML filtresi (K-59), ilk örneklem dışı ölçüm
+
+- **Kural:** ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans, %0,15 maliyet.
+- **Model:** RandomForest; ayarlar sonuç görülmeden sabitlendi.
+- **Ölçüm:** takvim yılı bazında genişleyen pencere; 2023–2026 test yılları; holdout (02.11.2026 sonrası) kullanılmadı. Kaynak: Actions çalışması 41619257373.
+
+| Evren | Sinyal | İsabet (%95 aralık) | Taban | Net ortalama (sinyal / tümü) |
+|---|---|---|---|---|
+| Yaklaşık BIST 30 (günün en likit 30 BIST 100 üyesi) | 19.211 | %34,0 (%33,4–34,7) | %33,8 | −%0,1 / −%0,1 |
+| BIST 100 | 58.866 | %34,2 (%33,8–34,6) | %33,4 | −%0,1 / −%0,2 |
+
+Yıllara göre (BIST 30 yaklaşığı): 2023 %34,0 / taban %33,0; 2024 %37,3 / %36,0; 2025 %34,5 / %34,0; 2026 %29,0 / %31,9.
+
+- **Sonuç:** Model, hedefe zaten ulaşan girişlerden ayırt edilemiyor. %60 eşiğinin çok uzağında. Filtre kapalı; `/tara ml=evet` boş liste ve nedenini veriyor, sanal deftere sinyal yazılmıyor.
+- %2 / %4 kuralında maliyetle başa baş isabet yaklaşık %36. Taban oran (%33–34) bunun altında; yani kuralın kendisi ortalamada küçük bir kayıp.
+- Eşik sonuca bakılarak değiştirilmeyecek (önceki kural: şablon eşikleri sonuca göre ayarlanmaz).
+

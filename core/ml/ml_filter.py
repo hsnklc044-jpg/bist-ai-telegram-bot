@@ -140,10 +140,10 @@ def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST
     if report.signals < MIN_SIGNALS:
         report.reason = f"sinyal sayısı az ({report.signals} < {MIN_SIGNALS})"
     elif report.precision < THRESHOLD:
-        report.reason = f"isabet %{report.precision * 100:.1f} < eşik %{THRESHOLD * 100:.0f}"
+        report.reason = f"isabet %{report.precision * 100:.1f} < eşik %{THRESHOLD * 100:.0f}".replace(".", ",")
     elif not report.interval[0] > report.base_rate:
         report.reason = (f"isabet, hedefe zaten ulaşan girişlerin oranından (%{report.base_rate * 100:.1f}) "
-                         "ayırt edilemiyor")
+                         "ayırt edilemiyor").replace(".", ",")
     else:
         report.passed = True
         report.reason = "eşik geçildi"

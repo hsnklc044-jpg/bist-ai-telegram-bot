@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.16 – 03.11.2026 (ML filtresinin ilk gerçek ölçümü)
+- **Sonuç: ML filtresi kapalı.** Gerçek veride, eğitimde görülmemiş 2023–2026 yıllarında ölçüldü:
+  - yaklaşık BIST 30: isabet %34,0, tüm girişlerde hedefe ulaşma %33,8;
+  - BIST 100: isabet %34,2, taban %33,4.
+  - Model rastgele girişten ayırt edilemiyor; %60 eşiğinin çok uzağında. Ayrıntı: docs/RESEARCH_LOG.md.
+- Kapalı filtrenin neden metni Türkçe ondalıkla yazılıyor (%34,0).
+
 ## v0.99.15 – 03.11.2026 (BIST 30 hedefi, adım 4: Telegram bağlantısı)
 - **`/tara ... ml=evet`.** Eşleşmelerden yalnız ML filtresinin geçirdiklerini listeler; her satıra olasılığı ekler.
   - Filtre örneklem dışı testi geçmediyse liste boş kalır ve nedeni yazılır. Örnek: "ML filtresi kapalı (isabet %52,0 < eşik %60)".
