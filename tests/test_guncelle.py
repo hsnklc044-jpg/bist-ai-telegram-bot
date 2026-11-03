@@ -101,6 +101,73 @@ class NotifyTest(unittest.TestCase):
                 self.assertFalse(g.should_notify(summary))
 
 
+class GitFolderTest(unittest.TestCase):
+    """04.11.2026: the PC runs from a git clone (C:\\Projeler\\QuantBIST-yeni); the updater was fixed to
+    the old folder and copied zips, which would leave a git clone dirty."""
+
+    def test_the_project_is_the_folder_the_script_is_in(self):
+        self.assertEqual(g.PROJECT, PATH.resolve().parents[1])
+        self.assertEqual(g.PYTHON, g.PROJECT / ".venv" / "Scripts" / "python.exe")
+
+    def calls(self, outputs):
+        seen = []
+
+        def run(cmd, cwd, timeout=900):
+            seen.append(cmd[1:] if cmd[0] == "git" else cmd)
+            out, code = outputs.get(cmd[1] if cmd[0] == "git" else "", ("", 0))
+            return unittest.mock.Mock(stdout=out, stderr="", returncode=code)
+
+        return seen, run
+
+    def test_clean_clone_is_fast_forwarded_to_the_green_commit(self):
+        seen, run = self.calls({"branch": (g.BRANCH, 0), "rev-parse": ("abc123\n", 0)})
+        old, error = g.apply_git(Path("."), "f00d", run=run)
+        self.assertEqual((old, error), ("abc123", None))
+        self.assertIn(["status", "--porcelain", "--untracked-files=no"], seen)
+        self.assertIn(["fetch", "origin", g.BRANCH], seen)
+        self.assertEqual(seen[-1], ["merge", "--ff-only", "f00d"])
+
+    def test_local_changes_stop_the_update(self):
+        seen, run = self.calls({"branch": (g.BRANCH, 0), "status": (" M core/x.py\n", 0), "rev-parse": ("abc123\n", 0)})
+        old, error = g.apply_git(Path("."), "f00d", run=run)
+        self.assertIn("yerel değişiklik", error)
+        self.assertFalse(any(c[:1] == ["merge"] for c in seen))  # nothing changed
+
+    def test_another_branch_is_never_moved(self):
+        seen, run = self.calls({"branch": ("main\n", 0), "rev-parse": ("abc\n", 0)})
+        self.assertIn("dal", g.apply_git(Path("."), "f00d", run=run)[1])
+        self.assertFalse(any(c[:1] == ["merge"] for c in seen))
+
+    def test_failed_merge_is_reported(self):
+        seen, run = self.calls({"branch": (g.BRANCH, 0), "merge": ("not possible to fast-forward", 1), "rev-parse": ("abc\n", 0)})
+        self.assertIn("ileri sarılamadı", g.apply_git(Path("."), "f00d", run=run)[1])
+
+    def test_rollback_returns_to_the_old_commit(self):
+        seen, run = self.calls({})
+        g.rollback_git(Path("."), "abc123", run=run)
+        self.assertEqual(seen, [["reset", "--hard", "abc123"]])
+
+
+class QuietHoursTest(unittest.TestCase):
+    def test_not_while_the_report_runs(self):
+        from datetime import datetime
+
+        self.assertTrue(g.report_window(datetime(2026, 11, 4, 18, 0)))
+        self.assertTrue(g.report_window(datetime(2026, 11, 4, 19, 59)))
+        self.assertFalse(g.report_window(datetime(2026, 11, 4, 20, 0)))
+        self.assertFalse(g.report_window(datetime(2026, 11, 4, 7, 40)))
+        self.assertFalse(g.should_notify("BEKLİYOR: rapor saati"))
+
+
+class TaskScriptTest(unittest.TestCase):
+    def test_registration_runs_hourly_from_this_folder(self):
+        text = (PATH.parent / "register_update_task.ps1").read_text(encoding="utf-8")
+        self.assertIn("QuantBIST Guncelle", text)
+        self.assertIn("$PSScriptRoot", text)  # the folder the script is in, never a fixed path
+        self.assertIn("RepetitionInterval", text)
+        self.assertIn("07:40", text)
+
+
 class BildirTest(unittest.TestCase):
     def test_bildir_is_in_the_repo_and_reads_no_secret_itself(self):
         text = (PATH.parent / "bildir.py").read_text(encoding="utf-8")

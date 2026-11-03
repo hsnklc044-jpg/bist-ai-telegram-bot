@@ -49,6 +49,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 | Her 5 dk | Bot yaşam sinyali (`logs/heartbeats.csv`, Healthchecks) | `/durum` "Telegram botu" ve SLO "Bot ayakta kalma" |
 | 18:30 (iş günü) | Fiyat güncelleme, rapor, yedek, canlı ölçüm kaydı | Telegram raporu; `logs/runs.csv`; `RUN daily …` satırı |
 | Saatte bir | Eksik TCMB kur bültenleri (günün bülteni 16:00'dan sonra; önbellek tamsa istek yok) | `/durum` Makro veri; `logs/usd_fetch.json` |
+| 07:40'tan itibaren saatte bir | CI'ı yeşil yeni sürüm varsa kurulur: yedek, deneme kopyasında testler, botun yeniden başlaması; bot açılmazsa geri alınır. 18:00–20:00 beklenir (K-71) | Telegram (yalnız kurulum ya da sorun olursa); `C:\Projeler\QuantBIST_otomasyon\logs` |
 | 20:00 (iş günü) | Sağlık kontrolü; sorun varsa tek mesaj | Telegram |
 | 21:00 (seans günü) | Günün yedeği yoksa bot alır (rapor çalışmadıysa); alırsa ya da alamazsa Telegram'a yazar | Telegram; `/durum` Yedek; log |
 | Cuma raporu | Canlı ölçüm özeti, kayıtlı taramaların canlı sonucu, haftalık sistem özeti, SLO tablosu | Telegram |

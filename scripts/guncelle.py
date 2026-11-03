@@ -1,8 +1,12 @@
 """Install the newest QuantBIST release whose CI passed, safely and unattended (Windows PC).
 
-    C:\\Projeler\\QuantBIST\\.venv\\Scripts\\python.exe C:\\Projeler\\QuantBIST\\scripts\\guncelle.py [--no-restart]
+    .venv\\Scripts\\python.exe scripts\\guncelle.py [--no-restart]     (from the project folder)
 
-Run every morning by the "QuantBIST Guncelle" task (DECISIONS K-27, K-29). Steps, each one a
+Run by the "QuantBIST Guncelle" task from 07:40 once an hour (DECISIONS K-27, K-29, K-71;
+scripts/register_update_task.ps1). The project is the folder this script is in. A git clone is
+moved by fast-forward to the green commit (never another branch, never over local changes;
+rollback = back to the old commit); an unpacked folder is updated by copying as before.
+18:00–20:00 it waits for the daily report. Steps, each one a
 gate (a failure stops before the live folder changes):
 1. The newest commit of the branch whose CI run succeeded (GitHub API); its version must be
    newer than the installed one, else nothing to do. A red or running CI is never installed.
@@ -36,9 +40,9 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-PROJECT = Path(r"C:\Projeler\QuantBIST")
-HOME = Path(r"C:\Projeler")
-AUTO = Path(r"C:\Projeler\QuantBIST_otomasyon")  # lock and logs (outside the project)
+PROJECT = Path(__file__).resolve().parents[1]  # the folder this script is in (04.11: QuantBIST-yeni, a git clone)
+HOME = PROJECT.parent
+AUTO = HOME / "QuantBIST_otomasyon"  # lock and logs (outside the project)
 PYTHON = PROJECT / ".venv" / "Scripts" / "python.exe"
 PYTHONW = PROJECT / ".venv" / "Scripts" / "pythonw.exe"
 BRANCH = "claude/borsa-bot-creation-n7nmc9"
@@ -50,7 +54,7 @@ EXCLUDE_FILES = [".env", "watchlist.json"]
 EXCLUDE_DIRS = [".venv", "logs", "backups", ".git"]
 # left out of the code snapshot (personal or bulky, and never overwritten anyway)
 SNAPSHOT_EXCLUDE_DIRS = [".venv", "logs", "data", ".git", "__pycache__", ".pytest_cache", ".ruff_cache"]
-QUIET = ("GÜNCEL", "MEŞGUL")  # outcomes that are not worth a message
+QUIET = ("GÜNCEL", "MEŞGUL", "BEKLİYOR")  # outcomes that are not worth a message
 
 ENV = {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
 LOG: list[str] = []
@@ -127,6 +131,37 @@ def run(cmd: list, cwd: Path, timeout: int = 900) -> subprocess.CompletedProcess
     for t in tail:
         LOG.append("    " + t)
     return proc
+
+
+def report_window(now: datetime) -> bool:
+    """18:00–19:59: the daily report runs; the bot is not restarted under it."""
+
+    return 18 <= now.hour < 20
+
+
+def apply_git(project: Path, sha: str, run=None) -> tuple[str, str | None]:
+    """A git clone moves to the green commit by fast-forward only: (old commit, error or None).
+    Local changes to tracked files stop it (nothing is overwritten); untracked files (data, logs)
+    are never touched."""
+
+    run = run or globals()["run"]
+    old = run(["git", "rev-parse", "HEAD"], cwd=project).stdout.strip()
+    branch = run(["git", "branch", "--show-current"], cwd=project).stdout.strip()
+    if branch != BRANCH:
+        return old, f"proje '{branch or 'ayrık HEAD'}' dalında, {BRANCH} değil; dal değiştirilmedi"
+    status = run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=project)
+    if status.returncode != 0 or status.stdout.strip():
+        return old, "projede yerel değişiklik var (git status); üzerine yazılmadı"
+    if run(["git", "fetch", "origin", BRANCH], cwd=project).returncode != 0:
+        return old, "git fetch başarısız"
+    if run(["git", "merge", "--ff-only", sha], cwd=project).returncode != 0:
+        return old, "ileri sarılamadı (git merge --ff-only)"
+    return old, None
+
+
+def rollback_git(project: Path, old: str, run=None) -> None:
+    run = run or globals()["run"]
+    run(["git", "reset", "--hard", old], cwd=project)  # the tree was clean before the update
 
 
 def robocopy(src: Path, dst: Path, xf: list[str], xd: list[str]) -> None:
@@ -217,6 +252,10 @@ def _main(argv: list[str]) -> int:
     summary = "bilinmiyor"
     code = 1
     try:
+        if report_window(datetime.now()):
+            summary = "BEKLİYOR: rapor saati (18:00–20:00); bir sonraki çalışmada denenecek."
+            code = 0
+            return code
         installed = version_of((PROJECT / "core" / "__init__.py").read_text(encoding="utf-8"))
         sha = latest_green()
         if sha is None:
@@ -287,9 +326,18 @@ def _main(argv: list[str]) -> int:
         snapshot = HOME / f"QuantBIST_onceki_v{installed}_{stamp}"
         robocopy(PROJECT, snapshot, [".env"], SNAPSHOT_EXCLUDE_DIRS)
 
+        git = (PROJECT / ".git").exists()
         if restart:
             stop_bot()
-        robocopy(src, PROJECT, EXCLUDE_FILES, EXCLUDE_DIRS)
+        if git:
+            old_head, error = apply_git(PROJECT, sha)
+            if error:
+                if restart:
+                    start_bot()
+                summary = f"KURULMADI: {error}. v{installed} çalışmaya devam ediyor."
+                return code
+        else:
+            robocopy(src, PROJECT, EXCLUDE_FILES, EXCLUDE_DIRS)
         now = version_of((PROJECT / "core" / "__init__.py").read_text(encoding="utf-8"))
         if restart:
             # the bot task restarts the bot by itself, possibly mid-copy: stop it once more so
@@ -299,7 +347,10 @@ def _main(argv: list[str]) -> int:
         if restart and not start_bot():
             log("geri alınıyor")
             stop_bot()
-            robocopy(snapshot, PROJECT, [], [])
+            if git:
+                rollback_git(PROJECT, old_head)
+            else:
+                robocopy(snapshot, PROJECT, [], [])
             stop_bot()
             ok = start_bot()
             summary = (f"GERİ ALINDI: v{latest} kuruldu ama bot açılmadı; v{installed} geri yüklendi"

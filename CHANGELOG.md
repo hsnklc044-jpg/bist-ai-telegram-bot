@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.44 – 04.11.2026 (güncelleme kendiliğinden: yeni klasör, git, saatte bir; K-71)
+- **Sorun:** Kullanıcı her sürümden sonra elle `git pull` yapıp botu yeniden başlatıyordu. Otomatik güncelleyici `C:\Projeler\QuantBIST` eski klasörüne sabitti ve zip kopyalıyordu; yeni git klasöründe çalışmazdı.
+- **Düzeltme (`scripts/guncelle.py`):**
+  - Proje, betiğin kendi klasörü.
+  - Git deposunda yalnız CI'ı yeşil commit'e ileri sarma yapılıyor. Başka dal ya da yerel değişiklik varsa durup bildiriyor, hiçbir şeyin üzerine yazmıyor.
+  - Bot açılmazsa eski commit'e dönülüyor.
+  - 18:00–20:00 rapor saatinde beklenip sessiz kalınıyor.
+  - Yedek, deneme kopyasında ruff ve testler, paket kilidi kontrolü aynen duruyor.
+- **Yeni `scripts/register_update_task.ps1`:** "QuantBIST Guncelle" görevi her gün 07:40'tan itibaren saatte bir, 16 saat çalışıyor. Kullanıcı bunu bir kez kuruyor.
+- Doğrulama: `test_guncelle` (8 yeni test): proje klasörü; temiz depo ileri sarılıyor; yerel değişiklik ve başka dal durduruyor; başarısız ileri sarma bildiriliyor; geri alma; rapor saati; görev betiği. Önce kırmızı, sonra yeşil. Windows'a özgü adımlar (görev, robocopy) burada çalıştırılamaz; ilk gerçek kurulum PC'de Telegram mesajıyla görülecek.
+
 ## v0.99.43 – 04.11.2026 (yedek hatası ve telafisi Telegram'a bildiriliyor; K-70 madde 2)
 - 21:00 yedek kontrolü yedek alamazsa Telegram'a "⚠️ Yedek alınamadı" mesajı gidiyor; mesajda hata ve ne yapılacağı yazıyor. Eskiden yalnız log'a yazılıyordu.
 - 18:30 raporu yedeği almamışsa ve bot 21:00'de aldıysa bu da bildiriliyor (dosya adı ve sayısı). Raporun neden çalışmadığına bakmak gerekiyor.

@@ -4,6 +4,15 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-71. Güncelleyici yeni klasörde, git ile ve saatte bir (04.11.2026).**
+- **Neden:** Kullanıcı her sürümden sonra `git pull` yapıp botu yeniden başlatmak zorunda kalıyordu. Otomatik güncelleyici (K-27) eski klasöre (`C:\Projeler\QuantBIST`) sabitti. Yeni klasör bir git deposu; zip kopyalamak çalışma ağacını kirletir ve sonraki `git pull`'u bozardı.
+- **Karar:**
+  - Proje, güncelleyicinin kendi bulunduğu klasördür; sabit yol yok.
+  - Git deposunda yalnız ileri sarma yapılır (`git merge --ff-only <yeşil commit>`). Proje başka bir daldaysa ya da izlenen dosyalarda yerel değişiklik varsa güncelleyici durur ve bildirir; hiçbir şeyin üzerine yazılmaz. Geri alma: eski commit'e dönmek.
+  - Diğer kapılar aynen geçerli: yalnız CI'ı yeşil sürüm, önce yedek, deneme kopyasında ruff ve testler, paket kilidi değişirse geçici ortamda deneme, bot açılmazsa geri alma.
+  - Görev her gün 07:40'tan itibaren saatte bir, 16 saat çalışır. 18:00–20:00 arası rapor saatidir; o arada bekler. Yeni sürüm yoksa sessiz kalır.
+- **Kurulum:** Görevi kullanıcı bir kez kurar: `scripts\register_update_task.ps1`. Eski görev aynı adla değiştirilir.
+
 **K-70. Güvenilirlik talimatı resmi iş sırası (kullanıcı, 04.11.2026).**
 - **Genel kural:** Eksik veri tahminle ya da sonradan doldurulmaz. Başarısız model başarılı raporlanmaz. Yeni bir kaynağa otomatik erişim, kullanım koşulları doğrulanıp kullanıcı onaylamadan açılmaz.
 - **Maddeler ve kabul ölçütleri:**
