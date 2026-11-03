@@ -16,6 +16,16 @@ from core.infrastructure.logger import get_logger
 logger = get_logger(__name__)
 
 
+def filter_on(day: date) -> bool:
+    """The ML filter may record signals only after its out-of-sample pass (K-59) AND with the model
+    gate open: a current independent validation of M30 (K-70 madde 5)."""
+
+    from core.ml import ml_filter
+    from core.reports import model_gate
+
+    return ml_filter.enabled() and model_gate.allowed("M30", day)
+
+
 def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=None, enabled=None,
         probabilities=None) -> str:
     """One daily step; returns the summary line. `bars(symbol)`: final daily candles."""
@@ -29,7 +39,7 @@ def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=Non
     if panic.active():
         logger.warning("Signal book step skipped: panic lock")
         return "⛔ Panik kilidi açık: sinyal defteri durduruldu (/devam ile kalkar)."
-    enabled = ml_filter.enabled if enabled is None else enabled
+    enabled = (lambda: filter_on(day)) if enabled is None else enabled
     if not Path(path or SIGNALS_DB).exists() and not enabled():
         return ""  # no book yet and nothing could be recorded: no file is created
     conn = store.connect(path)

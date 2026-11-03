@@ -643,6 +643,18 @@ def macro_check(now: datetime) -> Check:
     return Check("Makro veri", {"ok": OK, "warn": WARN}.get(state, UNKNOWN), text)
 
 
+def gate_check(now: datetime) -> Check:
+    """K-70 madde 5: which automatic actions the model gate lets run."""
+
+    try:
+        from core.reports import model_gate
+
+        _, text = model_gate.status(now.date())
+    except Exception as exc:  # noqa: BLE001 - /durum must still answer
+        return Check("Model kapısı", UNKNOWN, f"okunamadı: {type(exc).__name__}")
+    return Check("Model kapısı", INFO, text)
+
+
 def validation_check(now: datetime) -> Check:
     """Talimat F: how many high-risk models have a current independent validation report."""
 
@@ -672,6 +684,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         fundamentals_check(),
         macro_check(now),
         validation_check(now),
+        gate_check(now),
         levels_check(now=now),
         maintenance_check(now),
         monitoring_check(now),

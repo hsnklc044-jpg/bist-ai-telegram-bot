@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-72. Model kapısı (kullanıcının "ModelGovernor" isteği; 04.11.2026).**
+- **Kural:** Yüksek riskli bir model kendiliğinden bir şey değiştirebilmek için güncel bir bağımsız doğrulama raporuna ve "kullanılabilir" kararına sahip olmalı. Kendiliğinden değişiklik: sanal sinyal yazmak ya da pozisyon açmak. "Kısıtlı kullanılabilir", "kullanılamaz", süresi geçmiş ya da hiç olmayan rapor: model yalnız bilgi verir.
+- **Neden "%90 skor" değil:** Bağımsız doğrulama bir yüzde değil, gerekçeli bir karar üretiyor. Kapı, modelin kendi sonuçlarından değil doğrulama raporundan okunur; bir model kendi kapısını açamaz.
+- **Kapsam:** Kendiliğinden eylem yapan tek model M30 (ML filtresi, günlük sinyal adımı). Sinyal adımı artık iki koşul arıyor: örneklem dışı geçiş (K-59) ve açık kapı. M11, M12, M14, M16, M24 ve M28 zaten yalnız uyarı ya da hesap veriyor. `/tara ai` kartları kullanıcı düğmesiyle girildiği için kapıya bağlı değil; kart doğrulama durumunu ve geçmiş ölçümleri yazıyor.
+- **Görünürlük:** `/durum`'da "Model kapısı" satırı her otomatik eylemi ve açık ya da kapalı olduğunu gösterir.
+
 **K-71. Güncelleyici yeni klasörde, git ile ve saatte bir (04.11.2026).**
 - **Neden:** Kullanıcı her sürümden sonra `git pull` yapıp botu yeniden başlatmak zorunda kalıyordu. Otomatik güncelleyici (K-27) eski klasöre (`C:\Projeler\QuantBIST`) sabitti. Yeni klasör bir git deposu; zip kopyalamak çalışma ağacını kirletir ve sonraki `git pull`'u bozardı.
 - **Karar:**

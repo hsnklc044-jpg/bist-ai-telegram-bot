@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.47 – 04.11.2026 (model kapısı: doğrulanmamış model kendiliğinden işlem yapamaz; K-72)
+- Yeni `core/reports/model_gate.py`: Yüksek riskli bir model yalnız güncel ve "kullanılabilir" kararlı bir bağımsız doğrulamayla kendiliğinden bir şey değiştirebiliyor. Kısıtlı, kullanılamaz, süresi geçmiş ya da raporsuz model yalnız bilgi veriyor. Karar doğrulama raporundan okunuyor, modelin kendi sonucundan değil.
+- Günlük sinyal adımı artık iki koşul arıyor: ML filtresinin örneklem dışı geçişi ve M30'un açık kapısı. Bugün M30 kapalı (bağımsız doğrulanmadı).
+- `/durum`'a "Model kapısı" satırı eklendi: her otomatik eylem, açık ya da kapalı olduğu ve nedeni.
+- Kullanıcının "%90'ın altını karantinaya al" isteğinin uygulanabilir karşılığı bu; doğrulama yüzde değil karar üretiyor (DECISIONS K-72).
+- Doğrulama: `test_model_gate` (5 test): yalnız güncel "kullanılabilir" kapıyı açıyor; kısıtlı, kullanılamaz, süresi geçmiş ve raporsuz kapalı; yüksek riskli olmayan model kapıya takılmıyor; `/durum` metni; günlük adım kapalı kapıda kayıt yazmıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.46 – 04.11.2026 (sinyal kaydı: gerekçe, risk, geçerlilik, BIST 100 karşılaştırması; K-70 madde 4)
 - **Defterde yeni alanlar** (eski defterler kendiliğinden yükseltiliyor):
   - `reason`: tetik, göstergeler ve ML olasılığı. Örnek: "dip dönüşü; RSI 31,2; Stoch %K 14,0; …; ML %70".
