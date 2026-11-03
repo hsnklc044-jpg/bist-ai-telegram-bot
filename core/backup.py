@@ -142,7 +142,7 @@ def create_backup(
     target = Path(target or backup_dir())
     target.mkdir(parents=True, exist_ok=True)
     path = target / (name or f"{PREFIX}{date.today():%Y-%m-%d}.zip")
-    tmp = path.with_suffix(".tmp")
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.tmp")  # one temp file per process (bot + report)
 
     manifest = {"created": datetime.now().isoformat(timespec="seconds"), "files": {}}
 

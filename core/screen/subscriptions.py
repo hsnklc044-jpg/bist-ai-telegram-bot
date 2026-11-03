@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
@@ -196,7 +197,7 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
 def save_state(outcome: Outcome, path: Path | None = None) -> None:
     path = Path(path or STATE_FILE)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.tmp")  # one temp file per process (bot + report)
     tmp.write_text(json.dumps(outcome.state, ensure_ascii=False, indent=1), encoding="utf-8")
     tmp.replace(path)
 

@@ -29,6 +29,7 @@ being filled twice.
 from __future__ import annotations
 
 import csv
+import os
 import shutil
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, replace
@@ -132,7 +133,7 @@ def save_orders(orders: list[Order], path: Path | str | None = None) -> None:
     path = Path(path or PAPER_ORDERS_FILE)
     path.parent.mkdir(parents=True, exist_ok=True)
     _keep_old_format(path)
-    tmp = path.with_suffix(".tmp")
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.tmp")  # one temp file per process (bot + report)
     with open(tmp, "w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, FIELDS, lineterminator="\n")
         writer.writeheader()

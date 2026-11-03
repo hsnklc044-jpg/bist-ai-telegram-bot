@@ -200,7 +200,7 @@ def record_equity(path: Path, day: date, account: str, value: float, cash: float
     )
     rows.sort(key=lambda r: (r["date"], r["account"]))
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.tmp")  # one temp file per process (bot + report)
     with open(tmp, "w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, EQUITY_FIELDS, lineterminator="\n")
         writer.writeheader()

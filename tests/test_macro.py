@@ -427,3 +427,24 @@ class RefreshTest(Files):
             raise RuntimeError("x")
 
         self.assertEqual(macro.refresh_usd(datetime(2026, 11, 4, 16, 0), update=broken), 0)
+
+
+class TwoWritersTest(Files):
+    def test_each_process_has_its_own_temp_file(self):
+        # v0.99.34: the bot's hourly refresh and the 18:30 report are two processes; a shared
+        # usdtry.tmp let one replace the other's half-written file
+        from unittest import mock
+
+        path = self.dir / "usdtry.csv"
+        seen = []
+        real_open = open
+
+        def spy(file, *a, **k):
+            seen.append(Path(file).name)
+            return real_open(file, *a, **k)
+
+        with mock.patch("builtins.open", side_effect=spy), mock.patch("os.getpid", return_value=4242):
+            macro._save_cache(path, {date(2026, 11, 3): "42.0000"})
+        self.assertIn("usdtry.4242.tmp", seen)
+        self.assertEqual(macro._cache(path), {date(2026, 11, 3): "42.0000"})
+        self.assertEqual([p.name for p in self.dir.iterdir()], ["usdtry.csv"])

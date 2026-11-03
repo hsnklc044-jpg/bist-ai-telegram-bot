@@ -20,6 +20,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -232,7 +233,7 @@ def cached_history(query: Query, load, version: str | None = None, path: Path | 
         stored = dict(list(stored.items())[-CACHE_LIMIT:])
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
-            tmp = path.with_suffix(".tmp")
+            tmp = path.with_name(f"{path.stem}.{os.getpid()}.tmp")  # one temp file per process (bot + report)
             tmp.write_text(json.dumps(stored, ensure_ascii=False), encoding="utf-8")
             tmp.replace(path)
         except OSError:

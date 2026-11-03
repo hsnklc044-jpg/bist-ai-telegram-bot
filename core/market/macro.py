@@ -218,8 +218,10 @@ def load_usdtry(path: Path | str | None = None) -> pd.Series:
 
 
 def _save_cache(path: Path, have: dict[date, str]) -> None:
+    import os
+
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
+    tmp = path.with_name(f"{path.stem}.{os.getpid()}.tmp")  # the bot and the report are two processes
     with open(tmp, "w", encoding="utf-8", newline="") as fh:
         w = csv.writer(fh, lineterminator="\n")
         w.writerow(["date", "rate"])

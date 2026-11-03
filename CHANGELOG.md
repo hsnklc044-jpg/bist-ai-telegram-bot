@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.34 – 03.11.2026 (iki süreç aynı geçici dosyayı paylaşmıyor)
+- Bulgu (kendi incelememden): v0.99.32–33 ile bot da kur önbelleğine ve yedeğe yazıyor. Bot ile 18:30 raporu iki ayrı süreç ve ikisi aynı `….tmp` dosyasını kullanıyordu. Aynı anda yazarlarsa biri ötekinin yarım dosyasını yerine koyabilir, Windows'ta da yazma hata verebilirdi.
+- Düzeltme: Altı atomik kayıt noktası artık süreç numarasıyla ayrı bir geçici dosya kullanıyor (`usdtry.<pid>.tmp`): kur önbelleği, yedek, sanal emirler, tarama abonelikleri, kart önbelleği ve rapor durumu. `.gitignore` her `*.tmp` dosyasını dışarıda tutuyor.
+- Doğrulama: `test_macro` (TwoWritersTest): geçici dosya süreç numarasını taşıyor, kayıttan sonra geride kalmıyor. Önce kırmızı, sonra yeşil. İlgili 259 test yeniden geçti.
+
 ## v0.99.33 – 03.11.2026 (yedeği rapor almazsa bot alıyor)
 - 02.11'de yedek yoktu, çünkü o gün 18:30 raporu çalışmamıştı. Artık sürekli açık olan bot her seans günü 21:00'de bakıyor: günün yedeği (`quantbist_YYYY-AA-GG.zip`) yoksa kendisi alıyor. Rapor yedeği zaten aldıysa hiçbir şey yapmıyor. Tatil günlerinde de bir şey yapmıyor.
 - Hata botu durdurmuyor, log'a yazılıyor. Eksik gün `/durum`'un Yedek SLO'sunda görünmeye devam ediyor.
