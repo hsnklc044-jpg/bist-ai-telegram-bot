@@ -4,6 +4,28 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-64. Sinyal onay katmanı (meta-etiketleme); ölçümden ÖNCE yazıldı (03.11.2026).**
+- **Ne:** Teknik tetik ("dip dönüşü", `core.market.extended.trigger_mask`) bir aday sinyal üretir. RandomForest bu sinyalin başarı olasılığını verir. Olasılık ≥ 0,60 ise "onaylandı", altındaysa "yalancı sinyal". Modül: `core/ml/signal_filter.py`.
+- **Olay:** Tetiğin doğru olduğu mum. Aynı hissede önceki olaydan sonraki X mum içinde gelen tetik yeni olay sayılmaz.
+- **Etiket:** Giriş ertesi mumun açılışı. X mum sonraki kapanış girişin en az Y üstündeyse 1, değilse 0.
+  - Günlük veri: X = 10 seans, Y = %3.
+  - Saatlik veri: X = 16 mum, Y = %1,5.
+  - Tavan açılışta giriş yok. Etiketin bilindiği an, X mum sonraki kapanış.
+- **Öznitelikler (yalnız o mum ve öncesi):**
+  - RSI, ADX, Stoch %K ve %D, MACD histogramı, Bollinger %b, ATR / kapanış, CMF;
+  - EMA 50 ve EMA 200'e yüzde uzaklık;
+  - hacim anomalisi: o mumun hacmi ÷ önceki 5 mumun ortalaması − 1.
+- **Model:** RandomForest; 300 ağaç, sınıf ağırlığı dengeli.
+  - `max_depth` {3, 4, 5} ve `min_samples_leaf` {10, 25, 50} arasından seçilir.
+  - Seçim yalnız eğitim verisi içinde yapılır: 3 katlı zaman sıralı çapraz doğrulama, katlar arası X mum boşluk, ölçüt log-loss. Test verisi ayar seçiminde hiç görülmez.
+- **Değerlendirme:** Olaylar zamana göre sıralanır; genişleyen pencereyle 5 dış kat. Eğitim satırının etiketi test katının ilk olayından önce bilinmiş olmalı (temizleme). 02.11.2026 sonrası (holdout) kullanılmaz.
+- **Raporlanan:** doğruluk (accuracy), taban oran (tüm olaylarda 1 oranı), onaylanan sinyal sayısı ve isabeti, isabetin gün blok bootstrap %95 aralığı (2000 tekrar, tohum 0).
+- **Geçme koşulu:** en az 50 onaylı sinyal ve onaylı isabet aralığının alt ucu taban oranın üstünde. Doğruluk tek başına ölçüt değildir; taban oranı düşükse her şeye "hayır" diyen model de yüksek doğruluk alır.
+- **Ölçülecek iki veri:**
+  - BIST 100 günlük, 2022'den bugüne; her gün o günkü üyelik, geçmiş üyelik doğru.
+  - BIST 30 saatlik, son 1 yıl.
+- **Bağlama:** Geçmezse `/tara` ve deftere bağlanmaz. Eşikler (0,60, X, Y, ızgara) sonuca göre değişmez.
+
 **K-63. "Dip dönüşü" tetiğinin ölçümü; ölçümden ÖNCE yazıldı (03.11.2026).**
 - **Karar:** Saatlik tetik bota bağlanmadan önce ölçülecek. Ölçülmemiş bir kuralın her saat bildirilmesi kanıtsız sinyal yayınlamak olur.
 - **Veri:** BIST 30'un (`core/config/bist30.py`) Yahoo'dan son 1 yıllık saatlik mumları. 02.11.2026 ve sonrası (holdout) kullanılmaz.
