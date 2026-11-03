@@ -43,6 +43,19 @@ class TradingViewFieldsTest(unittest.TestCase):
         pd.testing.assert_series_equal(t["cci"], CCIIndicator(h, self.df["low"], c, window=20).cci(),
                                        check_names=False)
 
+    def test_cmf_by_hand(self):
+        # BIST 30 hedefi (03.11): Chaikin para akışı, 20 gün; a flat candle (high = low) adds no flow
+        from ta.volume import ChaikinMoneyFlowIndicator
+
+        c, h, low, v = self.df["close"], self.df["high"], self.df["low"], self.df["volume"]
+        mfm = ((c - low) - (h - c)) / (h - low)
+        expected = (mfm.fillna(0.0) * v).rolling(20).sum() / v.rolling(20).sum() * 100
+        t = self.table("cmf")
+        pd.testing.assert_series_equal(t["cmf"], expected, check_names=False)
+        lib = ChaikinMoneyFlowIndicator(h, low, c, v, window=20).chaikin_money_flow() * 100
+        np.testing.assert_allclose(t["cmf"].iloc[-100:], lib.iloc[-100:])
+        self.assertTrue(t["cmf"].dropna().between(-100, 100).all())
+
     def test_twenty_day_volume_ratio_stays_separate(self):
         t = self.table("hacim_oran", "goreli_hacim")
         self.assertFalse(np.allclose(t["hacim_oran"].iloc[-50:], t["goreli_hacim"].iloc[-50:]))

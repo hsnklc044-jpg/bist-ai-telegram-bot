@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.12 – 03.11.2026 (BIST 30 hedefi, adım 1: göstergeler)
+- **`/tara` için yeni alan: `cmf`.** Chaikin para akışı (20 gün), −100 ile +100 arası. Örnek: `/tara cmf>10 adx>25 evren=bist30`.
+- İstenen diğer göstergeler zaten vardı ve testliydi: EMA 50/200 (`ema50`, `ema200`), ADX(14) (`adx`), Stochastic (`stok_k`, `stok_d`), Bollinger (`bb_ust`, `bb_alt`, `bb_yuzde`, `bb_genislik`), ATR (`atr`, `atr_yuzde`), OBV (`obv_egim`).
+- pandas-ta eklenmedi: numpy 2 ile açılmıyor. Proje zaten bakımı süren `ta` kütüphanesini kullanıyor.
+- Doğrulama: `test_cmf_by_hand`. Elle hesap ve `ta` kütüphanesiyle aynı; düz mum akış eklemiyor.
+
 ## v0.99.11 – 29.10.2026 (bağımsız doğrulama M24: TÜFE penceresi)
 - **M24 (dört bazlı sonuç) değişti; yeniden doğrulama gerekir.**
 - **Reel getirinin başlangıcı düzeltildi** (ORTA). Başlangıç artık başlangıç ayından önceki ayın sonu. Önceden başlangıç gününde açıklanmış son ay alınıyordu. Örnek: 03.01.2022'de başlayan pencereye Aralık 2021'in %13,58'i giriyordu, reel 10,8 puan düşük çıkıyordu. Bitiş eskisi gibi; açıklanmamış ay tahmin edilmez.

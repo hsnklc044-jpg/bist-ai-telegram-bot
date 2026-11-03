@@ -83,6 +83,7 @@ FIELDS = {
     "ortalama_hacim_30g": Field("Hacim", "30 günlük ortalama hacim, adet (TradingView 'Ort. hacim, 30G')", "adet"),
     "likidite": Field("Hacim", "20 günlük ortalama işlem hacmi, TL (likidite= seçeneği milyon TL'dir)", "TL"),
     "obv_egim": Field("Hacim", "OBV'nin 20 günlük değişimi / 20 günlük toplam hacim", "%"),
+    "cmf": Field("Hacim", "Chaikin para akışı, 20 gün (−100 satış baskısı, +100 alış baskısı)", "%"),
     "islem_tl": Field("Hacim", "20 günlük ortalama işlem hacmi", "milyon TL"),
     # relative strength
     "gg_20": Field("Göreli güç", "son 20 seans getirisi − XU100'ünki", "puan"),
@@ -374,6 +375,10 @@ class _Table:
         if name == "obv_egim":
             obv = OnBalanceVolumeIndicator(close, df["volume"]).on_balance_volume()
             return (obv - obv.shift(20)) / df["volume"].rolling(20).sum() * 100
+        if name == "cmf":  # a flat candle (high = low) carries no flow
+            high, low = df["high"], df["low"]
+            mfm = (((close - low) - (high - close)) / (high - low)).fillna(0.0)
+            return (mfm * df["volume"]).rolling(20).sum() / df["volume"].rolling(20).sum() * 100
         if name == "islem_tl":
             return (close * df["volume"]).rolling(20).mean() / 1e6
         if name in ("gg_20", "gg_60"):

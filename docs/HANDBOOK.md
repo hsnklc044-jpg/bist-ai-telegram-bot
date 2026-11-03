@@ -175,6 +175,7 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Hacim | `ortalama_hacim_30g` | 30 günlük ortalama hacim, adet (TradingView 'Ort. hacim, 30G') | adet |
 | Hacim | `likidite` | 20 günlük ortalama işlem hacmi, TL (likidite= seçeneği milyon TL'dir) | TL |
 | Hacim | `obv_egim` | OBV'nin 20 günlük değişimi / 20 günlük toplam hacim | % |
+| Hacim | `cmf` | Chaikin para akışı, 20 gün (−100 satış baskısı, +100 alış baskısı) | % |
 | Hacim | `islem_tl` | 20 günlük ortalama işlem hacmi | milyon TL |
 | Göreli güç | `gg_20` | son 20 seans getirisi − XU100'ünki | puan |
 | Göreli güç | `gg_60` | son 60 seans getirisi − XU100'ünki | puan |
