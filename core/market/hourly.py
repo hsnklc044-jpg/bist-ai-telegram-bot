@@ -2,7 +2,8 @@
 QuantBIST
 Hourly candles of the BIST 30 from Yahoo Finance (03.11.2026 request: "son 1 yıllık 1h veri").
 
-One batched yfinance call for all tickers (threads inside yfinance), retried on network errors.
+One batched yfinance call for all tickers (threads inside yfinance), retried on network errors;
+a ticker the batch leaves empty is asked once more on its own.
 Each frame is cleaned: lower-case OHLCV, Istanbul time, no empty / NaN / non-positive candles,
 no high < low, no duplicate stamps, and the still-open last hour dropped (its close is not final).
 A ticker with no data is reported in `missing`, never silently left out. Yahoo keeps 1h data
@@ -92,26 +93,37 @@ def load_hourly(tickers: list[str] | None = None, period: str = "1y", download=N
         import yfinance as yf
 
         download = yf.download
-    raw = None
-    for attempt in range(1, RETRIES + 1):
+
+    def fetch(wanted: list[str]):
+        for attempt in range(1, RETRIES + 1):
+            try:
+                return download(wanted, period=period, interval="1h", auto_adjust=True, group_by="ticker",
+                                progress=False, threads=True)
+            except Exception as exc:  # noqa: BLE001 - network or Yahoo errors: retried, then reported
+                logger.warning("Hourly download failed | attempt %d/%d | %s", attempt, RETRIES, exc)
+                if attempt < RETRIES:
+                    sleep(PAUSE * attempt)
+        return None
+
+    def take(parts: dict, t: str) -> pd.DataFrame:
         try:
-            raw = download(tickers, period=period, interval="1h", auto_adjust=True, group_by="ticker",
-                           progress=False, threads=True)
-            break
-        except Exception as exc:  # noqa: BLE001 - network or Yahoo errors: retried, then reported
-            logger.warning("Hourly download failed | attempt %d/%d | %s", attempt, RETRIES, exc)
-            if attempt < RETRIES:
-                sleep(PAUSE * attempt)
+            return clean(parts.get(t), now)
+        except Exception as exc:  # noqa: BLE001 - one bad frame must not stop the others
+            logger.warning("Hourly clean failed | %s | %s", t, exc)
+            return pd.DataFrame()
+
+    raw = fetch(tickers)
     if raw is None:
         result.missing = {t: "indirme başarısız" for t in tickers}
         return result
     parts = _split(raw, tickers)
     for t in tickers:
-        try:
-            frame = clean(parts.get(t), now)
-        except Exception as exc:  # noqa: BLE001 - one bad frame must not stop the others
-            logger.warning("Hourly clean failed | %s | %s", t, exc)
-            frame = pd.DataFrame()
+        frame = take(parts, t)
+        if frame.empty:  # Yahoo sometimes leaves one ticker empty in a batch (ISCTR, 03.11.2026): ask it alone
+            alone = fetch([t])
+            single = _split(alone, [t]) if alone is not None else {}
+            frame = take(single, t)
+            parts = parts | single
         if frame.empty:
             result.missing[t] = "veri yok" if t not in parts else "kullanılabilir mum yok"
         else:

@@ -85,8 +85,23 @@ class LoaderTest(unittest.TestCase):
         self.assertEqual(sorted(data.frames), ["AKBNK.IS", "GARAN.IS"])
         self.assertEqual(data.missing, {"EKOY.IS": "veri yok"})
         self.assertEqual((calls[0]["interval"], calls[0]["period"]), ("1h", "1y"))
-        self.assertEqual(len(calls), 1)  # one batched request
+        self.assertEqual(len(calls), 2)  # one batched request, then the missing one alone
         self.assertIn("EKOY.IS (veri yok)", data.summary())
+
+    def test_a_ticker_empty_in_the_batch_is_asked_alone(self):
+        # 03.11.2026: ISCTR.IS came back empty in the 30-ticker batch but complete on its own
+        calls = []
+
+        def download(tickers, **kw):
+            calls.append(tickers)
+            if len(tickers) > 1:
+                return pd.concat({"AKBNK.IS": hourly(50)}, axis=1)
+            return pd.concat({tickers[0]: hourly(50, seed=4)}, axis=1)
+
+        data = H.load_hourly(["AKBNK.IS", "ISCTR.IS"], download=download, now=NOW, sleep=lambda s: None)
+        self.assertEqual(sorted(data.frames), ["AKBNK.IS", "ISCTR.IS"])
+        self.assertEqual(calls[1], ["ISCTR.IS"])
+        self.assertEqual(data.missing, {})
 
     def test_retries_then_reports(self):
         download, calls = self.fake(failures=2)

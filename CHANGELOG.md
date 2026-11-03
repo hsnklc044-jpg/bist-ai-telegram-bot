@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.22 – 03.11.2026 (BIST 30 kodları düzeltildi, saatlik veride tek tek yeniden deneme)
+- **Listede iki kod düzeltildi** (gerçek Yahoo verisiyle denendi, Actions 41637982348):
+  - EKOY.IS → **EKGYO.IS** (Emlak Konut): EKOY Yahoo'da yok.
+  - KOZAL.IS → **TRALT.IS** (Koza Altın'ın güncel kodu, verisi 24.11.2025'te başlıyor): KOZAL artık veri döndürmüyor.
+- **Saatlik indirici:** Toplu istekte boş dönen hisseyi bir kez tek başına yeniden istiyor. ISCTR.IS 30'luk istekte boş dönmüş, tek başına istenince tam gelmişti.
+- Doğrulama: `test_a_ticker_empty_in_the_batch_is_asked_alone` (önce kırmızıydı).
+
 ## v0.99.21 – 03.11.2026 (iki gerçek veri sonucu)
 - **ML ikinci kural (goreli20) ölçüldü: filtre kapalı.**
   - Yaklaşık BIST 30: isabet %45,9, taban %44,6.
