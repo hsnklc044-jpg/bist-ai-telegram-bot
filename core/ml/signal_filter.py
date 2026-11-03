@@ -156,6 +156,35 @@ def report_file(zaman: str = "gunluk"):
     return LOG_DIR / f"signal_filter_{zaman}.json"
 
 
+@dataclass(frozen=True)
+class TrackRecord:
+    approved: int
+    precision: float
+    base_rate: float
+    source: str
+
+
+# K-64's out-of-sample result as recorded in RESEARCH_LOG (03.11.2026); the PC usually has no report
+# file because the evaluation runs on GitHub Actions
+RECORDED = {
+    "gunluk": TrackRecord(42, 0.262, 0.336, "BIST 100, örneklem dışı, K-64, Actions 41645852277"),
+    "saatlik": TrackRecord(39, 0.410, 0.236, "BIST 30 saatlik, örneklem dışı, K-64, Actions 41645846675"),
+}
+
+
+def track_record(zaman: str = "gunluk") -> TrackRecord | None:
+    """The newest out-of-sample figures: this PC's report when it has one, else the recorded K-64 run."""
+
+    try:
+        got = json.loads(report_file(zaman).read_text(encoding="utf-8"))
+        if got.get("approved") and got.get("precision") is not None and got.get("base_rate") is not None:
+            return TrackRecord(int(got["approved"]), float(got["precision"]), float(got["base_rate"]),
+                               "bu bilgisayardaki son ölçüm")
+    except (OSError, ValueError, TypeError):
+        pass
+    return RECORDED.get(zaman)
+
+
 def validated(zaman: str = "gunluk") -> bool:
     """True only after the out-of-sample evaluation passed (K-64); a missing or broken report is False."""
 

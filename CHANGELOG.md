@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.35 – 03.11.2026 (kart, modelin gerçek geçmiş isabetini yazıyor)
+- `/tara ai` kartı eskiden yalnız "model geçmedi" diyordu. Artık ✅'e basmadan önce ölçülen rakamı da gösteriyor. Örnek: "Geçmiş ölçüm: onaylanan 42 sinyalde isabet %26,2, tüm tetiklerde %33,6 (onay isabeti artırmadı; isabet: 10 seans sonra kapanış ≥ +%3; BIST 100, örneklem dışı, K-64, Actions 41645852277)".
+- Kaynak: Bilgisayarda daha yeni bir örneklem dışı rapor (`logs/signal_filter_gunluk.json`) varsa o kullanılıyor. Yoksa RESEARCH_LOG'a yazılmış K-64 sonucu kullanılıyor; ölçüm GitHub Actions'ta yapıldığı için bilgisayarda genelde rapor yok. Rakam ya da eşik değiştirilmedi.
+- Not: Ölçümdeki isabet tanımı (10 seans sonra ≥ +%3) kartın %2 stop / %4 hedef kuralıyla aynı değil; kart bunu açıkça yazıyor.
+- Doğrulama: `test_control` (2 yeni test): kayıtlı rakamlar kartta görünüyor; daha yeni bir rapor varsa onun yerine geçiyor ve "artırmadı" ifadesi kalkıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.34 – 03.11.2026 (iki süreç aynı geçici dosyayı paylaşmıyor)
 - Bulgu (kendi incelememden): v0.99.32–33 ile bot da kur önbelleğine ve yedeğe yazıyor. Bot ile 18:30 raporu iki ayrı süreç ve ikisi aynı `….tmp` dosyasını kullanıyordu. Aynı anda yazarlarsa biri ötekinin yarım dosyasını yerine koyabilir, Windows'ta da yazma hata verebilirdi.
 - Düzeltme: Altı atomik kayıt noktası artık süreç numarasıyla ayrı bir geçici dosya kullanıyor (`usdtry.<pid>.tmp`): kur önbelleği, yedek, sanal emirler, tarama abonelikleri, kart önbelleği ve rapor durumu. `.gitignore` her `*.tmp` dosyasını dışarıda tutuyor.

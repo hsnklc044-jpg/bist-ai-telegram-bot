@@ -121,6 +121,34 @@ class AiTest(unittest.TestCase):
         self.assertIn("işleme girmek sizin kararınız", text)
         self.assertIn("doğrulandı", ai.message(self.candidate(0.64), validated=True))
 
+    def test_card_states_the_measured_track_record(self):
+        # v0.99.35: the card says what the out-of-sample test found, not only "not validated"
+        from core.ml import signal_filter as S
+
+        with mock.patch.object(S, "report_file", return_value=Path("/yok/signal_filter_gunluk.json")):
+            text = ai.message(self.candidate(0.64), validated=False)
+        self.assertIn("onaylanan 42 sinyalde isabet %26,2", text)
+        self.assertIn("tüm tetiklerde %33,6", text)
+        self.assertIn("onay isabeti artırmadı", text)
+        self.assertIn("Actions 41645852277", text)
+
+    def test_a_newer_report_replaces_the_recorded_figures(self):
+        import json
+        import tempfile
+
+        from core.ml import signal_filter as S
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "signal_filter_gunluk.json"
+            path.write_text(json.dumps({"approved": 60, "precision": 0.45, "base_rate": 0.33, "tested": 500}),
+                            encoding="utf-8")
+            with mock.patch.object(S, "report_file", return_value=path):
+                record = S.track_record("gunluk")
+                text = ai.message(self.candidate(0.64), validated=False)
+        self.assertEqual((record.approved, record.source), (60, "bu bilgisayardaki son ölçüm"))
+        self.assertIn("onaylanan 60 sinyalde isabet %45,0", text)
+        self.assertNotIn("artırmadı", text)
+
     def test_rejection_and_threshold(self):
         self.assertIn("AI Reddi</b>: THYAO – olasılık %59", ai.message(self.candidate(0.59), False))
         self.assertIn("AI onayı", ai.message(self.candidate(0.60), False))

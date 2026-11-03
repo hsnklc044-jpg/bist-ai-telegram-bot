@@ -101,8 +101,24 @@ def message(c: Candidate, validated: bool) -> str:
         "<i>Stop ve hedef gerçek girişe (açılış fiyatı) göre kesinleşir; stop zirveyi %2 geriden izler.</i>",
         *_sizing(c),
         f"<b>Doğrulama:</b> {state}",
+        *_record_line(),
         f"<i>{DISCLAIMER}</i>",
     ])
+
+
+def _record_line() -> list[str]:
+    """v0.99.35: what the out-of-sample test found, so the decision is made with the real figures."""
+
+    from core.ml.signal_filter import SPEC, track_record
+
+    r = track_record("gunluk")
+    if r is None:
+        return []
+    x, y = SPEC["gunluk"]
+    verdict = ("onay isabeti artırmadı" if r.precision <= r.base_rate else "onaylananlar tabanın üstünde")
+    return [f"<b>Geçmiş ölçüm:</b> onaylanan {r.approved} sinyalde isabet %{_n(r.precision * 100, 1)}, "
+            f"tüm tetiklerde %{_n(r.base_rate * 100, 1)} ({verdict}; isabet: {x} seans sonra kapanış ≥ "
+            f"+%{y * 100:g}; {html.escape(r.source)})"]
 
 
 def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None) -> list[tuple[str, int | None]]:
