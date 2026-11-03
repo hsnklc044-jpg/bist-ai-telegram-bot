@@ -99,6 +99,22 @@ class DataChecksTest(unittest.TestCase):
         self.assertEqual(check.state, health.WARN)
         self.assertIn("1 tekrar kayıt", check.text)
 
+    def test_an_old_gap_is_reported_but_not_a_warning(self):
+        # 04.11.2026: 30.10 had no record; the gap cannot be filled, and a warning that never ends hides
+        # new problems. Like the SLO, only a gap in the last 7 days warns; older ones stay in the text.
+        path = self.root / "signal_log.csv"
+        for day in (date(2026, 10, 22), date(2026, 10, 26), date(2026, 10, 27), date(2026, 10, 28),
+                    date(2026, 10, 30), date(2026, 11, 2), date(2026, 11, 3), date(2026, 11, 4), date(2026, 11, 5)):
+            log_signal("daily", "AAA.IS", 50, "Nötr", day, path=path, now=datetime(day.year, day.month, day.day, 18, 30, tzinfo=ISTANBUL))
+        # 23.10 (Friday) is missing: inside the window on 26.10, outside it on 06.11
+        recent = health.signal_check(path, datetime(2026, 10, 28, 20, 0, tzinfo=ISTANBUL))
+        self.assertEqual(recent.state, health.WARN)
+        old = health.signal_check(path, datetime(2026, 11, 5, 20, 0, tzinfo=ISTANBUL))
+        self.assertEqual(old.state, health.OK, old.text)
+        self.assertIn("kaydı olmayan", old.text)  # still said, as history
+        self.assertIn("23.10", old.text)
+        self.assertIn("7 günden eski", old.text)
+
     def test_equity(self):
         path = self.root / "equity_log.csv"
         self.assertEqual(health.equity_check(path).state, health.UNKNOWN)

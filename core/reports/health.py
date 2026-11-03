@@ -261,7 +261,17 @@ def signal_check(path: Path | str | None = None, now: datetime | None = None) ->
 
     if not audit.days:
         return Check("Canlı ölçüm kaydı", WARN if audit.problems else UNKNOWN, audit.text())
-    return Check("Canlı ölçüm kaydı", WARN if audit.problems else OK, audit.text())
+    # a missing or late day cannot be filled afterwards: like the SLO, only the last 7 days warn, older
+    # gaps stay in the text as history (04.11.2026: 30.10 would have warned for good)
+    from core.reports.slo import WINDOW
+
+    start = (now or datetime.now(ISTANBUL)).date() - WINDOW + timedelta(days=1)
+    recent = [d for d in audit.missing + audit.late if d >= start]
+    current = bool(audit.bad_rows or audit.duplicates or audit.empty_file or recent)
+    text = audit.text()
+    if audit.problems and not current:
+        text += " (7 günden eski; geri doldurulamaz, uyarı değil)"
+    return Check("Canlı ölçüm kaydı", WARN if current else OK, text)
 
 
 def equity_check(path: Path | str | None = None) -> Check:

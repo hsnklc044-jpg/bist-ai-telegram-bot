@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.40 – 04.11.2026 (geri doldurulamayan eski eksik kalıcı uyarı vermiyor)
+- **Hata (kendi denetimimden):** `/durum`'daki "Canlı ölçüm kaydı" kontrolü ilk kayıttan bugüne bütün geçmişe bakıyordu. 30.10'un eksik kaydı geri doldurulamadığı için bu satır sonsuza kadar ⚠️ kalacaktı. Böyle bir uyarı yeni sorunları gizler. 03.11'de "7 gün sonra kalkar" demiştim; bu yalnız SLO satırı için doğruydu, bu kontrol için değil.
+- **Düzeltme:** SLO'daki gibi yalnız son 7 gündeki kaydı olmayan ya da geç kaydedilen seans ⚠️ veriyor. Daha eski eksik metinde "7 günden eski; geri doldurulamaz, uyarı değil" notuyla görünmeye devam ediyor. Bozuk satır, tekrar kayıt ve boş dosya her zaman uyarıyor.
+- Doğrulama: `test_health` (1 yeni test): pencere içindeki eksik uyarıyor, pencere dışındaki uyarmıyor ama yazılıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.39 – 03.11.2026 (basılmayan kart ertesi gün düşüyor)
 - **Hata:** Düğmesine hiç basılmayan `/tara ai` kartı defterde sonsuza kadar "onay bekliyor" kalıyordu ve `/durum`'daki "onay bekleyen kart" sayısı günler geçtikçe büyüyordu. Bu kartlar zaten girilemiyordu, çünkü düğme yalnız kartın günü geçerli (K-67).
 - **Düzeltme:** Kartın günü geçince kart "zaman aşımı" oluyor. Bu, ertesi gün düğmeye basılmasıyla aynı sonuç. Defter iki yerde temizleniyor: 18:30 günlük adımında ve yeni bir `/tara ai` kart yazmadan önce. `/durum` yalnız bugünün bekleyen kartlarını sayıyor.
