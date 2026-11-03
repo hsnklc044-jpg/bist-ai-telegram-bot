@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.46 – 04.11.2026 (sinyal kaydı: gerekçe, risk, geçerlilik, BIST 100 karşılaştırması; K-70 madde 4)
+- **Defterde yeni alanlar** (eski defterler kendiliğinden yükseltiliyor):
+  - `reason`: tetik, göstergeler ve ML olasılığı. Örnek: "dip dönüşü; RSI 31,2; Stoch %K 14,0; …; ML %70".
+  - `risk_tl`: stop kart fiyatında gelirse kayıp (lot × fiyat × %2).
+  - `valid_until`: girilebilecek son gün; kartta kartın kendi günü.
+  - `horizon`: işlemde en çok kaç seans kalınacağı (10).
+  - `bench_r`: BIST 100'ün aynı günlerdeki getirisi, giriş açılışından çıkış kapanışına. Bir kez yazılıyor, sonra yeniden hesaplanmıyor.
+- **Performans:** Kapanmış sinyaller sayılıyor; kazananlar ve kaybedenler ayrı ortalamayla veriliyor; BIST 100 ortalaması ve fark hesaplanıyor. `/durum`'da "📏 Sinyal performansı" satırı olarak görünüyor.
+  - Endeks verisi olmayan işlem varsa karşılaştırma yapılmıyor ve "karşılaştırma yok" yazılıyor; eksik değer sıfır sayılmıyor.
+  - Satır küçük örneklem uyarısı taşıyor.
+- Doğrulama: `test_signal_record` (7 test): alanlar ve risk elle; eski defter yükseltmesi; iki işlemde kazanan, kaybeden ve BIST 100 elle (%+3,85, %-2,15, endeks %+1,49); `/durum` satırı; boş defter; endeks yoksa sıfır sayılmıyor; `/tara ai` kartı gerekçeyi yazıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.45 – 04.11.2026 (30.10 eksiğinin nedeni bulundu; eksik kapanış "hafta sonu" diye gizlenmiyor)
 - **Kanıt (kullanıcının PC'si, eski klasörün `runs.csv`'si):** 30.10 Cuma 18:30'da PC kapalıydı. 31.10 Cumartesi 01:36'daki gecikmeli çalışma, depoda 30.10 kapanışı yokken `holiday, hafta sonu` yazıp çıktı.
 - **Hata:** Rapor "bugün seans var mı" kontrolünü eksik veri kontrolünden önce yapıyordu. Kaçırılan Cuma, Cumartesi günü "hafta sonu" görünüyordu ve dışarıdan izleme alarm vermiyordu.

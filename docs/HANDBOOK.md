@@ -564,6 +564,7 @@ Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil
   - `/durum` her pozisyonun zirvesini, güncel stopunu, stop gelirse sonucu ve toplam "dinamik risk"i gösterir.
 - **Geçmiş ölçüm satırı:** Kart, modelin örneklem dışı isabetini tüm tetiklerin isabetiyle yan yana yazar. K-64'te onaylananlar tabandan kötüydü (%26,2'ye karşı %33,6). Yani ✅, model onayına güvenmek değil, sizin kararınızdır (v0.99.35).
 - **Kartın kuralı satırı (K-68):** Kartın önerdiği giriş, iz süren stop ve hedef kuralı geçmiş 207 tetikte ölçüldü. İşlemlerin %74'ü stopla bitti ve sonuç rastgele girişten ayırt edilemedi. Kart bunu da yazar (v0.99.37).
+- **Sinyal kaydı (K-70):** Her kartın gerekçesi, riski (stop gelirse TL), girilebileceği son gün ve en çok kaç seans süreceği defterde tutulur. Kapanan işlemler `/durum`'da "📏 Sinyal performansı" satırında kazanan ve kaybeden olarak ayrı ölçülür; BIST 100'ün aynı günlerdeki getirisiyle karşılaştırılır (v0.99.46).
 - **`/panik`:** Onay bekleyen kartları da iptal eder. Kilit varken düğmeler işlem açmaz.
 - **Arka plan:** `/tara ai` arka planda çalışır (ilk seferde model eğitimi birkaç dakika sürer). Bu sırada `/panik` ve `/durum` hemen cevaplanır. Tarama sürerken panik basılırsa o taramanın kartı deftere yazılmaz. İkinci `/tara ai` ilki bitene kadar bekletilir (v0.99.30).
 

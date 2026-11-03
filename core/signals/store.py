@@ -52,6 +52,11 @@ CREATE TABLE IF NOT EXISTS signals (
     exit_date TEXT, exit_price REAL, r REAL,
     qty INTEGER,                      -- K-67: lots (NULL: the fixed SIZE of K-60)
     peak REAL,                        -- K-67: highest price since the entry (the trailing stop's anchor)
+    reason TEXT,                      -- K-70: why (trigger, indicators, model probability)
+    risk_tl REAL,                     -- K-70: the loss if the stop hits at the signal price (lots × close × STOP)
+    valid_until TEXT,                 -- K-70: the last day the signal can be entered (a card: its own day)
+    horizon INTEGER,                  -- K-70: then at most this many sessions in the trade
+    bench_r REAL,                     -- K-70: BIST 100 over the same days (entry open → exit close)
     UNIQUE (created, symbol)
 );
 CREATE TABLE IF NOT EXISTS breaker (
@@ -72,7 +77,8 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)
     have = {r["name"] for r in conn.execute("PRAGMA table_info(signals)")}
-    for column, kind in (("qty", "INTEGER"), ("peak", "REAL")):  # books written before K-67
+    for column, kind in (("qty", "INTEGER"), ("peak", "REAL"), ("reason", "TEXT"), ("risk_tl", "REAL"),
+                         ("valid_until", "TEXT"), ("horizon", "INTEGER"), ("bench_r", "REAL")):  # older books
         if column not in have:
             conn.execute(f"ALTER TABLE signals ADD COLUMN {column} {kind}")
     return conn
@@ -124,7 +130,8 @@ def blocked(conn: sqlite3.Connection, day: date) -> bool:
 
 
 def add(conn: sqlite3.Connection, day: date, symbol: str, close: float, proba: float | None = None,
-        source: str = "tara-ml", qty: int | None = None, status: str = "bekliyor") -> int | None:
+        source: str = "tara-ml", qty: int | None = None, status: str = "bekliyor",
+        reason: str | None = None) -> int | None:
     """Record a signal of `day`; None when one exists for the stock that day. Refused while the
     breaker holds."""
 
@@ -135,8 +142,11 @@ def add(conn: sqlite3.Connection, day: date, symbol: str, close: float, proba: f
     if blocked(conn, day):
         raise BreakerTripped(f"şalter açık: {day:%d.%m.%Y} için yeni sinyal alınmadı")
     with conn:
-        cur = conn.execute("INSERT OR IGNORE INTO signals (created, symbol, signal_close, proba, source, qty, status) "
-                           "VALUES (?, ?, ?, ?, ?, ?, ?)", (day.isoformat(), symbol, close, proba, source, qty, status))
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO signals (created, symbol, signal_close, proba, source, qty, status, reason, risk_tl, "
+            "valid_until, horizon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (day.isoformat(), symbol, close, proba, source, qty, status, reason,
+             qty * close * STOP if qty else SIZE * STOP, day.isoformat(), HORIZON))
     return cur.lastrowid if cur.rowcount else None
 
 
@@ -259,6 +269,86 @@ def update(conn: sqlite3.Connection, bars, expire: bool = True) -> list[Signal]:
             conn.execute(f"UPDATE signals SET {cols} WHERE id = ?", (*state.values(), s.id))
         changed.append(next(x for x in signals(conn) if x.id == s.id))
     return changed
+
+
+BENCHMARK = "XU100.IS"
+
+
+@dataclass
+class Performance:
+    closed: int = 0
+    winners: int = 0
+    losers: int = 0
+    mean: float | None = None
+    win_mean: float | None = None
+    loss_mean: float | None = None
+    bench_mean: float | None = None  # BIST 100 over the same days; None when it could not be read
+    compared: int = 0  # closed signals with a benchmark result
+
+    @property
+    def excess(self) -> float | None:
+        return None if self.mean is None or self.bench_mean is None else self.mean - self.bench_mean
+
+
+def _bench(df: pd.DataFrame | None, entry: date, exit_: date) -> float | None:
+    """BIST 100 from the entry day's open to the exit day's close (the trade's own days)."""
+
+    if df is None or df.empty:
+        return None
+    days = pd.DatetimeIndex(df.index).normalize()
+    start, end = df[days == pd.Timestamp(entry)], df[days == pd.Timestamp(exit_)]
+    if start.empty or end.empty or not float(start["open"].iloc[0]) > 0:
+        return None
+    return float(end["close"].iloc[-1]) / float(start["open"].iloc[0]) - 1
+
+
+def performance(conn: sqlite3.Connection, bars) -> Performance:
+    """K-70: closed signals, winners and losers apart, against BIST 100 over the same days.
+    A benchmark result is written on the row once known (a record, not recomputed later)."""
+
+    done = [s for s in signals(conn) if s.r is not None and s.exit_date is not None and s.entry_date is not None]
+    out = Performance(closed=len(done))
+    if not done:
+        return out
+    wins, losses = [s.r for s in done if s.r > 0], [s.r for s in done if s.r <= 0]
+    out.winners, out.losers = len(wins), len(losses)
+    out.mean = sum(s.r for s in done) / len(done)
+    out.win_mean = sum(wins) / len(wins) if wins else None
+    out.loss_mean = sum(losses) / len(losses) if losses else None
+    stored = {r["id"]: r["bench_r"] for r in conn.execute("SELECT id, bench_r FROM signals")}
+    index, benches = None, []
+    for s in done:
+        b = stored.get(s.id)
+        if b is None:
+            if index is None:
+                index = bars(BENCHMARK)
+            b = _bench(index, s.entry_date, s.exit_date)
+            if b is not None:
+                with conn:
+                    conn.execute("UPDATE signals SET bench_r = ? WHERE id = ?", (b, s.id))
+        if b is not None:
+            benches.append((s.r, b))
+    if benches and len(benches) == len(done):
+        out.bench_mean, out.compared = sum(b for _, b in benches) / len(benches), len(benches)
+    else:
+        out.compared = len(benches)
+    return out
+
+
+def performance_text(p: Performance) -> str:
+    def pct(x):
+        return f"%{x * 100:+.2f}".replace(".", ",")
+
+    if not p.closed:
+        return "📏 Sinyal performansı: kapanmış sinyal yok."
+    parts = [f"📏 Sinyal performansı: {p.closed} kapanmış, ort. {pct(p.mean)}",
+             f"Kazanan {p.winners}" + (f" (ort. {pct(p.win_mean)})" if p.win_mean is not None else ""),
+             f"kaybeden {p.losers}" + (f" (ort. {pct(p.loss_mean)})" if p.loss_mean is not None else "")]
+    if p.bench_mean is None:
+        parts.append(f"BIST 100 karşılaştırması yok ({p.compared}/{p.closed} işlemde endeks verisi)")
+    else:
+        parts.append(f"BIST 100 aynı günlerde ort. {pct(p.bench_mean)}; fark {pct(p.excess)}")
+    return "; ".join(parts) + ". Küçük örneklem: sonuç ancak çok sayıda sinyalle anlam kazanır."
 
 
 def equity(conn: sqlite3.Connection, bars, days) -> pd.Series:
@@ -392,6 +482,8 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
              + (f", hedefe ulaşan %{hits / len(closed) * 100:.0f}" if closed else "")
              + (f"; onay bekleyen kart {pending}" if pending else ""),
              *rows]
+    if closed:  # K-70: winners and losers apart, against BIST 100 over the same days
+        lines.append(performance_text(performance(conn, bars)))
     if open_:
         lines.append(f"Dinamik risk: bütün stoplar şimdi gelse kasanın %{at_risk / max(realized_value, 1) * 100:.2f}'i "
                      f"({tl(at_risk)}) gider.".replace(".", ",", 1))
@@ -405,5 +497,6 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     return "\n".join(lines)
 
 
-__all__ = ["BREAKER", "BreakerTripped", "CAPITAL", "DISCLAIMER", "SIZE", "Signal", "add", "blocked", "check_breaker",
-           "connect", "equity", "locked", "realized", "signals", "summary", "update"]
+__all__ = ["BENCHMARK", "BREAKER", "BreakerTripped", "CAPITAL", "DISCLAIMER", "Performance", "SIZE", "Signal", "add",
+           "blocked", "check_breaker", "connect", "equity", "locked", "performance", "performance_text", "realized",
+           "signals", "summary", "update"]

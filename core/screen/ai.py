@@ -123,6 +123,13 @@ def _record_line() -> list[str]:
             f"+%{y * 100:g}; {html.escape(r.source)})", *own]
 
 
+def reason(c: Candidate) -> str:
+    """K-70: why the card exists, as recorded in the book."""
+
+    return (f"dip dönüşü; RSI {_n(c.rsi, 1)}; Stoch %K {_n(c.stoch_k, 1)}; Bollinger %b {_n(c.bb)}; "
+            f"MACD histogramı {_n(c.macd_hist)} (yükseliyor); ML %{_n(c.proba * 100, 0)}")
+
+
 def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None) -> list[tuple[str, int | None]]:
     """(message, card id) of one /tara ai. An approved candidate is written to the paper book as
     "onay_bekliyor" with its lots; it is entered only when the user presses [✅ İşleme Gir]
@@ -149,7 +156,7 @@ def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None)
                     c.box, c.lots = box, store.size_position(box, free, c.close)
                     if c.lots:
                         card = store.add(conn, day, c.symbol, c.close, c.proba, source="tara-ai", qty=c.lots,
-                                         status=store.PENDING)
+                                         status=store.PENDING, reason=reason(c))
                 except Exception as exc:  # noqa: BLE001 - the message still goes out, without buttons
                     logger.warning("AI card not recorded | %s | %s", c.symbol, exc)
             out.append((message(c, validated), card))
