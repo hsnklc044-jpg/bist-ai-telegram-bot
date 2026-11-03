@@ -1,3 +1,70 @@
+# EVRE 1 — Güvenilirlik denetimi (04.11.2026, kod v0.99.40)
+
+Kullanıcının 04.11.2026 güvenilirlik talimatının ilk adımı. Yalnız görülen kanıt yazıldı. Kullanıcının PC'si bu ortamdan görülmez. PC'ye ait son kanıt 04.11 00:17 tarihli `/durum` (v0.99.39) ve 03.11 23:29 geri yükleme testi çıktısıdır.
+
+## Tamamlanma ölçütleri: bugünkü durum
+
+| Ölçüt (hedef) | Bugün | Kanıt | Durum |
+|---|---|---|---|
+| Veri tazeliği (≥ %98) | %100, 1/1 seans | `/durum` SLO; ölçüm 03.11'de başladı | ölçülüyor, örneklem 1 seans: **yetersiz** |
+| Veri doğruluğu (≥ %99) | ölçülemiyor | İş Yatırım ikinci kaynağı robots.txt nedeniyle kapalı (K-54). Son ölçüm 28.10'da: 116/117 tutarlı | ❌ **ikinci kaynak yok** |
+| Yedekleme (%100) | %66,7 (2/3 seans) | 02.11'de yedek yok. 03.11 geri yükleme testi başarılı | ❌ |
+| Kayıt bütünlüğü (%100) | 30.10 kaydı yok | `signal_log.csv` | ❌ geri doldurulamaz; 7 günlük pencereden 07.11'de çıkar |
+| Rapor teslimi (≥ %99) | %100, 1/1 seans | `runs.csv`, ölçüm 03.11'de başladı | ölçülüyor, örneklem **yetersiz** |
+| Bot çalışma süresi (≥ %98) | ölçülemiyor | ilk yaşam sinyali 03.11 15:14; en az 1 gün gerekir | ❔ birikiyor |
+| Yüksek riskli modellerin bağımsız doğrulaması (hepsi) | 7/14 (aşağıya bakın) | `docs/validation/` | ❌ |
+| Sanal işlem kayıtlarında açıklanamayan tutarsızlık (0) | defter boş | `signals.db` hiç işlem içermiyor | ölçülemiyor |
+
+**Sonuç:** Sistem "tam güvenilir" olarak işaretlenemez. Gözlem süresi en az 4 hafta gerekiyor (20 seans). Bu süre içinde her SLO ölçülmeli ve hedefte kalmalı.
+
+## Bulgular (önem sırasıyla)
+
+1. **Model doğrulama sayısı yanlış (hesap hatası).**
+   - `/durum` "6/11" diyor. `docs/validation/M15.md` var, ama karar satırı ("## 5. Karar: **kısıtlı kullanılabilir**") ayrıştırıcıya uymadığı için sayılmıyor.
+   - Ayrıca yüksek riskli listede (`core/reports/validation.py` HIGH_RISK) M30 ML filtresi yok; oysa MODELS.md onu YÜKSEK sayıyor.
+   - Sinyal onay katmanı (K-64) ve sanal sinyal defteri (K-60, K-67) MODELS.md'de hiç yok.
+   - Doğru sayı: 14 yüksek riskli modelden 7'si doğrulandı (M11, M12, M14, M15, M16, M24, M28). Eksik olanlar M1, M5, M8, M27, M30, ayrıca yeni eklenen M31 (sinyal onay katmanı ve kart kuralı) ve M32 (sanal sinyal defteri).
+   - ✅ v0.99.41'de düzeltildi.
+2. **Yedek hatası Telegram'a bildirilmiyor.** 21:00'deki telafi işi (K-69) hata olursa yalnız log'a yazıyor. Talimat "başarısız yedeklemeleri otomatik raporla" diyor.
+3. **İkinci veri kaynağı yok.** Veri doğruluğu ölçülemiyor.
+   - Yeni bir kaynağa otomatik erişim, kullanım koşulları doğrulanmadan açılmaz; kullanıcının onayı gerekir.
+   - Seçenek: kullanıcının elle indirdiği bir dosyayı içe aktarıp karşılaştırmak. Bu ağa erişim gerektirmez.
+4. **Sinyal kaydı eksik alanlar içeriyor.** `signals.db` tarih, fiyat, olasılık, lot, stop ve hedefi tutuyor. Şunlar eksik:
+   - gerekçe: tetik ve gösterge değerleri;
+   - risk: stop gelirse kayıp, TL ve %;
+   - geçerlilik süresi: kartın günü ve en çok 10 seans;
+   - BIST 100 karşılaştırması: sinyal dönemindeki XU100 getirisi;
+   - kazanan ve kaybedenlerin ayrı ölçümü.
+5. **30.10 eksikleri:** canlı ölçüm kaydı ve muhtemelen o günün raporu.
+   - Neden bilinmiyor; PC'deki `logs/runs.csv` ve `logs/daily_2026-10-30.log` gösterir.
+   - O gün kullanıcı yeni klasöre (`QuantBIST-yeni`) geçiyordu (27–31.10); en olası neden bu.
+   - Tahminle doldurulmayacak.
+6. **02.11 yedeği:** O gün rapor çalışmadığı için yedek alınmadı. 21:00 telafisi (v0.99.33) artık bunu önlüyor.
+7. **Windows zamanlanmış görevleri buradan görülemiyor.** Kanıt `runs.csv` ve yaşam sinyalleri; ikisi de 03.11'de başladı.
+8. **Temel veri:** İçe aktarma (`core.fundamentals.store --import`) ve formüller (K-57) var; veri yok. KAP otomatik çekme kullanım koşulları teyit edilene kadar kapalı (K-48). Bu kapalı kalacak.
+
+## PC'de gereken kanıt (kullanıcıdan)
+
+Bu komutlar yalnız okuma yapar:
+
+```
+cd C:\Projeler\QuantBIST-yeni
+Get-Content logs\runs.csv | Select-Object -Last 15
+Get-ChildItem logs\daily_2026-10-3*.log, logs\daily_2026-11-0*.log | Select-Object Name, Length, LastWriteTime
+Get-ScheduledTask -TaskName "QuantBIST*" | Get-ScheduledTaskInfo | Select-Object TaskName, LastRunTime, LastTaskResult, NextRunTime
+```
+
+## İş sırası (döngü)
+
+1. ✅ v0.99.41: Model doğrulama sayımı düzeltildi; M30, M31 ve M32 envantere eklendi (bulgu 1).
+2. Yedek ve telafi hatalarında Telegram uyarısı (bulgu 2).
+3. Sinyal kaydını genişlet: gerekçe, risk, geçerlilik, XU100 karşılaştırması, kazanan ve kaybeden ölçümü (bulgu 4).
+4. Elle indirilen ikinci kaynak dosyasıyla karşılaştırma (bulgu 3); otomatik erişim açılmaz.
+5. Eksik bağımsız doğrulamalar (M31, M32, M30, M1, M5, M8, M27), örneklem dışı ve sızıntı kontrolüyle; başarısız olan kısıtlı kalır.
+6. `/durum` metninin sadeleştirilmesi; ölçülemeyen satırlar "ölçülemiyor" kalır.
+
+---
+
 # EVRE 0 — Doğrulanmış durum raporu (28.10.2026, kod v0.86.1 → v0.87.0)
 
 Profesyonel geliştirme talimatının (28.10.2026) ilk adımı ve öz-denetim 6. Bu rapor yalnız **gerçekten görülen** kanıta dayanır. Kanıtı olmayan her şey "doğrulanamadı" olarak yazıldı; varsayım yok.

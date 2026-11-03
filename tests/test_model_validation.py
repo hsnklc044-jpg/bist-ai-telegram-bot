@@ -22,6 +22,23 @@ class RegistryTest(unittest.TestCase):
             row = next(line for line in text.splitlines() if line.startswith(f"| {code} |"))
             self.assertIn("YÜKSEK", row)
 
+    def test_every_high_risk_row_is_counted(self):
+        # 04.11.2026 audit: M30 was YÜKSEK in MODELS.md but missing from the count
+        import re
+
+        from core.config.paths import ROOT_DIR
+
+        text = (ROOT_DIR / "docs" / "MODELS.md").read_text(encoding="utf-8")
+        high = {m.group(1) for m in re.finditer(r"^\| (M\d+) \|[^\n]*\| YÜKSEK \|", text, flags=re.M)}
+        self.assertEqual(high, set(V.HIGH_RISK))
+
+    def test_every_report_in_the_repository_is_read(self):
+        # 04.11.2026 audit: M15's "## 5. Karar: **kısıtlı kullanılabilir**" was not read (6/11 instead of 7)
+        from core.config.paths import ROOT_DIR
+
+        folder = ROOT_DIR / "docs" / "validation"
+        self.assertEqual(sorted(V.reports(folder)), sorted(p.stem for p in folder.glob("M*.md")))
+
 
 class CheckTest(unittest.TestCase):
     def setUp(self):
@@ -54,6 +71,11 @@ class CheckTest(unittest.TestCase):
         report = V.reports(self.dir)["M14"]
         self.assertEqual(report.day, date(2026, 10, 29))
         self.assertEqual(report.verdict, "kısıtlı kullanılabilir")
+
+    def test_verdict_on_the_heading_line(self):
+        (self.dir / "M15.md").write_text("# M15\n- **Tarih:** 29.10.2026.\n\n## 5. Karar: **kısıtlı kullanılabilir**\n\n"
+                                         "Ayrıntı.\n", encoding="utf-8")
+        self.assertEqual(V.reports(self.dir)["M15"].verdict, "kısıtlı kullanılabilir")
 
     def test_unusable_is_a_warning(self):
         self.report("M15", "2026-10-29", "kullanılamaz")

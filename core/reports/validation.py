@@ -16,7 +16,7 @@ from core.config.paths import ROOT_DIR
 
 VALIDATION_DIR = ROOT_DIR / "docs" / "validation"
 # the high-risk models of docs/MODELS.md (a test keeps the two in step)
-HIGH_RISK = ("M1", "M5", "M8", "M11", "M12", "M14", "M15", "M16", "M24", "M27", "M28")
+HIGH_RISK = ("M1", "M5", "M8", "M11", "M12", "M14", "M15", "M16", "M24", "M27", "M28", "M30", "M31", "M32")
 VALID_FOR = timedelta(days=365)
 
 
@@ -43,7 +43,8 @@ def _verdict(text: str) -> str | None:
     """'Karar: …' on one line, or the first verdict word under a '## … Karar' heading."""
 
     lowered = text.replace("İ", "i").replace("I", "ı").lower()
-    m = re.search(r"^[-*\s]*\**karar\**:\**\s*(.+)$", lowered, flags=re.M)
+    m = re.search(r"^[-*\s]*\**karar\**:\**\s*(.+)$", lowered, flags=re.M) or \
+        re.search(r"^#+[^\n]*karar\**:\s*(.+)$", lowered, flags=re.M)  # "## 5. Karar: **…**" (M15)
     part = m.group(1) if m else None
     if part is None:
         h = re.search(r"^#+[^\n]*karar[^\n]*\n(.*?)(?=^#|\Z)", lowered, flags=re.M | re.S)

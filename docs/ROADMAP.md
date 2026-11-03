@@ -220,6 +220,8 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
 
 ## Kaldığım yer (03.11.2026, kod v0.99.37)
 
+- **04.11.2026 güvenilirlik talimatı:** İlk adım olan teknik denetim `docs/AUDIT.md` "EVRE 1"de. İş sırası oradaki listeye göre yürüyor; her sürüm o listeyi günceller. Tamamlanma ölçütleri karşılanmadan sistem "tam güvenilir" olarak işaretlenmez.
+
 - **ML ve sinyal katmanı (K-59 – K-68):** Ölçülen her kural rastgele girişten ayırt edilemedi: K-59 stop/hedef ML, K-62 göreli getiri, K-63 saatlik dip tetiği, K-64 onay katmanı, K-68 kartın kendi kuralı. Sistem kendiliğinden sinyal yazmıyor. `/tara ai` kartları düğmeyle elle girilebiliyor (K-67); kart iki geçmiş ölçüm satırını da gösteriyor.
 - **Operasyon (K-69):** `/panik` hiçbir komutu beklemiyor. Bot eksik kuru saatte bir, eksik yedeği 21:00'de tamamlıyor. Geri yükleme testi PC'de 03.11 23:29'da başarılı.
 - **Açık, tarihi belli işler:**

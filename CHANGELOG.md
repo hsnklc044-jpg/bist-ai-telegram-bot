@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.41 – 04.11.2026 (güvenilirlik denetimi; model doğrulama sayımı düzeltildi)
+- **Denetim:** Kullanıcının 04.11 güvenilirlik talimatına göre `docs/AUDIT.md` "EVRE 1" yazıldı. Her tamamlanma ölçütünün bugünkü durumu kanıtıyla birlikte yazıldı, bulgular önem sırasına kondu, iş sırası belirlendi. Sistem "tam güvenilir" değil; ölçütlerin çoğunda örneklem yetersiz ya da ölçüm yok.
+- **Hata 1:** `/durum` "6/11 doğrulandı" diyordu. M15'in raporundaki "## 5. Karar: **kısıtlı kullanılabilir**" satırı okunmuyordu.
+- **Hata 2:** MODELS.md'de YÜKSEK olan M30 (ML filtresi) sayıma girmiyordu. Sinyal onay katmanı ve kart kuralı (M31) ile sanal sinyal defteri (M32) envanterde hiç yoktu.
+- **Doğru durum:** 14 yüksek riskli modelden 7'si doğrulandı; hepsi "kısıtlı kullanılabilir". Sayı küçüldü, çünkü doğrulanmayan modeller artık gizlenmiyor.
+- Doğrulama: `test_model_validation` (3 yeni test): MODELS.md'deki her YÜKSEK satır sayılıyor; depodaki her doğrulama raporu okunuyor; başlık satırındaki karar okunuyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.40 – 04.11.2026 (geri doldurulamayan eski eksik kalıcı uyarı vermiyor)
 - **Hata (kendi denetimimden):** `/durum`'daki "Canlı ölçüm kaydı" kontrolü ilk kayıttan bugüne bütün geçmişe bakıyordu. 30.10'un eksik kaydı geri doldurulamadığı için bu satır sonsuza kadar ⚠️ kalacaktı. Böyle bir uyarı yeni sorunları gizler. 03.11'de "7 gün sonra kalkar" demiştim; bu yalnız SLO satırı için doğruydu, bu kontrol için değil.
 - **Düzeltme:** SLO'daki gibi yalnız son 7 gündeki kaydı olmayan ya da geç kaydedilen seans ⚠️ veriyor. Daha eski eksik metinde "7 günden eski; geri doldurulamaz, uyarı değil" notuyla görünmeye devam ediyor. Bozuk satır, tekrar kayıt ve boş dosya her zaman uyarıyor.
