@@ -59,29 +59,35 @@ class BookTest(unittest.TestCase):
         S.update(self.conn, lambda s: bars([(100, 100, 100, 100), (110, 110, 110, 110)]))
         self.assertEqual(S.signals(self.conn)[0].status, "dolmadi")
 
-    def test_equity_and_breaker(self):
-        # two signals of 10.000 TL each; on 05.11 both lose 30%: the book falls 6.000 TL = -6%
-        rows = [(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 70, 70, 70)]
-        df = bars(rows)
+    def test_equity(self):
+        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 70, 70, 70)])
+        S.add(self.conn, date(2026, 11, 2), "A.IS", 100.0)
+        S.update(self.conn, lambda s: df.iloc[:3])  # entered at 100, open
+        values = S.equity(self.conn, lambda s: df, [date(2026, 11, 4)])
+        self.assertEqual(values.iloc[0], S.CAPITAL)
+
+    def test_breaker_on_the_days_closed_losses(self):
+        # K-65: two signals of 10.000 TL each gap down to 70 on 05.11 and stop at that open:
+        # 2 × 10.000 × (−30% − cost) = −6.030 TL = −6,03% of 100.000 → the bot locks itself that day
+        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 70, 70, 70)])
         S.add(self.conn, date(2026, 11, 2), "A.IS", 100.0)
         S.add(self.conn, date(2026, 11, 2), "B.IS", 100.0)
-        S.update(self.conn, lambda s: df.iloc[:3])  # entered at 100, both open
-        values = S.equity(self.conn, lambda s: df, [date(2026, 11, 4), date(2026, 11, 5)])
-        self.assertEqual(values.iloc[0], S.CAPITAL)
-        change = S.check_breaker(self.conn, lambda s: df.iloc[:4], date(2026, 11, 5), date(2026, 11, 4))
-        self.assertAlmostEqual(change, -0.06)
+        S.update(self.conn, lambda s: df)
+        self.assertEqual({s.status for s in S.signals(self.conn)}, {"stop"})
+        self.assertAlmostEqual(S.realized(self.conn, date(2026, 11, 5)), 2 * (0.70 - 1 - COST) * S.SIZE / S.CAPITAL)
+        S.check_breaker(self.conn, date(2026, 11, 5))
+        self.assertTrue(S.blocked(self.conn, date(2026, 11, 5)))
         with self.assertRaises(S.BreakerTripped):
             S.add(self.conn, date(2026, 11, 5), "C.IS", 100.0)
-        self.assertIsNotNone(S.add(self.conn, date(2026, 11, 6), "C.IS", 100.0))  # the next close is free
-        text = S.summary(self.conn, lambda s: df, date(2026, 11, 5))
-        self.assertIn("Şalter açık", text)
+        self.assertIsNotNone(S.add(self.conn, date(2026, 11, 6), "C.IS", 100.0))  # the next day is free
+        self.assertIn("Şalter açık", S.summary(self.conn, lambda s: df, date(2026, 11, 5)))
 
-    def test_small_fall_does_not_trip(self):
-        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (99, 99, 99, 99)])
+    def test_small_loss_and_open_losses_do_not_trip(self):
+        # one ordinary stop: −2% − cost of 10.000 TL = −0,215% of the book; an open loss never counts
+        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (99, 99, 97.9, 98)])
         S.add(self.conn, date(2026, 11, 2), "A.IS", 100.0)
-        S.update(self.conn, lambda s: df.iloc[:2])
-        self.assertAlmostEqual(S.check_breaker(self.conn, lambda s: df, date(2026, 11, 4), date(2026, 11, 3)),
-                               -0.001)
+        S.update(self.conn, lambda s: df)
+        self.assertAlmostEqual(S.check_breaker(self.conn, date(2026, 11, 4)), (-0.02 - COST) * S.SIZE / S.CAPITAL)
         self.assertFalse(S.blocked(self.conn, date(2026, 11, 4)))
 
     def test_personal_file(self):
@@ -180,3 +186,91 @@ class DailyStepTest(unittest.TestCase):
                 lines = health.signal_book_lines(datetime(2026, 11, 3, 19), None, path)
         self.assertIn("Sanal sinyal defteri", lines[1])
         self.assertIn("ML filtresi kapalı (ölçüm yok)", lines[2])
+
+
+def hourly_bars(rows, first="2026-11-03 10:00"):
+    index = pd.date_range(first, periods=len(rows), freq="h", tz="Europe/Istanbul")
+    o, h, low, c = zip(*rows, strict=True)
+    return pd.DataFrame({"open": o, "high": h, "low": low, "close": c, "volume": 1e5}, index=index)
+
+
+class LiveTrackingTest(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.path = Path(tmp.name) / "signals.db"
+
+    def load(self, frames):
+        from types import SimpleNamespace
+
+        return lambda symbols: SimpleNamespace(frames={s: frames[s] for s in symbols if s in frames})
+
+    def test_target_within_the_session(self):
+        from core.signals import live
+
+        conn = S.connect(self.path)
+        S.add(conn, date(2026, 11, 2), "A.IS", 100.0)
+        conn.close()
+        before = pd.DataFrame({"open": [100.0], "high": [100.0], "low": [100.0], "close": [100.0], "volume": [1e5]},
+                              index=pd.DatetimeIndex([pd.Timestamp("2026-11-02 17:00", tz="Europe/Istanbul")]))
+        day = pd.concat([before, hourly_bars([(100, 100.5, 99.5, 100), (100, 101, 99, 100.5), (100.5, 104.2, 100, 104)])])
+        lines = live.track(date(2026, 11, 3), self.path, load=self.load({"A.IS": day}))
+        self.assertIn("A: hedefe ulaştı", lines[0].replace("Sanal sinyal ", ""))
+        conn = S.connect(self.path)
+        s = S.signals(conn)[0]
+        conn.close()
+        self.assertEqual((s.status, s.entry_price, s.exit_date), ("hedef", 100.0, date(2026, 11, 3)))
+        self.assertEqual(lines[-1], S.DISCLAIMER)
+
+    def test_hourly_never_expires_and_no_book_is_created(self):
+        from core.signals import live
+
+        self.assertEqual(live.track(date(2026, 11, 3), self.path, load=self.load({})), [])
+        self.assertFalse(self.path.exists())
+        conn = S.connect(self.path)
+        S.add(conn, date(2026, 11, 2), "A.IS", 100.0)
+        conn.close()
+        flat = hourly_bars([(100, 100.5, 99.5, 100)] * 200)  # 25 sessions of hours, nothing hit
+        live.track(date(2026, 12, 1), self.path, load=self.load({"A.IS": flat}))
+        conn = S.connect(self.path)
+        self.assertEqual(S.signals(conn)[0].status, "acik")  # only the daily close decides the expiry
+        conn.close()
+
+    def test_breaker_message_once(self):
+        from core.signals import live
+
+        conn = S.connect(self.path)
+        for code in ("A.IS", "B.IS"):
+            S.add(conn, date(2026, 11, 2), code, 100.0)
+        conn.close()
+        gap = hourly_bars([(100, 100, 100, 100), (70, 70, 70, 70)], first="2026-11-03 10:00")
+        first = live.track(date(2026, 11, 3), self.path, load=self.load({"A.IS": gap, "B.IS": gap}))
+        self.assertTrue(any("Şalter açıldı" in line for line in first))
+        self.assertTrue(S.locked(date(2026, 11, 3), self.path))
+        self.assertFalse(S.locked(date(2026, 11, 4), self.path))
+
+    def test_in_session(self):
+        from datetime import datetime
+
+        from core.signals import live
+
+        self.assertTrue(live.in_session(datetime(2026, 11, 3, 14, 5)))
+        self.assertFalse(live.in_session(datetime(2026, 11, 3, 20, 0)))
+        self.assertFalse(live.in_session(datetime(2026, 11, 7, 12, 0)))  # Saturday
+
+
+class LockedScreenTest(unittest.TestCase):
+    def test_tara_refuses_while_locked(self):
+        import asyncio
+        from types import SimpleNamespace
+        from unittest import mock
+
+        from bot import reports
+        from tests.test_screen_telegram import fake_update
+
+        sent = []
+        with mock.patch("core.signals.store.locked", return_value=True):
+            asyncio.run(reports.screen_cmd(fake_update(sent), SimpleNamespace(args=["rsi<30"])))
+        self.assertEqual(sent[0][0], reports.LOCKED_TEXT)
+        self.assertFalse(S.locked(date(2026, 11, 3), Path("/nonexistent/signals.db")))
+

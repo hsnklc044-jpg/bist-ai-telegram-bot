@@ -195,6 +195,32 @@ async def report_watch_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         await context.bot.send_message(context.job.chat_id, _alert_text(check, now))
 
 
+SIGNAL_TRACK_JOB = "signal_track"
+
+
+async def signal_track_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """K-65: every hour of the session, the paper signals are followed on hourly candles."""
+
+    from core.market.calendar import now_istanbul
+    from core.signals import live
+
+    now = now_istanbul()
+    if not live.in_session(now):
+        return
+    lines = await asyncio.to_thread(live.track, now.date())
+    if lines:
+        await context.bot.send_message(context.job.chat_id, "\n".join(lines))
+
+
+def schedule_signal_tracking(app: Application, chat_id: int) -> bool:
+    """Hourly paper-signal tracking during the session (does nothing while no book exists)."""
+
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_repeating(signal_track_job, interval=3600, first=120, name=SIGNAL_TRACK_JOB, chat_id=chat_id)
+    return True
+
+
 HEARTBEAT_JOB = "heartbeat"
 
 
@@ -228,4 +254,5 @@ def schedule_report_watch(app: Application, chat_id: int) -> bool:
     return True
 
 
-__all__ = ["CATCHUP_JOB", "ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_report_watch"]
+__all__ = ["CATCHUP_JOB", "ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_report_watch",
+           "schedule_signal_tracking"]

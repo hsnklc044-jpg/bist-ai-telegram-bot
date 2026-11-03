@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.26 – 03.11.2026 (sinyal defteri: seans içi takip ve kilitlenen şalter)
+- **Seans içi takip** (`core/signals/live.py`): Bot işlem günlerinde 10:00–19:00 arası her saat açık sinyallerin hisselerini saatlik mumlarla denetliyor. Giriş, hedef ve stop olunca Telegram'a yazıyor. Seans sonunda günlük mumlarla tekrar denetleniyor; süre dolumu orada kapanıyor.
+- **Şalterin yeni tanımı (K-65):** O gün kapanan sanal işlemlerin net zararı defterin %6'sına ulaşırsa bot o gün kendini kilitliyor; `/tara`, tarama abonelikleri ve yeni sinyal reddediliyor. Ertesi gün kilit kalkıyor.
+  - Önceki tanım (açık pozisyonlar dahil defter değerindeki düşüş) kaldırıldı.
+  - Şalter açıldığında Telegram'a bir kez haber veriliyor.
+- **Hata dayanımı:** Bir hissenin bozuk verisi diğerlerinin takibini durdurmuyor; ağ hatası loglanıp bir sonraki saatte yeniden deneniyor. Defter dosyası yoksa hiçbir şey oluşturulmuyor.
+- Doğrulama: `test_signal_book` (18 test, elle hesaplanmış):
+  - iki pozisyonun %70'e boşlukla düşmesi −%6,03 ile kilidi açıyor; tek normal stop (−%0,215) açmıyor; açık zarar sayılmıyor;
+  - seans içinde hedef saat saat bulunuyor; saatlik veri süre dolumu yapmıyor;
+  - şalter mesajı bir kez geliyor; kilit ertesi gün kalkıyor;
+  - `/tara` kilitliyken reddediliyor.
+
 ## v0.99.25 – 03.11.2026 (sinyal onay katmanı: meta-etiketleme)
 - **Yeni: `core/ml/signal_filter.py`** (K-64; kural ölçümden önce yazıldı).
   - Teknik tetik ("dip dönüşü") bir aday sinyal üretiyor; RandomForest bu sinyalin başarı olasılığını veriyor.

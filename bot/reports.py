@@ -96,14 +96,23 @@ async def price_alarm(
     await reply(update, await asyncio.to_thread(levels.command, list(context.args or [])))
 
 
+LOCKED_TEXT = ("⛔ Şalter açık: bugün kapanan sanal işlemlerin zararı %6 sınırına ulaştı. Bot kendini bugün için "
+               "kilitledi; tarama yarın yeniden açılır (DECISIONS K-65). /durum ile defteri görün.")
+
+
 async def screen_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ) -> None:
     """Handle /tara [koşullar | AD]: BIST 100 filtered by the user's indicator conditions (a filter, not advice)."""
 
+    from core.market.calendar import now_istanbul
     from core.screen import command as screen
+    from core.signals import store
 
+    if await asyncio.to_thread(store.locked, now_istanbul().date()):
+        await reply(update, LOCKED_TEXT)
+        return
     words = list(context.args or [])
     chat = update.effective_chat.id
     query, answer = screen.resolve(words, chat)

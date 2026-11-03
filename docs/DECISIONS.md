@@ -4,6 +4,17 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 03.11.2026
 
+**K-65. Sinyal defteri: seans içi saatlik takip; şalter kapanan işlem zararına göre; kilit /tara'yı da kapsar (03.11.2026).**
+- **Talep:** Kullanıcı açık sinyallerin yfinance güncel fiyatlarıyla gerçek zamanlı denetlenmesini istedi. Şalterin tanımı: "bir gün içinde gerçekleşen ve kapanan zararlar %6'ya ulaşırsa bot o gün tüm taramaları ve sinyal üretimini durdurur, kendini kilitler".
+- **Takip:**
+  - Seans içinde (10:00–19:00, işlem günleri) her saat açık sinyallerin hisseleri saatlik mum olarak indiriliyor; stop ve hedef mum mum denetleniyor. Kural aynı: aynı mumda ikisi birden stop; boşlukta açılışta dolum.
+  - Yahoo'nun saatlik mumu yaklaşık 15 dakika gecikmeli. "Gerçek zamanlı" son biten saat demek.
+  - 10 seanslık süre dolumuna yalnız günlük kapanış karar veriyor; saatlik veri seansın bittiğini bilemez.
+- **Şalter (K-60'ın yerine):** O gün kapanan sinyallerin net sonucu, günün başındaki gerçekleşmiş defter değerinin %6'sı kadar ya da daha fazla zarar ise şalter açılır.
+  - Açık pozisyonların kâğıt zararı sayılmaz (kullanıcının tanımı "gerçekleşen ve kapanan").
+  - Şalter açıkken `/tara`, tarama abonelikleri ve yeni sinyal o günün sonuna kadar reddedilir; ertesi gün kendiliğinden açılır.
+- **Sınır:** Defter sanal; emir ve aracı kurum bağlantısı yok. Sinyaller yalnız ML filtresi örneklem dışı testi geçerse yazılıyor (K-59). Şu an filtre kapalı, yani defter boş kalıyor.
+
 **K-64. Sinyal onay katmanı (meta-etiketleme); ölçümden ÖNCE yazıldı (03.11.2026).**
 - **Ne:** Teknik tetik ("dip dönüşü", `core.market.extended.trigger_mask`) bir aday sinyal üretir. RandomForest bu sinyalin başarı olasılığını verir. Olasılık ≥ 0,60 ise "onaylandı", altındaysa "yalancı sinyal". Modül: `core/ml/signal_filter.py`.
 - **Olay:** Tetiğin doğru olduğu mum. Aynı hissede önceki olaydan sonraki X mum içinde gelen tetik yeni olay sayılmaz.

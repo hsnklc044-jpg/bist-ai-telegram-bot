@@ -5,9 +5,12 @@ SQLite (data/signals.db) and followed with the prices: enter at the next session
 4% target, at most HORIZON sessions; the same rules as the ML labels (core.ml.features), so what
 is followed is what was measured. Each signal is a fixed SIZE of a virtual CAPITAL.
 
-The circuit breaker (şalter): when the book's value falls BREAKER (6%) or more in one session,
-no new signal is accepted for the next session. Virtual only: no order, no broker. Rule output,
-not advice.
+Followed twice: during the session every hour on hourly candles (core.signals.live, stop and
+target only), and after the close on the final daily candles (also the 10-session expiry).
+
+The circuit breaker (şalter, K-65): when the signals closed during one day lose BREAKER (6%) of
+the book's realized value at the start of that day, the bot locks itself for the rest of the
+day: /tara and new signals are refused. Virtual only: no order, no broker. Rule output, not advice.
 """
 
 from __future__ import annotations
@@ -17,10 +20,14 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from core.config.paths import SIGNALS_DB
+from core.infrastructure.logger import get_logger
 from core.ml.features import COST, HORIZON, LIMIT_MOVE, STOP, TARGET
+
+logger = get_logger(__name__)
 
 CAPITAL = 100_000.0
 SIZE = 10_000.0
@@ -92,8 +99,7 @@ def signals(conn: sqlite3.Connection, states=None) -> list[Signal]:
 
 
 def blocked(conn: sqlite3.Connection, day: date) -> bool:
-    """The breaker tripped on session `day`: the signals of that close (they would enter the next
-    session) are refused. The daily run checks the breaker before it adds the day's signals."""
+    """The breaker tripped on `day` (K-65): no scan and no new signal for the rest of that day."""
 
     return conn.execute("SELECT 1 FROM breaker WHERE day = ?", (day.isoformat(),)).fetchone() is not None
 
@@ -111,53 +117,73 @@ def add(conn: sqlite3.Connection, day: date, symbol: str, close: float, proba: f
     return cur.lastrowid if cur.rowcount else None
 
 
-def _follow(s: Signal, df: pd.DataFrame) -> dict:
-    """The signal's state on the candles of `df` (final candles only)."""
+def _days(index: pd.Index) -> pd.DatetimeIndex:
+    """Session dates of daily (naive) or hourly (Istanbul time) candles."""
 
-    after = df[df.index > pd.Timestamp(s.created)]
+    index = pd.DatetimeIndex(index)
+    if index.tz is not None:
+        index = index.tz_convert("Europe/Istanbul").tz_localize(None)
+    return index.normalize()
+
+
+def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
+    """The signal's state on the final candles of `df`, daily or hourly: the first candle after the
+    signal day is the entry (its open); stop and target are checked candle by candle (both in one
+    candle: stop); `expire` closes it at the HORIZON-th session's last close (daily candles only:
+    an hourly frame cannot tell that the session is over)."""
+
+    days = _days(df.index)
+    signal_day = pd.Timestamp(s.created)
+    after, after_days = df[days > signal_day], days[days > signal_day]
+    before = df[days <= signal_day]
     if after.empty:
         return {}
-    first = after.iloc[0]
-    prev_close = float(df.loc[df.index <= pd.Timestamp(s.created), "close"].iloc[-1])
-    entry = float(first["open"])
-    if not entry > 0 or entry / prev_close - 1 >= LIMIT_MOVE:
-        return {"status": "dolmadi", "entry_date": after.index[0].date().isoformat(), "r": None}
+    entry = float(after["open"].iloc[0])
+    entry_day = after_days[0].date().isoformat()
+    if not entry > 0 or (not before.empty and entry / float(before["close"].iloc[-1]) - 1 >= LIMIT_MOVE):
+        return {"status": "dolmadi", "entry_date": entry_day, "r": None}
     stop, target = entry * (1 - STOP), entry * (1 + TARGET)
-    out = {"status": "acik", "entry_date": after.index[0].date().isoformat(), "entry_price": entry, "stop": stop,
-           "target": target}
-    window = after.iloc[:HORIZON]
-    for day, c in window.iterrows():
-        if c["low"] <= stop:
-            price = min(stop, float(c["open"]))
-            return out | {"status": "stop", "exit_date": day.date().isoformat(), "exit_price": price,
-                          "r": price / entry - 1 - COST}
-        if c["high"] >= target:
-            price = max(target, float(c["open"]))
-            return out | {"status": "hedef", "exit_date": day.date().isoformat(), "exit_price": price,
-                          "r": price / entry - 1 - COST}
-    if len(window) == HORIZON:
-        last = window.index[-1]
+    out = {"status": "acik", "entry_date": entry_day, "entry_price": entry, "stop": stop, "target": target}
+    sessions = after_days.unique()
+    window = after[after_days <= sessions[min(HORIZON, len(sessions)) - 1]]
+    window_days = _days(window.index)
+    lows, highs, opens = (window[k].to_numpy(dtype=float) for k in ("low", "high", "open"))
+    hit = np.flatnonzero((lows <= stop) | (highs >= target))
+    if len(hit):
+        i = hit[0]
+        if lows[i] <= stop:  # both in one candle counts as the stop
+            status, price = "stop", min(stop, opens[i])
+        else:
+            status, price = "hedef", max(target, opens[i])
+        return out | {"status": status, "exit_date": window_days[i].date().isoformat(), "exit_price": price,
+                      "r": price / entry - 1 - COST}
+    if expire and len(sessions) >= HORIZON:
         price = float(window["close"].iloc[-1])
-        return out | {"status": "sure", "exit_date": last.date().isoformat(), "exit_price": price,
+        return out | {"status": "sure", "exit_date": window_days[-1].date().isoformat(), "exit_price": price,
                       "r": price / entry - 1 - COST}
     return out
 
 
-def update(conn: sqlite3.Connection, bars) -> int:
-    """Follow every waiting / open signal with `bars(symbol) -> final daily candles`; returns how many changed."""
+def update(conn: sqlite3.Connection, bars, expire: bool = True) -> list[Signal]:
+    """Follow every waiting / open signal with `bars(symbol)` (final daily candles; or hourly ones
+    with expire=False, core.signals.live); returns the signals whose state changed, as now stored."""
 
-    changed = 0
+    changed = []
     for s in signals(conn, OPEN_STATES):
-        df = bars(s.symbol)
-        if df is None or df.empty:
+        try:
+            df = bars(s.symbol)
+            if df is None or df.empty:
+                continue
+            state = _follow(s, df, expire)
+        except Exception as exc:  # noqa: BLE001 - one stock's bad data must not stop the others
+            logger.warning("Signal follow failed | %s | %s", s.symbol, exc)
             continue
-        state = _follow(s, df)
         if not state or (state["status"] == s.status and state.get("exit_date") is None and s.entry_price):
             continue
         cols = ", ".join(f"{k} = ?" for k in state)
         with conn:
             conn.execute(f"UPDATE signals SET {cols} WHERE id = ?", (*state.values(), s.id))
-        changed += 1
+        changed.append(next(x for x in signals(conn) if x.id == s.id))
     return changed
 
 
@@ -186,15 +212,42 @@ def equity(conn: sqlite3.Connection, bars, days) -> pd.Series:
     return pd.Series(out, dtype=float)
 
 
-def check_breaker(conn: sqlite3.Connection, bars, day: date, previous: date) -> float | None:
-    """The session's change of the book's value; trips the breaker at BREAKER or worse."""
+def realized(conn: sqlite3.Connection, day: date) -> float:
+    """K-65: the net result of the signals closed on `day`, as a share of the book's realized value
+    at the start of that day (CAPITAL + everything closed before it)."""
 
-    values = equity(conn, bars, [previous, day])
-    change = values.iloc[1] / values.iloc[0] - 1
-    if change <= -BREAKER + 1e-12:
+    closed = [s for s in signals(conn) if s.exit_date is not None and s.r is not None]
+    start = CAPITAL + SIZE * sum(s.r for s in closed if s.exit_date < day)
+    today_tl = SIZE * sum(s.r for s in closed if s.exit_date == day)
+    return today_tl / start if start > 0 else 0.0
+
+
+def check_breaker(conn: sqlite3.Connection, day: date) -> float:
+    """Trips the breaker when the day's closed losses reach BREAKER (6%) of the book (K-65)."""
+
+    change = realized(conn, day)
+    if change <= -BREAKER + 1e-12 and not blocked(conn, day):
         with conn:
             conn.execute("INSERT OR REPLACE INTO breaker (day, change) VALUES (?, ?)", (day.isoformat(), change))
-    return float(change)
+        logger.warning("Circuit breaker tripped | %s | %.4f", day, change)
+    return change
+
+
+def locked(day: date, path: Path | str | None = None) -> bool:
+    """For /tara and the scans: is the breaker on today? Never creates the book file."""
+
+    path = Path(path or SIGNALS_DB)
+    if not path.exists():
+        return False
+    try:
+        conn = connect(path)
+        try:
+            return blocked(conn, day)
+        finally:
+            conn.close()
+    except sqlite3.Error as exc:
+        logger.warning("Breaker check failed | %s", exc)
+        return False
 
 
 def summary(conn: sqlite3.Connection, bars, day: date) -> str:
@@ -212,10 +265,10 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     lines = [f"🧪 Sanal sinyal defteri: {value:,.0f} TL ({pct(value / CAPITAL - 1)}); açık {len(open_)}, "
              f"kapanan {len(closed)}" + (f", hedefe ulaşan %{hits / len(closed) * 100:.0f}" if closed else "")]
     if blocked(conn, day):
-        lines.append(f"⛔ Şalter açık: bugün defter %{BREAKER * 100:.0f} veya daha fazla düştü; bugünün sinyalleri "
-                     "kaydedilmedi.")
+        lines.append(f"⛔ Şalter açık: bugün kapanan işlemlerin zararı %{BREAKER * 100:.0f} sınırına ulaştı; "
+                     "bugün tarama ve yeni sinyal yok.")
     return "\n".join(lines)
 
 
 __all__ = ["BREAKER", "BreakerTripped", "CAPITAL", "DISCLAIMER", "SIZE", "Signal", "add", "blocked", "check_breaker",
-           "connect", "equity", "signals", "summary", "update"]
+           "connect", "equity", "locked", "realized", "signals", "summary", "update"]

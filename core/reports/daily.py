@@ -754,7 +754,11 @@ def _screen_subscriptions(day: date, send) -> None:
     The state is kept once they went out. Never fatal (DECISIONS K-42)."""
 
     from core.screen import subscriptions
+    from core.signals import store
 
+    if store.locked(day):  # K-65: the breaker stops every scan for the rest of the day
+        logger.warning("Screen subscriptions skipped: circuit breaker on")
+        return
     try:
         outcome = subscriptions.run(day)
         for message in outcome.messages:

@@ -32,9 +32,7 @@ def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=Non
     conn = store.connect(path)
     try:
         store.update(conn, bars)
-        sessions = [d for d in _sessions(conn, bars) if d <= pd.Timestamp(day)]
-        if len(sessions) >= 2:
-            store.check_breaker(conn, bars, sessions[-1].date(), sessions[-2].date())
+        store.check_breaker(conn, day)
         added = 0
         if enabled() and frames and not store.blocked(conn, day):
             if probabilities is None:
@@ -46,19 +44,6 @@ def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=Non
         return store.summary(conn, bars, day)
     finally:
         conn.close()
-
-
-def _sessions(conn, bars) -> list[pd.Timestamp]:
-    """The sessions of the stocks in the book (their own candles)."""
-
-    from core.signals import store
-
-    days: set[pd.Timestamp] = set()
-    for s in store.signals(conn):
-        df = bars(s.symbol)
-        if df is not None and not df.empty:
-            days |= set(df.index[-15:])
-    return sorted(days)
 
 
 __all__ = ["run"]

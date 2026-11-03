@@ -537,6 +537,7 @@ Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil
 - **Ölçüm:** GitHub Actions → "Screen templates explain" çalıştırılır; sonuç `logs/ml_report.json` dosyasına yazılır.
 - **`/tara ... ml=evet`:** yalnız filtrenin geçirdiği hisseler listelenir. Filtre kapalıysa liste boştur ve nedeni yazılır. Örnek: `/tara ema50>ema200 adx>20 evren=bist30 ml=evet`.
 - **Sanal defter:** `data/signals.db`. 100.000 TL sanal bakiye, sinyal başına 10.000 TL. Günlük çalışma açık sinyalleri izler; `/durum` sonucu gösterir.
-- **Şalter:** defter bir seansta %6 veya daha fazla düşerse o günün sinyalleri kaydedilmez.
+- **Takip:** Seans içinde her saat (saatlik mumlarla, yaklaşık 15 dakika gecikmeli) stop ve hedef denetlenir; değişen sinyal Telegram'a yazılır. Seans sonunda günlük mumlarla tekrar denetlenir; 10 seanslık süre dolumu da burada kapanır.
+- **Şalter (K-65):** O gün kapanan sanal işlemlerin net zararı defterin %6'sına ulaşırsa bot o gün için kendini kilitler: `/tara`, tarama abonelikleri ve yeni sinyal reddedilir. Ertesi gün kilit kendiliğinden kalkar. Açık pozisyonların kâğıt zararı sayılmaz.
 - Gerçek parayla emir yok, aracı kurum bağlantısı yok. Kural çıktısıdır, öneri değildir.
 
