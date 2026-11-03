@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.13 – 03.11.2026 (BIST 30 hedefi, adım 2: ML filtresi)
+- **Yeni: `core/ml/`.** RandomForest filtresi, şu kuralın hedefe önce ulaşıp ulaşmayacağını tahmin ediyor: "ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans".
+  - Öznitelikler: EMA 50/200 mesafeleri, hacim anomalisi (önceki 20 seansa göre z-puanı), RSI, ADX, ATR, Bollinger %b, CMF, Stochastic, OBV eğimi, oynaklık, 5 ve 20 günlük getiri.
+  - Ölçüm yalnız eğitimde görülmemiş yıllarda yapılıyor. Eğitim etiketi test yılından önce bilinmiş olmalı; 02.11.2026 sonrası hiç kullanılmıyor.
+  - Filtre ancak şu üç koşulla açılıyor: en az 100 sinyal, isabet ≥ %60 ve isabet "zaten hedefe ulaşanlar" oranından anlamlı yüksek (K-59). Aksi halde kapalı kalıyor ve nedeni yazılıyor.
+- Gerçek veriyle ölçüm GitHub Actions'taki "Screen templates explain" iş akışında. Sonuç `logs/ml_report.json` dosyasına yazılıyor.
+- scikit-learn bağımlılığı eklendi (requirements.lock'ta sabit sürüm).
+- Doğrulama: `test_ml_filter` (10 test):
+  - elle hesaplanmış etiketler: hedef, stop, aynı gün ikisi, boşlukla stop, süre dolumu, tavan açılış;
+  - gelecek değişince geçmiş öznitelikler değişmiyor;
+  - eğitimde test yılına ait etiket yok; holdout'a dokunulmuyor;
+  - rastgele veride filtre kapalı kalıyor; gömülü gerçek örüntüyü buluyor.
+
 ## v0.99.12 – 03.11.2026 (BIST 30 hedefi, adım 1: göstergeler)
 - **`/tara` için yeni alan: `cmf`.** Chaikin para akışı (20 gün), −100 ile +100 arası. Örnek: `/tara cmf>10 adx>25 evren=bist30`.
 - İstenen diğer göstergeler zaten vardı ve testliydi: EMA 50/200 (`ema50`, `ema200`), ADX(14) (`adx`), Stochastic (`stok_k`, `stok_d`), Bollinger (`bb_ust`, `bb_alt`, `bb_yuzde`, `bb_genislik`), ATR (`atr`, `atr_yuzde`), OBV (`obv_egim`).

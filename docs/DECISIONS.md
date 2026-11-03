@@ -2,6 +2,21 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 03.11.2026
+
+**K-59. BIST 30 tarama robotu hedefi; ML filtresi yalnız örneklem dışı ölçümle açılır (03.11.2026).**
+- **Talep:** Kullanıcı yeni mimariyi verdi: BIST 30, genişletilmiş göstergeler, RandomForest filtresi (%60 eşik), SQLite sinyal kaydı (%2 stop, %4 hedef), günlük %6 sanal zarar şalteri, `/tara` ve `/durum` bağlantısı. Bütün adımlara onay verdi. Sınırlar aynı: gerçek parayla emir yok, aracı kurum bağlantısı yok.
+- **Göstergeler:** pandas-ta yerine mevcut `ta` kütüphanesi kullanıldı (pandas-ta numpy 2 ile açılmıyor). Eksik olan CMF eklendi; diğerleri zaten vardı.
+- **Etiket:** Ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans. Aynı seansta ikisine birden dokunursa stop sayılır. Tavan açılışta giriş yok. Net sonuçtan %0,15 maliyet düşülür.
+- **Model:** RandomForest; 300 ağaç, derinlik 6, yaprakta en az 100 örnek. Ayarlar sonuç görülmeden sabitlendi.
+- **Ölçüm:** Takvim yılı bazında genişleyen pencere. Eğitim satırının etiketi test yılından önce bilinmiş olmalı (temizleme). 02.11.2026 sonrası (holdout) hiç kullanılmaz.
+- **"%60" tanımı:** Model sinyal verdiğinde (olasılık ≥ 0,5) hedefe önce ulaşma oranı. Filtre üç koşulla açılır:
+  - en az 100 sinyal;
+  - isabet ≥ %60;
+  - %95 aralığının alt ucu, tüm girişlerde hedefe ulaşma oranının üstünde.
+  Üçüncü koşulun nedeni: taban oran zaten yüksekse %60 bir şey katmaz. Koşullar sağlanmazsa filtre kapalı kalır ve nedeni yazılır.
+- **Evren:** Resmi BIST 30 listesinin kaynağı yok. Kaynak gelene kadar yaklaşık liste kullanılıyor: her gün, o günün BIST 100 üyelerinden önceki 20 seansın TL hacmine göre en likit 30 hisse (geçmişe dönük doğru üyelik).
+
 ## 27.10.2026
 
 **K-58. Talimat F'nin geri kalanı açıldı; bağımsız doğrulama başladı (29.10.2026).**
