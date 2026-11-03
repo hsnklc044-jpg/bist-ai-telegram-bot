@@ -157,6 +157,15 @@ class DailyStepTest(unittest.TestCase):
             self.assertIn("kapanan 1", done)
             self.assertIn("hedefe ulaşan %100", done)
 
+    def test_no_book_is_created_while_the_filter_is_off(self):
+        # the PC install (03.11) caught the daily run creating data/signals.db with nothing to record
+        from core.signals import daily as book
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "signals.db"
+            self.assertEqual(book.run(date(2026, 11, 3), lambda s: None, None, path, enabled=lambda: False), "")
+            self.assertFalse(path.exists())
+
     def test_durum_lines(self):
         from datetime import datetime
         from unittest import mock

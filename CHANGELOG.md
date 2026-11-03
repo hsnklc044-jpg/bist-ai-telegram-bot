@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.18 – 03.11.2026 (PC kurulumunda bulunan üç hata)
+- **Testler gerçek `data\signals.db` dosyasını oluşturuyordu.** PC'deki kurulumun yazma denetimi yakaladı. Günlük defter adımı, ML filtresi kapalıyken ve defter henüz yokken artık dosya oluşturmuyor.
+- **`cloudpickle` kilit dosyasına eklendi.** joblib'in bağımlılığı; kurulum "paketler farklı" diyordu.
+- **Sürüm numarası düzeltildi.** v0.99.4'ten beri v0.99.3'te kalmıştı. `/durum` artık gerçek sürümü gösteriyor.
+- Doğrulama: `test_no_book_is_created_while_the_filter_is_off` (önce kırmızıydı); tüm testlerden sonra `data/` içinde veritabanı yok.
+
 ## v0.99.17 – 03.11.2026 (temiz kurulum betiği)
 - **Yeni: `scripts/yeni_kurulum.ps1`.** Güncel sürümü eski klasörün yanına, yeni bir klasöre kurar.
   - `.env` dosyasını ve `data\` içindeki kişisel dosyaları (izleme listesi, defter, sanal emirler, `market.db`) kopyalar; sürümdeki dosyaların üzerine eski kopya yazmaz.

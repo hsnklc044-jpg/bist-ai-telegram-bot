@@ -20,10 +20,15 @@ def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=Non
         probabilities=None) -> str:
     """One daily step; returns the summary line. `bars(symbol)`: final daily candles."""
 
+    from pathlib import Path
+
+    from core.config.paths import SIGNALS_DB
     from core.ml import ml_filter
     from core.signals import store
 
     enabled = ml_filter.enabled if enabled is None else enabled
+    if not Path(path or SIGNALS_DB).exists() and not enabled():
+        return ""  # no book yet and nothing could be recorded: no file is created
     conn = store.connect(path)
     try:
         store.update(conn, bars)
