@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.45 – 04.11.2026 (30.10 eksiğinin nedeni bulundu; eksik kapanış "hafta sonu" diye gizlenmiyor)
+- **Kanıt (kullanıcının PC'si, eski klasörün `runs.csv`'si):** 30.10 Cuma 18:30'da PC kapalıydı. 31.10 Cumartesi 01:36'daki gecikmeli çalışma, depoda 30.10 kapanışı yokken `holiday, hafta sonu` yazıp çıktı.
+- **Hata:** Rapor "bugün seans var mı" kontrolünü eksik veri kontrolünden önce yapıyordu. Kaçırılan Cuma, Cumartesi günü "hafta sonu" görünüyordu ve dışarıdan izleme alarm vermiyordu.
+- **Düzeltme:** Önce beklenen kapanış kontrol ediliyor. Eksikse sonuç "stale" oluyor: "beklenen 30.10.2026 kapanışı, veri 28.10.2026". Bu durumda Healthchecks alarm veriyor. Hafta sonu ya da tatil ancak veri tamsa yazılıyor.
+- 30.10 kaydı geri doldurulmadı (K-70). AUDIT bulgu 5 ve 7, kanıtlarıyla güncellendi: Windows görevleri doğrulandı.
+- Doğrulama: `test_calendar` (1 yeni test): 31.10 01:36'da 28.10 verisiyle "stale"; 30.10 verisiyle "hafta sonu". Önce kırmızı, sonra yeşil. Rapor, tarama aboneliği ve ikinci kaynak testleri de geçti.
+
 ## v0.99.44 – 04.11.2026 (güncelleme kendiliğinden: yeni klasör, git, saatte bir; K-71)
 - **Sorun:** Kullanıcı her sürümden sonra elle `git pull` yapıp botu yeniden başlatıyordu. Otomatik güncelleyici `C:\Projeler\QuantBIST` eski klasörüne sabitti ve zip kopyalıyordu; yeni git klasöründe çalışmazdı.
 - **Düzeltme (`scripts/guncelle.py`):**

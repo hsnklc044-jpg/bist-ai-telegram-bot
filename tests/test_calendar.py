@@ -113,6 +113,17 @@ class NotSentReasonTest(unittest.TestCase):
 
         self.assertEqual(_not_sent_reason(date(2026, 10, 26), _at(2026, 10, 26, 18, 31))[0], "skipped")
 
+    def test_a_missed_friday_is_not_a_weekend(self):
+        # 31.10.2026 01:36 (Saturday): the PC was off on Friday at 18:30; the late run found only 28.10
+        # (29.10 was a holiday) and said "hafta sonu". The 30.10 close was missing: that is stale data.
+        from core.reports.daily import _not_sent_reason
+
+        status, note = _not_sent_reason(date(2026, 10, 28), _at(2026, 10, 31, 1, 36))
+        self.assertEqual(status, "stale")
+        self.assertIn("beklenen 30.10.2026", note)
+        # with the Friday close in hand and sent, Saturday is a real day off
+        self.assertEqual(_not_sent_reason(date(2026, 10, 30), _at(2026, 10, 31, 1, 36)), ("holiday", "hafta sonu"))
+
 
 class HealthCalendarTest(unittest.TestCase):
     def test_upcoming_and_coverage(self):

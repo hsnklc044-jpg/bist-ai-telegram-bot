@@ -885,12 +885,13 @@ def _not_sent_reason(day: date, now=None) -> tuple[str, str]:
 
     now = now or now_istanbul()
     today = now.date()
-    if not is_session_day(today):
-        h = holiday(today)
-        return "holiday", h.name if h else "hafta sonu"
+    # a missing close first: on 31.10.2026 a weekend run hid the missed Friday as "hafta sonu"
     expected = last_final_session_date(now)
     if day < expected:
         return "stale", f"beklenen {expected:%d.%m.%Y} kapanışı, veri {day:%d.%m.%Y}"
+    if not is_session_day(today):
+        h = holiday(today)
+        return "holiday", h.name if h else "hafta sonu"
     return "skipped", "bu veri günü zaten gönderilmişti"
 
 

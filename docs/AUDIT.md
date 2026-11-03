@@ -35,12 +35,21 @@ Kullanıcının 04.11.2026 güvenilirlik talimatının ilk adımı. Yalnız gör
    - geçerlilik süresi: kartın günü ve en çok 10 seans;
    - BIST 100 karşılaştırması: sinyal dönemindeki XU100 getirisi;
    - kazanan ve kaybedenlerin ayrı ölçümü.
-5. **30.10 eksikleri:** canlı ölçüm kaydı ve muhtemelen o günün raporu.
-   - Neden bilinmiyor; PC'deki `logs/runs.csv` ve `logs/daily_2026-10-30.log` gösterir.
-   - O gün kullanıcı yeni klasöre (`QuantBIST-yeni`) geçiyordu (27–31.10); en olası neden bu.
-   - Tahminle doldurulmayacak.
+5. **30.10 eksikleri: neden bulundu (04.11, kullanıcının PC çıktısı).**
+   - Kanıt: eski klasörün `C:\Projeler\QuantBIST\logs\runs.csv` dosyası. 29.10 18:30 bayram, doğru. 30.10 18:30'da hiç çalışma yok: PC kapalıydı. 31.10 01:36'da (Cumartesi) gecikmeli çalışma `data_day=2026-10-28, holiday, hafta sonu` yazdı.
+   - **Kod hatası:** Gecikmeli çalışmada 30.10 kapanışı depoda yoktu. Fiyat indirmesi o gün 30.10'u getirmedi; nedeni `daily_2026-10-31.log`'da. Rapor "bugün seans yok" kontrolünü eksik veri kontrolünden önce yaptığı için durumu "hafta sonu" diye kaydetti. Bu, dışarıdan izlemenin alarmını da susturdu.
+   - ✅ v0.99.45: Önce eksik kapanış kontrol ediliyor ("stale"); hafta sonu ya da tatil ancak beklenen kapanış varsa yazılıyor.
+   - 30.10 kaydı geri doldurulmayacak.
+   - **02.11:** PC 18:30'da kapalıydı (çalışma yok). Telafi 03.11 12:40'ta raporu gönderdi. Yedek o gün alındığı için `quantbist_2026-11-03` adını taşıyor; Yedek SLO'su 02.11'i yedeksiz sayıyor, çünkü o gün gerçekten yedek alınmadı. Doğru sayım; düzeltilmeyecek.
+   - **Tekrarı önleyen kontroller:** v0.99.33'ten beri bot 21:00'de günün yedeğini alıyor; v0.99.43'ten beri bunu Telegram'a bildiriyor. v0.99.45'ten beri eksik kapanış "hafta sonu" diye gizlenmiyor.
 6. **02.11 yedeği:** O gün rapor çalışmadığı için yedek alınmadı. 21:00 telafisi (v0.99.33) artık bunu önlüyor.
-7. **Windows zamanlanmış görevleri buradan görülemiyor.** Kanıt `runs.csv` ve yaşam sinyalleri; ikisi de 03.11'de başladı.
+7. **Windows zamanlanmış görevleri: doğrulandı (04.11 01:15, kullanıcının PC çıktısı).**
+   - QuantBIST Guncelle: 01:11 sonuç 0; sonraki 07:40.
+   - QuantBIST Gunluk Rapor: 03.11 18:30 sonuç 0; sonraki 04.11 18:30.
+   - QuantBIST Bot: çalışıyor (267009 = görev çalışıyor).
+   - Yalnız bu üç görev var; eski klasöre bağlı görev kalmamış.
+   - Bot ortamında aider yok; `pip check` temiz.
+   - `runs.csv` yeni klasörde 03.11'de başlıyor; öncesi eski klasörde.
 8. **Temel veri:** İçe aktarma (`core.fundamentals.store --import`) ve formüller (K-57) var; veri yok. KAP otomatik çekme kullanım koşulları teyit edilene kadar kapalı (K-48). Bu kapalı kalacak.
 
 ## PC'de gereken kanıt (kullanıcıdan)
