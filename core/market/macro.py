@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import logging
 import re
 import time
 from dataclasses import dataclass
@@ -33,6 +34,8 @@ from pathlib import Path
 import pandas as pd
 
 from core.config.paths import DATA_DIR, LOG_DIR
+
+logger = logging.getLogger(__name__)
 
 MACRO_DIR = DATA_DIR / "macro"
 CPI_FILE = MACRO_DIR / "cpi.csv"
@@ -47,6 +50,7 @@ TIMEOUT = 15
 PAUSE = 0.3  # seconds between bulletin requests
 SAVE_EVERY = 50  # bulletins; a stopped run keeps what it fetched
 MAX_STALE_DAYS = 10  # calendar days: a 9-day bayram has no bulletin; anything older is "kur yok"
+FETCH_FILE = LOG_DIR / "usd_fetch.json"  # the last bulletin run: how many asked, added, and why the rest failed
 SECOND_FILE = LOG_DIR / "usd_second_source.json"  # the last TCMB–Yahoo comparison (K-51)
 SECOND_LIMIT = 1.0  # % : a bigger gap is a data note in /durum; no value is changed
 SOURCE = "TÜFE: TÜİK (TCMB tablosu); kur: TCMB gösterge kuru; nakit: TCMB politika faizi"
@@ -224,7 +228,8 @@ def _save_cache(path: Path, have: dict[date, str]) -> None:
 
 
 def update_usdtry(start: date, end: date, path: Path | str | None = None, limit: int | None = None,
-                  get=None, sleep=None, budget: float | None = None, clock=None) -> int:
+                  get=None, sleep=None, budget: float | None = None, clock=None,
+                  status: Path | str | None = None) -> int:
     """Ask TCMB for every weekday in [start, end] not yet in the cache; returns the days added.
     A 404 (no bulletin) is remembered as an empty rate; a network error is not remembered.
     `budget` (seconds) stops before a request that would start after it; progress is saved every
@@ -239,15 +244,22 @@ def update_usdtry(start: date, end: date, path: Path | str | None = None, limit:
     if limit is not None:
         wanted = wanted[:limit]
     began = clock()
-    added = 0
+    added = asked = 0
+    problems: dict[str, int] = {}
+
+    def problem(reason: str) -> None:
+        problems[reason] = problems.get(reason, 0) + 1
+
     for i, day in enumerate(wanted):
         if budget is not None and clock() - began >= budget:
             break
         if i:
             sleep(PAUSE)
+        asked += 1
         try:
             r = get(bulletin_url(day), timeout=TIMEOUT, headers={"User-Agent": "Mozilla/5.0 (QuantBIST)"})
-        except OSError:
+        except OSError as exc:
+            problem(f"bağlantı hatası ({type(exc).__name__})")
             continue
         if r.status_code == 404:
             have[day] = ""
@@ -255,16 +267,61 @@ def update_usdtry(start: date, end: date, path: Path | str | None = None, limit:
             try:
                 stamp, rate = parse_bulletin(r.content)
             except ValueError:
+                problem("bülten okunamadı")
                 continue
+            if stamp != day:
+                problem("bülten tarihi farklı")
             have[day] = f"{rate:.4f}" if stamp == day else ""
         else:
+            problem(f"HTTP {r.status_code}")
             continue
         added += 1
         if added % SAVE_EVERY == 0:
             _save_cache(path, have)
     if added:
         _save_cache(path, have)
+    if asked:
+        _save_fetch(Path(status or FETCH_FILE), {"day": end.isoformat(), "asked": asked, "added": added,
+                                                  "problems": problems})
+        if problems:
+            logger.warning("USD/TRY bulletins: %d asked, %d added; %s", asked, added, problems)
     return added
+
+
+def _save_fetch(path: Path, result: dict) -> None:
+    import json
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+    except OSError:
+        logger.warning("USD/TRY fetch status could not be saved")
+
+
+def _load_fetch(path: Path | None = None) -> dict | None:
+    import json
+
+    try:
+        return json.loads(Path(path or FETCH_FILE).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def forget_empty(start: date, path: Path | str | None = None) -> int:
+    """Drop the days from `start` on that were remembered without a rate, so the next run asks again."""
+
+    path = Path(path or USD_FILE)
+    have = _cache(path)
+    drop = [d for d, r in have.items() if d >= start and not r]
+    for d in drop:
+        del have[d]
+    if drop:
+        _save_cache(path, have)
+    return len(drop)
+
+
+def _empty_days(now: date, path: Path | None = None, days: int = 14) -> list[date]:
+    return sorted(d for d, r in _cache(Path(path or USD_FILE)).items() if not r and (now - d).days <= days)
 
 
 def usd_on(rates: pd.Series, day: date) -> float | None:
@@ -394,7 +451,8 @@ def four_basis(nominal: float, start: date, end: date, cpi=_DEFAULT, usd=_DEFAUL
 
 
 def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None = None,
-              second: dict | None | object = None) -> tuple[str, str]:
+              second: dict | None | object = None, fetch: dict | None = None,
+              empty: list[date] | None = None) -> tuple[str, str]:
     """(state, text) for /durum: state 'ok', 'warn' or 'unknown'."""
 
     cpi = load_cpi() if cpi is None else cpi
@@ -417,12 +475,29 @@ def freshness(now: date, cpi: pd.DataFrame | None = None, usd: pd.Series | None 
         notes.append(f"kur {usd.index[-1]:%d.%m.%Y}")
         if age > 5:
             state = "warn"
+            notes += _stale_reasons(now, fetch, empty)
     if second:
         gap = f"{second['max_diff_pct']:.1f}".replace(".", ",")
         notes.append(f"Yahoo farkı en çok %{gap} ({second['days']} gün)")
         if second["max_diff_pct"] > SECOND_LIMIT:
             state = "warn"
     return state, ", ".join(notes)
+
+
+def _stale_reasons(now: date, fetch: dict | None, empty: list[date] | None) -> list[str]:
+    """Why the rate is old (03.11.2026: it stuck at 23.10 and /durum could not say why)."""
+
+    fetch = _load_fetch() if fetch is None else fetch
+    empty = _empty_days(now) if empty is None else empty
+    notes = []
+    if fetch:
+        line = f"son deneme {date.fromisoformat(fetch['day']):%d.%m}: {fetch['asked']} bülten soruldu, {fetch['added']} eklendi"
+        if fetch.get("problems"):
+            line += " (" + ", ".join(f"{k}: {v}" for k, v in fetch["problems"].items()) + ")"
+        notes.append(line)
+    if empty:
+        notes.append("boş kaydedilen gün: " + ", ".join(f"{d:%d.%m}" for d in empty))
+    return notes
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -432,7 +507,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="USD/TRY cache from TCMB bulletins; CPI file check.")
     parser.add_argument("--usd", metavar="START", help="fill the USD/TRY cache from START (YYYY-MM-DD) to today")
     parser.add_argument("--budget", type=float, default=None, help="stop after this many seconds (progress is kept)")
+    parser.add_argument("--yeniden", action="store_true",
+                        help="with --usd: ask again the days from START remembered without a rate")
     args = parser.parse_args(argv)
+    if args.usd and args.yeniden:
+        print(f"{forget_empty(date.fromisoformat(args.usd))} boş gün yeniden sorulacak")
     if args.usd:
         # the two ends first (the four-basis lines read the start and the end of a period), then the rest
         start, today = date.fromisoformat(args.usd), date.today()

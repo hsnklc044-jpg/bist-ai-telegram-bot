@@ -20,6 +20,11 @@ class Files(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.dir = Path(tmp.name)
+        from unittest import mock
+
+        patcher = mock.patch.object(macro, "FETCH_FILE", self.dir / "usd_fetch_default.json")
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def cpi(self, *rows):
         path = self.dir / "cpi.csv"
@@ -271,6 +276,65 @@ class CommandTest(Files):
         self.assertEqual(calls[0], (today - pd.Timedelta(days=14).to_pytimedelta(), today))  # the newest days
         self.assertEqual(calls[1], (date(2021, 12, 1), date(2021, 12, 15)))  # the period's start
         self.assertEqual(calls[2], (date(2021, 12, 1), today))  # then everything else
+
+
+class FetchReasonTest(Files):
+    """03.11.2026: /durum showed the rate stuck at 23.10 with no reason (failures were skipped silently)."""
+
+    def test_problems_are_recorded(self):
+        import json
+
+        path, status = self.dir / "usdtry.csv", self.dir / "usd_fetch.json"
+
+        def get(url, **_):
+            if "26102026" in url:
+                raise OSError("offline")
+            if "27102026" in url:
+                return Response(403)
+            if "28102026" in url:
+                return Response(200, "<html>bakım</html>")
+            return Response(200, BULLETIN)  # 29.10's file carrying 27.10's date
+
+        added = macro.update_usdtry(date(2026, 10, 26), date(2026, 10, 29), path=path, get=get,
+                                    sleep=lambda s: None, status=status)
+        self.assertEqual(added, 1)  # only the mismatched day, remembered empty
+        got = json.loads(status.read_text(encoding="utf-8"))
+        self.assertEqual((got["day"], got["asked"], got["added"]), ("2026-10-29", 4, 1))
+        self.assertEqual(got["problems"], {"bağlantı hatası (OSError)": 1, "HTTP 403": 1, "bülten okunamadı": 1,
+                                           "bülten tarihi farklı": 1})
+
+    def test_nothing_asked_writes_nothing(self):
+        status = self.dir / "usd_fetch.json"
+        macro.update_usdtry(date(2026, 10, 24), date(2026, 10, 25), path=self.dir / "u.csv",
+                            get=lambda url, **_: Response(404), sleep=lambda s: None, status=status)
+        self.assertFalse(status.exists())  # a weekend: no request, no news
+
+    def test_freshness_names_the_reason(self):
+        cpi = self.cpi("2026-10,1.0,30.0,2026-11-03,x\n")
+        usd = pd.Series([49.7], index=pd.to_datetime(["2026-10-23"]))
+        fetch = {"day": "2026-11-03", "asked": 7, "added": 0, "problems": {"HTTP 403": 7}}
+        empty = [date(2026, 10, 29)]
+        state, text = macro.freshness(date(2026, 11, 3), cpi, usd, second={}, fetch=fetch, empty=empty)
+        self.assertEqual(state, "warn")
+        self.assertIn("kur 23.10.2026", text)
+        self.assertIn("son deneme 03.11: 7 bülten soruldu, 0 eklendi (HTTP 403: 7)", text)
+        self.assertIn("boş kaydedilen gün: 29.10", text)
+
+    def test_fresh_rate_says_nothing_about_attempts(self):
+        cpi = self.cpi("2026-10,1.0,30.0,2026-11-03,x\n")
+        usd = pd.Series([49.7], index=pd.to_datetime(["2026-11-02"]))
+        fetch = {"day": "2026-11-03", "asked": 1, "added": 0, "problems": {"HTTP 403": 1}}
+        state, text = macro.freshness(date(2026, 11, 3), cpi, usd, second={}, fetch=fetch, empty=[])
+        self.assertEqual(state, "ok")
+        self.assertNotIn("son deneme", text)
+
+    def test_retry_forgets_empty_days(self):
+        path = self.dir / "usdtry.csv"
+        path.write_text("date,rate\n2026-10-23,49.7\n2026-10-26,\n2026-10-27,\n", encoding="utf-8")
+        self.assertEqual(macro.forget_empty(date(2026, 10, 27), path), 1)
+        self.assertEqual(sorted(macro._cache(path)), [date(2026, 10, 23), date(2026, 10, 26)])
+        self.assertEqual(macro.forget_empty(date(2026, 10, 1), path), 1)
+        self.assertEqual(list(macro._cache(path)), [date(2026, 10, 23)])
 
 
 class SecondSourceTest(Files):

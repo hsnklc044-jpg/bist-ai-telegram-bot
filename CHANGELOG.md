@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.31 – 03.11.2026 (kur neden eski kaldı, /durum söylüyor)
+- **Sorun:** `/durum` kuru 23.10.2026'da takılı gösterdi ama nedenini söylemedi. TCMB bülteni çekilirken bağlantı hatası, HTTP hatası ve okunamayan dosya sessizce atlanıyordu.
+- **Teşhis:** Her bülten çekişi `logs/usd_fetch.json`'a yazılıyor: kaç bülten soruldu, kaçı eklendi, kalanı neden olmadı (bağlantı hatası, HTTP kodu, bülten okunamadı, bülten tarihi farklı). Sorun olursa log'a da uyarı düşüyor.
+  - Kur 5 günden eskiyse `/durum`'un Makro veri satırı son denemeyi ve son 14 günde boş kaydedilen günleri gösteriyor. Kur güncelse bu ayrıntı yazılmıyor.
+- **Onarım komutu:** `python -m core.market.macro --usd 2026-10-20 --yeniden`. Boş kaydedilmiş günleri unutup yeniden soruyor, sonra durumu yazıyor.
+- Doğrulama: `test_macro` (FetchReasonTest, 5 yeni test): dört ayrı hata türü sayılıyor; hafta sonu istek yoksa dosya yazılmıyor; eski kurda neden yazılıyor, güncel kurda yazılmıyor; `--yeniden` yalnız boş günleri siliyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.30 – 03.11.2026 (/panik artık /tara ai'yi beklemiyor)
 - **Hata:** 03.11.2026 22:48'de `/tara ai` modelini eğitirken gönderilen `/panik` ve `/devam` iki dakika cevapsız kaldı. Bot komutları sırayla işliyor; uzun tarama acil durdurmayı arkasında bekletiyordu.
 - **Düzeltme:** `/tara ai` artık arka planda çalışıyor; komut hemen dönüyor, sonuç bitince geliyor. Bu arada `/panik`, `/durum` ve diğer komutlar anında cevaplanıyor.
