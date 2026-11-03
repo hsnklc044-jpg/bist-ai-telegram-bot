@@ -149,6 +149,17 @@ class AiTest(unittest.TestCase):
         self.assertIn("onaylanan 60 sinyalde isabet %45,0", text)
         self.assertNotIn("artırmadı", text)
 
+    def test_card_states_its_own_rule_result(self):
+        # v0.99.37: K-68 measured the card's exact rule; the card says what it found
+        from core.analytics import card_study
+
+        with mock.patch.object(card_study, "RESULT_FILE", Path("/yok/card_study.json")):
+            text = ai.message(self.candidate(0.64), validated=False)
+        self.assertIn("Kartın kuralı geçmişte (K-68):</b> 207 tetikte hedef %26, stop %74", text)
+        self.assertIn("ortalama net %+0,10, rastgele seanslar %-0,09", text)
+        self.assertIn("rastgele girişten ayırt edilemedi", text)
+        self.assertIn("Actions 41716706686", text)
+
     def test_rejection_and_threshold(self):
         self.assertIn("AI Reddi</b>: THYAO – olasılık %59", ai.message(self.candidate(0.59), False))
         self.assertIn("AI onayı", ai.message(self.candidate(0.60), False))

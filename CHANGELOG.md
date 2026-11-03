@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.37 – 03.11.2026 (K-68 sonucu: kartın kuralı geçmedi, kart bunu söylüyor)
+- **Ölçüm (Actions 41716706686):** 207 tetik, 30 hisse. Ortalama net %+0,10, rastgele seanslarda %-0,09; fark %+0,19, %95 aralık %-0,25 – %+0,61. Hedef %26, stop %74, süre dolumu %0. GEÇMEDİ: tetik günleri rastgele girişten ayırt edilemiyor. Ayrıntı RESEARCH_LOG'da.
+- `/tara ai` kartına yeni satır eklendi: "Kartın kuralı geçmişte (K-68): 207 tetikte hedef %26, stop %74; ortalama net %+0,10, rastgele seanslar %-0,09 (…; rastgele girişten ayırt edilemedi)". Bilgisayarda daha yeni bir `logs/card_study.json` varsa satır onu gösteriyor.
+- Kural, stop, hedef ve eşik değiştirilmedi (K-68).
+- Doğrulama: `test_control` (1 yeni test) kayıtlı sonucun kartta göründüğünü sınıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.36 – 03.11.2026 (kartın kendi kuralı ölçülüyor, K-68)
 - Kartın önerdiği kural hiç ölçülmemişti: dip dönüşü tetiği, ertesi açılışta giriş, %2 iz süren stop, %4 kâr al, en çok 10 seans. Ölçüm kuralı ölçümden önce DECISIONS K-68'e yazıldı.
 - Modül `core/analytics/card_study.py`: sanal defterin takip fonksiyonunu birebir kullanıyor. Tetik olaylarını aynı hisselerin bütün seanslarından girilen aynı kuralla karşılaştırıyor; aralık gün blok bootstrap ile hesaplanıyor. Holdout okunmuyor.

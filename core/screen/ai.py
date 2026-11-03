@@ -109,16 +109,18 @@ def message(c: Candidate, validated: bool) -> str:
 def _record_line() -> list[str]:
     """v0.99.35: what the out-of-sample test found, so the decision is made with the real figures."""
 
+    from core.analytics import card_study
     from core.ml.signal_filter import SPEC, track_record
 
+    own = [card_study.card_line(*card_study.latest())]
     r = track_record("gunluk")
     if r is None:
-        return []
+        return own
     x, y = SPEC["gunluk"]
     verdict = ("onay isabeti artırmadı" if r.precision <= r.base_rate else "onaylananlar tabanın üstünde")
     return [f"<b>Geçmiş ölçüm:</b> onaylanan {r.approved} sinyalde isabet %{_n(r.precision * 100, 1)}, "
             f"tüm tetiklerde %{_n(r.base_rate * 100, 1)} ({verdict}; isabet: {x} seans sonra kapanış ≥ "
-            f"+%{y * 100:g}; {html.escape(r.source)})"]
+            f"+%{y * 100:g}; {html.escape(r.source)})", *own]
 
 
 def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None) -> list[tuple[str, int | None]]:

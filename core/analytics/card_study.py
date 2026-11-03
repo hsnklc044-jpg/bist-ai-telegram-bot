@@ -53,6 +53,48 @@ class Result:
     reason: str
 
 
+# K-68's run as recorded in RESEARCH_LOG (03.11.2026); the PC has no result file of its own
+RECORDED = Result(207, 30, 0.0010, -0.0009, 0.0019, (-0.0025, 0.0061), 0.26, 0.74, 0.0, False,
+                  "olaylar, aynı hisselerin rastgele seanslarından ayırt edilemiyor")
+RECORDED_SOURCE = "Actions 41716706686"
+
+
+def _result_file():
+    from core.config.paths import LOG_DIR
+
+    return LOG_DIR / "card_study.json"
+
+
+RESULT_FILE = None  # tests point this elsewhere; None = logs/card_study.json
+
+
+def latest() -> tuple[Result, str]:
+    """The newest measurement: this PC's result file when it has one, else the recorded run."""
+
+    import json
+    from pathlib import Path
+
+    try:
+        got = json.loads(Path(RESULT_FILE or _result_file()).read_text(encoding="utf-8"))
+        got["interval"] = tuple(got["interval"])
+        return Result(**got), "bu bilgisayardaki son ölçüm"
+    except (OSError, ValueError, TypeError, KeyError):
+        return RECORDED, RECORDED_SOURCE
+
+
+def card_line(result: Result, source: str) -> str:
+    """One line for the /tara ai card (HTML)."""
+
+    def pct(x):
+        return f"%{x * 100:+.2f}".replace(".", ",")
+
+    verdict = "geçti" if result.passed else "rastgele girişten ayırt edilemedi"
+    return (f"<b>Kartın kuralı geçmişte (K-68):</b> {result.events} tetikte hedef %{result.target_share * 100:.0f}, "
+            f"stop %{result.stop_share * 100:.0f}; ortalama net {pct(result.mean_event)}, rastgele seanslar "
+            f"{pct(result.mean_base)} (fark aralığı {pct(result.interval[0])} – {pct(result.interval[1])}; "
+            f"{verdict}; günlük BIST 30, {source})")
+
+
 def collect(frames: dict[str, pd.DataFrame], before: pd.Timestamp | None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """(event rows, baseline rows): day, symbol, net result r and how the trade ended."""
 
@@ -148,4 +190,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["GAP", "Result", "collect", "outcome", "study", "text"]
+__all__ = ["GAP", "RECORDED", "Result", "card_line", "collect", "latest", "outcome", "study", "text"]

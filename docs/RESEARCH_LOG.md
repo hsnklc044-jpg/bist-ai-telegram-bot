@@ -605,3 +605,19 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
   - Saatlik veri yalnız 1 yılı kapsıyor. Aynı kural, holdout sonrası biriken yeni verilerde (02.11.2026 sonrası) yeniden ölçülecek; bu, gerçek ileri test olur. Erken tarih: 03.02.2027.
 - **Accuracy notu:** İki modelin doğruluğu da her şeye "hayır" diyen modelinkinin altında (%62,4'e karşı %66,4; %74,5'e karşı %76,4). Yüksek görünen doğruluk, düşük taban orandan geliyor.
 
+
+## 03.11.2026 – Kartın kendi kuralı (K-68, ölçümden önce yazıldı)
+
+- **Yöntem:** Günlük BIST 30 (bugünkü liste), 02.11.2026 öncesi. Dip dönüşü tetiği; olaylar arası en az 10 seans.
+  - Sonuç sanal defterin takip fonksiyonuyla hesaplandı: ertesi açılışta giriş, %2 iz süren stop, %4 kâr al, en çok 10 seans, %0,15 maliyet.
+  - Taban: aynı hisselerin bütün seanslarından girilen aynı kural.
+  - Kaynak: Actions çalışması 41716706686 ("Card rule study").
+
+| Olay | Hisse | Ortalama net (olay) | Ortalama net (taban) | Fark (%95 aralık) | Hedef / stop / süre |
+|---|---|---|---|---|---|
+| 207 | 30 | %+0,10 | %-0,09 | %+0,19 (%-0,25 – %+0,61) | %26 / %74 / %0 |
+
+- **Karar:** GEÇMEDİ. Farkın aralığı sıfırı içeriyor; tetik günleri rastgele seanslardan ayırt edilemiyor.
+- **Gözlem:** İşlemlerin %74'ü stopla bitiyor, süre dolumu yok. Günlük oynaklıkta %2 iz süren stop, %4 hedefe ulaşmadan çoğunlukla tetikleniyor. Bu yalnız gözlem olarak not edildi; stop, hedef ve tetik sonuca bakılarak değiştirilmedi (K-68).
+- **Yanlılık notu:** Bugünkü BIST 30 listesi geçmişe uygulandı; hayatta kalma yanlılığı sonucu iyimser yönde etkiler. Yine de geçmedi.
+- Sonuç `/tara ai` kartında "Kartın kuralı geçmişte (K-68)" satırıyla gösteriliyor (v0.99.37).
