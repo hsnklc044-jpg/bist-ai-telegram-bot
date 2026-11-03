@@ -2,6 +2,22 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.20 – 03.11.2026 (BIST 30 listesi, saatlik veri, genişletilmiş göstergeler)
+- **BIST 30 listesi** `core/config/bist30.py` ve `data/bist30.csv` dosyalarında (kullanıcının verdiği 30 hisse). `/tara evren=bist30` artık çalışıyor. EKOY.IS Yahoo'da bulunmayabilir (EKGYO kastedilmiş olabilir); indirici verisi gelmeyen hisseyi adıyla raporluyor.
+- **Saatlik veri: `core/market/hourly.py`.**
+  - 30 hissenin son 1 yılı tek toplu yfinance isteğiyle indiriliyor; ağ hatasında 3 kez yeniden deneniyor.
+  - Temizlik: NaN, sıfır ya da eksi fiyat, yüksek < düşük ve tekrar eden saatler atılıyor. Saat İstanbul'a çevriliyor. Henüz kapanmamış son saat atılıyor.
+- **Genişletilmiş göstergeler: `core/market/extended.py`.** Her zaman dilimindeki fiyat tablosuna uygulanabiliyor; `ta` kütüphanesiyle vektörel.
+  - EMA 50/200 ve fiyata uzaklıkları, ADX(14), RSI(14), yavaş Stochastic (14, 3, 3), MACD, Bollinger (20, 2) ve %b, ATR(14), CMF(20), OBV.
+- **"Dip dönüşü" tetiği:** (RSI < 35 veya Stoch %K < 20) ve Bollinger %b ≤ 0,10 ve MACD histogramı sıfırın altında yükseliyor. Kural çıktısıdır; henüz ölçülmedi.
+- **"Hourly data check" iş akışı:** gerçek Yahoo verisiyle indirme ve tarama.
+- Doğrulama: `tests/test_data.py` (10 test, ağsız):
+  - liste ve CSV aynı;
+  - temizlik kuralları ve İstanbul saati;
+  - tek toplu istek, yeniden deneme, verisi gelmeyen hissenin raporlanması;
+  - göstergeler elle hesap ve kütüphaneyle aynı; geleceğe bakmıyor;
+  - tetiğin doğruluk tablosu.
+
 ## v0.99.19 – 03.11.2026 (ML filtresi, ikinci kural: goreli20)
 - **Yeni kural, ölçümden önce yazıldı (K-62).** Soru: "Hisse, ertesi açılıştan 20. seans kapanışına kadar, maliyetten sonra XU100'ü geçer mi?"
   - Öznitelikler ve model ilk kuralla aynı.

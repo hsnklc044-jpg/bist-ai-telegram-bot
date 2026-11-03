@@ -1,0 +1,38 @@
+name: Hourly data check
+
+# The BIST 30 hourly download (core.market.hourly) against the real Yahoo Finance: which tickers
+# answer, how many candles, and which ones trigger "dip dönüşü" (core.market.extended) now.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  hourly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download and scan
+        run: |
+          python - <<'PY' 2>&1 | tee hourly.txt
+          from core.market import extended, hourly
+          data = hourly.load_hourly()
+          print(data.summary())
+          for t, df in sorted(data.frames.items()):
+              print(f"{t}: {len(df)} mum, {df.index[0]:%d.%m.%Y %H:%M} -> {df.index[-1]:%d.%m.%Y %H:%M}")
+          print("Tetik (son saat):")
+          print(extended.scan(data.frames).to_string(index=False))
+          PY
+          { echo '```'; cat hourly.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
