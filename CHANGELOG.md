@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.15 – 03.11.2026 (BIST 30 hedefi, adım 4: Telegram bağlantısı)
+- **`/tara ... ml=evet`.** Eşleşmelerden yalnız ML filtresinin geçirdiklerini listeler; her satıra olasılığı ekler.
+  - Filtre örneklem dışı testi geçmediyse liste boş kalır ve nedeni yazılır. Örnek: "ML filtresi kapalı (isabet %52,0 < eşik %60)".
+  - `ml=` yazılmazsa `/tara` eskisi gibi çalışır.
+- **`/durum`a sanal sinyal defteri ve ML filtresinin durumu eklendi.** Defter değeri, açık ve kapanan sinyaller, hedefe ulaşma oranı ve şalter görünüyor.
+- **Günlük çalışma, rapordan sonra:**
+  - açık sinyalleri kesin mumlarla izliyor;
+  - %6 şalteri denetliyor;
+  - filtre açıksa yaklaşık BIST 30'un o günkü sinyallerini deftere yazıyor;
+  - modeli Cuma günleri (ya da model dosyası yoksa) bilinen tüm etiketlerle yeniden eğitiyor.
+- Doğrulama: `ml=evet` ayrıştırması, kapalı filtrede boş liste ve neden, açık filtrede eleme, üç günlük defter akışı, `/durum` satırları, canlı modelin yalnız bilinen etiketlerle eğitilmesi.
+
 ## v0.99.14 – 03.11.2026 (BIST 30 hedefi, adım 3: sanal sinyal defteri)
 - **Yeni: `core/signals/store.py`.** Sinyaller SQLite'a (`data/signals.db`) yazılıyor ve fiyatlarla izleniyor.
   - Durumlar: bekliyor → açık → hedef / stop / süre doldu; tavan açılışta "dolmadı".

@@ -69,6 +69,8 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
     lines.append(f"{result.day:%d.%m.%Y} kapanışı · {universe.LABELS[q.universe]}, {listed} hisse · "
                  f"{result.scanned} hisse tarandı · "
                  f"{len(result.matches)} hisse koşulları sağlıyor · sıra: {ORDER_TEXT[q.order]}")
+    if result.ml_note:
+        lines.append(f"🤖 {result.ml_note}")
     if result.regime:
         if result.regime_blocked:
             lines.append(f"🌐 Bugünkü rejim: {result.regime}. rejim={q.regime} filtresi bugün listeyi boş bırakır "

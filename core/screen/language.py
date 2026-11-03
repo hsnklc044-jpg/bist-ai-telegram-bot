@@ -7,7 +7,8 @@ Nothing the user types is ever executed; it only becomes a tree of known nodes.
     kesti_yukari(ema20,ema50) · kesti_asagi(macd,macd_sinyal) · son(5, kesti_yukari(...))
     ve / veya / değil and parentheses; conditions side by side mean "ve"
     options: evren=bist100|bist30|izleme · likidite=10 (million TL, 0 = off) ·
-             sirala=alfabetik|goreli_guc|hacim|rsi · rejim=yukselis|dusus|karisik|yuksek_oynaklik
+             sirala=alfabetik|goreli_guc|hacim|rsi · rejim=yukselis|dusus|karisik|yuksek_oynaklik ·
+             ml=evet (the ML filter, only after its out-of-sample pass, K-59)
 
 At most 400 characters and 15 conditions. Errors name the place (a caret under the normalized
 text) and the nearest valid field.
@@ -308,6 +309,7 @@ class Query:
     fields: set = field(default_factory=set)
     template: str = ""  # the ready-made template it came from (core.screen.templates)
     regime: str = ""  # rejim= option: a key of REGIMES, or "" for every regime
+    ml: bool = False  # ml=evet: keep only the matches the ML filter passes (K-59)
 
     def __post_init__(self):
         if self.elimination is None:
@@ -328,6 +330,8 @@ class Query:
             options.append(f"evren={self.universe}")
         if self.regime:
             options.append(f"rejim={self.regime}")
+        if self.ml:
+            options.append("ml=evet")
         return " ".join([self.root.text(False), *options, *self.elimination.options()])
 
     def truth(self, t: pd.DataFrame):
@@ -387,7 +391,7 @@ class _Parser:
             if name in self.options:
                 settings = settings.with_option(name, self.options[name])
         return Query(root, self.options.get("evren", "bist100"), settings, self.options.get("sirala", "alfabetik"),
-                     self.fields, regime=self.options.get("rejim", ""))
+                     self.fields, regime=self.options.get("rejim", ""), ml=self.options.get("ml", False))
 
     def starts_term(self) -> bool:
         t = self.tok
@@ -573,7 +577,7 @@ class _Parser:
             return False
         name = {"sira": "sirala", "siralama": "sirala"}.get(t.value, t.value)
         if name not in ("evren", "likidite", "sirala", "rejim", "ele", "ele_likidite", "ele_kurumsal", "ele_hareket",
-                        "ele_veri"):
+                        "ele_veri", "ml"):
             return False
         self.i += 2
         value = self.tok
@@ -583,7 +587,7 @@ class _Parser:
                 self.error("Likidite tabanı negatif olamaz.", number.pos)
             self.options[name] = float(number.value)
             return True
-        if name.startswith("ele"):
+        if name.startswith("ele") or name == "ml":
             switch = {"evet": True, "hayir": False, "1": True, "0": False}
             word = str(self.tok.value if self.tok.kind == "name" else _number(self.tok.value)) \
                 if self.tok.kind in ("name", "number") else ""

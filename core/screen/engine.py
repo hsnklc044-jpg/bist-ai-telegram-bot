@@ -107,6 +107,7 @@ class Result:
     funnel: list = field(default_factory=list)  # (condition, alone, cumulative) when nothing matched
     regime: str = ""  # today's market regime label, when the query has rejim= (K-51)
     regime_blocked: bool = False  # rejim= names another regime than today's: nothing is listed
+    ml_note: str = ""  # ml=evet: why the filter is off, or how many it kept (K-59)
 
     @property
     def illiquid(self) -> list[str]:
@@ -165,7 +166,10 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
             result.matches.append(Match(symbol, latest.date(), {c: float(row[c]) for c in t.columns},
                                         describe(query.root, tail), flags(frames[symbol])))
 
-    if not result.matches:
+    if query.ml:
+        _ml_filter(result, frames)
+
+    if not result.matches and not query.ml:
         out = {s for s, _ in result.eliminated}
         result.funnel = funnel(query, {s: t for s, t in tables.items() if s not in out})
 
@@ -179,6 +183,28 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
 
         result.matches.sort(key=sort_key)
     return result
+
+
+def _ml_filter(result: Result, frames: dict[str, pd.DataFrame]) -> None:
+    """ml=evet: nothing passes while the filter has not passed its out-of-sample test (K-59)."""
+
+    from core.ml import ml_filter
+
+    report = ml_filter.load()
+    if not (report and report.get("passed")):
+        why = report.get("reason") if report else "henüz örneklem dışı ölçüm yok"
+        result.ml_note = f"ML filtresi kapalı ({why}); liste boş bırakıldı."
+        result.matches = []
+        return
+    from core.ml.live import probabilities
+
+    found = len(result.matches)
+    proba = probabilities({m.symbol: frames[m.symbol] for m in result.matches})
+    for m in result.matches:
+        m.values["ml_olasilik"] = proba.get(m.symbol, float("nan"))
+    result.matches = [m for m in result.matches if proba.get(m.symbol, 0.0) >= ml_filter.PROBA]
+    result.ml_note = (f"ML filtresi: {found} eşleşmeden {len(result.matches)} tanesi geçti "
+                      f"(olasılık ≥ {ml_filter.PROBA:.1f}).").replace("0.5", "0,5")
 
 
 SHARP_MOVE = 0.30  # a limit-down or limit-up streak: ATR built at another price level (ANELE, 19-27.10.2026)

@@ -155,3 +155,23 @@ class FilterTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LiveModelTest(unittest.TestCase):
+    def test_fit_and_probabilities(self):
+        from sklearn.ensemble import RandomForestClassifier
+
+        from core.ml import live
+
+        frames = {f"S{i}.IS": walk(900, 70 + i) for i in range(3)}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "m.joblib"
+            self.assertEqual(live.probabilities(frames, path), {})  # no model yet
+            cut = frames["S0.IS"].index[600].date()
+            rows = live.fit(frames, today=cut, path=path,
+                            make_model=lambda: RandomForestClassifier(n_estimators=10, max_depth=3, random_state=0))
+            data = F.dataset(frames)
+            self.assertEqual(rows, int((data["label_end"] < pd.Timestamp(cut)).sum()))  # only known labels
+            proba = live.probabilities({**frames, "KISA.IS": walk(100, 9)}, path)
+        self.assertEqual(sorted(proba), ["S0.IS", "S1.IS", "S2.IS"])  # too short a history is left out
+        self.assertTrue(all(0 <= p <= 1 for p in proba.values()))

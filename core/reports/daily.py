@@ -702,6 +702,38 @@ def _record_scenarios(day: date) -> None:
         logger.exception("Scenario recording failed")
 
 
+def _signal_book(day: date) -> None:
+    """K-60: follow the paper signals, check the 6% breaker, record today's ML signals (K-59)."""
+
+    try:
+        from core.ml import ml_filter
+        from core.signals import daily as book
+
+        frames = None
+        if ml_filter.enabled():
+            from core.ml import live
+            from core.screen.command import _live
+
+            if day.weekday() == FRIDAY or not live.MODEL_FILE.exists():  # refit weekly on every known label
+                from core.market.membership import load_changes, load_stable
+
+                codes = load_stable() | set(load_changes())
+                history = {f"{c}.IS": adjusted_bars(f"{c}.IS") for c in sorted(codes)}
+                history = {s: df for s, df in history.items() if not df.empty}
+                logger.info("ML model refit | rows %d", live.fit(history, ml_filter.liquid_members(history), day))
+            members = ml_filter.liquid_members(_live(_bist100())[0])
+            frames = {s: df for s, df in _live(sorted(members(pd.Timestamp(day))))[0].items() if df is not None}
+        logger.info("%s", book.run(day, raw_bars, frames))
+    except Exception:  # noqa: BLE001 - the report was already sent
+        logger.exception("Signal book step failed")
+
+
+def _bist100() -> list[str]:
+    from core.screen import universe
+
+    return universe.symbols("bist100")
+
+
 def _refresh_scenario_cards(day: date) -> None:
     """On Fridays (or with no cache yet) the templates' card is recomputed for /senaryo."""
 
@@ -1095,6 +1127,7 @@ def _run_locked(args) -> DailyResult:
         _record_levels(result.day)
         _record_scenarios(result.day)
         _refresh_scenario_cards(result.day)
+        _signal_book(result.day)
     return result
 
 

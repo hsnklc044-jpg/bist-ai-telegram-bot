@@ -671,6 +671,32 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
     return checks
 
 
+def signal_book_lines(now: datetime, bars, path=None) -> list[str]:
+    """K-60: the paper signal book's live result and the ML filter's state, when a book exists."""
+
+    from core.config.paths import SIGNALS_DB
+
+    path = path or SIGNALS_DB
+    if not path.exists():
+        return []
+    try:
+        from core.ml import ml_filter
+        from core.reports.daily import raw_bars
+        from core.signals import store
+
+        report = ml_filter.load()
+        state = ("açık" if report and report.get("passed")
+                 else f"kapalı ({report.get('reason') if report else 'ölçüm yok'})")
+        conn = store.connect(path)
+        try:
+            return ["", store.summary(conn, raw_bars, now.date()), f"🤖 ML filtresi {state}"]
+        finally:
+            conn.close()
+    except Exception as exc:  # noqa: BLE001 - /durum must still answer
+        logger.exception("Signal book summary failed")
+        return ["", f"{UNKNOWN} sanal sinyal defteri okunamadı: {type(exc).__name__}"]
+
+
 def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
     now = now or now_istanbul()
     checks = health_checks(now, bars)
@@ -688,6 +714,7 @@ def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
         "",
         *(c.line() for c in checks),
         *objectives,
+        *signal_book_lines(now, bars),
         "",
         "Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.",
     ])

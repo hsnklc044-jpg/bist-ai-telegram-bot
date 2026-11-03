@@ -527,3 +527,16 @@ Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil
 - Gerçek ve sanal hesap hiçbir hesapta karışmaz. Fiyatı olmayan pozisyon hesaptan düşmez; "hesaplanamadı" yazılır.
 - Web panelinde aynı tablo: `/risk/sanal`, `/risk/gercek` (JSON).
 
+## 14. BIST 30 tarama robotu: ML filtresi ve sanal sinyal defteri (K-59, K-60)
+
+- **Kural:** ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans. Aynı seansta ikisine birden dokunulursa stop sayılır; tavan açılışta giriş yok; %0,15 maliyet.
+- **ML filtresi:** RandomForest. Yalnız eğitimde görülmemiş yıllarda ölçülür; 02.11.2026 sonrası (holdout) kullanılmaz. Açılması için üç koşul:
+  - en az 100 sinyal;
+  - isabet ≥ %60;
+  - isabet, tüm girişlerin hedefe ulaşma oranından anlamlı yüksek.
+- **Ölçüm:** GitHub Actions → "Screen templates explain" çalıştırılır; sonuç `logs/ml_report.json` dosyasına yazılır.
+- **`/tara ... ml=evet`:** yalnız filtrenin geçirdiği hisseler listelenir. Filtre kapalıysa liste boştur ve nedeni yazılır. Örnek: `/tara ema50>ema200 adx>20 evren=bist30 ml=evet`.
+- **Sanal defter:** `data/signals.db`. 100.000 TL sanal bakiye, sinyal başına 10.000 TL. Günlük çalışma açık sinyalleri izler; `/durum` sonucu gösterir.
+- **Şalter:** defter bir seansta %6 veya daha fazla düşerse o günün sinyalleri kaydedilmez.
+- Gerçek parayla emir yok, aracı kurum bağlantısı yok. Kural çıktısıdır, öneri değildir.
+
