@@ -2,6 +2,26 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.25 – 03.11.2026 (sinyal onay katmanı: meta-etiketleme)
+- **Yeni: `core/ml/signal_filter.py`** (K-64; kural ölçümden önce yazıldı).
+  - Teknik tetik ("dip dönüşü") bir aday sinyal üretiyor; RandomForest bu sinyalin başarı olasılığını veriyor.
+  - Olasılık ≥ 0,60 ise "onaylandı", altındaysa "yalancı sinyal".
+- **Öznitelikler:** RSI, ADX, Stochastic, MACD histogramı, Bollinger %b, ATR oranı, CMF, EMA 50/200'e yüzde uzaklık ve hacim anomalisi (o mumun hacmi ÷ önceki 5 mumun ortalaması).
+- **Sızıntı yok:**
+  - öznitelikler yalnız o mum ve öncesinden;
+  - eğitim satırının etiketi, test edildiği ilk olaydan önce bilinmiş olmalı (dış değerlendirmede de ayar aramasında da);
+  - 02.11.2026 sonrası kullanılmıyor.
+- **Ezberleme denetimi:** `max_depth` {3, 4, 5} ve `min_samples_leaf` {10, 25, 50} yalnız eğitim verisi içinde, zaman sıralı çapraz doğrulamayla (log-loss) seçiliyor.
+- **Rapor:** `python -m core.ml.signal_filter --zaman gunluk|saatlik` doğruluğu (accuracy) yazıyor; yanında taban oran ve onaylanan sinyallerin isabeti de var.
+- Gerçek veriyle ölçüm iki iş akışında: günlük BIST 100 ("Screen templates explain") ve saatlik BIST 30 ("Hourly data check").
+- Doğrulama: `test_signal_filter` (7 test):
+  - elle hesaplanmış etiket ve hacim anomalisi;
+  - geleceğe bakmama;
+  - temizlenmiş katlar ve holdout;
+  - ayarların ızgaradan seçilmesi;
+  - 0,60 karar sınırı;
+  - rastgele veride geçmeme ve doğruluğun ekrana basılması.
+
 ## v0.99.24 – 03.11.2026 (dip dönüşü ölçüldü: geçmedi)
 - **Gerçek veride ölçüm** (BIST 30, 1 yıl saatlik, 30/30 hisse): 576 olay.
   - 16 mum sonra ortalama −%0,22; rastgele saatlerde −%0,19.

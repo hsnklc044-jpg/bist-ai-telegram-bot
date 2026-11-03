@@ -59,3 +59,8 @@ jobs:
         run: |
           python -m core.ml.ml_filter --universe bist100 --rule goreli20 2>&1 | tee ml100r.txt
           { echo '```'; cat ml100r.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # K-64: the signal confirmation layer on daily BIST 100 (written before this measurement)
+      - name: Signal confirmation layer (daily)
+        run: |
+          python -m core.ml.signal_filter --zaman gunluk 2>&1 | tee sfd.txt
+          { echo '```'; cat sfd.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

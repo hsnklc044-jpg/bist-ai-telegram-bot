@@ -56,3 +56,9 @@ jobs:
         run: |
           python -m core.analytics.dip_study 2>&1 | tee dip.txt
           { echo '```'; cat dip.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # K-64: the signal confirmation layer on the hourly BIST 30 (written before this measurement)
+      - name: Signal confirmation layer (hourly)
+        if: inputs.tickers == ''
+        run: |
+          python -m core.ml.signal_filter --zaman saatlik 2>&1 | tee sf.txt
+          { echo '```'; cat sf.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
