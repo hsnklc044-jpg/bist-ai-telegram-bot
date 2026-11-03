@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.39 – 03.11.2026 (basılmayan kart ertesi gün düşüyor)
+- **Hata:** Düğmesine hiç basılmayan `/tara ai` kartı defterde sonsuza kadar "onay bekliyor" kalıyordu ve `/durum`'daki "onay bekleyen kart" sayısı günler geçtikçe büyüyordu. Bu kartlar zaten girilemiyordu, çünkü düğme yalnız kartın günü geçerli (K-67).
+- **Düzeltme:** Kartın günü geçince kart "zaman aşımı" oluyor. Bu, ertesi gün düğmeye basılmasıyla aynı sonuç. Defter iki yerde temizleniyor: 18:30 günlük adımında ve yeni bir `/tara ai` kart yazmadan önce. `/durum` yalnız bugünün bekleyen kartlarını sayıyor.
+- Doğrulama: `test_control` (2 yeni test): dünkü kart düşüyor, bugünkü kalıyor, sayı 1; ikinci temizlik bir şey yapmıyor; günlük adım eski kartı düşürüyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.38 – 03.11.2026 (belgeler eksiksiz: K-68 sonucu, K-69, yol haritası)
 - Bugünkü işlerin belge denetimi yapıldı; bulunan altı eksik kapatıldı.
   - DECISIONS: K-68'e sonuç eklendi (GEÇMEDİ, Actions 41716706686).

@@ -142,7 +142,9 @@ def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None)
             card = None
             if c.proba is not None and c.proba >= APPROVE:
                 try:
-                    conn = conn or store.connect(book)
+                    if conn is None:
+                        conn = store.connect(book)
+                        store.expire_pending(conn, day)
                     box, free = store.cash(conn)
                     c.box, c.lots = box, store.size_position(box, free, c.close)
                     if c.lots:

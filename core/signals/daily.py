@@ -34,6 +34,7 @@ def run(day: date, bars, frames: dict[str, pd.DataFrame] | None = None, path=Non
         return ""  # no book yet and nothing could be recorded: no file is created
     conn = store.connect(path)
     try:
+        store.expire_pending(conn, day)
         store.update(conn, bars)
         store.check_breaker(conn, day)
         added = 0

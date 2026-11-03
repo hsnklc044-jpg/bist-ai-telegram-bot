@@ -553,7 +553,7 @@ Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil
 - **Kart:** `/tara ai` %60 üstü kartın altına [✅ İşleme Gir] ve [❌ İptal Et] düğmelerini koyar. Siz basmadan pozisyon açılmaz.
   - İşleme Gir: ertesi seans açılışında sanal giriş yapılır, takip başlar.
   - İptal Et: kart atılır.
-  - Düğme yalnız kartın günü geçerlidir.
+  - Düğme yalnız kartın günü geçerlidir. Basılmayan kart ertesi gün kendiliğinden "zaman aşımı" olur (v0.99.39).
 - **Lot:** lot = (kasa × %1) ÷ (fiyat × %2), boş nakitle sınırlı. Örnek: 105.430 TL kasa, 250 TL fiyat → 210 lot (~52.500 TL). Stop gelirse ~1.054 TL (%1) gider.
   - Bu kural pozisyonu kasanın yaklaşık yarısı yapar.
   - Boşluklu açılışta kayıp %1'i aşabilir.

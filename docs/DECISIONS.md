@@ -39,7 +39,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - **Manuel onay:**
   - `/tara ai`'nin %60 üstü kartları "onay bekliyor" olarak deftere yazılır ve altına [✅ İşleme Gir] [❌ İptal Et] düğmeleri eklenir.
   - İşleme Gir: sinyal "bekliyor" olur, ertesi seans açılışında girilir ve takip başlar. İptal Et: "reddedildi".
-  - Düğme yalnız kartın günü geçerlidir; ertesi gün basılırsa "zaman aşımı" olur, çünkü analiz eskimiştir ve giriş açılışı geçmiş olabilir.
+  - Düğme yalnız kartın günü geçerlidir; ertesi gün basılırsa "zaman aşımı" olur, çünkü analiz eskimiştir ve giriş açılışı geçmiş olabilir. v0.99.39'dan beri basılmayan kart da ertesi gün kendiliğinden "zaman aşımı" olur.
   - Panik kilidi ya da şalter açıkken düğme işlem açmaz. Düğmeler komutlarla aynı kullanıcı kimliği listesinden geçer.
 - **K-64 ile ilişkisi:** Model doğrulanmadığı için sistem kendiliğinden işlem açmaz. Düğmeyle giren pozisyon kullanıcının kendi sanal kararıdır. Kartta "model doğrulanmadı" uyarısı kalır.
 - **Lot hesabı:** lot = taban(kasa × %1 ÷ (fiyat × %2)), eldeki nakitle sınırlı.

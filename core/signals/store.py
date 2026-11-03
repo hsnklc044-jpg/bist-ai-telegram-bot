@@ -337,6 +337,16 @@ def _last_price(bars, symbol: str) -> float | None:
         return None
 
 
+def expire_pending(conn: sqlite3.Connection, today: date) -> int:
+    """Cards nobody pressed on their own day become "zaman_asimi" (v0.99.39): the analysis is old and
+    the entry open has passed, exactly as a late button press. Returns how many expired."""
+
+    with conn:
+        cur = conn.execute("UPDATE signals SET status = 'zaman_asimi' WHERE status = ? AND created < ?",
+                           (PENDING, today.isoformat()))
+    return cur.rowcount
+
+
 def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     """The /durum lines: the virtual cash box (realized and with the open signals at their last
     price), each open signal's live profit or loss, the hit rate and the breaker."""
@@ -345,7 +355,7 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     closed = [s for s in every if s.status in ("hedef", "stop", "sure")]
     open_ = [s for s in every if s.status in OPEN_STATES]
     hits = sum(s.status == "hedef" for s in closed)
-    pending = sum(s.status == PENDING for s in every)
+    pending = sum(s.status == PENDING and s.created == day for s in every)  # older ones can no longer be entered
     realized_value = CAPITAL + sum(s.notional * s.r for s in closed if s.r is not None)
 
     def pct(x):

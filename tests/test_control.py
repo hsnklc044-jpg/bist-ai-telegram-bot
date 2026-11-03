@@ -281,6 +281,26 @@ class ApprovalTest(unittest.TestCase):
         box, free = S.cash(self.conn)
         self.assertEqual((box, free), (S.CAPITAL, S.CAPITAL - 100 * 250.0))  # waiting entry: lots × card price
 
+    def test_unanswered_cards_expire_after_their_day(self):
+        # v0.99.39: a card nobody pressed stayed "onay bekliyor" for good and /durum's count grew
+        self.card(day=date(2026, 11, 2), symbol="A.IS")
+        self.card(day=date(2026, 11, 3), symbol="B.IS")
+        self.assertEqual(S.expire_pending(self.conn, date(2026, 11, 3)), 1)
+        states = {s.symbol: s.status for s in S.signals(self.conn)}
+        self.assertEqual(states, {"A.IS": "zaman_asimi", "B.IS": S.PENDING})
+        text = S.summary(self.conn, lambda s: None, date(2026, 11, 3))
+        self.assertIn("onay bekleyen kart 1", text)
+        self.assertEqual(S.expire_pending(self.conn, date(2026, 11, 3)), 0)
+
+    def test_daily_step_and_new_scan_sweep_old_cards(self):
+        from core.signals import daily
+
+        self.card(day=date(2026, 11, 2))
+        self.conn.close()
+        daily.run(date(2026, 11, 3), lambda s: None, path=self.book, enabled=lambda: False)
+        self.conn = S.connect(self.book)
+        self.assertEqual([s.status for s in S.signals(self.conn)], ["zaman_asimi"])
+
     def test_enter_reject_expire_lock_and_once(self):
         a, b, c, d = (self.card(symbol=s) for s in ("A.IS", "B.IS", "C.IS", "D.IS"))
         today = date(2026, 11, 3)
