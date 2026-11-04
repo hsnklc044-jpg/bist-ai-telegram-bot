@@ -1,0 +1,45 @@
+name: K-64 rule vs window split
+
+# Descriptive only (user's request 04.11.2026): one hourly snapshot is frozen, then the K-64 hourly
+# evaluation runs on it with the code before K-75 (d0f4033, v0.99.72) and after (ef12819, v0.99.74).
+# Rule effect = after − before on the same data; window effect = before on this data − the 03.11 record.
+# The K-64 rule, threshold and decision are not touched.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Freeze one hourly snapshot
+        run: python scripts/k64_split.py download /tmp/hourly.pkl 2>&1 | grep -v Warning | tee frozen.txt
+      - name: Rule before K-75 (d0f4033) on the frozen data
+        run: |
+          git worktree add /tmp/before d0f4033
+          cp scripts/k64_split.py /tmp/before/k64_split.py
+          (cd /tmp/before && python k64_split.py evaluate /tmp/hourly.pkl) 2>&1 | grep -v Warning | tee before.txt
+      - name: Rule after K-75 (ef12819) on the frozen data
+        run: |
+          git worktree add /tmp/after ef12819
+          cp scripts/k64_split.py /tmp/after/k64_split.py
+          (cd /tmp/after && python k64_split.py evaluate /tmp/hourly.pkl) 2>&1 | grep -v Warning | tee after.txt
+      - name: Summary
+        run: |
+          { echo '```'; cat frozen.txt; echo '--- önce (d0f4033)'; cat before.txt; echo '--- sonra (ef12819)'; cat after.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
