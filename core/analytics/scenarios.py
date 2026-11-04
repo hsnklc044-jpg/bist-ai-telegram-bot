@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from core.analytics import levels as L
-from core.market.limits import limit_move
+from core.market.limits import limit_move, locked_down
 
 COST = 0.0010 + 0.0005  # per side: commission + slippage
 MIN_R = 1.5
@@ -153,7 +153,10 @@ def outcome(df: pd.DataFrame, t: int, invalidation: float, target: float, horizo
         r = (price * (1 - COST) - entry * (1 + COST)) / risk if risk > 0 else None
         return Outcome(kind, entry, price, i - t, r, df.index[i])
 
+    locked = locked_down(df)  # K-75: nothing is sold on a day locked at the lower limit
     for i in range(t + 1, min(t + 1 + horizon, len(df))):
+        if locked[i]:
+            continue
         first = i == t + 1
         if not first and o[i] <= invalidation:
             return done("geçersizlik", o[i], i)

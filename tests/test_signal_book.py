@@ -62,7 +62,7 @@ class BookTest(unittest.TestCase):
         self.assertEqual(S.signals(self.conn)[0].status, "dolmadi")
 
     def test_equity(self):
-        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 70, 70, 70)])
+        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 72, 69, 71)])
         S.add(self.conn, date(2026, 11, 2), "A.IS", 100.0)
         S.update(self.conn, lambda s: df.iloc[:3])  # entered at 100, open
         values = S.equity(self.conn, lambda s: df, [date(2026, 11, 4)])
@@ -71,7 +71,8 @@ class BookTest(unittest.TestCase):
     def test_breaker_on_the_days_closed_losses(self):
         # K-65: two signals of 10.000 TL each gap down to 70 on 05.11 and stop at that open:
         # 2 × 10.000 × (−30% − cost) = −6.030 TL = −6,03% of 100.000 → the bot locks itself that day
-        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 70, 70, 70)])
+        # the gap day trades (70-72): a day locked at the limit would not fill the stop (K-75)
+        df = bars([(100, 100, 100, 100), (100, 100, 100, 100), (100, 100, 99, 100), (70, 72, 69, 71)])
         S.add(self.conn, date(2026, 11, 2), "A.IS", 100.0)
         S.add(self.conn, date(2026, 11, 2), "B.IS", 100.0)
         S.update(self.conn, lambda s: df)
@@ -251,7 +252,7 @@ class LiveTrackingTest(unittest.TestCase):
         for code in ("A.IS", "B.IS"):
             S.add(conn, date(2026, 11, 2), code, 100.0)
         conn.close()
-        gap = hourly_bars([(100, 100, 100, 100), (70, 70, 70, 70)], first="2026-11-03 10:00")
+        gap = hourly_bars([(100, 100, 100, 100), (70, 72, 69, 71)], first="2026-11-03 10:00")
         first = live.track(date(2026, 11, 3), self.path, load=self.load({"A.IS": gap, "B.IS": gap}))
         self.assertTrue(any("Şalter açıldı" in line for line in first))
         self.assertTrue(S.locked(date(2026, 11, 3), self.path))

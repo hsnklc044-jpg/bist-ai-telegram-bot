@@ -26,7 +26,7 @@ import pandas as pd
 
 from core.config.paths import SIGNALS_DB
 from core.infrastructure.logger import get_logger
-from core.market.limits import limit_up
+from core.market.limits import limit_up, locked_down
 from core.ml.features import COST, HORIZON, STOP, TARGET
 
 logger = get_logger(__name__)
@@ -238,6 +238,8 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     window = after[after_days <= sessions[min(HORIZON, len(sessions)) - 1]]
     window_days = _days(window.index)
     lows, highs, opens = (window[k].to_numpy(dtype=float) for k in ("low", "high", "open"))
+    # K-75: a day locked at the lower limit has no seller's fill; the stop fills at the next open
+    locked = pd.Series(locked_down(df), index=df.index).reindex(window.index).fillna(False).to_numpy(dtype=bool)
     # K-67 trailing stop: STOP below the highest price seen BEFORE each candle (a candle's own high
     # cannot lift its own stop: the order inside a candle is unknown); it only moves up
     peak_before = np.maximum.accumulate(np.r_[entry, highs[:-1]])
@@ -245,7 +247,7 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     peak = float(max(entry, highs.max()))
     out = {"status": "acik", "entry_date": entry_day, "entry_price": entry, "target": target, "peak": peak,
            "stop": max(first_stop, peak * (1 - STOP))}
-    hit = np.flatnonzero((lows <= trail) | (highs >= target))
+    hit = np.flatnonzero(((lows <= trail) & ~locked) | (highs >= target))
     if len(hit):
         i = hit[0]
         if lows[i] <= trail[i]:  # both in one candle counts as the stop

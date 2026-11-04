@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.74 – 04.11.2026 (Faz B, 2. adım: kilitli günde dolum yok; K-75)
+- `core/market/limits.py`'ye `locked_down` ve `locked_up` eklendi. Kilitli gün, bütün gün tek fiyatın görüldüğü (en yüksek = en düşük) limit günüdür.
+- **Tabanda kilitli gün, satış dolmaz.** Stop ya da geçersizlik ilk kilitsiz günün açılışından gerçekleşiyor. Doğrulamadaki iyimser varsayım kalktı. Örnek: 89'da kilitli bir günden sonra 88'den açılışta çıkış; eskiden 98'deki stoptan çıkılmış sayılıyordu.
+  - sanal sinyal defterinin takibi (M32-9);
+  - ML etiketleri (M30-5);
+  - senaryo sonuçları (M27-6).
+- **Tavanda kilitli giriş günü, alış dolmaz:** `/tara` karnesi o olayı saymıyor (M5-3).
+- Tek fiyatlı −%30'luk bir mumu "boşluklu stop" örneği olarak kullanan üç test, işlem gören bir boşluk mumuyla güncellendi. Beklenen sonuçları aynı kaldı.
+- Sırada Faz B'nin son adımı: etkilenen ölçümlerin GitHub Actions'ta yeniden çalıştırılması ve RESEARCH_LOG'a eski ve yeni sonucun yan yana yazılması.
+- Doğrulama: `test_limits` (LockedDaysTest, 5 test): maske; defter, ML etiketi ve senaryo ilk kilitsiz açılıştan çıkıyor; karne kilitli tavanda dolum saymıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.73 – 04.11.2026 (Faz B, 1. adım: tavan ve taban kuralı tek yerde; K-75)
 - Yeni `core/market/limits.py`: `limit_up`, `limit_down` ve `limit_move` fonksiyonları. Hareket %9,5 ya da daha fazlaysa limit sayılıyor; karşılaştırma kayan nokta payı taşıyor. 100 → 109,5 artık her yerde limit (0,0949999… < 0,095 sorunu kalktı).
 - Bu fonksiyonları kullanan 10 modül: backtest motoru, sanal emirler, sinyal defteri, tarama elemesi, sinyal onay katmanı, ML etiketleri (iki yer), strateji filtresi, pozisyon uyarıları, senaryolar (iki yer), seviyeler (iki yer). `>` ile `>=` farkı kalktı.

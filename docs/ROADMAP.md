@@ -252,8 +252,8 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 | Bulgu | İş | Durum |
 |---|---|---|
 | M32-7, M30-6, M31-11, M27-9 | %9,5 sınırı kayan noktayla karşılaştırılıyor ve modüller arasında `>`/`>=` farklı. Tek ortak fonksiyon `core/market/limits.py` yazılacak; yaklaşık 10 modül onu kullanacak | ✅ v0.99.73 |
-| M5-3 | Tavan kilitli girişte karne dolum varsayıyor | B |
-| M32-9, M27-6, M30-5 (ikinci kısım) | Taban kilidinde çıkış iyimser: kilitli günde çıkılamaz, ilk kilitsiz açılıştan çıkılır | B |
+| M5-3 | Tavan kilitli girişte karne dolum varsayıyor | ✅ v0.99.74 |
+| M32-9, M27-6, M30-5 (ikinci kısım) | Taban kilidinde çıkış iyimser: kilitli günde çıkılamaz, ilk kilitsiz açılıştan çıkılır | ✅ v0.99.74 |
 | Yeniden ölçüm | Kuralı değişen çalışmalar (K-68 kart kuralı, K-63, K-64, K-59, karne ve senaryo) GitHub Actions'ta yeniden çalıştırılır. Eski ve yeni sonuç RESEARCH_LOG'da yan yana yazılır; eşik değişmez | B |
 
 ### Faz C: Araştırma yöntemi (bir model yeniden ölçülmeden önce şart)

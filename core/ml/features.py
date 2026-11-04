@@ -17,7 +17,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from core.market.limits import limit_up
+from core.market.limits import limit_up, locked_down
 
 STOP = 0.02
 TARGET = 0.04
@@ -60,6 +60,7 @@ def labels(df: pd.DataFrame, stop: float = STOP, target: float = TARGET, horizon
     label = np.full(n, np.nan)
     ret = np.full(n, np.nan)
     end = np.full(n, None, dtype=object)
+    locked = locked_down(df)  # K-75: no stop fill on a day locked at the lower limit
     for t in range(n - 1):
         entry = o[t + 1]
         if not entry > 0 or limit_up(entry / c[t] - 1):
@@ -69,7 +70,7 @@ def labels(df: pd.DataFrame, stop: float = STOP, target: float = TARGET, horizon
             break  # the outcome is not known yet
         result = None
         for d in range(t + 1, last + 1):
-            if low[d] <= entry * (1 - stop):
+            if low[d] <= entry * (1 - stop) and not locked[d]:
                 result = (0, -stop if o[d] > entry * (1 - stop) else o[d] / entry - 1, d)  # a gap fills at the open
                 break
             if h[d] >= entry * (1 + target):

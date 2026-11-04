@@ -29,6 +29,7 @@ import numpy as np
 import pandas as pd
 
 from core.config.paths import DATA_DIR, LOG_DIR
+from core.market.limits import locked_up
 from core.screen import fields as F
 from core.screen.language import Query
 
@@ -160,6 +161,8 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         mask = query.mask(table).to_numpy() & universe
         b = bench.reindex(df.index)
         entry, bench_entry = df["open"].shift(-1), b["open"].shift(-1)
+        # K-75 (M5-3): an entry day locked at the upper limit does not fill
+        entry = entry.where(~pd.Series(locked_up(df), index=df.index).shift(-1, fill_value=False))
         for h in horizons:
             gross = ((df["close"].shift(-h) / entry - 1) - (b["close"].shift(-h) / bench_entry - 1)).to_numpy()
             excess = gross - ROUND_TRIP_COST
