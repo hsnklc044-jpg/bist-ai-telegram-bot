@@ -128,14 +128,14 @@ def verify(path: Path) -> dict[str, str]:
 
 
 def create_backup(
-    files: tuple[Path, ...] | list[Path] = PERSONAL_FILES,
+    files: tuple[Path, ...] | list[Path] | None = None,
     target: Path | None = None,
     name: str | None = None,
     keep: int | None = None,
 ) -> Backup | None:
-    """Zip the existing personal files; None when there is nothing to back up."""
+    """Zip the existing personal files (default: PERSONAL_FILES as it is now); None when there is nothing."""
 
-    present = [Path(f) for f in files if Path(f).exists()]
+    present = [Path(f) for f in (PERSONAL_FILES if files is None else files) if Path(f).exists()]
 
     if not present:
         return None

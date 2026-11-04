@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.76 – 04.11.2026 (CI kırmızısı: iki test sorunu ve Windows'ta çöken uyarı satırı)
+- 0c8408a (yalnız belge değişikliği) ve c30c81f CI'da kırmızıydı. PC güncelleyicisi yalnız tamamen yeşil commit'e geçtiği için bu commit'ler PC'ye kurulmadı.
+- **Linux:** `test_the_updater_backup_is_not_the_days_backup` başarısızdı. `create_backup`'ın `files` varsayılanı fonksiyon tanımlanırken bağlanıyordu, bu yüzden testteki `PERSONAL_FILES` yaması etkisizdi. Fonksiyon gerçek kişisel dosya listesine bakıyordu; CI'da bu dosyalar olmadığı için yedek oluşmuyordu. Yerelde geçmesinin nedeni bulut kapsayıcısında boş bir `data/watchlist.json` dosyasının bulunmasıydı. Artık varsayılan, çağrı anında okunuyor. Davranış aynı; yalnız yamalanabilir hale geldi.
+- **Windows:** `test_control.LiveModelTest` eski bir model veriyordu. `/tara ai` modeli 10 günden eski bulup yeniden eğitiyor ve gerçek `logs/signal_model.joblib`'e yazıyordu. Koruyucu bunu yakaladı, ama uyarı satırı Türkçe karakter yüzünden Windows konsolunda (cp1252) çöktü. Artık her testte model dosyası geçici klasöre yönlendiriliyor (`conftest`) ve uyarı satırı yalnız ASCII basılıyor.
+- Doğrulama: Önce `data/watchlist.json` geçici olarak kaldırıldı. Yedek testi düzeltmeden önce kırmızı, sonra yeşil oldu. Tam paket koruyucuyla çalıştırıldı: önce `logs/signal_model.joblib` uyarısı çıktı, düzeltmeden sonra çıkmadı.
+
 ## v0.99.75 – 04.11.2026 (ölçüm altyapısı: veri ve kod kimliği, dondurulmuş görüntü; K-76)
 - Yeni `core/analytics/provenance.py`. Ölçümün gördüğü veriyi tanımlar: hisse ve mum sayısı, ilk ve son zaman, holdout sınırı, SHA-256 özeti. Çalışan kodu da tanımlar: sürüm, commit, kaydedilmemiş değişiklik olup olmadığı, `core` klasörü. Veriyi dondurur (`snapshot.csv.gz` + `manifest.json`, yalnız 02.11.2026 öncesi) ve geri okurken özeti denetler. İki indirmeyi hisse hisse karşılaştırır.
 - K-63 (`dip_study`), K-64 (`signal_filter`) ve K-68 (`card_study`) rapordan önce veri ve kod satırını, rapordan sonra raporun özetini yazıyor. K-63 ve K-64 saatlik `--veri KLASÖR` ile dondurulmuş görüntüyü okuyabiliyor.

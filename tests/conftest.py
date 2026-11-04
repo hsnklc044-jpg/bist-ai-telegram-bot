@@ -14,6 +14,7 @@ from core.backtest import expectations  # noqa: E402
 from core.fundamentals import store as fundamentals  # noqa: E402
 from core.infrastructure import ping  # noqa: E402
 from core.market import macro, store  # noqa: E402
+from core.ml import signal_filter  # noqa: E402
 from core.reports import daily, forward, health, runs, slo  # noqa: E402
 from core.screen import command as screen  # noqa: E402
 from core.screen import subscriptions, virtual  # noqa: E402
@@ -93,6 +94,8 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
     monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")
+    # /tara ai retrains a stale live model (M31-13); the retrain must not land in the real logs/
+    monkeypatch.setattr(signal_filter, "model_file", lambda: tmp_path / "signal_model.joblib")
     monkeypatch.setattr(macro, "_second_fetch", offline)
     monkeypatch.setattr(macro, "_http_get", offline)
     monkeypatch.setattr(levels_module, "_log_file", lambda: tmp_path / "levels_log.csv")
@@ -122,5 +125,7 @@ _BEFORE = snapshot([DATA_DIR, LOG_DIR])
 def pytest_sessionfinish(session, exitstatus):
     found = changes(_BEFORE, snapshot([DATA_DIR, LOG_DIR]))
     if found:
-        print("\nTests touched the real data/ or logs/ folder:\n  " + "\n  ".join(found))
+        # ASCII only: the Windows runner's console is cp1252 and a Turkish file name used to crash this line
+        message = "\nTests touched the real data/ or logs/ folder:\n  " + "\n  ".join(found)
+        print(message.encode("ascii", "backslashreplace").decode("ascii"))
         session.exitstatus = 1
