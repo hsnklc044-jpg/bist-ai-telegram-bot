@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.54 – 04.11.2026 (eski veriyle kart yazılmıyor; yol planı ROADMAP'te)
+- **M31-ORTA-3:** Fiyat güncellenmediyse `/tara ai` aylar önceki muma bakıp bugünün tarihli kartını yazıyordu (doğrulamada: son mum 14.07, kart 04.11). Artık tetiğin geldiği mum son kesinleşmiş seanstan eskiyse kart yazılmıyor ve düğme konmuyor. Mesaj "veri eski (son mum …, beklenen …)" diyor ve `/durum`'a yönlendiriyor.
+- **M31-ORTA-6 ve M32-4, bilinçli bırakıldı:** Kart, üretildiği günden sonraki ilk açılışta giriyor. Seans içinde üretilen kartın o günün geçmiş açılışından girmesi geleceği görmek olurdu. Tek istisna seans açılmadan önce üretilen kart; o durumda bir seans geç girer, sonuç ihtiyatlı tarafta kalır.
+- **ROADMAP:** Kullanıcının "sen kursan neler katardın" sorusuna verilen yol planı yazıldı: güvenilirlik, uzun vade için karar desteği, dürüst araştırma programı, işletme kalitesi ve eklenmeyecekler.
+- Doğrulama: `test_validation_fixes` (StaleDataTest, 2 yeni test): eski mumda kart ve düğme yok; güncel mumda kart var. Önce kırmızı, sonra yeşil.
+
 ## v0.99.53 – 04.11.2026 (doğrulamanın ORTA ve DÜŞÜK bulgularından üçü düzeltildi)
 - **M32-5:** Fiyatı 0 olan bir mum pozisyonu 0'dan kapatıyordu: r = −%100,15, şalter açılırdı. Eksik ya da sıfır/negatif fiyatlı mum artık bozuk veri sayılıp takipte atlanıyor.
 - **M32-6:** Süre dolumunda kapanış NaN ise işlem sonuçsuz (NULL) kapanıyor, kasaya girmiyordu. Aynı kural bunu da önlüyor; son geçerli kapanış kullanılıyor.

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import html
 from dataclasses import dataclass
+from datetime import date
 
 import pandas as pd
 
@@ -38,6 +39,7 @@ class Candidate:
     proba: float | None
     lots: int = 0  # K-67: the lots whose 2% stop costs 1% of the cash box
     box: float = 0.0
+    candle_day: date | None = None  # the day of the candle the trigger came from
 
 
 def candidates(frames: dict[str, pd.DataFrame], model) -> list[Candidate]:
@@ -60,7 +62,8 @@ def candidates(frames: dict[str, pd.DataFrame], model) -> list[Candidate]:
                 proba = float(model.predict_proba(row.to_numpy())[0, 1])
             last = ind.iloc[-1]
             found.append(Candidate(symbol, float(last["close"]), float(last["rsi"]), float(last["stoch_k"]),
-                                   float(last["bb_yuzde"]), float(last["macd_hist"]), proba))
+                                   float(last["bb_yuzde"]), float(last["macd_hist"]), proba,
+                                   candle_day=pd.Timestamp(df.index[-1]).date()))
         except Exception as exc:  # noqa: BLE001 - one stock's bad data must not stop the scan
             logger.warning("AI scan failed | %s | %s", symbol, exc)
     return found
@@ -135,10 +138,12 @@ def reason(c: Candidate) -> str:
             f"MACD histogramı {_n(c.macd_hist)} (yükseliyor); ML %{_n(c.proba * 100, 0)}")
 
 
-def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None) -> list[tuple[str, int | None]]:
+def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None,
+        expected: date | None = None) -> list[tuple[str, int | None]]:
     """(message, card id) of one /tara ai. An approved candidate is written to the paper book as
     "onay_bekliyor" with its lots; it is entered only when the user presses [✅ İşleme Gir]
-    (K-67). The id is None for every other message (no buttons)."""
+    (K-67). The id is None for every other message (no buttons). A candidate whose candle is older
+    than `expected` (the last final session) gets no card: stale prices (M31-ORTA-3)."""
 
     from core.ml.signal_filter import APPROVE
     from core.signals import store
@@ -152,6 +157,11 @@ def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None)
     try:
         for c in found:
             card = None
+            if expected is not None and c.candle_day is not None and c.candle_day < expected:
+                out.append((f"⚠️ {html.escape(c.symbol.removesuffix('.IS'))}: veri eski (son mum "
+                            f"{c.candle_day:%d.%m.%Y}, beklenen {expected:%d.%m.%Y}); kart yazılmadı. "
+                            "Fiyat güncellemesini /durum'dan kontrol edin.", None))
+                continue
             if c.proba is not None and c.proba >= APPROVE:
                 try:
                     if conn is None:
@@ -183,8 +193,11 @@ def live(day) -> list[str]:
         frames, members = S._daily()
         S.fit_live(frames, members, day)
         saved = S.load_live()
+    from core.market.calendar import last_final_session_date
+
     frames = {s: adjusted_bars(s) for s in BIST30_TICKERS}
-    return run(day, frames, saved["model"] if saved else None, S.validated("gunluk"))
+    return run(day, frames, saved["model"] if saved else None, S.validated("gunluk"),
+               expected=last_final_session_date())
 
 
 __all__ = ["Candidate", "candidates", "live", "message", "run"]

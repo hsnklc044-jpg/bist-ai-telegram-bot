@@ -120,3 +120,28 @@ class MediumFindingsTest(unittest.TestCase):
 
         empty = C.Result(0, 0, None, None, None, (float("nan"), float("nan")), None, None, None, False, "olay yok")
         self.assertIn("olay yok", C.card_line(empty, "x"))
+
+
+class StaleDataTest(Book):
+    """M31-ORTA-3: with stale prices a card was still dated today (last candle 14.07 → card 04.11)."""
+
+    def test_no_card_from_an_old_candle(self):
+        from core.screen import ai
+
+        c = ai.Candidate("THYAO.IS", 250.0, 31.2, 14.0, 0.05, -0.4, 0.7, candle_day=date(2026, 7, 14))
+        with mock.patch.object(ai, "candidates", return_value=[c]):
+            out = ai.run(date(2026, 11, 4), {}, object(), validated=False, book=self.book,
+                         expected=date(2026, 11, 3))
+        self.assertEqual([card for _, card in out], [None, None])  # no buttons, nothing written
+        self.assertIn("veri eski", out[1][0])
+        self.assertIn("14.07.2026", out[1][0])
+        self.assertEqual(S.signals(self.conn), [])
+
+    def test_a_current_candle_still_makes_a_card(self):
+        from core.screen import ai
+
+        c = ai.Candidate("THYAO.IS", 250.0, 31.2, 14.0, 0.05, -0.4, 0.7, candle_day=date(2026, 11, 3))
+        with mock.patch.object(ai, "candidates", return_value=[c]):
+            out = ai.run(date(2026, 11, 4), {}, object(), validated=False, book=self.book,
+                         expected=date(2026, 11, 3))
+        self.assertIsNotNone(out[1][1])

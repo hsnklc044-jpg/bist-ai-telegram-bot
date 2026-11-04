@@ -218,6 +218,31 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - izleme eşikleri `/durum`'da;
   - doğrulama takvimi MAINTENANCE.md'de.
 
+## Yol planı: güvenilirlikten karar desteğine (04.11.2026, kod v0.99.54)
+
+Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe dayanıyor: ölçülen kısa vadeli sinyal kurallarının hiçbiri rastgele girişi yenemedi (K-59, K-62, K-63, K-64, K-68). Değer, yeni sinyallerden değil, uzun vadeli kararı destekleyen ve kendi doğruluğunu ölçen araçlardan gelir. Sıra K-70'e uyar: önce güvenilirlik.
+
+1. **Güvenilirliği bitirmek (sürüyor).**
+   - Kalan bağımsız doğrulamalar: M30, M1, M5, M8, M27 (14/14 hedef).
+   - Doğrulama raporlarının kalan ORTA bulguları.
+   - %9,5 tavan sınırının bütün modüllerde birlikte düzeltilmesi.
+   - `/durum`'un sadeleştirilmesi.
+2. **Uzun vade için karar desteği.**
+   - Haftalık portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, maliyet sonrası reel ve dolar bazlı getiri, BIST 100 farkı.
+   - Temettü ve şirket olayları takvimi (otomatik erişim yok).
+   - Temel analiz kartı: posta kutusu verisiyle, yalnız yayından sonra bilinen değerlerle.
+   - Yeniden dengeleme yardımcısı: hedef ağırlıktan sapma ve en az işlem; emir yok.
+   - Senaryo ve stres testi: endeks düşüşü ve kur şoku.
+3. **Dürüst araştırma programı.**
+   - Uzun vadeli faktörler (değer, momentum, düşük oynaklık, kalite), 3–12 ay ufukla, önceden yazılmış kurallar, maliyet ve holdout kuralıyla.
+   - Geçen kural önce sanal defterde ileri test edilir.
+   - `/tara ai` kartlarının canlı ileri testi: 50 işlemde bağımsız ölçüm.
+4. **İşletme kalitesi.**
+   - Haftalık otomatik özet.
+   - Aylık felaket kurtarma tatbikatı raporu.
+
+**Eklenmeyecekler:** gerçek parayla emir, aracı kurum bağlantısı, al-sat önerisi, robots.txt'yi aşan veri toplama, ölçülmemiş bir şeyi "işe yarıyor" diye sunmak.
+
 ## Kaldığım yer (03.11.2026, kod v0.99.37)
 
 - **04.11.2026 güvenilirlik talimatı:** İlk adım olan teknik denetim `docs/AUDIT.md` "EVRE 1"de. İş sırası oradaki listeye göre yürüyor; her sürüm o listeyi günceller. Tamamlanma ölçütleri karşılanmadan sistem "tam güvenilir" olarak işaretlenmez.
