@@ -54,7 +54,7 @@ EXCLUDE_FILES = [".env", "watchlist.json"]
 EXCLUDE_DIRS = [".venv", "logs", "backups", ".git"]
 # left out of the code snapshot (personal or bulky, and never overwritten anyway)
 SNAPSHOT_EXCLUDE_DIRS = [".venv", "logs", "data", ".git", "__pycache__", ".pytest_cache", ".ruff_cache"]
-QUIET = ("GÜNCEL", "MEŞGUL", "BEKLİYOR")  # outcomes that are not worth a message
+QUIET = ("GÜNCEL", "MEŞGUL", "BEKLİYOR", "BAĞLANTI YOK")  # no network: Telegram cannot be reached either  # outcomes that are not worth a message
 
 ENV = {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
 LOG: list[str] = []
@@ -131,6 +131,28 @@ def run(cmd: list, cwd: Path, timeout: int = 900) -> subprocess.CompletedProcess
     for t in tail:
         LOG.append("    " + t)
     return proc
+
+
+NETWORK_WAITS = (30, 60, 120)  # seconds; 04.11.2026: the task started before the network (getaddrinfo)
+
+
+class NoNetwork(RuntimeError):
+    pass
+
+
+def with_network(fn, sleep=None):
+    """Run `fn` (a GitHub request); on a network error wait and try again, then give up clearly."""
+
+    sleep = sleep or time.sleep
+    for i, pause in enumerate((*NETWORK_WAITS, None)):
+        try:
+            return fn()
+        except OSError as exc:  # URLError is an OSError: DNS, refused, timeout
+            if pause is None:
+                raise NoNetwork(str(exc)) from exc
+            log(f"ağ yok ({exc}); {pause} sn sonra yeniden denenecek ({i + 1}/{len(NETWORK_WAITS)})")
+            sleep(pause)
+    raise AssertionError("unreachable")  # pragma: no cover
 
 
 def report_window(now: datetime) -> bool:
@@ -257,7 +279,11 @@ def _main(argv: list[str]) -> int:
             code = 0
             return code
         installed = version_of((PROJECT / "core" / "__init__.py").read_text(encoding="utf-8"))
-        sha = latest_green()
+        try:
+            sha = with_network(latest_green)
+        except NoNetwork as exc:
+            summary = f"BAĞLANTI YOK: GitHub'a 3,5 dakika boyunca ulaşılamadı ({exc}); v{installed} çalışıyor."
+            return code
         if sha is None:
             summary = f"DURDU: GitHub'da CI'ı yeşil bir sürüm bulunamadı; v{installed} çalışmaya devam ediyor."
             return code

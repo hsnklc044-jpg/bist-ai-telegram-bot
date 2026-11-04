@@ -159,6 +159,38 @@ class QuietHoursTest(unittest.TestCase):
         self.assertFalse(g.should_notify("BEKLİYOR: rapor saati"))
 
 
+class NetworkWaitTest(unittest.TestCase):
+    """04.11.2026: the hourly task failed at 09:40, 10:40 and 11:40 with getaddrinfo while the network
+    worked by hand: the first request is retried after 30 s, 1 and 2 minutes."""
+
+    def test_a_late_network_is_waited_for(self):
+        import urllib.error
+
+        answers = iter([urllib.error.URLError("getaddrinfo failed"), OSError("x"), "sha"])
+        waits = []
+
+        def latest():
+            a = next(answers)
+            if isinstance(a, Exception):
+                raise a
+            return a
+
+        self.assertEqual(g.with_network(latest, sleep=waits.append), "sha")
+        self.assertEqual(waits, [30, 60])
+
+    def test_no_network_says_so(self):
+        import urllib.error
+
+        def latest():
+            raise urllib.error.URLError("getaddrinfo failed")
+
+        waits = []
+        with self.assertRaises(g.NoNetwork):
+            g.with_network(latest, sleep=waits.append)
+        self.assertEqual(waits, [30, 60, 120])
+        self.assertFalse(g.should_notify("BAĞLANTI YOK: GitHub'a ulaşılamadı"))  # Telegram would fail too
+
+
 class TaskScriptTest(unittest.TestCase):
     def test_registration_runs_hourly_from_this_folder(self):
         text = (PATH.parent / "register_update_task.ps1").read_text(encoding="utf-8")

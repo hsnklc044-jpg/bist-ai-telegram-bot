@@ -40,6 +40,7 @@ Kullanıcının 04.11.2026 güvenilirlik talimatının ilk adımı. Yalnız gör
    - **Kod hatası:** Gecikmeli çalışmada 30.10 kapanışı depoda yoktu. Fiyat indirmesi o gün 30.10'u getirmedi; nedeni `daily_2026-10-31.log`'da. Rapor "bugün seans yok" kontrolünü eksik veri kontrolünden önce yaptığı için durumu "hafta sonu" diye kaydetti. Bu, dışarıdan izlemenin alarmını da susturdu.
    - ✅ v0.99.45: Önce eksik kapanış kontrol ediliyor ("stale"); hafta sonu ya da tatil ancak beklenen kapanış varsa yazılıyor.
    - 30.10 kaydı geri doldurulmayacak.
+   - Son parça (04.11, `daily_2026-10-31.log` ve güncelleyici logları): Cumartesi 01:36 çalışması fiyat indiremeden 28.10 verisiyle rapor üretti. Aynı PC'de zamanlanmış görevler uykudan sonra ağ hazır olmadan başlayıp `getaddrinfo failed` alıyor (28.10 18:30 raporu; 04.11 güncelleyici). Rapor 1+2+4 dakika bekliyor; güncelleyici v0.99.55'ten beri 30 sn + 1 + 2 dakika bekliyor.
    - **02.11:** PC 18:30'da kapalıydı (çalışma yok). Telafi 03.11 12:40'ta raporu gönderdi. Yedek o gün alındığı için `quantbist_2026-11-03` adını taşıyor; Yedek SLO'su 02.11'i yedeksiz sayıyor, çünkü o gün gerçekten yedek alınmadı. Doğru sayım; düzeltilmeyecek.
    - **Tekrarı önleyen kontroller:** v0.99.33'ten beri bot 21:00'de günün yedeğini alıyor; v0.99.43'ten beri bunu Telegram'a bildiriyor. v0.99.45'ten beri eksik kapanış "hafta sonu" diye gizlenmiyor.
 6. **02.11 yedeği:** O gün rapor çalışmadığı için yedek alınmadı. 21:00 telafisi (v0.99.33) artık bunu önlüyor.

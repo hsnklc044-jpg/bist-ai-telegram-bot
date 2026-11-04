@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.55 – 04.11.2026 (güncelleyici ağı bekliyor)
+- **Kanıt (kullanıcının PC'si, 04.11):** Saatlik "QuantBIST Guncelle" görevi 09:40, 10:40 ve 11:40'ta `URLError: getaddrinfo failed` ile durdu. Aynı dakikalarda DNS çalışıyordu, Python elle GitHub'a bağlanıyordu (200) ve bot yaşıyordu. Hata yalnız görevin başladığı anda oluşuyor. Bu yüzden PC v0.99.44'te kaldı.
+- Aynı hata 28.10 18:30 raporunu da düşürmüştü. 31.10 01:36 telafisinin 30.10 fiyatlarını indirememesinin de en olası nedeni bu (`daily_2026-10-31.log` 28.10 verisiyle rapor üretti). Bu bulgu AUDIT 5'e eklendi.
+- **Düzeltme:** Güncelleyici ilk GitHub isteğinde ağ hatası alırsa 30 saniye, 1 dakika ve 2 dakika bekleyip yeniden deniyor. Ağ yine gelmezse "BAĞLANTI YOK" yazıp duruyor; o durumda Telegram'a da ulaşılamayacağı için mesaj denemiyor. Bir saat sonra yeniden çalışıyor.
+- Doğrulama: `test_guncelle` (2 yeni test): geç gelen ağ bekleniyor; ağ hiç yoksa bekleme süreleri ve sessiz sonuç doğru.
+
 ## v0.99.54 – 04.11.2026 (eski veriyle kart yazılmıyor; yol planı ROADMAP'te)
 - **M31-ORTA-3:** Fiyat güncellenmediyse `/tara ai` aylar önceki muma bakıp bugünün tarihli kartını yazıyordu (doğrulamada: son mum 14.07, kart 04.11). Artık tetiğin geldiği mum son kesinleşmiş seanstan eskiyse kart yazılmıyor ve düğme konmuyor. Mesaj "veri eski (son mum …, beklenen …)" diyor ve `/durum`'a yönlendiriyor.
 - **M31-ORTA-6 ve M32-4, bilinçli bırakıldı:** Kart, üretildiği günden sonraki ilk açılışta giriyor. Seans içinde üretilen kartın o günün geçmiş açılışından girmesi geleceği görmek olurdu. Tek istisna seans açılmadan önce üretilen kart; o durumda bir seans geç girer, sonuç ihtiyatlı tarafta kalır.
