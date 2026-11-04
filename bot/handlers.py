@@ -99,7 +99,7 @@ COMMANDS = (
 # Telegram's "Menu" list (set when the bot starts); /help is the same as /start
 MENU = (
     ("start", "komutlar ve düğmeler"),
-    ("durum", "sistem sağlığı, sanal kasa ve açık sinyaller"),
+    ("durum", "sistem özeti; ayrıntı için /durum tum"),
     ("panik", "acil durdurma: açık sanal sinyalleri iptal et, sistemi kilitle"),
     ("devam", "panik kilidini kaldır"),
     ("summary", "portföy ve piyasa özeti"),

@@ -76,7 +76,7 @@ Kullanıcı 04.11'de bu sırayı resmi talimat yaptı (DECISIONS K-70). Aşağı
 4. ✅ v0.99.42 (altyapı): Elle indirilen fiyat dosyası Yahoo'yla karşılaştırılıyor; özet "Veri doğruluğu" SLO'suna giriyor. Kabul ölçütü (20 seansta ≥ %99) için kullanıcının dosyası gerekiyor. Otomatik erişim açılmadı.
 5. ✅ v0.99.47: Model kapısı (K-72) kuruldu: doğrulanmamış model kendiliğinden işlem yapamıyor. Sırada eksik bağımsız doğrulamalar var (M31, M32, M30, M1, M5, M8, M27), örneklem dışı ve sızıntı kontrolüyle; başarısız olan kısıtlı kalır.
 6. Açık: %9,5 tavan sınırı kayan noktayla karşılaştırılıyor (M32-7; ~10 modül ve araştırma etiketleri). Hepsi birlikte değiştirilmeli ve etkilenen ölçümler yeniden çalıştırılmalı; tek modülde değiştirilmez.
-7. `/durum` metninin sadeleştirilmesi; ölçülemeyen satırlar "ölçülemiyor" kalır.
+7. ✅ v0.99.64: `/durum` metninin sadeleştirilmesi; ölçülemeyen satırlar "ölçülemiyor" kalır.
 7. ✅ v0.99.50: Temel veri posta kutusu (K-70 madde 6 altyapısı). Kabul ölçütü (10 hissede elle doğrulanmış hesaplar) kullanıcının dosyalarıyla ölçülecek.
 
 ---

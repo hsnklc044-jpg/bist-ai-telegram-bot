@@ -726,30 +726,49 @@ def signal_book_lines(now: datetime, bars, path=None) -> list[str]:
         return ["", f"{UNKNOWN} sanal sinyal defteri okunamadı: {type(exc).__name__}"]
 
 
-def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
+def _slo_summary(results) -> str:
+    """One line: how many SLOs are on target, how many cannot be measured, which are off target."""
+
+    met = sum(r.state == OK for r in results)
+    unknown = sum(r.state == UNKNOWN for r in results)
+    off = [f"{r.name} " + ("—" if r.value is None else f"%{r.value * 100:.1f}".replace(".", ","))
+           for r in results if r.state not in (OK, UNKNOWN)]
+    line = f"📐 SLO: {met}/{len(results)} hedefte, {unknown} ölçülemiyor"
+    return line + (f"; hedef dışı: {', '.join(off)}" if off else "")
+
+
+def health_report(now: datetime | None = None, bars=adjusted_bars, full: bool = True) -> str:
+    """/durum tum (full=True): every check and SLO. /durum (full=False, K-70 madde 7): the healthy
+    checks counted on one line, every other check on its own line, the SLOs in one line."""
+
     now = now or now_istanbul()
     checks = health_checks(now, bars)
     try:
-        from core.reports import slo
+        from core.reports import progress, slo
 
         results = slo.measure(now)
-        objectives = ["", *slo.lines(results)]
-        from core.reports import progress
-
+        objectives = ["", *(slo.lines(results) if full else [_slo_summary(results)])]
         objectives += progress.lines(progress.measure(now, results))
     except Exception as exc:  # noqa: BLE001 - /durum must still answer
         logger.exception("SLO measurement failed")
         objectives = ["", f"{UNKNOWN} SLO ölçülemedi: {type(exc).__name__}"]
 
+    if full:
+        body = [c.line() for c in checks]
+        footer = "Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir."
+    else:
+        healthy = sum(c.state == OK for c in checks)
+        body = [f"{OK} {healthy} bileşen sağlıklı", *(c.line() for c in checks if c.state != OK)]
+        footer = "Ayrıntılı liste: /durum tum"
     return "\n".join([
         f"🩺 QuantBIST v{__version__} durum – {now:%d.%m.%Y %H:%M}",
         verdict(checks),
         "",
-        *(c.line() for c in checks),
+        *body,
         *objectives,
         *signal_book_lines(now, bars),
         "",
-        "Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.",
+        footer,
     ])
 
 

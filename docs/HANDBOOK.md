@@ -59,7 +59,8 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 
 ## 5. Sağlık nasıl okunur
 
-- `/durum`: bileşenlerin şu anki durumu + "📐 SLO (son 7 gün)" (CHARTER §2 hedefleri) + "🎯 Güvenilirlik (K-70)": gözlenen seans x/20, hedefteki SLO'lar, doğrulanan modeller x/14 ve "tam güvenilir" için eksik kalanlar (v0.99.48). "Bilinmiyor" = ölçülemedi, asla "sağlıklı" sayılmaz.
+- `/durum` (v0.99.64'ten beri kısa özet): sağlıklı bileşenler tek satırda sayılır; uyarı, kritik, bilinmeyen ve bilgi satırları tek tek yazılır; SLO'lar hedef dışı olanlarıyla tek satırda gelir. Hiçbir sorun gizlenmez. Tam liste için `/durum tum`.
+- `/durum tum`: bileşenlerin şu anki durumu + "📐 SLO (son 7 gün)" (CHARTER §2 hedefleri) + "🎯 Güvenilirlik (K-70)": gözlenen seans x/20, hedefteki SLO'lar, doğrulanan modeller x/14 ve "tam güvenilir" için eksik kalanlar (v0.99.48). "Bilinmiyor" = ölçülemedi, asla "sağlıklı" sayılmaz.
 - **"Gecikti" ne zaman denir:** bir seans gününün raporu, fiyatı ve canlı ölçüm kaydı o gün 19:45'ten itibaren beklenir (rapor 18:30, tolerans 1:15). Yarım günler de aynıdır; tatil ve hafta sonu hiçbir şey beklemez (K-46). 19:45'ten önce gün içindeki "bugün yok" uyarıları hata değildir ve gösterilmez.
 - **Veri doğruluğu (ikinci kaynak):** İş Yatırım kapalı. Elle indirdiğiniz bir fiyat dosyasıyla ölçülür: `python -m core.market.second_source --dosya DOSYA.csv --kaynak "aracı kurum"`. Dosyada `date, code, close` sütunları olmalı; virgül ya da noktalı virgül ayraç kabul edilir. Sonuç `/durum` SLO'sunda kaynağıyla görünür (v0.99.42).
 - **🚨 KRİTİK mesajı:** Saatlik takip ya da 21:00 yedek kontrolü ağ, zaman aşımı ya da kilitli veritabanı yüzünden 5 denemede de çalışmazsa gelir; içinde JSON ayrıntı vardır. Aynı sorun 6 saatte bir kez bildirilir. Bot çalışmaya devam eder (v0.99.49).
@@ -339,7 +340,7 @@ Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`
 
 ```
 start - komutlar ve düğmeler
-durum - sistem sağlığı, sanal kasa ve açık sinyaller
+durum - sistem özeti; ayrıntı için /durum tum
 panik - acil durdurma: açık sanal sinyalleri iptal et, sistemi kilitle
 devam - panik kilidini kaldır
 summary - portföy ve piyasa özeti

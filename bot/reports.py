@@ -439,6 +439,7 @@ async def status(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ) -> None:
-    """Handle /durum (system health from the records on disk)."""
+    """Handle /durum (the short summary) and /durum tum (every check and SLO)."""
 
-    await reply(update, await asyncio.to_thread(health_report))
+    full = [w.lower() for w in (context.args or [])][:1] in (["tum"], ["tüm"])
+    await reply(update, await asyncio.to_thread(health_report, full=full))

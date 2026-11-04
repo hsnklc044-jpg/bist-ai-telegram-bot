@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.64 – 04.11.2026 (/durum kısa özet; tam liste /durum tum; K-70 madde 7)
+- `/durum` 30'dan fazla satırdı ve sorunlar sağlıklı satırların arasında kayboluyordu. Artık kısa özet veriyor:
+  - sağlıklı bileşenler tek satırda sayılıyor ("✅ 14 bileşen sağlıklı");
+  - uyarı, kritik, bilinmeyen ve bilgi satırları tek tek yazılıyor;
+  - SLO'lar tek satırda geliyor: kaçı hedefte, kaçı ölçülemiyor, hangileri hedef dışı (değeriyle);
+  - güvenilirlik satırı ve sanal kasa olduğu gibi duruyor.
+- Eski tam rapor `/durum tum` ile alınıyor. Cuma raporu ve `verify` tam raporu kullanmaya devam ediyor.
+- Hiçbir sorun gizlenmiyor: sağlıklı olmayan her satır kısa özette de var.
+- Doğrulama: `test_durum_compact` (3 test): kısa özet her sorunu tutuyor, sağlıklıları sayıyor, daha kısa; tam liste eskisi gibi; komut argümanı. Önce kırmızı, sonra yeşil.
+
 ## v0.99.63 – 04.11.2026 (karnede sonsuz ortalama ve eski haftalık pivot; M5 ve M8 ORTA)
 - **M5:** Tek bir sıfır açılış `/tara` karnesinin ortalamasını +%∞ yapıyor, etiketi "geçmişte olumlu" çıkarıyordu. `~isnan` sonsuzu elemiyordu. Artık yalnız sonlu sonuçlar sayılıyor; hem tarama sonucu hem "tüm hisseler" tabanı için.
 - **M8:** Haftalık pivot Cuma kapanışından Pazartesi kapanışına kadar bir hafta eskiydi (doğrulamada P 104,44 yerine 105,75). Artık son mum haftanın son seansıysa (Cuma ya da tatilden önceki gün) biten hafta kullanılıyor.
