@@ -187,3 +187,33 @@ class HonestLabelsTest(unittest.TestCase):
         lv = L.Level(price=100.0, kind="destek", method="küme", name="", dist_atr=-0.5, dist_pct=-1.0,
                      strength=72, touches=3, breaks=0, last_touch=None)
         self.assertIn("güç 72 (ölçülmemiş puan", L._line(lv))
+
+
+class MediumFindings2Test(unittest.TestCase):
+    """M5 ORTA (zero open → infinite mean) and M8 ORTA (stale weekly pivot), v0.99.63."""
+
+    def test_a_zero_open_does_not_make_the_card_infinite(self):
+        import math
+
+        from core.screen import card
+        from core.screen.language import parse
+        from tests.test_screen_card import flat
+
+        stock, bench = flat(), flat()
+        stock.loc[stock.index[100], "close"] = 101.0  # the condition holds on that day
+        stock.loc[stock.index[101], "open"] = 0.0  # bad data at the entry
+        stats = card.history(parse("kapanis 100,5..105"), {"A.IS": stock}, bench, horizons=(5,))[5]
+        self.assertTrue(stats.n == 0 or math.isfinite(stats.mean))
+
+    def test_weekly_pivot_uses_the_week_that_just_ended(self):
+        from core.analytics import levels as L
+
+        idx = pd.bdate_range("2025-08-04", "2025-08-15")  # two full weeks, the last candle on a Friday
+        base = pd.DataFrame({"open": 100.0, "high": 101.0, "low": 99.0, "close": 100.0, "volume": 1e6}, index=idx)
+        base.loc["2025-08-11":, ["high", "low", "close"]] = [111.0, 109.0, 110.0]  # the week that just ended
+        frame = pd.concat([pd.DataFrame({"open": 100.0, "high": 101.0, "low": 99.0, "close": 100.0, "volume": 1e6},
+                                        index=pd.bdate_range("2024-08-01", "2025-08-01")), base])
+        found = {lv.name: lv.price for lv in L.levels(frame) if lv.method == "pivot_hafta"}
+        # P = (111 + 109 + 110) / 3 = 110 (the last close: neither support nor resistance, not listed);
+        # R1 = 2P − low = 111 from the week that just ended; the week before would give 101
+        self.assertAlmostEqual(found["R1"], 111.0)

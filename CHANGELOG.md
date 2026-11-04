@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.63 – 04.11.2026 (karnede sonsuz ortalama ve eski haftalık pivot; M5 ve M8 ORTA)
+- **M5:** Tek bir sıfır açılış `/tara` karnesinin ortalamasını +%∞ yapıyor, etiketi "geçmişte olumlu" çıkarıyordu. `~isnan` sonsuzu elemiyordu. Artık yalnız sonlu sonuçlar sayılıyor; hem tarama sonucu hem "tüm hisseler" tabanı için.
+- **M8:** Haftalık pivot Cuma kapanışından Pazartesi kapanışına kadar bir hafta eskiydi (doğrulamada P 104,44 yerine 105,75). Artık son mum haftanın son seansıysa (Cuma ya da tatilden önceki gün) biten hafta kullanılıyor.
+- Doğrulama: `test_validation_fixes` (MediumFindings2Test, 2 test). İkisi de düzeltme olmadan kırmızı, düzeltmeyle yeşil. Seviye, karne ve senaryo testleri geçti.
+
 ## v0.99.62 – 04.11.2026 (ölçülmemiş güç artık güç gibi gösterilmiyor; M1 ve M8 YÜKSEK, K-73)
 - **M1:** `/top` başlığı "Teknik görünümü en güçlü hisseler" yerine "Teknik skoru en yüksek hisseler (sıralama, öneri değil)" oldu. "Tahmin gücü bulunmadı" uyarısı listenin başına alındı. Komut açıklaması ve BotFather listesi de güncellendi.
   - "Güçlü pozitif" etiketleri korundu; canlı ölçümde anahtar olarak kullanılıyorlar.

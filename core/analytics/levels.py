@@ -143,7 +143,17 @@ def levels(df: pd.DataFrame, asof=None) -> list[Level]:
     for name, value in classic(float(day["high"]), float(day["low"]), float(day["close"])).items():
         found.append((value, "pivot_gün", None, 0, None, 0, name))
     week = df.index.to_period("W")
-    previous = df[week < week[-1]]
+    # M8 ORTA: after the week's last session (Friday, or the day before a holiday) the week that
+    # just ended is the latest complete week; it used to take the one before it until Monday's close
+    from core.market.calendar import is_session_day
+
+    ahead = df.index[-1].date()
+    for _ in range(10):
+        ahead += pd.Timedelta(days=1).to_pytimedelta()
+        if is_session_day(ahead):
+            break
+    complete = pd.Timestamp(ahead).to_period("W") != week[-1]
+    previous = df[week <= week[-1]] if complete else df[week < week[-1]]
     if len(previous):
         last_week = previous[previous.index.to_period("W") == previous.index.to_period("W")[-1]]
         for name, value in classic(float(last_week["high"].max()), float(last_week["low"].min()),

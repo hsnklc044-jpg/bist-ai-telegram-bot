@@ -154,9 +154,10 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         for h in horizons:
             gross = ((df["close"].shift(-h) / entry - 1) - (b["close"].shift(-h) / bench_entry - 1)).to_numpy()
             excess = gross - ROUND_TRIP_COST
-            every = np.flatnonzero(universe & ~np.isnan(excess))  # "tüm hisseler": the same days without the query
+            # a zero or missing open makes ±inf, not NaN (M5 ORTA): only finite results count
+            every = np.flatnonzero(universe & np.isfinite(excess))  # "tüm hisseler": the same days without the query
             base[h].append(pd.DataFrame({"date": df.index[every].to_numpy(), "excess": excess[every]}))
-            positions = np.flatnonzero(mask & ~np.isnan(excess))
+            positions = np.flatnonzero(mask & np.isfinite(excess))
             if len(positions):
                 rows[h].append(pd.DataFrame({"symbol": symbol, "date": df.index[positions].to_numpy(),
                                              "excess": excess[positions], "gross": gross[positions]}))
