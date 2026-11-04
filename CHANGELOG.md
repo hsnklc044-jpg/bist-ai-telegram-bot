@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.61 – 04.11.2026 (M1, M5, M8 bağımsız doğrulandı: 14/14 model raporlu)
+- Ayrı inceleyici son üç yüksek riskli modeli doğruladı. Raporlar olduğu gibi eklendi: `docs/validation/M1.md`, `M5.md`, `M8.md`. Üçü de **kısıtlı kullanılabilir**.
+- **M1 (teknik skor):** Hesaplar ve ileriye bakma denetimi tuttu.
+  - YÜKSEK: Kodun kendisi skorun tahmin gücü olmadığını söylüyor, ama skor yine "Güçlü" etiketi veriyor ve /top'u sıralıyor. Rastgele yürüyüşte günlerin %60'ı "Güçlü" çıkıyor.
+  - ORTA: 60 gün işlem görmeyen hisse 90 puan alıyor. Eksik şirket işlemi kaydı görünümü tersine çeviriyor. Kural simetrik değil.
+- **M5 (/tara karnesi):** Giriş, maliyet, holdout kesimi ve aralıklar elle tuttu. YÜKSEK bulgu yok.
+  - ORTA: Etiket "tüm hisseler" yerine XU100 ile kıyaslıyor. Evren bugünkü tam veriyle seçiliyor. Tavan kilitli girişte dolum varsayılıyor. Sıfır açılış ortalamayı sonsuz yapıyor.
+- **M8 (destek/direnç):** Zamanlama, ileriye bakma ve formüller tuttu.
+  - YÜKSEK: Kodun kendi çalışması küme seviyelerini rastgele seviyelerden ayırt edemiyor. "Güç" puanı ve diğer yedi yöntem hiç ölçülmemiş, ama her yerde gösteriliyor.
+  - ORTA: Haftalık pivot Cuma akşamı ve Pazartesi seansında bir hafta eski. Kümeleme zincirleme genişliyor.
+- **Model doğrulama 14/14 raporlu.** Hiçbir model "kullanılabilir" değil: M30 ve M31 kullanılamaz, diğer 12'si kısıtlı. Model kapısı otomatik eylemleri kapalı tutuyor.
+- YÜKSEK bulguların düzeltmesi sonraki sürümlerde.
+
 ## v0.99.60 – 04.11.2026 (güncelleyici botu yeni klasörde görüyor)
 - **Olay (04.11, kullanıcının PC'si):** Güncelleyici v0.99.59'u kurdu, botu başlattı ama "açılmadı" sanıp geri aldı. Sonra "BOT KAPALI — müdahale gerekiyor" bildirdi.
 - **Neden:** Bot, süreç listesinde sabit `QuantBIST\.venv` yolu aranarak bulunuyordu; bu eski klasörün yolu. `QuantBIST-yeni`'den çalışan bot hiç bulunamıyordu, bot çalışsa bile ölü görünüyordu. v0.99.44'te klasör betiğin kendi yerine çevrilirken bu satır gözden kaçmıştı. PC'deki otomasyon notu bu riski önceden yazmıştı.
