@@ -193,11 +193,21 @@ def robocopy(src: Path, dst: Path, xf: list[str], xd: list[str]) -> None:
         raise RuntimeError(f"robocopy {src} -> {dst} başarısız ({proc.returncode})")
 
 
+def bot_pattern(project: Path) -> str:
+    """The bot's command line: THIS folder's .venv running main.py (04.11.2026: a fixed
+    'QuantBIST\\.venv' never matched QuantBIST-yeni, so a running bot looked dead)."""
+
+    import re
+
+    return re.escape(str(project).rstrip("\\/") + "\\.venv") + r"\\.*main\.py"
+
+
 def bot_processes() -> list[int]:
     """PIDs of the running bot: the venv launcher of main.py (its child, the
     base interpreter, is stopped with it by taskkill /T)."""
+    pattern = bot_pattern(PROJECT).replace("'", "''")
     ps = ("Get-CimInstance Win32_Process -Filter \"Name like 'python%'\" | "
-          "Where-Object { $_.CommandLine -match 'QuantBIST\\\\\\.venv' -and $_.CommandLine -match 'main\\.py' } | "
+          f"Where-Object {{ $_.CommandLine -match '{pattern}' }} | "
           "ForEach-Object { $_.ProcessId }")
     out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True,
                          encoding="utf-8", errors="replace").stdout

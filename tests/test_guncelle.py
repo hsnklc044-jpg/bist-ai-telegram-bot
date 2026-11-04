@@ -191,6 +191,20 @@ class NetworkWaitTest(unittest.TestCase):
         self.assertFalse(g.should_notify("BAĞLANTI YOK: GitHub'a ulaşılamadı"))  # Telegram would fail too
 
 
+class BotDetectionTest(unittest.TestCase):
+    """04.11.2026: the bot was looked for under 'QuantBIST\\.venv' (the old folder); from QuantBIST-yeni it
+    was never found, so v0.99.59 was rolled back and 'BOT KAPALI' reported while it ran."""
+
+    def test_the_bot_of_this_folder_is_found(self):
+        import re
+
+        pattern = g.bot_pattern(Path(r"C:\Projeler\QuantBIST-yeni"))
+        new = r'"C:\Projeler\QuantBIST-yeni\.venv\Scripts\pythonw.exe" main.py'
+        old = r'"C:\Projeler\QuantBIST\.venv\Scripts\pythonw.exe" main.py'
+        self.assertTrue(re.search(pattern, new, flags=re.I))
+        self.assertFalse(re.search(pattern, old, flags=re.I))  # another folder's bot is not this one
+
+
 class TaskScriptTest(unittest.TestCase):
     def test_registration_runs_hourly_from_this_folder(self):
         text = (PATH.parent / "register_update_task.ps1").read_text(encoding="utf-8")

@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.60 – 04.11.2026 (güncelleyici botu yeni klasörde görüyor)
+- **Olay (04.11, kullanıcının PC'si):** Güncelleyici v0.99.59'u kurdu, botu başlattı ama "açılmadı" sanıp geri aldı. Sonra "BOT KAPALI — müdahale gerekiyor" bildirdi.
+- **Neden:** Bot, süreç listesinde sabit `QuantBIST\.venv` yolu aranarak bulunuyordu; bu eski klasörün yolu. `QuantBIST-yeni`'den çalışan bot hiç bulunamıyordu, bot çalışsa bile ölü görünüyordu. v0.99.44'te klasör betiğin kendi yerine çevrilirken bu satır gözden kaçmıştı. PC'deki otomasyon notu bu riski önceden yazmıştı.
+- **Düzeltme:** Bot, güncelleyicinin kendi klasöründeki `.venv` ile `main.py` çalıştıran süreç olarak aranıyor. Başka bir klasördeki bot bu klasörün botu sayılmıyor.
+- **PC'de bir kez elle güncelleme gerekiyor:** Geri alma, PC'yi hatalı güncelleyiciyi içeren v0.99.44'e döndürdü. Bu yüzden düzeltme kendiliğinden kurulamaz. Kullanıcı bir kez `git pull` yapıp botu yeniden başlatmalı; sonrası saatlik görevle gider.
+- Doğrulama: `test_guncelle` (BotDetectionTest): yeni klasörün botu bulunuyor, eski klasörün botu bulunmuyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.59 – 04.11.2026 (CI testleri Windows'ta da çalıştırıyor)
 - v0.99.48–57 CI'da geçip kullanıcının Windows PC'sinde düştü; güncelleyici hiçbirini kuramadı. Bilgisayar Windows olduğu için CI'a `windows-latest` üzerinde tam test işi eklendi.
 - Güncelleyici yalnız bütün CI işleri yeşil olan commit'i kuruyor. Böylece Windows'ta düşecek bir sürüm PC'ye hiç gönderilmiyor; sorun CI'da görünüyor.
