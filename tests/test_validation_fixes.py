@@ -145,3 +145,25 @@ class StaleDataTest(Book):
             out = ai.run(date(2026, 11, 4), {}, object(), validated=False, book=self.book,
                          expected=date(2026, 11, 3))
         self.assertIsNotNone(out[1][1])
+
+
+class ScenarioInputTest(unittest.TestCase):
+    """M27 ORTA 2 and 3 (docs/validation/M27.md), v0.99.57."""
+
+    def test_zero_or_negative_levels_are_refused_not_a_crash(self):
+        from core.analytics import scenarios
+
+        df = pd.DataFrame({"close": [10.0] * 30, "volume": [1e6] * 30},
+                          index=pd.bdate_range("2026-09-01", periods=30))
+        text = scenarios.custom_text("X.IS", df, 0.0, -5.0, 10.0, account=100_000)
+        self.assertIn("sıfırdan büyük", text)
+
+    def test_turkish_thousands_separator(self):
+        from core.analytics.scenarios import _number
+
+        self.assertEqual(_number("1.250"), 1250.0)
+        self.assertEqual(_number("12.500"), 12500.0)
+        self.assertEqual(_number("1.250,5"), 1250.5)
+        self.assertEqual(_number("240,5"), 240.5)
+        self.assertEqual(_number("240.5"), 240.5)  # one or two decimals: a decimal point
+        self.assertEqual(_number("240"), 240.0)

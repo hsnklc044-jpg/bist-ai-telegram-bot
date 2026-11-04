@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.57 – 04.11.2026 (/senaryo: sıfır seviye ve binlik ayırıcı; M27 ORTA 2 ve 3)
+- `/senaryo X giris 0 gecersiz -5 hedef 10` sıfıra bölmeyle çöküyordu; negatif geçersizlik de kabul ediliyordu. Artık "giriş, geçersizlik ve hedef sıfırdan büyük olmalı" diyor.
+- "1.250" gibi Türkçe binlik ayırıcı 1,25 okunuyor, adet 4.000 çıkıyordu. Artık noktadan sonra üçlü basamak grupları varsa nokta binlik ayırıcı sayılıyor: "1.250" = 1250, "1.250,5" = 1250,5. "240.5" gibi bir ya da iki ondalıklı yazım eskisi gibi ondalık okunuyor.
+- Kalan M27 ORTA bulguları: şirket işleminden sonra canlı kaydın puanlanması ve karne ağırlığı. Bu ikisi ölçüm kurallarını etkiliyor; ayrı iş olarak sırada.
+- Doğrulama: `test_validation_fixes` (ScenarioInputTest, 2 yeni test). Önce kırmızı, sonra yeşil. Senaryo testlerinin hepsi geçti.
+
 ## v0.99.56 – 04.11.2026 (M30 ve M27 bağımsız doğrulandı: kullanılamaz ve kısıtlı)
 - Geliştirici notlarını okumayan ayrı bir inceleyici iki modeli daha doğruladı. Raporlar olduğu gibi eklendi: `docs/validation/M30.md`, `M27.md`.
 - **M30 (ML filtresi): Kullanılamaz.**

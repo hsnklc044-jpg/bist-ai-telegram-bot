@@ -14,6 +14,7 @@ Every output ends with DISCLAIMER. Parameters never change after the card is see
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -228,6 +229,8 @@ def scenario_text(symbol: str, df: pd.DataFrame, account: float | None = None, r
 def custom_text(symbol: str, df: pd.DataFrame, entry: float, invalidation: float, target: float,
                 account: float | None = None, risk: float = DEFAULT_RISK) -> str:
     code = symbol.removesuffix(".IS")
+    if not (entry > 0 and invalidation > 0 and target > 0):  # M27 ORTA 2: 0 crashed the size line
+        return f"{code}: giriş, geçersizlik ve hedef sıfırdan büyük olmalı.\n{DISCLAIMER}"
     if not invalidation < entry:
         return f"{code}: geçersizlik girişin altında olmalı.\n{DISCLAIMER}"
     if not target > entry:
@@ -332,7 +335,14 @@ def performance_lines(path: Path | None = None, bars=None) -> list[str]:
 
 
 def _number(text: str) -> float:
-    return float(text.replace(".", "").replace(",", ".") if "," in text else text)
+    """Turkish numbers: "1.250,5" and "240,5"; a dot followed by groups of three digits is a
+    thousands separator ("1.250" = 1250, M27 ORTA 3); "240.5" stays a decimal point."""
+
+    if "," in text:
+        return float(text.replace(".", "").replace(",", "."))
+    if re.fullmatch(r"\d{1,3}(\.\d{3})+", text):
+        return float(text.replace(".", ""))
+    return float(text)
 
 
 USAGE = ("Kullanım:\n/senaryo THYAO – şablonların bugünkü seviyeleri\n"
