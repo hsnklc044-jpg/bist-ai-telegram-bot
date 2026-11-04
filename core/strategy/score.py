@@ -87,6 +87,11 @@ def score_frame(df: pd.DataFrame) -> pd.DataFrame:
     score = (50 + raw).clip(0, 100)
 
     ready = out[["ema20", "ema50", "rsi", "macd", "volatility"]].notna().all(axis=1)
+    # M1-2: a stock that did not trade (no volume, one price) for 20 sessions has no technical view;
+    # its frozen indicators scored 90 "Güçlü pozitif"
+    traded = df["volume"].fillna(0).rolling(20, min_periods=20).max() > 0
+    moving = close.rolling(20, min_periods=20).std() > 0
+    ready &= traded & moving
     out["score"] = score.where(ready)
 
     out["signal"] = np.select(

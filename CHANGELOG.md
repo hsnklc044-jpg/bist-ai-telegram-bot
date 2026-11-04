@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.71 – 04.11.2026 (Faz A tamam: işlem görmeyen hisse ve bozuk son mum)
+- **M1-2:** 60 gün işlem görmeyen hisse (sıfır hacim, tek fiyat) donmuş göstergelerle 90 puan ve "Güçlü pozitif" alıyordu. Artık son 20 seansta hiç hacim yoksa ya da fiyat hiç oynamadıysa teknik görünüm verilmiyor; kısa geçmişteki "görünüm yok" ile aynı.
+- **M1-6:** Son mumun kapanışı NaN ise canlı yol sessizce önceki günün değerlerini gösteriyordu. Artık "son mum bozuk (kapanış …, tarih); görünüm hesaplanmadı" hatası veriyor.
+- **Faz A'nın 17 bulgusunun hepsi giderildi.** Sıradaki Faz B: tavan ve taban kilidi kuralının bütün modüllerde tek ortak fonksiyonla uygulanması ve etkilenen ölçümlerin yeniden çalıştırılması.
+- Doğrulama: `test_phase_a` (Batch4Test, 2 test). Düzeltme olmadan kırmızı, düzeltmeyle yeşil.
+
 ## v0.99.70 – 04.11.2026 (Faz A, 3. grup: beş bulgu)
 - **M30-7:** Ufuk sonunda kapanış NaN ise satır etiket 0 ve r NaN ile kalıyordu. Artık etiket yazılmıyor. Yalnız sonu verisiz olan satırları etkiliyor.
 - **M1-7:** `/analyze`'daki ATR seviyeleri, ATR çarpılmadan önce 2 haneye yuvarlanıyordu. Doğrulamadaki örnek: 1,50 TL ve ATR 0,034 için stop 1,44 çıkıyordu, doğrusu 1,43. Artık önce hesaplanıp sonra yuvarlanıyor.

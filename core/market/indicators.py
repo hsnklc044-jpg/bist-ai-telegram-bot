@@ -118,6 +118,11 @@ def generate_indicator_snapshot(
         high = df["high"]
         low = df["low"]
 
+        last_close = close.iloc[-1]
+        if not (last_close == last_close and last_close > 0):  # M1-6: no silent fallback to the day before
+            raise MarketError(f"{symbol}: son mum bozuk (kapanış {last_close}, {df.index[-1]:%d.%m.%Y}); "
+                              "görünüm hesaplanmadı")
+
         macd = MACD(close)
         bands = BollingerBands(close, window=20, window_dev=2)
 

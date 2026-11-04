@@ -227,10 +227,10 @@ Kullanıcı 04.11'de geriye dönmeyi gerektirmeyecek, eksiksiz bir plan istedi. 
 
 Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve CHANGELOG her iş için güncellenir. Bir faz bitmeden sonrakine geçilmez.
 
-### Faz A: Ölçüm kuralını değiştirmeyen hatalar (şimdi)
+### Faz A: Ölçüm kuralını değiştirmeyen hatalar ✅ (v0.99.68–v0.99.71)
 | Bulgu | İş | Durum |
 |---|---|---|
-| M1-6 | Son mum NaN iken canlı yol önceki günü gösteriyor: görünümde son mumun tarihini yazmak ve bozuk mumda "veri yok" demek | A |
+| M1-6 | Son mum NaN iken canlı yol önceki günü gösteriyor: görünümde son mumun tarihini yazmak ve bozuk mumda "veri yok" demek | ✅ v0.99.71 |
 | M1-7 | ATR seviyeleri çarpılmadan önce yuvarlanıyor | ✅ v0.99.70 |
 | M5-6 | XU100 yoksa karne "yetersiz örnek" diyor; "endeks verisi yok" demeli | ✅ v0.99.70 |
 | M5-10 | Açıklama "21 günlük blok", sabit 20 | ✅ v0.99.68 |
@@ -246,7 +246,7 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 | M31-14 | Yanıltıcı test ve fonksiyon adları | ✅ v0.99.70 |
 | M32-8 | Şema açıklaması şalterin "sonraki seansı" kilitlediğini söylüyor; kod yalnız aynı günü kilitliyor | ✅ v0.99.68 |
 | M32-10 | `risk_tl` kart fiyatıyla yazılıyor; girişten sonra gerçek stop riskiyle güncellenmeli | ✅ v0.99.69 |
-| M1-2 | 60 gün işlem görmeyen hisse 90 puan alıyor: hacimsiz ya da sabit fiyatlı hisse "veri yetersiz" sayılmalı | A |
+| M1-2 | 60 gün işlem görmeyen hisse 90 puan alıyor: hacimsiz ya da sabit fiyatlı hisse "veri yetersiz" sayılmalı | ✅ v0.99.71 |
 
 ### Faz B: Tavan ve taban kilidi kuralı, bütün modüllerde tek seferde (K-75)
 | Bulgu | İş | Durum |

@@ -149,3 +149,32 @@ class Batch3Test(unittest.TestCase):
 
         for name in ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu"):
             self.assertIn("rastgele", FIELDS[name].text, name)
+
+
+class Batch4Test(unittest.TestCase):
+    def frame(self, n=120, volume=1e6, flat=False):
+        rng = np.random.default_rng(0)
+        close = np.full(n, 100.0) if flat else 100 * np.exp(np.cumsum(rng.normal(0, 0.01, n)))
+        return pd.DataFrame({"open": close, "high": close * 1.01, "low": close * 0.99, "close": close,
+                             "volume": volume}, index=pd.bdate_range("2026-01-01", periods=n))
+
+    def test_m1_2_a_suspended_stock_gets_no_score(self):
+        from core.strategy.score import score_frame
+
+        live = self.frame()
+        self.assertFalse(np.isnan(score_frame(live)["score"].iloc[-1]))
+        halted = live.copy()
+        halted.iloc[-60:, :4] = 100.0
+        halted.iloc[-60:, 4] = 0.0  # 60 sessions at one price with no volume
+        out = score_frame(halted)
+        self.assertTrue(np.isnan(out["score"].iloc[-1]))
+        self.assertTrue(pd.isna(out["signal"].iloc[-1]))  # the same "no view" as a short history
+
+    def test_m1_6_a_broken_last_candle_is_said(self):
+        from core.infrastructure.exceptions import MarketError
+        from core.market.indicators import generate_indicator_snapshot
+
+        df = self.frame()
+        df.iloc[-1, df.columns.get_loc("close")] = np.nan
+        with self.assertRaisesRegex(MarketError, "son mum"):
+            generate_indicator_snapshot("A.IS", df)
