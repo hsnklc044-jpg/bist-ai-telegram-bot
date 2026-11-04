@@ -278,6 +278,8 @@ def update(conn: sqlite3.Connection, bars, expire: bool = True) -> list[Signal]:
         if not state or (state["status"] == s.status and state.get("exit_date") is None and s.entry_price
                          and state.get("peak") == s.peak):
             continue
+        if s.entry_price is None and state.get("entry_price") and s.qty:
+            state = state | {"risk_tl": s.qty * state["entry_price"] * STOP}  # M32-10: risk at the real entry
         cols = ", ".join(f"{k} = ?" for k in state)
         with conn:
             conn.execute(f"UPDATE signals SET {cols} WHERE id = ?", (*state.values(), s.id))

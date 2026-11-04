@@ -189,11 +189,17 @@ def _ml_filter(result: Result, frames: dict[str, pd.DataFrame]) -> None:
     """ml=evet: nothing passes while the filter has not passed its out-of-sample test (K-59)."""
 
     from core.ml import ml_filter
+    from core.reports import model_gate
 
     report = ml_filter.load()
     if not (report and report.get("passed")):
         why = report.get("reason") if report else "henüz örneklem dışı ölçüm yok"
         result.ml_note = f"ML filtresi kapalı ({why}); liste boş bırakıldı."
+        result.matches = []
+        return
+    gate = model_gate.decide("M30", result.day or date.today())  # M30-10: the gate counts here too
+    if not gate.allowed:
+        result.ml_note = f"ML filtresi kapalı (model kapısı: {gate.reason}); liste boş bırakıldı."
         result.matches = []
         return
     from core.ml.live import probabilities

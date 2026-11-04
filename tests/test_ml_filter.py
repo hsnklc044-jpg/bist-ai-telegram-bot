@@ -149,6 +149,8 @@ class FilterTest(unittest.TestCase):
             path = Path(tmp) / "ml.json"
             self.assertFalse(M.enabled(path))
             M.save(M.Report("x", 0, passed=True, reason="eşik geçildi"), path)
+            self.assertFalse(M.enabled(path))  # M30-4: not the live filter's own universe
+            M.save(M.Report("BIST 30 yaklaşığı", 0, passed=True, reason="eşik geçildi"), path)
             self.assertTrue(M.enabled(path))
             path.write_text("{bozuk", encoding="utf-8")
             self.assertFalse(M.enabled(path))

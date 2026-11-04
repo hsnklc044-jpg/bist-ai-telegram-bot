@@ -118,7 +118,11 @@ class ScreenOptionTest(unittest.TestCase):
         from core.screen.language import parse
 
         q = parse(text)
+        from core.reports import model_gate
+
+        gate = model_gate.Decision("M30", True, "testte açık")  # the gate itself is tested in test_phase_a
         with mock.patch("core.ml.ml_filter.load", return_value=report), \
+                mock.patch.object(model_gate, "decide", return_value=gate), \
                 mock.patch("core.ml.live.probabilities", return_value=proba or {}):
             return q, engine.run(q, self.frames, self.bench, actions=[])
 

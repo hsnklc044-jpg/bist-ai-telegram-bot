@@ -181,6 +181,9 @@ def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None,
     return out
 
 
+MAX_MODEL_AGE = 10  # days; the model is retrained every Friday
+
+
 def live(day) -> list[str]:
     """The bot's /tara ai: BIST 30 daily candles, the live model (trained when missing)."""
 
@@ -189,7 +192,11 @@ def live(day) -> list[str]:
     from core.reports.daily import adjusted_bars
 
     saved = S.load_live()
-    if saved is None:
+    try:  # M31-13: a model older than MAX_MODEL_AGE (a missed Friday retrain) is retrained, not used
+        stale = saved is not None and (day - date.fromisoformat(str(saved.get("trained")))).days > MAX_MODEL_AGE
+    except (TypeError, ValueError):
+        stale = True
+    if saved is None or stale:
         frames, members = S._daily()
         S.fit_live(frames, members, day)
         saved = S.load_live()

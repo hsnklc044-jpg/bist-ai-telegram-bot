@@ -210,11 +210,19 @@ def load(path: Path | None = None) -> dict | None:
         return None
 
 
+def report_path(universe: str, rule: str) -> Path:
+    """M30-4: a BIST 100 run no longer overwrites the BIST 30 file the live filter reads."""
+
+    return REPORT_FILES[rule] if universe == "bist30" else LOG_DIR / f"ml_report_{universe}_{rule}.json"
+
+
 def enabled(path: Path | None = None) -> bool:
-    """The live filter may be used only after an out-of-sample pass."""
+    """The live filter may be used only after ITS OWN out-of-sample pass: the BIST 30 universe, the
+    stop/target rule and no holdout (M30-4: any file with "passed" used to do)."""
 
     report = load(path)
-    return bool(report and report.get("passed"))
+    return bool(isinstance(report, dict) and report.get("passed") and report.get("rule", "stop_hedef") == "stop_hedef"
+                and not report.get("holdout_used") and "30" in str(report.get("universe", "")))
 
 
 # --- universe ------------------------------------------------------------------------------------
@@ -267,7 +275,7 @@ def main(argv: list[str] | None = None) -> int:
 
         bench = adjusted_bars(BENCHMARK)["close"]
     report = walk_forward(dataset(frames, members, args.rule, bench), name, rule=args.rule)
-    save(report, REPORT_FILES[args.rule])
+    save(report, report_path(args.universe, args.rule))
     print(text(report))
     return 0
 

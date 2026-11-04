@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.69 – 04.11.2026 (Faz A, 2. grup: dört bulgu)
+- **M30-4:** Canlı ML filtresi, "passed" yazan herhangi bir rapor dosyasıyla açılabiliyordu. Artık yalnız kendi ölçümüyle açılıyor: BIST 30 evreni, stop/hedef kuralı ve holdout kullanılmamış olmalı. BIST 100 ölçümü artık BIST 30 dosyasının üzerine yazılmıyor; ayrı dosyaya gidiyor.
+- **M30-10:** `/tara ml=evet` model kapısını okumuyordu. Artık M30'un kapısı kapalıysa liste boş kalıyor ve nedeni yazılıyor.
+- **M31-13:** Cuma yeniden eğitimi atlanırsa eski canlı model uyarısız kullanılıyordu. Artık 10 günden eski model `/tara ai`'de yeniden eğitiliyor.
+- **M32-10:** `risk_tl` kart fiyatıyla yazılıyordu. Artık giriş gerçekleşince gerçek giriş fiyatıyla güncelleniyor. Doğrulamadaki örnek: boşluklu açılışta kayıtlı risk 200 TL yerine 180 TL.
+- Doğrulama: `test_phase_a` (Batch2Test, 4 test). Önce kırmızı, sonra yeşil. Eski gevşek davranışı bekleyen iki test (`test_ml_filter`, `test_signal_book`) yeni kurala göre güncellendi.
+
 ## v0.99.68 – 04.11.2026 (Faz A, 1. grup: yedi küçük hata)
 - Eksiksiz iş planı ROADMAP'e yazıldı. Bağımsız doğrulama raporlarının her bulgusu bir yerde duruyor: yapıldı, Faz A, Faz B, Faz C ya da gerekçesiyle bırakıldı.
 - Faz A, ölçüm kuralını değiştirmeyen düz hatalar. Bu grupta yedisi giderildi:

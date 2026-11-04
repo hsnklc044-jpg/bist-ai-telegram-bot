@@ -50,3 +50,69 @@ class Batch1Test(unittest.TestCase):
                 with mock.patch.object(S, "report_file", return_value=p):
                     self.assertFalse(S.validated("gunluk"))
                     self.assertEqual(S.track_record("gunluk"), S.RECORDED["gunluk"])
+
+
+class Batch2Test(unittest.TestCase):
+    def test_m30_4_only_the_live_filters_own_pass_counts(self):
+        from core.ml import ml_filter
+
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "r.json"
+
+            def write(**kw):
+                import json as js
+
+                p.write_text(js.dumps({"passed": True, "universe": "BIST 30 yaklaşığı", "rule": "stop_hedef",
+                                       "holdout_used": False} | kw), encoding="utf-8")
+
+            write()
+            self.assertTrue(ml_filter.enabled(p))
+            for bad in ({"universe": "BIST 100"}, {"rule": "goreli20"}, {"holdout_used": True}):
+                write(**bad)
+                self.assertFalse(ml_filter.enabled(p), bad)
+        self.assertNotEqual(ml_filter.report_path("bist100", "stop_hedef"), ml_filter.REPORT_FILE)
+        self.assertEqual(ml_filter.report_path("bist30", "stop_hedef"), ml_filter.REPORT_FILE)
+
+    def test_m30_10_tara_ml_reads_the_model_gate(self):
+        from core.reports import model_gate
+        from core.screen import engine
+
+        result = engine.Result(query=None, day=None, matches=[object()])
+        with mock.patch("core.ml.ml_filter.load", return_value={"passed": True}), \
+                mock.patch.object(model_gate, "decide", return_value=model_gate.Decision("M30", False, "kullanılamaz")):
+            engine._ml_filter(result, {})
+        self.assertEqual(result.matches, [])
+        self.assertIn("model kapısı", result.ml_note)
+
+    def test_m31_13_an_old_live_model_is_retrained(self):
+        from datetime import date
+
+        from core.screen import ai
+
+        old = {"model": object(), "trained": "2026-10-01"}
+        with mock.patch("core.ml.signal_filter.load_live", side_effect=[old, {"model": None, "trained": "2026-11-04"}]), \
+                mock.patch("core.ml.signal_filter._daily", return_value=({}, None)), \
+                mock.patch("core.ml.signal_filter.fit_live") as fit, \
+                mock.patch.object(ai, "run", return_value=[]), \
+                mock.patch("core.reports.daily.adjusted_bars", return_value=pd.DataFrame()):
+            ai.live(date(2026, 11, 4))
+        fit.assert_called_once()
+
+    def test_m32_10_risk_is_rewritten_at_the_entry(self):
+        from datetime import date
+
+        from core.signals import panic
+        from core.signals import store as S
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(panic, "PANIC_FILE", Path(tmp) / "p.lock"):
+            conn = S.connect(Path(tmp) / "b.db")
+            try:
+                S.add(conn, date(2026, 11, 2), "A.IS", 100.0, qty=100)  # risk at the card: 100 × 100 × 2% = 200
+                idx = pd.bdate_range("2026-11-02", periods=2)
+                df = pd.DataFrame({"open": [100.0, 90.0], "high": [100.0, 91.0], "low": [100.0, 89.5],
+                                   "close": [100.0, 90.5]}, index=idx)  # a gap: entry at 90
+                S.update(conn, lambda s: df)
+                row = conn.execute("SELECT risk_tl FROM signals").fetchone()
+            finally:
+                conn.close()
+        self.assertAlmostEqual(row["risk_tl"], 100 * 90.0 * S.STOP)  # 180 at the real entry

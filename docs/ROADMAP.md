@@ -237,15 +237,15 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 | M8-4 | Son kapanış NaN ya da sıfırsa `round_numbers` istisna veriyor | ✅ v0.99.68 |
 | M8-7 | `/tara` seviye alanlarında "rastgeleden ayırt edilemedi" notu yok | A |
 | M27-5 | Risk sınırı mesajı "%0,1–%5" diyor, kod her pozitif değeri alıyor | ✅ v0.99.68 |
-| M30-4 | `enabled()` hangi evren ve kuralın geçtiğine bakmıyor; BIST 100 sonucu BIST 30 dosyasına yazılıyor | A |
+| M30-4 | `enabled()` hangi evren ve kuralın geçtiğine bakmıyor; BIST 100 sonucu BIST 30 dosyasına yazılıyor | ✅ v0.99.69 |
 | M30-7 | Ufuk sonu kapanışı NaN ise etiket 0 ile kalıyor | A |
 | M30-8 | `goreli20` endeks olmadan anlaşılmaz hata veriyor | ✅ v0.99.68 |
-| M30-10 | `/tara ml=evet` model kapısını okumuyor | A |
+| M30-10 | `/tara ml=evet` model kapısını okumuyor | ✅ v0.99.69 |
 | M31-9 | `validated` ve `track_record` bozuk dosyada (`null`, `[]`) çöküyor | ✅ v0.99.68 |
-| M31-13 | Model yaşı denetlenmiyor; Cuma eğitimi atlanırsa eski model uyarısız kullanılıyor | A |
+| M31-13 | Model yaşı denetlenmiyor; Cuma eğitimi atlanırsa eski model uyarısız kullanılıyor | ✅ v0.99.69 |
 | M31-14 | Yanıltıcı test ve fonksiyon adları | A |
 | M32-8 | Şema açıklaması şalterin "sonraki seansı" kilitlediğini söylüyor; kod yalnız aynı günü kilitliyor | ✅ v0.99.68 |
-| M32-10 | `risk_tl` kart fiyatıyla yazılıyor; girişten sonra gerçek stop riskiyle güncellenmeli | A |
+| M32-10 | `risk_tl` kart fiyatıyla yazılıyor; girişten sonra gerçek stop riskiyle güncellenmeli | ✅ v0.99.69 |
 | M1-2 | 60 gün işlem görmeyen hisse 90 puan alıyor: hacimsiz ya da sabit fiyatlı hisse "veri yetersiz" sayılmalı | A |
 
 ### Faz B: Tavan ve taban kilidi kuralı, bütün modüllerde tek seferde (K-75)
