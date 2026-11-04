@@ -42,6 +42,20 @@ jobs:
           done
           kill $busy
 
+  # 04.11.2026: v0.99.48-57 passed here but failed on the user's Windows PC (an open SQLite file
+  # cannot be deleted on Windows), so the updater never installed them. The PC is Windows: the suite
+  # runs there too, and the updater installs only a commit whose whole CI run is green.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - run: python -X warn_default_encoding -W error::EncodingWarning -m pytest -q -p no:cacheprovider
+
   docker:
     runs-on: ubuntu-latest
     steps:

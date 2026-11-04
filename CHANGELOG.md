@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.59 – 04.11.2026 (CI testleri Windows'ta da çalıştırıyor)
+- v0.99.48–57 CI'da geçip kullanıcının Windows PC'sinde düştü; güncelleyici hiçbirini kuramadı. Bilgisayar Windows olduğu için CI'a `windows-latest` üzerinde tam test işi eklendi.
+- Güncelleyici yalnız bütün CI işleri yeşil olan commit'i kuruyor. Böylece Windows'ta düşecek bir sürüm PC'ye hiç gönderilmiyor; sorun CI'da görünüyor.
+- Doğrulama: ilk sonuç bu sürümün CI çalışmasında görülecek. Kırmızı çıkarsa bu sürüm PC'ye kurulmaz; v0.99.58 kurulur.
+
 ## v0.99.58 – 04.11.2026 (Windows'ta düşen iki test düzeltildi: v0.99.48'den beri PC'ye kurulum yoktu)
 - **Kanıt (kullanıcının PC'si):** Güncelleyici v0.99.48, v0.99.50, v0.99.54 ve v0.99.57'yi deneme kopyasında "2 failed" diyerek kurmadı; bot v0.99.44'te kaldı. PC'deki otomasyon notu: bir testte SQLite bağlantısı açık kalıyor; ürün hatası değil.
 - **Neden:** İki test sinyal defteri bağlantısını kapatmıyordu: `AiTest.test_run_writes_the_book_only_when_validated` ve `ApprovalTest.test_daily_step_and_new_scan_sweep_old_cards`. Linux açık dosyayı silebiliyor, Windows silemiyor; bu yüzden CI'da ve bu ortamda görünmedi. Güncelleyicinin güvenlik kapısı doğru çalıştı: testi geçmeyen sürüm kurulmadı.
