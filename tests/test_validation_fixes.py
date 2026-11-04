@@ -267,3 +267,26 @@ class StandingWarningsTest(unittest.TestCase):
             self.assertEqual(len(names), 1)
             self.assertTrue(names[0].startswith("quantbist_guncelleme_"))
             self.assertEqual(backup.daily_backups(target), [])  # not counted as the day's backup
+
+
+class ScenarioCorporateActionTest(unittest.TestCase):
+    """M27 ORTA 1: a logged scenario keeps the record day's prices; after a 2:1 bonus the adjusted bars
+    halve the past, the levels no longer fit and the record vanished ("0/30 sonuçlanan, 0 süren")."""
+
+    def test_levels_follow_the_adjustment(self):
+        import tempfile as tf
+
+        from core.analytics import scenarios
+
+        idx = pd.bdate_range("2026-09-01", periods=30)
+        # adjusted bars: everything before the bonus is halved; record day close 100 → 50
+        df = pd.DataFrame({"open": 50.0, "high": 50.5, "low": 49.5, "close": 50.0}, index=idx)
+        df.iloc[6:, :] = [[50.0, 56.0, 49.8, 55.5]] * 24  # the target 110/2 = 55 is reached on day 6
+        with tf.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "scenarios_log.csv"
+            rows = [f"{idx[2]:%Y-%m-%d},A.IS,{name},100,95,110,2" for name in scenarios.TEMPLATES]
+            log.write_text(",".join(scenarios.LOG_COLUMNS) + "\n" + "\n".join(rows) + "\n", encoding="utf-8")
+            with mock.patch.object(scenarios, "LIVE_MIN", 1):
+                text = "\n".join(scenarios.performance_lines(log, bars=lambda s: df))
+        self.assertNotIn("0/1 sonuçlanan", text)
+        self.assertIn("hedef %100", text)

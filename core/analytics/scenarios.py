@@ -315,7 +315,17 @@ def performance_lines(path: Path | None = None, bars=None) -> list[str]:
         if df is None or df.empty or stamp not in df.index:
             waiting[r["template"]] += 1
             continue
-        o = outcome(df, int(df.index.get_loc(stamp)), float(r["invalidation"]), float(r["target"]))
+        t = int(df.index.get_loc(stamp))
+        # M27 ORTA 1: the record keeps that day's prices; the bars are back-adjusted, so after a bonus
+        # or split the levels are scaled by the same factor (adjusted close / logged close)
+        try:
+            logged = float(r.get("close") or "nan")
+        except ValueError:
+            logged = float("nan")
+        factor = float(df["close"].iloc[t]) / logged if logged > 0 else 1.0
+        if not factor > 0 or abs(factor - 1) < 1e-6:
+            factor = 1.0
+        o = outcome(df, t, float(r["invalidation"]) * factor, float(r["target"]) * factor)
         if o is None:
             waiting[r["template"]] += 1
         else:

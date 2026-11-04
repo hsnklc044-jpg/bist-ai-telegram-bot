@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.67 – 04.11.2026 (şirket işleminden sonra senaryo kayıtları kaybolmuyor; M27 ORTA 1)
+- Canlı senaryo kaydı seviyeleri kayıt gününün fiyatıyla tutuyor. Puanlama ise geriye doğru düzeltilmiş mumlarla yapılıyor. 2:1 bedelsizden sonra geçmiş fiyatlar yarıya iniyor, seviyeler artık girişe uymuyordu. Kayıt "dolmadı" sayılıp sessizce kayboluyordu; doğrulamada 31 kaydın hepsi "0/30 sonuçlanan, 0 süren" oldu.
+- Artık geçersizlik ve hedef aynı düzeltme katsayısıyla ölçekleniyor: kayıt günündeki düzeltilmiş kapanış ÷ kayıtlı kapanış. Katsayı yoksa ya da 1 ise hiçbir şey değişmiyor. Temettü düzeltmesi de aynı yolla hesaba giriyor.
+- Kayıt dosyası değiştirilmiyor; düzeltme okurken yapılıyor.
+- Doğrulama: `test_validation_fixes` (ScenarioCorporateActionTest): bedelsiz sonrası kayıt hedefte sonuçlanıyor. Önce kırmızı, sonra yeşil. Senaryo testleri geçti.
+
 ## v0.99.66 – 04.11.2026 (/durum'da kendiliğinden kapanmayan iki uyarı; K-74)
 - **Model doğrulama:** M30 ve M31 "kullanılamaz" olduğu için satır kalıcı ⚠️ olmuştu. Model kapısı ikisini zaten kapalı tutuyor. Artık bu durum ℹ️ olarak gösteriliyor ve metin bunu söylüyor. ⚠️ yalnız süresi geçmiş doğrulamada çıkıyor (K-74).
 - **Güncelleme öncesi yedek:** Güncelleyicinin kurulumdan önce aldığı yedek (`quantbist_2026-11-04.zip`, 15:40) günün yedeğiyle aynı adı taşıyordu. Gün, 18:30 raporundan önce "yedekli" sayılıyordu; rapor çalışmasa 21:00 telafisi de atlanırdı. Artık bu yedek `quantbist_guncelleme_<tarih_saat>.zip` adıyla alınıyor, günün yedeği sayılmıyor ve son 5'i tutuluyor.
