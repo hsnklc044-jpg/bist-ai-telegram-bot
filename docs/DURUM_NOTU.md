@@ -34,6 +34,12 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
   - Ayrıntı RESEARCH_LOG'da. Hatırlatma silindi.
 - ✅ v0.99.77 (eb60894): `scripts\olcum.ps1`, aynı kontrolü PC'de tek komutla yapıyor. Görüntü `BACKUP_DIR\olcum` klasörüne, rapor `logs\olcum_report.txt`'ye yazılıyor. Kullanıcı 04.11'de kotayı korumak için rutin işlerin Python/PowerShell ile yürümesini istedi.
 - ⏳ Sıradaki: kullanıcının seçimi. Kalan seçenekler: Faz C (K-64 değerlendirme kodunu değiştiren maddeler ileri testten sonraya) ya da M31/M32 yeniden doğrulaması. Onay gelmeden başlanmaz.
+- **Genel onay (kullanıcı, 04.11 akşam):** "Benden onay bekleme, her aşamaya onay veriyorum." Sıra şöyle:
+  1. M31 ve M32 bağımsız inceleme raporları (başlatıldı 18:14 UTC, yalnız rapor).
+  2. Bulguların önem sırasıyla düzeltilmesi; her düzeltme önce kırmızı test, sonra kod.
+  3. Faz C'nin temiz maddeleri.
+  - K-64 değerlendirme kodunu değiştiren maddeler (M31-2, M31-3, M31-8, M30-3) ve 03.02.2027 ölçütüne dokunan her şey ileri testten sonraya kalır.
+  - Güvenlik kuralları, holdout, eşikler ve GEÇMEDİ kararları aynı kalır. Genel onay bunları kapsamaz.
 - **Kota kuralı (kullanıcı, 04.11):** Rutin kontroller sohbetle değil, PC'deki betiklerle yapılır. CI ve çalışma izlemeyi gereğinden fazla sorgulama; uzun beklemelerde kendine hatırlatma kur, kısa aralıklarla sorgulama.
 
 ## Üç ölçüm (ef12819, 04.11.2026 15:39–15:51 UTC; ayrıntı RESEARCH_LOG)
