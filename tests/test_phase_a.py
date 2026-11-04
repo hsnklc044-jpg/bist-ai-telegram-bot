@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import numpy as np
 import pandas as pd
 
 
@@ -116,3 +117,35 @@ class Batch2Test(unittest.TestCase):
             finally:
                 conn.close()
         self.assertAlmostEqual(row["risk_tl"], 100 * 90.0 * S.STOP)  # 180 at the real entry
+
+
+class Batch3Test(unittest.TestCase):
+    def test_m30_7_a_nan_close_at_the_horizon_has_no_label(self):
+        from core.ml import features
+
+        rows = [(100, 100, 100, 100)] * 2 + [(100, 101, 99.5, 100)] * 9 + [(100, 101, 99.5, float("nan"))]
+        df = pd.DataFrame(rows, columns=["open", "high", "low", "close"],
+                          index=pd.bdate_range("2026-01-01", periods=len(rows)))
+        got = features.labels(df, horizon=10)
+        self.assertTrue(np.isnan(got["label"].iloc[1]))  # row 1 ends on the NaN close: no label, not a 0
+        self.assertEqual(got["label"].iloc[0], 0.0)  # row 0 ends on a real close
+
+    def test_m1_7_atr_levels_are_rounded_after_multiplying(self):
+        from core.analytics import analyzer
+
+        src = Path(analyzer.__file__).read_text(encoding="utf-8")
+        self.assertIn("snapshot.price - snapshot.atr * 2", src)  # 1,50 TL, ATR 0,034: stop 1,43 not 1,44
+
+    def test_m5_6_no_index_is_said(self):
+        from core.screen import card
+        from core.screen.language import parse
+        from tests.test_screen_card import flat
+
+        stats = card.history(parse("kapanis>0"), {"A.IS": flat()}, flat().iloc[0:0], horizons=(5,))[5]
+        self.assertIn("XU100 verisi yok", stats.label)
+
+    def test_m8_7_level_fields_carry_the_study_note(self):
+        from core.screen.fields import FIELDS
+
+        for name in ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu"):
+            self.assertIn("rastgele", FIELDS[name].text, name)

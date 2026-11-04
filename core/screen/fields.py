@@ -94,10 +94,13 @@ FIELDS = {
     "momentum_sira": Field("Göreli güç", "getiri_6a_1a_haric'in taranan evrendeki yüzdelik sırası", "0–100"),
     "beta": Field("Göreli güç", "son 252 seansta XU100'e göre beta", "×"),
     # price position
-    "destek_uzaklik_atr": Field("Seviye", "en yakın küme desteğine uzaklık, ATR (negatif: altta; K-49, teknik seviye)",
+    "destek_uzaklik_atr": Field("Seviye", "en yakın küme desteğine uzaklık, ATR (negatif: altta; K-49, teknik seviye; seviyeler "
+                                "rastgeleden ayırt edilemedi)",
                                 "ATR"),
-    "direnc_uzaklik_atr": Field("Seviye", "en yakın küme direncine uzaklık, ATR (pozitif: üstte)", "ATR"),
-    "seviye_gucu": Field("Seviye", "en yakın küme seviyesinin güç puanı (dokunma, yaş, kırılma; sabit formül)", "0–100"),
+    "direnc_uzaklik_atr": Field("Seviye", "en yakın küme direncine uzaklık, ATR (pozitif: üstte; rastgeleden ayırt edilemedi)",
+                                "ATR"),
+    "seviye_gucu": Field("Seviye", "en yakın küme seviyesinin güç puanı (dokunma, yaş, kırılma; sabit formül; "
+                         "ölçülmemiş puan, seviyeler rastgeleden ayırt edilemedi)", "0–100"),
     "kirdi_yukari": Field("Seviye", "kirdi_yukari(direnc) ile yazılır: kapanış dünkü en yakın direnci 0,5 ATR'den "
                                     "fazla geçti", "1/0"),
     "kirdi_asagi": Field("Seviye", "kirdi_asagi(destek) ile yazılır: kapanış dünkü en yakın desteğin 0,5 ATR'den "

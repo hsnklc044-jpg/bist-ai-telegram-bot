@@ -60,9 +60,12 @@ class CardStats:
     gross: float | None = None  # event mean before costs
     day_mean: float | None = None  # mean of the daily means (each entry date once); low/high are its interval
     base: float | None = None  # the same day mean for every eligible stock-day ("tüm hisseler")
+    no_index: bool = False  # XU100 was missing: nothing could be measured
 
     @property
     def label(self) -> str:
+        if self.no_index:
+            return "XU100 verisi yok; karne hesaplanamadı"
         if self.n < MIN_SAMPLES or self.low is None:
             return "yetersiz örnek"
         if self.low > 0:
@@ -120,6 +123,8 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
     from core.backtest.run import SCREEN_END
     from core.screen import elimination as E
 
+    if bench is None or bench.empty:  # M5-6: no index, no excess return: said, not "yetersiz örnek"
+        return {h: CardStats(no_index=True) for h in horizons}
     bench = bench.loc[:SCREEN_END]
     frames = {s: df.loc[:SCREEN_END] for s, df in frames.items()}
     tables = _tables(query, frames, bench, eligible)

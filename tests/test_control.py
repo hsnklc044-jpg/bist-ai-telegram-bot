@@ -167,7 +167,7 @@ class AiTest(unittest.TestCase):
         self.assertIn("model sinyali", ai.message(self.candidate(0.60), False))
         self.assertIn("hesaplanamadı", ai.message(self.candidate(None), False))
 
-    def test_run_writes_the_book_only_when_validated(self):
+    def test_run_writes_a_pending_card_even_unvalidated(self):  # M31-14: the name said the opposite
         class Fixed:
             def predict_proba(self, x):
                 return np.array([[0.2, 0.8]])

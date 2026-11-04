@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.70 – 04.11.2026 (Faz A, 3. grup: beş bulgu)
+- **M30-7:** Ufuk sonunda kapanış NaN ise satır etiket 0 ve r NaN ile kalıyordu. Artık etiket yazılmıyor. Yalnız sonu verisiz olan satırları etkiliyor.
+- **M1-7:** `/analyze`'daki ATR seviyeleri, ATR çarpılmadan önce 2 haneye yuvarlanıyordu. Doğrulamadaki örnek: 1,50 TL ve ATR 0,034 için stop 1,44 çıkıyordu, doğrusu 1,43. Artık önce hesaplanıp sonra yuvarlanıyor.
+- **M5-6:** XU100 verisi yoksa karne "yetersiz örnek" diyordu. Artık "XU100 verisi yok; karne hesaplanamadı" diyor.
+- **M8-7:** `/tara`'daki seviye alanlarının açıklaması "rastgeleden ayırt edilemedi" notunu, güç puanı ise "ölçülmemiş puan" notunu taşıyor.
+- **M31-14:** Yanıltıcı test adı ve `ai.live`'ın dönüş tipi düzeltildi.
+- Doğrulama: `test_phase_a` (Batch3Test, 4 test). Düzeltme olmadan kırmızı, düzeltmeyle yeşil.
+
 ## v0.99.69 – 04.11.2026 (Faz A, 2. grup: dört bulgu)
 - **M30-4:** Canlı ML filtresi, "passed" yazan herhangi bir rapor dosyasıyla açılabiliyordu. Artık yalnız kendi ölçümüyle açılıyor: BIST 30 evreni, stop/hedef kuralı ve holdout kullanılmamış olmalı. BIST 100 ölçümü artık BIST 30 dosyasının üzerine yazılmıyor; ayrı dosyaya gidiyor.
 - **M30-10:** `/tara ml=evet` model kapısını okumuyordu. Artık M30'un kapısı kapalıysa liste boş kalıyor ve nedeni yazılıyor.

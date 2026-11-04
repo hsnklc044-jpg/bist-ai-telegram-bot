@@ -184,8 +184,9 @@ def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None,
 MAX_MODEL_AGE = 10  # days; the model is retrained every Friday
 
 
-def live(day) -> list[str]:
-    """The bot's /tara ai: BIST 30 daily candles, the live model (trained when missing)."""
+def live(day) -> list[tuple[str, int | None]]:
+    """The bot's /tara ai: BIST 30 daily candles, the live model (trained when missing or older than
+    MAX_MODEL_AGE). Returns (message, card id) pairs like run()."""
 
     from core.config.bist30 import BIST30_TICKERS
     from core.ml import signal_filter as S

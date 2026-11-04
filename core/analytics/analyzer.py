@@ -315,7 +315,7 @@ def analyze_stock(
             "stop_loss":
                 round(
 
-                    entry_price - atr * 2,
+                    snapshot.price - snapshot.atr * 2,
 
                     2,
 
@@ -325,7 +325,7 @@ def analyze_stock(
             "target_1":
                 round(
 
-                    entry_price + atr * 2,
+                    snapshot.price + snapshot.atr * 2,
 
                     2,
 
@@ -335,7 +335,7 @@ def analyze_stock(
             "target_2":
                 round(
 
-                    entry_price + atr * 4,
+                    snapshot.price + snapshot.atr * 4,
 
                     2,
 

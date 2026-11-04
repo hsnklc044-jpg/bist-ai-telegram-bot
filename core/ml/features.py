@@ -74,6 +74,8 @@ def labels(df: pd.DataFrame, stop: float = STOP, target: float = TARGET, horizon
                 result = (1, target if o[d] < entry * (1 + target) else o[d] / entry - 1, d)
                 break
         if result is None:
+            if not c[last] > 0:  # M30-7: no close at the horizon: no label (it was 0 with r = NaN)
+                continue
             result = (0, c[last] / entry - 1, last)
         label[t], ret[t], end[t] = result[0], result[1] - COST, df.index[result[2]]
     return pd.DataFrame({"label": label, "r": ret, "label_end": pd.to_datetime(pd.Series(end, index=df.index))},
