@@ -179,8 +179,9 @@ def track_record(zaman: str = "gunluk") -> TrackRecord | None:
     try:
         got = json.loads(report_file(zaman).read_text(encoding="utf-8"))
         if isinstance(got, dict) and got.get("approved") and got.get("precision") is not None and got.get("base_rate") is not None:
+            commit = str(((got.get("provenance") or {}).get("code") or {}).get("commit") or "")[:7]
             return TrackRecord(int(got["approved"]), float(got["precision"]), float(got["base_rate"]),
-                               "bu bilgisayardaki son ölçüm")
+                               "bu bilgisayardaki son ölçüm" + (f", commit {commit}" if commit else ""))
     except (OSError, ValueError, TypeError):
         pass
     return RECORDED.get(zaman)
@@ -201,9 +202,12 @@ def fit_live(frames: dict[str, pd.DataFrame], members, today, path=None, make=fi
 
     import joblib
 
+    from core.backtest.run import HOLDOUT_START
+
     x, y = SPEC["gunluk"]
-    rows = events(frames, x, y, members, before=pd.Timestamp(today))
-    rows = rows[rows["label_end"] < pd.Timestamp(today)]
+    edge = min(pd.Timestamp(today), HOLDOUT_START)  # M31 re-validation O1: the holdout stays unseen
+    rows = events(frames, x, y, members, before=edge)
+    rows = rows[rows["label_end"] < edge]
     if len(rows) < 100 or rows["label"].nunique() < 2:
         return 0
     model, params = make(rows)
@@ -352,7 +356,8 @@ def main(argv: list[str] | None = None) -> int:
     if not args.veri:  # a run on a frozen snapshot is a check; it leaves the result file alone
         LOG_DIR.mkdir(parents=True, exist_ok=True)
         (LOG_DIR / f"signal_filter_{args.zaman}.json").write_text(
-            json.dumps(asdict(report), ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+            json.dumps({**asdict(report), "provenance": provenance.record(frames, before)}, ensure_ascii=False,
+                       indent=1, default=str), encoding="utf-8")
     out = text(report)
     print(out)
     print(f"Rapor sha256 {provenance.report_digest(out)}")

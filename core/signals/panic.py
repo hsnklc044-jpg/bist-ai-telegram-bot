@@ -35,13 +35,21 @@ def since(path: Path | str | None = None) -> str | None:
         return "?"
 
 
-def _last_close(bars, symbol: str) -> float | None:
+def _last_close(bars, symbol: str, entered=None) -> float | None:
+    """The last final close; None when there is none or it is from before the entry day (M32
+    re-validation O2: a position entered today was closed at yesterday's close, a price it never had)."""
+
     try:
         df = bars(symbol)
     except Exception:  # noqa: BLE001 - no price: the position is left open, never erased
         return None
     if df is None or df.empty:
         return None
+    if entered is not None:
+        from core.signals.store import _days
+
+        if _days(df.index)[-1].date() < entered:
+            return None
     price = float(df["close"].iloc[-1])
     return price if price > 0 else None
 
@@ -69,7 +77,7 @@ def trigger(day: date, lock: Path | str | None = None, book: Path | str | None =
         if open_ and bars is None:
             from core.reports.daily import adjusted_bars as bars
         for s in open_:
-            price = _last_close(bars, s.symbol) if s.entry_price else None
+            price = _last_close(bars, s.symbol, s.entry_date) if s.entry_price else None
             if price is None:
                 logger.warning("PANIC: no price for %s; the position stays open", s.symbol)
                 continue

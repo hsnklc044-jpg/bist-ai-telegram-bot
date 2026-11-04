@@ -16,6 +16,7 @@ Each works on a float, a numpy array or a pandas Series.
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 LIMIT_MOVE = 0.095
 TOLERANCE = 1e-9
@@ -37,12 +38,29 @@ def limit_move(change):
 
 
 def _locked(df, side) -> np.ndarray:
-
+    """Per session day (M32 re-validation Y1): a day is locked when all its candles so far show one price
+    and its last close is a limit move from the previous day's last close; every candle of that day is
+    marked. A daily frame has one candle per day, so this is the plain row rule; an hourly frame no
+    longer marks only the first hour of a locked day."""
 
     high, low, close = (df[k].to_numpy(dtype=float) for k in ("high", "low", "close"))
-    change = close / np.r_[np.nan, close[:-1]] - 1
-    with np.errstate(invalid="ignore"):
-        return (high <= low) & side(change)
+    if not len(close):
+        return np.zeros(0, dtype=bool)
+    idx = pd.DatetimeIndex(df.index)
+    if idx.tz is not None:
+        idx = idx.tz_convert("Europe/Istanbul").tz_localize(None)
+    days = idx.normalize().to_numpy()
+    starts = np.r_[True, days[1:] != days[:-1]]
+    group = np.cumsum(starts) - 1
+    n = int(group[-1]) + 1
+    top, bottom = np.full(n, -np.inf), np.full(n, np.inf)
+    np.maximum.at(top, group, high)
+    np.minimum.at(bottom, group, low)
+    last = np.r_[np.flatnonzero(starts)[1:] - 1, len(close) - 1]
+    day_close = close[last]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        change = day_close / np.r_[np.nan, day_close[:-1]] - 1
+        return ((top <= bottom) & side(change))[group]
 
 
 def locked_down(df) -> np.ndarray:

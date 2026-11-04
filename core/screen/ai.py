@@ -73,12 +73,14 @@ def _n(x: float, d: int = 2) -> str:
     return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def _sizing(c: Candidate) -> list[str]:
+def _sizing(c: Candidate, validated: bool = True) -> list[str]:
     if not c.lots:
         return ["<b>Lot:</b> hesaplanamadı (kasada boş nakit yok)"]
     cost = c.lots * c.close
     risk = c.lots * c.close * STOP
-    return [f"<b>Lot (%1 risk kalkanı):</b> {_n(c.lots, 0)} adet × ~{_n(c.close)} = ~{_n(cost, 0)} TL "
+    # M31 re-validation Y1: an unvalidated card's lots are the paper book's, not a trade size
+    label = "Lot (%1 risk kalkanı)" if validated else "Lot (%1 risk kalkanı; yalnız sanal defter, işlem önerisi değil)"
+    return [f"<b>{label}:</b> {_n(c.lots, 0)} adet × ~{_n(c.close)} = ~{_n(cost, 0)} TL "
             f"(kasanın %{_n(cost / c.box * 100, 0)}'i)",
             f"<i>Stop gelirse ~{_n(risk, 0)} TL (kasa {_n(c.box, 0)} TL'nin %1'i); boşluklu açılışta kayıp daha "
             "büyük olabilir. Bu kural tek hisseye kasanın büyük bir kısmını ayırır.</i>"]
@@ -102,16 +104,34 @@ def message(c: Candidate, validated: bool) -> str:
         title,
         f"<b>Teknik durum:</b> RSI {_n(c.rsi, 1)} · Stoch %K {_n(c.stoch_k, 1)} · Bollinger %b {_n(c.bb)} · "
         "MACD histogramı sıfırın altında yükseliyor",
-        f"<b>ML güven skoru:</b> %{_n(c.proba * 100, 0)}",
-        f"<b>Giriş bölgesi:</b> ertesi seans açılışı (son kapanış {_n(c.close)} TL)",
+        (f"<b>ML güven skoru:</b> %{_n(c.proba * 100, 0)}" if validated else  # O3: not a calibrated probability
+         f"<b>Model skoru (kalibre değil, olasılık değildir):</b> %{_n(c.proba * 100, 0)}"),
+        f"<b>Giriş bölgesi:</b> ertesi seans açılışı{_entry_day(c)} (son kapanış {_n(c.close)} TL)",
         f"<b>Zarar durdur (%2, iz süren):</b> ~{_n(c.close * (1 - STOP))} TL · <b>Kâr al (%4):</b> "
         f"~{_n(c.close * (1 + TARGET))} TL",
         "<i>Stop ve hedef gerçek girişe (açılış fiyatı) göre kesinleşir; stop zirveyi %2 geriden izler.</i>",
-        *_sizing(c),
+        *_sizing(c, validated),
         f"<b>Doğrulama:</b> {state}",
         *_record_line(),
         f"<i>{DISCLAIMER}</i>",
     ])
+
+
+def _entry_day(c: Candidate) -> str:
+    """O2: the session the paper book enters at (the first session after the candle), named on the card."""
+
+    from datetime import timedelta
+
+    from core.market.calendar import is_session_day
+
+    if c.candle_day is None:
+        return ""
+    day = c.candle_day + timedelta(days=1)
+    for _ in range(15):
+        if is_session_day(day):
+            return f" ({day:%d.%m.%Y})"
+        day += timedelta(days=1)
+    return ""
 
 
 def _record_line() -> list[str]:
@@ -168,7 +188,11 @@ def run(day, frames: dict[str, pd.DataFrame], model, validated: bool, book=None,
                         conn = store.connect(book)
                         store.expire_pending(conn, day)
                     box, free = store.cash(conn)
-                    c.box, c.lots = box, store.size_position(box, free, c.close)
+                    # D2: today's cards waiting for their button share the free cash (they are not
+                    # open positions yet, so store.cash does not count them)
+                    waiting = sum((s.qty or 0) * (s.signal_close or 0) for s in store.signals(conn)
+                                  if s.status == store.PENDING and s.created == day)
+                    c.box, c.lots = box, store.size_position(box, free - waiting, c.close)
                     if c.lots:
                         card = store.add(conn, day, c.symbol, c.close, c.proba, source="tara-ai", qty=c.lots,
                                          status=store.PENDING, reason=reason(c))
@@ -204,8 +228,16 @@ def live(day) -> list[tuple[str, int | None]]:
     from core.market.calendar import last_final_session_date
 
     frames = {s: adjusted_bars(s) for s in BIST30_TICKERS}
-    return run(day, frames, saved["model"] if saved else None, S.validated("gunluk"),
-               expected=last_final_session_date())
+    out = run(day, frames, saved["model"] if saved else None, S.validated("gunluk"),
+              expected=last_final_session_date())
+    try:  # D1: a model still too old after the retrain attempt is used, but never silently
+        trained = date.fromisoformat(str(saved.get("trained"))) if saved else None
+    except (TypeError, ValueError):
+        trained = None
+    if saved is not None and (trained is None or (day - trained).days > MAX_MODEL_AGE):
+        when = f"{trained:%d.%m.%Y}" if trained else "bilinmeyen bir tarihte"
+        out.insert(0, (f"⚠️ /tara ai: model {when} eğitildi ve yeniden eğitilemedi; skorlar eski modelden.", None))
+    return out
 
 
 __all__ = ["Candidate", "candidates", "live", "message", "run"]

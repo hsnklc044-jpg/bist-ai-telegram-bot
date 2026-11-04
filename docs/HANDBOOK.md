@@ -341,7 +341,7 @@ Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`
 ```
 start - komutlar ve düğmeler
 durum - sistem özeti; ayrıntı için /durum tum
-panik - acil durdurma: açık sanal sinyalleri iptal et, sistemi kilitle
+panik - acil durdurma: bekleyen sinyalleri iptal et, açık pozisyonları son kapanıştan kapat, sistemi kilitle
 devam - panik kilidini kaldır
 summary - portföy ve piyasa özeti
 portfolio - pozisyonlar ve kâr/zarar

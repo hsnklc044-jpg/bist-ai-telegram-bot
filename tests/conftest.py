@@ -18,6 +18,7 @@ from core.ml import signal_filter  # noqa: E402
 from core.reports import daily, forward, health, runs, slo  # noqa: E402
 from core.screen import command as screen  # noqa: E402
 from core.screen import subscriptions, virtual  # noqa: E402
+from core.signals import panic  # noqa: E402
 
 
 def pytest_collection_modifyitems(config, items):
@@ -94,6 +95,8 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
     monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")
+    # M32 re-validation D7: no test may lock the real bot with data/panic.lock
+    monkeypatch.setattr(panic, "PANIC_FILE", tmp_path / "panic.lock")
     # /tara ai retrains a stale live model (M31-13); the retrain must not land in the real logs/
     monkeypatch.setattr(signal_filter, "model_file", lambda: tmp_path / "signal_model.joblib")
     monkeypatch.setattr(macro, "_second_fetch", offline)

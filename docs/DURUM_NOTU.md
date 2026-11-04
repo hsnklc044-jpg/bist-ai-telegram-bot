@@ -1,4 +1,4 @@
-# Durum notu (04.11.2026, kod v0.99.77 / eb60894)
+# Durum notu (04.11.2026, kod v0.99.78)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -34,6 +34,15 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
   - Ayrıntı RESEARCH_LOG'da. Hatırlatma silindi.
 - ✅ v0.99.77 (eb60894): `scripts\olcum.ps1`, aynı kontrolü PC'de tek komutla yapıyor. Görüntü `BACKUP_DIR\olcum` klasörüne, rapor `logs\olcum_report.txt`'ye yazılıyor. Kullanıcı 04.11'de kotayı korumak için rutin işlerin Python/PowerShell ile yürümesini istedi.
 - ⏳ Sıradaki: kullanıcının seçimi. Kalan seçenekler: Faz C (K-64 değerlendirme kodunu değiştiren maddeler ileri testten sonraya) ya da M31/M32 yeniden doğrulaması. Onay gelmeden başlanmaz.
+- ✅ **M31/M32 yeniden doğrulaması (v0.99.78):**
+  - M31 kullanılamaz, M32 kısıtlı. Raporlar ve geliştirici ekleri `docs/validation/` altında.
+  - Ek sorular:
+    1. Ayrımda her adım kendi kodunu çalıştırdı: dolaylı olarak kanıtlandı.
+    2. 41→36: kod, Python yaması ve rastgelelik dışlandı; fark veride, ama hangi verinin farklı olduğu kayıtlardan ayrılamıyor.
+    3. Kayıt: iş akışları artık tamam, sonuç JSON'larına damga v0.99.78'de eklendi.
+  - Düzeltilenler: M32 Y1 (saatlik kilit), O2, O3, D6, D7; M31 Y1, O1, O2, O3, D1, D2, D5, D8.
+  - Ertelenenler: M31 D3, D4, D6, D7 ve ML etiketlerinde süre kilidi (Faz C ya da 03.02.2027 sonrası).
+- ⏳ Sıradaki: Faz C'nin temiz maddeleri. Kullanıcı Faz C kararını raporu gördükten sonra vereceğini söyledi; ardından genel onay verdi.
 - **Genel onay (kullanıcı, 04.11 akşam):** "Benden onay bekleme, her aşamaya onay veriyorum." Sıra şöyle:
   1. M31 ve M32 bağımsız inceleme raporları (başlatıldı 18:14 UTC, yalnız rapor).
   2. Bulguların önem sırasıyla düzeltilmesi; her düzeltme önce kırmızı test, sonra kod.

@@ -56,8 +56,8 @@ Hiçbir model al/sat önerisi üretmez; çıktılar "kural çıktısıdır, öne
 | M28 | Risk bütçesi (/risk) | `core/alerts/budget.py` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış iki hisseli testler | testler, v0.98.0 |
 | M29 | Temel puanlar (/temel) | `core/fundamentals/scores.py` | ORTA | bağımsız doğrulanmadı; elle hesaplanmış testler; veri yok | testler, v0.99.0 |
 | M30 | ML filtresi (RandomForest, BIST 30) | `core/ml/` | YÜKSEK | örneklem dışı ölçüm Actions'ta; açılma koşulu K-59 | testler, v0.99.13 |
-| M31 | Sinyal onay katmanı ve kart kuralı (/tara ai) | `core/ml/signal_filter.py`, `core/screen/ai.py`, `core/analytics/card_study.py` | YÜKSEK | bağımsız doğrulanmadı; örneklem dışı ölçümler K-64 ve K-68 geçmedi, kart bunu yazıyor | testler, v0.99.37 |
-| M32 | Sanal sinyal defteri (lot, iz süren stop, şalter, panik) | `core/signals/` | YÜKSEK | bağımsız doğrulanmadı; elle hesaplanmış testler | testler, v0.99.39 |
+| M31 | Sinyal onay katmanı ve kart kuralı (/tara ai) | `core/ml/signal_filter.py`, `core/screen/ai.py`, `core/analytics/card_study.py` | YÜKSEK | bağımsız doğrulama 04.11.2026 (yeniden): kullanılamaz; K-64 ve K-68 geçmedi, kart bunu yazıyor (docs/validation/M31.md) | v0.99.78 |
+| M32 | Sanal sinyal defteri (lot, iz süren stop, şalter, panik) | `core/signals/` | YÜKSEK | bağımsız doğrulama 04.11.2026 (yeniden): kısıtlı; limit ve panik günleri ayıklanarak okunmalı (docs/validation/M32.md) | v0.99.78 |
 | M23 | Rapor zamanı ve seans takvimi | `core/market/calendar.py` | ORTA | bağımsız doğrulanmadı | testler; tatil 29.10 PC kanıtı bekleniyor |
 
 Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı sürümde girerler.

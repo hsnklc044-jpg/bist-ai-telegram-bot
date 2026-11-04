@@ -2,6 +2,29 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.78 – 04.11.2026 (M31 ve M32 yeniden doğrulaması ve bulguların düzeltilmesi)
+- Faz A ve B sonrasında iki bağımsız inceleyici M31 ve M32'yi yeniden doğruladı. Kararlar: M31 **kullanılamaz** (K-64 ve K-68 kendi ölçütlerini geçmiyor), M32 **kısıtlı**. Raporlar `docs/validation/M31.md` ve `M32.md`'de; inceleyicinin metni değiştirilmedi, sonuna ayrı bir geliştirici eki kondu.
+- **M32 YÜKSEK – kilitli gün saatlik takipte işlemiyordu.** Tabanda kilitli bir günün yalnız ilk saati kilitli sayılıyordu, sonraki saatlerde stop kilit fiyatından doluyordu. Artık kilit seans günü düzeyinde belirleniyor: o günün bütün mumları tek fiyatsa ve günün kapanışı bir önceki güne göre limitse, bütün saatler kilitli. Günlük çerçevede sonuç aynı.
+- **M32 ORTA:**
+  - Son seansı kilitli pozisyon, süre dolumunda ilk kilitsiz açılıştan kapanıyor.
+  - /panik, girişten önceki günün kapanışıyla kapatmıyor; o pozisyon açık kalıyor.
+- **M31:**
+  - Doğrulanmamış kartta skor "Model skoru (kalibre değil, olasılık değildir)" olarak yazılıyor. Lot satırı "yalnız sanal defter, işlem önerisi değil" diyor.
+  - Kart, giriş seansının tarihini yazıyor.
+  - Canlı model 02.11.2026 öncesiyle sınırlı; holdout görmüyor.
+  - Yeniden eğitilemeyen eski model tarihiyle bildiriliyor.
+  - Aynı günün kartları boş nakdi paylaşıyor.
+- **Ölçüm damgası:**
+  - Sonuç dosyaları (`logs/*.json`) veri ve kod damgası taşıyor.
+  - Damgaya Python ve kütüphane sürümleri eklendi.
+  - İzlenmeyen bir .py dosyası varken damga "temiz" demiyor.
+- **Diğer:**
+  - Testler panik kilidini her zaman geçici klasöre yazıyor.
+  - /panik açıklaması güncellendi.
+  - Model kapısı "Karar: kısıtlı" biçimini de okuyor; önceden M32 raporu kapıdan düşüyordu.
+- **Ertelenenler:** K-63, K-64 ya da K-68 değerlendirme kodunu ya da üretim kuralını değiştiren bulgular (M31 D3, D4, D6, D7; ML etiketlerinde süre dolumu kilidi). Bunlar Faz C'de ya da 03.02.2027 ileri testinden sonra ele alınacak. Eşik, kural ve ileri test ölçütü değişmedi.
+- Doğrulama: `test_m31_revalidation` (12 test) ve `test_m32_revalidation` (11 test), önce kırmızı sonra yeşil. Davranışı bilerek değişen iki eski test (`test_control`) yeni beklentiye göre güncellendi.
+
 ## v0.99.77 – 04.11.2026 (ölçüm kontrolü bilgisayarda tek komutla; K-76)
 - Yeni `scripts\olcum.ps1` (`python -m core.analytics.provenance pc`):
   - Saatlik veriyi indirir ve holdout öncesini yedek klasörüne (`BACKUP_DIR`, ör. OneDrive) dondurur.

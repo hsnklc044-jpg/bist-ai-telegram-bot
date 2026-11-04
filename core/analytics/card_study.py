@@ -76,6 +76,7 @@ def latest() -> tuple[Result, str]:
 
     try:
         got = json.loads(Path(RESULT_FILE or _result_file()).read_text(encoding="utf-8"))
+        got.pop("provenance", None)  # data and code stamp (K-76), not a Result field
         got["interval"] = tuple(got["interval"])
         return Result(**got), "bu bilgisayardaki son ölçüm"
     except (OSError, ValueError, TypeError, KeyError):
@@ -187,8 +188,9 @@ def main() -> int:
     print(provenance.stamp(frames, HOLDOUT_START))
     result = study(frames)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    (LOG_DIR / "card_study.json").write_text(json.dumps(asdict(result), ensure_ascii=False, indent=1, default=str),
-                                             encoding="utf-8")
+    (LOG_DIR / "card_study.json").write_text(
+        json.dumps({**asdict(result), "provenance": provenance.record(frames, HOLDOUT_START)}, ensure_ascii=False,
+                   indent=1, default=str), encoding="utf-8")
     report = text(result)
     print(report)
     print(f"Rapor sha256 {provenance.report_digest(report)}")

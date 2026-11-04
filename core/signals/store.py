@@ -239,7 +239,8 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     window_days = _days(window.index)
     lows, highs, opens = (window[k].to_numpy(dtype=float) for k in ("low", "high", "open"))
     # K-75: a day locked at the lower limit has no seller's fill; the stop fills at the next open
-    locked = pd.Series(locked_down(df), index=df.index).reindex(window.index).fillna(False).to_numpy(dtype=bool)
+    every_locked = pd.Series(locked_down(df), index=df.index)
+    locked = every_locked.reindex(window.index).fillna(False).to_numpy(dtype=bool)
     # K-67 trailing stop: STOP below the highest price seen BEFORE each candle (a candle's own high
     # cannot lift its own stop: the order inside a candle is unknown); it only moves up
     peak_before = np.maximum.accumulate(np.r_[entry, highs[:-1]])
@@ -258,6 +259,13 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
                       "r": price / entry - 1 - COST, "stop": float(trail[i]),
                       "peak": float(max(entry, highs[: i + 1].max()))}
     if expire and len(sessions) >= HORIZON:
+        if locked[-1]:  # M32 re-validation O3: a locked last session has no seller; the first unlocked open
+            later = df[(df.index > window.index[-1]) & ~every_locked.to_numpy(dtype=bool)]
+            if later.empty:
+                return out
+            price = float(later["open"].iloc[0])
+            return out | {"status": "sure", "exit_date": _days(later.index)[0].date().isoformat(),
+                          "exit_price": price, "r": price / entry - 1 - COST}
         price = float(window["close"].iloc[-1])
         return out | {"status": "sure", "exit_date": window_days[-1].date().isoformat(), "exit_price": price,
                       "r": price / entry - 1 - COST}

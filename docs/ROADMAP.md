@@ -285,7 +285,7 @@ Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanıl
 | M5-1, M5-4, M8-2, M27-1/2/3, M31-1/4/5/6, M32-1/2/5/6, M1-1, M8-1 | ✅ v0.99.52–v0.99.67 |
 
 ### Yeniden doğrulama
-Faz A ve B bitince M31 ve M32, Faz C bitince M30 ayrı inceleyiciyle yeniden doğrulanır. Diğer 11 modelin kararı en geç 12 ay içinde yenilenir; süresi geçen doğrulama `/durum`'da ⚠️ verir.
+Faz A ve B bitince M31 ve M32, Faz C bitince M30 ayrı inceleyiciyle yeniden doğrulanır. ✅ M31 ve M32 04.11'de yeniden doğrulandı (M31 kullanılamaz, M32 kısıtlı; v0.99.78'de bulgular düzeltildi, değerlendirme kodunu değiştirenler ertelendi). Diğer 11 modelin kararı en geç 12 ay içinde yenilenir; süresi geçen doğrulama `/durum`'da ⚠️ verir.
 
 ### Zamana ve kullanıcıya bağlı olanlar
 - 20 seans gözlem: en erken 2 Aralık 2026.

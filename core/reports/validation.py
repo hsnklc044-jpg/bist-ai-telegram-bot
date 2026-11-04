@@ -51,7 +51,10 @@ def _verdict(text: str) -> str | None:
         part = h.group(1) if h else None
     if part is None:
         return None
-    return next((v for v in VERDICTS if v in part), None)
+    found = next((v for v in VERDICTS if v in part), None)
+    if found is None and re.match(r"\W*kısıtlı\b", part):  # "Karar: kısıtlı — …" (M32, 04.11.2026)
+        found = "kısıtlı kullanılabilir"
+    return found
 
 
 def reports(folder: Path | None = None) -> dict[str, Report]:

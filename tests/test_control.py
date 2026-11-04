@@ -117,7 +117,8 @@ class AiTest(unittest.TestCase):
     def test_approval_message(self):
         text = ai.message(self.candidate(0.64), validated=False)
         self.assertIn("Doğrulanmamış model sinyali: THYAO", text)  # not "AI onayı" (M31-1)
-        self.assertIn("ML güven skoru:</b> %64", text)
+        self.assertIn("Model skoru (kalibre değil, olasılık değildir):</b> %64", text)  # M31 re-validation O3
+        self.assertIn("ML güven skoru:</b> %64", ai.message(self.candidate(0.64), validated=True))
         self.assertIn("Zarar durdur (%2, iz süren):</b> ~245,00 TL", text)
         self.assertIn("Kâr al (%4):</b> ~260,00 TL", text)
         self.assertIn("işleme girmek sizin kararınız", text)
@@ -182,7 +183,7 @@ class AiTest(unittest.TestCase):
             out = ai.run(date(2026, 11, 3), {"A.IS": df}, Fixed(), validated=False, book=book)
             self.assertIn("1 hissede teknik tetik", out[0][0])
             self.assertIn("model sinyali: A", out[1][0])
-            self.assertIn("Lot (%1 risk kalkanı)", out[1][0])
+            self.assertIn("Lot (%1 risk kalkanı; yalnız sanal defter", out[1][0])
             conn = S.connect(book)
             (card,) = S.signals(conn)
             waiting = S.signals(conn, S.OPEN_STATES)
@@ -236,7 +237,9 @@ class LiveModelTest(unittest.TestCase):
                     mock.patch("core.reports.daily.adjusted_bars", side_effect=lambda s: frames.get("R0.IS")), \
                     mock.patch.object(SF, "validated", return_value=False):
                 out = ai.live(date(2026, 11, 3))
-        self.assertTrue(out[0][0].startswith("🔎 /tara ai"))
+        # the saved model is from 2023 and the mocked load keeps returning it: the card says so (D1)
+        self.assertIn("yeniden eğitilemedi", out[0][0])
+        self.assertTrue(out[1][0].startswith("🔎 /tara ai"))
 
     def test_weekly_refit_and_panic_since(self):
         from core.reports import daily

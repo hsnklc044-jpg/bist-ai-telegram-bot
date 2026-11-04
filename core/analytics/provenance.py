@@ -126,10 +126,25 @@ class Code:
     commit: str
     clean: bool | None
     path: str
+    runtime: str = ""  # Python and the libraries the studies depend on (empty in older manifests)
 
     def line(self) -> str:
         state = {True: "temiz", False: "kaydedilmemiş değişiklik var", None: "durum bilinmiyor"}[self.clean]
-        return f"Kod: v{self.version}, commit {self.commit} ({state}); core: {self.path}"
+        return (f"Kod: v{self.version}, commit {self.commit} ({state}); core: {self.path}"
+                + (f"; {self.runtime}" if self.runtime else ""))
+
+
+def runtime() -> str:
+    import platform
+    from importlib import metadata
+
+    parts = [f"Python {platform.python_version()}"]
+    for name in ("pandas", "numpy", "scikit-learn", "yfinance"):
+        try:
+            parts.append(f"{name} {metadata.version(name)}")
+        except metadata.PackageNotFoundError:
+            parts.append(f"{name} yok")
+    return ", ".join(parts)
 
 
 def _git(root: Path, *args: str) -> str | None:
@@ -150,7 +165,19 @@ def code_version() -> Code:
     root = folder.parent
     commit = _git(root, "rev-parse", "HEAD")
     status = _git(root, "status", "--porcelain", "--untracked-files=no") if commit else None
-    return Code(core.__version__, commit or "bilinmiyor", None if status is None else status == "", str(folder))
+    # M31 re-validation D5: a new .py file git does not track yet is running code too
+    loose = _git(root, "status", "--porcelain", "--untracked-files=all", "--", "*.py") if commit else None
+    clean = None if status is None or loose is None else (status == "" and
+                                                        not any(x.startswith("??") for x in loose.splitlines()))
+    return Code(core.__version__, commit or "bilinmiyor", clean, str(folder), runtime())
+
+
+def record(frames: dict[str, pd.DataFrame], before=None) -> dict:
+    """The stamp a result file carries (M31 re-validation D8): data without the per-stock table, and code."""
+
+    data = asdict(describe(frames, before))
+    data.pop("per_stock", None)
+    return {"data": data, "code": asdict(code_version())}
 
 
 def stamp(frames: dict[str, pd.DataFrame], before=None) -> str:

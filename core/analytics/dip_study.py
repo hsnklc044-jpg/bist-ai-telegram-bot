@@ -156,8 +156,9 @@ def main(argv: list[str] | None = None) -> int:
     result = study(frames)
     if not args.veri:  # a run on a frozen snapshot is a check; it leaves the result file alone
         LOG_DIR.mkdir(parents=True, exist_ok=True)
-        (LOG_DIR / "dip_study.json").write_text(json.dumps(asdict(result), ensure_ascii=False, indent=1),
-                                                encoding="utf-8")
+        (LOG_DIR / "dip_study.json").write_text(
+            json.dumps({**asdict(result), "provenance": provenance.record(frames, provenance.holdout_edge())},
+                       ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     report = text(result)
     print(report)
     print(f"Rapor sha256 {provenance.report_digest(report)}")

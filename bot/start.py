@@ -21,7 +21,7 @@ Komutlar:
 /risk [gercek|sanal] – risk bütçesi: sınırlarının kullanımı; /risk ekle THYAO 100 (ya şöyle olsaydı), /risk denge (hesap sonucu, öneri değil)
 /temel THYAO – temel puanlar: Piotroski F, Altman Z'', Beneish M, Greenblatt, Novy-Marx (yayın tarihli veriden; veri yoksa 'veri yok')
 /summary – portföy ve piyasa özeti
-/panik – acil durdurma: açık sanal sinyalleri iptal eder, takibi ve taramaları kilitler; /devam – kilidi kaldırır
+/panik – acil durdurma: bekleyen sinyalleri iptal eder, açık pozisyonları son kapanıştan kapatır, taramaları kilitler; /devam – kilidi kaldırır
 /watchlist – takip listesi
 /watchadd EREGL – listeye ekle
 /watchremove EREGL – listeden çıkar
