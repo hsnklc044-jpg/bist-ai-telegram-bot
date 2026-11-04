@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.50 – 04.11.2026 (temel veri posta kutusu; K-70 madde 6)
+- Yeni `core/fundamentals/inbox.py`: Kullanıcı KAP'tan elle indirip CSV'ye çevirdiği dosyayı `data/inbox/temel/` klasörüne bırakıyor; bot 5 dakikada bir bakıyor.
+  - 60 saniyeden yeni dosyaya dokunulmuyor; kopyalama sürüyor olabilir.
+  - Mevcut denetimli içe aktarma kullanılıyor: yalnız ekleme, aynı satır iki kez eklenmiyor.
+  - Okunan dosya `islendi/`, hiç okunamayan dosya `reddedildi/` klasörüne taşınıyor; reddedilenin yanına nedenleri `.hata.txt` olarak yazılıyor. Aynı adlı eski dosyanın üzerine yazılmıyor.
+  - Her dosyanın sonucu Telegram'a bildiriliyor: kaç satır eklendi, kaçı neden reddedildi.
+- KAP'a otomatik erişim yok, ağ kodu yok (K-48). Kullanıcının istediği "dosya izleyici ETL", Windows'ta daha sağlam olan bu biçimde yapıldı (K-70 mimari notu).
+- `data/inbox/` git dışında.
+- Doğrulama: `test_fundamentals_inbox` (6 test): iyi dosya ekleniyor ve taşınıyor; karışık dosyada satırlar sayılıyor; bozuk dosya reddediliyor ve nedeni yazılıyor; kopyalanmakta olan dosya bekliyor; aynı ad üzerine yazılmıyor ve satır iki kez eklenmiyor; bot işi kayıtlı ve her dosyayı bildiriyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.49 – 04.11.2026 (tekrar deneme ve kritik uyarı; kullanıcının "auto-healing" isteği)
 - Yeni `core/infrastructure/retry.py`: Geçici hatalar 2, 4, 8 ve 16 saniye sonra yeniden deneniyor; toplam 5 deneme, yaklaşık 30 saniye. Geçici hata: ağ, zaman aşımı, kilitli SQLite. Diğer hatalar programlama hatası sayılıyor ve yeniden denenmiyor, izleriyle log'a yazılıyor.
 - Bütün denemeler başarısız olursa Telegram'a "🚨 KRİTİK" mesajı ve JSON yük gidiyor: seviye, iş, deneme sayısı, hata, zaman. Aynı iş ve hata türü 6 saatte bir kez bildiriliyor; uzun bir kesinti tek mesaj olarak geliyor. Bu durum bot yeniden başlasa da korunuyor (`logs/critical_alerts.json`).

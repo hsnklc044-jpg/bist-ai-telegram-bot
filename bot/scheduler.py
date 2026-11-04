@@ -277,6 +277,32 @@ def schedule_backup_catch_up(app: Application, chat_id: int | None = None) -> bo
     return True
 
 
+INBOX_JOB = "fundamentals_inbox"
+
+
+async def fundamentals_inbox_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """v0.99.50: CSV files the user dropped into data/inbox/temel are imported and reported."""
+
+    from core.fundamentals import inbox
+
+    try:
+        results = await asyncio.to_thread(inbox.process)
+    except Exception:  # noqa: BLE001 - the bot never stops on this
+        logger.exception("Fundamentals inbox failed")
+        return
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    for result in results:
+        if chat:
+            await context.bot.send_message(chat, inbox.message(result))
+
+
+def schedule_fundamentals_inbox(app: Application, chat_id: int | None = None) -> bool:
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_repeating(fundamentals_inbox_job, interval=300, first=60, name=INBOX_JOB, chat_id=chat_id)
+    return True
+
+
 MACRO_JOB = "macro_refresh"
 
 
