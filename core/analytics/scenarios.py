@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 from core.analytics import levels as L
+from core.market.limits import limit_move
 
 COST = 0.0010 + 0.0005  # per side: commission + slippage
 MIN_R = 1.5
@@ -144,7 +145,7 @@ def outcome(df: pd.DataFrame, t: int, invalidation: float, target: float, horizo
         return None
     o, h, lo, c = (df[k].to_numpy(dtype=float) for k in ("open", "high", "low", "close"))
     entry = o[t + 1]
-    if abs(entry / c[t] - 1) > LIMIT_MOVE or not invalidation < entry < target:
+    if limit_move(entry / c[t] - 1) or not invalidation < entry < target:
         return Outcome("dolmadı")  # a limit open, or a gap past invalidation / target: nothing to enter
     risk = entry * (1 + COST) - invalidation * (1 - COST)
 
@@ -186,7 +187,7 @@ def size(entry: float, invalidation: float, account: float | None, risk: float, 
 def _limit_line(df: pd.DataFrame, entry: float, invalidation: float) -> str:
     moves = (df["close"] / df["close"].shift(1) - 1).abs().iloc[-10:]
     gap = (entry - invalidation) / entry * 100
-    extra = "; son 10 seansta limit hareketi oldu" if (moves > LIMIT_MOVE).any() else ""
+    extra = "; son 10 seansta limit hareketi oldu" if limit_move(moves).any() else ""
     return (f"     tavan/taban riski: geçersizlik %{num(gap, 1)} uzakta; tek seansta ±%10 limit hareketi "
             f"geçersizliği atlayabilir{extra}")
 

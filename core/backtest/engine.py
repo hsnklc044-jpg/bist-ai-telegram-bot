@@ -30,6 +30,8 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
+from core.market.limits import limit_down, limit_up
+
 TRADING_DAYS = 252
 LIMIT_MOVE = 0.095
 
@@ -163,9 +165,9 @@ def run_backtest(
         for s, df in frames.items():
             change = df["close"].pct_change()
             flat = df["high"] <= df["low"]
-            for day in df.index[flat & (change <= -LIMIT_MOVE)]:
+            for day in df.index[flat & limit_down(change)]:
                 locked_down.add((day, s))
-            for day in df.index[flat & (change >= LIMIT_MOVE)]:
+            for day in df.index[flat & limit_up(change)]:
                 locked_up.add((day, s))
 
     calendar = sorted(set().union(*(df.index for df in frames.values() if not df.empty)))

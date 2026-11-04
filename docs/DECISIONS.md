@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-75. Tavan ve taban kuralı tek yerde; kilitli günde dolum yok (04.11.2026).**
+- **Neden:** Bağımsız doğrulama (M27-9, M30-6, M31-11, M32-7, M5-3, M32-9, M27-6, M30-5) aynı kuralın 11 yerde farklı yazıldığını gösterdi. Bazı yerler `>`, bazıları `>=` kullanıyordu; hiçbiri kayan nokta payı taşımıyordu. 100 → 109,5 bir modülde tavan sayılıyor, ötekinde sayılmıyordu.
+- **Karar 1 (v0.99.73):** Tavan ve taban kuralı `core/market/limits.py`'de tek yerde. Hareket %9,5 ya da daha fazlaysa limittir; karşılaştırma 1e-9 pay taşır. Bütün modüller bu fonksiyonları kullanır. Bir test, hiçbir modülün sınırı kendi başına karşılaştırmadığını denetler. `/tara`'nın veri sıçraması eşiği (%10,5) ayrı bir kavramdır; adı `JUMP_MOVE` oldu.
+- **Karar 2 (sonraki adım):** Tavanda kilitli günde giriş, tabanda kilitli günde çıkış dolmaz. Kilitli gün, en yüksek ile en düşük fiyatın eşit olduğu limit günüdür. Çıkış, ilk kilitsiz günün açılışından yapılır.
+- **Ölçümler:** Kural değiştiği için etkilenen çalışmalar (K-59, K-63, K-64, K-68, `/tara` karnesi, senaryo karnesi) GitHub Actions'ta yeniden çalıştırılır. Eski ve yeni sonuç RESEARCH_LOG'da yan yana yazılır. Eşikler ve geçme koşulları değişmez.
+
 **K-74. "Kullanılamaz" model, kapı tarafından uygulanıyorsa uyarı değil bilgidir (04.11.2026).**
 - **Neden:** M30 ve M31 bağımsız doğrulamada "kullanılamaz" çıktı. `/durum`'daki Model doğrulama satırı bu yüzden kalıcı ⚠️ oldu. Hiç kapanmayan bir uyarı yeni sorunları gizler (v0.99.40'taki eski eksik kayıt kararıyla aynı ilke).
 - **Karar:** "Kullanılamaz" kararı ℹ️ olarak gösterilir ve metin model kapısının (K-72) otomatik eylemleri kapalı tuttuğunu yazar. ⚠️ yalnız yapılacak bir iş varsa çıkar: süresi geçmiş doğrulama. Kararın kendisi değişmez; "tam güvenilir" ölçütü (14/14 raporlu) de değişmez.

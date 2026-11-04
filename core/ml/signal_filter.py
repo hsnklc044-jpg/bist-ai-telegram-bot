@@ -28,6 +28,7 @@ import numpy as np
 import pandas as pd
 
 from core.infrastructure.logger import get_logger
+from core.market.limits import limit_up
 
 logger = get_logger(__name__)
 
@@ -66,7 +67,7 @@ def labels(df: pd.DataFrame, x: int, y: float) -> pd.DataFrame:
 
     entry = df["open"].shift(-1)
     later = df["close"].shift(-x)
-    fill = (entry > 0) & (entry / df["close"] - 1 < LIMIT_MOVE)  # no entry on a limit-up open
+    fill = (entry > 0) & ~limit_up(entry / df["close"] - 1)  # no entry on a limit-up open
     known = later.notna() & entry.notna() & fill
     label = (later / entry - 1 >= y).astype(float).where(known)
     ends = pd.Series(df.index, index=df.index).shift(-x).where(known)

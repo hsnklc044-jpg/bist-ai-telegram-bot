@@ -26,7 +26,8 @@ import pandas as pd
 
 from core.config.paths import SIGNALS_DB
 from core.infrastructure.logger import get_logger
-from core.ml.features import COST, HORIZON, LIMIT_MOVE, STOP, TARGET
+from core.market.limits import limit_up
+from core.ml.features import COST, HORIZON, STOP, TARGET
 
 logger = get_logger(__name__)
 
@@ -230,7 +231,7 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
         return {}
     entry = float(after["open"].iloc[0])
     entry_day = after_days[0].date().isoformat()
-    if not entry > 0 or (not before.empty and entry / float(before["close"].iloc[-1]) - 1 >= LIMIT_MOVE):
+    if not entry > 0 or (not before.empty and limit_up(entry / float(before["close"].iloc[-1]) - 1)):
         return {"status": "dolmadi", "entry_date": entry_day, "r": None}
     first_stop, target = entry * (1 - STOP), entry * (1 + TARGET)
     sessions = after_days.unique()

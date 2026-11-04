@@ -11,6 +11,7 @@ from datetime import date
 import pandas as pd
 
 from core.config import alerts as cfg
+from core.market.limits import limit_down
 
 SEVERITY = {1: "düşük", 2: "orta", 3: "yüksek"}
 
@@ -55,7 +56,7 @@ def _atr(df: pd.DataFrame, window: int) -> pd.Series:
 
 def _locked_down_streak(df: pd.DataFrame) -> int:
     change = df["close"].pct_change()
-    locked = (df["high"] <= df["low"]) & (change <= -cfg.LIMIT_MOVE)
+    locked = (df["high"] <= df["low"]) & limit_down(change)
     streak = 0
     for flag in reversed(locked.tolist()):
         if not flag:

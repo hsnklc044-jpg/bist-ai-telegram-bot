@@ -17,6 +17,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from core.market.limits import limit_up
+
 STOP = 0.02
 TARGET = 0.04
 HORIZON = 10
@@ -60,7 +62,7 @@ def labels(df: pd.DataFrame, stop: float = STOP, target: float = TARGET, horizon
     end = np.full(n, None, dtype=object)
     for t in range(n - 1):
         entry = o[t + 1]
-        if not entry > 0 or entry / c[t] - 1 >= LIMIT_MOVE:
+        if not entry > 0 or limit_up(entry / c[t] - 1):
             continue  # no price, or a limit-up open: the order would not fill
         last = min(t + horizon, n - 1)
         if last - t < horizon:
@@ -101,7 +103,7 @@ def relative_labels(df: pd.DataFrame, bench_close: pd.Series, horizon: int = REL
         entry, exit_ = o[t + 1], c[t + horizon]
         stock = exit_ / entry - 1 - COST
         market = bench[t + horizon] / bench[t] - 1
-        ok = (entry > 0) & (entry / c[t] - 1 < LIMIT_MOVE) & np.isfinite(stock) & np.isfinite(market)
+        ok = (entry > 0) & ~limit_up(entry / c[t] - 1) & np.isfinite(stock) & np.isfinite(market)
         label[t[ok]] = (stock[ok] > market[ok]).astype(float)
         ret[t[ok]] = stock[ok] - market[ok]  # the excess return over XU100
         end[t[ok]] = df.index[t[ok] + horizon]

@@ -17,6 +17,8 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
+from core.market.limits import limit_move
+
 N = 5  # fractal: sessions on each side
 LOOKBACK = 252
 CLUSTER_ATR = 0.5
@@ -66,7 +68,7 @@ def pivots(df: pd.DataFrame, n: int = N) -> list[Pivot]:
     move = np.abs(close / np.r_[np.nan, close[:-1]] - 1)
     out = []
     for t in range(n, len(df) - n):
-        if move[t] > LIMIT_MOVE:
+        if limit_move(move[t]):
             continue
         if high[t] > high[t - n:t].max() and high[t] >= high[t + 1:t + n + 1].max():
             out.append(Pivot(df.index[t], float(high[t]), "tepe"))
@@ -188,7 +190,7 @@ def _pivot_arrays(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
     left_max, left_min = hs.rolling(N).max().shift(1).to_numpy(), ls.rolling(N).min().shift(1).to_numpy()
     right_max = hs[::-1].rolling(N).max().shift(1)[::-1].to_numpy()
     right_min = ls[::-1].rolling(N).min().shift(1)[::-1].to_numpy()
-    ok = ~(move > LIMIT_MOVE)
+    ok = ~limit_move(move)
     with np.errstate(invalid="ignore"):
         top = ok & (high > left_max) & (high >= right_max)
         bottom = ok & (low < left_min) & (low <= right_min)

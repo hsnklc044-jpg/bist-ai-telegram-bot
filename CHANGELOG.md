@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.73 – 04.11.2026 (Faz B, 1. adım: tavan ve taban kuralı tek yerde; K-75)
+- Yeni `core/market/limits.py`: `limit_up`, `limit_down` ve `limit_move` fonksiyonları. Hareket %9,5 ya da daha fazlaysa limit sayılıyor; karşılaştırma kayan nokta payı taşıyor. 100 → 109,5 artık her yerde limit (0,0949999… < 0,095 sorunu kalktı).
+- Bu fonksiyonları kullanan 10 modül: backtest motoru, sanal emirler, sinyal defteri, tarama elemesi, sinyal onay katmanı, ML etiketleri (iki yer), strateji filtresi, pozisyon uyarıları, senaryolar (iki yer), seviyeler (iki yer). `>` ile `>=` farkı kalktı.
+- Yeni bir test hiçbir modülün sınırı kendi başına karşılaştırmadığını denetliyor. Kural tekrar dağılırsa CI kırmızı olur.
+- `/tara`'nın veri sıçraması eşiği (%10,5) ayrı bir kavram; karışmasın diye adı `JUMP_MOVE` oldu.
+- Etki: Yalnız tam %9,5 sınırındaki hareketler değişiyor; bunlar çok seyrek. Kilitli gün dolum kuralı ve ölçümlerin yeniden çalıştırılması sonraki adımlarda.
+- Doğrulama: yeni `test_limits` (3 test): sınır çizgisi limit sayılıyor; modüller kendi başına karşılaştırmıyor; defter, ML etiketleri ve senaryolar 109,5 açılışında aynı sonucu veriyor. Tam test geçti.
+
 ## v0.99.72 – 04.11.2026 (güncelleyici paket listesini satır sonundan bağımsız karşılaştırıyor)
 - Her kurulum "paketler güncellendi" diyor ve 5–7 dakikalık geçici sanal ortam kuruyordu. `requirements.lock` değişmemişti: Windows'taki git kopyası CRLF, GitHub zip'i LF satır sonu taşıyor ve dosyalar bayt bayt karşılaştırılıyordu.
 - Artık satır sonları ve boş satırlar hesaba katılmıyor; yalnız paket satırları karşılaştırılıyor. Paket listesi gerçekten değişmedikçe kurulum hızlı gidiyor.

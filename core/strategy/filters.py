@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from core.market.limits import limit_move
+
 LIMIT_MOVE = 0.095
 
 
@@ -58,7 +60,7 @@ def eligibility(
         def locks(d):
             change = d["close"].pct_change()
             flat = d["high"] <= d["low"]
-            hit = flat & (change.abs() >= LIMIT_MOVE)
+            hit = flat & limit_move(change)
             return hit.astype(int).rolling(lock_window, min_periods=1).sum()
 
         ok &= _panel(frames, locks) <= max_locks

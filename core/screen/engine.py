@@ -214,7 +214,7 @@ def _ml_filter(result: Result, frames: dict[str, pd.DataFrame]) -> None:
 
 
 SHARP_MOVE = 0.30  # a limit-down or limit-up streak: ATR built at another price level (ANELE, 19-27.10.2026)
-LIMIT_MOVE = 0.105  # BIST's daily price limit is ±10%; a bigger close-to-close move is data or an action
+JUMP_MOVE = 0.105  # not the 9.5% limit rule (core.market.limits): BIST's daily price limit is ±10%; a bigger close-to-close move is data or an action
 
 
 def flags(df: pd.DataFrame) -> list[str]:
@@ -225,7 +225,7 @@ def flags(df: pd.DataFrame) -> list[str]:
     close = df["close"]
     found = []
     moves = (close / close.shift(1) - 1).iloc[-14:].abs()
-    if (moves > LIMIT_MOVE).any():
+    if (moves > JUMP_MOVE).any():
         found.append("ATR son 14 seansta ±%10 limitini aşan bir hareket içeriyor (uç hareket: veri ya da kurumsal "
                      "işlem; /tara_aciklama ile bakın)")
     if len(close) > 14:

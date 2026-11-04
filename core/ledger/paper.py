@@ -38,13 +38,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.backtest.engine import LIMIT_MOVE
 from core.config.paths import LEDGER_FILE, PAPER_ORDERS_FILE
 from core.config.trading import COMMISSION, SLIPPAGE
 from core.infrastructure.csvfiles import read_rows
 from core.infrastructure.exceptions import PersonalFileError
 from core.ledger.book import Entry, LedgerError, append_entry, load_ledger, replay
 from core.market.calendar import ISTANBUL, now_istanbul
+from core.market.limits import limit_down, limit_up
 from core.market.symbols import normalize_symbol
 
 OPENING_AUCTION = time(9, 40)  # BIST opening session starts; later orders wait for the next day
@@ -253,7 +253,7 @@ def _locked(df: pd.DataFrame, day: pd.Timestamp, side: str) -> bool:
     if bar["high"] > bar["low"]:
         return False
     change = bar["close"] / prev_close - 1
-    return change >= LIMIT_MOVE if side == "buy" else change <= -LIMIT_MOVE
+    return bool(limit_up(change)) if side == "buy" else bool(limit_down(change))
 
 
 def fill_pending(

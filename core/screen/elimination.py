@@ -24,6 +24,8 @@ from dataclasses import dataclass, replace
 import numpy as np
 import pandas as pd
 
+from core.market.limits import limit_move
+
 DEFAULT_LIQUIDITY = 15.0  # million TL
 CORPORATE_WINDOW = 60
 LIMIT_MOVE = 0.095
@@ -88,7 +90,7 @@ def frame(df: pd.DataFrame, symbol: str, store_index: pd.DatetimeIndex, actions,
     out = pd.DataFrame(index=df.index)
     out["liquidity"] = (close * volume).shift(1).rolling(20).mean() / 1e6
     move = (close / close.shift(1) - 1).abs()
-    out["limit_days"] = (move > LIMIT_MOVE).astype(int).rolling(LIMIT_WINDOW, min_periods=1).sum()
+    out["limit_days"] = limit_move(move).astype(int).rolling(LIMIT_WINDOW, min_periods=1).sum()
     out["atr_pct"] = average_true_range(df["high"], df["low"], close, 14) / close * 100
 
     corporate = pd.Series("", index=df.index, dtype=object)
