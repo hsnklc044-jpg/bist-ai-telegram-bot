@@ -2,6 +2,21 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.77 – 04.11.2026 (ölçüm kontrolü bilgisayarda tek komutla; K-76)
+- Yeni `scripts\olcum.ps1` (`python -m core.analytics.provenance pc`):
+  - Saatlik veriyi indirir ve holdout öncesini yedek klasörüne (`BACKUP_DIR`, ör. OneDrive) dondurur.
+  - K-63 ve K-64'ü bu veride ayrı süreçlerde iki kez çalıştırıp karşılaştırır.
+  - Günlük fiyat deposunu da dondurur.
+  - Kısa raporu `logs\olcum_report.txt`'ye yazar.
+  - Rutin kontrol için sohbet oturumu ya da GitHub artifact'ı gerekmez (kullanıcı isteği, 04.11).
+- Dondurulmuş veriyle (`--veri`) çalışan K-63 ve K-64 artık `logs/` içindeki sonuç dosyalarına yazmıyor. Bir kontrol, kayıtlı ölçümün yerine geçmesin diye.
+- Bot, kural ve eşik değişmedi. Saatlik veri, botun K-65 için zaten kullandığı Yahoo verisi; yeni bir kaynak açılmadı.
+- Doğrulama: `test_provenance` testleri 20'ye çıktı:
+  - iki aynı çalıştırma "tekrarlanabilir" çıkıyor;
+  - farklı çalıştırma "SORUN VAR" çıkıyor;
+  - `--veri` çalıştırması sonuç dosyası yazmıyor.
+  - Ayrıca gerçek alt süreçlerle uçtan uca sınandı.
+
 ## v0.99.76 – 04.11.2026 (CI kırmızısı: iki test sorunu ve Windows'ta çöken uyarı satırı)
 - 0c8408a (yalnız belge değişikliği) ve c30c81f CI'da kırmızıydı. PC güncelleyicisi yalnız tamamen yeşil commit'e geçtiği için bu commit'ler PC'ye kurulmadı.
 - **Linux:** `test_the_updater_backup_is_not_the_days_backup` başarısızdı. `create_backup`'ın `files` varsayılanı fonksiyon tanımlanırken bağlanıyordu, bu yüzden testteki `PERSONAL_FILES` yaması etkisizdi. Fonksiyon gerçek kişisel dosya listesine bakıyordu; CI'da bu dosyalar olmadığı için yedek oluşmuyordu. Yerelde geçmesinin nedeni bulut kapsayıcısında boş bir `data/watchlist.json` dosyasının bulunmasıydı. Artık varsayılan, çağrı anında okunuyor. Davranış aynı; yalnız yamalanabilir hale geldi.

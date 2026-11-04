@@ -176,6 +176,18 @@ Her günlük rapor çalıştırması `logs/daily_<tarih>.log` ve `logs/quantbist
 - Yalnız hatalar: `Select-String "status=failed" logs\quantbist.log`
 - `status` değerleri: `sent`, `skipped` (o gün zaten gönderildi), `holiday`, `stale` (yeni veri yok), `busy` (başka çalıştırma sürüyordu), `failed`.
 
+## 7c. Ölçüm kontrolü bu bilgisayarda (K-76)
+Tek komut:
+
+    powershell -ExecutionPolicy Bypass -File scripts\olcum.ps1
+
+1. Botun zaten kullandığı saatlik BIST 30 verisini indirir ve 02.11.2026 öncesini dondurur. Görüntü `<BACKUP_DIR>\olcum\saatlik_YYYYMMDD_HHMM\` klasörüne yazılır. `BACKUP_DIR` OneDrive'ı gösteriyorsa görüntü oraya gider ve 90 günlük artifact sınırına takılmaz.
+2. K-63 ile K-64 saatliği bu görüntü üzerinde iki kez çalıştırır ve iki raporun birebir aynı olup olmadığına bakar.
+3. Yerel günlük fiyat deposunu da (holdout öncesi) dondurur.
+4. Kısa sonucu `logs\olcum_report.txt`'ye yazar. Bu dosyayı sohbete yapıştırmak yeterli; GitHub'da çalışma izlemek gerekmez.
+
+Botun okuduğu kayıtlara dokunmaz. Kural ya da eşik değiştirmez. Bir tekrarlanabilirlik kontrolüdür, karar ölçümü değildir. Süre birkaç dakikadır. Bot açıkken çalıştırılabilir.
+
 ## 8. Kesintiler: ne olur, nasıl fark edilir, nasıl toparlanır, kimin işi
 
 Her satırın arkasında bir test var (parantez içinde). "Sistem" = kod kendiliğinden; "Otomasyon" = PC'deki yerel otomasyon; "Kullanıcı" = sen.

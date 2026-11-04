@@ -134,6 +134,64 @@ class DailyStoreTest(unittest.TestCase):
         self.assertLess(back["X.IS"].index.max(), pd.Timestamp("2026-11-02"))
 
 
+class PcCheckTest(unittest.TestCase):
+    """scripts/olcum.ps1: freeze, run twice, one short report; the bot's result files are left alone."""
+
+    def _download(self):
+        from core.market.hourly import HourlyData
+
+        return HourlyData(frames=frames())
+
+    def test_identical_runs_and_report(self):
+        from datetime import datetime
+
+        calls = []
+
+        def run(args):
+            calls.append(args)
+            return "Veri: x\n🔬 K: GEÇMEDİ – az\nRapor sha256 abc\n"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report = Path(tmp) / "r.txt"
+            code = P.pc_check(Path(tmp) / "olcum", datetime(2026, 11, 4, 21, 0), self._download, run, report)
+            text = report.read_text(encoding="utf-8")
+            frozen = Path(tmp) / "olcum" / "saatlik_20261104_2100"
+            self.assertTrue((frozen / P.MANIFEST).exists())
+            P.thaw(frozen)
+        self.assertEqual(code, 0)
+        self.assertEqual(len(calls), 4)  # K-63 and K-64, twice each
+        self.assertTrue(all("--veri" in c for c in calls))
+        self.assertIn("K-63: iki çalıştırma AYNI", text)
+        self.assertIn("SONUÇ: tekrarlanabilir", text)
+        self.assertIn("Günlük görüntü yok", text)  # the test price store is empty
+
+    def test_different_runs_are_reported(self):
+        from datetime import datetime
+
+        outputs = iter(["Rapor sha256 a\n", "Rapor sha256 b\n"] * 2)
+        with tempfile.TemporaryDirectory() as tmp:
+            report = Path(tmp) / "r.txt"
+            code = P.pc_check(Path(tmp), datetime(2026, 11, 4), self._download, lambda a: next(outputs), report)
+            text = report.read_text(encoding="utf-8")
+        self.assertEqual(code, 1)
+        self.assertIn("FARKLI", text)
+        self.assertIn("SORUN VAR", text)
+
+    def test_frozen_runs_leave_the_result_files_alone(self):
+        from unittest import mock
+
+        from core.analytics import dip_study
+        from core.ml import signal_filter
+
+        with tempfile.TemporaryDirectory() as tmp:
+            P.freeze(frames(), Path(tmp) / "s", None)
+            logs = Path(tmp) / "logs"
+            with mock.patch("core.config.paths.LOG_DIR", logs), redirect_stdout(StringIO()):
+                dip_study.main(["--veri", str(Path(tmp) / "s")])
+                signal_filter.main(["--zaman", "saatlik", "--veri", str(Path(tmp) / "s")])
+            self.assertFalse(logs.exists())
+
+
 class CompareTest(unittest.TestCase):
     def test_same_data(self):
         self.assertIn("birebir aynı", P.compare_text(frames(), frames()))

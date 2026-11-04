@@ -154,9 +154,10 @@ def main(argv: list[str] | None = None) -> int:
     print(provenance.stamp(frames, provenance.holdout_edge()))
     print(f"Kaynak: {source}")
     result = study(frames)
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    (LOG_DIR / "dip_study.json").write_text(json.dumps(asdict(result), ensure_ascii=False, indent=1),
-                                            encoding="utf-8")
+    if not args.veri:  # a run on a frozen snapshot is a check; it leaves the result file alone
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        (LOG_DIR / "dip_study.json").write_text(json.dumps(asdict(result), ensure_ascii=False, indent=1),
+                                                encoding="utf-8")
     report = text(result)
     print(report)
     print(f"Rapor sha256 {provenance.report_digest(report)}")

@@ -12,6 +12,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
   3. `hourly.yml` saatlik veriyi bir kez indirir ve dondurur (yalnız 02.11.2026 öncesi). K-63 ve K-64 bu görüntüyü `--veri` ile okur. Görüntü 90 gün artifact olarak saklanır.
   4. Dondurulan görüntü yazıldıktan hemen sonra geri okunur. Okunan verinin özeti manifest ile uyuşmazsa görüntü kabul edilmez.
   5. `snapshot.yml` saatlik ve günlük veriyi dondurur. Saatlik veriyi 5 dakika arayla ikinci kez indirip hisse hisse karşılaştırır. K-63 ve K-64'ü aynı görüntüde, ayrı süreçlerde iki kez çalıştırır; raporlar birebir aynı değilse iş kırmızı olur.
+  6. (v0.99.77) Aynı kontrol bilgisayarda tek komutla yapılabilir: `scripts\olcum.ps1`. Görüntü yedek klasörüne (OneDrive) yazılır, kısa rapor `logs\olcum_report.txt`'ye gider. Böylece rutin kontrol bir sohbet oturumu ya da GitHub artifact'ı gerektirmez; kullanıcı 04.11'de rutin işlerin Python/PowerShell ile yürümesini istedi. Dondurulmuş veriyle (`--veri`) çalışan K-63 ve K-64 sonuç dosyasına yazmaz, böylece bir kontrol, kayıtlı ölçümün yerine geçemez.
 - **Sınır:** Bu karar hiçbir kuralı, eşiği, geçme koşulunu ya da 03.02.2027 ölçütünü değiştirmez. Görüntüler holdout verisi içermez. `snapshot.yml`'deki iki çalıştırma tekrarlanabilirlik sınamasıdır, karar ölçümü değildir; K-63 ve K-64 kararları kayıtlı haliyle kalır. Fiyat verisi depoya konmaz (depo herkese açık); yalnız artifact olarak ve kullanıcının kendi yedeğinde tutulur.
 
 **K-75. Tavan ve taban kuralı tek yerde; kilitli günde dolum yok (04.11.2026).**

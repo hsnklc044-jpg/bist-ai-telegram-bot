@@ -19,6 +19,7 @@ Nothing here changes a rule, a threshold or a decision.
     python -m core.analytics.provenance freeze-daily FOLDER     # freeze that store < holdout
     python -m core.analytics.provenance show FOLDER
     python -m core.analytics.provenance compare FOLDER_A FOLDER_B
+    python -m core.analytics.provenance pc                      # the whole check on this PC (scripts/olcum.ps1)
 """
 
 from __future__ import annotations
@@ -290,12 +291,79 @@ def daily_frames() -> dict[str, pd.DataFrame]:
     return {s: store.read(s) for s in store.symbols()}
 
 
+# --- the check on the user's PC (04.11.2026: routine work runs here, not in a chat session) -------------
+
+
+def _run_study(args: list[str]) -> str:
+    out = subprocess.run([sys.executable, "-m", *args], capture_output=True, text=True, encoding="utf-8",
+                         errors="replace", timeout=3600, check=False)
+    return out.stdout
+
+
+def pc_check(root: Path | None = None, now=None, load=None, run=_run_study, report: Path | None = None) -> int:
+    """Freeze the hourly data (and the local daily store) into the backup folder, run K-63 and K-64 twice
+    on the frozen hourly data in separate processes, and write one short report to paste into the chat.
+    0 = both runs identical; 1 = they differ or something failed. Nothing is tuned or decided here."""
+
+    from datetime import datetime
+
+    from core.backup import backup_dir
+    from core.config.paths import LOG_DIR
+    from core.market.hourly import load_hourly
+
+    now = now or datetime.now()
+    root = Path(root or backup_dir() / "olcum")
+    hourly_dir = root / f"saatlik_{now:%Y%m%d_%H%M}"
+    lines = [f"QuantBIST ölçüm kontrolü {now:%d.%m.%Y %H:%M}", code_version().line()]
+    ok = True
+    got = (load or load_hourly)()
+    lines.append(got.summary())
+    if not got.frames:
+        lines.append("SONUÇ: saatlik veri gelmedi; kontrol yapılamadı.")
+        ok = False
+    else:
+        data = freeze(got.frames, hourly_dir, holdout_edge(), source=f"Yahoo 1h, bu PC, {now:%d.%m.%Y %H:%M}")
+        lines += [f"Saatlik görüntü: {hourly_dir}", "  " + data.line()]
+        for name, args in (("K-63", ["core.analytics.dip_study", "--veri", str(hourly_dir)]),
+                           ("K-64 saatlik", ["core.ml.signal_filter", "--zaman", "saatlik", "--veri", str(hourly_dir)])):
+            first, second = run(args), run(args)
+            digest_line = next((x for x in first.splitlines() if x.startswith("Rapor sha256 ")), "")
+            same = bool(digest_line) and first == second
+            ok = ok and same
+            verdict = next((x for x in first.splitlines() if "GEÇ" in x), "rapor yok")
+            lines.append(f"{name}: iki çalıştırma {'AYNI' if same else 'FARKLI ya da eksik'}; {verdict}")
+            if digest_line:
+                lines.append(f"  {digest_line}")
+    try:
+        daily = daily_frames()
+    except Exception as exc:  # noqa: BLE001 - no local store is reported, not fatal
+        daily, why = {}, f"{type(exc).__name__}: {exc}"
+    else:
+        why = "fiyat deposu boş"
+    if daily:
+        from core.backtest.run import HOLDOUT_START
+
+        d = freeze(daily, root / f"gunluk_{now:%Y%m%d_%H%M}", HOLDOUT_START, source="bu PC'nin market.db'si")
+        lines += [f"Günlük görüntü: {root / f'gunluk_{now:%Y%m%d_%H%M}'}", "  " + d.line()]
+    else:
+        lines.append(f"Günlük görüntü yok ({why}).")
+    lines.append("SONUÇ: " + ("tekrarlanabilir" if ok else "SORUN VAR, raporu sohbete yapıştırın"))
+    lines.append("Not: tekrarlanabilirlik kontrolüdür, karar ölçümü değildir; kural ve eşik değişmez.")
+    report = Path(report or LOG_DIR / "olcum_report.txt")
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("\n".join(lines))
+    return 0 if ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     from core.infrastructure.console import utf8_output
 
     utf8_output()
     argv = list(sys.argv[1:] if argv is None else argv)
     action = argv[0] if argv else ""
+    if action == "pc":
+        return pc_check()
     if action == "daily":
         from core.backtest.run import HOLDOUT_START
 

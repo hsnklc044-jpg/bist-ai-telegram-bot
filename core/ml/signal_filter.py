@@ -349,9 +349,10 @@ def main(argv: list[str] | None = None) -> int:
     print(provenance.stamp(frames, before))
     print(f"Kaynak: {source}")
     report = evaluate(events(frames, x, y, members, before), args.zaman)
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    (LOG_DIR / f"signal_filter_{args.zaman}.json").write_text(
-        json.dumps(asdict(report), ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+    if not args.veri:  # a run on a frozen snapshot is a check; it leaves the result file alone
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        (LOG_DIR / f"signal_filter_{args.zaman}.json").write_text(
+            json.dumps(asdict(report), ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     out = text(report)
     print(out)
     print(f"Rapor sha256 {provenance.report_digest(out)}")
