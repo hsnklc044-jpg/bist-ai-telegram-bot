@@ -732,7 +732,11 @@ def health_report(now: datetime | None = None, bars=adjusted_bars) -> str:
     try:
         from core.reports import slo
 
-        objectives = ["", *slo.lines(slo.measure(now))]
+        results = slo.measure(now)
+        objectives = ["", *slo.lines(results)]
+        from core.reports import progress
+
+        objectives += progress.lines(progress.measure(now, results))
     except Exception as exc:  # noqa: BLE001 - /durum must still answer
         logger.exception("SLO measurement failed")
         objectives = ["", f"{UNKNOWN} SLO ölçülemedi: {type(exc).__name__}"]

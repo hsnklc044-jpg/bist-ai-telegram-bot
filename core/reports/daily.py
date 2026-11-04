@@ -819,7 +819,11 @@ def _with_weekly_line(text: str, day: date) -> str:
     try:  # the service level objectives of docs/CHARTER.md §2, last 7 days
         from core.reports import slo
 
-        text = _before_disclaimer(text, "\n".join(slo.lines(slo.measure(now_istanbul()))))
+        from core.reports import progress
+
+        results = slo.measure(now_istanbul())
+        text = _before_disclaimer(text, "\n".join([*slo.lines(results),
+                                                   *progress.lines(progress.measure(now_istanbul(), results))]))
     except Exception:  # noqa: BLE001 - the report must still go out
         logger.exception("Weekly SLO table failed")
     try:  # DECISIONS K-23: the last day of the measurement window carries the server decision

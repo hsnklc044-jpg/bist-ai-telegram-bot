@@ -59,7 +59,7 @@ Kod düzeni: `core/market` (fiyat, takvim, düzeltmeler, ikinci kaynak), `core/r
 
 ## 5. Sağlık nasıl okunur
 
-- `/durum`: bileşenlerin şu anki durumu + "📐 SLO (son 7 gün)" (CHARTER §2 hedefleri). "Bilinmiyor" = ölçülemedi, asla "sağlıklı" sayılmaz.
+- `/durum`: bileşenlerin şu anki durumu + "📐 SLO (son 7 gün)" (CHARTER §2 hedefleri) + "🎯 Güvenilirlik (K-70)": gözlenen seans x/20, hedefteki SLO'lar, doğrulanan modeller x/14 ve "tam güvenilir" için eksik kalanlar (v0.99.48). "Bilinmiyor" = ölçülemedi, asla "sağlıklı" sayılmaz.
 - **"Gecikti" ne zaman denir:** bir seans gününün raporu, fiyatı ve canlı ölçüm kaydı o gün 19:45'ten itibaren beklenir (rapor 18:30, tolerans 1:15). Yarım günler de aynıdır; tatil ve hafta sonu hiçbir şey beklemez (K-46). 19:45'ten önce gün içindeki "bugün yok" uyarıları hata değildir ve gösterilmez.
 - **Veri doğruluğu (ikinci kaynak):** İş Yatırım kapalı. Elle indirdiğiniz bir fiyat dosyasıyla ölçülür: `python -m core.market.second_source --dosya DOSYA.csv --kaynak "aracı kurum"`. Dosyada `date, code, close` sütunları olmalı; virgül ya da noktalı virgül ayraç kabul edilir. Sonuç `/durum` SLO'sunda kaynağıyla görünür (v0.99.42).
 - **Geri doldurulamayan eksikler:** Kaydı olmayan ya da geç kaydedilen bir seans yalnız son 7 gün içindeyse ⚠️ verir. Daha eskisi metinde "7 günden eski; uyarı değil" notuyla görünmeye devam eder (v0.99.40).

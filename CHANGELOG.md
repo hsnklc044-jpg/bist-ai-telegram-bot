@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.48 – 04.11.2026 (K-70 ilerlemesi /durum'da ve cuma raporunda hesaplanıyor)
+- Kullanıcı "yüzde kaç olduk" diye sormak zorunda kalmasın, kota da harcanmasın diye ilerleme betikle hesaplanıyor. `/durum`'un ve cuma raporunun SLO bölümünün altında yeni satır var: "🎯 Güvenilirlik (K-70): gözlem x/20 seans · SLO a/b · model doğrulama c/14". Altında "tam güvenilir: hayır (eksik: …)" yazıyor.
+- Gözlem: 03.11'den beri gönderilmiş her veri günü bir kez sayılıyor.
+- "Tam güvenilir: evet" yalnız bütün ölçütler aynı anda tuttuğunda yazılıyor: en az 20 seans gözlem, bütün SLO'lar hedefte, 14/14 model doğrulama raporu ve ölçülmüş veri doğruluğu.
+- Doğrulama: `test_progress` (4 test): aynı gün bir kez sayılıyor; eksik ölçüt "hayır" diyor ve nedenini yazıyor; her şey tamamsa "evet"; `/durum` satırı. Önce kırmızı, sonra yeşil.
+
 ## v0.99.47 – 04.11.2026 (model kapısı: doğrulanmamış model kendiliğinden işlem yapamaz; K-72)
 - Yeni `core/reports/model_gate.py`: Yüksek riskli bir model yalnız güncel ve "kullanılabilir" kararlı bir bağımsız doğrulamayla kendiliğinden bir şey değiştirebiliyor. Kısıtlı, kullanılamaz, süresi geçmiş ya da raporsuz model yalnız bilgi veriyor. Karar doğrulama raporundan okunuyor, modelin kendi sonucundan değil.
 - Günlük sinyal adımı artık iki koşul arıyor: ML filtresinin örneklem dışı geçişi ve M30'un açık kapısı. Bugün M30 kapalı (bağımsız doğrulanmadı).
