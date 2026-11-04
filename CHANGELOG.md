@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.53 – 04.11.2026 (doğrulamanın ORTA ve DÜŞÜK bulgularından üçü düzeltildi)
+- **M32-5:** Fiyatı 0 olan bir mum pozisyonu 0'dan kapatıyordu: r = −%100,15, şalter açılırdı. Eksik ya da sıfır/negatif fiyatlı mum artık bozuk veri sayılıp takipte atlanıyor.
+- **M32-6:** Süre dolumunda kapanış NaN ise işlem sonuçsuz (NULL) kapanıyor, kasaya girmiyordu. Aynı kural bunu da önlüyor; son geçerli kapanış kullanılıyor.
+- **M31-ORTA-4:** Kart kuralı çalışmasında olay sayısı 0 ise kart satırı çöküyordu. Artık "olay yok, ölçülemedi" yazıyor.
+- **Düzeltilmedi, belgelendi (M32-7):** %9,5 tavan sınırı kayan noktayla 100 → 109,5'i tavan saymıyor. Aynı karşılaştırma araştırma etiketlerinde, backtest'te ve tarama elemesinde de var (yaklaşık 10 modül). Yalnız defteri değiştirmek, defteri modelin ölçüldüğü kurallardan ayırırdı. Ya hepsi birlikte değiştirilecek ya hiçbiri; AUDIT'e iş olarak eklendi.
+- Doğrulama: `test_validation_fixes` (3 yeni test). Önce kırmızı, sonra yeşil.
+
 ## v0.99.52 – 04.11.2026 (bağımsız doğrulamanın üç YÜKSEK bulgusu düzeltildi)
 - **M32-1, kasa aşımı:** Aynı gün birden çok kart aynı boş nakitle lotlanıyordu; dört kart 100.000 TL'lik kasada 199.673 TL'ye ulaştı. Artık ✅ düğmesi o anki boş nakdi yeniden kontrol ediyor. Nakit yetmezse lot küçülüyor; hiç kalmadıysa "💰 boş nakit yok" deniyor ve kart gün içinde geçerli kalıyor.
 - **M32-2, panik zararı siliyor:** Panik açık pozisyonları iptal edip sonucunu siliyordu; 7.000 TL'lik açık zarar kayboluyordu. Artık açık pozisyonlar son kapanıştan "panik" durumuyla kapatılıyor ve sonuç kasaya yazılıyor. Fiyatı olmayan pozisyon açık kalıyor; ne siliniyor ne uyduruluyor. Onay bekleyen ve girişi bekleyen sinyaller eskisi gibi iptal ediliyor.

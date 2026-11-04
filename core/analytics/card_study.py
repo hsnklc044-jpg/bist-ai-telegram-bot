@@ -88,6 +88,8 @@ def card_line(result: Result, source: str) -> str:
     def pct(x):
         return f"%{x * 100:+.2f}".replace(".", ",")
 
+    if not result.events or result.target_share is None or result.mean_event is None:
+        return f"<b>Kartın kuralı geçmişte (K-68):</b> olay yok, ölçülemedi ({source})"
     verdict = "geçti" if result.passed else "rastgele girişten ayırt edilemedi"
     return (f"<b>Kartın kuralı geçmişte (K-68):</b> {result.events} tetikte hedef %{result.target_share * 100:.0f}, "
             f"stop %{result.stop_share * 100:.0f}; ortalama net {pct(result.mean_event)}, rastgele seanslar "

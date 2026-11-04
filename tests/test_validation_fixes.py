@@ -90,3 +90,33 @@ class CardTitleTest(unittest.TestCase):
         self.assertNotIn("AI onayı", text)
         self.assertIn("Doğrulanmamış model sinyali: THYAO", text)
         self.assertIn("✅ <b>AI onayı: THYAO", ai.message(c, validated=True))
+
+
+class MediumFindingsTest(unittest.TestCase):
+    """ORTA/DÜŞÜK findings (M32-5, M32-6, M31-ORTA-4), v0.99.53. M32-7 (the 9,5% limit as a float) is
+    shared by ten modules and the research labels: changed together or not at all (AUDIT)."""
+
+    def signal(self):
+        return S.Signal(1, date(2026, 11, 2), "A.IS", "bekliyor", None, None, None, None, None, None, None, None)
+
+    def frame(self, rows):
+        idx = pd.bdate_range("2026-11-02", periods=len(rows))
+        return pd.DataFrame(rows, columns=["open", "high", "low", "close"], index=idx)
+
+    def test_a_zero_price_candle_is_bad_data_not_a_total_loss(self):
+        df = self.frame([(100, 100, 100, 100), (100, 101, 99.5, 100), (0, 0, 0, 0), (100, 101, 99.5, 100.5)])
+        got = S._follow(self.signal(), df)
+        self.assertNotEqual(got.get("status"), "stop")  # it used to close at 0: r = −100,15%
+        self.assertEqual(got["status"], "acik")
+
+    def test_a_nan_close_does_not_end_without_a_result(self):
+        rows = [(100, 100, 100, 100)] + [(100, 101, 99.5, 100)] * 9 + [(100, 101, 99.5, float("nan"))]
+        got = S._follow(self.signal(), self.frame(rows))
+        if got.get("status") == "sure":
+            self.assertFalse(pd.isna(got["r"]))  # never NULL in the box
+
+    def test_card_line_with_no_events(self):
+        from core.analytics import card_study as C
+
+        empty = C.Result(0, 0, None, None, None, (float("nan"), float("nan")), None, None, None, False, "olay yok")
+        self.assertIn("olay yok", C.card_line(empty, "x"))

@@ -218,6 +218,10 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     candle: stop); `expire` closes it at the HORIZON-th session's last close (daily candles only:
     an hourly frame cannot tell that the session is over)."""
 
+    # a candle with a missing or non-positive price is bad data, not a market move (M32-5, M32-6):
+    # it closed positions at 0 (r = −100,15%) or ended them with a NULL result
+    prices = df[["open", "high", "low", "close"]]
+    df = df[(prices > 0).all(axis=1) & prices.notna().all(axis=1)]
     days = _days(df.index)
     signal_day = pd.Timestamp(s.created)
     after, after_days = df[days > signal_day], days[days > signal_day]
