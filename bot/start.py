@@ -13,7 +13,7 @@ from core.infrastructure.settings import settings
 HELP_TEXT = f"""🚀 {settings.app_name} v{settings.version}
 
 Komutlar:
-/top – teknik görünümü en güçlü hisseler
+/top – teknik skoru en yüksek hisseler (tahmin gücü yok)
 /analyze THYAO – tek hisse teknik analizi (en yakın 3 destek ve 3 direnç dahil)
 /seviye THYAO – bütün destek/direnç seviyeleri: yöntem, güç, ATR uzaklığı (teknik seviye, öneri değil)
 /piyasa – piyasa rejimi (yükseliş/düşüş/karışık/yüksek oynaklık), genişlik ve dört ana sektör (etiket, sinyal değil)

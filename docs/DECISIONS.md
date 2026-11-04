@@ -4,6 +4,14 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-73. Ölçülmemiş güç, güç gibi gösterilmez (M1 ve M8 YÜKSEK bulguları; 04.11.2026).**
+- **M1:** "Güçlü pozitif" ve benzeri etiketler korunuyor; göstergelerin o günkü durumunu anlatıyorlar ve canlı ölçüm kayıtlarında anahtar olarak kullanılıyorlar. Değiştirmek ileriye dönük ölçümün sürekliliğini bozar. Bunun yerine:
+  - `/top` başlığı "Teknik skoru en yüksek hisseler (sıralama, öneri değil)" oldu.
+  - "Getiri tahmin gücü bulunmadı" uyarısı listenin sonundan başına alındı.
+  - Komut açıklaması "tahmin gücü yok" diyor.
+- **M8:** Gösterildiği her yerde "güç" puanının yanına "ölçülmemiş puan" yazılıyor. Küme yönteminin "rastgeleden ayırt edilemedi" notu zaten duruyordu.
+- Raporların kararı değişmiyor; bu düzeltmeler yeniden doğrulamada değerlendirilir.
+
 **K-72. Model kapısı (kullanıcının "ModelGovernor" isteği; 04.11.2026).**
 - **Kural:** Yüksek riskli bir model kendiliğinden bir şey değiştirebilmek için güncel bir bağımsız doğrulama raporuna ve "kullanılabilir" kararına sahip olmalı. Kendiliğinden değişiklik: sanal sinyal yazmak ya da pozisyon açmak. "Kısıtlı kullanılabilir", "kullanılamaz", süresi geçmiş ya da hiç olmayan rapor: model yalnız bilgi verir.
 - **Neden "%90 skor" değil:** Bağımsız doğrulama bir yüzde değil, gerekçeli bir karar üretiyor. Kapı, modelin kendi sonuçlarından değil doğrulama raporundan okunur; bir model kendi kapısını açamaz.

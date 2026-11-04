@@ -28,6 +28,7 @@ LABEL = "teknik seviye, öneri değil"
 # §3.3 result (RESEARCH_LOG 28.10.2026, screens.yml 2857f62): real cluster levels turned the price
 # 31.3% of the time, random ones 31.0% (difference +0.3 points, 95% [-0.5, +1.1])
 STUDY_NOTE = "tarihsel olarak rastgele seviyeden ayırt edilemedi"
+UNMEASURED = "ölçülmemiş puan"  # M8 YÜKSEK: the strength score itself was never measured
 
 
 @dataclass(frozen=True)
@@ -316,7 +317,7 @@ def position_line(df: pd.DataFrame) -> str:
         return ""
     lv = max(supports, key=lambda lv: lv.price)
     distance = f"{lv.dist_atr:+.1f}".replace(".", ",")
-    return f"     en yakın destek {tr(lv.price, 2)} (küme, güç {lv.strength}, {distance} ATR) – {LABEL}, {STUDY_NOTE}"
+    return f"     en yakın destek {tr(lv.price, 2)} (küme, güç {lv.strength} {UNMEASURED}, {distance} ATR) – {LABEL}, {STUDY_NOTE}"
 
 
 def nearest(found: list[Level], k: int = 3) -> dict[str, list[Level]]:
@@ -328,7 +329,8 @@ def nearest(found: list[Level], k: int = 3) -> dict[str, list[Level]]:
 def _line(lv: Level) -> str:
     from core.reports.daily import tr
 
-    power = f" · güç {lv.strength} ({lv.touches} dokunma, {lv.breaks} kırılma)" if lv.strength is not None else ""
+    power = (f" · güç {lv.strength} ({UNMEASURED}; {lv.touches} dokunma, {lv.breaks} kırılma)"
+             if lv.strength is not None else "")
     atr_text = f"{lv.dist_atr:+.1f}".replace(".", ",")
     pct_text = f"{'+' if lv.dist_pct >= 0 else '−'}%{abs(lv.dist_pct):.1f}".replace(".", ",")
     method = f"{lv.method} {lv.name}" if lv.name else lv.method

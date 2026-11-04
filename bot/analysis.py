@@ -37,7 +37,8 @@ def view_label(signal: str) -> str:
 
 
 def _format_signals(signals: list[dict]) -> str:
-    lines = ["📈 Teknik görünümü en güçlü hisseler", ""]
+    # M1 YÜKSEK (docs/validation/M1.md): the score has no measured power; the reader sees that first
+    lines = ["📈 Teknik skoru en yüksek hisseler (sıralama, öneri değil)", DISCLAIMER, ""]
 
     for item in signals[:10]:
         lines += [
@@ -47,9 +48,7 @@ def _format_signals(signals: list[dict]) -> str:
             "",
         ]
 
-    lines.append(DISCLAIMER)
-
-    return "\n".join(lines)
+    return "\n".join(lines).rstrip()
 
 
 def _levels(result: dict) -> str:

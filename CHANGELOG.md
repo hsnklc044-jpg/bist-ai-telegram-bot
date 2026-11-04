@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.62 – 04.11.2026 (ölçülmemiş güç artık güç gibi gösterilmiyor; M1 ve M8 YÜKSEK, K-73)
+- **M1:** `/top` başlığı "Teknik görünümü en güçlü hisseler" yerine "Teknik skoru en yüksek hisseler (sıralama, öneri değil)" oldu. "Tahmin gücü bulunmadı" uyarısı listenin başına alındı. Komut açıklaması ve BotFather listesi de güncellendi.
+  - "Güçlü pozitif" etiketleri korundu; canlı ölçümde anahtar olarak kullanılıyorlar.
+- **M8:** Seviye satırlarında ve rapordaki en yakın destek satırında "güç N"nin yanında "ölçülmemiş puan" yazıyor.
+- Doğrulama: `test_validation_fixes` (HonestLabelsTest, 2 test). Önce kırmızı, sonra yeşil. Bot, seviye ve senaryo testleri geçti.
+- Telegram menüsü bot açılırken kendiliğinden güncelleniyor (`set_my_commands`); BotFather'da elle bir şey yapmak gerekmiyor.
+
 ## v0.99.61 – 04.11.2026 (M1, M5, M8 bağımsız doğrulandı: 14/14 model raporlu)
 - Ayrı inceleyici son üç yüksek riskli modeli doğruladı. Raporlar olduğu gibi eklendi: `docs/validation/M1.md`, `M5.md`, `M8.md`. Üçü de **kısıtlı kullanılabilir**.
 - **M1 (teknik skor):** Hesaplar ve ileriye bakma denetimi tuttu.

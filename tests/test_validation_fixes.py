@@ -167,3 +167,23 @@ class ScenarioInputTest(unittest.TestCase):
         self.assertEqual(_number("240,5"), 240.5)
         self.assertEqual(_number("240.5"), 240.5)  # one or two decimals: a decimal point
         self.assertEqual(_number("240"), 240.0)
+
+
+class HonestLabelsTest(unittest.TestCase):
+    """M1 and M8 YÜKSEK (docs/validation/M1.md, M8.md), v0.99.62: unmeasured power is not shown as power."""
+
+    def test_top_list_says_first_that_the_score_has_no_power(self):
+        from bot.analysis import _format_signals
+
+        text = _format_signals([{"symbol": "AAA", "signal": "STRONG BUY", "score": 85, "trend": "yukarı"}])
+        lines = text.splitlines()
+        self.assertNotIn("en güçlü", text)
+        self.assertIn("Teknik skoru en yüksek", lines[0])
+        self.assertIn("tahmin gücü", lines[1])  # before the list, not after it
+
+    def test_level_strength_is_marked_unmeasured(self):
+        from core.analytics import levels as L
+
+        lv = L.Level(price=100.0, kind="destek", method="küme", name="", dist_atr=-0.5, dist_pct=-1.0,
+                     strength=72, touches=3, breaks=0, last_touch=None)
+        self.assertIn("güç 72 (ölçülmemiş puan", L._line(lv))

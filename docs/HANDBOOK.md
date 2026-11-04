@@ -363,7 +363,7 @@ tara_alanlar - tarama alanları ve birimleri
 tara_aciklama - bir hissede koşulların değeri: /tara_aciklama THYAO rsi<30
 tara_devam - son taramanın sonraki 15 satırı
 tara_sablonlar - hazır tarama şablonları (TradingView taramalarından)
-top - teknik görünümü en güçlü hisseler
+top - teknik skoru en yüksek hisseler (tahmin gücü yok)
 analyze - tek hisse: /analyze THYAO
 seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
 piyasa - piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)
