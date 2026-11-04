@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.52 – 04.11.2026 (bağımsız doğrulamanın üç YÜKSEK bulgusu düzeltildi)
+- **M32-1, kasa aşımı:** Aynı gün birden çok kart aynı boş nakitle lotlanıyordu; dört kart 100.000 TL'lik kasada 199.673 TL'ye ulaştı. Artık ✅ düğmesi o anki boş nakdi yeniden kontrol ediyor. Nakit yetmezse lot küçülüyor; hiç kalmadıysa "💰 boş nakit yok" deniyor ve kart gün içinde geçerli kalıyor.
+- **M32-2, panik zararı siliyor:** Panik açık pozisyonları iptal edip sonucunu siliyordu; 7.000 TL'lik açık zarar kayboluyordu. Artık açık pozisyonlar son kapanıştan "panik" durumuyla kapatılıyor ve sonuç kasaya yazılıyor. Fiyatı olmayan pozisyon açık kalıyor; ne siliniyor ne uyduruluyor. Onay bekleyen ve girişi bekleyen sinyaller eskisi gibi iptal ediliyor.
+- **M31-1, geçmeyen model "onay" diyordu:** Kart başlığı "✅ AI onayı" yerine "🧪 Doğrulanmamış model sinyali (M31 bağımsız doğrulamada kullanılamaz)" oldu. Model doğrulanırsa eski başlık dönüyor. `ai.py`'nin açıklaması da gerçeğe uygun hâle getirildi: kart deftere yalnız kullanıcının düğmesi için yazılıyor.
+- Bu davranışı doğru sayan dört eski test yeni davranışa göre güncellendi.
+- Raporların kararı değişmedi. M31 kullanılamaz, M32 kısıtlı kalıyor; bunu yeniden doğrulama belirler. ORTA bulgular sıradaki işler arasında.
+- Doğrulama: `test_validation_fixes` (5 test): kasa aşılmıyor; lot boş nakde iniyor; panik zararı sayıyor; fiyat yoksa pozisyon açık kalıyor; geçmeyen model "onay" demiyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.51 – 04.11.2026 (M31 ve M32 bağımsız doğrulandı: kullanılamaz ve kısıtlı)
 - Geliştirici notlarını okumayan ayrı bir inceleyici iki modeli doğruladı. Raporlar olduğu gibi eklendi: `docs/validation/M31.md`, `M32.md`.
 - **M31 (sinyal onay katmanı ve kart kuralı): Kullanılamaz.**

@@ -35,8 +35,21 @@ def since(path: Path | str | None = None) -> str | None:
         return "?"
 
 
-def trigger(day: date, lock: Path | str | None = None, book: Path | str | None = None) -> int:
-    """Lock the system and cancel the open paper signals; returns how many were cancelled."""
+def _last_close(bars, symbol: str) -> float | None:
+    try:
+        df = bars(symbol)
+    except Exception:  # noqa: BLE001 - no price: the position is left open, never erased
+        return None
+    if df is None or df.empty:
+        return None
+    price = float(df["close"].iloc[-1])
+    return price if price > 0 else None
+
+
+def trigger(day: date, lock: Path | str | None = None, book: Path | str | None = None, bars=None) -> int:
+    """Lock the system; cancel the cards and waiting signals; close the open positions at their last
+    close and count the result (v0.99.52: they used to be cancelled and their loss erased, M32-2).
+    An open position without a price stays open. Returns how many signals were cancelled or closed."""
 
     lock = Path(lock or PANIC_FILE)
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -50,9 +63,22 @@ def trigger(day: date, lock: Path | str | None = None, book: Path | str | None =
     try:
         with conn:
             cur = conn.execute("UPDATE signals SET status = 'iptal', exit_date = ?, r = NULL "
-                               "WHERE status IN ('onay_bekliyor', 'bekliyor', 'acik')", (day.isoformat(),))
-        logger.warning("PANIC: system locked, %d paper signals cancelled", cur.rowcount)
-        return cur.rowcount
+                               "WHERE status IN ('onay_bekliyor', 'bekliyor')", (day.isoformat(),))
+        done = cur.rowcount
+        open_ = store.signals(conn, ("acik",))
+        if open_ and bars is None:
+            from core.reports.daily import adjusted_bars as bars
+        for s in open_:
+            price = _last_close(bars, s.symbol) if s.entry_price else None
+            if price is None:
+                logger.warning("PANIC: no price for %s; the position stays open", s.symbol)
+                continue
+            with conn:
+                conn.execute("UPDATE signals SET status = 'panik', exit_date = ?, exit_price = ?, r = ? WHERE id = ?",
+                             (day.isoformat(), price, price / s.entry_price - 1 - store.COST, s.id))
+            done += 1
+        logger.warning("PANIC: system locked, %d paper signals cancelled or closed", done)
+        return done
     finally:
         conn.close()
 

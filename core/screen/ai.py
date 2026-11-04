@@ -5,8 +5,11 @@ core.market.extended), each candidate asked to the signal confirmation layer
 (core.ml.signal_filter). Probability >= 0.60: a rich message (stock, technical state, ML
 confidence, entry zone, 2% stop, 4% take-profit); below: "AI Reddi: Olasılık %X".
 
-The layer did not pass its out-of-sample test (K-64): until it does, every message says the model
-is not validated and no signal is written to the paper book. Rule output, not advice.
+The layer did not pass its out-of-sample test (K-64) and its independent validation says
+"kullanılamaz" (docs/validation/M31.md): until that changes the card is titled "Doğrulanmamış model
+sinyali", not "AI onayı", and carries the measured track record. A card is written to the paper book
+as "onay bekliyor" only so that the user's own button can enter it (K-67); nothing is entered by the
+system. Rule output, not advice.
 """
 
 from __future__ import annotations
@@ -90,8 +93,10 @@ def message(c: Candidate, validated: bool) -> str:
         return f"🚫 <b>AI Reddi</b>: {code} – olasılık %{_n(c.proba * 100, 0)} (eşik %{_n(APPROVE * 100, 0)})"
     state = ("doğrulandı (K-64)" if validated else
              "⚠️ model örneklem dışı ölçümde geçmedi (K-64): kendiliğinden işlem açılmaz, işleme girmek sizin kararınız")
+    title = (f"✅ <b>AI onayı: {code}</b>" if validated else
+             f"🧪 <b>Doğrulanmamış model sinyali: {code}</b> (M31 bağımsız doğrulamada kullanılamaz)")
     return "\n".join([
-        f"✅ <b>AI onayı: {code}</b>",
+        title,
         f"<b>Teknik durum:</b> RSI {_n(c.rsi, 1)} · Stoch %K {_n(c.stoch_k, 1)} · Bollinger %b {_n(c.bb)} · "
         "MACD histogramı sıfırın altında yükseliyor",
         f"<b>ML güven skoru:</b> %{_n(c.proba * 100, 0)}",

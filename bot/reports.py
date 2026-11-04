@@ -149,6 +149,7 @@ SIGNAL_OUTCOME = {
     "reddedildi": "❌ İptal edildi: sinyal çöpe atıldı.",
     "zaman_asimi": "⌛ Kartın süresi doldu (yalnız kartın günü geçerli); sinyal açılmadı.",
     "kilitli": "⛔ Panik kilidi ya da şalter açık: işlem açılmadı.",
+    "nakit_yok": "💰 Sanal kasada boş nakit yok (bugünkü kartlar kullandı): işlem açılmadı; kart hâlâ bugün geçerli.",
     "yok": "Bu kart defterde bulunamadı.",
 }
 

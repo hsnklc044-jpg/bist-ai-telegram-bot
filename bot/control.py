@@ -21,7 +21,8 @@ def panic_text() -> str:
         return f"⛔ Panik kilidi zaten açık ({panic.since()}). Kaldırmak için /devam."
     cancelled = panic.trigger(now_istanbul().date())
     return ("⛔ PANİK: sistem kilitlendi.\n"
-            f"• {cancelled} açık/bekleyen sanal sinyal iptal edildi (sonuçları sayılmadı).\n"
+            f"• {cancelled} sanal sinyal kapandı: bekleyenler iptal edildi; açık pozisyonlar son kapanıştan "
+            "kapatıldı ve sonucu kasaya yazıldı (fiyatı olmayan açık kalır).\n"
             "• Saatlik takip, günlük sinyal adımı, tarama abonelikleri ve /tara durduruldu.\n"
             "• Kilit dosyada tutulur: bot ya da bilgisayar yeniden başlasa da sürer.\n"
             "/durum çalışmaya devam eder. Kaldırmak için /devam.")

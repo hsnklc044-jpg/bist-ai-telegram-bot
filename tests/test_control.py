@@ -46,9 +46,11 @@ class PanicTest(unittest.TestCase):
         S.add(conn, date(2026, 11, 2), "B.IS", 100.0)
         S.update(conn, lambda s: bars([(100, 100, 100, 100), (100, 101, 99, 100)]) if s == "A.IS" else None)
         conn.close()
-        self.assertEqual(panic.trigger(date(2026, 11, 3), book=self.book), 2)  # one open, one waiting
+        last = bars([(100, 100, 100, 100), (100, 101, 99, 100), (99, 99, 98, 98)])
+        self.assertEqual(panic.trigger(date(2026, 11, 3), book=self.book, bars=lambda s: last), 2)
         conn = S.connect(self.book)
-        self.assertEqual({s.status for s in S.signals(conn)}, {"iptal"})
+        # the waiting one is cancelled; the open one is closed at the last close and counted (M32-2)
+        self.assertEqual({s.symbol: s.status for s in S.signals(conn)}, {"A.IS": "panik", "B.IS": "iptal"})
         with self.assertRaises(S.BreakerTripped):
             S.add(conn, date(2026, 11, 3), "C.IS", 100.0)
         conn.close()
@@ -114,7 +116,7 @@ class AiTest(unittest.TestCase):
 
     def test_approval_message(self):
         text = ai.message(self.candidate(0.64), validated=False)
-        self.assertIn("AI onayı: THYAO", text)
+        self.assertIn("Doğrulanmamış model sinyali: THYAO", text)  # not "AI onayı" (M31-1)
         self.assertIn("ML güven skoru:</b> %64", text)
         self.assertIn("Zarar durdur (%2, iz süren):</b> ~245,00 TL", text)
         self.assertIn("Kâr al (%4):</b> ~260,00 TL", text)
@@ -162,7 +164,7 @@ class AiTest(unittest.TestCase):
 
     def test_rejection_and_threshold(self):
         self.assertIn("AI Reddi</b>: THYAO – olasılık %59", ai.message(self.candidate(0.59), False))
-        self.assertIn("AI onayı", ai.message(self.candidate(0.60), False))
+        self.assertIn("model sinyali", ai.message(self.candidate(0.60), False))
         self.assertIn("hesaplanamadı", ai.message(self.candidate(None), False))
 
     def test_run_writes_the_book_only_when_validated(self):
@@ -179,7 +181,7 @@ class AiTest(unittest.TestCase):
             book = Path(tmp) / "signals.db"
             out = ai.run(date(2026, 11, 3), {"A.IS": df}, Fixed(), validated=False, book=book)
             self.assertIn("1 hissede teknik tetik", out[0][0])
-            self.assertIn("AI onayı: A", out[1][0])
+            self.assertIn("model sinyali: A", out[1][0])
             self.assertIn("Lot (%1 risk kalkanı)", out[1][0])
             conn = S.connect(book)
             (card,) = S.signals(conn)

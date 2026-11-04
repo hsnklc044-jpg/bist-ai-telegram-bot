@@ -12,7 +12,7 @@ Kullanıcının 04.11.2026 güvenilirlik talimatının ilk adımı. Yalnız gör
 | Kayıt bütünlüğü (%100) | 30.10 kaydı yok | `signal_log.csv` | ❌ geri doldurulamaz; 7 günlük pencereden 07.11'de çıkar |
 | Rapor teslimi (≥ %99) | %100, 1/1 seans | `runs.csv`, ölçüm 03.11'de başladı | ölçülüyor, örneklem **yetersiz** |
 | Bot çalışma süresi (≥ %98) | ölçülemiyor | ilk yaşam sinyali 03.11 15:14; en az 1 gün gerekir | ❔ birikiyor |
-| Yüksek riskli modellerin bağımsız doğrulaması (hepsi) | 9/14 (04.11: M31 kullanılamaz, M32 kısıtlı) | `docs/validation/` | ❌ |
+| Yüksek riskli modellerin bağımsız doğrulaması (hepsi) | 9/14 (04.11: M31 kullanılamaz, M32 kısıtlı; üç YÜKSEK bulgu v0.99.52'de düzeltildi, yeniden doğrulama bekliyor) | `docs/validation/` | ❌ |
 | Sanal işlem kayıtlarında açıklanamayan tutarsızlık (0) | defter boş | `signals.db` hiç işlem içermiyor | ölçülemiyor |
 
 **Sonuç:** Sistem "tam güvenilir" olarak işaretlenemez. Gözlem süresi en az 4 hafta gerekiyor (20 seans). Bu süre içinde her SLO ölçülmeli ve hedefte kalmalı.

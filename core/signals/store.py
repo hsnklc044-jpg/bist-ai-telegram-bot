@@ -188,6 +188,16 @@ def decide(conn: sqlite3.Connection, signal_id: int, enter: bool, today: date) -
         new = "zaman_asimi"  # the card's analysis is old and its entry open may have passed
     else:
         new = "bekliyor"
+    if new == "bekliyor" and s.qty and s.signal_close:
+        # v0.99.52 (M32-1): every card was sized on the same free cash; the button re-checks it
+        _, free = cash(conn)
+        lots = min(s.qty, math.floor(max(free, 0.0) / s.signal_close))
+        if lots <= 0:
+            return "nakit_yok"
+        if lots != s.qty:
+            with conn:
+                conn.execute("UPDATE signals SET qty = ?, risk_tl = ? WHERE id = ?",
+                             (lots, lots * s.signal_close * STOP, signal_id))
     with conn:
         conn.execute("UPDATE signals SET status = ? WHERE id = ?", (new, signal_id))
     return new
@@ -442,7 +452,7 @@ def summary(conn: sqlite3.Connection, bars, day: date) -> str:
     price), each open signal's live profit or loss, the hit rate and the breaker."""
 
     every = signals(conn)
-    closed = [s for s in every if s.status in ("hedef", "stop", "sure")]
+    closed = [s for s in every if s.status in ("hedef", "stop", "sure", "panik")]
     open_ = [s for s in every if s.status in OPEN_STATES]
     hits = sum(s.status == "hedef" for s in closed)
     pending = sum(s.status == PENDING and s.created == day for s in every)  # older ones can no longer be entered
