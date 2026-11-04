@@ -621,3 +621,24 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
 - **Gözlem:** İşlemlerin %74'ü stopla bitiyor, süre dolumu yok. Günlük oynaklıkta %2 iz süren stop, %4 hedefe ulaşmadan çoğunlukla tetikleniyor. Bu yalnız gözlem olarak not edildi; stop, hedef ve tetik sonuca bakılarak değiştirilmedi (K-68).
 - **Yanlılık notu:** Bugünkü BIST 30 listesi geçmişe uygulandı; hayatta kalma yanlılığı sonucu iyimser yönde etkiler. Yine de geçmedi.
 - Sonuç `/tara ai` kartında "Kartın kuralı geçmişte (K-68)" satırıyla gösteriliyor (v0.99.37).
+
+## 04.11.2026 – Faz B yeniden ölçümleri: tavan/taban kuralı tek yerde, kilitli günde dolum yok (K-75)
+
+- **Neden:** K-75 iki şeyi değiştirdi. %9,5 sınırı her modülde aynı ve kayan nokta paylı (v0.99.73). Tabanda kilitli günde satış, tavanda kilitli günde alış dolmuyor (v0.99.74). Kural değiştiği için etkilenen ölçümler yeniden çalıştırıldı.
+- **Kod:** ef12819 (v0.99.74). **Çalıştırma:** 04.11.2026 15:39–15:51 UTC.
+- **Okuma notu:** "Önce" sütunu o ölçümün ilk çalışmasıdır. Aradaki kod sürümleri başka değişiklikler de içerir: sonradan düzeltilen hatalar ve eklenen fiyat günleri. Bu yüzden fark yalnız K-75'e ait değildir. Yalnız K-64 saatlik için kural ve pencere etkisi ayrıca ölçüldü (aşağıda).
+- **Kural:** Önceden yazılmış koşullar ve eşikler değişmedi. Hiçbir sonuç bir kararı değiştirmedi.
+
+| Ölçüm | Veri aralığı | Önce (çalışma, tarih) | Sonra (çalışma) | Önceden yazılmış koşul | Karar |
+|---|---|---|---|---|---|
+| K-68 kartın kuralı | BIST 30 günlük, 02.11.2026 öncesi | 207 olay; fark %+0,19 (%−0,25 – %+0,61) (41716706686, 03.11) | 207 olay; fark %+0,20 (%−0,25 – %+0,62) (41859950394) | ≥ 100 olay ve aralığın alt ucu > 0 ve ortalama > 0 | GEÇMEDİ (değişmedi) |
+| K-63 saatlik dip tetiği | BIST 30 saatlik, son 1 yıl, 02.11.2026 öncesi | 576 olay; fark %−0,02 (%−0,61 – %+0,55) (41640612621, 03.11) | 575 olay, 63.362 mum; fark %−0,02 (%−0,64 – %+0,57) (41859970212) | ≥ 100 olay ve aralığın alt ucu > 0 ve ortalama > 0 | GEÇMEDİ (değişmedi) |
+| K-64 saatlik onay katmanı | aynı saatlik veri | 571 olay / 381 test; 39 onay, isabet %41,0 (%27,8–64,3), taban %23,6 (41645846675, 03.11) | 575 olay / 384 test; 41 onay, isabet %46,3 (%32,8–69,0), taban %24,5 (41859970212) | ≥ 50 onay ve onaylı isabet aralığının alt ucu > taban | GEÇMEDİ (41 < 50; değişmedi). Aralığın alt ucunun tabanın üstünde olması 50 onay koşulunun yerine geçmez. |
+| K-64 günlük onay katmanı | BIST 100 günlük, 02.11.2026 öncesi | 745 / 497; 42 onay, %26,2 (%14,0–39,0), taban %33,6 (41645852277, 03.11) | aynı: 745 / 497; 42 onay, %26,2 (%14,0–39,0), taban %33,6 (41859955331) | aynı | GEÇMEDİ (değişmedi) |
+| K-59 ML, BIST 30 yaklaşığı | test yılları 2023–2026, 02.11.2026 öncesi | 19.211 sinyal; %34,0 (%33,4–34,7), taban %33,8 (41619257373, 03.11) | 19.302; %34,0 (%33,3–34,6), taban %33,8 (41859955331) | ≥ 100 sinyal, isabet ≥ %60, alt uç > taban | KAPALI (değişmedi) |
+| K-59 ML, BIST 100 | aynı | 58.866; %34,2 (%33,8–34,6), taban %33,4 | 58.946; %34,2 (%33,8–34,6), taban %33,4 | aynı | KAPALI (değişmedi) |
+| K-62 goreli20, BIST 30 | aynı | 907; %45,9 (%41,5–50,5), taban %44,6 (41635970219, 03.11) | 917; %46,2 (%41,8–51,0), taban %44,7 | aynı | KAPALI (değişmedi) |
+| K-62 goreli20, BIST 100 | aynı | 2.413; %45,0 (%41,5–48,8), taban %41,7 | 2.417; %44,9 (%41,4–48,7), taban %41,7 | aynı | KAPALI (değişmedi) |
+| Senaryo karnesi: destek tepkisi | 2023-08-01 → 2026-10-30, BIST 100 geçmiş üyeliği | 1.142 olay; ort. R −0,15 [−0,23; 0,01] (screens.yml, v0.97.3, 29.10) | 1.149; −0,15 [−0,23; 0,02] | tanımlayıcı karne, hipotez değil | sıfırdan ayırt edilemiyor (değişmedi) |
+| Senaryo karnesi: direnç kırılımı | aynı | 1.742; +0,01 [−0,07; 0,06] | 1.741; +0,01 [−0,06; 0,06] | aynı | değişmedi |
+| Senaryo karnesi: trend içi geri çekilme | aynı | 5.968; −0,00 [−0,05; 0,08] | 5.975; −0,00 [−0,06; 0,07] | aynı | değişmedi |
