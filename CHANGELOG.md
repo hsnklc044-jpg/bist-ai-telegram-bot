@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.58 – 04.11.2026 (Windows'ta düşen iki test düzeltildi: v0.99.48'den beri PC'ye kurulum yoktu)
+- **Kanıt (kullanıcının PC'si):** Güncelleyici v0.99.48, v0.99.50, v0.99.54 ve v0.99.57'yi deneme kopyasında "2 failed" diyerek kurmadı; bot v0.99.44'te kaldı. PC'deki otomasyon notu: bir testte SQLite bağlantısı açık kalıyor; ürün hatası değil.
+- **Neden:** İki test sinyal defteri bağlantısını kapatmıyordu: `AiTest.test_run_writes_the_book_only_when_validated` ve `ApprovalTest.test_daily_step_and_new_scan_sweep_old_cards`. Linux açık dosyayı silebiliyor, Windows silemiyor; bu yüzden CI'da ve bu ortamda görünmedi. Güncelleyicinin güvenlik kapısı doğru çalıştı: testi geçmeyen sürüm kurulmadı.
+- **Düzeltme:** İki test bağlantıyı kapatıyor.
+- **Kalıcı koruma:** `tests/conftest.py`'ye her testin sonunda açık kalan sinyal defteri bağlantısını arayan bir denetim eklendi. Açık bağlantı bırakan test artık Linux'ta da düşüyor; denetim iki testi de yakaladı.
+- Bir sonraki saatlik çalışmada PC bu sürümü kurabilmeli.
+
 ## v0.99.57 – 04.11.2026 (/senaryo: sıfır seviye ve binlik ayırıcı; M27 ORTA 2 ve 3)
 - `/senaryo X giris 0 gecersiz -5 hedef 10` sıfıra bölmeyle çöküyordu; negatif geçersizlik de kabul ediliyordu. Artık "giriş, geçersizlik ve hedef sıfırdan büyük olmalı" diyor.
 - "1.250" gibi Türkçe binlik ayırıcı 1,25 okunuyor, adet 4.000 çıkıyordu. Artık noktadan sonra üçlü basamak grupları varsa nokta binlik ayırıcı sayılıyor: "1.250" = 1250, "1.250,5" = 1250,5. "240.5" gibi bir ya da iki ondalıklı yazım eskisi gibi ondalık okunuyor.

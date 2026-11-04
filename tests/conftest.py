@@ -33,6 +33,35 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(autouse=True)
+def _book_connections_closed(monkeypatch):
+    """04.11.2026: two tests left a paper-book connection open; Linux deletes an open file, Windows
+    does not, so the PC's staging run failed and v0.99.48–57 were never installed. Any connection a
+    test opens with core.signals.store.connect must be closed by the end of the test."""
+
+    from core.signals import store as book
+
+    real, opened = book.connect, []
+
+    def tracked(*args, **kwargs):
+        conn = real(*args, **kwargs)
+        opened.append(conn)
+        return conn
+
+    monkeypatch.setattr(book, "connect", tracked)
+    yield
+    left = 0
+    for conn in opened:
+        try:
+            conn.execute("SELECT 1")
+        except Exception:  # noqa: BLE001 - closed: fine
+            continue
+        conn.close()
+        left += 1
+    if left:
+        pytest.fail(f"{left} sinyal defteri bağlantısı açık kaldı (Windows'ta geçici klasör silinemez)")
+
+
+@pytest.fixture(autouse=True)
 def _private_run_files(tmp_path, monkeypatch):
     """Tests never touch the real report lock, logs/runs.csv or data/market.db."""
 

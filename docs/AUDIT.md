@@ -44,7 +44,8 @@ Kullanıcının 04.11.2026 güvenilirlik talimatının ilk adımı. Yalnız gör
    - **02.11:** PC 18:30'da kapalıydı (çalışma yok). Telafi 03.11 12:40'ta raporu gönderdi. Yedek o gün alındığı için `quantbist_2026-11-03` adını taşıyor; Yedek SLO'su 02.11'i yedeksiz sayıyor, çünkü o gün gerçekten yedek alınmadı. Doğru sayım; düzeltilmeyecek.
    - **Tekrarı önleyen kontroller:** v0.99.33'ten beri bot 21:00'de günün yedeğini alıyor; v0.99.43'ten beri bunu Telegram'a bildiriyor. v0.99.45'ten beri eksik kapanış "hafta sonu" diye gizlenmiyor.
 6. **02.11 yedeği:** O gün rapor çalışmadığı için yedek alınmadı. 21:00 telafisi (v0.99.33) artık bunu önlüyor.
-7. **Windows zamanlanmış görevleri: doğrulandı (04.11 01:15, kullanıcının PC çıktısı).**
+7. **Kurulum boşluğu (04.11):** PC v0.99.48–57'yi kuramadı; iki test Windows'ta SQLite bağlantısını açık bıraktığı için düştü. v0.99.58'de düzeltildi; açık bağlantı bırakan test artık her ortamda düşüyor.
+8. **Windows zamanlanmış görevleri: doğrulandı (04.11 01:15, kullanıcının PC çıktısı).**
    - QuantBIST Guncelle: 01:11 sonuç 0; sonraki 07:40.
    - QuantBIST Gunluk Rapor: 03.11 18:30 sonuç 0; sonraki 04.11 18:30.
    - QuantBIST Bot: çalışıyor (267009 = görev çalışıyor).

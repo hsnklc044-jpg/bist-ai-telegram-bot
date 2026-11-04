@@ -185,10 +185,11 @@ class AiTest(unittest.TestCase):
             self.assertIn("Lot (%1 risk kalkanı)", out[1][0])
             conn = S.connect(book)
             (card,) = S.signals(conn)
-            conn.close()
+            waiting = S.signals(conn, S.OPEN_STATES)
+            conn.close()  # Windows cannot delete the folder while the book is open
             self.assertEqual((out[1][1], card.status), (card.id, S.PENDING))  # waits for the button
             self.assertEqual(card.qty, S.size_position(S.CAPITAL, S.CAPITAL, float(df["close"].iloc[-1])))
-            self.assertEqual(S.signals(S.connect(book), S.OPEN_STATES), [])  # not followed before the button
+            self.assertEqual(waiting, [])  # not followed before the button
         self.assertIn("teknik tetik (dip dönüşü) olan hisse yok", ai.run(date(2026, 11, 3), {}, None, False)[0][0])
 
     def test_bot_sends_html(self):
@@ -300,8 +301,9 @@ class ApprovalTest(unittest.TestCase):
         self.card(day=date(2026, 11, 2))
         self.conn.close()
         daily.run(date(2026, 11, 3), lambda s: None, path=self.book, enabled=lambda: False)
-        self.conn = S.connect(self.book)
-        self.assertEqual([s.status for s in S.signals(self.conn)], ["zaman_asimi"])
+        conn = S.connect(self.book)
+        self.addCleanup(conn.close)  # the setUp cleanup closes the first connection only
+        self.assertEqual([s.status for s in S.signals(conn)], ["zaman_asimi"])
 
     def test_enter_reject_expire_lock_and_once(self):
         a, b, c, d = (self.card(symbol=s) for s in ("A.IS", "B.IS", "C.IS", "D.IS"))
