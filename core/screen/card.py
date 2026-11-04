@@ -9,7 +9,7 @@ The /tara history card, honest by construction (DECISIONS K-35).
   the research costs both ways (commission 0.10% + slippage 0.05%), minus XU100 over the same
   sessions.
 - Shown: mean and median excess, hit rate, samples, independent events (a stock's signals inside
-  one holding period count once), a block-bootstrap 95% interval (circular blocks of 21 entry
+  one holding period count once), a block-bootstrap 95% interval (circular blocks of BLOCK = 20 entry
   dates; the signals of a date move together), and the mean without the 5 most profitable stocks.
 - Labels never call the past evidence: queries can be tried freely (no research budget, no
   pre-registration), so even a positive interval may be luck. The criteria tried are counted.

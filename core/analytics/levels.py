@@ -106,9 +106,12 @@ def classic(high: float, low: float, close: float) -> dict[str, float]:
     return {"P": p, "R1": 2 * p - low, "D1": 2 * p - high, "R2": p + (high - low), "D2": p - (high - low)}
 
 
-def round_numbers(price: float) -> tuple[float, float]:
-    """The round numbers on each side: step 10^floor(log10(price)) / 2 (270 -> 250 and 300)."""
+def round_numbers(price: float) -> tuple[float, ...]:
+    """The round numbers on each side: step 10^floor(log10(price)) / 2 (270 -> 250 and 300).
+    No price (NaN, zero or negative): none (M8-4: it raised)."""
 
+    if not price > 0 or not math.isfinite(price):
+        return ()
     step = 10 ** math.floor(math.log10(price)) / 2
     below = math.floor(price / step + 1e-9) * step
     return round(below, 10), round(below + step, 10)

@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS signals (
     UNIQUE (created, symbol)
 );
 CREATE TABLE IF NOT EXISTS breaker (
-    day TEXT PRIMARY KEY,             -- the session whose fall tripped it; blocks the next one
+    day TEXT PRIMARY KEY,             -- the session whose closed losses tripped it; blocks that same day
     change REAL NOT NULL
 );
 """

@@ -115,6 +115,8 @@ def dataset(frames: dict[str, pd.DataFrame], members=None, rule: str = "stop_hed
 
     if rule not in RULES:
         raise ValueError(f"bilinmeyen kural {rule!r}")
+    if rule == "goreli20" and bench_close is None:  # M30-8: it failed later with an AttributeError
+        raise ValueError("goreli20 kuralı XU100 kapanışlarını ister (bench_close)")
     parts = []
     for symbol, df in frames.items():
         if df is None or len(df) < 250:

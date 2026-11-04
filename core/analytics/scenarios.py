@@ -180,7 +180,7 @@ def size(entry: float, invalidation: float, account: float | None, risk: float, 
     why = "likidite sınırı (20 seans ortalama TL hacminin %5'i)" if by_liquidity < by_risk else \
         f"risk bütçesi %{num(risk * 100, 1)}"
     return (f"{shares} adet ({why}; risk {num(shares * (entry - invalidation), 0)} TL, "
-            f"tutar {num(shares * entry, 0)} TL; yalnız hesap, emir değil)")
+            f"tutar {num(shares * entry, 0)} TL; maliyet ve boşluk hariç; yalnız hesap, emir değil)")
 
 
 def _limit_line(df: pd.DataFrame, entry: float, invalidation: float) -> str:
@@ -375,7 +375,7 @@ def parse_args(words: list[str]) -> tuple[str, tuple[float, float, float] | None
         word = unicodedata.normalize("NFKD", rest[i].lower()).encode("ascii", "ignore").decode()
         if word.startswith("risk="):
             risk = _number(word.removeprefix("risk=").lstrip("%")) / 100
-            if not 0 < risk <= 0.05:
+            if not 0.001 <= risk <= 0.05:  # M27-5: the message's own limits
                 raise ValueError("risk %0,1 ile %5 arasında olmalı.\n" + USAGE)
             i += 1
         elif word in names and i + 1 < len(rest):

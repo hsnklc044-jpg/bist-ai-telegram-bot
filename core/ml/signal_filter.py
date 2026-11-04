@@ -177,7 +177,7 @@ def track_record(zaman: str = "gunluk") -> TrackRecord | None:
 
     try:
         got = json.loads(report_file(zaman).read_text(encoding="utf-8"))
-        if got.get("approved") and got.get("precision") is not None and got.get("base_rate") is not None:
+        if isinstance(got, dict) and got.get("approved") and got.get("precision") is not None and got.get("base_rate") is not None:
             return TrackRecord(int(got["approved"]), float(got["precision"]), float(got["base_rate"]),
                                "bu bilgisayardaki son ölçüm")
     except (OSError, ValueError, TypeError):
@@ -189,7 +189,8 @@ def validated(zaman: str = "gunluk") -> bool:
     """True only after the out-of-sample evaluation passed (K-64); a missing or broken report is False."""
 
     try:
-        return bool(json.loads(report_file(zaman).read_text(encoding="utf-8")).get("passed"))
+        got = json.loads(report_file(zaman).read_text(encoding="utf-8"))
+        return bool(got.get("passed")) if isinstance(got, dict) else False  # M31-9: null or [] crashed
     except (OSError, ValueError):
         return False
 

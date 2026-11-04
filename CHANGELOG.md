@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.68 – 04.11.2026 (Faz A, 1. grup: yedi küçük hata)
+- Eksiksiz iş planı ROADMAP'e yazıldı. Bağımsız doğrulama raporlarının her bulgusu bir yerde duruyor: yapıldı, Faz A, Faz B, Faz C ya da gerekçesiyle bırakıldı.
+- Faz A, ölçüm kuralını değiştirmeyen düz hatalar. Bu grupta yedisi giderildi:
+  - **M27-5:** `/senaryo` risk sınırı mesajda "%0,1 ile %5" diyordu ama kod her pozitif değeri alıyordu. Artık mesajdaki sınır uygulanıyor.
+  - **M27-7:** Adet satırı "maliyet ve boşluk hariç" diyor.
+  - **M8-4:** Son kapanış NaN ya da 0 iken psikolojik seviye hesabı istisna veriyordu. Artık seviye vermiyor.
+  - **M30-8:** `goreli20` kuralı XU100 kapanışları olmadan çağrılınca anlaşılmaz bir `AttributeError` veriyordu. Artık açık bir mesaj veriyor.
+  - **M31-9:** Rapor dosyası `null`, `[]` gibi bozuk içerikteyse `validated` ve `track_record` çöküyordu. Artık "doğrulanmadı" ve kayıtlı ölçüm dönüyor.
+  - **M5-10:** Karne açıklaması "21 günlük blok" diyordu, sabit 20. Açıklama düzeltildi.
+  - **M32-8:** Şalter tablosunun açıklaması "sonraki seansı kilitler" diyordu, kod aynı günü kilitliyor. Açıklama düzeltildi.
+- Doğrulama: yeni `tests/test_phase_a.py` (her bulguya bir test). Önce kırmızı, sonra yeşil. İlgili 105 test geçti.
+
 ## v0.99.67 – 04.11.2026 (şirket işleminden sonra senaryo kayıtları kaybolmuyor; M27 ORTA 1)
 - Canlı senaryo kaydı seviyeleri kayıt gününün fiyatıyla tutuyor. Puanlama ise geriye doğru düzeltilmiş mumlarla yapılıyor. 2:1 bedelsizden sonra geçmiş fiyatlar yarıya iniyor, seviyeler artık girişe uymuyordu. Kayıt "dolmadı" sayılıp sessizce kayboluyordu; doğrulamada 31 kaydın hepsi "0/30 sonuçlanan, 0 süren" oldu.
 - Artık geçersizlik ve hedef aynı düzeltme katsayısıyla ölçekleniyor: kayıt günündeki düzeltilmiş kapanış ÷ kayıtlı kapanış. Katsayı yoksa ya da 1 ise hiçbir şey değişmiyor. Temettü düzeltmesi de aynı yolla hesaba giriyor.

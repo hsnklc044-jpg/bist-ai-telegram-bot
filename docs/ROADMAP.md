@@ -233,18 +233,18 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 | M1-6 | Son mum NaN iken canlı yol önceki günü gösteriyor: görünümde son mumun tarihini yazmak ve bozuk mumda "veri yok" demek | A |
 | M1-7 | ATR seviyeleri çarpılmadan önce yuvarlanıyor | A |
 | M5-6 | XU100 yoksa karne "yetersiz örnek" diyor; "endeks verisi yok" demeli | A |
-| M5-10 | Açıklama "21 günlük blok", sabit 20 | A |
-| M8-4 | Son kapanış NaN ya da sıfırsa `round_numbers` istisna veriyor | A |
+| M5-10 | Açıklama "21 günlük blok", sabit 20 | ✅ v0.99.68 |
+| M8-4 | Son kapanış NaN ya da sıfırsa `round_numbers` istisna veriyor | ✅ v0.99.68 |
 | M8-7 | `/tara` seviye alanlarında "rastgeleden ayırt edilemedi" notu yok | A |
-| M27-5 | Risk sınırı mesajı "%0,1–%5" diyor, kod her pozitif değeri alıyor | A |
+| M27-5 | Risk sınırı mesajı "%0,1–%5" diyor, kod her pozitif değeri alıyor | ✅ v0.99.68 |
 | M30-4 | `enabled()` hangi evren ve kuralın geçtiğine bakmıyor; BIST 100 sonucu BIST 30 dosyasına yazılıyor | A |
 | M30-7 | Ufuk sonu kapanışı NaN ise etiket 0 ile kalıyor | A |
-| M30-8 | `goreli20` endeks olmadan anlaşılmaz hata veriyor | A |
+| M30-8 | `goreli20` endeks olmadan anlaşılmaz hata veriyor | ✅ v0.99.68 |
 | M30-10 | `/tara ml=evet` model kapısını okumuyor | A |
-| M31-9 | `validated` ve `track_record` bozuk dosyada (`null`, `[]`) çöküyor | A |
+| M31-9 | `validated` ve `track_record` bozuk dosyada (`null`, `[]`) çöküyor | ✅ v0.99.68 |
 | M31-13 | Model yaşı denetlenmiyor; Cuma eğitimi atlanırsa eski model uyarısız kullanılıyor | A |
 | M31-14 | Yanıltıcı test ve fonksiyon adları | A |
-| M32-8 | Şema açıklaması şalterin "sonraki seansı" kilitlediğini söylüyor; kod yalnız aynı günü kilitliyor | A |
+| M32-8 | Şema açıklaması şalterin "sonraki seansı" kilitlediğini söylüyor; kod yalnız aynı günü kilitliyor | ✅ v0.99.68 |
 | M32-10 | `risk_tl` kart fiyatıyla yazılıyor; girişten sonra gerçek stop riskiyle güncellenmeli | A |
 | M1-2 | 60 gün işlem görmeyen hisse 90 puan alıyor: hacimsiz ya da sabit fiyatlı hisse "veri yetersiz" sayılmalı | A |
 
@@ -278,7 +278,7 @@ Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanıl
 |---|---|
 | M1-4 (kural simetrik değil) | Skorun tanımıdır. Değiştirmek canlı ölçümü sıfırlar. Skor zaten "tahmin gücü yok" diye gösteriliyor (K-73) ❎ |
 | M31-7, M32-4 (giriş bir seans geç) | Seans içinde üretilen kartın o günün geçmiş açılışından girmesi geleceği görmek olurdu; sonuç ihtiyatlı tarafta (v0.99.54) ❎ |
-| M27-7 (adet satırı maliyetsiz) | Satır "yaklaşık" diyor; R satırı maliyet sonrası. Faz A'da metne "maliyet ve boşluk hariç" notu eklenecek (A) |
+| M27-7 (adet satırı maliyetsiz) | Satır "yaklaşık" diyor; R satırı maliyet sonrası. Metne "maliyet ve boşluk hariç" notu eklendi ✅ v0.99.68 |
 | M5-1, M5-4, M8-2, M27-1/2/3, M31-1/4/5/6, M32-1/2/5/6, M1-1, M8-1 | ✅ v0.99.52–v0.99.67 |
 
 ### Yeniden doğrulama
