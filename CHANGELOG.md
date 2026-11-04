@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.72 – 04.11.2026 (güncelleyici paket listesini satır sonundan bağımsız karşılaştırıyor)
+- Her kurulum "paketler güncellendi" diyor ve 5–7 dakikalık geçici sanal ortam kuruyordu. `requirements.lock` değişmemişti: Windows'taki git kopyası CRLF, GitHub zip'i LF satır sonu taşıyor ve dosyalar bayt bayt karşılaştırılıyordu.
+- Artık satır sonları ve boş satırlar hesaba katılmıyor; yalnız paket satırları karşılaştırılıyor. Paket listesi gerçekten değişmedikçe kurulum hızlı gidiyor.
+- Doğrulama: `test_guncelle` (LockCompareTest): CRLF ve LF aynı sayılıyor, gerçek bir sürüm farkı fark sayılıyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.71 – 04.11.2026 (Faz A tamam: işlem görmeyen hisse ve bozuk son mum)
 - **M1-2:** 60 gün işlem görmeyen hisse (sıfır hacim, tek fiyat) donmuş göstergelerle 90 puan ve "Güçlü pozitif" alıyordu. Artık son 20 seansta hiç hacim yoksa ya da fiyat hiç oynamadıysa teknik görünüm verilmiyor; kısa geçmişteki "görünüm yok" ile aynı.
 - **M1-6:** Son mumun kapanışı NaN ise canlı yol sessizce önceki günün değerlerini gösteriyordu. Artık "son mum bozuk (kapanış …, tarih); görünüm hesaplanmadı" hatası veriyor.

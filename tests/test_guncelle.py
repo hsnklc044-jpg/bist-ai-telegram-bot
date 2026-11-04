@@ -205,6 +205,22 @@ class BotDetectionTest(unittest.TestCase):
         self.assertFalse(re.search(pattern, old, flags=re.I))  # another folder's bot is not this one
 
 
+class LockCompareTest(unittest.TestCase):
+    """04.11.2026: every install said "paketler güncellendi": the git clone on Windows has CRLF, the
+    GitHub zip LF, and the lock files were compared byte by byte."""
+
+    def test_line_endings_do_not_count(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            a, b = Path(tmp) / "a.lock", Path(tmp) / "b.lock"
+            a.write_bytes(b"pandas==2.2.3\r\nnumpy==2.1.0\r\n")
+            b.write_bytes(b"pandas==2.2.3\nnumpy==2.1.0\n")
+            self.assertFalse(g.locks_differ(a, b))
+            b.write_bytes(b"pandas==2.2.4\nnumpy==2.1.0\n")
+            self.assertTrue(g.locks_differ(a, b))
+
+
 class TaskScriptTest(unittest.TestCase):
     def test_registration_runs_hourly_from_this_folder(self):
         text = (PATH.parent / "register_update_task.ps1").read_text(encoding="utf-8")

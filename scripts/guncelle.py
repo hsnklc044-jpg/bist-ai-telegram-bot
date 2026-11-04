@@ -155,6 +155,15 @@ def with_network(fn, sleep=None):
     raise AssertionError("unreachable")  # pragma: no cover
 
 
+def locks_differ(a: Path, b: Path) -> bool:
+    """The package lists differ in content (line endings ignored: the Windows clone has CRLF)."""
+
+    def lines(p: Path) -> list[str]:
+        return [x.strip() for x in p.read_text(encoding="utf-8").splitlines() if x.strip()]
+
+    return lines(a) != lines(b)
+
+
 def report_window(now: datetime) -> bool:
     """18:00–19:59: the daily report runs; the bot is not restarted under it."""
 
@@ -321,7 +330,7 @@ def _main(argv: list[str]) -> int:
             return code
         log(f"indirildi: {src} ({sha[:7]})")
 
-        packages_changed = (src / "requirements.lock").read_bytes() != (PROJECT / "requirements.lock").read_bytes()
+        packages_changed = locks_differ(src / "requirements.lock", PROJECT / "requirements.lock")
 
         stage = Path(tempfile.mkdtemp(prefix="quantbist_stage_"))
         try:
