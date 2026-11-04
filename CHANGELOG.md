@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.56 – 04.11.2026 (M30 ve M27 bağımsız doğrulandı: kullanılamaz ve kısıtlı)
+- Geliştirici notlarını okumayan ayrı bir inceleyici iki modeli daha doğruladı. Raporlar olduğu gibi eklendi: `docs/validation/M30.md`, `M27.md`.
+- **M30 (ML filtresi): Kullanılamaz.**
+  - YÜKSEK 1: Geçme kuralındaki Wilson aralığı örtüşen ve aynı günde birlikte hareket eden sinyalleri bağımsız sayıyor; aralık olduğundan dar çıkıyor.
+  - YÜKSEK 2: 2022 öncesinde endeks üyeliği zaman noktasında değil; hayatta kalanlar yanlılığı var.
+  - ORTA: 2026 test etiketleri holdout fiyatlarına uzanıyor; `enabled()` evren, kural ve tarihi denetlemiyor; geçme kuralı getiri şartı koymuyor; taban kilitte çıkış iyimser.
+  - Model kapısı M30'u zaten kapalı tutuyor; filtre kendiliğinden hiçbir şey yazamıyor.
+- **M27 (senaryo şablonları): Kısıtlı kullanılabilir.** YÜKSEK bulgu yok. ORTA: şirket işleminden sonra canlı kayıt yanlış puanlanıyor; sıfır girişte komut çöküyor; "1.250" gibi binlik ayırıcı 1,25 okunuyor; karnede ortalama R ile aralığı farklı ağırlıklı.
+- Model doğrulama: 14 modelden 11'i raporlu. Kalan: M1, M5, M8. Bulguların düzeltmesi sonraki sürümlerde.
+
 ## v0.99.55 – 04.11.2026 (güncelleyici ağı bekliyor)
 - **Kanıt (kullanıcının PC'si, 04.11):** Saatlik "QuantBIST Guncelle" görevi 09:40, 10:40 ve 11:40'ta `URLError: getaddrinfo failed` ile durdu. Aynı dakikalarda DNS çalışıyordu, Python elle GitHub'a bağlanıyordu (200) ve bot yaşıyordu. Hata yalnız görevin başladığı anda oluşuyor. Bu yüzden PC v0.99.44'te kaldı.
 - Aynı hata 28.10 18:30 raporunu da düşürmüştü. 31.10 01:36 telafisinin 30.10 fiyatlarını indirememesinin de en olası nedeni bu (`daily_2026-10-31.log` 28.10 verisiyle rapor üretti). Bu bulgu AUDIT 5'e eklendi.
