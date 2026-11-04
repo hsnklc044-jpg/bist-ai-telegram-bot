@@ -1,4 +1,4 @@
-# Durum notu (04.11.2026, kod v0.99.76 / 46c226f)
+# Durum notu (04.11.2026, kod v0.99.77 / eb60894)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -10,7 +10,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ **Faz B kapandı (04.11)**: `docs/FAZ_B_KAPANIS.md`. Kullanıcı A seçeneğini onayladı; ayrım ölçümü yeniden çalıştırılmayacak.
 - ✅ Sonraki adım önerisi verildi. Kullanıcı **seçenek 1'i onayladı (04.11)**: ileri test için ölçüm altyapısını sağlamlaştırmak.
 
-## Seçenek 1: ölçüm altyapısı (K-76) – sürüyor
+## Seçenek 1: ölçüm altyapısı (K-76) – ✅ tamamlandı
 - Önceden sabitlenmiş başarı ölçütü:
   - (a) Her ölçüm adımı veri aralığını, satır sayısını, veri SHA-256 özetini ve kod commit'ini yazdırıyor.
   - (b) Aynı dondurulmuş veride iki çalıştırma birebir aynı rapor veriyor ve bunu sınayan test CI'da.
@@ -27,8 +27,14 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
   - `create_backup` varsayılanı;
   - canlı model testinin gerçek `logs/`'a yazması;
   - koruyucu mesajının cp1252 konsolda çökmesi.
-- ⏳ `snapshot.yml` çalışması 41880444802 (46c226f): A/B karşılaştırması, iki kez çalıştırma ve günlük dondurma. Sonuç RESEARCH_LOG'a yazılacak. Başarısız olursa yalnız bir kez yeniden denenir. Artifact 90 gün saklanıyor; kullanıcıya OneDrive'a kopyalaması önerildi.
-- 18:03 UTC'ye kendime kontrol hatırlatması kuruldu (trig_011NRMuE6uKeHHbZ62K9cQpz).
+- ✅ `snapshot.yml` çalışması 41880444802 (46c226f) yeşil bitti:
+  - A ve B indirmeleri aynı: 62.075 mum, özet `4fc8a1bc…`.
+  - K-63 ve K-64 iki kez çalıştırıldı, sonuçlar birebir aynı (K-64: 36 onay).
+  - 41→36 farkının nedeni bilinmiyor.
+  - Ayrıntı RESEARCH_LOG'da. Hatırlatma silindi.
+- ✅ v0.99.77 (eb60894): `scripts\olcum.ps1`, aynı kontrolü PC'de tek komutla yapıyor. Görüntü `BACKUP_DIR\olcum` klasörüne, rapor `logs\olcum_report.txt`'ye yazılıyor. Kullanıcı 04.11'de kotayı korumak için rutin işlerin Python/PowerShell ile yürümesini istedi.
+- ⏳ Sıradaki: kullanıcının seçimi. Kalan seçenekler: Faz C (K-64 değerlendirme kodunu değiştiren maddeler ileri testten sonraya) ya da M31/M32 yeniden doğrulaması. Onay gelmeden başlanmaz.
+- **Kota kuralı (kullanıcı, 04.11):** Rutin kontroller sohbetle değil, PC'deki betiklerle yapılır. CI ve çalışma izlemeyi gereğinden fazla sorgulama; uzun beklemelerde kendine hatırlatma kur, kısa aralıklarla sorgulama.
 
 ## Üç ölçüm (ef12819, 04.11.2026 15:39–15:51 UTC; ayrıntı RESEARCH_LOG)
 1. Kart kuralı K-68 (Actions 41859950394): 207 olay, fark %+0,20 (%−0,25 – %+0,62). GEÇMEDİ.

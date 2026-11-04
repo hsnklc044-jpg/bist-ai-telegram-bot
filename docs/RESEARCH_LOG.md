@@ -672,3 +672,34 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
   - 492 mum (%0,8) fark var. Ama 15:39'daki K-64 adımı veriyi dip çalışmasından ayrı yeniden indirdi ve kendi aralığını yazmadı. Kayıtlar nedeni ayırmaya yetmiyor: pencere kayması, veri düzeltmesi, eksik indirme ya da başka bir neden olabilir. Nedeni bilinmiyor.
   - Bu, ölçümün tekrarlanabilirliğiyle ilgili açık bir risk ve 03.02.2027 ileri testini doğrudan ilgilendiriyor (Faz B kapanış özeti).
 - **Karar:** K-64 saatlik GEÇMEDİ kalır. 50 onay koşulu, eşikler ve 03.02.2027 ileri testi değişmez.
+
+## 04.11.2026 – Ölçüm altyapısı (K-76): dondurulmuş görüntü, iki indirme, iki çalıştırma
+
+Kullanıcının onayladığı seçenek 1. Tekrarlanabilirlik kontrolüdür, karar ölçümü değildir. Kural, eşik, geçme koşulu ve 03.02.2027 ölçütü değişmedi.
+
+**Önceden sabitlenen ölçüt ve sonuç**
+
+| Ölçüt | Sonuç |
+|---|---|
+| (a) Her ölçüm adımı veri aralığını, mum sayısını, veri SHA-256 özetini ve kod commit'ini yazdırıyor | ✅ v0.99.75 (K-63, K-64 günlük ve saatlik, K-68; günlük iş akışlarında depo tanımı) |
+| (b) Aynı veride iki çalıştırma birebir aynı rapor veriyor; test CI'da | ✅ `test_provenance` CI'da. Gerçek veride ayrı süreçlerle iki çalıştırma birebir aynı (aşağıda). |
+| (c) 02.11.2026 öncesi saatlik görüntü donduruldu ve saklandı | ✅ artifact `hourly-snapshot-41880444802` (90 gün). Günlük depo: `daily-snapshot-41880444802`. PC'ye ve OneDrive'a kopyalama kullanıcıda; `scripts\olcum.ps1` bunu doğrudan yedek klasörüne yapıyor. |
+| (d) 41→36 farkı için iki indirme hisse hisse karşılaştırıldı | ✅ yapıldı; neden **bilinmiyor** (aşağıda). |
+
+**Çalışma:** Actions 41880444802, commit 46c226f (v0.99.76, temiz çalışma ağacı; satır çalışma anında yazıldı), 04.11.2026 17:47–17:55 UTC.
+
+- **İndirme A ve 5 dakika sonra indirme B (02.11.2026 öncesi):**
+  - İkisi de 30 hisse, 62.075 mum, 05.11.2025 09:30 – 30.10.2026 17:30.
+  - Veri özeti ikisinde de `4fc8a1bc97045caebb14a914097df181418883e841eb96bfee3e23474c506a0b`. **İki veri birebir aynı.**
+- **K-63 ve K-64 saatlik, A üzerinde, ayrı süreçlerde iki kez:** İki çalıştırma da birebir aynı rapor verdi.
+  - K-63: 570 olay; fark %−0,08 (%−0,70 – %+0,51); GEÇMEDİ. Rapor özeti `7872af61…`.
+  - K-64 saatlik: 570 olay, 380 test, 36 onay, isabet %44,4 (%30,0–70,0), taban %23,4; GEÇMEDİ (36 < 50). Rapor özeti `47bf3529…`.
+- **Karşılaştırma:** 16:49 ayrım çalışmasının sonucu da aynıydı (570/380, 36 onay). O çalışmanın dosyası 04.11 17:30'a kadar uzanıyordu ama değerlendirme 02.11'de kesiyor. Bu, kesimin doğru çalıştığıyla tutarlı.
+
+**41 → 36 farkı: nedeni hâlâ bilinmiyor**
+- Yeni bilgi: Art arda iki indirme, holdout öncesi kısımda aynı veriyi verdi. Yahoo'nun geçmiş mumları dakikalar içinde değiştirmesi bu örnekte görülmedi.
+- Sınanmamış aday: 15:39 indirmesi 492 mum daha fazlaydı. Bu, kabaca 30 hisse × yaklaşık 8 mum × 2 seans eder; pencerenin iki seans daha erken başlamış olmasıyla uyumlu bir sayı. Ama 15:39'un veri aralığı kaydedilmedi. Bu bir kanıt değil, bir aday; neden olarak kaydedilmedi.
+- Fark, açık risk olarak kalıyor. Bundan sonra her ölçüm aralığı ve özeti yazdığı için böyle bir fark artık kayıtlardan ayrılabilir.
+
+**Karar:** Değişen bir şey yok. K-63 ve K-64 saatlik GEÇMEDİ. 50 onay koşulu, eşikler ve 03.02.2027 ileri testi aynı. 03.02.2027'de rapor, veri özetini ve commit'i bu biçimde yazacak.
+

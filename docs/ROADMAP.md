@@ -256,6 +256,9 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 | M32-9, M27-6, M30-5 (ikinci kısım) | Taban kilidinde çıkış iyimser: kilitli günde çıkılamaz, ilk kilitsiz açılıştan çıkılır | ✅ v0.99.74 |
 | Yeniden ölçüm | Kuralı değişen çalışmalar (K-68 kart kuralı, K-63, K-64, K-59, karne ve senaryo) GitHub Actions'ta yeniden çalıştırılır. Eski ve yeni sonuç RESEARCH_LOG'da yan yana yazılır; eşik değişmez | ✅ 04.11 (RESEARCH_LOG; K-64 ayrımı geçersiz) |
 
+### Ölçüm altyapısı (K-76) ✅ 04.11 (v0.99.75–77)
+Veri ve kod kimliği her ölçümde yazılıyor. Holdout öncesi saatlik ve günlük görüntü donduruldu (Actions 41880444802). İki indirme ve iki çalıştırma birebir aynı çıktı. Bilgisayarda tek komut: `scripts\olcum.ps1`. 41→36 farkının nedeni bilinmiyor (açık risk).
+
 ### Faz C: Araştırma yöntemi (bir model yeniden ölçülmeden önce şart)
 Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanılmayan modeller için kod değişikliği değil. Hepsi yeni bir ölçüm yapılmadan önce yapılacak. Ölçüm onlarsız başlatılmaz.
 | Bulgu | İş | Durum |
