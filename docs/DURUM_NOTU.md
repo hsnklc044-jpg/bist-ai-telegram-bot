@@ -1,4 +1,4 @@
-# Durum notu (04.11.2026, kod v0.99.74 / 213f71d)
+# Durum notu (04.11.2026, kod v0.99.76 / 46c226f)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -8,8 +8,27 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ 3. adım: Yeniden ölçümler yapıldı ve RESEARCH_LOG'a eklendi ("04.11.2026 – Faz B yeniden ölçümleri"). Hiçbir karar değişmedi.
 - ❌ K-64 kural/pencere ayrımı: geçersiz (aşağıda).
 - ✅ **Faz B kapandı (04.11)**: `docs/FAZ_B_KAPANIS.md`. Kullanıcı A seçeneğini onayladı; ayrım ölçümü yeniden çalıştırılmayacak.
-- ⏳ Sıradaki: sonraki adım önerisi verildi (en çok 3 seçenek); kullanıcı onaylamadan başlanmaz.
-- Sonra "sonraki adım" önerisi gelir: en fazla 3 seçenek. Her seçenekte yanıtladığı soru, çalıştırmadan önce sabitlenmiş başarı ölçütü, süre ve ileri testi kirletip kirletmediği yazılır. Kullanıcı onaylamadan başlanmaz.
+- ✅ Sonraki adım önerisi verildi. Kullanıcı **seçenek 1'i onayladı (04.11)**: ileri test için ölçüm altyapısını sağlamlaştırmak.
+
+## Seçenek 1: ölçüm altyapısı (K-76) – sürüyor
+- Önceden sabitlenmiş başarı ölçütü:
+  - (a) Her ölçüm adımı veri aralığını, satır sayısını, veri SHA-256 özetini ve kod commit'ini yazdırıyor.
+  - (b) Aynı dondurulmuş veride iki çalıştırma birebir aynı rapor veriyor ve bunu sınayan test CI'da.
+  - (c) 02.11.2026 öncesi saatlik veri görüntüsü dondurulup saklanıyor.
+  - (d) 41→36 için iki indirme hisse hisse karşılaştırılıyor; neden bulunamazsa "bilinmiyor" yazılıyor.
+  - Kural, eşik ve ileri test ölçütüne dokunulmuyor.
+- ✅ v0.99.75 (c30c81f):
+  - `core/analytics/provenance.py`.
+  - K-63, K-64 ve K-68 veri ve kod satırı ile rapor özetini yazıyor.
+  - `--veri` seçeneği eklendi; `hourly.yml` veriyi bir kez indirip donduruyor.
+  - Yeni `snapshot.yml`.
+  - `test_provenance`: 17 test.
+- ✅ v0.99.76 (46c226f): CI kırmızısı düzeltildi. 0c8408a ve c30c81f kırmızıydı:
+  - `create_backup` varsayılanı;
+  - canlı model testinin gerçek `logs/`'a yazması;
+  - koruyucu mesajının cp1252 konsolda çökmesi.
+- ⏳ `snapshot.yml` çalışması 41880444802 (46c226f): A/B karşılaştırması, iki kez çalıştırma ve günlük dondurma. Sonuç RESEARCH_LOG'a yazılacak. Başarısız olursa yalnız bir kez yeniden denenir. Artifact 90 gün saklanıyor; kullanıcıya OneDrive'a kopyalaması önerildi.
+- 18:03 UTC'ye kendime kontrol hatırlatması kuruldu (trig_011NRMuE6uKeHHbZ62K9cQpz).
 
 ## Üç ölçüm (ef12819, 04.11.2026 15:39–15:51 UTC; ayrıntı RESEARCH_LOG)
 1. Kart kuralı K-68 (Actions 41859950394): 207 olay, fark %+0,20 (%−0,25 – %+0,62). GEÇMEDİ.
