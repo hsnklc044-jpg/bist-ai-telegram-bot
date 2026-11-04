@@ -218,6 +218,83 @@ Kapıların okunuşu DECISIONS K-51'de: Talimat 1 = Özellik A, Talimat 2 = Öze
   - izleme eşikleri `/durum`'da;
   - doğrulama takvimi MAINTENANCE.md'de.
 
+## Eksiksiz iş planı (04.11.2026, kod v0.99.67)
+
+Kullanıcı 04.11'de geriye dönmeyi gerektirmeyecek, eksiksiz bir plan istedi. Bağımsız doğrulama raporlarının (`docs/validation/`) her bulgusu aşağıda bir yerde duruyor. Durumlar:
+- ✅: yapıldı.
+- A, B, C: faz.
+- ❎: bilinçli olarak bırakıldı; gerekçesi yanında.
+
+Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve CHANGELOG her iş için güncellenir. Bir faz bitmeden sonrakine geçilmez.
+
+### Faz A: Ölçüm kuralını değiştirmeyen hatalar (şimdi)
+| Bulgu | İş | Durum |
+|---|---|---|
+| M1-6 | Son mum NaN iken canlı yol önceki günü gösteriyor: görünümde son mumun tarihini yazmak ve bozuk mumda "veri yok" demek | A |
+| M1-7 | ATR seviyeleri çarpılmadan önce yuvarlanıyor | A |
+| M5-6 | XU100 yoksa karne "yetersiz örnek" diyor; "endeks verisi yok" demeli | A |
+| M5-10 | Açıklama "21 günlük blok", sabit 20 | A |
+| M8-4 | Son kapanış NaN ya da sıfırsa `round_numbers` istisna veriyor | A |
+| M8-7 | `/tara` seviye alanlarında "rastgeleden ayırt edilemedi" notu yok | A |
+| M27-5 | Risk sınırı mesajı "%0,1–%5" diyor, kod her pozitif değeri alıyor | A |
+| M30-4 | `enabled()` hangi evren ve kuralın geçtiğine bakmıyor; BIST 100 sonucu BIST 30 dosyasına yazılıyor | A |
+| M30-7 | Ufuk sonu kapanışı NaN ise etiket 0 ile kalıyor | A |
+| M30-8 | `goreli20` endeks olmadan anlaşılmaz hata veriyor | A |
+| M30-10 | `/tara ml=evet` model kapısını okumuyor | A |
+| M31-9 | `validated` ve `track_record` bozuk dosyada (`null`, `[]`) çöküyor | A |
+| M31-13 | Model yaşı denetlenmiyor; Cuma eğitimi atlanırsa eski model uyarısız kullanılıyor | A |
+| M31-14 | Yanıltıcı test ve fonksiyon adları | A |
+| M32-8 | Şema açıklaması şalterin "sonraki seansı" kilitlediğini söylüyor; kod yalnız aynı günü kilitliyor | A |
+| M32-10 | `risk_tl` kart fiyatıyla yazılıyor; girişten sonra gerçek stop riskiyle güncellenmeli | A |
+| M1-2 | 60 gün işlem görmeyen hisse 90 puan alıyor: hacimsiz ya da sabit fiyatlı hisse "veri yetersiz" sayılmalı | A |
+
+### Faz B: Tavan ve taban kilidi kuralı, bütün modüllerde tek seferde (K-75)
+| Bulgu | İş | Durum |
+|---|---|---|
+| M32-7, M30-6, M31-11, M27-9 | %9,5 sınırı kayan noktayla karşılaştırılıyor ve modüller arasında `>`/`>=` farklı. Tek ortak fonksiyon `core/market/limits.py` yazılacak; yaklaşık 10 modül onu kullanacak | B |
+| M5-3 | Tavan kilitli girişte karne dolum varsayıyor | B |
+| M32-9, M27-6, M30-5 (ikinci kısım) | Taban kilidinde çıkış iyimser: kilitli günde çıkılamaz, ilk kilitsiz açılıştan çıkılır | B |
+| Yeniden ölçüm | Kuralı değişen çalışmalar (K-68 kart kuralı, K-63, K-64, K-59, karne ve senaryo) GitHub Actions'ta yeniden çalıştırılır. Eski ve yeni sonuç RESEARCH_LOG'da yan yana yazılır; eşik değişmez | B |
+
+### Faz C: Araştırma yöntemi (bir model yeniden ölçülmeden önce şart)
+Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanılmayan modeller için kod değişikliği değil. Hepsi yeni bir ölçüm yapılmadan önce yapılacak. Ölçüm onlarsız başlatılmaz.
+| Bulgu | İş | Durum |
+|---|---|---|
+| M30-1 | Wilson aralığı yerine tarih blok bootstrap | C |
+| M30-2 | 2022 öncesi zaman noktası üyelik; kaynak yoksa ölçüm 2022'den başlar | C |
+| M30-3, M31-8 | Test etiketinin bittiği gün de holdout'tan önce olmalı; canlı model holdout dönemiyle eğitilmemeli | C |
+| M30-5 | Geçme koşuluna maliyet sonrası ortalama getiri ve kayıp kuyruğu eklenmeli | C |
+| M31-2 | Etiket, kartın gerçek işlemiyle (iz süren stop ve hedef) aynı olmalı | C |
+| M31-3, M30-9 | Olasılık kalibre edilmeli ya da "olasılık" diye gösterilmemeli | C |
+| M31-10, M31-12 | Canlı aramada küme kuralı; kart çalışmasındaki iki küçük yanlılık | C |
+| M5-2, M5-5, M5-7, M5-8, M5-9 | Karne: evren zaman noktasında seçilmeli; verisi biten hisse sayılmalı; aralık kapsamı ve blok uzunluğu; hisseler arası bağımlılık; üyelik ileri taşıma | C |
+| M27-4, M27-8 | Senaryo karnesinde ağırlık tutarlılığı; dönem sonu yanlılığı | C |
+| M32-3 | Saatlik ve günlük takip aynı kuralı uygulamalı (gün içi zirve yalnız kapanışta) | C |
+| M8-3, M8-5, M8-6 | Kümeleme genişlik sınırı; kaydı eksik şirket işlemi uyarısı; kilitli gün kuralı | C |
+| M1-3, M1-5, M1-8, M1-9 | Sıçrama denetimi; kısa geçmişte iki yol; referansta maliyet; trend tanımı | C |
+
+### Bilinçli olarak bırakılanlar
+| Bulgu | Gerekçe |
+|---|---|
+| M1-4 (kural simetrik değil) | Skorun tanımıdır. Değiştirmek canlı ölçümü sıfırlar. Skor zaten "tahmin gücü yok" diye gösteriliyor (K-73) ❎ |
+| M31-7, M32-4 (giriş bir seans geç) | Seans içinde üretilen kartın o günün geçmiş açılışından girmesi geleceği görmek olurdu; sonuç ihtiyatlı tarafta (v0.99.54) ❎ |
+| M27-7 (adet satırı maliyetsiz) | Satır "yaklaşık" diyor; R satırı maliyet sonrası. Faz A'da metne "maliyet ve boşluk hariç" notu eklenecek (A) |
+| M5-1, M5-4, M8-2, M27-1/2/3, M31-1/4/5/6, M32-1/2/5/6, M1-1, M8-1 | ✅ v0.99.52–v0.99.67 |
+
+### Yeniden doğrulama
+Faz A ve B bitince M31 ve M32, Faz C bitince M30 ayrı inceleyiciyle yeniden doğrulanır. Diğer 11 modelin kararı en geç 12 ay içinde yenilenir; süresi geçen doğrulama `/durum`'da ⚠️ verir.
+
+### Zamana ve kullanıcıya bağlı olanlar
+- 20 seans gözlem: en erken 2 Aralık 2026.
+- Veri doğruluğu: kullanıcının fiyat dosyası.
+- Temel veri: kullanıcının bilanço CSV'leri.
+- Saatlik onay katmanının ileri testi: 03.02.2027.
+- K-36 evren kararı: Kasım sonu.
+- 2027 tatilleri: Aralık.
+
+### Sonra: yol planının 2., 3. ve 4. bölümleri
+Sıra: karar desteği (portföy sağlık raporu ilk), araştırma programı, işletme kalitesi. Faz C bitmeden araştırma programı başlamaz.
+
 ## Yol planı: güvenilirlikten karar desteğine (04.11.2026, kod v0.99.54)
 
 Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe dayanıyor: ölçülen kısa vadeli sinyal kurallarının hiçbiri rastgele girişi yenemedi (K-59, K-62, K-63, K-64, K-68). Değer, yeni sinyallerden değil, uzun vadeli kararı destekleyen ve kendi doğruluğunu ölçen araçlardan gelir. Sıra K-70'e uyar: önce güvenilirlik.
