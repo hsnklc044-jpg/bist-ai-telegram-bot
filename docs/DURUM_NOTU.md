@@ -7,7 +7,8 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ 2. adım (v0.99.74): Kilitli günde dolum yok. Tabanda kilitli gün satış, tavanda kilitli gün alış dolmuyor. Defter, ML etiketleri, senaryolar ve karne.
 - ✅ 3. adım: Yeniden ölçümler yapıldı ve RESEARCH_LOG'a eklendi ("04.11.2026 – Faz B yeniden ölçümleri"). Hiçbir karar değişmedi.
 - ❌ K-64 kural/pencere ayrımı: geçersiz (aşağıda).
-- ⏳ Kalan: Faz B kapanışı. Kullanıcı kuralı: yalnız üç ölçüm kayda geçince ve yedek doğrulanınca kapatılır. Kapanışta tek sayfalık özet yazılır: ne değişti, ne değişmedi, açık riskler, ileri testte bakılacak sayılar.
+- ✅ **Faz B kapandı (04.11)**: `docs/FAZ_B_KAPANIS.md`. Kullanıcı A seçeneğini onayladı; ayrım ölçümü yeniden çalıştırılmayacak.
+- ⏳ Sıradaki: sonraki adım önerisi verildi (en çok 3 seçenek); kullanıcı onaylamadan başlanmaz.
 - Sonra "sonraki adım" önerisi gelir: en fazla 3 seçenek. Her seçenekte yanıtladığı soru, çalıştırmadan önce sabitlenmiş başarı ölçütü, süre ve ileri testi kirletip kirletmediği yazılır. Kullanıcı onaylamadan başlanmaz.
 
 ## Üç ölçüm (ef12819, 04.11.2026 15:39–15:51 UTC; ayrıntı RESEARCH_LOG)
@@ -21,6 +22,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - Çalışma 41871166804: push bitmeden başlatıldı, düzeltilmemiş commit'te koştu; iptal edildi, ölçüm yok.
 - **Geçerli çalışma 41871216084, commit 213f71d. Tek yeniden deneme hakkı bununla kullanıldı. Yeniden deneme yok.**
 - 213f71d yalnız iş akışındaki bir satırı değiştirdi (`PYTHONPATH=.`); kural kodu ve eşikler aynı.
+- Kod kontrolü (yalnız okuma): iki adım `core`'u kendi klasöründen almış görünüyor; çalışma anında kanıtlanmadı. 41→36 farkının nedeni bilinmiyor; açık risk (FAZ_B_KAPANIS).
 - Sonuç: Dondurulan veri 30 hisse, 62.870 mum, 05.11.2025 09:30 – 04.11.2026 17:30. Eski kural (d0f4033) ve yeni kural (ef12819) aynı çıktıyı verdi: 570 olay / 380 test, 36 onay, isabet %44,4 (%30,0–70,0), taban %23,4.
 - **Doğrulama:**
   - SHA doğrulandı: head_sha 213f71d; worktree HEAD d0f4033 ve ef12819.
@@ -59,4 +61,4 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
   - Görevler: "QuantBIST Guncelle" (saatte bir, yalnız tamamı yeşil CI), "QuantBIST Gunluk Rapor" (18:30), "QuantBIST Bot".
   - Eski Cowork "otomatik güncelleme" görevi kullanıcı tarafından kapatıldı.
 - **CI:** Linux, yavaş makine, Windows ve docker işleri. Windows işi PC'deki hatayı önceden yakalamak için var.
-- **Döngü:** Otonom döngü `<<autonomous-loop-dynamic>>` ile sürüyor. Sıradaki iş Faz B kapanışı, sonra seçenek önerisi (onay beklenir).
+- **Döngü:** Durduruldu (04.11). Kullanıcı sonraki adımı seçene kadar yeni iş başlatılmaz.

@@ -654,5 +654,21 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
 | Yeni kural, ef12819 (v0.99.74) | 570 / 380 | 36 | %44,4 (%30,0–70,0) | %23,4 |
 
 - **Doğrulama:** Çalışmanın 213f71d üzerinde koştuğu kendi kaydından doğrulandı. İki değerlendirmenin aynı veri görüntüsünü kullandığı doğrudan doğrulanamadı: değerlendirme adımları kendi veri aralığını ve satır sayısını yazdırmadı. İkisi de aynı işte aynı dosyayı okudu ve aynı olay ve test sayısını buldu, ama bu doğrudan kanıt değil. **Sonuç kullanıcının kuralı gereği geçersiz sayıldı; yeniden çalıştırılmadı.**
-- **Gözlem (bağlayıcı değil):** İki kod aynı sonucu verdi; kural etkisi görünmüyor. Aynı gün 15:39'daki çalışma (41859970212) 575 olay ve 41 onay bulmuştu, bu dondurulmuş görüntü ise 570 olay ve 36 onay. Fark büyük olasılıkla saatlik penceredeki veri değişikliğinden geliyor. Doğrulanmadığı için kesin sonuç sayılmaz.
+- **Sonuç:** Sonuçlar aynı çıktı; bu ölçüm kural etkisi hakkında sonuç vermez. (04.11 düzeltmesi: ilk yazımdaki "kural etkisi görünmüyor" ifadesi kaldırıldı; desteklenmiyordu.)
+- **Kod kontrolü (yalnız okuma, 04.11):** İki değerlendirme adımı `core`'u kendi açıldıkları klasörden almış görünüyor. Dayanaklar:
+  - `k64-split.yml` 32. satır: `PYTHONPATH=.` yalnız indirme komutunun önünde, satır içi; yalnız o komut için geçerli.
+  - 35–37 ve 40–42. satırlar: her adım kendi klasörüne geçiyor (`cd /tmp/before`, `cd /tmp/after`) ve `python k64_split.py` çalıştırıyor. Python, çalıştırılan betiğin klasörünü `sys.path`'in ilk sırasına koyar; `core` orada aranır.
+  - `requirements.lock` projeyi paket olarak kurmuyor (`-e` ya da yerel yol yok); başka bir yerde `core` yok.
+  - Kayıt: "HEAD is now at d0f4033" ve "HEAD is now at ef12819".
+  - Ancak çalışma anında `core.__file__` yazdırılmadı; bu nedenle bu doğrudan kanıt değil, okumaya dayalı bir sonuçtur. Aynı kodun kullanıldığına dair bir iz bulunmadı; geçersizliğin ikinci nedeni olarak kaydedilmedi.
+  - Ayrıca: d0f4033 ile ef12819 arasında `core/ml/signal_filter.py`'de yalnız 3 satır değişti (sınır karşılaştırması `limit_up`'a taşındı). K-64 saatlik etiketi kapanışa dayalı; kilitli gün kuralı bu etikete uygulanmıyor. Bu yüzden bu ölçüm K-75'in K-64 üzerindeki etkisini zaten ancak tam %9,5 sınırındaki seyrek olaylarda gösterebilirdi.
+- **41 → 36 farkı (nedeni bilinmiyor):** Aynı gün 15:39'daki çalışma (41859970212) K-64 saatlikte 575 olay ve 41 onay buldu; 16:49'daki dondurulmuş görüntü 570 olay ve 36 onay. Onayların yaklaşık %12'si kayboldu. Mevcut kayıtlarla karşılaştırma:
+  | | 15:39 (41859970212) | 16:49 (41871216084) |
+  |---|---|---|
+  | Hisse | 30 (dip çalışması adımı) | 30 |
+  | Mum | 63.362 (dip çalışması adımı) | 62.870 |
+  | Veri aralığı | kaydedilmedi | 05.11.2025 09:30 – 04.11.2026 17:30 |
+  | K-64 adımının kendi verisi | ayrı indirildi; aralık ve mum sayısı kaydedilmedi | dondurulan dosya |
+  - 492 mum (%0,8) fark var. Ama 15:39'daki K-64 adımı veriyi dip çalışmasından ayrı yeniden indirdi ve kendi aralığını yazmadı. Kayıtlar nedeni ayırmaya yetmiyor: pencere kayması, veri düzeltmesi, eksik indirme ya da başka bir neden olabilir. Nedeni bilinmiyor.
+  - Bu, ölçümün tekrarlanabilirliğiyle ilgili açık bir risk ve 03.02.2027 ileri testini doğrudan ilgilendiriyor (Faz B kapanış özeti).
 - **Karar:** K-64 saatlik GEÇMEDİ kalır. 50 onay koşulu, eşikler ve 03.02.2027 ileri testi değişmez.

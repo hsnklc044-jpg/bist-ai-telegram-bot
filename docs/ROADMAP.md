@@ -248,13 +248,13 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 | M32-10 | `risk_tl` kart fiyatıyla yazılıyor; girişten sonra gerçek stop riskiyle güncellenmeli | ✅ v0.99.69 |
 | M1-2 | 60 gün işlem görmeyen hisse 90 puan alıyor: hacimsiz ya da sabit fiyatlı hisse "veri yetersiz" sayılmalı | ✅ v0.99.71 |
 
-### Faz B: Tavan ve taban kilidi kuralı, bütün modüllerde tek seferde (K-75)
+### Faz B: Tavan ve taban kilidi kuralı, bütün modüllerde tek seferde (K-75) ✅ kapandı 04.11 (docs/FAZ_B_KAPANIS.md)
 | Bulgu | İş | Durum |
 |---|---|---|
 | M32-7, M30-6, M31-11, M27-9 | %9,5 sınırı kayan noktayla karşılaştırılıyor ve modüller arasında `>`/`>=` farklı. Tek ortak fonksiyon `core/market/limits.py` yazılacak; yaklaşık 10 modül onu kullanacak | ✅ v0.99.73 |
 | M5-3 | Tavan kilitli girişte karne dolum varsayıyor | ✅ v0.99.74 |
 | M32-9, M27-6, M30-5 (ikinci kısım) | Taban kilidinde çıkış iyimser: kilitli günde çıkılamaz, ilk kilitsiz açılıştan çıkılır | ✅ v0.99.74 |
-| Yeniden ölçüm | Kuralı değişen çalışmalar (K-68 kart kuralı, K-63, K-64, K-59, karne ve senaryo) GitHub Actions'ta yeniden çalıştırılır. Eski ve yeni sonuç RESEARCH_LOG'da yan yana yazılır; eşik değişmez | B |
+| Yeniden ölçüm | Kuralı değişen çalışmalar (K-68 kart kuralı, K-63, K-64, K-59, karne ve senaryo) GitHub Actions'ta yeniden çalıştırılır. Eski ve yeni sonuç RESEARCH_LOG'da yan yana yazılır; eşik değişmez | ✅ 04.11 (RESEARCH_LOG; K-64 ayrımı geçersiz) |
 
 ### Faz C: Araştırma yöntemi (bir model yeniden ölçülmeden önce şart)
 Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanılmayan modeller için kod değişikliği değil. Hepsi yeni bir ölçüm yapılmadan önce yapılacak. Ölçüm onlarsız başlatılmaz.
