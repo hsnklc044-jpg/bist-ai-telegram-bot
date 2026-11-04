@@ -29,7 +29,7 @@ jobs:
           cache: pip
       - run: pip install -r requirements.lock
       - name: Freeze one hourly snapshot
-        run: python scripts/k64_split.py download /tmp/hourly.pkl 2>&1 | grep -v Warning | tee frozen.txt
+        run: PYTHONPATH=. python scripts/k64_split.py download /tmp/hourly.pkl 2>&1 | grep -v Warning | tee frozen.txt
       - name: Rule before K-75 (d0f4033) on the frozen data
         run: |
           git worktree add /tmp/before d0f4033
