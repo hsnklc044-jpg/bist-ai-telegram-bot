@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.75 – 04.11.2026 (ölçüm altyapısı: veri ve kod kimliği, dondurulmuş görüntü; K-76)
+- Yeni `core/analytics/provenance.py`. Ölçümün gördüğü veriyi tanımlar: hisse ve mum sayısı, ilk ve son zaman, holdout sınırı, SHA-256 özeti. Çalışan kodu da tanımlar: sürüm, commit, kaydedilmemiş değişiklik olup olmadığı, `core` klasörü. Veriyi dondurur (`snapshot.csv.gz` + `manifest.json`, yalnız 02.11.2026 öncesi) ve geri okurken özeti denetler. İki indirmeyi hisse hisse karşılaştırır.
+- K-63 (`dip_study`), K-64 (`signal_filter`) ve K-68 (`card_study`) rapordan önce veri ve kod satırını, rapordan sonra raporun özetini yazıyor. K-63 ve K-64 saatlik `--veri KLASÖR` ile dondurulmuş görüntüyü okuyabiliyor.
+- `hourly.yml`: Saatlik veri bir kez indirilip donduruluyor; K-63 ve K-64 aynı görüntüyü okuyor. Önceden her adım ayrı indiriyordu. Görüntü 90 gün artifact olarak saklanıyor.
+- card-study, screens ve scenarios iş akışları günlük fiyat deposunun tanımını yazıyor.
+- Yeni `snapshot.yml`: saatlik ve günlük veriyi donduruyor; saatlik veriyi iki kez indirip karşılaştırıyor; K-63 ve K-64'ü aynı görüntüde iki kez çalıştırıyor. Raporlar farklıysa kırmızı oluyor.
+- Kural, eşik, geçme koşulu ve 03.02.2027 ölçütü değişmedi.
+- Doğrulama: yeni `test_provenance` (17 test). Kapsadıkları: özetin sıraya bağlı olmaması; tek değer ya da tek mum değişince özetin değişmesi; dondur ve geri oku sonrası aynı veri; aynı veriden aynı dosya; bozulmuş dosyanın ve manifestin reddi; saat dilimsiz günlük veri; günlük deponun holdout öncesi dondurulması; iki indirmenin hisse hisse farkı; `core`'un yüklendiği klasör; K-63 ve K-64'ün iki kez aynı rapor vermesi (K-64'te model gerçekten eğitiliyor); komutların ilk iki satırı. Yerelde ayrı süreçlerde farklı `PYTHONHASHSEED` ile iki çalıştırma birebir aynı çıktı.
+
 ## v0.99.74 – 04.11.2026 (Faz B, 2. adım: kilitli günde dolum yok; K-75)
 - `core/market/limits.py`'ye `locked_down` ve `locked_up` eklendi. Kilitli gün, bütün gün tek fiyatın görüldüğü (en yüksek = en düşük) limit günüdür.
 - **Tabanda kilitli gün, satış dolmaz.** Stop ya da geçersizlik ilk kilitsiz günün açılışından gerçekleşiyor. Doğrulamadaki iyimser varsayım kalktı. Örnek: 89'da kilitli bir günden sonra 88'den açılışta çıkış; eskiden 98'deki stoptan çıkılmış sayılıyordu.

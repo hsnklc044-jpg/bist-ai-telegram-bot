@@ -333,21 +333,28 @@ def main(argv: list[str] | None = None) -> int:
     utf8_output()
     parser = argparse.ArgumentParser(description="Signal confirmation layer, out-of-sample evaluation")
     parser.add_argument("--zaman", choices=tuple(SPEC), default="gunluk")
+    parser.add_argument("--veri", default=None, help="dondurulmuş saatlik veri klasörü (yalnız saatlik)")
     args = parser.parse_args(argv)
+    from core.analytics import provenance
+
     x, y = SPEC[args.zaman]
     if args.zaman == "gunluk":
+        if args.veri:
+            parser.error("--veri yalnız --zaman saatlik ile kullanılır")
         frames, members = _daily()
-        before = HOLDOUT_START
+        before, source = HOLDOUT_START, "yerel fiyat deposu (market.db)"
     else:
-        from core.market.hourly import load_hourly
-
-        frames, members = load_hourly().frames, None
-        before = HOLDOUT_START.tz_localize("Europe/Istanbul")
+        frames, source = provenance.load_frozen_or_download(args.veri)
+        members, before = None, HOLDOUT_START.tz_localize("Europe/Istanbul")
+    print(provenance.stamp(frames, before))
+    print(f"Kaynak: {source}")
     report = evaluate(events(frames, x, y, members, before), args.zaman)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     (LOG_DIR / f"signal_filter_{args.zaman}.json").write_text(
         json.dumps(asdict(report), ensure_ascii=False, indent=1, default=str), encoding="utf-8")
-    print(text(report))
+    out = text(report)
+    print(out)
+    print(f"Rapor sha256 {provenance.report_digest(out)}")
     return 0
 
 

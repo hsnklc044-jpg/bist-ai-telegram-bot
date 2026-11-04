@@ -50,15 +50,32 @@ jobs:
           print(extended.scan(data.frames).to_string(index=False))
           PY
           { echo '```'; cat hourly.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # K-76: the studies below read ONE frozen download (before 04.11 each step downloaded on its own,
+      # so two steps of one run could see different data); data range, candles, hash and commit are printed
+      - name: Freeze the hourly data (before the holdout)
+        if: inputs.tickers == ''
+        run: |
+          python -m core.analytics.provenance freeze-hourly snapshot 2>&1 | grep -v Warning | tee freeze.txt
+          { echo '```'; cat freeze.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       # K-63: the dip trigger measured on the last year (written before this measurement)
       - name: Dip trigger study
         if: inputs.tickers == ''
         run: |
-          python -m core.analytics.dip_study 2>&1 | tee dip.txt
+          python -m core.analytics.dip_study --veri snapshot 2>&1 | tee dip.txt
           { echo '```'; cat dip.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       # K-64: the signal confirmation layer on the hourly BIST 30 (written before this measurement)
       - name: Signal confirmation layer (hourly)
         if: inputs.tickers == ''
         run: |
-          python -m core.ml.signal_filter --zaman saatlik 2>&1 | tee sf.txt
+          python -m core.ml.signal_filter --zaman saatlik --veri snapshot 2>&1 | tee sf.txt
           { echo '```'; cat sf.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v6
+        if: inputs.tickers == ''
+        with:
+          name: hourly-snapshot-${{ github.run_id }}
+          path: |
+            snapshot/
+            freeze.txt
+            dip.txt
+            sf.txt
+          retention-days: 90

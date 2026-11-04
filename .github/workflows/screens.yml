@@ -28,6 +28,11 @@ jobs:
       - run: pip install -r requirements.lock
       - name: Download prices
         run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+      # K-76: which daily data the measurements below read (range, candles, sha256, commit)
+      - name: Daily data provenance
+        run: |
+          python -m core.analytics.provenance daily 2>&1 | grep -v Warning | tee provenance.txt
+          { echo '```'; cat provenance.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Template variants
         run: |
           python -m core.screen.templates --explain 2>&1 | tee explain.txt

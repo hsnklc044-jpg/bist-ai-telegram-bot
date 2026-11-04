@@ -136,21 +136,30 @@ def text(result: Result) -> str:
     ])
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """--veri FOLDER runs on a frozen snapshot (core.analytics.provenance) instead of downloading."""
+
+    import argparse
     import json
 
+    from core.analytics import provenance
     from core.config.paths import LOG_DIR
     from core.infrastructure.console import utf8_output
-    from core.market.hourly import load_hourly
 
     utf8_output()
-    data = load_hourly()
-    result = study(data.frames)
+    parser = argparse.ArgumentParser(description="K-63 dip trigger study")
+    parser.add_argument("--veri", default=None, help="dondurulmuş saatlik veri klasörü")
+    args = parser.parse_args(argv)
+    frames, source = provenance.load_frozen_or_download(args.veri)
+    print(provenance.stamp(frames, provenance.holdout_edge()))
+    print(f"Kaynak: {source}")
+    result = study(frames)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     (LOG_DIR / "dip_study.json").write_text(json.dumps(asdict(result), ensure_ascii=False, indent=1),
                                             encoding="utf-8")
-    print(data.summary())
-    print(text(result))
+    report = text(result)
+    print(report)
+    print(f"Rapor sha256 {provenance.report_digest(report)}")
     return 0
 
 

@@ -180,11 +180,18 @@ def main() -> int:
 
     utf8_output()
     frames = {s: adjusted_bars(s) for s in BIST30_TICKERS}
-    result = study({s: df for s, df in frames.items() if not df.empty})
+    frames = {s: df for s, df in frames.items() if not df.empty}
+    from core.analytics import provenance
+    from core.backtest.run import HOLDOUT_START
+
+    print(provenance.stamp(frames, HOLDOUT_START))
+    result = study(frames)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     (LOG_DIR / "card_study.json").write_text(json.dumps(asdict(result), ensure_ascii=False, indent=1, default=str),
                                              encoding="utf-8")
-    print(text(result))
+    report = text(result)
+    print(report)
+    print(f"Rapor sha256 {provenance.report_digest(report)}")
     return 0
 
 

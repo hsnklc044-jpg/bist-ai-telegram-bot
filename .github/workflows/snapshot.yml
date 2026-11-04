@@ -1,0 +1,98 @@
+name: Frozen snapshot and repeatability
+
+# K-76 (user's request 04.11.2026, option 1): measurement infrastructure for the 03.02.2027 forward test.
+# 1. Freeze the BIST 30 hourly data before the holdout (02.11.2026) and keep it as an artifact.
+# 2. Download it a second time a few minutes later and compare stock by stock (does Yahoo give the
+#    same pre-holdout candles twice? the 41 -> 36 K-64 gap of 04.11 is unexplained).
+# 3. Run K-63 and K-64 hourly twice, in separate processes, on the frozen data: the reports must be
+#    identical (the job fails otherwise).
+# 4. Freeze the daily price store before the holdout as well.
+# Repeatability check, not a decision measurement: no rule, threshold or criterion is touched and the
+# K-63/K-64 decisions stay as recorded.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  hourly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Freeze download A
+        run: python -m core.analytics.provenance freeze-hourly snap_a 2>&1 | grep -v Warning | tee freeze_a.txt
+      - name: Wait, then freeze download B
+        run: |
+          python -c "import time; time.sleep(300)"
+          python -m core.analytics.provenance freeze-hourly snap_b 2>&1 | grep -v Warning | tee freeze_b.txt
+      - name: Compare A and B (before the holdout)
+        run: python -m core.analytics.provenance compare snap_a snap_b 2>&1 | grep -v Warning | tee compare.txt
+      - name: K-63 and K-64 hourly twice on A, separate processes
+        run: |
+          for n in 1 2; do
+            python -m core.analytics.dip_study --veri snap_a > dip_$n.txt 2> dip_$n.log
+            python -m core.ml.signal_filter --zaman saatlik --veri snap_a > sf_$n.txt 2> sf_$n.log
+          done
+          cat dip_1.txt sf_1.txt
+          for s in dip sf; do
+            if cmp -s ${s}_1.txt ${s}_2.txt; then echo "$s: iki çalıştırma birebir aynı"; else
+              echo "$s: İKİ ÇALIŞTIRMA FARKLI"; diff ${s}_1.txt ${s}_2.txt || true; fi
+          done | tee repeat.txt
+          ! grep -q "FARKLI" repeat.txt
+      - name: Summary
+        if: always()
+        run: |
+          { echo '```'; for f in freeze_a.txt freeze_b.txt compare.txt repeat.txt dip_1.txt sf_1.txt; do
+              if [ -f "$f" ]; then echo "--- $f"; cat "$f"; fi; done; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: hourly-snapshot-${{ github.run_id }}
+          path: |
+            snap_a/
+            snap_b/manifest.json
+            freeze_a.txt
+            freeze_b.txt
+            compare.txt
+            repeat.txt
+            dip_1.txt
+            dip_2.txt
+            sf_1.txt
+            sf_2.txt
+          retention-days: 90
+
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Download prices
+        run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+      - name: Freeze the daily price store
+        run: |
+          python -m core.analytics.provenance freeze-daily snap_daily 2>&1 | grep -v Warning | tee freeze_daily.txt
+          { echo '```'; cat freeze_daily.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: daily-snapshot-${{ github.run_id }}
+          path: |
+            snap_daily/
+            freeze_daily.txt
+          retention-days: 90

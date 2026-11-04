@@ -4,6 +4,16 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-76. Her ölçüm hangi veriyle ve hangi kodla çalıştığını yazar; veri dondurulur (04.11.2026).**
+- **Neden:** K-64 saatlik ölçümü aynı gün iki kez çalıştı ve 41 ile 36 onay verdi. Kayıtlar farkın nedenini ayırmaya yetmedi. 15:39 çalışmasında K-63 ve K-64 adımları veriyi ayrı ayrı indirmişti ve K-64 adımı veri aralığını yazmamıştı (RESEARCH_LOG 04.11, FAZ_B_KAPANIS). 03.02.2027 ileri testinin sonucu ancak tekrarlanabilirse savunulabilir. Kullanıcı bu işi 04.11'de onayladı (seçenek 1).
+- **Karar:**
+  1. K-63, K-64 (günlük ve saatlik) ve K-68 komutları rapordan önce iki satır yazar. Birinci satır veriyi tanımlar: hisse sayısı, mum sayısı, ilk ve son zaman, holdout sınırı ve verinin SHA-256 özeti. Özet hisse, zaman ve OHLCV değerlerinden hesaplanır; dosya biçimine ya da sıraya bağlı değildir. İkinci satır kodu tanımlar: sürüm, `core`'un yüklendiği klasörün git commit'i, kaydedilmemiş değişiklik olup olmadığı ve klasör yolu. Rapordan sonra raporun özeti de yazılır.
+  2. Günlük ölçüm yapan iş akışları (card-study, screens, scenarios) fiyat deposunun aynı tanımını ayrı bir adımda yazar.
+  3. `hourly.yml` saatlik veriyi bir kez indirir ve dondurur (yalnız 02.11.2026 öncesi). K-63 ve K-64 bu görüntüyü `--veri` ile okur. Görüntü 90 gün artifact olarak saklanır.
+  4. Dondurulan görüntü yazıldıktan hemen sonra geri okunur. Okunan verinin özeti manifest ile uyuşmazsa görüntü kabul edilmez.
+  5. `snapshot.yml` saatlik ve günlük veriyi dondurur. Saatlik veriyi 5 dakika arayla ikinci kez indirip hisse hisse karşılaştırır. K-63 ve K-64'ü aynı görüntüde, ayrı süreçlerde iki kez çalıştırır; raporlar birebir aynı değilse iş kırmızı olur.
+- **Sınır:** Bu karar hiçbir kuralı, eşiği, geçme koşulunu ya da 03.02.2027 ölçütünü değiştirmez. Görüntüler holdout verisi içermez. `snapshot.yml`'deki iki çalıştırma tekrarlanabilirlik sınamasıdır, karar ölçümü değildir; K-63 ve K-64 kararları kayıtlı haliyle kalır. Fiyat verisi depoya konmaz (depo herkese açık); yalnız artifact olarak ve kullanıcının kendi yedeğinde tutulur.
+
 **K-75. Tavan ve taban kuralı tek yerde; kilitli günde dolum yok (04.11.2026).**
 - **Neden:** Bağımsız doğrulama (M27-9, M30-6, M31-11, M32-7, M5-3, M32-9, M27-6, M30-5) aynı kuralın 11 yerde farklı yazıldığını gösterdi. Bazı yerler `>`, bazıları `>=` kullanıyordu; hiçbiri kayan nokta payı taşımıyordu. 100 → 109,5 bir modülde tavan sayılıyor, ötekinde sayılmıyordu.
 - **Karar 1 (v0.99.73):** Tavan ve taban kuralı `core/market/limits.py`'de tek yerde. Hareket %9,5 ya da daha fazlaysa limittir; karşılaştırma 1e-9 pay taşır. Bütün modüller bu fonksiyonları kullanır. Bir test, hiçbir modülün sınırı kendi başına karşılaştırmadığını denetler. `/tara`'nın veri sıçraması eşiği (%10,5) ayrı bir kavramdır; adı `JUMP_MOVE` oldu.
