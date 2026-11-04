@@ -304,7 +304,7 @@ def _main(argv: list[str]) -> int:
             code = 0
             return code
 
-        if run([str(PYTHON), "-m", "core.backup"], cwd=PROJECT).returncode != 0:
+        if run([str(PYTHON), "-m", "core.backup", "--guncelleme-oncesi"], cwd=PROJECT).returncode != 0:
             summary = f"DURDU: yedek alınamadı, v{latest} kurulmadı."
             return code
 

@@ -4,6 +4,10 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-74. "Kullanılamaz" model, kapı tarafından uygulanıyorsa uyarı değil bilgidir (04.11.2026).**
+- **Neden:** M30 ve M31 bağımsız doğrulamada "kullanılamaz" çıktı. `/durum`'daki Model doğrulama satırı bu yüzden kalıcı ⚠️ oldu. Hiç kapanmayan bir uyarı yeni sorunları gizler (v0.99.40'taki eski eksik kayıt kararıyla aynı ilke).
+- **Karar:** "Kullanılamaz" kararı ℹ️ olarak gösterilir ve metin model kapısının (K-72) otomatik eylemleri kapalı tuttuğunu yazar. ⚠️ yalnız yapılacak bir iş varsa çıkar: süresi geçmiş doğrulama. Kararın kendisi değişmez; "tam güvenilir" ölçütü (14/14 raporlu) de değişmez.
+
 **K-73. Ölçülmemiş güç, güç gibi gösterilmez (M1 ve M8 YÜKSEK bulguları; 04.11.2026).**
 - **M1:** "Güçlü pozitif" ve benzeri etiketler korunuyor; göstergelerin o günkü durumunu anlatıyorlar ve canlı ölçüm kayıtlarında anahtar olarak kullanılıyorlar. Değiştirmek ileriye dönük ölçümün sürekliliğini bozar. Bunun yerine:
   - `/top` başlığı "Teknik skoru en yüksek hisseler (sıralama, öneri değil)" oldu.

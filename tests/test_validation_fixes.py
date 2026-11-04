@@ -233,3 +233,37 @@ class CardLabelTest(unittest.TestCase):
         better = card.CardStats(n=500, independent=100, mean=0.02, median=0.01, hit=0.6, low=0.005, high=0.03,
                                 without_top=0.01, day_mean=0.02, base=0.001)
         self.assertIn("geçmişte olumlu", better.label)
+
+
+class StandingWarningsTest(unittest.TestCase):
+    """04.11.2026 /durum: two warnings that could never clear by themselves (v0.99.66)."""
+
+    def test_an_unusable_but_gated_model_is_information(self):
+        import tempfile as tf
+
+        from core.reports import validation as V
+
+        with tf.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            (folder / "M30.md").write_text("# M30\nTarih: 2026-11-04\nKarar: kullanılamaz\n", encoding="utf-8")
+            state, text = V.status(date(2026, 11, 4), folder)
+            self.assertEqual(state, "info")  # the model gate keeps it closed; nothing to do today
+            self.assertIn("M30 kullanılamaz", text)
+            (folder / "M30.md").write_text("# M30\nTarih: 2025-01-01\nKarar: kullanılabilir\n", encoding="utf-8")
+            self.assertEqual(V.status(date(2026, 11, 4), folder)[0], "warn")  # expired: work to do
+
+    def test_the_updater_backup_is_not_the_days_backup(self):
+        import tempfile as tf
+
+        from core import backup
+
+        with tf.TemporaryDirectory() as tmp:
+            target, data = Path(tmp) / "b", Path(tmp) / "x.csv"
+            data.write_text("a\n", encoding="utf-8")
+            with mock.patch.object(backup, "PERSONAL_FILES", (data,)), \
+                    mock.patch.object(backup, "backup_dir", return_value=target):
+                self.assertEqual(backup.main(["--guncelleme-oncesi"]), 0)
+            names = [p.name for p in target.iterdir()]
+            self.assertEqual(len(names), 1)
+            self.assertTrue(names[0].startswith("quantbist_guncelleme_"))
+            self.assertEqual(backup.daily_backups(target), [])  # not counted as the day's backup

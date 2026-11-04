@@ -77,9 +77,13 @@ class CheckTest(unittest.TestCase):
                                          "Ayrıntı.\n", encoding="utf-8")
         self.assertEqual(V.reports(self.dir)["M15"].verdict, "kısıtlı kullanılabilir")
 
-    def test_unusable_is_a_warning(self):
+    def test_unusable_is_information_the_gate_enforces(self):
+        # K-74 (04.11.2026): "kullanılamaz" is enforced by the model gate (K-72); a warning that can
+        # never clear would hide new problems in /durum
         self.report("M15", "2026-10-29", "kullanılamaz")
-        self.assertEqual(V.status(date(2026, 10, 30), self.dir)[0], "warn")
+        state, text = V.status(date(2026, 10, 30), self.dir)
+        self.assertEqual(state, "info")
+        self.assertIn("model kapısı", text)
 
     def test_health_line(self):
         from core.reports import health

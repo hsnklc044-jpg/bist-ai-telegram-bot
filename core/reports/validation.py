@@ -77,7 +77,9 @@ def status(today: date, folder: Path | None = None) -> tuple[str, str]:
         text += " (" + ", ".join(f"{m} {found[m].verdict}" for m in done) + ")"
     if expired:
         text += f"; süresi geçen: {', '.join(expired)}"
-    if expired or unusable:
+    if unusable:  # K-74: a known verdict the model gate enforces; information, not a standing warning
+        text += f"; kullanılamaz: {', '.join(unusable)} (model kapısı otomatik eylemlerini kapalı tutar)"
+    if expired:
         return "warn", text
     return ("ok" if len(done) == len(HIGH_RISK) else "info"), text
 

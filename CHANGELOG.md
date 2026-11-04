@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.66 – 04.11.2026 (/durum'da kendiliğinden kapanmayan iki uyarı; K-74)
+- **Model doğrulama:** M30 ve M31 "kullanılamaz" olduğu için satır kalıcı ⚠️ olmuştu. Model kapısı ikisini zaten kapalı tutuyor. Artık bu durum ℹ️ olarak gösteriliyor ve metin bunu söylüyor. ⚠️ yalnız süresi geçmiş doğrulamada çıkıyor (K-74).
+- **Güncelleme öncesi yedek:** Güncelleyicinin kurulumdan önce aldığı yedek (`quantbist_2026-11-04.zip`, 15:40) günün yedeğiyle aynı adı taşıyordu. Gün, 18:30 raporundan önce "yedekli" sayılıyordu; rapor çalışmasa 21:00 telafisi de atlanırdı. Artık bu yedek `quantbist_guncelleme_<tarih_saat>.zip` adıyla alınıyor, günün yedeği sayılmıyor ve son 5'i tutuluyor.
+- Doğrulama: `test_validation_fixes` (StandingWarningsTest, 2 test); `test_model_validation`'daki eski beklenti K-74'e göre güncellendi. Önce kırmızı, sonra yeşil.
+
 ## v0.99.65 – 04.11.2026 (/tara karnesi "olumlu" demek için tüm hisseleri de geçmeli; M5 ORTA)
 - Karne etiketi yalnız XU100'e bakıyordu. Bu yüzden hiçbir şey seçmeyen `kapanis>0` taraması (bütün hisseler) da "geçmişte olumlu" çıkıyordu.
 - Artık "olumlu" için iki koşul gerekiyor: aralığın alt ucu hem sıfırın, yani XU100'ün, hem de aynı günlerde "tüm hisseler" tabanının üstünde olmalı. Yalnız XU100'ü geçen tarama "XU100'ün önünde ama tüm hisselerden ayırt edilemiyor; tarama bir şey seçmedi" diyor.

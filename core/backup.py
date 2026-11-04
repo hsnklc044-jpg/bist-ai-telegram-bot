@@ -82,6 +82,7 @@ PREFIX = "quantbist_"
 DEFAULT_KEEP = 30
 MARKET_DB_PREFIX = f"{PREFIX}marketdb_"
 MARKET_DB_KEEP = 4
+UPDATE_KEEP = 5  # backups taken before an update (guncelle.py)
 
 
 class BackupError(Exception):
@@ -346,6 +347,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-record", action="store_true",
                         help="sonucu Yedek hedefine yazma (sunucudan çekilen kopyalar)")
     parser.add_argument("--market-db", action="store_true", help="fiyat veritabanını şimdi yedekle")
+    parser.add_argument("--guncelleme-oncesi", action="store_true",
+                        help="güncelleme öncesi yedek: günün yedeği sayılmaz, son 5'i tutulur")
     args = parser.parse_args(argv)
 
     try:
@@ -368,6 +371,16 @@ def main(argv: list[str] | None = None) -> int:
             for line in checked:
                 print(line)
             print("Geri yükleme testi başarılı (canlı dosyalara dokunulmadı).")
+            return 0
+
+        if args.guncelleme_oncesi:
+            # 04.11.2026: the updater's 15:40 backup was named like the day's backup, so the day counted
+            # as backed up before the 18:30 report and the 21:00 catch-up would have skipped it
+            backup = create_backup(name=f"{PREFIX}guncelleme_{datetime.now():%Y-%m-%d_%H%M%S}.zip")
+            target = backup_dir()
+            for old in sorted(target.glob(f"{PREFIX}guncelleme_*.zip"))[:-UPDATE_KEEP]:
+                old.unlink()
+            print(backup.line() if backup else "Yedeklenecek kişisel dosya yok.")
             return 0
 
         if args.market_db:
