@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.51 – 04.11.2026 (M31 ve M32 bağımsız doğrulandı: kullanılamaz ve kısıtlı)
+- Geliştirici notlarını okumayan ayrı bir inceleyici iki modeli doğruladı. Raporlar olduğu gibi eklendi: `docs/validation/M31.md`, `M32.md`.
+- **M31 (sinyal onay katmanı ve kart kuralı): Kullanılamaz.**
+  - Modelin kendi örneklem dışı ölçümü geçmedi: onaylananların isabeti %26,2, tabanınki %33,6. Kart kuralı rastgele girişten ayırt edilemedi.
+  - İleriye bakma ve sızıntı denetimleri geçti.
+  - YÜKSEK bulgu: Geçmeyen model yine "✅ AI onayı" başlıklı, lotlu ve girilebilir kart üretiyor.
+- **M32 (sanal sinyal defteri): Kısıtlı kullanılabilir.**
+  - 18 elle hesaplanmış senaryonun hepsi tuttu: hedef, boşluk, iz süren stop, süre, şalter, panik reddi, BIST 100 karşılaştırması.
+  - YÜKSEK bulgu 1: Aynı gün birden çok kart aynı boş nakitle lotlanıyor; kasa aşılabiliyor.
+  - YÜKSEK bulgu 2: Panik, zarardaki açık pozisyonun sonucunu siliyor.
+- Model doğrulama: 14 modelden 9'u raporlu. M31 "kullanılamaz" olduğu için `/durum`'daki Model doğrulama satırı uyarıya döndü. Model kapısı zaten kapalıydı.
+- Yüksek bulgular sonraki sürümlerde düzeltilecek; raporların kararı değiştirilmeyecek. Yeniden doğrulama ayrı yapılır.
+
 ## v0.99.50 – 04.11.2026 (temel veri posta kutusu; K-70 madde 6)
 - Yeni `core/fundamentals/inbox.py`: Kullanıcı KAP'tan elle indirip CSV'ye çevirdiği dosyayı `data/inbox/temel/` klasörüne bırakıyor; bot 5 dakikada bir bakıyor.
   - 60 saniyeden yeni dosyaya dokunulmuyor; kopyalama sürüyor olabilir.
