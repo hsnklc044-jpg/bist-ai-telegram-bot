@@ -30,7 +30,7 @@ def _line(s) -> str:
     return f"🧪 Sanal sinyal {code}: {word} ({s.r * 100:+.2f}%)".replace(".", ",")
 
 
-def track(today: date, path: Path | str | None = None, load=None) -> list[str]:
+def track(today: date, path: Path | str | None = None, load=None, strict: bool = False) -> list[str]:
     """One hourly pass; the messages for what changed (empty when nothing did)."""
 
     from core.signals import panic, store
@@ -61,6 +61,10 @@ def track(today: date, path: Path | str | None = None, load=None) -> list[str]:
             lines.append(store.DISCLAIMER)
         return lines
     except Exception as exc:  # noqa: BLE001 - network, Yahoo or data problems: logged, retried next hour
+        from core.infrastructure.retry import TRANSIENT
+
+        if strict and isinstance(exc, TRANSIENT):  # the bot's job retries these (v0.99.49)
+            raise
         logger.warning("Live signal tracking failed | %s", exc)
         return []
     finally:

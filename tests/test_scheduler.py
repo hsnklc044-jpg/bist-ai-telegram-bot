@@ -241,9 +241,14 @@ class BackupCatchUpTest(unittest.TestCase):
         async def send_message(chat_id, text):
             sent.append((chat_id, text))
 
+        async def no_wait(s):
+            return None
+
         context = SimpleNamespace(bot=SimpleNamespace(send_message=send_message), job=SimpleNamespace(chat_id=777))
-        with mock.patch("core.backup.catch_up", **patch):
+        with mock.patch("core.backup.catch_up", **patch) as catch_up, \
+                mock.patch("core.infrastructure.retry.asyncio.sleep", no_wait):
             asyncio.run(scheduler.backup_catch_up_job(context))  # never raises
+        self.calls = catch_up.call_count
         return sent
 
     def test_job_registered_and_failure_is_reported(self):
@@ -256,6 +261,7 @@ class BackupCatchUpTest(unittest.TestCase):
         self.assertEqual(sent[0][0], 777)
         self.assertIn("Yedek alınamadı", sent[0][1])
         self.assertIn("disk dolu", sent[0][1])
+        self.assertEqual(self.calls, 5)  # retried after 2, 4, 8 and 16 s before reporting
 
     def test_a_catch_up_is_reported(self):
         from pathlib import Path

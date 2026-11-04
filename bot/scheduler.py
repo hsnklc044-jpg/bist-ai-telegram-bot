@@ -207,9 +207,28 @@ async def signal_track_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     now = now_istanbul()
     if not live.in_session(now):
         return
-    lines = await asyncio.to_thread(live.track, now.date())
+    lines = await _guarded(context, "saatlik takip", lambda: live.track(now.date(), strict=True))
     if lines:
         await context.bot.send_message(context.job.chat_id, "\n".join(lines))
+
+
+async def _guarded(context, name: str, fn):
+    """v0.99.49: transient errors retried with backoff (2, 4, 8, 16 s); when all fail, one JSON
+    critical alert per job and error type in 6 hours. Never raises: the bot keeps running."""
+
+    from core.infrastructure import retry
+
+    try:
+        return await retry.retry(fn, name=name)
+    except retry.RetryExhausted as exc:
+        now = now_istanbul()
+        chat = getattr(getattr(context, "job", None), "chat_id", None)
+        if chat and retry.should_alert(exc, now):
+            await context.bot.send_message(chat, f"🚨 KRİTİK: {name} 5 denemede de çalışmadı; bot çalışmaya devam "
+                                                 f"ediyor.\n{retry.payload(exc, now)}")
+    except Exception:  # noqa: BLE001 - a bug: logged with its trace, the bot keeps running
+        logger.exception("Job failed | %s", name)
+    return None
 
 
 def schedule_signal_tracking(app: Application, chat_id: int) -> bool:
@@ -232,7 +251,9 @@ async def backup_catch_up_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     from core.market.calendar import now_istanbul
 
     try:
-        made = await asyncio.to_thread(backup.catch_up, now_istanbul().date())
+        from core.infrastructure.retry import retry
+
+        made = await retry(lambda: backup.catch_up(now_istanbul().date()), name="yedek")
     except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told (K-70)
         logger.exception("Backup catch-up failed")
         text = (f"⚠️ Yedek alınamadı (21:00 kontrolü): {type(exc).__name__}: {str(exc)[:200]}. "

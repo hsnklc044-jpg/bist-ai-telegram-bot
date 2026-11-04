@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.49 – 04.11.2026 (tekrar deneme ve kritik uyarı; kullanıcının "auto-healing" isteği)
+- Yeni `core/infrastructure/retry.py`: Geçici hatalar 2, 4, 8 ve 16 saniye sonra yeniden deneniyor; toplam 5 deneme, yaklaşık 30 saniye. Geçici hata: ağ, zaman aşımı, kilitli SQLite. Diğer hatalar programlama hatası sayılıyor ve yeniden denenmiyor, izleriyle log'a yazılıyor.
+- Bütün denemeler başarısız olursa Telegram'a "🚨 KRİTİK" mesajı ve JSON yük gidiyor: seviye, iş, deneme sayısı, hata, zaman. Aynı iş ve hata türü 6 saatte bir kez bildiriliyor; uzun bir kesinti tek mesaj olarak geliyor. Bu durum bot yeniden başlasa da korunuyor (`logs/critical_alerts.json`).
+- Bağlanan işler: seans içi saatlik sinyal takibi ve 21:00 yedek kontrolü. Saatlik kur tazeleme zaten her saat kendini yeniden deniyor, aynı kalıyor. Fiyat indirmedeki 1, 2 ve 4 dakikalık bekleme de aynı kalıyor.
+- Bot hiçbir durumda bu yüzden durmuyor.
+- Doğrulama: `test_retry` (6 test): geçici hata yeniden deneniyor ve başarılı oluyor; 5 denemenin bekleme süreleri; programlama hatası yeniden denenmiyor; JSON yük; 6 saatlik tekilleştirme; saatlik takip 5 deneme sonra tek uyarı veriyor. `test_scheduler`: yedek 5 kez deneniyor. Önce kırmızı, sonra yeşil.
+
 ## v0.99.48 – 04.11.2026 (K-70 ilerlemesi /durum'da ve cuma raporunda hesaplanıyor)
 - Kullanıcı "yüzde kaç olduk" diye sormak zorunda kalmasın, kota da harcanmasın diye ilerleme betikle hesaplanıyor. `/durum`'un ve cuma raporunun SLO bölümünün altında yeni satır var: "🎯 Güvenilirlik (K-70): gözlem x/20 seans · SLO a/b · model doğrulama c/14". Altında "tam güvenilir: hayır (eksik: …)" yazıyor.
 - Gözlem: 03.11'den beri gönderilmiş her veri günü bir kez sayılıyor.
