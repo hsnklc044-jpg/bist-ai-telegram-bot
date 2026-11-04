@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.65 – 04.11.2026 (/tara karnesi "olumlu" demek için tüm hisseleri de geçmeli; M5 ORTA)
+- Karne etiketi yalnız XU100'e bakıyordu. Bu yüzden hiçbir şey seçmeyen `kapanis>0` taraması (bütün hisseler) da "geçmişte olumlu" çıkıyordu.
+- Artık "olumlu" için iki koşul gerekiyor: aralığın alt ucu hem sıfırın, yani XU100'ün, hem de aynı günlerde "tüm hisseler" tabanının üstünde olmalı. Yalnız XU100'ü geçen tarama "XU100'ün önünde ama tüm hisselerden ayırt edilemiyor; tarama bir şey seçmedi" diyor.
+- Etiket hesaplanan bir alan; önbellekteki eski karneler de yeni kuralla okunuyor. Sayılar değişmedi.
+- Doğrulama: `test_validation_fixes` (CardLabelTest): tabana eşit tarama "olumlu" olmuyor, tabanı geçen oluyor. Önce kırmızı, sonra yeşil. Karne ve tarama testleri geçti.
+
 ## v0.99.64 – 04.11.2026 (/durum kısa özet; tam liste /durum tum; K-70 madde 7)
 - `/durum` 30'dan fazla satırdı ve sorunlar sağlıklı satırların arasında kayboluyordu. Artık kısa özet veriyor:
   - sağlıklı bileşenler tek satırda sayılıyor ("✅ 14 bileşen sağlıklı");

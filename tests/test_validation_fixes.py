@@ -217,3 +217,19 @@ class MediumFindings2Test(unittest.TestCase):
         # P = (111 + 109 + 110) / 3 = 110 (the last close: neither support nor resistance, not listed);
         # R1 = 2P − low = 111 from the week that just ended; the week before would give 101
         self.assertAlmostEqual(found["R1"], 111.0)
+
+
+class CardLabelTest(unittest.TestCase):
+    """M5 ORTA: `kapanis>0` (every stock) was labelled "geçmişte olumlu" because the label only looked
+    at XU100. A screen ahead of XU100 but not of "tüm hisseler" did nothing a screen should (v0.99.65)."""
+
+    def test_ahead_of_xu100_but_not_of_all_stocks(self):
+        from core.screen import card
+
+        same = card.CardStats(n=500, independent=100, mean=0.02, median=0.01, hit=0.6, low=0.005, high=0.03,
+                              without_top=0.01, day_mean=0.012, base=0.012)
+        self.assertIn("tüm hisselerden ayırt edilemiyor", same.label)
+        self.assertNotIn("geçmişte olumlu", same.label)
+        better = card.CardStats(n=500, independent=100, mean=0.02, median=0.01, hit=0.6, low=0.005, high=0.03,
+                                without_top=0.01, day_mean=0.02, base=0.001)
+        self.assertIn("geçmişte olumlu", better.label)

@@ -66,6 +66,10 @@ class CardStats:
         if self.n < MIN_SAMPLES or self.low is None:
             return "yetersiz örnek"
         if self.low > 0:
+            # M5 ORTA: ahead of XU100 is not enough; the screen must also beat "tüm hisseler" (the same
+            # days without the screen), else it selected nothing (kapanis>0 was "olumlu")
+            if self.base is not None and not self.low > self.base:
+                return "geçmişte XU100'ün önünde ama tüm hisselerden ayırt edilemiyor; tarama bir şey seçmedi"
             return "geçmişte olumlu; çoklu deneme nedeniyle şans olabilir, kanıt değildir"
         if self.high < 0:
             return "geçmişte XU100'ün gerisinde; kanıt değildir"
