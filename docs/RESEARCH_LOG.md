@@ -642,3 +642,17 @@ Yıllara göre (BIST 100): 2023 %44,4 / taban %40,3; 2024 %44,6 / %41,5; 2025 %4
 | Senaryo karnesi: destek tepkisi | 2023-08-01 → 2026-10-30, BIST 100 geçmiş üyeliği | 1.142 olay; ort. R −0,15 [−0,23; 0,01] (screens.yml, v0.97.3, 29.10) | 1.149; −0,15 [−0,23; 0,02] | tanımlayıcı karne, hipotez değil | sıfırdan ayırt edilemiyor (değişmedi) |
 | Senaryo karnesi: direnç kırılımı | aynı | 1.742; +0,01 [−0,07; 0,06] | 1.741; +0,01 [−0,06; 0,06] | aynı | değişmedi |
 | Senaryo karnesi: trend içi geri çekilme | aynı | 5.968; −0,00 [−0,05; 0,08] | 5.975; −0,00 [−0,06; 0,07] | aynı | değişmedi |
+
+## 04.11.2026 – K-64 saatlik: kural etkisi ile pencere etkisinin ayrılması (açıklayıcı; GEÇERSİZ)
+- **Amaç:** 03.11 ile 04.11 arasındaki K-64 saatlik farkının kuraldan (K-75) mı, kayan saatlik pencereden mi geldiğini ölçmek. Karar ve kuralı değiştirmez.
+- **Çalışma:** Actions 41871216084, commit 213f71d, 04.11.2026 16:48–16:50 UTC. Önceki iki deneme ölçüm yapmadı: 41869771588 betik yolu hatası, 41871166804 yanlış commit'te iptal. Tek yeniden deneme hakkı bu çalışmayla kullanıldı.
+- **Dondurulan veri:** 30 hisse, 62.870 saatlik mum, 05.11.2025 09:30 – 04.11.2026 17:30 (İstanbul). Değerlendirme 02.11.2026 öncesini kullanır.
+
+| Kod | Olay / test | Onay | İsabet (%95) | Taban |
+|---|---|---|---|---|
+| Eski kural, d0f4033 (v0.99.72) | 570 / 380 | 36 | %44,4 (%30,0–70,0) | %23,4 |
+| Yeni kural, ef12819 (v0.99.74) | 570 / 380 | 36 | %44,4 (%30,0–70,0) | %23,4 |
+
+- **Doğrulama:** Çalışmanın 213f71d üzerinde koştuğu kendi kaydından doğrulandı. İki değerlendirmenin aynı veri görüntüsünü kullandığı doğrudan doğrulanamadı: değerlendirme adımları kendi veri aralığını ve satır sayısını yazdırmadı. İkisi de aynı işte aynı dosyayı okudu ve aynı olay ve test sayısını buldu, ama bu doğrudan kanıt değil. **Sonuç kullanıcının kuralı gereği geçersiz sayıldı; yeniden çalıştırılmadı.**
+- **Gözlem (bağlayıcı değil):** İki kod aynı sonucu verdi; kural etkisi görünmüyor. Aynı gün 15:39'daki çalışma (41859970212) 575 olay ve 41 onay bulmuştu, bu dondurulmuş görüntü ise 570 olay ve 36 onay. Fark büyük olasılıkla saatlik penceredeki veri değişikliğinden geliyor. Doğrulanmadığı için kesin sonuç sayılmaz.
+- **Karar:** K-64 saatlik GEÇMEDİ kalır. 50 onay koşulu, eşikler ve 03.02.2027 ileri testi değişmez.
