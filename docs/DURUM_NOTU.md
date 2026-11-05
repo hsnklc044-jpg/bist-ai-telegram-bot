@@ -48,7 +48,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
   - ⏸ K-64'e dokunanlar 03.02.2027 sonrasına kaldı.
 - ✅ M30 yeniden doğrulaması (v0.99.85): kullanılamaz. Canlı ML modeli artık 2022 sonrası ve holdout öncesi veriyle eğitiliyor; blok 20 seans.
 - ✅ Yol planı 2. bölüm (v0.99.86–88): `/saglik` (cumartesi 10:00), `/denge`, `/stres` kur şoku, `/takvim`; `/temel` zaten vardı.
-- ⚠️ **PC kurulumu kapalı:** v0.99.78'den beri deneme kopyasında 1 test kalıyor; PC v0.99.77'de. Burada yeniden üretilemedi (git'siz kopya: 1303 geçti). Kullanıcıdan `C:\Projeler\QuantBIST_otomasyon\logs\guncelle_*.log` son 25 satırı istendi. v0.99.84'ten sonra güncelleyici başarısız testin adını Telegram'a yazıyor, ama bu ancak bir sürüm kurulunca çalışır.
+- ✅ PC kurulumu açıldı: 05.11 09:08'de v0.99.77'den v0.99.84'e geçildi (1343 geçti). 08:26'daki tek başarısız test bir saat sonra tekrarlanmadı; nedeni kayıtlarda yok. Güncelleyici artık başarısız testin adını Telegram'a yazıyor.
 - ⏳ Sıradaki: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.
 - **Kullanıcı (05.11):** "onay komut almadan devam et, her türlü izni veriyorum". Güvenlik kuralları, holdout ve ileri test sınırları yine geçerli.
 - **Genel onay (kullanıcı, 04.11 akşam):** "Benden onay bekleme, her aşamaya onay veriyorum." Sıra şöyle:
