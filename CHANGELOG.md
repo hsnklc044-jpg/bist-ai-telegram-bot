@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.99 – 05.11.2026 (canlı model eğitimleri kayda geçiyor)
+- Yeni `logs/model_egitim.csv` (kişisel, depoya girmez): `/tara ai` modelinin her eğitimi bir satır yazıyor. Kayıtta zaman, gün, kaynak ("cuma" ya da "tara-ai"), neden (model yok ya da model eski), satır sayısı ve sürüm var. Önceden `/tara ai`'nin eski modeli yeniden eğitmesi iz bırakmıyordu; bir kartın hangi modelle puanlandığı bilinemiyordu. Kaydın yazılamaması eğitimi durdurmaz.
+- `/tara ai` bekleme mesajı düzeltildi: "ilk seferde model eğitilir" yerine "model yoksa ya da 10 günden eskiyse önce yeniden eğitilir".
+- Model kuralı (`fit_live`) ve K-64 değişmedi; dondurma testi yeşil.
+- Doğrulama: `test_training_log` (5 test: kayıt, yazma hatası, `/tara ai` yeniden eğitimi, genç modelde kayıt yok, cuma eğitimi).
+
 ## v0.99.98 – 05.11.2026 (K-80 mumsuz seans eşiği pay oldu)
 - K-80 kapısında "mumsuz seans" eşiği toplamda 0'dı; tek bir hissenin tek gün işlem görmemesi ileri testi durduruyordu. Artık eşik bir pay: mumsuz hisse-seans payı en fazla %0,5. Kullanıcı onayıyla; başka eşik değişmedi.
 - K-79 özetleri yalnız `k64_forward.py` için güncellendi (`quality`, `Quality`, `MAX_EMPTY_SHARE`). K-64'ün kendi kodunun özetleri aynı.

@@ -107,6 +107,9 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(panic, "PANIC_FILE", tmp_path / "panic.lock")
     # /tara ai retrains a stale live model (M31-13); the retrain must not land in the real logs/
     monkeypatch.setattr(signal_filter, "model_file", lambda: tmp_path / "signal_model.joblib")
+    from core.ml import training_log as _training_log
+
+    monkeypatch.setattr(_training_log, "LOG_FILE", tmp_path / "model_egitim.csv")
     monkeypatch.setattr(macro, "_second_fetch", offline)
     monkeypatch.setattr(macro, "_http_get", offline)
     monkeypatch.setattr(levels_module, "_log_file", lambda: tmp_path / "levels_log.csv")

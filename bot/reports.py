@@ -117,8 +117,9 @@ async def _start_screen_ai(update: Update) -> None:
     if _ai_running():
         await reply(update, AI_BUSY_TEXT)
         return
-    await reply(update, "⏳ BIST 30 taranıyor, adaylar AI katmanına soruluyor (ilk seferde model eğitilir, "
-                        "birkaç dakika sürebilir). Bu arada /panik ve diğer komutlar çalışır...")
+    await reply(update, "⏳ BIST 30 taranıyor, adaylar AI katmanına soruluyor (model yoksa ya da 10 günden "
+                        "eskiyse önce yeniden eğitilir, birkaç dakika sürebilir). Bu arada /panik ve diğer "
+                        "komutlar çalışır...")
     task = asyncio.ensure_future(_screen_ai(update))
     task.quantbist_ai = True
     _BACKGROUND.add(task)

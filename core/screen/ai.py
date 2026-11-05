@@ -222,8 +222,12 @@ def live(day) -> list[tuple[str, int | None]]:
     except (TypeError, ValueError):
         stale = True
     if saved is None or stale:
+        from core.ml import training_log
+
         frames, members = S._daily()
-        S.fit_live(frames, members, day)
+        rows = S.fit_live(frames, members, day)
+        training_log.record(day, "tara-ai", "model yok" if saved is None else f"model eski ({saved.get('trained')})",
+                            rows)
         saved = S.load_live()
     from core.market.calendar import last_final_session_date
 

@@ -1,4 +1,4 @@
-# Durum notu (05.11.2026, kod v0.99.98)
+# Durum notu (05.11.2026, kod v0.99.99)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -157,3 +157,8 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ `core/ml/k64_forward.py` + `tests/test_k64_forward.py`; dondurma testine alındı.
 - ✅ K-78 kuralları DECISIONS'ta (ölçüm yok). ✅ K-78 ön testleri (`factor_study.py`, 13 test). ✅ Kapsam sayıları (v0.99.95): 48/54 ay geçerli. Sıradaki: ikinci günlük indirme (en erken 11.11.2026, dondurulur), `veri_farki gunluk`, sonra ölçüm kodu ve tek Actions ölçümü. İkinci günlük indirme en erken 11.11.2026.
 - ⏳ Kullanıcıda: `veri_farki.py saatlik/gunluk` çıktıları; B'nin ikinci kopyası; cuma 19:45 `kart_modeli_kontrol.py`.
+
+## v0.99.99
+- ✅ Canlı model eğitimleri `logs/model_egitim.csv`'ye yazılıyor (cuma ve `/tara ai`). Cuma 06.11 eğitiminden sonra bu dosyada "cuma" satırı görünmeli.
+- ✅ `/tara ai` bekleme metni düzeltildi.
+- Açık: yfinance Pandas4Warning gürültüsü.

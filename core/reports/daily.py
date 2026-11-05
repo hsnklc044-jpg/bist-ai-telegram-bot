@@ -737,8 +737,12 @@ def _refit_signal_model(day: date) -> None:
 
     if day.weekday() != FRIDAY or panic.active():
         return
+    from core.ml import training_log
+
     frames, members = S._daily()
-    logger.info("Signal model refit | rows %d", S.fit_live(frames, members, day))
+    rows = S.fit_live(frames, members, day)
+    training_log.record(day, "cuma", "haftalık yeniden eğitim", rows)
+    logger.info("Signal model refit | rows %d", rows)
 
 
 def _bist100() -> list[str]:
