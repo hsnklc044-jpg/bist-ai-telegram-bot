@@ -17,7 +17,7 @@ from telegram.ext import (
 from bot.analysis import analyze, fundamentals_cmd, levels_cmd, market_cmd, scenario_cmd, top
 from bot.commands_risk import risk
 from bot.control import panic_cmd, resume_cmd
-from bot.portfolio import alerts, health, paper, portfolio, report, trade
+from bot.portfolio import alerts, health, paper, portfolio, rebalance, report, trade
 from bot.reports import (
     delete_screen,
     list_screens,
@@ -71,6 +71,7 @@ COMMANDS = (
     ("watchscan", watchscan),
     ("portfolio", portfolio),
     ("saglik", health),
+    ("denge", rebalance),
     ("trade", trade),
     ("paper", paper),
     ("alerts", alerts),
@@ -106,12 +107,13 @@ MENU = (
     ("summary", "portföy ve piyasa özeti"),
     ("portfolio", "pozisyonlar ve kâr/zarar"),
     ("saglik", "portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, reel ve dolar bazında getiri"),
+    ("denge", "hedef ağırlığa dönmek için gereken işlem hesabı: /denge THYAO=30 ASELS=20 (öneri değil)"),
     ("alerts", "açık risk uyarıları"),
     ("performans", "canlı ölçüm ve sanal hesap"),
     ("rapor_tekrar", "kayıtlı günlük raporu yeniden gönder"),
     ("report", "günlük raporu şimdi üret"),
     ("yil", "yıllık döküm: satışlar, temettü, komisyon"),
-    ("stres", "pozisyonlar en kötü geçmiş düşüşlerde ne kaybederdi"),
+    ("stres", "pozisyonlar en kötü geçmiş düşüşlerde ve kur şoklarında ne kaybederdi"),
     ("alarm", "kapanış alarmı: /alarm THYAO altında 240"),
     ("tara", "göstergeyle filtre: /tara rsi<30 ema20>ema50 · /tara ai: teknik tetik + AI onayı"),
     ("tara_kaydet", "taramayı kaydet: /tara_kaydet AD koşullar"),

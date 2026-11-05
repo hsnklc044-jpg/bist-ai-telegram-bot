@@ -38,6 +38,18 @@ async def health(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await reply(update, text)
 
 
+async def rebalance(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /denge THYAO=30 ASELS=20 [bant=5] [sanal]: arithmetic to the user's own targets, no order."""
+
+    from core.reports import rebalance as R
+
+    try:
+        text = await asyncio.to_thread(R.text, list(context.args or []))
+    except LedgerError as exc:
+        text = f"Defter okunamadı: {exc}"
+    await reply(update, text)
+
+
 async def trade(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /trade (record a real, already executed trade)."""
 

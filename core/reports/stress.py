@@ -89,7 +89,63 @@ def scenario(window: Window, values: dict[str, float], frames: dict[str, pd.Data
     return result
 
 
-def format_report(scenarios: list[Scenario], account: str, total: float, unpriced: list[str] | None = None) -> str:
+# --- currency shock (road plan part 2, 05.11.2026) ---------------------------------------------
+
+
+def fx_windows(rates: pd.Series, lengths=LENGTHS) -> list[Window]:
+    """The worst complete n-day falls of the TL against the dollar (1 / USDTRY) in the stored CBRT rates;
+    `market` is the TL's change in dollars (negative)."""
+
+    rates = rates.dropna()
+    return worst_windows(1 / rates[rates > 0], lengths)
+
+
+def fx_scenario(window: Window, values: dict[str, float], frames: dict[str, pd.DataFrame],
+                bench: pd.DataFrame) -> Scenario:
+    """Each holding's own TL change over the window; XU100's when it has no prices for those days."""
+
+    b = bench.get("close", pd.Series(dtype=float)) if bench is not None else pd.Series(dtype=float)
+    fallback = (float(b.loc[window.end] / b.loc[window.base] - 1)
+                if window.base in b.index and window.end in b.index else 0.0)
+    result = Scenario(window)
+    for symbol, value in values.items():
+        close = frames.get(symbol, pd.DataFrame()).get("close", pd.Series(dtype=float))
+        if window.base in close.index and window.end in close.index:
+            result.rows.append(Row(symbol, value, float(close.loc[window.end] / close.loc[window.base] - 1), False))
+        else:
+            result.rows.append(Row(symbol, value, fallback, True))
+    return result
+
+
+def in_dollars(change: float, window: Window) -> float:
+    """A TL change seen in dollars over the same window."""
+
+    return (1 + change) * (1 + window.market) - 1
+
+
+def fx_lines(scenarios: list[Scenario], total: float, have_rates: bool = True) -> list[str]:
+    from core.reports.daily import pct, tr
+
+    if not have_rates:
+        return ["💱 Kur şoku: kur verisi yok (TCMB kurları bot tarafından indirilir; data/macro/usdtry.csv)."]
+    if not scenarios:
+        return ["💱 Kur şoku: kur geçmişi pencere bulmaya yetmiyor."]
+    lines = ["💱 Kur şoku: bugünkü pozisyonlar, dolar/TL'nin kayıtlı geçmişindeki en büyük sıçramaları yaşasaydı:"]
+    for s in scenarios:
+        w = s.window
+        invested = sum(r.value for r in s.rows)
+        change = s.loss / invested if invested else 0.0
+        lines.append(f"\n• en kötü {w.sessions} gün ({w.base:%d.%m.%Y} → {w.end:%d.%m.%Y}): dolar/TL "
+                     f"{pct(1 / (1 + w.market) - 1)}")
+        lines.append(f"  pozisyonlar: TL bazında {tr(s.loss)} TL ({pct(change)}), dolar bazında {pct(in_dollars(change, w))}")
+        for r in sorted(s.rows, key=lambda r: r.value * r.change):
+            note = " (o tarihte verisi yok: XU100 varsayıldı)" if r.assumed else ""
+            lines.append(f"    {r.symbol.removesuffix('.IS')}: TL {pct(r.change)}, dolar {pct(in_dollars(r.change, w))}{note}")
+    return lines
+
+
+def format_report(scenarios: list[Scenario], account: str, total: float, unpriced: list[str] | None = None,
+                  extra: list[str] | None = None) -> str:
     from core.reports.daily import DISCLAIMER, pct, tr
 
     lines = [f"🧯 Stres testi – {ACCOUNT_NAMES.get(account, account)}", ""]
@@ -109,6 +165,8 @@ def format_report(scenarios: list[Scenario], account: str, total: float, unprice
         for r in sorted(s.rows, key=lambda r: r.value * r.change):
             note = " (o tarihte verisi yok: XU100 varsayıldı)" if r.assumed else ""
             lines.append(f"    {r.symbol.removesuffix('.IS')}: {pct(r.change)} → {tr(r.value * r.change)} TL{note}")
+    if extra:
+        lines += ["", *extra]
     lines += [
         "",
         "Geçmiş bir tahmin değildir; daha kötüsü de olabilir. Nakit ve fiyat limitleri hesaba katılmadı.",
@@ -130,8 +188,16 @@ def stress_text(account: str = "real") -> str:
     if not values:
         return format_report([], account, total, unpriced)
     frames = {s: adjusted_bars(s) for s in values}
-    windows = worst_windows(adjusted_bars(BENCHMARK)["close"])
-    return format_report([scenario(w, values, frames) for w in windows], account, total, unpriced)
+    bench = adjusted_bars(BENCHMARK)
+    windows = worst_windows(bench["close"])
+    try:
+        from core.market.macro import load_usdtry
+
+        rates = load_usdtry()
+    except Exception:  # noqa: BLE001 - no rate file: the section says so
+        rates = pd.Series(dtype=float)
+    fx = fx_lines([fx_scenario(w, values, frames, bench) for w in fx_windows(rates)], total, have_rates=len(rates) > 0)
+    return format_report([scenario(w, values, frames) for w in windows], account, total, unpriced, fx)
 
 
 def parse_account(words: list[str]) -> str:
@@ -155,4 +221,5 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["Row", "Scenario", "Window", "format_report", "parse_account", "scenario", "stress_text", "worst_windows"]
+__all__ = ["Row", "Scenario", "Window", "format_report", "fx_lines", "fx_scenario", "fx_windows", "in_dollars",
+           "parse_account", "scenario", "stress_text", "worst_windows"]

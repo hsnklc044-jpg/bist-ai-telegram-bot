@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.87 – 05.11.2026 (yol planı 2. bölüm: yeniden dengeleme yardımcısı ve stres testinde kur şoku)
+- **Yeni `/denge THYAO=30 ASELS=20 [bant=5] [sanal]`:** Her hissenin kullanıcının kendi hedef ağırlığından sapmasını ve hedefe dönmek için gereken en az işlemi tam adet olarak hesaplıyor. Kurallar:
+  - bant içindeki sapmaya dokunulmuyor (varsayılan ±5 puan);
+  - hedefi yazılmamış hisse olduğu gibi kalıyor;
+  - adet sıfıra doğru yuvarlanıyor, böylece hedef aşılmıyor;
+  - satış eldeki adedi geçmiyor.
+  Nakit etkisi ve tahmini maliyet (işlem başına %0,15) de yazıyor. Hesap sonucudur; öneri değil, emir verilmez. Geçersiz hisse kodu çökme yerine açıklamayla reddediliyor.
+- **`/stres` kur şoku bölümü:** TCMB kurlarının kayıtlı geçmişindeki en büyük dolar/TL sıçramaları veriden bulunuyor (1, 5 ve 20 gün). Her pozisyonun aynı günlerdeki TL ve dolar bazındaki değişimi gösteriliyor. Kur dosyası yoksa bunu söylüyor.
+- `/start` yardım metnine, komut menüsüne ve HANDBOOK'a `/saglik` ile `/denge` eklendi.
+- Doğrulama: yeni `test_rebalance` (9 test) ve `test_stress_fx` (4 test). Yazılırken iki gerçek hata yakalandı: kayan nokta yüzünden 19,999… adet 19'a kesiliyordu; geçersiz kod çöküyordu.
+
 ## v0.99.86 – 05.11.2026 (yol planı 2. bölüm, ilk iş: haftalık portföy sağlık raporu)
 - Yeni `/saglik` komutu. Bot raporu ayrıca her cumartesi saat 10:00'da kendiliğinden gönderiyor. İçeriği:
   - **Dağılım:** her hissenin ağırlığı.
