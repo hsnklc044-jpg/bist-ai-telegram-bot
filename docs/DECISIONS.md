@@ -4,6 +4,21 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 04.11.2026
 
+**K-77. ML filtresinin (M30, K-59/K-62) ölçüm yöntemi, yeni ölçümden önce (04–05.11.2026, Faz C 1. parti).**
+- **Neden:** M30 bağımsız doğrulamasının 1, 2, 3, 5 ve 9 numaralı bulguları. Model kapalı ve bu kararla yeniden ölçülmüyor. Bundan sonraki ilk ölçüm aşağıdaki yöntemle yapılır. Kurallar sonuca bakılmadan, ölçümden önce yazıldı.
+- **Karar:**
+  1. `stop_hedef` aralığı Wilson ile değil, art arda 10 seanslık (HORIZON) tarih blokları yeniden örneklenerek hesaplanır. `goreli20` aynı kalır: test günleri 20 seans arayla, aralık tek tarihlerle.
+  2. Ölçüm, kaynaklı BIST 100 değişiklik kaydının ilk gününden (01.04.2022) başlar. İlk test yılı ondan sonraki ilk tam yıldır (2023). Daha önceki üyelik bugün hayatta kalanlardan oluşuyor.
+  3. Etiketi holdout'ta (02.11.2026 ve sonrası) biten test satırı test edilmez.
+  4. Geçme kuralına üç koşul eklenir; hepsi sağlanmalıdır:
+     - sinyallerin maliyet sonrası ortalaması pozitif olmalı;
+     - bu ortalama tüm girişlerin ortalamasını geçmeli;
+     - sinyallerin en kötü %5'i tüm girişlerin en kötü %5'inden kötü olmamalı.
+     Önceki koşullar ve eşikler (en az 100 sinyal, %60 isabet, aralığın alt ucu tabanın üstünde) değişmez.
+  5. 10. seansı tabanda kilitli olan etiket, ilk kilitsiz açılıştan kapanır; o açılış henüz yoksa etiket yazılmaz.
+  6. `/tara`'daki ML değeri "ml_skor" adını taşır ve "kalibre değil, olasılık değildir" notuyla gösterilir.
+- **Sınır:** K-64 (`core/ml/signal_filter.py`) ve 03.02.2027 ileri testi etkilenmez. K-59 ve K-62 kararları KAPALI kalır.
+
 **K-76. Her ölçüm hangi veriyle ve hangi kodla çalıştığını yazar; veri dondurulur (04.11.2026).**
 - **Neden:** K-64 saatlik ölçümü aynı gün iki kez çalıştı ve 41 ile 36 onay verdi. Kayıtlar farkın nedenini ayırmaya yetmedi. 15:39 çalışmasında K-63 ve K-64 adımları veriyi ayrı ayrı indirmişti ve K-64 adımı veri aralığını yazmamıştı (RESEARCH_LOG 04.11, FAZ_B_KAPANIS). 03.02.2027 ileri testinin sonucu ancak tekrarlanabilirse savunulabilir. Kullanıcı bu işi 04.11'de onayladı (seçenek 1).
 - **Karar:**

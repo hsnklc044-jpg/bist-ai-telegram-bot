@@ -149,7 +149,7 @@ class ScreenOptionTest(unittest.TestCase):
     def test_open_filter_keeps_only_the_passing(self):
         _, result = self.run_query("kapanis>0 ml=evet ele=hayir", {"passed": True}, {"A.IS": 0.71, "B.IS": 0.32})
         self.assertEqual([m.symbol for m in result.matches], ["A.IS"])
-        self.assertAlmostEqual(result.matches[0].values["ml_olasilik"], 0.71)
+        self.assertAlmostEqual(result.matches[0].values["ml_skor"], 0.71)
         self.assertIn("2 eşleşmeden 1 tanesi geçti", result.ml_note)
 
 

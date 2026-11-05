@@ -57,6 +57,49 @@ def model(seed: int = 0):
                                   class_weight="balanced_subsample", n_jobs=-1, random_state=seed)
 
 
+def block_bootstrap(chosen: pd.DataFrame, block: int = HORIZON, repeats: int = BOOTSTRAP, seed: int = 0
+                    ) -> tuple[float, float]:
+    """Faz C M30-1 (K-77): 95% interval of the precision resampling runs of `block` consecutive test
+    dates (moving blocks). The stop/target labels of one stock overlap for HORIZON sessions and the
+    stocks of one day move together, so neither single rows (Wilson) nor single days are independent."""
+
+    per_day = chosen.groupby("date")["label"].agg(["sum", "count"]).sort_index()
+    n = len(per_day)
+    if n == 0:
+        return (math.nan, math.nan)
+    block = max(1, min(block, n))
+    rng = np.random.default_rng(seed)
+    blocks = math.ceil(n / block)
+    starts = rng.integers(0, n - block + 1, size=(repeats, blocks))
+    pick = (starts[:, :, None] + np.arange(block)[None, None, :]).reshape(repeats, -1)[:, :n]
+    hits, counts = per_day["sum"].to_numpy()[pick].sum(axis=1), per_day["count"].to_numpy()[pick].sum(axis=1)
+    lo, hi = np.percentile(hits / counts, [2.5, 97.5])
+    return (float(lo), float(hi))
+
+
+def interval(chosen: pd.DataFrame, rule: str) -> tuple[float, float]:
+    """goreli20: test days are RELATIVE_HORIZON apart, single dates; stop_hedef: blocks of HORIZON dates."""
+
+    return date_bootstrap(chosen) if rule == "goreli20" else block_bootstrap(chosen, block=HORIZON)
+
+
+def membership_start() -> pd.Timestamp:
+    """The first day of the sourced BIST 100 change record (data/bist100_changes.csv)."""
+
+    from core.market.membership import load_changes
+
+    return pd.Timestamp(min(d for events in load_changes().values() for d, _ in events))
+
+
+def point_in_time(data: pd.DataFrame, start: pd.Timestamp | None = None) -> tuple[pd.DataFrame, int]:
+    """Faz C M30-2 (K-77): before the change record begins the members are today's survivors, so the
+    measurement starts there: rows from `start` on, first test year the first full year after it."""
+
+    start = pd.Timestamp(start if start is not None else membership_start())
+    first = start.year if (start.month, start.day) == (1, 1) else start.year + 1
+    return data[data["date"] >= start], max(FIRST_TEST_YEAR, first)
+
+
 def wilson(hits: int, n: int, z: float = 1.96) -> tuple[float, float]:
     if n == 0:
         return (math.nan, math.nan)
@@ -137,6 +180,8 @@ def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST
         if not holdout:
             train = train[train["label_end"] < cut]
         test = data[data["date"].dt.year == year]
+        if not holdout:  # Faz C M30-3: a label that ends in the holdout is holdout data
+            test = test[test["label_end"] < cut]
         if spacing > 1:
             days = sorted(test["date"].unique())[::spacing]
             test = test[test["date"].isin(days)]
@@ -163,8 +208,21 @@ def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST
                                          strict=True), key=lambda kv: -kv[1]))
     if report.signals:
         report.precision = report.hits / report.signals
-        report.interval = date_bootstrap(chosen) if rule == "goreli20" else wilson(report.hits, report.signals)
+        report.interval = interval(chosen, rule)
         report.mean_r_signals = float(chosen["r"].mean())
+    decide(report, chosen, every)
+    return report
+
+
+TAIL = 0.05  # K-77: the loss tail compared, the worst 5% of results
+
+
+def decide(report: Report, chosen: pd.DataFrame, every: pd.DataFrame) -> Report:
+    """The pass rule (K-59/K-62 and, written before any new measurement, K-77): enough signals,
+    precision above THRESHOLD, interval above the base rate, AND a positive net mean, a mean above
+    all entries and a loss tail no worse than all entries'."""
+
+    report.passed = False
     if report.signals < MIN_SIGNALS:
         report.reason = f"sinyal sayısı az ({report.signals} < {MIN_SIGNALS})"
     elif report.precision < THRESHOLD:
@@ -172,6 +230,12 @@ def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST
     elif not report.interval[0] > report.base_rate:
         report.reason = (f"isabet, hedefe zaten ulaşan girişlerin oranından (%{report.base_rate * 100:.1f}) "
                          "ayırt edilemiyor").replace(".", ",")
+    elif report.mean_r_signals is None or not report.mean_r_signals > 0:
+        report.reason = "sinyallerin maliyet sonrası ortalaması pozitif değil"
+    elif report.mean_r_all is not None and not report.mean_r_signals > report.mean_r_all:
+        report.reason = "sinyallerin ortalaması tüm girişlerin ortalamasını geçmiyor"
+    elif float(chosen["r"].quantile(TAIL)) < float(every["r"].quantile(TAIL)):
+        report.reason = f"kayıp kuyruğu tüm girişlerden kötü (en kötü %{TAIL * 100:.0f})"
     else:
         report.passed = True
         report.reason = "eşik geçildi"
@@ -274,7 +338,8 @@ def main(argv: list[str] | None = None) -> int:
         from core.market.universe import BENCHMARK
 
         bench = adjusted_bars(BENCHMARK)["close"]
-    report = walk_forward(dataset(frames, members, args.rule, bench), name, rule=args.rule)
+    data, first_year = point_in_time(dataset(frames, members, args.rule, bench))
+    report = walk_forward(data, name, first_year=first_year, rule=args.rule)
     save(report, report_path(args.universe, args.rule))
     print(text(report))
     return 0

@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.79 – 05.11.2026 (Faz C, 1. parti: ML filtresinin ölçüm yöntemi; K-77)
+- M30 (ML filtresi, kapalı) için bağımsız doğrulamanın beş bulgusu kapatıldı. Model yeniden ölçülmedi.
+  - `stop_hedef` aralığı 10 seanslık tarih blok bootstrap ile hesaplanıyor (M30-1). Örtüşen etiketlerde Wilson aralığı 3 kattan fazla dar çıkıyordu.
+  - Ölçüm 01.04.2022'den, ilk test yılı 2023'ten başlıyor; öncesinde üyelik zaman noktasında değil (M30-2).
+  - Etiketi holdout'ta biten test satırı test edilmiyor (M30-3).
+  - Geçme kuralına maliyet sonrası pozitif ortalama, tüm girişlerden yüksek ortalama ve kayıp kuyruğu koşulları eklendi (M30-5).
+  - 10. seansı tabanda kilitli etiket ilk kilitsiz açılıştan kapanıyor (M30-5).
+  - `/tara`'da ML değeri "ml_skor" adını taşıyor ve "kalibre değil, olasılık değildir" notuyla gösteriliyor (M30-9).
+- K-64 kodu ve 03.02.2027 ileri testi etkilenmedi; K-59 ve K-62 KAPALI kaldı.
+- Doğrulama: yeni `test_faz_c_m30` (13 test), önce kırmızı sonra yeşil. `test_ml_filter` (15) ve `test_signal_book` geçti.
+
 ## v0.99.78 – 04.11.2026 (M31 ve M32 yeniden doğrulaması ve bulguların düzeltilmesi)
 - Faz A ve B sonrasında iki bağımsız inceleyici M31 ve M32'yi yeniden doğruladı. Kararlar: M31 **kullanılamaz** (K-64 ve K-68 kendi ölçütlerini geçmiyor), M32 **kısıtlı**. Raporlar `docs/validation/M31.md` ve `M32.md`'de; inceleyicinin metni değiştirilmedi, sonuna ayrı bir geliştirici eki kondu.
 - **M32 YÜKSEK – kilitli gün saatlik takipte işlemiyordu.** Tabanda kilitli bir günün yalnız ilk saati kilitli sayılıyordu, sonraki saatlerde stop kilit fiyatından doluyordu. Artık kilit seans günü düzeyinde belirleniyor: o günün bütün mumları tek fiyatsa ve günün kapanışı bir önceki güne göre limitse, bütün saatler kilitli. Günlük çerçevede sonuç aynı.

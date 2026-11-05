@@ -207,10 +207,10 @@ def _ml_filter(result: Result, frames: dict[str, pd.DataFrame]) -> None:
     found = len(result.matches)
     proba = probabilities({m.symbol: frames[m.symbol] for m in result.matches})
     for m in result.matches:
-        m.values["ml_olasilik"] = proba.get(m.symbol, float("nan"))
+        m.values["ml_skor"] = proba.get(m.symbol, float("nan"))  # Faz C M30-9: a score, not a probability
     result.matches = [m for m in result.matches if proba.get(m.symbol, 0.0) >= ml_filter.PROBA]
     result.ml_note = (f"ML filtresi: {found} eşleşmeden {len(result.matches)} tanesi geçti "
-                      f"(olasılık ≥ {ml_filter.PROBA:.1f}).").replace("0.5", "0,5")
+                      f"(model skoru ≥ {ml_filter.PROBA:.1f}; kalibre değil, olasılık değildir).").replace("0.5", "0,5")
 
 
 SHARP_MOVE = 0.30  # a limit-down or limit-up streak: ATR built at another price level (ANELE, 19-27.10.2026)
