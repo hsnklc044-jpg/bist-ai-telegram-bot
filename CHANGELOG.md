@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.101 – 05.11.2026 (K-78 ölçüm kodu; gerçek veride çalıştırılmadı)
+- Yeni `core/analytics/factor_measure.py`: K-78'de önceden yazılan kurallarla aylık tutuş getirisi, devir maliyeti (%0,15 / %0,15; bilgi satırı %0,30), dilim − evren fazla getirisi, 3 aylık hareketli blok bootstrap (10.000, tohum 0), karar (KEŞİFTE GEÇTİ / GEÇMEDİ (etki dışlandı) / YANITLANAMADI / ÖLÇÜLEMEDİ) ve iki indirmenin birleştirilmesi (VERİYE DUYARLI).
+- Gerçek veride hiçbir getiri hesaplanmadı. Ölçüm, ikinci günlük indirmeden (en erken 11.11.2026) sonra tek Actions çalışmasıyla yapılacak.
+- Doğrulama: `test_factor_measure` (15 sentetik test: tutuş fiyatları, maliyet, bootstrap tekrarlanabilirliği, her karar dalı, yıl koşulu, düşük oynaklığın risk koşulu, iki indirme tablosu, uçtan uca sentetik seri).
+
 ## v0.99.100 – 05.11.2026 (cuma model kontrolü kendiliğinden çalışıyor)
 - Cuma yeniden eğitiminden hemen sonra `scripts/kart_modeli_kontrol.py` kendiliğinden çalışıyor ve çıktısı Telegram'a "🧪 Cuma model kontrolü (otomatik)" başlığıyla gidiyor. Kullanıcının PowerShell'de elle komut çalıştırması gerekmiyor (kullanıcı isteği). Betik elle de çalışmaya devam ediyor.
 - Kontrol çökerse iş durmuyor; mesajda "DOĞRULANAMADI" ve neden yazıyor.
