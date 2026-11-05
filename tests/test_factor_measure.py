@@ -127,3 +127,61 @@ class SeriesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MainTest(unittest.TestCase):
+    def test_pair_rules_stop_before_any_measurement(self):
+        import tempfile
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from pathlib import Path
+        from unittest import mock
+
+        from core.analytics import provenance as P
+        from tests.test_factor_study import bars
+
+        frames = {"AAA.IS": bars(n=300, end="2023-01-31")}
+        with tempfile.TemporaryDirectory() as tmp:
+            P.freeze(frames, Path(tmp) / "a", None)
+            P.freeze(frames, Path(tmp) / "b", None)
+            args = [str(Path(tmp) / "a"), str(Path(tmp) / "b")]
+            with redirect_stdout(StringIO()) as out, \
+                    mock.patch.object(M, "series", side_effect=AssertionError("measured")):
+                self.assertEqual(M.main([*args, "--tarih-a", "2026-11-04", "--tarih-b", "2026-11-06"]), 2)
+                self.assertEqual(M.main([*args, "--tarih-a", "2026-11-04", "--tarih-b", "2026-11-11"]), 2)
+            text = out.getvalue()
+        self.assertIn("2 gün < 7", text)
+        self.assertIn("56016f59", text)
+
+    def test_prepare_cuts_the_holdout_and_the_common_start(self):
+        from tests.test_factor_study import bars
+
+        df = bars(n=300, end="2026-11-20")
+        frames, skipped, breaks = M.prepare({"AAA.IS": df}, pd.Timestamp("2026-03-02"), actions=[])
+        got = frames["AAA.IS"]
+        self.assertGreaterEqual(got.index.min(), pd.Timestamp("2026-03-02"))
+        self.assertLess(got.index.max(), pd.Timestamp("2026-11-02"))
+        self.assertEqual((skipped, breaks), ([], {}))
+
+    def test_measurement_runs_end_to_end_on_synthetic_snapshots(self):
+        import tempfile
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from pathlib import Path
+        from unittest import mock
+
+        from core.analytics import provenance as P
+        from tests.test_factor_study import bars
+
+        frames = {f"S{i:02d}.IS": bars(n=330, end="2023-03-31", seed=i, volume=1e6 * (i + 1)) for i in range(90)}
+        with tempfile.TemporaryDirectory() as tmp:
+            P.freeze(frames, Path(tmp) / "a", None)
+            P.freeze(frames, Path(tmp) / "b", None)
+            with mock.patch.object(M, "DAILY_A", P.digest(frames)), \
+                    mock.patch("core.market.membership.members_on", lambda d: {s[:3] for s in frames}), \
+                    mock.patch.object(M, "DRAWS", 100), redirect_stdout(StringIO()) as out:
+                self.assertEqual(M.main([str(Path(tmp) / "a"), str(Path(tmp) / "b"),
+                                         "--tarih-a", "2026-11-04", "--tarih-b", "2026-11-11"]), 0)
+        text = out.getvalue()
+        self.assertIn("SONUÇ momentum: ÖLÇÜLEMEDİ", text)  # far fewer than 36 synthetic months
+        self.assertIn("SONUÇ dusuk_oynaklik: ÖLÇÜLEMEDİ", text)

@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.102 – 05.11.2026 (K-78 ölçüm girişi ve workflow'u; ölçüm yapılmadı)
+- `python -m core.analytics.factor_measure A B --tarih-a … --tarih-b …`: K-78'in tek ölçümü. A dondurulmuş günlük görüntü değilse ya da iki indirme arası 7 günden azsa ölçüme başlamadan durur. İki indirme aynı başlangıca ve holdout öncesine kesilir, şirket işlemleri K-78 kuralıyla uygulanır. Her faktör için A, B ve birleşik sonuç yazılır.
+- Yeni `.github/workflows/factor-study.yml` (elle başlatılır):
+  - `snapshot`: Yahoo'dan baştan günlük indirme ve dondurma (B). 11.11.2026'dan önce reddeder.
+  - `measure`: A (çalışma 41880444802) ve verilen B çalışmasıyla tek ölçüm. "K-78 tek ölçüm" onay metni olmadan çalışmaz.
+- Doğrulama: `test_factor_measure` 18 test (yeni: koşullar sağlanmazsa ölçüm hiç başlamaz; holdout ve ortak başlangıç kesimi; sentetik görüntülerle uçtan uca).
+
 ## v0.99.101 – 05.11.2026 (K-78 ölçüm kodu; gerçek veride çalıştırılmadı)
 - Yeni `core/analytics/factor_measure.py`: K-78'de önceden yazılan kurallarla aylık tutuş getirisi, devir maliyeti (%0,15 / %0,15; bilgi satırı %0,30), dilim − evren fazla getirisi, 3 aylık hareketli blok bootstrap (10.000, tohum 0), karar (KEŞİFTE GEÇTİ / GEÇMEDİ (etki dışlandı) / YANITLANAMADI / ÖLÇÜLEMEDİ) ve iki indirmenin birleştirilmesi (VERİYE DUYARLI).
 - Gerçek veride hiçbir getiri hesaplanmadı. Ölçüm, ikinci günlük indirmeden (en erken 11.11.2026) sonra tek Actions çalışmasıyla yapılacak.

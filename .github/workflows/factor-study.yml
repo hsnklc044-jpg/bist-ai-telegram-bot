@@ -1,0 +1,107 @@
+name: K-78 factor study
+
+# DECISIONS K-78 (05.11.2026). Two steps, both started by hand:
+# 1. "snapshot": a fresh Yahoo download of the BIST 100 daily history into an empty store, frozen
+#    before the holdout. Refused before 11.11.2026 (at least 7 days after the frozen daily snapshot A
+#    of 04.11.2026). This is download B; a third download is not taken.
+# 2. "measure": the one K-78 measurement on A (Actions run 41880444802) and B (the run id given).
+#    It is run once; a run that fails technically without a result may be repeated once, and both are
+#    written to RESEARCH_LOG. The confirmation text must be typed exactly.
+
+on:
+  workflow_dispatch:
+    inputs:
+      step:
+        description: "snapshot | measure"
+        required: true
+        default: snapshot
+      b_run_id:
+        description: "measure: the run id of the B snapshot"
+        required: false
+      b_date:
+        description: "measure: the day B was downloaded (YYYY-MM-DD)"
+        required: false
+      confirm:
+        description: "measure: type  K-78 tek ölçüm"
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  snapshot:
+    if: inputs.step == 'snapshot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Not before 11.11.2026
+        run: |
+          today=$(TZ=Europe/Istanbul date +%F)
+          if [[ "$today" < "2026-11-11" ]]; then echo "K-78: B en erken 11.11.2026 ($today)"; exit 1; fi
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - name: Fresh download from Yahoo
+        run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+      - name: Freeze B
+        run: |
+          python -m core.analytics.provenance freeze-daily snap_daily 2>&1 | grep -v Warning | tee freeze_daily.txt
+          echo "indirme günü: $(TZ=Europe/Istanbul date +%F)" | tee -a freeze_daily.txt
+          { echo '```'; cat freeze_daily.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: daily-snapshot-${{ github.run_id }}
+          path: |
+            snap_daily/
+            freeze_daily.txt
+          retention-days: 90
+
+  measure:
+    if: inputs.step == 'measure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Confirmation
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "K-78 tek ölçüm" ]; then echo "Onay metni yok; ölçüm yapılmadı."; exit 1; fi
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: daily-snapshot-41880444802
+          path: a
+          run-id: 41880444802
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: daily-snapshot-${{ inputs.b_run_id }}
+          path: b
+          run-id: ${{ inputs.b_run_id }}
+          github-token: ${{ github.token }}
+      - name: Measure (K-78, once)
+        env:
+          B_DATE: ${{ inputs.b_date }}
+        run: |
+          python -m core.analytics.factor_measure a/snap_daily b/snap_daily \
+            --tarih-a 2026-11-04 --tarih-b "$B_DATE" 2>&1 | grep -v Warning | tee k78.txt
+          { echo '```'; cat k78.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: k78-result-${{ github.run_id }}
+          path: k78.txt
+          retention-days: 90

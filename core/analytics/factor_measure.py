@@ -196,5 +196,79 @@ def text(verdicts: list[Verdict]) -> str:
     return "\n".join(lines)
 
 
+DAILY_A = "56016f5992f458527a3100321379a11a5a6753730e0e1fbc848ce30505508a18"  # frozen daily snapshot (04.11)
+MIN_GAP_DAYS = 7
+
+
+def prepare(raw: dict[str, pd.DataFrame], start: pd.Timestamp, actions=None):
+    """Both downloads the same way: before HOLDOUT_START, from the common start, K-78 corporate actions."""
+
+    from core.backtest.run import HOLDOUT_START
+    from core.market.corrections import load_corporate_actions
+
+    actions = load_corporate_actions() if actions is None else actions
+    frames, skipped, breaks = {}, [], {}
+    for sym, df in raw.items():
+        df = df[(df.index >= start) & (df.index < HOLDOUT_START)]
+        if df.empty:
+            continue
+        frames[sym], out, broken = F.adjust_checked(df, [a for a in actions if a.symbol == sym])
+        skipped += out
+        if broken:
+            breaks[sym] = broken
+    return frames, skipped, breaks
+
+
+def check_pair(first: date, second: date) -> list[str]:
+    problems = []
+    if (second - first).days < MIN_GAP_DAYS:
+        problems.append(f"iki indirme arası {(second - first).days} gün < {MIN_GAP_DAYS}")
+    return problems
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+    import sys
+    from pathlib import Path
+
+    from core.analytics import provenance as P
+    from core.infrastructure.console import utf8_output
+    from core.market.membership import members_on
+
+    utf8_output()
+    parser = argparse.ArgumentParser(description="K-78 keşif ölçümü (iki dondurulmuş günlük görüntü)")
+    parser.add_argument("a")
+    parser.add_argument("b")
+    parser.add_argument("--tarih-a", required=True, help="A'nın indirildiği gün YYYY-AA-GG")
+    parser.add_argument("--tarih-b", required=True, help="B'nin indirildiği gün YYYY-AA-GG")
+    args = parser.parse_args(sys.argv[1:] if argv is None else argv)
+    problems = check_pair(date.fromisoformat(args.tarih_a), date.fromisoformat(args.tarih_b))
+    raw_a, raw_b = P.thaw(Path(args.a)), P.thaw(Path(args.b))
+    if P.digest(raw_a) != DAILY_A:
+        problems.append("A, dondurulmuş günlük görüntü (56016f59…) değil")
+    if problems:
+        print("K-78 ölçüm koşulu sağlanmadı: " + "; ".join(problems) + ". Durdu.")
+        return 2
+    start = max(min(df.index.min() for df in raw.values() if len(df)) for raw in (raw_a, raw_b))
+    print(f"Kod: {P.code_version().line()}")
+    labels = {}
+    for name, raw in (("A", raw_a), ("B", raw_b)):
+        frames, skipped, breaks = prepare(raw, start)
+        print(f"İndirme {name}: {P.stamp(frames)}")
+        if skipped:
+            print("  uygulanmayan şirket işlemi: " + "; ".join(skipped))
+        verdicts = [judge(k, s) for k, s in series(frames, lambda d: members_on(d), breaks).items()]
+        print(text(verdicts))
+        labels[name] = verdicts
+    for va, vb in zip(labels["A"], labels["B"], strict=True):
+        print(f"SONUÇ {va.factor}: {combine(va, vb)}")
+    print("Not: keşif sonucudur; canlı kurala, karta, /saglik'e ya da K-64'e otomatik geçiş yok.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
 __all__ = ["EXCLUDED", "PASSED", "SENSITIVE", "UNANSWERED", "UNMEASURED", "Series", "Verdict", "block_bootstrap",
-           "combine", "cost", "holding", "judge", "series", "text"]
+           "check_pair", "combine", "cost", "holding", "judge", "prepare", "series", "text"]
