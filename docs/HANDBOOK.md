@@ -543,10 +543,13 @@ Dosya yoksa ya da bir sınır yazılmamışsa o satır "sınır tanımlı değil
 ## 14. BIST 30 tarama robotu: ML filtresi ve sanal sinyal defteri (K-59, K-60)
 
 - **Kural:** ertesi açılışta giriş, %2 stop, %4 hedef, en çok 10 seans. Aynı seansta ikisine birden dokunulursa stop sayılır; tavan açılışta giriş yok; %0,15 maliyet.
-- **ML filtresi:** RandomForest. Yalnız eğitimde görülmemiş yıllarda ölçülür; 02.11.2026 sonrası (holdout) kullanılmaz. Açılması için üç koşul:
+- **ML filtresi:** RandomForest. Yalnız eğitimde görülmemiş yıllarda ölçülür; 02.11.2026 sonrası (holdout) kullanılmaz. Ölçüm 01.04.2022'den başlar (kaynaklı üyelik kaydı); canlı model de aynı dönemle ve holdout'u görmeden eğitilir. Açılması için altı koşulun hepsi (K-59, K-77):
   - en az 100 sinyal;
   - isabet ≥ %60;
-  - isabet, tüm girişlerin hedefe ulaşma oranından anlamlı yüksek.
+  - isabetin %95 aralığının alt ucu, tüm girişlerin hedefe ulaşma oranından yüksek (aralık 20 seanslık tarih bloklarıyla);
+  - sinyallerin maliyet sonrası ortalaması pozitif;
+  - bu ortalama tüm girişlerin ortalamasından yüksek;
+  - sinyallerin en kötü %5'i tüm girişlerinkinden kötü değil.
 - **Ölçüm:** GitHub Actions → "Screen templates explain" çalıştırılır; sonuç `logs/ml_report.json` dosyasına yazılır.
 - **`/tara ... ml=evet`:** yalnız filtrenin geçirdiği hisseler listelenir. Filtre kapalıysa liste boştur ve nedeni yazılır. Örnek: `/tara ema50>ema200 adx>20 evren=bist30 ml=evet`.
 - **Sanal defter:** `data/signals.db`. 100.000 TL sanal bakiye, sinyal başına 10.000 TL. Günlük çalışma açık sinyalleri izler; `/durum` sonucu gösterir.

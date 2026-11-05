@@ -7,7 +7,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 **K-77. ML filtresinin (M30, K-59/K-62) ölçüm yöntemi, yeni ölçümden önce (04–05.11.2026, Faz C 1. parti).**
 - **Neden:** M30 bağımsız doğrulamasının 1, 2, 3, 5 ve 9 numaralı bulguları. Model kapalı ve bu kararla yeniden ölçülmüyor. Bundan sonraki ilk ölçüm aşağıdaki yöntemle yapılır. Kurallar sonuca bakılmadan, ölçümden önce yazıldı.
 - **Karar:**
-  1. `stop_hedef` aralığı Wilson ile değil, art arda 10 seanslık (HORIZON) tarih blokları yeniden örneklenerek hesaplanır. `goreli20` aynı kalır: test günleri 20 seans arayla, aralık tek tarihlerle.
+  1. `stop_hedef` aralığı Wilson ile değil, art arda tarih blokları yeniden örneklenerek hesaplanır. Blok uzunluğu 20 seanstır, yani HORIZON'un iki katı; 05.11'deki yeniden doğrulamadan sonra 10'dan çıkarıldı, ölçümden önce. `goreli20` aynı kalır: test günleri 20 seans arayla, aralık tek tarihlerle.
   2. Ölçüm, kaynaklı BIST 100 değişiklik kaydının ilk gününden (01.04.2022) başlar. İlk test yılı ondan sonraki ilk tam yıldır (2023). Daha önceki üyelik bugün hayatta kalanlardan oluşuyor.
   3. Etiketi holdout'ta (02.11.2026 ve sonrası) biten test satırı test edilmez.
   4. Geçme kuralına üç koşul eklenir; hepsi sağlanmalıdır:

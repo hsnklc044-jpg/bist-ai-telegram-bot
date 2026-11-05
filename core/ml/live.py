@@ -24,11 +24,13 @@ def fit(frames: dict[str, pd.DataFrame], members=None, today: date | None = None
 
     import joblib
 
-    from core.ml.ml_filter import model
+    from core.ml.ml_filter import holdout_start, model, point_in_time
 
-    data = dataset(frames, members)
-    if today is not None:
-        data = data[data["label_end"] < pd.Timestamp(today)]
+    # M30 re-validation Y1: the live model learns from what the measurement measured: rows from the first
+    # day of the sourced membership record (no survivors-only years) and labels known before the holdout
+    data, _ = point_in_time(dataset(frames, members))
+    edge = holdout_start() if today is None else min(pd.Timestamp(today), holdout_start())
+    data = data[data["label_end"] < edge]
     if data.empty or data["label"].nunique() < 2:
         return 0
     m = (make_model or model)()

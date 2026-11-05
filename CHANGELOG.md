@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.85 – 05.11.2026 (M30 yeniden doğrulaması ve bulguların düzeltilmesi)
+- Faz C sonrası M30 (ML filtresi) bağımsız olarak yeniden doğrulandı. Karar: **kullanılamaz**. Model kapalı ve kapalı kalıyor. Önceki 10 bulgudan 7'si tamamen giderilmiş bulundu. Rapor `docs/validation/M30.md`'de; inceleyicinin metni değiştirilmedi, sonuna geliştirici eki kondu.
+- **YÜKSEK:** Canlı ML modeli, ölçümün dışladığı 2022 öncesi veriyle (yalnız bugün hayatta kalan hisseler) eğitiliyordu. Artık ölçümle aynı veriyle eğitiliyor: 01.04.2022'den başlıyor ve holdout'u görmüyor.
+- **ORTA:** Aralığın blok uzunluğu 20 seans oldu; /tara karnesindeki kuralla aynı. 10 seanslık blokla kapsama %87–88'de kalıyordu. Uzun rejim bağımlılığı bir yöntem sınırı olarak kayda geçti.
+- **DÜŞÜK:**
+  - ML filtresi yalnız "BIST 30" evreninin raporuyla açılabiliyor; "BIST 300" gibi bir ad artık geçmiyor.
+  - `goreli20` etiketinde tabanda kilitli çıkış ilk kilitsiz açılıştan.
+  - HANDBOOK altı koşulu yazıyor.
+- Doğrulama: `test_faz_c_m30` içinde 4 yeni test, önce kırmızı sonra yeşil. Eski canlı model testinin sentetik verisi 2022 sonrasına taşındı.
+
 ## v0.99.84 – 05.11.2026 (güncelleyici başarısız testin adını yazıyor)
 - 05.11 08:26: v0.99.78 bilgisayardaki deneme kopyasında "1 failed" ile kurulmadı. CI'ın dört işi (Windows dahil) yeşildi. Deneme kopyası bilgisayarın gerçek `data` klasörüyle çalıştığı için fark oradan gelebilir; neden henüz bilinmiyor.
 - Telegram mesajı artık başarısız testlerin adını da yazıyor (en çok 3 tane, fazlası sayıyla).

@@ -110,10 +110,21 @@ def relative_labels(df: pd.DataFrame, bench_close: pd.Series, horizon: int = REL
         entry, exit_ = o[t + 1], c[t + horizon]
         stock = exit_ / entry - 1 - COST
         market = bench[t + horizon] / bench[t] - 1
+        # M30 re-validation: an exit session locked at the lower limit sells at the first unlocked open
+        locked = locked_down(df)
+        exit_at = t + horizon
+        for k in np.flatnonzero(locked[t + horizon]):
+            later = next((d for d in range(int(t[k] + horizon) + 1, n) if not locked[d] and o[d] > 0), None)
+            if later is None:
+                stock[k] = np.nan
+            else:
+                exit_at[k] = later
+                stock[k] = o[later] / entry[k] - 1 - COST
+                market[k] = bench[later] / bench[t[k]] - 1
         ok = (entry > 0) & ~limit_up(entry / c[t] - 1) & np.isfinite(stock) & np.isfinite(market)
         label[t[ok]] = (stock[ok] > market[ok]).astype(float)
         ret[t[ok]] = stock[ok] - market[ok]  # the excess return over XU100
-        end[t[ok]] = df.index[t[ok] + horizon]
+        end[t[ok]] = df.index[exit_at[ok]]
     return pd.DataFrame({"label": label, "r": ret, "label_end": pd.to_datetime(pd.Series(end, index=df.index))},
                         index=df.index)
 

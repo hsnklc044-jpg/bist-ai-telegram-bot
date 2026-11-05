@@ -80,7 +80,8 @@ def block_bootstrap(chosen: pd.DataFrame, block: int = HORIZON, repeats: int = B
 def interval(chosen: pd.DataFrame, rule: str) -> tuple[float, float]:
     """goreli20: test days are RELATIVE_HORIZON apart, single dates; stop_hedef: blocks of HORIZON dates."""
 
-    return date_bootstrap(chosen) if rule == "goreli20" else block_bootstrap(chosen, block=HORIZON)
+    # M30 re-validation O1: blocks of HORIZON sessions still covered ~87%; twice the horizon, as the /tara card
+    return date_bootstrap(chosen) if rule == "goreli20" else block_bootstrap(chosen, block=2 * HORIZON)
 
 
 def membership_start() -> pd.Timestamp:
@@ -286,7 +287,7 @@ def enabled(path: Path | None = None) -> bool:
 
     report = load(path)
     return bool(isinstance(report, dict) and report.get("passed") and report.get("rule", "stop_hedef") == "stop_hedef"
-                and not report.get("holdout_used") and "30" in str(report.get("universe", "")))
+                and not report.get("holdout_used") and str(report.get("universe", "")).startswith("BIST 30 "))
 
 
 # --- universe ------------------------------------------------------------------------------------

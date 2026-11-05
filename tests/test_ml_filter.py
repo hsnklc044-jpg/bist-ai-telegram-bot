@@ -166,7 +166,8 @@ class LiveModelTest(unittest.TestCase):
 
         from core.ml import live
 
-        frames = {f"S{i}.IS": walk(900, 70 + i) for i in range(3)}
+        # after the membership record begins (01.04.2022): the live model trains from there on (M30 Y1)
+        frames = {f"S{i}.IS": walk(900, 70 + i, first="2022-06-01") for i in range(3)}
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "m.joblib"
             self.assertEqual(live.probabilities(frames, path), {})  # no model yet

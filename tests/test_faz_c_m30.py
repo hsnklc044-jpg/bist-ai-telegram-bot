@@ -39,7 +39,6 @@ class BlockBootstrapTest(unittest.TestCase):
 
     def test_stop_hedef_uses_the_block_bootstrap(self):
         rows = chosen_rows()
-        self.assertEqual(M.interval(rows, "stop_hedef"), M.block_bootstrap(rows, block=F.HORIZON))
         self.assertEqual(M.interval(rows, "goreli20"), M.date_bootstrap(rows))
 
     def test_empty(self):
@@ -159,3 +158,58 @@ class ScoreWordTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+SEEN: dict = {}
+
+
+class Spy:
+    """A picklable stand-in model that records how many rows it was trained on."""
+
+    def fit(self, x, y):
+        SEEN["n"] = len(x)
+        return self
+
+
+class RevalidationM30Test(unittest.TestCase):
+    """M30 re-validation (05.11.2026): the live model and the details the reviewer found."""
+
+    def test_live_model_trains_from_the_membership_record_and_before_the_holdout(self):
+        import tempfile
+        from datetime import date
+        from pathlib import Path
+        from unittest import mock
+
+        from core.ml import live
+
+        data = dataset_rows(start="2020-01-02", end="2026-12-31", stocks=2)
+        SEEN.clear()
+        with mock.patch.object(live, "dataset", return_value=data), tempfile.TemporaryDirectory() as tmp:
+            live.fit({}, None, date(2026, 12, 31), Path(tmp) / "m.joblib", make_model=Spy)
+        seen = SEEN
+        start, cut = M.membership_start(), M.holdout_start()
+        expected = data[(data["date"] >= start) & (data["label_end"] < cut)]
+        self.assertEqual(seen["n"], len(expected))
+
+    def test_block_is_twice_the_horizon(self):
+        rows = chosen_rows()
+        self.assertEqual(M.interval(rows, "stop_hedef"), M.block_bootstrap(rows, block=2 * F.HORIZON))
+
+    def test_enabled_needs_exactly_bist_30(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "r.json"
+            for universe, expected in (("BIST 30 yaklaşığı (x)", True), ("BIST 300", False), ("BIST 100", False)):
+                path.write_text(json.dumps({"passed": True, "rule": "stop_hedef", "universe": universe}), encoding="utf-8")
+                self.assertEqual(M.enabled(path), expected, universe)
+
+    def test_relative_label_waits_for_an_unlocked_exit(self):
+        n = F.RELATIVE_HORIZON + 3
+        rows = [[100, 100.5, 99.8, 100.0]] * (F.RELATIVE_HORIZON) + [[90, 90, 90, 90], [85, 86, 84, 85], [85, 86, 84, 85]]
+        df = pd.DataFrame(rows, columns=["open", "high", "low", "close"], index=pd.bdate_range("2025-01-01", periods=n))
+        bench = pd.Series(100.0, index=df.index)
+        got = F.relative_labels(df, bench).iloc[0]
+        self.assertAlmostEqual(got["r"], 85 / 100 - 1 - F.COST)  # the first unlocked open, not the locked 90
