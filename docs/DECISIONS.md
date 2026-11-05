@@ -33,7 +33,9 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
     - 208 hisse, 238.667 mum, 01.11.2021 – 30.10.2026.
   - **Kaynak:** Actions çalışması 41880444802, commit `46c226f`.
   - **Doğrulama:** Zip özetleri üç kaynakta aynı: artifact kaydı, kullanıcının bilgisayarı, özel depo. İki görüntü temiz bir klasörde `thaw` ile açıldı; veri özetleri DOĞRULANDI. Herkese açık artifact da `snapshot-check.yml` ile doğrulandı (çalışma 41987336455).
-  - **İkinci yedek:** kullanıcının OneDrive'ı (`scripts\olcum.ps1`). Özeti, rapor gelince karşılaştırılacak.
+  - **İkinci yedek (doğrulanmayı bekliyor):** Aynı iki zip OneDrive yedek klasörüne elle kopyalanacak ve `Get-FileHash` ile yukarıdaki zip özetlerine karşı doğrulanacak.
+  - **Düzeltme (05.11):** `scripts\olcum.ps1` bu görüntünün kopyası değildir. Veriyi yeniden indirip yeni bir görüntü dondurur; saatlik pencere kaydığı için özeti farklı çıkabilir. O görüntü ayrı bir kayıttır.
+  - Kullanıcı asıl zip'leri OneDrive kopyası doğrulanana kadar silmeyecek.
   - Özel depoya anahtar ya da gizli bilgi konmadı. Claude GitHub uygulamasının erişimi yalnız `bist-ai-telegram-bot` ve `quantbist-veri` ile sınırlı.
 - **Açık risk:** `/tara ai`, modeli 10 günden eskiyse yeniden eğitebiliyor. Bu yol yalnız dondurulmuş `fit_live`'ı kullanıyor (test). Bilgisayardaki model 03.11.2026'da eski kuralla eğitildi; 02.11'den sonra kart yazılmadı. 06.11 cuma eğitimi `scripts/kart_modeli_kontrol.py` ile doğrulanacak. Aradaki kartlar silinmeden `logs/kart_holdout_isareti.csv`'ye "holdout etkisi olabilir" olarak yazılır.
 
