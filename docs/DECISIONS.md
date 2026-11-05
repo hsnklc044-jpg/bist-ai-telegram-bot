@@ -33,7 +33,11 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
     - 208 hisse, 238.667 mum, 01.11.2021 – 30.10.2026.
   - **Kaynak:** Actions çalışması 41880444802, commit `46c226f`.
   - **Doğrulama:** Zip özetleri üç kaynakta aynı: artifact kaydı, kullanıcının bilgisayarı, özel depo. İki görüntü temiz bir klasörde `thaw` ile açıldı; veri özetleri DOĞRULANDI. Herkese açık artifact da `snapshot-check.yml` ile doğrulandı (çalışma 41987336455).
-  - **İkinci yedek (doğrulanmayı bekliyor):** Aynı iki zip OneDrive yedek klasörüne elle kopyalanacak ve `Get-FileHash` ile yukarıdaki zip özetlerine karşı doğrulanacak.
+  - **İkinci yedek (yerelde doğrulandı, 05.11):** `C:\Users\hsnkl\OneDrive\QuantBIST-yedek\veri_goruntuleri`.
+    - `daily-snapshot-41880444802.zip` → `30f278894b7e86067ae6cd2ad1a8ffa47aa4e33a75107a3d779568d2baaf9e4e`
+    - `hourly-snapshot-41880444802.zip` → `ec889f40dc6787a0143e9c6e9f4f9a191f875483f2ea18e441530b23a64c63d0`
+    - İkisi de yukarıdaki zip özetleriyle karakter karakter aynı.
+    - OneDrive bulut eşitlemesini kullanıcı ayrıca teyit edecek.
   - **Düzeltme (05.11):** `scripts\olcum.ps1` bu görüntünün kopyası değildir. Veriyi yeniden indirip yeni bir görüntü dondurur; saatlik pencere kaydığı için özeti farklı çıkabilir. O görüntü ayrı bir kayıttır.
   - Kullanıcı asıl zip'leri OneDrive kopyası doğrulanana kadar silmeyecek.
   - Özel depoya anahtar ya da gizli bilgi konmadı. Claude GitHub uygulamasının erişimi yalnız `bist-ai-telegram-bot` ve `quantbist-veri` ile sınırlı.

@@ -53,7 +53,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ **K-79 (v0.99.91):** K-64 donduruldu (`tests/test_k64_freeze.py`). Özetler yalnız kullanıcı onayıyla güncellenir.
 - **Açık riskler (kullanıcı 05.11):**
   - O4 (41→36) açık kalıyor. K-64 ayrım ölçümü GEÇERSİZ kalıyor; inceleyicinin dolaylı kanıtı bu kaydı değiştirmez.
-  - ✅ **Artifact silinme tarihi (02.02.2027) artık risk değil:** saatlik ve günlük görüntü özel depoda (`hsnklc044-jpg/quantbist-veri`, eab856b ve aac3c75); 05.11'de DOĞRULANDI (veri özetleri 4fc8a1bc… ve 56016f59…). **İkinci yedek doğrulanmayı bekliyor:** aynı zip'ler OneDrive'a elle kopyalanıp `Get-FileHash` ile karşılaştırılacak. `olcum.ps1` bu görüntünün kopyası değil; yeni indirme yapar ve özeti farklı olabilir. Kullanıcı asıl zip'leri bu doğrulama eşleşene kadar silmiyor (DECISIONS K-79).
+  - ✅ **Artifact silinme tarihi (02.02.2027) artık risk değil:** saatlik ve günlük görüntü özel depoda (`hsnklc044-jpg/quantbist-veri`, eab856b ve aac3c75); 05.11'de DOĞRULANDI (veri özetleri 4fc8a1bc… ve 56016f59…). ✅ **İkinci yedek yerelde doğrulandı (05.11):** `C:\Users\hsnkl\OneDrive\QuantBIST-yedek\veri_goruntuleri`, iki zip özeti aynı. Bulut eşitlemesini kullanıcı teyit edecek; ondan sonra İndirilenler'deki zip'ler silinebilir. `olcum.ps1` bu görüntünün kopyası değildir (yeni indirme; DECISIONS K-79).
   - `fit_live` (v0.99.78) yalnız canlı `/tara ai` modelini etkiliyor; K-64 ileri testi onu kullanmıyor. PC çıktısı (05.11):
     - kayıtlı model 03.11.2026'da eski kuralla eğitilmiş (744 satır), yani etiketi 02.11'de biten satırları içerebilir;
     - günlükte cuma yeniden eğitimi yok;
