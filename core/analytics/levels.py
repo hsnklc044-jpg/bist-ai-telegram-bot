@@ -17,13 +17,14 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from core.market.limits import limit_move
+from core.market.limits import locked_down, locked_up
 
 N = 5  # fractal: sessions on each side
 LOOKBACK = 252
 CLUSTER_ATR = 0.5
 BREAK_ATR = 0.5
-LIMIT_MOVE = 0.095  # a close-to-close move beyond ±9.5%: a locked (limit) day makes no pivot
+LIMIT_MOVE = 0.095  # K-49: a LOCKED limit day (one price, ±9.5% or more; core.market.limits) makes no pivot
+JUMP_MOVE = 0.105  # beyond any limit move: only an unrecorded corporate action does this (Faz C M8-5)
 MIN_CANDLES = 2 * N + 15
 METHODS = ("küme", "pivot_gün", "pivot_hafta", "52h_zirve", "52h_dip", "psikolojik", "sma50", "sma200")
 LABEL = "teknik seviye, öneri değil"
@@ -64,11 +65,11 @@ def pivots(df: pd.DataFrame, n: int = N) -> list[Pivot]:
     """Confirmed fractal tops and bottoms: t is a top if high[t] > max(high[t-n..t-1]) and
     high[t] >= max(high[t+1..t+n]); it exists only once t+n has closed. Limit days are skipped."""
 
-    high, low, close = (df[c].to_numpy(dtype=float) for c in ("high", "low", "close"))
-    move = np.abs(close / np.r_[np.nan, close[:-1]] - 1)
+    high, low = (df[c].to_numpy(dtype=float) for c in ("high", "low"))
+    locked = _locked(df)
     out = []
     for t in range(n, len(df) - n):
-        if limit_move(move[t]):
+        if locked[t]:  # Faz C M8-6: a big move that traded is a real swing; only a locked day is skipped
             continue
         if high[t] > high[t - n:t].max() and high[t] >= high[t + 1:t + n + 1].max():
             out.append(Pivot(df.index[t], float(high[t]), "tepe"))
@@ -77,12 +78,28 @@ def pivots(df: pd.DataFrame, n: int = N) -> list[Pivot]:
     return out
 
 
+def _locked(df: pd.DataFrame) -> np.ndarray:
+    return locked_down(df) | locked_up(df)
+
+
+def _span_groups(prices: np.ndarray, width: float) -> np.ndarray:
+    """Group ids of prices sorted ascending: a group spans less than `width` (Faz C M8-3)."""
+
+    ids, start, g = np.zeros(len(prices), dtype=int), None, -1
+    for i, p in enumerate(prices):
+        if start is None or p - start >= width:
+            g, start = g + 1, p
+        ids[i] = g
+    return ids
+
+
 def cluster(points: list[Pivot], width: float) -> list[list[Pivot]]:
-    """Sorted by price; a point closer than `width` to the previous one joins its group."""
+    """Sorted by price; a point closer than `width` to its group's LOWEST point joins it, so a group
+    spans less than `width` (Faz C M8-3: it used to chain, ten tops 0,45 apart made one level)."""
 
     groups: list[list[Pivot]] = []
     for p in sorted(points, key=lambda p: (p.price, p.day)):
-        if groups and p.price - groups[-1][-1].price < width:
+        if groups and p.price - groups[-1][0].price < width:
             groups[-1].append(p)
         else:
             groups.append([p])
@@ -184,13 +201,12 @@ SERIES = ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu", "kirdi_yuka
 def _pivot_arrays(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
     """Every fractal top and bottom (same rule as pivots(), vectorised): (day positions, prices)."""
 
-    high, low, close = (df[c].to_numpy(dtype=float) for c in ("high", "low", "close"))
-    move = np.abs(close / np.r_[np.nan, close[:-1]] - 1)
+    high, low = (df[c].to_numpy(dtype=float) for c in ("high", "low"))
     hs, ls = pd.Series(high), pd.Series(low)
     left_max, left_min = hs.rolling(N).max().shift(1).to_numpy(), ls.rolling(N).min().shift(1).to_numpy()
     right_max = hs[::-1].rolling(N).max().shift(1)[::-1].to_numpy()
     right_min = ls[::-1].rolling(N).min().shift(1)[::-1].to_numpy()
-    ok = ~limit_move(move)
+    ok = ~_locked(df)
     with np.errstate(invalid="ignore"):
         top = ok & (high > left_max) & (high >= right_max)
         bottom = ok & (low < left_min) & (low <= right_min)
@@ -220,7 +236,7 @@ def cluster_days(df: pd.DataFrame, recent: int | None = None):
         if len(p_now):
             order = np.lexsort((t_now, p_now))
             t_now, p_now = t_now[order], p_now[order]
-            ids = np.r_[0, np.cumsum(np.diff(p_now) >= width)]
+            ids = _span_groups(p_now, width)
             groups = [(float(np.mean(p_now[ids == g])), t_now[ids == g]) for g in range(ids[-1] + 1)]
         yield d, a[d], groups
 
@@ -362,6 +378,10 @@ def levels_text(symbol: str, df: pd.DataFrame, day: date | None = None, k: int |
     shown = nearest(found, k or len(found))
     when = f" ({day:%d.%m.%Y} kapanışı)" if day else ""
     lines = [f"📐 {code} seviyeleri{when} – {LABEL}; {STUDY_NOTE}"]
+    window = df["close"].iloc[-LOOKBACK:].astype(float)
+    if bool((window / window.shift(1) - 1).abs().gt(JUMP_MOVE).any()):
+        lines.append(f"⚠️ Son {LOOKBACK} seansta tavan/taban sınırını aşan bir kapanış değişimi var: kaydı eksik bir "
+                     "şirket işlemi olabilir; seviyeler eski fiyat ölçeğinde kalmış olabilir.")
     for kind, title in (("direnç", "Direnç (yakından uzağa):"), ("destek", "Destek (yakından uzağa):")):
         lines += [title, *([_line(lv) for lv in shown[kind]] or ["  —"])]
     lines.append("Yöntemler: küme = salınım tepe/diplerinin 0,5 ATR kümesi; pivot = klasik (önceki gün/hafta); "

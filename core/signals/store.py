@@ -243,7 +243,14 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     locked = every_locked.reindex(window.index).fillna(False).to_numpy(dtype=bool)
     # K-67 trailing stop: STOP below the highest price seen BEFORE each candle (a candle's own high
     # cannot lift its own stop: the order inside a candle is unknown); it only moves up
-    peak_before = np.maximum.accumulate(np.r_[entry, highs[:-1]])
+    # Faz C M32-3: the peak counts from the NEXT session on, on hourly candles as on daily ones (a day's
+    # own high used to lift the hourly stop within that day, so the live path stopped earlier than the rule)
+    starts = np.r_[True, window_days[1:] != window_days[:-1]]
+    group = np.cumsum(starts) - 1
+    day_high = np.full(int(group[-1]) + 1, -np.inf)
+    np.maximum.at(day_high, group, highs)
+    before_day = np.maximum.accumulate(np.r_[entry, day_high[:-1]])
+    peak_before = before_day[group]
     trail = np.maximum(first_stop, peak_before * (1 - STOP))
     peak = float(max(entry, highs.max()))
     out = {"status": "acik", "entry_date": entry_day, "entry_price": entry, "target": target, "peak": peak,

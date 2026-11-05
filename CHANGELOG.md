@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.82 – 05.11.2026 (Faz C, 4. parti: sanal defterde aynı kural, seviyelerde K-49'a uyum; M32-3, M8)
+- **M32-3:** Saatlik takip artık günlük kuralı uyguluyor. Bir günün zirvesi iz süren stopu ancak ertesi seanstan itibaren yükseltiyor; saatlik ve günlük yol aynı sonucu veriyor. Önceden gün içindeki zirve stopu aynı gün yükseltiyordu; saatlik yol, ölçülen kuraldan daha sık ve daha erken stop yazıyordu. Günlük çerçevede sonuç birebir aynı.
+- **M8-3:** Bir seviye kümesinin fiyat aralığı küme genişliğini (0,5 ATR) aşamıyor. Önceden zincirleme birleşme vardı: 0,45 arayla dizilmiş 10 tepe 4 fiyat birimine yayılan tek bir seviye oluyor, dokunma sayısı ve güç puanı şişiyordu.
+- **M8-6:** Pivot olarak yalnız kilitli gün (bütün gün tek fiyat ve limit kadar hareket) dışlanıyor; K-49'un yazdığı kural bu. Önceden gün içinde işlem görmüş her %9,5'lik hareket de dışlanıyordu.
+- **M8-5:** Son 252 seansta tavan/taban sınırını aşan bir kapanış değişimi varsa `/seviye` metni kaydı eksik bir şirket işlemine karşı uyarıyor.
+- K-49 sabitleri değişmedi. Seviye ölçümü yeniden çalıştırılmadı; kararı ("rastgele seviyeden ayırt edilemedi") aynı.
+- Doğrulama: yeni `test_faz_c_m32` (2 test) ve `test_faz_c_m8` (7 test), önce kırmızı sonra yeşil. Davranışı bilerek değişen iki eski seviye testi güncellendi.
+
 ## v0.99.81 – 05.11.2026 (Faz C, 3. parti: senaryo karnesi, M27)
 - **M27-4:** Karnenin %95 aralığı artık gösterilen ortalamanın aralığı. Olaylar eşit ağırlıklı; tam günler bloklar halinde yeniden örnekleniyor. Önceden aralık gün ortalamalarından hesaplanıyordu. Kalabalık günlerde ortalama aralığın dışında kalabiliyordu; testte ortalama −0,24 iken aralık 0,85'ten başlıyordu.
 - **M27-8:** Tam 20 seanslık ufku dönem içinde olmayan sinyaller sayılmıyor. Önceden son 20 seansta yalnız erken biten olaylar giriyordu; bu, sonucu bir yöne kaydırıyordu.

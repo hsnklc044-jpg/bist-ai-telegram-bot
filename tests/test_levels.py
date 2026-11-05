@@ -36,8 +36,8 @@ class FractalTest(unittest.TestCase):
         self.assertEqual([p.day for p in tops], [df.index[5]])  # strictly above the left, at least the right
 
     def test_limit_days_make_no_pivot(self):
-        closes = [100.0] * 5 + [111.0] + [100.0] * 6  # +11% then back: a locked day, not a free top
-        df = candles([c + 1 for c in closes], [c - 1 for c in closes], closes)
+        closes = [100.0] * 5 + [111.0] + [100.0] * 6  # +11%, one price all day: a locked day, not a free top
+        df = candles([c if c == 111.0 else c + 1 for c in closes], [c if c == 111.0 else c - 1 for c in closes], closes)
         self.assertEqual([p for p in L.pivots(df, n=5) if p.kind == "tepe"], [])
 
 
@@ -46,8 +46,8 @@ class ClusterTest(unittest.TestCase):
         points = [L.Pivot(pd.Timestamp("2026-01-05"), 100.0, "tepe"), L.Pivot(pd.Timestamp("2026-02-05"), 100.8, "dip"),
                   L.Pivot(pd.Timestamp("2026-03-05"), 101.6, "tepe"), L.Pivot(pd.Timestamp("2026-04-06"), 110.0, "tepe")]
         groups = L.cluster(points, width=1.0)  # 0.5 ATR with ATR 2
-        self.assertEqual([len(g) for g in groups], [3, 1])
-        self.assertAlmostEqual(np.mean([p.price for p in groups[0]]), 100.8)
+        self.assertEqual([len(g) for g in groups], [2, 1, 1])  # Faz C M8-3: a group spans less than the width
+        self.assertAlmostEqual(np.mean([p.price for p in groups[0]]), 100.4)
 
     def test_breaks_count_side_changes_beyond_half_an_atr(self):
         close = pd.Series([95, 99.6, 101, 104, 99, 96, 100.4, 106], index=pd.bdate_range("2026-01-05", periods=8),
