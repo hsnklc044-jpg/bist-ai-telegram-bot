@@ -4,6 +4,56 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 05.11.2026
 
+**K-80. K-64 saatlik ileri testi: yöntem, veri ve iki indirme kuralı (05.11.2026; kullanıcının "onay beklemeden devam" talimatı, önerilen yanıtlarla). Holdout verisine bakılmadan yazıldı.**
+- **Soru:** K-64'ün dondurulmuş kuralı (K-79), görmediği dönemde (02.11.2026 ve sonrası) onayladığı sinyallerde tüm sinyallerin oranından ayırt edilebilir bir isabet veriyor mu?
+- **Yöntem (b):** Tek model, holdout öncesi veriyle bir kez eğitilir; yalnız holdout sonrası olaylarda sınanır. `signal_filter.main()` her zaman `HOLDOUT_START`'ta kestiği için bu bölme yeni modülde: `core/ml/k64_forward.py`. Dondurulmuş `events`, `fit`, `_bootstrap`, `APPROVE`, `MIN_APPROVED`, `FEATURES`, `SPEC["saatlik"]` değiştirilmeden kullanılır.
+  - **Eğitim verisi:** yalnız dondurulmuş görüntü A (Actions 41880444802, veri özeti `4fc8a1bc97045caebb14a914097df181418883e841eb96bfee3e23474c506a0b`). Etiketi `HOLDOUT_START`'tan önce biten olaylar. Özet uyuşmazsa çalıştırma durur.
+  - **Test:** zamanı `HOLDOUT_START` ve sonrası, etiketi ortak son tarihten önce biten olaylar.
+  - **Kural:** K-64 ile aynı. Olasılık ≥ `APPROVE` (0,60) onay; en az `MIN_APPROVED` (50) onay; gün bootstrap aralığının alt ucu temel oranın üstünde.
+- **İki indirme (K-63 için de geçerli):**
+  - Tam olarak iki indirme. İlki 03.02.2027 ya da sonrası; ikincisi ilkinden en az 7 gün sonra. Üçüncü indirme yok.
+  - Veri üretmeden teknik olarak düşen indirme bir kez tekrarlanabilir; bu kaydedilir.
+  - İkisi de aynı ortak son tarihe (ilk indirmeden önceki bir gün; öneri 02.02.2027), aynı holdout başlangıcına ve aynı aralığa kesilir.
+  - Her indirme dondurulur (`provenance freeze`); özeti ve yolu kayda yazılır.
+- **Kalite kapısı (yalnız ileri pencere, BIST takvimi, her hisse):**
+  - son saatlik mumu (17:30; yarım gün 11:30) eksik seans payı ≤ %5;
+  - 9'dan az mumlu tam seans payı ≤ %5;
+  - hiç mumu olmayan seans = 0;
+  - hacmi 0 olan mum payı ≤ %2.
+  Kapıdan geçemeyen indirmenin yerine yenisi alınmaz; sonuç ÖLÇÜLEMEDİ.
+- **Karar tablosu (seçme yok, ortalama yok):**
+  - ikisi geçti → GEÇTİ;
+  - biri geçti, biri geçmedi → VERİYE DUYARLI (geçmiş sayılmaz);
+  - ikisi de geçmedi → GEÇMEDİ;
+  - biri kapıdan geçemedi → ÖLÇÜLEMEDİ.
+- **Geçmiş kararlar:** Tek indirmeyle verilmiş K-63/K-64 kararları geçerli kalır; RESEARCH_LOG'a "tek indirme, veri duyarlılığı ölçülmedi" notu düşüldü. GEÇMEDİ kararları değişmez.
+- **Tarih ve ölçüt değişmez (03.02.2027).** Beklenti, ölçümden önce yazıldı: geçmişte test edilen olayların yaklaşık %9,5'i onaylandı (380'de 36). 02.11.2026 – 02.02.2027 penceresinde yaklaşık 135 olay, yani yaklaşık 13 onay beklenir. En olası sonuç "onaylı sinyal az" nedeniyle GEÇMEDİ'dir. 50 onaya ulaşmak için pencere, parametre ya da tarih değiştirilmez.
+- **Kayıt için fark analizi (karar dışı):** A ile B (05.11, 32 onaylı çalıştırmanın verisi `2d126a5a…`) arasındaki 17:30 mumu ve hacmi 0 sayıları `scripts/veri_farki.py saatlik` ile sayılır. K-64 kodu çalıştırılmaz; hangi indirmenin doğru olduğu söylenmez.
+- **Reddedilen:** Dondurulmuş kodu değiştiren bir veri temizleme kuralı (seçenek 2).
+- **Dondurma:** `core/ml/k64_forward.py` tamamıyla K-79 dondurma testine eklendi (aşağıdaki K-79 eki).
+- **Doğrulama:** `tests/test_k64_forward.py` (14 sentetik test). Eğitimin holdout'tan bir şey okumadığı, yalnız pencere içindeki olayların sayıldığı, eşiklerin dondurulmuş sabitler olduğu, her kalite eşiğinin kapıyı kapattığı, karar tablosu ve tarih kuralı sınanıyor.
+
+**K-78. Uzun vadeli fiyat faktörleri: keşif ölçümünün kuralları (05.11.2026; kullanıcının "onay beklemeden devam" talimatı). Faktör verisine ve fiyat getirilerine bakılmadan yazıldı. Henüz ölçüm yok.**
+- **Soru (2 faktör, sabit):**
+  - **Momentum:** t−252 seans kapanışından t−21 seans kapanışına getiri. Hipotez: en yüksek üçte birlik dilimin maliyet sonrası aylık getirisi, aynı ayın eşit ağırlıklı evren getirisinden yüksek.
+  - **Düşük oynaklık:** son 252 seansın günlük log getirilerinin standart sapması. Hipotez (tek test): en düşük üçte birlik dilim (a) maliyet sonrası aylık getiride evrenden yüksek VE (b) 54 aylık getiri serisinin standart sapması evreninkinden düşük. Karşılaştırma evrene karşı.
+  - Değer ve kalite: geçmiş bilanço verisi yok, kapsam dışı. Sonuca bakılarak faktör eklenmez.
+- **Evren:** Her ay sonunda o günkü gerçek BIST 100 üyeleri (01.04.2022'den). Ay sonu üye sayısı 55/55 tarihte 100 (fiyatsız sayım). BIST 30 kullanılmaz. Likidite: üyelerin son 20 seans medyan günlük TL hacmine göre en düşük %20'si çıkarılır.
+- **Veri:** Yahoo `auto_adjust=True` ve `corporate_actions.csv`. Çift düzeltme koruması: her şirket işlemi için ham veride ex_date'te beklenen sıçrama (kayıttaki faktörün ±%10'u) aranır; yoksa kayıt uygulanmaz ve raporda listelenir. Faktörler yalnız formasyon günü kapanışına kadarki fiyatla.
+- **Getiri:** TL nominal, maliyet sonrası, dilim − eşit ağırlıklı evren. Maliyet alışta %0,15, satışta %0,15, yalnız devir üzerinden; %0,30/%0,30 bilgi satırı. Bilgi (karar dışı): XU100'e göre, reel. Yalnız uzun.
+- **Yöntem:** Ay sonu kapanışında sıralama, ertesi seans açılışında giriş, sonraki ay sonu kapanışında çıkış. Dilim floor(n/3), eşitlikte kod alfabetik, eşit ağırlık. 252 seans geçmişi olmayan üye o ay hem dilimden hem evrenden çıkar. Dönem: formasyon 29.04.2022 – 30.09.2026, 54 tutuş ayı. Holdout fiyatı okunmaz. Bir ay, likidite sonrası en az 60 hisse ve üyelerin en az 80'inde veri varsa geçerli; geçerli ay < 36 ise "ölçülemedi".
+- **Uygulanabilirlik (dilime ve evrene aynı):** tavanda açılış (≥ %9,5, `limit_up`) ya da giriş günü verisi yok → o ay dışarıda. Ay içinde kalkan: son kapanıştan çıkılmış sayılır. Tedbirli hisseler ayıklanamaz (sınır). Fiyatı olmayan üye ölçüm dışı; sayısı raporlanır.
+- **Aralık:** Tek yönlü %97,5 alt sınır (Bonferroni, 2 faktör). Hareketli blok bootstrap, 3 aylık blok, 10.000 tekrar, tohum 0. Her çalıştırma deneme dosyasına ve RESEARCH_LOG'a yazılır. Parametre taraması yok.
+- **Geçme (KEŞİFTE GEÇTİ):** (1) ortalama aylık fazla getiri > 0; (2) alt sınır > 0; (3) 2023, 2024, 2025'in en az ikisinde yıllık ortalama > 0; (4) düşük oynaklık için ayrıca 1(b).
+- **Güç ve "yanıtlanamadı":** Sentetik güç analizinde %80 güçle yakalanan aylık etki: oynaklık %2 → %0,8; %3 → %1,2; %4 → %1,6; %5 → %2,0. Literatürdeki %0,3–0,5 için güç %15–40. Ölçüt sağlanmazsa: iki yönlü %95 aralığın üst ucu aylık %0,5'in altındaysa "GEÇMEDİ (literatür büyüklüğünde etki dışlandı)", değilse "YANITLANAMADI (güç yetersiz)". En olası sonuç budur.
+- **İki indirme (kullanıcının eki, K-80 ile aynı yapı):** Ölçüm iki günlük indirmeyle yapılır: dondurulmuş günlük görüntü (`56016f59…`, 04.11) ve ondan en az 7 gün sonra (11.11.2026 ya da sonrası) alınıp dondurulan ikincisi. İkisi aynı son tarihe (30.10.2026) kesilir. Ölçümden önce `scripts/veri_farki.py gunluk` ile likidite eleme listelerinin kaç ay sonunda değiştiği sayılır (fiyat ya da getiri sonucuna bakılmadan). Sonuçlar K-80 tablosuyla birleştirilir: ikisinde geçti → KEŞİFTE GEÇTİ; biri → VERİYE DUYARLI (geçmiş sayılmaz); hiçbiri → iki etiket aynıysa o etiket (GEÇMEDİ ya da YANITLANAMADI), farklıysa YANITLANAMADI. Kapsam eşiğini geçemeyen indirme → ÖLÇÜLEMEDİ.
+- **İleriye dönük izleme (yalnız keşifte geçen faktör):** 03.02.2027'den sonraki ilk ay sonu (en erken 26.02.2027 formasyonu). 12 tutuş ayı, değerlendirme bir kez, Mart 2028'de. Seçimler formasyon günü workflow ile `research-results` dalına yalnız ekleme yapılarak yazılır; ara getiri hesaplanmaz ve gösterilmez. Etiketler: UYUMLU / UYUMSUZ (en az 10 geçerli ay) / ÖLÇÜLEMEDİ.
+- **Yeniden çalıştırma:** Yalnız sonuç üretmeden düşen teknik hata için, bir kez.
+- **Sınırlar:** Tek bir yüksek enflasyon rejimi; 2022–2026 başka kurallar için incelendi, holdout değil; Yahoo düzeltmesi bağımsız doğrulanmadı; tedbirliler ayıklanamadı. Sonuç ne olursa olsun canlı kurala, karta, /saglik'e ya da K-64'e otomatik geçiş yok.
+- **Ölçümden önce:** sentetik testler (çift düzeltme, uygulanabilirlik kuralları dilim ve evrende aynı, kapsam sayıları getirisiz) ve K-79 dondurma testi yeşil.
+- **Süre:** testler ve kod 1 oturum; keşif ölçümü 2 Actions çalışması (~30 dk); ileri izleme aylık workflow.
+- **Ön testler (v0.99.94):** `core/analytics/factor_study.py` ve `tests/test_factor_study.py` (13 sentetik test). Çift düzeltme koruması, mevcut `corrections._already_adjusted`'tan ayrı olarak K-78'in yazılı kuralıyla (faktörün ±%10'u) uygulandı ve sıçramayı o ana kadar düzeltilmiş veride arıyor; böylece aynı kayıt iki kez yazılsa da bir kez uygulanıyor. Ölçüm ve getiri kodu henüz yok.
+
 **K-79. K-64, 03.02.2027 ileri testi için donduruldu (05.11.2026; kullanıcı onayı).**
 - **Ne:** `tests/test_k64_freeze.py`, K-64 ölçümünün ve canlı `/tara ai` modelinin dayandığı her parçanın kaynak kodunu özetliyor (satır sonundan bağımsız). Bir parça değişirse CI kırmızı olur. Kapsam:
   - kural, eşik ve etiket: `SPEC`, `APPROVE`, `MIN_APPROVED`, `features`, `labels`, `events`;
@@ -38,6 +88,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
     - `hourly-snapshot-41880444802.zip` → `ec889f40dc6787a0143e9c6e9f4f9a191f875483f2ea18e441530b23a64c63d0`
     - İkisi de yukarıdaki zip özetleriyle karakter karakter aynı.
     - OneDrive bulut eşitlemesini kullanıcı ayrıca teyit edecek.
+- **Ek (v0.99.94, K-80):** `core/ml/k64_forward.py` (ileri test giriş noktası, kalite kapısı eşikleri, karar tablosu, eğitim görüntüsü özeti) tamamıyla `PARTS`'a eklendi; 17 yeni özet `FROZEN`'a yazıldı. Var olan özetlerin hiçbiri değişmedi. Gerekçe: K-80 koşulu "giriş noktası dondurma testine alınır"; kullanıcının 05.11 "onay beklemeden devam" talimatıyla. Doğrulama: `MAX_ZERO_VOLUME` geçici olarak değiştirildiğinde test kırmızı oldu; geri alınınca yeşil.
   - **Düzeltme (05.11):** `scripts\olcum.ps1` bu görüntünün kopyası değildir. Veriyi yeniden indirip yeni bir görüntü dondurur; saatlik pencere kaydığı için özeti farklı çıkabilir. O görüntü ayrı bir kayıttır.
   - Kullanıcı asıl zip'leri OneDrive kopyası doğrulanana kadar silmeyecek.
   - Özel depoya anahtar ya da gizli bilgi konmadı. Claude GitHub uygulamasının erişimi yalnız `bist-ai-telegram-bot` ve `quantbist-veri` ile sınırlı.

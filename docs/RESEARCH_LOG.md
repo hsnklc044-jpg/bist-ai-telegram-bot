@@ -13,6 +13,9 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+## 05.11.2026 – Veri duyarlılığı notu (K-80)
+Bu tarihten önce verilen K-63 ve K-64 kararları **tek indirme, veri duyarlılığı ölçülmedi**. Kararlar geçerli kalır; GEÇMEDİ kararları değişmez. Aynı saatlik ölçümün iki indirmede 36 ve 32 onay vermesi (A `4fc8a1bc…`, B `2d126a5a…`) bu nedenle kayda geçti. 03.02.2027 ileri testi K-80'deki iki indirme kuralıyla yapılacak.
+
 
 
 ## 29.10.2026 – Senaryo şablonlarının karnesi (Özellik B §4.1; K-55; tanımlayıcı, hipotez değil)

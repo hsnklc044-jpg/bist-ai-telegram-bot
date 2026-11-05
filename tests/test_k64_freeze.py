@@ -24,6 +24,7 @@ PARTS = {
     "core/market/limits.py": ("LIMIT_MOVE", "TOLERANCE", "EDGE", "limit_up"),
     "core/backtest/run.py": ("HOLDOUT_START",),
     "core/market/hourly.py": ("ISTANBUL", "COLUMNS", "clean", "_split", "load_hourly"),
+    "core/ml/k64_forward.py": "*",  # K-80 forward test entry point (added 05.11.2026, user's approval)
 }
 
 FROZEN = {
@@ -49,6 +50,23 @@ FROZEN = {
     "core/market/limits.py:LIMIT_MOVE": "7dfcb0ee5371e059",
     "core/market/limits.py:TOLERANCE": "7ab3a79550a31b4a",
     "core/market/limits.py:limit_up": "4cb9013a9d9cca18",
+    "core/ml/k64_forward.py:EARLIEST": "f23c03601ddffbe5",
+    "core/ml/k64_forward.py:FULL_CANDLES": "2aa7278f946c832e",
+    "core/ml/k64_forward.py:MAX_EMPTY_SESSIONS": "658c6f031f265dc7",
+    "core/ml/k64_forward.py:MAX_LAST_MISSING": "edfbc0f6d7d80318",
+    "core/ml/k64_forward.py:MAX_SHORT_SESSIONS": "cd9c2dbdca10e63a",
+    "core/ml/k64_forward.py:MAX_ZERO_VOLUME": "9672004eac606d88",
+    "core/ml/k64_forward.py:MIN_GAP_DAYS": "5993db34f43ec7f7",
+    "core/ml/k64_forward.py:Quality": "4e26591d9d42bc19",
+    "core/ml/k64_forward.py:Result": "1a7c7dabf6103fb5",
+    "core/ml/k64_forward.py:TRAIN_SHA256": "d0403ccbf8a6d42d",
+    "core/ml/k64_forward.py:__all__": "d18d074a310392e4",
+    "core/ml/k64_forward.py:check_dates": "001f20e4e6a40566",
+    "core/ml/k64_forward.py:forward": "295a0857201f0f01",
+    "core/ml/k64_forward.py:main": "a9c128ae902ded1a",
+    "core/ml/k64_forward.py:quality": "f33225724a62094d",
+    "core/ml/k64_forward.py:train_model": "a0a737ece22ce96a",
+    "core/ml/k64_forward.py:verdict": "f98cbb89f16d2a3d",
     "core/ml/signal_filter.py:APPROVE": "e1964d5fb8d67e22",
     "core/ml/signal_filter.py:BOOTSTRAP": "c5cd7774ee8ee1b5",
     "core/ml/signal_filter.py:FEATURES": "414eb1dc328dd7e4",

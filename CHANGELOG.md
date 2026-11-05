@@ -2,6 +2,22 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.94 – 05.11.2026 (K-64 ileri test giriş noktası; K-80 ve K-78 kararları)
+- Yeni `core/ml/k64_forward.py`: 03.02.2027 ileri testi için. Model, dondurulmuş görüntü A ile (veri özeti `4fc8a1bc…`) holdout öncesi olaylarda bir kez eğitilir; yalnız 02.11.2026 sonrası olaylarda K-64'ün kuralıyla sınanır. Dondurulmuş K-64 kodu değişmedi; yalnız kullanıldı.
+  - İki indirme: en az 7 gün arayla, ilki 03.02.2027 ya da sonrası, ikisi de aynı son tarihe kesilir.
+  - Kalite kapısı: son mumu eksik seans ≤ %5, eksik saatli seans ≤ %5, mumsuz seans 0, hacmi 0 mum ≤ %2.
+  - Sonuç: GEÇTİ / VERİYE DUYARLI / GEÇMEDİ / ÖLÇÜLEMEDİ. İki sonuç arasında seçim ya da ortalama yok.
+- Bu modül de K-79 dondurma testine alındı; var olan özetler değişmedi.
+- DECISIONS: K-80 (ileri test yöntemi) ve K-78 (uzun vadeli faktör ölçümünün kuralları, ölçüm yok). RESEARCH_LOG: "tek indirme, veri duyarlılığı ölçülmedi" notu.
+- Doğrulama: `test_k64_forward` (14 sentetik test); dondurma testi eşik değişikliğini yakaladı.
+- K-78 ön testleri: yeni `core/analytics/factor_study.py`, yalnız ölçümden önce sabitlenen parçalar. Getiri hesaplamaz, ölçüm yapmaz.
+  - Çift düzeltme koruması: şirket işlemi yalnız ham veride ex-date'te beklenen sıçrama (faktörün ±%10'u) varsa uygulanır. Yahoo'nun zaten düzelttiği ya da aynı satırın iki kez yazıldığı durumda ikinci kez uygulanmaz ve listelenir. İlk sürüm aynı satırı iki kez uyguluyordu; test yakaladı.
+  - Momentum (t−252 → t−21) ve 252 seans oynaklığı; yalnız formasyon gününe kadarki fiyat.
+  - Aylık evren: o günkü BIST 100 üyeleri, likidite elemesi (%20), 252 seans geçmişi; dilim floor(n/3), eşitlikte kod sırası.
+  - Uygulanabilirlik: tavan açılış ve giriş günü verisi yok, dilimden ve evrenden birlikte çıkar; işlemden kalkan son kapanışından çıkar.
+  - `python -m core.analytics.factor_study kapsam KLASOR`: ay ay yalnız kapsam sayıları (üye, fiyatsız, kullanılabilir, likidite dışı, tavan açılış, giriş verisi yok, evren, dilim boyu, geçerli).
+  - Doğrulama: `test_factor_study` (13 sentetik test).
+
 ## v0.99.93 – 05.11.2026 (veri farkı sayımı; K-80 taslağı için)
 - Yeni `scripts/veri_farki.py`. Yalnız okur; K-63/K-64'ü çalıştırmaz, getiri hesaplamaz, yalnız sayar.
   - `saatlik A B`: Her görüntü için BIST takvimindeki seanslar sayılır. Ayrıca son saatlik mumu eksik seanslar (17:30; yarım günde 11:30), eksik saatli tam seanslar, hiç mumu olmayan seanslar ve hacmi 0 olan mumlar sayılır.
