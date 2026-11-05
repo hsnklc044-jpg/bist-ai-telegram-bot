@@ -1,0 +1,71 @@
+name: Frozen snapshot check
+
+# K-79 (user's request 05.11.2026): verify that a frozen snapshot artifact still reads back as the
+# same data (provenance.thaw checks the file hash and the data hash against its manifest) and that
+# its data hash is the expected one. Read-only: nothing is uploaded, pushed or kept.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Görüntüyü üreten çalışma (ör. 41880444802)"
+        required: true
+        default: "41880444802"
+      artifact:
+        description: "Artifact adı"
+        required: true
+        default: "hourly-snapshot-41880444802"
+      folder:
+        description: "Arşiv içindeki görüntü klasörü"
+        required: true
+        default: "snap_a"
+      expected:
+        description: "Beklenen veri özetinin başı"
+        required: true
+        default: "4fc8a1bc97045caebb14a914097df181418883e841eb96bfee3e23474c506a0b"
+
+permissions:
+  contents: read
+  actions: read
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.lock
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact }}
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: downloaded
+      - name: Verify
+        env:
+          FOLDER: downloaded/${{ inputs.folder }}
+          EXPECTED: ${{ inputs.expected }}
+        run: |
+          python - <<'PY' 2>&1 | grep -v Warning | tee check.txt
+          import os
+          from pathlib import Path
+          from core.analytics import provenance as P
+          folder = Path(os.environ["FOLDER"])
+          frames = P.thaw(folder)  # raises on a file or data hash mismatch
+          m = P.manifest(folder)
+          got = P.digest(frames)
+          print(P.Data(**m["data"]).line())
+          print("dosya sha256", m["file_sha256"])
+          ok = got == m["data"]["sha256"] and got.startswith(os.environ["EXPECTED"])
+          print("SONUÇ:", "DOĞRULANDI" if ok else "UYUŞMUYOR", got)
+          raise SystemExit(0 if ok else 1)
+          PY
+          { echo '```'; cat check.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.91 – 05.11.2026 (K-64 donduruldu; görüntü doğrulama workflow'u; K-79)
+- Yeni `tests/test_k64_freeze.py`: K-64'ün kural, eşik, veri ve değerlendirme kodu, canlı model (`fit_live`), model parametreleri ve paket kilidi özetlendi. Bir değişiklik CI'ı kırmızı yapar. Özetler yalnız kullanıcı onayıyla güncellenir (K-79).
+- Yeni `snapshot-check.yml` (elle başlatılır, yalnız okur): Dondurulmuş görüntü artifact'ını indirip `thaw` ile açıyor ve veri özetinin beklenen değerle (`4fc8a1bc…`) aynı olduğunu doğruluyor. Bu kapsayıcının ağı artifact deposuna erişemediği için doğrulama GitHub'da yapılıyor.
+- Doğrulama: dondurma testi üç değişikliği yakaladı (onay eşiği, ağaç sayısı, kilit dosyası); geri alınınca yeşil. CRLF'li kopyada aynı özetler.
+
 ## v0.99.90 – 05.11.2026 (haftalık özet kendi eksikliğini de bildiriyor; /ozet)
 - **Sorun:** Haftalık özet başka arızaları yakalıyor, ama kendisi gelmediğinde bunu haber veremiyor (kullanıcının uyarısı).
 - **Kayıt:** Pazar özeti gönderildikçe zamanı `logs/weekly_summary_sent.txt` dosyasına yazılıyor. Yalnız gerçekten giden mesaj sayılıyor.

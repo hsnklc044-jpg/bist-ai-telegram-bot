@@ -2,6 +2,22 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 05.11.2026
+
+**K-79. K-64, 03.02.2027 ileri testi için donduruldu (05.11.2026; kullanıcı onayı).**
+- **Ne:** `tests/test_k64_freeze.py`, K-64 ölçümünün ve canlı `/tara ai` modelinin dayandığı her parçanın kaynak kodunu özetliyor (satır sonundan bağımsız). Bir parça değişirse CI kırmızı olur. Kapsam:
+  - kural, eşik ve etiket: `SPEC`, `APPROVE`, `MIN_APPROVED`, `features`, `labels`, `events`;
+  - değerlendirme: `_purged_folds`, `fit` (model parametreleri ve ızgara dahil), `evaluate`, `_bootstrap`, `decide`, `text`;
+  - canlı model: `fit_live`, `load_live`, `model_file`;
+  - tetik: `core/market/extended.py`'nin tamamı;
+  - küme ve aralık: `dip_study.events`, `day_bootstrap`;
+  - tavan sınırı (`limit_up`), `HOLDOUT_START`;
+  - saatlik veri: `load_hourly`, `clean`, `_split`;
+  - paket kilidi (`requirements.lock`).
+- **Dondurulduğu nokta:** c598008 (v0.99.90). 213f71d'den (son K-64 ölçümü) bu yana değişen tek K-64 parçası `fit_live`: v0.99.78'de (5b89a6c) canlı model holdout'u görmeyecek şekilde sınırlandı. K-64 saatlik ileri testi `fit_live`'ı kullanmıyor; değerlendirme kendi katlarını `fit` ile eğitiyor.
+- **Kural:** Özetler yalnız kullanıcının açık onayıyla ve gerekçesi burada yazılarak güncellenir; CI'ı yeşile çevirmek için asla güncellenmez.
+- **Doğrulama:** Onay eşiği, ağaç sayısı ya da kilit dosyası geçici olarak değiştirildiğinde test kırmızı oldu; geri alınınca yeşil. CRLF'li bir kopyada aynı özetleri veriyor.
+
 ## 04.11.2026
 
 **K-77. ML filtresinin (M30, K-59/K-62) ölçüm yöntemi, yeni ölçümden önce (04–05.11.2026, Faz C 1. parti).**

@@ -1,4 +1,4 @@
-# Durum notu (05.11.2026, kod v0.99.88)
+# Durum notu (05.11.2026, kod v0.99.91)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -49,7 +49,15 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ M30 yeniden doğrulaması (v0.99.85): kullanılamaz. Canlı ML modeli artık 2022 sonrası ve holdout öncesi veriyle eğitiliyor; blok 20 seans.
 - ✅ Yol planı 2. bölüm (v0.99.86–88): `/saglik` (cumartesi 10:00), `/denge`, `/stres` kur şoku, `/takvim`; `/temel` zaten vardı.
 - ✅ PC kurulumu açıldı: 05.11 09:08'de v0.99.77'den v0.99.84'e geçildi (1343 geçti). 08:26'daki tek başarısız test bir saat sonra tekrarlanmadı; nedeni kayıtlarda yok. Güncelleyici artık başarısız testin adını Telegram'a yazıyor.
-- ⏳ Sıradaki: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.
+- ✅ Yol planı 4. bölüm (v0.99.89–90): pazar 18:00 işletme özeti, pazartesi 09:00 bekçi, `/ozet`. Tatbikat 05.11'de başarılı (41983979358).
+- ✅ **K-79 (v0.99.91):** K-64 donduruldu (`tests/test_k64_freeze.py`). Özetler yalnız kullanıcı onayıyla güncellenir.
+- **Açık riskler (kullanıcı 05.11):**
+  - O4 (41→36) açık kalıyor. K-64 ayrım ölçümü GEÇERSİZ kalıyor; inceleyicinin dolaylı kanıtı bu kaydı değiştirmez.
+  - Dondurulan görüntünün artifact'ı 02.02.2027 17:47 UTC'de siliniyor. Kalıcı kopya için kullanıcıya seçenek sunuldu (lisans ve görünürlük). `snapshot-check.yml` özeti GitHub'da doğrular.
+  - `fit_live` (v0.99.78) yalnız canlı `/tara ai` modelini etkiliyor. PC'de modelin 02.11'den sonra yeniden eğitilip eğitilmediği ve kart kayıtları doğrulanamadı; kullanıcıya okuma komutu verildi.
+- ⛔ **K-78 (3. bölüm, faktörler) ONAYLANMADI.** Kullanıcının B1–B11 düzeltmeleri yapılıp fark gösterilecek. Onay ve commit olmadan faktör verisinde ölçüm yok, sonuçlara bakılmaz.
+- Kullanıcıya ait işler: v0.99.90 kurulunca `/ozet` (SLO gerçek değerlerle); `scripts\olcum.ps1` çalıştırıp `logs\olcum_report.txt` göndermek. Pazar özeti gelmezse kullanıcı bunu arıza sayacak (bot kapalıyken bekçi de çalışmaz).
+- ⏳ Eski not: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.
 - **Kullanıcı (05.11):** "onay komut almadan devam et, her türlü izni veriyorum". Güvenlik kuralları, holdout ve ileri test sınırları yine geçerli.
 - **Genel onay (kullanıcı, 04.11 akşam):** "Benden onay bekleme, her aşamaya onay veriyorum." Sıra şöyle:
   1. M31 ve M32 bağımsız inceleme raporları (başlatıldı 18:14 UTC, yalnız rapor).
