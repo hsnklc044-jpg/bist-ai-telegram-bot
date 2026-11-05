@@ -2,6 +2,19 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.89 – 05.11.2026 (yol planı 4. bölüm: haftalık işletme özeti ve tatbikat sonucu)
+- Bot her pazar 18:00'de kendiliğinden haftalık işletme özeti gönderiyor. İçeriği:
+  - kurulu sürüm;
+  - son 7 günün hizmet hedefleri (SLO): rapor teslimi, bot ayakta kalma, veri tazeliği, veri doğruluğu, yedek ve geri yükleme testi, kayıt bütünlüğü, CI;
+  - aylık felaket kurtarma tatbikatının son sonucu.
+  Böylece yavaş gelişen bir arıza (atlanan raporlar, sınanmayan yedekler, kırmızı CI, aksayan tatbikat) kimse `/durum` sormasa da görünüyor.
+- Tatbikat (`dr-drill.yml`, her ayın 3'ü) sonucunu tarihli dosyaya ek olarak `research-results/drills/latest.txt`'ye de yazıyor; bot onu okuyor. Durumlar:
+  - başarılı ✅;
+  - başarısız ❌;
+  - 35 günden eski ⚠️;
+  - okunamadı ❔ (hiçbir zaman "tamam" sayılmıyor).
+- Doğrulama: yeni `test_weekly_summary` (5 test). Tatbikat satırının biçimi, dört durum, özetin içeriği, workflow'un `latest.txt` yazması, pazar işi.
+
 ## v0.99.88 – 05.11.2026 (yol planı 2. bölüm tamam: temettü ve şirket olayları takvimi)
 - **Yeni `/takvim`:**
   - Varsayılan görünüm: portföydeki ve izleme listesindeki hisselerin önümüzdeki 30 gündeki kayıtları.

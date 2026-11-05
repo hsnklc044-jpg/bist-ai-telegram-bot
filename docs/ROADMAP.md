@@ -318,8 +318,8 @@ Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe
    - Geçen kural önce sanal defterde ileri test edilir.
    - `/tara ai` kartlarının canlı ileri testi: 50 işlemde bağımsız ölçüm.
 4. **İşletme kalitesi.**
-   - Haftalık otomatik özet.
-   - Aylık felaket kurtarma tatbikatı raporu.
+   - Haftalık otomatik özet. ✅ v0.99.89 (pazar 18:00)
+   - Aylık felaket kurtarma tatbikatı raporu. ✅ v0.99.89 (sonuç haftalık özette)
 
 **Eklenmeyecekler:** gerçek parayla emir, aracı kurum bağlantısı, al-sat önerisi, robots.txt'yi aşan veri toplama, ölçülmemiş bir şeyi "işe yarıyor" diye sunmak.
 

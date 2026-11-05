@@ -305,6 +305,34 @@ def schedule_portfolio_health(app: Application, chat_id: int | None = None) -> b
     return True
 
 
+WEEKLY_JOB = "weekly_summary"
+WEEKLY_AT = time(18, 0, tzinfo=ISTANBUL)
+SUNDAY = (0,)  # python-telegram-bot: 0 = Sunday
+
+
+async def weekly_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Road plan part 4: the weekly operations summary (version, SLO, the latest DR drill), Sunday 18:00."""
+
+    from core.reports import weekly
+
+    try:
+        text = await asyncio.to_thread(weekly.summary)
+    except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told (K-70)
+        logger.exception("Weekly summary failed")
+        text = f"⚠️ Haftalık işletme özeti hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}"
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if chat:
+        await context.bot.send_message(chat, text)
+
+
+def schedule_weekly_summary(app: Application, chat_id: int | None = None) -> bool:
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_daily(weekly_summary_job, time=WEEKLY_AT, days=SUNDAY, name=WEEKLY_JOB,
+                            job_kwargs=LATE_START, chat_id=chat_id)
+    return True
+
+
 INBOX_JOB = "fundamentals_inbox"
 
 

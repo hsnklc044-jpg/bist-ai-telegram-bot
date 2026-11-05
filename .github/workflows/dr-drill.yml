@@ -95,6 +95,7 @@ jobs:
           $result = "${{ job.status }}"
           "DR drill $stamp (${{ github.sha }}): $result`nrun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" | Set-Content "drills\$stamp.txt"
           if (Test-Path C:\health.txt) { Get-Content C:\health.txt | Add-Content "drills\$stamp.txt" }
+          Copy-Item "drills\$stamp.txt" "drills\latest.txt" -Force  # the bot's weekly summary reads this one
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A

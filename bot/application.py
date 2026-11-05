@@ -17,6 +17,7 @@ from bot.scheduler import (
     schedule_portfolio_health,
     schedule_report_watch,
     schedule_signal_tracking,
+    schedule_weekly_summary,
 )
 from core.infrastructure.logger import get_logger
 from core.infrastructure.settings import require_bot_settings
@@ -76,6 +77,7 @@ def build_app() -> Application:
     schedule_backup_catch_up(app, config.chat_id)
     schedule_fundamentals_inbox(app, config.chat_id)
     schedule_portfolio_health(app, config.chat_id)
+    schedule_weekly_summary(app, config.chat_id)
     schedule_signal_tracking(app, config.chat_id)
 
     return app
