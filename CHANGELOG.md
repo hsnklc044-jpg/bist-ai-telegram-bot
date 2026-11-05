@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.81 – 05.11.2026 (Faz C, 3. parti: senaryo karnesi, M27)
+- **M27-4:** Karnenin %95 aralığı artık gösterilen ortalamanın aralığı. Olaylar eşit ağırlıklı; tam günler bloklar halinde yeniden örnekleniyor. Önceden aralık gün ortalamalarından hesaplanıyordu. Kalabalık günlerde ortalama aralığın dışında kalabiliyordu; testte ortalama −0,24 iken aralık 0,85'ten başlıyordu.
+- **M27-8:** Tam 20 seanslık ufku dönem içinde olmayan sinyaller sayılmıyor. Önceden son 20 seansta yalnız erken biten olaylar giriyordu; bu, sonucu bir yöne kaydırıyordu.
+- Doğrulama: yeni `test_faz_c_m27` (3 test), önce kırmızı sonra yeşil. Senaryo testleri geçti.
+
 ## v0.99.80 – 05.11.2026 (Faz C, 2. parti: /tara geçmiş karnesinin yöntemi, M5)
 - **M5-2:** Karnenin hisse evreni (en az 300 mum ve çözülmemiş sıçrama denetimi) yalnız holdout öncesi veriyle seçiliyor. 02.11 sonrası bir sıçrama, 2023–2026 karnesinden hisseyi düşürmüyor. Araştırmanın varsayılan yolu değişmedi.
 - **M5-5:** Verisi dönem bitmeden kesilen bir hissenin (kotasyondan çıkış) son olayları kaybolmuyor; son kapanıştan çıkılmış sayılıyor. Önceden −%40'lık bir düşüş karneye hiç girmiyordu.

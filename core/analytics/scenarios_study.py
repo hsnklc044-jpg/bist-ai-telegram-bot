@@ -61,6 +61,8 @@ def stock_events(df: pd.DataFrame, bench: pd.DataFrame, allowed: np.ndarray | No
         for t in np.flatnonzero(part["ok"].to_numpy()):
             if t < first or (allowed is not None and not allowed[t]):
                 continue
+            if t + S.HORIZON >= len(df):  # Faz C M27-8: only signals whose whole horizon is in the period
+                break
             o = S.outcome(df, t, part["invalidation"].iloc[t], part["target"].iloc[t])
             if o is None:
                 continue
@@ -73,16 +75,19 @@ def stock_events(df: pd.DataFrame, bench: pd.DataFrame, allowed: np.ndarray | No
     return out
 
 
-def _interval(days: pd.Series, seed: int = 0) -> tuple[float, float]:
-    values = days.to_numpy(dtype=float)
-    n = len(values)
+def _interval(sums: pd.Series, counts: pd.Series, seed: int = 0) -> tuple[float, float]:
+    """Faz C M27-4: the interval of the mean the card shows (every event counts once): blocks of whole
+    days are resampled and the mean is sum of R / number of events, not the mean of the day means."""
+
+    totals, sizes = sums.to_numpy(dtype=float), counts.to_numpy(dtype=float)
+    n = len(totals)
     if n < 2 * BLOCK:
         return float("nan"), float("nan")
     rng = np.random.default_rng(seed)
     blocks = int(np.ceil(n / BLOCK))
     starts = rng.integers(0, n, size=(SAMPLES, blocks))
     index = ((starts[:, :, None] + np.arange(BLOCK)) % n).reshape(SAMPLES, -1)[:, :n]
-    means = values[index].mean(axis=1)
+    means = totals[index].sum(axis=1) / sizes[index].sum(axis=1)
     low, high = np.quantile(means, [0.025, 0.975])
     return float(low), float(high)
 
@@ -101,7 +106,8 @@ def summarize(events: list) -> Card:
     card.timeout = float((decided["result"] == "süre doldu").mean())
     card.mean_r = float(decided["r"].mean())
     card.excess = float(decided["excess"].mean())
-    card.low, card.high = _interval(decided.groupby("day")["r"].mean().dropna())
+    per_day = decided.dropna(subset=["r"]).groupby("day")["r"].agg(["sum", "count"])
+    card.low, card.high = _interval(per_day["sum"], per_day["count"])
     streak = best = 0
     for result in decided["result"]:
         streak = streak + 1 if result == "geçersizlik" else 0

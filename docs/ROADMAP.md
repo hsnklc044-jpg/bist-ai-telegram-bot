@@ -271,7 +271,7 @@ Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanıl
 | M31-3, M30-9 | Olasılık kalibre edilmeli ya da "olasılık" diye gösterilmemeli | ✅ adı "skor" oldu (v0.99.78–79); kalibrasyon K-64 kodunda, 03.02.2027 sonrası |
 | M31-10, M31-12 | Canlı aramada küme kuralı; kart çalışmasındaki iki küçük yanlılık | C |
 | M5-2, M5-5, M5-7, M5-8, M5-9 | Karne: evren zaman noktasında seçilmeli; verisi biten hisse sayılmalı; aralık kapsamı ve blok uzunluğu; hisseler arası bağımlılık; üyelik ileri taşıma | | ✅ v0.99.80 (M5-2: evren denetimi holdout öncesi verisiyle) |
-| M27-4, M27-8 | Senaryo karnesinde ağırlık tutarlılığı; dönem sonu yanlılığı | C |
+| M27-4, M27-8 | Senaryo karnesinde ağırlık tutarlılığı; dönem sonu yanlılığı | | ✅ v0.99.81 |
 | M32-3 | Saatlik ve günlük takip aynı kuralı uygulamalı (gün içi zirve yalnız kapanışta) | C |
 | M8-3, M8-5, M8-6 | Kümeleme genişlik sınırı; kaydı eksik şirket işlemi uyarısı; kilitli gün kuralı | C |
 | M1-3, M1-5, M1-8, M1-9 | Sıçrama denetimi; kısa geçmişte iki yol; referansta maliyet; trend tanımı | C |
