@@ -1,4 +1,4 @@
-# Durum notu (05.11.2026, kod v0.99.94)
+# Durum notu (05.11.2026, kod v0.99.95)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -150,5 +150,5 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 ## K-80 ve K-78 (v0.99.94)
 - ✅ K-80 yazıldı (DECISIONS): ileri test yöntemi (b), eğitim A, iki indirme, kalite kapısı, karar tablosu. Tarih 03.02.2027 değişmedi.
 - ✅ `core/ml/k64_forward.py` + `tests/test_k64_forward.py`; dondurma testine alındı.
-- ✅ K-78 kuralları DECISIONS'ta (ölçüm yok). ✅ K-78 ön testleri (`factor_study.py`, 13 test). Sıradaki: kapsam sayılarını dondurulmuş günlük görüntüde çalıştırmak (getirisiz). İkinci günlük indirme en erken 11.11.2026.
+- ✅ K-78 kuralları DECISIONS'ta (ölçüm yok). ✅ K-78 ön testleri (`factor_study.py`, 13 test). ✅ Kapsam sayıları (v0.99.95): 48/54 ay geçerli. Sıradaki: ikinci günlük indirme (en erken 11.11.2026, dondurulur), `veri_farki gunluk`, sonra ölçüm kodu ve tek Actions ölçümü. İkinci günlük indirme en erken 11.11.2026.
 - ⏳ Kullanıcıda: `veri_farki.py saatlik/gunluk` çıktıları; B'nin ikinci kopyası; cuma 19:45 `kart_modeli_kontrol.py`.

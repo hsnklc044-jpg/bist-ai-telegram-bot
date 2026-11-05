@@ -53,6 +53,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - **Ölçümden önce:** sentetik testler (çift düzeltme, uygulanabilirlik kuralları dilim ve evrende aynı, kapsam sayıları getirisiz) ve K-79 dondurma testi yeşil.
 - **Süre:** testler ve kod 1 oturum; keşif ölçümü 2 Actions çalışması (~30 dk); ileri izleme aylık workflow.
 - **Ön testler (v0.99.94):** `core/analytics/factor_study.py` ve `tests/test_factor_study.py` (13 sentetik test). Çift düzeltme koruması, mevcut `corrections._already_adjusted`'tan ayrı olarak K-78'in yazılı kuralıyla (faktörün ±%10'u) uygulandı ve sıçramayı o ana kadar düzeltilmiş veride arıyor; böylece aynı kayıt iki kez yazılsa da bir kez uygulanıyor. Ölçüm ve getiri kodu henüz yok.
+- **Kapsam sayımı sonrası (v0.99.95; getiri görülmeden):** Giriş günü tatil dosyasından değil veriden belirleniyor (tatil dosyası 2026'dan başlıyor). Geçerli ay 48/54; ilk 6 ay 253 kapanış geçmişi olmadığı için kendiliğinden "ölçülemedi". Kurallar ve eşikler değişmedi; BJKAS 07.04.2025 kaydı K-78 kuralıyla uygulanmıyor ve sınır olarak yazılacak. Ayrıntı: RESEARCH_LOG "K-78 kapsam sayıları".
 
 **K-79. K-64, 03.02.2027 ileri testi için donduruldu (05.11.2026; kullanıcı onayı).**
 - **Ne:** `tests/test_k64_freeze.py`, K-64 ölçümünün ve canlı `/tara ai` modelinin dayandığı her parçanın kaynak kodunu özetliyor (satır sonundan bağımsız). Bir parça değişirse CI kırmızı olur. Kapsam:

@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.95 – 05.11.2026 (K-78 kapsam sayıları; giriş günü veriden)
+- `factor_study`: giriş günü artık verideki bir sonraki işlem günü. Tatil dosyası 2026'dan başladığı için 01.05.2023 gibi tatiller seans sayılıyor ve 8 ayda bütün hisseler "giriş günü veri yok" görünüyordu. Kapsam sayımının ilk çalıştırması bunu gösterdi.
+- Dondurulmuş günlük görüntüde kapsam (getirisiz): 48/54 ay geçerli, evren 72–80, dilim 23–26, tavan açılış 6 hisse-ay; uygulanmayan şirket işlemi BJKAS 07.04.2025. RESEARCH_LOG'a yazıldı.
+- Doğrulama: `test_factor_study` 14 test (yeni: hiçbir hissenin işlem görmediği gün tatildir).
+
 ## v0.99.94 – 05.11.2026 (K-64 ileri test giriş noktası; K-80 ve K-78 kararları)
 - Yeni `core/ml/k64_forward.py`: 03.02.2027 ileri testi için. Model, dondurulmuş görüntü A ile (veri özeti `4fc8a1bc…`) holdout öncesi olaylarda bir kez eğitilir; yalnız 02.11.2026 sonrası olaylarda K-64'ün kuralıyla sınanır. Dondurulmuş K-64 kodu değişmedi; yalnız kullanıldı.
   - İki indirme: en az 7 gün arayla, ilki 03.02.2027 ya da sonrası, ikisi de aynı son tarihe kesilir.

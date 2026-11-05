@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date
 
 import numpy as np
 import pandas as pd
@@ -98,13 +98,17 @@ def chosen(values: dict[str, float], low: bool) -> list[str]:
     return order[: len(order) // 3]
 
 
-def next_session(day: date) -> date:
-    from core.market.calendar import is_session_day
+def market_days(frames: dict[str, pd.DataFrame]) -> pd.DatetimeIndex:
+    """Days on which any stock has a candle (the holiday file starts in 2026, so the data decides)."""
 
-    d = day + timedelta(days=1)
-    while not is_session_day(d):
-        d += timedelta(days=1)
-    return d
+    return pd.DatetimeIndex(sorted(set().union(*(df.index for df in frames.values()))))
+
+
+def next_session(days: pd.DatetimeIndex, day: date) -> date | None:
+    """The first market day after `day`; a day no stock traded is a holiday, not missing data."""
+
+    later = days[days > pd.Timestamp(day)]
+    return later[0].date() if len(later) else None
 
 
 def entry_problem(df: pd.DataFrame, entry: date) -> str | None:
@@ -145,7 +149,7 @@ class Month:
     valid: bool = False
 
 
-def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str]) -> Month:
+def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str], days=None) -> Month:
     """The universe and both slices on one formation day; the same applicability rule on all of them."""
 
     day = pd.Timestamp(formation)
@@ -162,9 +166,9 @@ def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str]) -
     cut = liquidity_cut(frames, day, sorted(priced))
     m.liquidity_out = len(cut & set(values))
     ranked = [s for s in sorted(values) if s not in cut]
-    entry = next_session(formation)
+    entry = next_session(market_days(frames) if days is None else days, formation)
     for s in ranked:
-        problem = entry_problem(frames[s], entry)
+        problem = entry_problem(frames[s], entry) if entry else "giriş günü veri yok"
         if problem:
             m.not_applicable[s] = problem
     m.universe = [s for s in ranked if s not in m.not_applicable]
@@ -178,8 +182,7 @@ def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str]) -
 def formation_days(frames: dict[str, pd.DataFrame]) -> list[date]:
     """The last session of every month with data, from FIRST_FORMATION to LAST_FORMATION."""
 
-    days = sorted(set().union(*(df.index for df in frames.values())))
-    idx = pd.DatetimeIndex(days)
+    idx = market_days(frames)
     ends = pd.Series(idx, index=idx).groupby(idx.to_period("M")).max()
     return [d.date() for d in ends if FIRST_FORMATION <= d.date() <= LAST_FORMATION]
 
@@ -190,9 +193,9 @@ def coverage(frames: dict[str, pd.DataFrame], members_on=None) -> pd.DataFrame:
     from core.market.membership import members_on as default
 
     members_on = members_on or default
-    rows = []
+    rows, days = [], market_days(frames)
     for d in formation_days(frames):
-        m = month(frames, d, {f"{c}.IS" for c in members_on(d)})
+        m = month(frames, d, {f"{c}.IS" for c in members_on(d)}, days)
         reasons = pd.Series(m.not_applicable, dtype=str)
         rows.append({"formasyon": d, "uye": m.members, "fiyatsiz": m.no_price, "kullanilabilir": m.usable,
                      "likidite_disi": m.liquidity_out, "tavan_acilis": int((reasons == "tavan açılış").sum()),
@@ -237,4 +240,4 @@ if __name__ == "__main__":
 
 
 __all__ = ["FACTORS", "Month", "adjust", "chosen", "coverage", "entry_problem", "exit_close",
-           "formation_days", "liquidity_cut", "momentum", "month", "next_session", "volatility"]
+           "formation_days", "liquidity_cut", "market_days", "momentum", "month", "next_session", "volatility"]

@@ -13,6 +13,15 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+## 05.11.2026 – K-78 kapsam sayıları (ölçüm öncesi; getiri ve faktör değeri gösterilmedi)
+`python -m core.analytics.factor_study kapsam`, dondurulmuş günlük görüntü (`56016f59…`, 208 hisse, 238.667 mum), holdout öncesi. Kod bc4b2c1 + takvim düzeltmesi (v0.99.95).
+- **İlk çalıştırmada hata bulundu:** 8 ay sonunda (ör. 28.04.2023, 29.12.2023) bütün hisseler "giriş günü veri yok" çıktı. Neden: tatil dosyası 2026'dan başlıyor; 01.05.2023, 01.01.2024 gibi tatiller seans sayıldı. Düzeltme: giriş günü, herhangi bir hissenin işlem gördüğü bir sonraki gün (veriden). Test eklendi. Bu bir kural değişikliği değil; K-78 "ertesi seans" diyor.
+- **Düzeltmeden sonra:**
+  - 54 formasyon ayının 48'i geçerli (en az 36 gerekiyor). İlk 6 ay (04.2022–09.2022) geçersiz: günlük veri 01.11.2021'de başlıyor, 253 kapanış geçmişi ancak Ekim 2022'de oluşuyor. K-78 metnindeki "54 tutuş ayı" fiilen 48'dir; güç analizi 54 ay için yapılmıştı, gerçek güç biraz daha düşüktür.
+  - Geçerli aylarda evren 72–80 hisse (ortalama 76,6), dilim 23–26 hisse. Likidite dışı 15–20; fiyatı olmayan üye en fazla 1.
+  - Tavan açılış nedeniyle dışarıda kalan toplam 6 hisse-ay; giriş günü verisi olmayan 0.
+  - Uygulanmayan şirket işlemi: **BJKAS 07.04.2025** (bedelli). Ham açılış/önceki kapanış 0,738, kayıttaki faktör 0,671; fark %10'un hemen üstünde. K-78'in yazılı kuralı gereği uygulanmadı ve listelendi; eşik değiştirilmedi. Sonuç: BJKAS'ın o tarihten önceki fiyatları düzeltilmemiş kalır (yaklaşık %26'lık yapay düşüş); ölçüm raporunda sınır olarak yazılacak. (Mevcut `corrections` modülü bu kaydı uygular; iki kural farklı.)
+
 ## 05.11.2026 – Veri duyarlılığı notu (K-80)
 Bu tarihten önce verilen K-63 ve K-64 kararları **tek indirme, veri duyarlılığı ölçülmedi**. Kararlar geçerli kalır; GEÇMEDİ kararları değişmez. Aynı saatlik ölçümün iki indirmede 36 ve 32 onay vermesi (A `4fc8a1bc…`, B `2d126a5a…`) bu nedenle kayda geçti. 03.02.2027 ileri testi K-80'deki iki indirme kuralıyla yapılacak.
 

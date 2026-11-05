@@ -76,7 +76,7 @@ class FactorTest(unittest.TestCase):
         frames = {f"S{i:02d}.IS": df * (1 + i / 100) for i in range(3)}
         day = date(2024, 5, 31)
         changed = {s: f.copy() for s, f in frames.items()}
-        entry = pd.Timestamp(F.next_session(day))
+        entry = pd.Timestamp(F.next_session(F.market_days(frames), day))
         for f in changed.values():
             f.loc[f.index > entry, ["open", "close"]] *= 3  # after the entry open: the future
         a = F.month(frames, day, set(frames))
@@ -102,7 +102,7 @@ class ApplicabilityTest(unittest.TestCase):
 
     def test_limit_up_open_and_missing_entry_leave_slice_and_universe_alike(self):
         frames = self.frames()
-        entry = pd.Timestamp(F.next_session(self.formation))
+        entry = pd.Timestamp(F.next_session(F.market_days(frames), self.formation))
         plain = F.month(frames, self.formation, set(frames))
         top = plain.slices["momentum"][0]
         low = plain.slices["dusuk_oynaklik"][0]
@@ -119,7 +119,7 @@ class ApplicabilityTest(unittest.TestCase):
 
     def test_stock_that_stops_trading_exits_at_its_last_close(self):
         df = bars(n=300, end="2024-06-28")
-        entry = F.next_session(self.formation)
+        entry = F.next_session(F.market_days({'A': df}), self.formation)
         stopped = df.loc[: "2024-06-14"]
         self.assertEqual(F.exit_close(stopped, entry, date(2024, 6, 28)),
                          (date(2024, 6, 14), float(stopped["close"].iloc[-1])))
@@ -139,7 +139,19 @@ class ApplicabilityTest(unittest.TestCase):
         self.assertEqual((m.members, m.no_price), (91, 1))
 
     def test_next_session_skips_weekend_and_holidays(self):
-        self.assertEqual(F.next_session(date(2024, 5, 31)), date(2024, 6, 3))
+        days = F.market_days({"A": bars(n=300, end="2024-06-28")})
+        self.assertEqual(F.next_session(days, date(2024, 5, 31)), date(2024, 6, 3))
+        self.assertIsNone(F.next_session(days, date(2024, 6, 28)))
+
+    def test_a_day_no_stock_traded_is_a_holiday_not_missing_data(self):
+        """Pre-test finding 05.11.2026: the holiday file starts in 2026; 01.05.2023 etc. were not in it."""
+
+        frames = self.frames()
+        holiday = pd.Timestamp(F.market_days(frames)[F.market_days(frames) > pd.Timestamp(self.formation)][0])
+        closed = {s: df.drop(index=holiday) for s, df in frames.items()}
+        m = F.month(closed, self.formation, set(closed))
+        self.assertEqual(m.not_applicable, {})
+        self.assertEqual(len(m.universe), 72)
 
 
 class CoverageTest(unittest.TestCase):
