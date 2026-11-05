@@ -33,28 +33,40 @@ JUMP_TOLERANCE = 0.10                 # the raw ex-date jump must be within ±10
 
 
 def adjust(raw: pd.DataFrame, actions) -> tuple[pd.DataFrame, list[str]]:
+    """The K-78 guard (see adjust_checked), without the list of data breaks."""
+
+    df, skipped, _ = adjust_checked(raw, actions)
+    return df, skipped
+
+
+def adjust_checked(raw: pd.DataFrame, actions) -> tuple[pd.DataFrame, list[str], list[date]]:
     """
     The K-78 guard: a recorded corporate action is applied only when the raw data shows its jump on the
     ex-date (open / previous close within ±10% of the factor). No jump means the provider has adjusted
     already, or the same action was applied a line earlier: it is not applied (never twice) and is listed.
+    A record left unapplied while the data still jumps more than ±10% (or cannot be checked) is a data
+    break: the prices across that day are not comparable, so `month` keeps the stock out around it.
     """
 
-    df, skipped = raw.copy(), []
+    df, skipped, breaks = raw.copy(), [], []
     for a in actions:
         factor = a.resolve(raw)
         ex = pd.Timestamp(a.ex_date)
         before, after = df.loc[df.index < ex, "close"], df.loc[df.index >= ex, "open"]  # as adjusted so far
         if not factor or before.empty or after.empty or not before.iloc[-1]:
             skipped.append(f"{a.symbol} {a.ex_date}: veri yok ya da faktör çözülemedi")
+            breaks.append(ex.date())
             continue
         gap = float(after.iloc[0]) / float(before.iloc[-1])
         if abs(gap / factor - 1) > JUMP_TOLERANCE:
             skipped.append(f"{a.symbol} {a.ex_date}: ham veride sıçrama yok (oran {gap:.3f}, faktör {factor:.3f})")
+            if abs(gap - 1) > JUMP_TOLERANCE:
+                breaks.append(ex.date())
             continue
         mask = df.index < ex
         df.loc[mask, ["open", "high", "low", "close"]] *= factor
         df.loc[mask, "volume"] /= factor
-    return df, skipped
+    return df, skipped, breaks
 
 
 def momentum(close: pd.Series) -> float:
@@ -146,16 +158,34 @@ class Month:
     universe: list[str] = field(default_factory=list)
     slices: dict[str, list[str]] = field(default_factory=dict)
     not_applicable: dict[str, str] = field(default_factory=dict)
+    data_break: list[str] = field(default_factory=list)
     valid: bool = False
 
 
-def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str], days=None) -> Month:
+def break_window(days: pd.DatetimeIndex, formation: date) -> tuple[date, date] | None:
+    """Every day a month's factors or holding read: the factor history up to the end of the holding month."""
+
+    position = int(days.searchsorted(pd.Timestamp(formation), side="right")) - 1
+    if position < 0 or position + 1 >= len(days):
+        return None
+    entry = days[position + 1]
+    holding = days[days.to_period("M") == entry.to_period("M")]
+    return days[max(0, position - HISTORY + 1)].date(), holding[-1].date()
+
+
+def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str], days=None,
+          breaks: dict[str, list[date]] | None = None) -> Month:
     """The universe and both slices on one formation day; the same applicability rule on all of them."""
 
     day = pd.Timestamp(formation)
     m = Month(formation=formation, members=len(members))
     priced = {s for s in members if s in frames and len(frames[s].loc[:day])}
     m.no_price = len(members) - len(priced)
+    days = market_days(frames) if days is None else days
+    window = break_window(days, formation)
+    if breaks and window:
+        m.data_break = sorted(s for s in priced if any(window[0] <= d <= window[1] for d in breaks.get(s, ())))
+        priced -= set(m.data_break)
     values = {}
     for s in sorted(priced):
         close = frames[s].loc[:day, "close"]
@@ -166,7 +196,7 @@ def month(frames: dict[str, pd.DataFrame], formation: date, members: set[str], d
     cut = liquidity_cut(frames, day, sorted(priced))
     m.liquidity_out = len(cut & set(values))
     ranked = [s for s in sorted(values) if s not in cut]
-    entry = next_session(market_days(frames) if days is None else days, formation)
+    entry = next_session(days, formation)
     for s in ranked:
         problem = entry_problem(frames[s], entry) if entry else "giriş günü veri yok"
         if problem:
@@ -187,7 +217,7 @@ def formation_days(frames: dict[str, pd.DataFrame]) -> list[date]:
     return [d.date() for d in ends if FIRST_FORMATION <= d.date() <= LAST_FORMATION]
 
 
-def coverage(frames: dict[str, pd.DataFrame], members_on=None) -> pd.DataFrame:
+def coverage(frames: dict[str, pd.DataFrame], members_on=None, breaks=None) -> pd.DataFrame:
     """Per formation day, counts only (no factor value, no return)."""
 
     from core.market.membership import members_on as default
@@ -195,13 +225,31 @@ def coverage(frames: dict[str, pd.DataFrame], members_on=None) -> pd.DataFrame:
     members_on = members_on or default
     rows, days = [], market_days(frames)
     for d in formation_days(frames):
-        m = month(frames, d, {f"{c}.IS" for c in members_on(d)}, days)
+        m = month(frames, d, {f"{c}.IS" for c in members_on(d)}, days, breaks)
         reasons = pd.Series(m.not_applicable, dtype=str)
         rows.append({"formasyon": d, "uye": m.members, "fiyatsiz": m.no_price, "kullanilabilir": m.usable,
-                     "likidite_disi": m.liquidity_out, "tavan_acilis": int((reasons == "tavan açılış").sum()),
+                     "veri_kirigi": len(m.data_break), "likidite_disi": m.liquidity_out, "tavan_acilis": int((reasons == "tavan açılış").sum()),
                      "giris_verisi_yok": int((reasons == "giriş günü veri yok").sum()), "evren": len(m.universe),
                      **{f"dilim_{k}": len(v) for k, v in m.slices.items()}, "gecerli": m.valid})
     return pd.DataFrame(rows)
+
+
+def power(effect: float, vol: float = 0.03, months: int = 48, sims: int = 2000, boots: int = 1000,
+          block: int = 3, seed: int = 0) -> float:
+    """
+    Synthetic only: how often the K-78 interval (one-sided 97.5% lower bound, moving block bootstrap) is above
+    zero when the true monthly excess return is `effect`. The extra K-78 conditions can only lower this.
+    """
+
+    rng = np.random.default_rng(seed)
+    count = math.ceil(months / block)
+    hits = 0
+    for _ in range(sims):
+        series = rng.normal(effect, vol, months)
+        starts = rng.integers(0, months - block + 1, (boots, count))
+        picks = (starts[..., None] + np.arange(block)).reshape(boots, -1)[:, :months]
+        hits += float(np.quantile(series[picks].mean(axis=1), 0.025)) > 0
+    return hits / sims
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -221,16 +269,19 @@ def main(argv: list[str] | None = None) -> int:
     raw = {s: df[df.index < HOLDOUT_START] for s, df in P.thaw(Path(argv[1])).items()}
     print(P.stamp(raw))
     actions = load_corporate_actions()
-    frames, skipped = {}, []
+    frames, skipped, breaks = {}, [], {}
     for s, df in raw.items():
-        frames[s], out = adjust(df, [a for a in actions if a.symbol == s])
+        frames[s], out, broken = adjust_checked(df, [a for a in actions if a.symbol == s])
         skipped += out
-    table = coverage(frames)
+        if broken:
+            breaks[s] = broken
+    table = coverage(frames, breaks=breaks)
     print(table.to_string(index=False))
     print(f"Geçerli ay: {int(table['gecerli'].sum())} / {len(table)} (en az {MIN_VALID_MONTHS} gerekir)")
     print("Uygulanmayan şirket işlemi kaydı: " + (str(len(skipped)) if skipped else "yok"))
     for line in skipped:
         print("  " + line)
+    print(f"Veri kırığı nedeniyle dışarıda kalan hisse-ay: {int(table['veri_kirigi'].sum())}")
     print("Not: yalnız kapsam sayısı; faktör değeri ve getiri gösterilmedi, K-78 ölçümü yapılmadı.")
     return 0
 
@@ -239,5 +290,6 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["FACTORS", "Month", "adjust", "chosen", "coverage", "entry_problem", "exit_close",
-           "formation_days", "liquidity_cut", "market_days", "momentum", "month", "next_session", "volatility"]
+__all__ = ["FACTORS", "Month", "adjust", "adjust_checked", "break_window", "chosen", "coverage", "entry_problem", "exit_close",
+           "formation_days", "liquidity_cut", "market_days", "momentum", "month", "next_session", "power",
+           "volatility"]

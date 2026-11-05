@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.96 – 05.11.2026 (K-80 kalite kapısı düzeltmesi; K-78 ekleri)
+- K-80 kapısındaki hata düzeltildi: Yahoo 09:30 mumunda hacmi neredeyse her seans 0 veriyor (B'de %98,3). Bu mum sayılınca pay kendiliğinden yaklaşık %11 oluyor, %2 eşiği her indirmeyi eliyor ve ileri test her durumda ÖLÇÜLEMEDİ çıkıyordu. Artık 09:30 mumu bu sayıma girmiyor, eşik %2 kaldı; 09:30 payı yalnız bilgi olarak yazılıyor. Ağustos–Ekim 2026'da hem A hem B kapıdan geçiyor.
+- `k64_forward`: GEÇMEDİ sonucunun nedeni yazılıyor; onay sayısı 50'nin altındaysa "örneklem yetersiz, model hakkında sonuç vermez". Ölçüt ve karar tablosu değişmedi.
+- K-79 özetleri bu dosya için kullanıcı onayıyla güncellendi (`quality`, `Quality`, `main`, `__all__`, yeni `OPEN_CANDLE`, `verdict_reason`). K-64'ün kendi kodunun özetleri değişmedi.
+- `factor_study`: uygulanmayan şirket işlemi sıçraması kalan hisse, o tarihi okuyan aylarda evrenden ve dilimden çıkıyor. BJKAS, 07.04.2025'i okuyan aylarda BIST 100 üyesi olmadığı için sayılar değişmedi (48/54 ay, veri kırığı 0 hisse-ay).
+- `factor_study.power`: K-78 aralığının sentetik güç hesabı; K-78 metni 48 aya göre düzeltildi.
+- Doğrulama: `test_k64_forward`, `test_k64_freeze`, `test_factor_study`; yeni testler 09:30 ayrımını, neden metnini, veri kırığı penceresini ve gücü sınıyor.
+
 ## v0.99.95 – 05.11.2026 (K-78 kapsam sayıları; giriş günü veriden)
 - `factor_study`: giriş günü artık verideki bir sonraki işlem günü. Tatil dosyası 2026'dan başladığı için 01.05.2023 gibi tatiller seans sayılıyor ve 8 ayda bütün hisseler "giriş günü veri yok" görünüyordu. Kapsam sayımının ilk çalıştırması bunu gösterdi.
 - Dondurulmuş günlük görüntüde kapsam (getirisiz): 48/54 ay geçerli, evren 72–80, dilim 23–26, tavan açılış 6 hisse-ay; uygulanmayan şirket işlemi BJKAS 07.04.2025. RESEARCH_LOG'a yazıldı.

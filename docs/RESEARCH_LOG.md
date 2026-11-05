@@ -13,6 +13,15 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+## 05.11.2026 – A ve B veri farkı sayıları (K-80 madde 6; ölçüm değil)
+Getiri ve K-63/K-64 çalıştırılmadı; iki görüntü de holdout öncesi. Hangi indirmenin doğru olduğu bilinmiyor; bağımsız kaynak yok.
+- **Saatlik, 30 hisse, 248 seans** (`scripts/veri_farki.py saatlik`):
+  - A (04.11, `4fc8a1bc…`): 62.075 mum; son mumu eksik hisse-seans 2.986; eksik saatli seans 3.108; mumsuz 101; hacmi 0 mum 4.327.
+  - B (05.11, dosya `b384a733…`): 65.736 mum; son mumu eksik 59; eksik saatli seans 182; mumsuz 14 (KONTR ve TRALT; Ağustos–Ekim'de yok); hacmi 0 mum 7.316.
+- **09:30 mumu:** Hacmi 0 payı A'da %58,3, B'de %98,3; diğer saatlerde en fazla %0,3 ve %0,5. A'da Kasım–Şubat aylarında hacmi 0 mum yok, Nisan'dan itibaren aylık pay %11 civarı; B'de bütün aylarda %10–12. Hacim farklarının büyük kısmı buradan geliyor. 36→32 onay farkının bununla ilgisi olabilir; ölçülmedi, kanıt değil.
+- **Günlük** (`veri_farki.py gunluk`, A `56016f59…`, B `market.db`, 05.11): hisse 208 ve 209; yalnız A'da 1.328 mum, yalnız B'de 2.952 mum. Ortak 237.339 mumda hacim aynı; 26.397 mumda OHLC farkı var, hiçbiri %0,5'i geçmiyor, kapanışta %0,01'i de geçmiyor. Likidite eleme listesi 55 ayın 6'sında farklı, toplam 12 isim. İki görüntü de aynı türden depodan geldiği için bu sayı Yahoo'nun geçmişi yeniden yazıp yazmadığını sınamaz.
+- **B'nin kopyaları:** Tam kopya OneDrive'da ve `quantbist-veri` özel deposunda. Geçici klasördeki `snap_b` yalnız manifest içeriyor.
+
 ## 05.11.2026 – K-78 kapsam sayıları (ölçüm öncesi; getiri ve faktör değeri gösterilmedi)
 `python -m core.analytics.factor_study kapsam`, dondurulmuş günlük görüntü (`56016f59…`, 208 hisse, 238.667 mum), holdout öncesi. Kod bc4b2c1 + takvim düzeltmesi (v0.99.95).
 - **İlk çalıştırmada hata bulundu:** 8 ay sonunda (ör. 28.04.2023, 29.12.2023) bütün hisseler "giriş günü veri yok" çıktı. Neden: tatil dosyası 2026'dan başlıyor; 01.05.2023, 01.01.2024 gibi tatiller seans sayıldı. Düzeltme: giriş günü, herhangi bir hissenin işlem gördüğü bir sonraki gün (veriden). Test eklendi. Bu bir kural değişikliği değil; K-78 "ertesi seans" diyor.

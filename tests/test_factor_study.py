@@ -62,6 +62,53 @@ class DoubleAdjustmentTest(unittest.TestCase):
         np.testing.assert_allclose(out["close"].to_numpy(), (self.base["close"] * 0.5).to_numpy())
 
 
+class DataBreakTest(unittest.TestCase):
+    def setUp(self):
+        self.base = bars()
+        self.ex = self.base.index[200].date()
+        self.action = CorporateAction("AAA.IS", self.ex, kind="bonus", ratio=1.0)  # factor 0.5
+
+    def test_jump_left_unapplied_is_a_break(self):
+        raw = split_at(self.base, self.ex, 0.75)  # outside ±10% of 0.5, and still a jump
+        _, skipped, breaks = F.adjust_checked(raw, [self.action])
+        self.assertEqual(len(skipped), 1)
+        self.assertEqual(breaks, [self.ex])
+
+    def test_provider_adjusted_or_repeated_record_is_not_a_break(self):
+        provider = self.base * [0.5, 0.5, 0.5, 0.5, 1.0]
+        self.assertEqual(F.adjust_checked(provider, [self.action])[2], [])
+        raw = split_at(self.base, self.ex, 0.5)
+        self.assertEqual(F.adjust_checked(raw, [self.action, self.action])[2], [])
+
+    def test_break_keeps_the_stock_out_only_while_a_window_reads_it(self):
+        frames = {f"S{i:02d}.IS": bars(n=600, end="2024-06-28", seed=i, volume=1e6 * (i + 1)) for i in range(90)}
+        days = F.market_days(frames)
+        first, last = F.break_window(days, date(2024, 4, 30))
+        self.assertEqual(last, date(2024, 5, 31))
+        self.assertEqual(len(days[(days >= pd.Timestamp(first)) & (days <= pd.Timestamp("2024-04-30"))]), F.HISTORY)
+        name = "S05.IS"
+        inside = F.month(frames, date(2024, 4, 30), set(frames), days, {name: [date(2024, 5, 15)]})
+        before_window = F.month(frames, date(2024, 4, 30), set(frames), days, {name: [first - pd.Timedelta(days=1)]})
+        self.assertEqual(inside.data_break, [name])
+        self.assertNotIn(name, inside.universe)
+        for picked in inside.slices.values():
+            self.assertNotIn(name, picked)
+        self.assertEqual(before_window.data_break, [])
+
+    def test_formation_on_the_last_day_has_no_window(self):
+        days = pd.DatetimeIndex(["2024-05-30", "2024-05-31"])
+        self.assertIsNone(F.break_window(days, date(2024, 5, 31)))
+        self.assertIsNone(F.break_window(days, date(2024, 5, 1)))
+
+
+class PowerTest(unittest.TestCase):
+    def test_power_grows_with_the_effect(self):
+        none = F.power(0.0, sims=200, boots=200)
+        large = F.power(0.03, sims=200, boots=200)
+        self.assertLess(none, 0.10)
+        self.assertGreater(large, 0.95)
+
+
 class FactorTest(unittest.TestCase):
     def test_momentum_and_volatility_windows(self):
         close = pd.Series(np.arange(1.0, 301.0))

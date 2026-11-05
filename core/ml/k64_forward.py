@@ -31,7 +31,8 @@ import pandas as pd
 MAX_LAST_MISSING = 0.05   # share of sessions without their last hourly candle (17:30; half day 11:30)
 MAX_SHORT_SESSIONS = 0.05  # share of full sessions with fewer than 9 candles
 MAX_EMPTY_SESSIONS = 0     # sessions with no candle at all, per stock
-MAX_ZERO_VOLUME = 0.02     # share of candles with zero volume
+MAX_ZERO_VOLUME = 0.02     # share of candles with zero volume, the opening candle not counted (K-80 correction)
+OPEN_CANDLE = time(9, 30)  # Yahoo gives it zero volume on nearly every session (B: 98.3%); reported, not gated
 FULL_CANDLES = 9
 MIN_GAP_DAYS = 7
 EARLIEST = date(2027, 2, 3)
@@ -47,6 +48,7 @@ class Quality:
     short_sessions: float = 0.0
     empty_sessions: int = 0
     zero_volume: float = 0.0
+    open_zero_volume: float = 0.0
     passed: bool = False
     reason: str = ""
 
@@ -61,14 +63,18 @@ def quality(frames: dict[str, pd.DataFrame], start: date, end: date) -> Quality:
     if not sessions or not frames:
         q.reason = "pencerede seans ya da veri yok"
         return q
-    last_missing = short = candles = zeros = full = 0
+    last_missing = short = candles = zeros = full = opens = open_zeros = 0
     for df in frames.values():
         local = df.index.tz_convert("Europe/Istanbul") if df.index.tz is not None else df.index
         part = df[(local.date >= start) & (local.date <= end)]
         lp = local[(local.date >= start) & (local.date <= end)]
         days = {d: set(t) for d, t in pd.Series(lp.time, index=lp.date).groupby(level=0)}
-        candles += len(part)
-        zeros += int((part["volume"] == 0).sum())
+        is_open = pd.Series(lp.time, index=part.index).eq(OPEN_CANDLE).to_numpy(dtype=bool)
+        is_zero = (part["volume"] == 0).to_numpy(dtype=bool)
+        opens += int(is_open.sum())
+        open_zeros += int((is_zero & is_open).sum())
+        candles += int((~is_open).sum())
+        zeros += int((is_zero & ~is_open).sum())
         for d in sessions:
             have = days.get(d)
             if not have:
@@ -84,6 +90,7 @@ def quality(frames: dict[str, pd.DataFrame], start: date, end: date) -> Quality:
     q.last_missing = last_missing / n
     q.short_sessions = short / full if full else 0.0
     q.zero_volume = zeros / candles if candles else 1.0
+    q.open_zero_volume = open_zeros / opens if opens else 0.0
     fails = []
     if q.last_missing > MAX_LAST_MISSING:
         fails.append(f"son mum eksik %{q.last_missing * 100:.1f} > %{MAX_LAST_MISSING * 100:.0f}")
@@ -171,6 +178,18 @@ def verdict(q1: Quality, r1: Result | None, q2: Quality, r2: Result | None) -> s
     return FAILED
 
 
+def verdict_reason(label: str, r1: Result | None, r2: Result | None) -> str:
+    """Why, in words. Too few approvals is a sample too small to judge the model, not evidence against it."""
+
+    from core.ml.signal_filter import MIN_APPROVED
+
+    if label != FAILED or r1 is None or r2 is None:
+        return ""
+    if min(r1.approved, r2.approved) < MIN_APPROVED:
+        return "onaylı sinyal az: örneklem yetersiz, model hakkında sonuç vermez"
+    return "isabet tüm sinyallerin oranından ayırt edilemiyor"
+
+
 def check_dates(first: date, second: date, end: date) -> list[str]:
     problems = []
     if first < EARLIEST:
@@ -218,9 +237,12 @@ def main(argv: list[str] | None = None) -> int:
         qs.append(q)
         rs.append(r)
         print(f"İndirme {i} ({stamps[i - 1]}; veri {P.digest(frames)[:16]}): kalite {q.reason}")
+        print(f"  09:30 mumunda hacim 0 payı (bilgi, kapı dışı): %{q.open_zero_volume * 100:.1f}")
         if r:
             print(f"  {asdict(r)}")
-    print("SONUÇ: " + verdict(qs[0], rs[0], qs[1], rs[1]))
+    label = verdict(qs[0], rs[0], qs[1], rs[1])
+    why = verdict_reason(label, rs[0], rs[1])
+    print("SONUÇ: " + label + (f" ({why})" if why else ""))
     return 0
 
 
@@ -229,4 +251,4 @@ if __name__ == "__main__":
 
 
 __all__ = ["FAILED", "PASSED", "SENSITIVE", "UNMEASURED", "Quality", "Result", "check_dates", "forward",
-           "quality", "train_model", "verdict"]
+           "quality", "train_model", "verdict", "verdict_reason"]

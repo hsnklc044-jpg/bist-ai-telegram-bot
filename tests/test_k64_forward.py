@@ -151,6 +151,20 @@ class QualityTest(unittest.TestCase):
         q = F.quality({"A": session_frame(self.first, self.last, drop_last=2, zero=10)}, self.first, self.last)
         self.assertTrue(q.passed, q.reason)
 
+    def test_zero_volume_opening_candle_does_not_close_the_gate(self):
+        frame = session_frame(self.first, self.last)
+        frame.loc[frame.index.time == time(9, 30), "volume"] = 0.0
+        q = F.quality({"A": frame}, self.first, self.last)
+        self.assertTrue(q.passed, q.reason)
+        self.assertEqual((q.zero_volume, q.open_zero_volume), (0, 1))
+
+    def test_zero_volume_in_other_hours_still_closes_the_gate(self):
+        frame = session_frame(self.first, self.last)
+        frame.loc[frame.index.time == time(12, 30), "volume"] = 0.0
+        q = F.quality({"A": frame}, self.first, self.last)
+        self.assertFalse(q.passed)
+        self.assertIn("hacmi 0", q.reason)
+
     def test_half_day_last_candle_is_1130(self):
         from core.market.calendar import is_session_day, session_final
 
@@ -172,6 +186,13 @@ class VerdictTest(unittest.TestCase):
         self.assertEqual(F.verdict(self.ok, yes, self.ok, no), F.SENSITIVE)
         self.assertEqual(F.verdict(self.ok, no, self.ok, yes), F.SENSITIVE)
         self.assertEqual(F.verdict(self.ok, no, self.ok, no), F.FAILED)
+
+    def test_reason_separates_a_small_sample_from_no_edge(self):
+        few, many = F.Result(approved=13), F.Result(approved=60)
+        self.assertIn("örneklem yetersiz", F.verdict_reason(F.FAILED, few, many))
+        self.assertIn("ayırt edilemiyor", F.verdict_reason(F.FAILED, many, many))
+        self.assertEqual(F.verdict_reason(F.PASSED, many, many), "")
+        self.assertEqual(F.verdict_reason(F.UNMEASURED, None, many), "")
 
     def test_a_download_failing_the_gate_is_not_replaced(self):
         yes = F.Result(passed=True)
