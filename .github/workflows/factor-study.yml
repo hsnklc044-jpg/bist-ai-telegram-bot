@@ -5,8 +5,9 @@ name: K-78 factor study
 #    before the holdout. Refused before 11.11.2026 (at least 7 days after the frozen daily snapshot A
 #    of 04.11.2026). This is download B; a third download is not taken.
 # 2. "measure": the one K-78 measurement on A (Actions run 41880444802) and B (the run id given).
-#    It is run once; a run that fails technically without a result may be repeated once, and both are
-#    written to RESEARCH_LOG. The confirmation text must be typed exactly.
+#    The confirmation text must be typed exactly.
+# scripts/k78_tek_calisma.py enforces "once": a success stops a repeat, a technical failure may be
+# repeated once. Every attempt is recorded on research-results under k78/ (scripts/k78_kayit.sh).
 
 on:
   workflow_dispatch:
@@ -38,6 +39,9 @@ jobs:
     if: inputs.step == 'snapshot'
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write  # push the attempt record to research-results only
+      actions: read
     steps:
       - name: Not before 11.11.2026
         run: |
@@ -48,13 +52,26 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - name: Only once
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/k78_tek_calisma.py snapshot
       - run: pip install -r requirements.lock
+      - name: The store must be empty
+        run: |
+          if compgen -G "data/*.db" > /dev/null; then echo "K-78: depo boş değil"; ls data/*.db; exit 1; fi
       - name: Fresh download from Yahoo
-        run: python -m core.market.update --bist100-history > update.txt 2>&1 || true
+        id: work
+        run: |
+          python -m core.market.update --bist100-history > update.txt 2>&1
+          grep -E "Sonuç:|İndirilemeyenler:" update.txt || true
       - name: Freeze B
         run: |
-          python -m core.analytics.provenance freeze-daily snap_daily 2>&1 | grep -v Warning | tee freeze_daily.txt
-          echo "indirme günü: $(TZ=Europe/Istanbul date +%F)" | tee -a freeze_daily.txt
+          day=$(TZ=Europe/Istanbul date +%F)
+          python -m core.analytics.provenance freeze-daily snap_daily \
+            "Yahoo auto_adjust=True, boş depoya baştan indirildi $day" 2>&1 | grep -v Warning | tee freeze_daily.txt
+          echo "indirme günü: $day" | tee -a freeze_daily.txt
+          grep -E "Sonuç:|İndirilemeyenler:" update.txt >> freeze_daily.txt || true
           { echo '```'; cat freeze_daily.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v6
         with:
@@ -63,11 +80,17 @@ jobs:
             snap_daily/
             freeze_daily.txt
           retention-days: 90
+      - name: Record the attempt
+        if: always() && steps.work.outcome != 'skipped'
+        run: bash scripts/k78_kayit.sh snapshot "${{ job.status }}"
 
   measure:
     if: inputs.step == 'measure'
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: write  # push the attempt record to research-results only
+      actions: read
     steps:
       - name: Confirmation
         env:
@@ -79,7 +102,13 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - name: Only once
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/k78_tek_calisma.py measure
       - run: pip install -r requirements.lock
+      - name: K-79 freeze test
+        run: python -m pytest tests/test_k64_freeze.py -q
       - uses: actions/download-artifact@v4
         with:
           name: daily-snapshot-41880444802
@@ -92,12 +121,15 @@ jobs:
           path: b
           run-id: ${{ inputs.b_run_id }}
           github-token: ${{ github.token }}
+      - name: Data difference counts (no return)
+        run: python scripts/veri_farki.py gunluk a/snap_daily b/snap_daily 2>&1 | grep -v Warning | tee k78.txt
       - name: Measure (K-78, once)
+        id: work
         env:
           B_DATE: ${{ inputs.b_date }}
         run: |
           python -m core.analytics.factor_measure a/snap_daily b/snap_daily \
-            --tarih-a 2026-11-04 --tarih-b "$B_DATE" 2>&1 | grep -v Warning | tee k78.txt
+            --tarih-a 2026-11-04 --tarih-b "$B_DATE" 2>&1 | grep -v Warning | tee -a k78.txt
           { echo '```'; cat k78.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v6
         if: always()
@@ -105,3 +137,6 @@ jobs:
           name: k78-result-${{ github.run_id }}
           path: k78.txt
           retention-days: 90
+      - name: Record the attempt
+        if: always() && steps.work.outcome != 'skipped'
+        run: bash scripts/k78_kayit.sh measure "${{ job.status }}"

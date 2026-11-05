@@ -27,6 +27,7 @@ import numpy as np
 import pandas as pd
 
 from core.analytics import factor_study as F
+from core.market.universe import BENCHMARK
 
 COST_BUY = COST_SELL = 0.0015
 COST_INFO = 0.0030          # information line only; never changes the verdict
@@ -37,6 +38,7 @@ YEARS = (2023, 2024, 2025)
 PASSED = "KEŞİFTE GEÇTİ"
 EXCLUDED = "GEÇMEDİ (literatür büyüklüğünde bir etki dışlandı)"
 UNANSWERED = "YANITLANAMADI (güç yetersiz)"
+FAILED_CONDITION = "GEÇMEDİ (alt sınır pozitif, ek koşul sağlanmadı)"
 UNMEASURED = "ÖLÇÜLEMEDİ"
 SENSITIVE = "VERİYE DUYARLI"
 
@@ -83,6 +85,11 @@ class Series:
     excess_high_cost: list[float] = field(default_factory=list)
     unmeasured: int = 0
     notes: list[str] = field(default_factory=list)
+    benchmark: list[float] = field(default_factory=list)  # XU100 over the same holding; nan when missing
+    no_price: int = 0
+    data_break: int = 0
+    limit_open: int = 0
+    no_entry: int = 0
 
 
 def series(frames: dict[str, pd.DataFrame], members_on, breaks=None, stop=None) -> dict[str, Series]:
@@ -97,6 +104,11 @@ def series(frames: dict[str, pd.DataFrame], members_on, breaks=None, stop=None) 
                 out[k].unmeasured += 1
             continue
         universe, notes = holding(frames, m.universe, entry, days, stop)
+        reasons = list(m.not_applicable.values())
+        index = frames.get(BENCHMARK)
+        index_return = math.nan
+        if index is not None and pd.Timestamp(entry) in index.index:
+            index_return = holding({BENCHMARK: index}, [BENCHMARK], entry, days, stop)[0].get(BENCHMARK, math.nan)
         for k in F.FACTORS:
             s = out[k]
             names = [n for n in m.slices[k] if n in universe]
@@ -114,6 +126,11 @@ def series(frames: dict[str, pd.DataFrame], members_on, breaks=None, stop=None) 
             s.universe_net.append(net_u)
             s.excess.append(net_s - net_u)
             s.excess_high_cost.append(high)
+            s.benchmark.append(index_return)
+            s.no_price += m.no_price
+            s.data_break += len(m.data_break)
+            s.limit_open += reasons.count("tavan açılış")
+            s.no_entry += reasons.count("giriş günü veri yok")
             s.notes += [f"{d}: {n}" for n in notes if n.split()[0] in names]
             previous[k] = (names, uni)
     return out
@@ -164,11 +181,31 @@ def judge(factor: str, s: Series, draws: int = DRAWS) -> Verdict:
     v.reasons = [why for ok, why in checks if not ok]
     if not v.reasons:
         v.label = PASSED
+    elif v.lower > 0:  # the interval is clear of zero: power is not what stopped it
+        v.label = FAILED_CONDITION
     elif v.upper < LITERATURE:
         v.label = EXCLUDED
     else:
         v.label = UNANSWERED
     return v
+
+
+def information(s: Series, cpi: pd.DataFrame | None = None) -> str:
+    """The K-78 information lines. They never change a verdict."""
+
+    if cpi is None:
+        from core.market.macro import CPI_FILE, load_cpi
+
+        cpi = load_cpi(CPI_FILE)
+    net, index = np.asarray(s.slice_net, dtype=float), np.asarray(s.benchmark, dtype=float)
+    known = ~np.isnan(index)
+    over = f"%{float((net[known] - index[known]).mean()) * 100:.2f} ({int(known.sum())} ay)" if known.any() else "veri yok"
+    real = [(1 + r) / (1 + float(cpi.at[str(p), "monthly_pct"]) / 100) - 1
+            for p, r in zip(s.months, s.slice_net, strict=True) if str(p) in cpi.index]
+    deflated = f"%{float(np.mean(real)) * 100:.2f} ({len(real)} ay)" if real else "veri yok"
+    return (f"  bilgi: dilimin XU100'e göre aylık farkı {over}; dilimin aylık reel getirisi {deflated}\n"
+            f"  sayımlar: ölçülemeyen ay {s.unmeasured}; fiyatsız üye {s.no_price}; veri kırığı {s.data_break}; "
+            f"tavan açılış {s.limit_open}; giriş verisi yok {s.no_entry}; kilitli çıkış {len(s.notes)}")
 
 
 def combine(a: Verdict, b: Verdict) -> str:
@@ -198,6 +235,8 @@ def text(verdicts: list[Verdict]) -> str:
 
 DAILY_A = "56016f5992f458527a3100321379a11a5a6753730e0e1fbc848ce30505508a18"  # frozen daily snapshot (04.11)
 MIN_GAP_DAYS = 7
+FRESH_B = "Yahoo auto_adjust=True, boş depoya baştan indirildi"  # what the workflow writes into B's manifest
+MIN_B_SHARE = 0.95                                               # of A's symbols; fewer means a broken download
 
 
 def prepare(raw: dict[str, pd.DataFrame], start: pd.Timestamp, actions=None):
@@ -226,6 +265,22 @@ def check_pair(first: date, second: date) -> list[str]:
     return problems
 
 
+def check_b(source: str, day: date, raw_a: dict[str, pd.DataFrame], raw_b: dict[str, pd.DataFrame]) -> list[str]:
+    """B must be the fresh download K-78 asks for: its manifest says so, it is complete and it ends with A."""
+
+    problems = []
+    if FRESH_B not in source:
+        problems.append(f"B'nin kaynağı baştan indirme değil ({source or 'kaynak yok'})")
+    elif day.isoformat() not in source:
+        problems.append(f"--tarih-b {day} B'nin kaynağındaki günle aynı değil")
+    if len(raw_b) < MIN_B_SHARE * len(raw_a):
+        problems.append(f"B eksik: {len(raw_b)} sembol, A'da {len(raw_a)}")
+    last = [max(df.index.max() for df in raw.values() if len(df)) for raw in (raw_a, raw_b) if raw]
+    if len(last) == 2 and last[0] != last[1]:
+        problems.append(f"son tarihler farklı: A {last[0].date()}, B {last[1].date()}")
+    return problems
+
+
 def main(argv: list[str] | None = None) -> int:
     import argparse
     import sys
@@ -246,6 +301,7 @@ def main(argv: list[str] | None = None) -> int:
     raw_a, raw_b = P.thaw(Path(args.a)), P.thaw(Path(args.b))
     if P.digest(raw_a) != DAILY_A:
         problems.append("A, dondurulmuş günlük görüntü (56016f59…) değil")
+    problems += check_b(P.manifest(Path(args.b)).get("source", ""), date.fromisoformat(args.tarih_b), raw_a, raw_b)
     if problems:
         print("K-78 ölçüm koşulu sağlanmadı: " + "; ".join(problems) + ". Durdu.")
         return 2
@@ -257,8 +313,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"İndirme {name}: {P.stamp(frames)}")
         if skipped:
             print("  uygulanmayan şirket işlemi: " + "; ".join(skipped))
-        verdicts = [judge(k, s) for k, s in series(frames, lambda d: members_on(d), breaks).items()]
-        print(text(verdicts))
+        measured = series(frames, lambda d: members_on(d), breaks)
+        verdicts = [judge(k, s) for k, s in measured.items()]
+        for v in verdicts:
+            print(text([v]))
+            print(information(measured[v.factor]))
+            for note in measured[v.factor].notes:
+                print("  " + note)
         labels[name] = verdicts
     for va, vb in zip(labels["A"], labels["B"], strict=True):
         print(f"SONUÇ {va.factor}: {combine(va, vb)}")
@@ -270,5 +331,6 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["EXCLUDED", "PASSED", "SENSITIVE", "UNANSWERED", "UNMEASURED", "Series", "Verdict", "block_bootstrap",
-           "check_pair", "combine", "cost", "holding", "judge", "prepare", "series", "text"]
+__all__ = ["EXCLUDED", "FAILED_CONDITION", "PASSED", "SENSITIVE", "UNANSWERED", "UNMEASURED", "Series", "Verdict",
+           "block_bootstrap", "check_b", "check_pair", "combine", "cost", "holding", "information", "judge", "prepare",
+           "series", "text"]

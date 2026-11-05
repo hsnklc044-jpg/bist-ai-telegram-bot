@@ -16,7 +16,7 @@ Nothing here changes a rule, a threshold or a decision.
 
     python -m core.analytics.provenance freeze-hourly FOLDER    # download BIST 30 hourly, freeze < holdout
     python -m core.analytics.provenance daily                   # what the daily price store holds < holdout
-    python -m core.analytics.provenance freeze-daily FOLDER     # freeze that store < holdout
+    python -m core.analytics.provenance freeze-daily FOLDER [SOURCE]  # freeze that store < holdout
     python -m core.analytics.provenance show FOLDER
     python -m core.analytics.provenance compare FOLDER_A FOLDER_B
     python -m core.analytics.provenance pc                      # the whole check on this PC (scripts/olcum.ps1)
@@ -402,7 +402,8 @@ def main(argv: list[str] | None = None) -> int:
     if action == "freeze-daily":
         from core.backtest.run import HOLDOUT_START
 
-        data = freeze(daily_frames(), Path(argv[1]), HOLDOUT_START, source="yerel fiyat deposu (market.db)"
+        data = freeze(daily_frames(), Path(argv[1]), HOLDOUT_START,
+                      source=(argv[2] if len(argv) > 2 else "yerel fiyat deposu (market.db)")
                       + (f" ({os.environ['GITHUB_RUN_ID']})" if os.environ.get("GITHUB_RUN_ID") else ""))
         print("Donduruldu: " + data.line())
         print(code_version().line())

@@ -1,6 +1,9 @@
-# Durum notu (05.11.2026, kod v0.99.103)
+# Durum notu (05.11.2026, kod v0.99.104)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
+
+## K-78 ölçümü (v0.99.104)
+Beş eksik kapandı (etiket, tek çalışma, B indirmesi, rapor, sıra). Ölçüm yapılmadı. Sıradaki adımlar: 11.11.2026 ya da sonrasında `factor-study` `snapshot`; sonra kullanıcı onayıyla `measure`. Bu dala yalnız tek oturum yazar.
 
 ## 05.11.2026 – Son durum (v0.99.96)
 - K-80 hacmi 0 kapısı düzeltildi (09:30 mumu sayılmıyor). ✅ "Mumsuz seans" eşiği pay oldu (≤ %0,5; v0.99.98, kullanıcı onayı).

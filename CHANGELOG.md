@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.104 – 05.11.2026 (K-78 ölçümünden önceki beş düzeltme; ölçüm yok)
+- Etiket: alt sınır pozitif olup yıl ya da risk koşulu kalırsa sonuç artık "güç yetersiz" değil, "GEÇMEDİ (alt sınır pozitif, ek koşul sağlanmadı)". Kullanıcı onayıyla, getiri görülmeden.
+- Tek çalışma: `snapshot` ve `measure` başlamadan önce Actions kayıtlarını sayıyor; başarılı çalışma ya da iki deneme varsa duruyor. Denemeler `research-results` dalına yazılıyor.
+- B indirmesi: hata artık gizlenmiyor; boş depo denetleniyor; manifest kaynağı ve indirme günü yazılıyor. Ölçüm kodu kaynağı, günü, sembol sayısını (A'nın en az %95'i) ve son tarihi denetliyor.
+- Rapor: ölçülemeyen ay, fiyatsız üye, veri kırığı, tavan açılış, giriş verisi yok, kilitli çıkış sayıları; XU100'e göre ve reel bilgi satırları. Kararı değiştirmezler.
+- `measure` sırası: K-79 dondurma testi, `veri_farki.py gunluk`, ölçüm.
+- Düzeltme: A'nın kaynağını yanlış anlatan iki kayıt düzeltildi (DECISIONS, RESEARCH_LOG). K-79 özetleri değişmedi.
+- Doğrulama: yalnız sentetik testler; gerçek veride getiri hesaplanmadı.
+
 ## v0.99.103 – 05.11.2026 (yfinance uyarı gürültüsü)
 - yfinance'ın kendi kodundan gelen pandas kullanımdan kalkma uyarıları (Pandas4Warning) artık gizleniyor. Bu uyarılar her indirme günlüğünü dolduruyordu ve QuantBIST hakkında bir şey söylemiyordu. QuantBIST modüllerinden gelen uyarılar görünmeye devam ediyor. yfinance içe aktarılınca kendi filtresini öne eklediği için bizim filtre ondan sonra ekleniyor.
 - Doğrulama: `test_quiet_yfinance` (2 test).

@@ -97,6 +97,16 @@ class JudgeTest(unittest.TestCase):
         self.assertNotEqual(v.label, M.PASSED)
         self.assertTrue(any("pozitif yıl" in r for r in v.reasons))
 
+    def test_condition_failure_with_a_clear_interval_is_not_low_power(self):
+        x = 0.02 + noise(0.01)
+        wild = M.judge("dusuk_oynaklik", series_of(x, slice_net=x * 3, universe_net=x), draws=1000)
+        self.assertGreater(wild.lower, 0)
+        self.assertEqual(wild.label, M.FAILED_CONDITION)
+        years = np.r_[np.full(2, 0.0), np.full(12, 0.12), np.full(12, -0.001), np.full(12, -0.001), np.full(10, 0.01)]
+        v = M.judge("momentum", series_of(years), draws=1000)
+        self.assertGreater(v.lower, 0)
+        self.assertEqual(v.label, M.FAILED_CONDITION)
+
     def test_low_volatility_also_needs_lower_risk(self):
         x = 0.02 + noise(0.01)
         calm = M.judge("dusuk_oynaklik", series_of(x, slice_net=x, universe_net=x * 3), draws=1000)
@@ -116,6 +126,8 @@ class CombineTest(unittest.TestCase):
         self.assertEqual(M.combine(self.v(M.EXCLUDED), self.v(M.EXCLUDED)), M.EXCLUDED)
         self.assertEqual(M.combine(self.v(M.EXCLUDED), self.v(M.UNANSWERED)), M.UNANSWERED)
         self.assertEqual(M.combine(self.v(M.UNMEASURED), self.v(M.PASSED)), M.UNMEASURED)
+        self.assertEqual(M.combine(self.v(M.FAILED_CONDITION), self.v(M.FAILED_CONDITION)), M.FAILED_CONDITION)
+        self.assertEqual(M.combine(self.v(M.FAILED_CONDITION), self.v(M.UNANSWERED)), M.UNANSWERED)
 
 
 class SeriesTest(unittest.TestCase):
@@ -133,6 +145,52 @@ class SeriesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class InformationTest(unittest.TestCase):
+    def test_lines_and_counts(self):
+        s = M.Series(months=list(pd.period_range("2024-01", periods=2, freq="M")), slice_net=[0.10, 0.20],
+                     universe_net=[0.0, 0.0], excess=[0.1, 0.2], excess_high_cost=[0.1, 0.2],
+                     benchmark=[0.05, math.nan], unmeasured=6, no_price=3, data_break=2, limit_open=1, no_entry=4,
+                     notes=["a"])
+        cpi = pd.DataFrame({"monthly_pct": [10.0]}, index=["2024-01"])
+        line = M.information(s, cpi)
+        self.assertIn("XU100'e göre aylık farkı %5.00 (1 ay)", line)
+        self.assertIn("reel getirisi %0.00 (1 ay)", line)
+        self.assertIn("ölçülemeyen ay 6; fiyatsız üye 3; veri kırığı 2; tavan açılış 1; giriş verisi yok 4; kilitli çıkış 1",
+                      line)
+
+    def test_no_data_is_said(self):
+        s = M.Series(months=list(pd.period_range("2024-01", periods=1, freq="M")), slice_net=[0.1],
+                     universe_net=[0.0], excess=[0.1], excess_high_cost=[0.1], benchmark=[math.nan])
+        self.assertEqual(M.information(s, pd.DataFrame({"monthly_pct": []})).count("veri yok"), 2)
+
+
+class FreshDownloadTest(unittest.TestCase):
+    source = f"{M.FRESH_B} 2026-11-11 (123)"
+
+    def setUp(self):
+        from tests.test_factor_study import bars
+
+        self.frames = {f"S{i:02d}.IS": bars(n=30, seed=i) for i in range(40)}
+
+    def test_good_b_passes(self):
+        self.assertEqual(M.check_b(self.source, date(2026, 11, 11), self.frames, self.frames), [])
+
+    def test_store_snapshot_is_refused(self):
+        self.assertIn("baştan indirme değil", M.check_b("yerel fiyat deposu (market.db)", date(2026, 11, 11),
+                                                       self.frames, self.frames)[0])
+
+    def test_typed_date_must_match_the_manifest(self):
+        self.assertIn("aynı değil", M.check_b(self.source, date(2026, 11, 12), self.frames, self.frames)[0])
+
+    def test_partial_download_is_refused(self):
+        part = dict(list(self.frames.items())[:30])
+        self.assertIn("B eksik", M.check_b(self.source, date(2026, 11, 11), self.frames, part)[0])
+
+    def test_different_end_is_refused(self):
+        short = {k: v.iloc[:-1] for k, v in self.frames.items()}
+        self.assertIn("son tarihler farklı", M.check_b(self.source, date(2026, 11, 11), self.frames, short)[0])
 
 
 class MainTest(unittest.TestCase):
@@ -182,7 +240,7 @@ class MainTest(unittest.TestCase):
         frames = {f"S{i:02d}.IS": bars(n=330, end="2023-03-31", seed=i, volume=1e6 * (i + 1)) for i in range(90)}
         with tempfile.TemporaryDirectory() as tmp:
             P.freeze(frames, Path(tmp) / "a", None)
-            P.freeze(frames, Path(tmp) / "b", None)
+            P.freeze(frames, Path(tmp) / "b", None, source=f"{M.FRESH_B} 2026-11-11")
             with mock.patch.object(M, "DAILY_A", P.digest(frames)), \
                     mock.patch("core.market.membership.members_on", lambda d: {s[:3] for s in frames}), \
                     mock.patch.object(M, "DRAWS", 100), redirect_stdout(StringIO()) as out:
