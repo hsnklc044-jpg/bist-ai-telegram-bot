@@ -26,6 +26,18 @@ async def portfolio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await reply(update, text)
 
 
+async def health(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /saglik: the portfolio health report (also sent every Saturday)."""
+
+    from core.reports import portfolio_health
+
+    try:
+        text = await asyncio.to_thread(portfolio_health.report)
+    except LedgerError as exc:
+        text = f"Defter okunamadı: {exc}"
+    await reply(update, text)
+
+
 async def trade(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /trade (record a real, already executed trade)."""
 

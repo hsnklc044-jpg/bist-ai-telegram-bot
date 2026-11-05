@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.86 – 05.11.2026 (yol planı 2. bölüm, ilk iş: haftalık portföy sağlık raporu)
+- Yeni `/saglik` komutu. Bot raporu ayrıca her cumartesi saat 10:00'da kendiliğinden gönderiyor. İçeriği:
+  - **Dağılım:** her hissenin ağırlığı.
+  - **Yoğunlaşma:** en büyük pozisyon ve etkin pozisyon sayısı (1/Σw²). Dört eşit hisse 4 eder; bir büyük ve üç küçük hisse 1'e yakın.
+  - **Birlikte hareket:** son 60 seansta hisseler arası ortalama korelasyon.
+  - **Getiri:** son 4 hafta ve ilk kayıttan beri. Para giriş çıkışı ayıklanıyor; komisyon sonrası, vergi hariç. Nominal, reel (TÜİK TÜFE), dolar bazında (TCMB kuru) ve BIST 100 ile farkı.
+- Ölçülemeyen bir değer tahminle doldurulmuyor; nedeniyle "ölçülemedi" yazıyor (K-70). Örnekler: dönemi kapsayan TÜFE ayı henüz yayımlanmamışsa ya da iki günlük değer kaydı yoksa.
+- Öneri vermiyor; yalnız ölçüm. Sanal hesap da ayrı bir bölüm olarak raporlanıyor.
+- Ayrıca: v0.99.78'in bilgisayarda kurulmamasının nedeni burada yeniden üretilemedi. Git'siz bir deneme kopyası ve uyarı bayrakları olmadan 1303 test geçti. Neden bilgisayara özgü ve henüz bilinmiyor.
+- Doğrulama: yeni `test_portfolio_health` (11 test). Kapsadıkları: elle hesaplanmış ağırlık ve etkin sayı; aynı ve bağımsız hareket eden hisselerde korelasyon; para girişinin getiri sayılmaması; dolar ve BIST 100 farkı; TÜFE yokken "ölçülemedi"; komut ve cumartesi işi.
+
 ## v0.99.85 – 05.11.2026 (M30 yeniden doğrulaması ve bulguların düzeltilmesi)
 - Faz C sonrası M30 (ML filtresi) bağımsız olarak yeniden doğrulandı. Karar: **kullanılamaz**. Model kapalı ve kapalı kalıyor. Önceki 10 bulgudan 7'si tamamen giderilmiş bulundu. Rapor `docs/validation/M30.md`'de; inceleyicinin metni değiştirilmedi, sonuna geliştirici eki kondu.
 - **YÜKSEK:** Canlı ML modeli, ölçümün dışladığı 2022 öncesi veriyle (yalnız bugün hayatta kalan hisseler) eğitiliyordu. Artık ölçümle aynı veriyle eğitiliyor: 01.04.2022'den başlıyor ve holdout'u görmüyor.

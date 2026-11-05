@@ -308,7 +308,7 @@ Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe
    - %9,5 tavan sınırının bütün modüllerde birlikte düzeltilmesi.
    - `/durum`'un sadeleştirilmesi.
 2. **Uzun vade için karar desteği.**
-   - Haftalık portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, maliyet sonrası reel ve dolar bazlı getiri, BIST 100 farkı.
+   - Haftalık portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, maliyet sonrası reel ve dolar bazlı getiri, BIST 100 farkı. ✅ v0.99.86 (`/saglik`, cumartesi 10:00)
    - Temettü ve şirket olayları takvimi (otomatik erişim yok).
    - Temel analiz kartı: posta kutusu verisiyle, yalnız yayından sonra bilinen değerlerle.
    - Yeniden dengeleme yardımcısı: hedef ağırlıktan sapma ve en az işlem; emir yok.

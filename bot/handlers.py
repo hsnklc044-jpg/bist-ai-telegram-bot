@@ -17,7 +17,7 @@ from telegram.ext import (
 from bot.analysis import analyze, fundamentals_cmd, levels_cmd, market_cmd, scenario_cmd, top
 from bot.commands_risk import risk
 from bot.control import panic_cmd, resume_cmd
-from bot.portfolio import alerts, paper, portfolio, report, trade
+from bot.portfolio import alerts, health, paper, portfolio, report, trade
 from bot.reports import (
     delete_screen,
     list_screens,
@@ -70,6 +70,7 @@ COMMANDS = (
     ("watchlist", watchlist),
     ("watchscan", watchscan),
     ("portfolio", portfolio),
+    ("saglik", health),
     ("trade", trade),
     ("paper", paper),
     ("alerts", alerts),
@@ -104,6 +105,7 @@ MENU = (
     ("devam", "panik kilidini kaldır"),
     ("summary", "portföy ve piyasa özeti"),
     ("portfolio", "pozisyonlar ve kâr/zarar"),
+    ("saglik", "portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, reel ve dolar bazında getiri"),
     ("alerts", "açık risk uyarıları"),
     ("performans", "canlı ölçüm ve sanal hesap"),
     ("rapor_tekrar", "kayıtlı günlük raporu yeniden gönder"),

@@ -277,6 +277,34 @@ def schedule_backup_catch_up(app: Application, chat_id: int | None = None) -> bo
     return True
 
 
+HEALTH_JOB = "portfolio_health"
+HEALTH_AT = time(10, 0, tzinfo=ISTANBUL)
+SATURDAY = (6,)  # python-telegram-bot: 0 = Sunday
+
+
+async def portfolio_health_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Road plan part 2: the weekly portfolio health report, Saturday morning."""
+
+    from core.reports import portfolio_health
+
+    try:
+        text = await asyncio.to_thread(portfolio_health.report)
+    except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told (K-70)
+        logger.exception("Portfolio health report failed")
+        text = f"⚠️ Haftalık portföy sağlık raporu hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}"
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if chat:
+        await context.bot.send_message(chat, text)
+
+
+def schedule_portfolio_health(app: Application, chat_id: int | None = None) -> bool:
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_daily(portfolio_health_job, time=HEALTH_AT, days=SATURDAY, name=HEALTH_JOB,
+                            job_kwargs=LATE_START, chat_id=chat_id)
+    return True
+
+
 INBOX_JOB = "fundamentals_inbox"
 
 

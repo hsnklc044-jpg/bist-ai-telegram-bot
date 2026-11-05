@@ -345,6 +345,7 @@ panik - acil durdurma: bekleyen sinyalleri iptal et, açık pozisyonları son ka
 devam - panik kilidini kaldır
 summary - portföy ve piyasa özeti
 portfolio - pozisyonlar ve kâr/zarar
+saglik - portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, reel ve dolar bazında getiri
 alerts - açık risk uyarıları
 performans - canlı ölçüm ve sanal hesap
 rapor_tekrar - kayıtlı günlük raporu yeniden gönder
