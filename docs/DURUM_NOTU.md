@@ -54,7 +54,13 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - **Açık riskler (kullanıcı 05.11):**
   - O4 (41→36) açık kalıyor. K-64 ayrım ölçümü GEÇERSİZ kalıyor; inceleyicinin dolaylı kanıtı bu kaydı değiştirmez.
   - Dondurulan görüntünün artifact'ı 02.02.2027 17:47 UTC'de siliniyor. Kalıcı kopya için kullanıcıya seçenek sunuldu (lisans ve görünürlük). `snapshot-check.yml` özeti GitHub'da doğrular.
-  - `fit_live` (v0.99.78) yalnız canlı `/tara ai` modelini etkiliyor. PC'de modelin 02.11'den sonra yeniden eğitilip eğitilmediği ve kart kayıtları doğrulanamadı; kullanıcıya okuma komutu verildi.
+  - `fit_live` (v0.99.78) yalnız canlı `/tara ai` modelini etkiliyor; K-64 ileri testi onu kullanmıyor. PC çıktısı (05.11):
+    - kayıtlı model 03.11.2026'da eski kuralla eğitilmiş (744 satır), yani etiketi 02.11'de biten satırları içerebilir;
+    - günlükte cuma yeniden eğitimi yok;
+    - 02.11'den beri `/tara ai` kartı yazılmamış, yani kayıt etkilenmedi;
+    - 06.11 cuma yeniden eğitimi yeni (holdout'u görmeyen) kuralla yapılacak.
+    Düzeltme yapılmadı (kullanıcı talimatı).
+  - PC: 05.11 10:09'da v0.99.88 kuruldu (1376 geçti). Saatlik güncelleme görevi çalışıyor.
 - ⛔ **K-78 (3. bölüm, faktörler) ONAYLANMADI.** Kullanıcının B1–B11 düzeltmeleri yapılıp fark gösterilecek. Onay ve commit olmadan faktör verisinde ölçüm yok, sonuçlara bakılmaz.
 - Kullanıcıya ait işler: v0.99.90 kurulunca `/ozet` (SLO gerçek değerlerle); `scripts\olcum.ps1` çalıştırıp `logs\olcum_report.txt` göndermek. Pazar özeti gelmezse kullanıcı bunu arıza sayacak (bot kapalıyken bekçi de çalışmaz).
 - ⏳ Eski not: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.
