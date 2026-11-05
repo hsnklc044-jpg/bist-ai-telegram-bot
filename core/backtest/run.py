@@ -50,9 +50,11 @@ def skip_reason(q) -> str | None:
     return None
 
 
-def tradable_symbols(universe: list[str] | None = None, reasons: dict | None = None) -> tuple[list[str], list[str]]:
+def tradable_symbols(universe: list[str] | None = None, reasons: dict | None = None, before=None
+                     ) -> tuple[list[str], list[str]]:
     universe = universe or load_universe()
-    report = {q.symbol: q for q in build_report(universe)}
+    report = {q.symbol: q for q in (build_report(universe, before=before) if before is not None
+                                     else build_report(universe))}
     keep, skip = [], []
 
     for symbol in universe:

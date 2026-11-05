@@ -240,10 +240,16 @@ def check_symbol(
     return result
 
 
-def build_report(symbols: list[str] | None = None) -> list[SymbolQuality]:
+def build_report(symbols: list[str] | None = None, before=None) -> list[SymbolQuality]:
+    """`before`: judge each stock only on its candles before that day (Faz C M5-2: the /tara card's
+    universe must not depend on holdout data)."""
+
     symbols = [BENCHMARK, *(symbols or load_universe())]
 
     frames = {s: drop_open_candle(clean(store.read(s), s)) for s in symbols}
+    if before is not None:
+        frames = {s: df[df.index < pd.Timestamp(before)] if isinstance(df.index, pd.DatetimeIndex) else df
+                  for s, df in frames.items()}  # an empty store answer has no dates
     stocks = {s: df for s, df in frames.items() if s != BENCHMARK}
 
     calendar = trading_calendar(frames)

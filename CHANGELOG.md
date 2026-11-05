@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.80 – 05.11.2026 (Faz C, 2. parti: /tara geçmiş karnesinin yöntemi, M5)
+- **M5-2:** Karnenin hisse evreni (en az 300 mum ve çözülmemiş sıçrama denetimi) yalnız holdout öncesi veriyle seçiliyor. 02.11 sonrası bir sıçrama, 2023–2026 karnesinden hisseyi düşürmüyor. Araştırmanın varsayılan yolu değişmedi.
+- **M5-5:** Verisi dönem bitmeden kesilen bir hissenin (kotasyondan çıkış) son olayları kaybolmuyor; son kapanıştan çıkılmış sayılıyor. Önceden −%40'lık bir düşüş karneye hiç girmiyordu.
+- **M5-7:** Bootstrap bloğu tutma süresinin en az iki katı: 20 seansta 40. Önceden kapsama %95 yerine yaklaşık %90'dı.
+- **M5-8:** Karne, hisseler arası bağımlılığı da gösteriyor. "Bağımsız tarih" en az h seans aralıklı giriş tarihlerinin sayısı; bütün hisseler birlikte sayılıyor.
+- **M5-9:** Üyelik tablosu bittiyse son değer ileri taşınmıyor.
+- Karne istatistikleri değiştiği için `CARD_FORMAT` 5 oldu; önbellekteki eski karneler yeniden hesaplanacak.
+- Doğrulama: yeni `test_faz_c_m5` (9 test), önce kırmızı sonra yeşil. Bir sınır durumu da yakalandı: fiyat deposunda verisi olmayan hisse için boş tablo artık hata vermiyor.
+
 ## v0.99.79 – 05.11.2026 (Faz C, 1. parti: ML filtresinin ölçüm yöntemi; K-77)
 - M30 (ML filtresi, kapalı) için bağımsız doğrulamanın beş bulgusu kapatıldı. Model yeniden ölçülmedi.
   - `stop_hedef` aralığı 10 seanslık tarih blok bootstrap ile hesaplanıyor (M30-1). Örtüşen etiketlerde Wilson aralığı 3 kattan fazla dar çıkıyordu.

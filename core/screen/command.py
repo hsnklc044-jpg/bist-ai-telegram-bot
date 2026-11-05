@@ -126,7 +126,8 @@ def card_lines(card: dict | None, trials: tuple[int, int] | None = None) -> list
         base = (f" · tüm hisseler {pct(s.base)}, fark {pct(s.day_mean - s.base)}"
                 if s.base is not None and s.day_mean is not None else "")
         lines.append(f"  {h} seans: {day}olay ortalaması {pct(s.mean)}{gross}, medyan {pct(s.median)}, "
-                     f"isabet %{s.hit * 100:.0f}, örnek {s.n} (bağımsız {s.independent}){without}{base} → {s.label}")
+                     f"isabet %{s.hit * 100:.0f}, örnek {s.n} (bağımsız {s.independent}, bağımsız tarih "
+                     f"{s.independent_dates}){without}{base} → {s.label}")
     if trials:
         lines.append(f"  ⚠️ Veri gözetlemesi: bu oturumda {trials[0]}. deneme; bugüne kadar {trials[1]} farklı kriter "
                      "denendi. Ne kadar çok koşul denenirse iyi görünen bir karnenin şans olma ihtimali o kadar artar.")
@@ -413,7 +414,7 @@ def _history_data():
 
     import pandas as pd
 
-    from core.backtest.run import load_frames, tradable_symbols
+    from core.backtest.run import HOLDOUT_START, load_frames, tradable_symbols
     from core.market.calendar import now_istanbul
     from core.market.membership import ever_members, membership_panel
     from core.market.universe import BENCHMARK
@@ -421,7 +422,8 @@ def _history_data():
     key = now_istanbul().date()
     if key not in _HISTORY:
         reasons: dict = {}
-        keep, skipped = tradable_symbols(ever_members(), reasons)
+        # Faz C M5-2: a jump or a short history is judged on the research period only, not the holdout
+        keep, skipped = tradable_symbols(ever_members(), reasons, before=HOLDOUT_START)
         _SKIPPED[:] = sorted(skipped)
         _SKIP_REASONS.clear()
         _SKIP_REASONS.update(reasons)

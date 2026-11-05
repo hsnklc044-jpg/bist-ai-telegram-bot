@@ -41,7 +41,7 @@ BLOCK = 20  # sessions per bootstrap block (görev 28.10, Aşama C)
 SAMPLES = 2000
 TOP_EXCLUDED = 5
 CACHE_FILE = LOG_DIR / "screen_cards.json"
-CARD_FORMAT = 4  # 4: elimination filters day by day (K-45); 3: jumped stocks left out (öz-denetim 6, D1); bumped when the card's statistics change: older cached cards are recomputed
+CARD_FORMAT = 5  # 5: Faz C M5 (delisted exits, longer blocks, independent dates, membership end); 4: elimination filters day by day (K-45); 3: jumped stocks left out (öz-denetim 6, D1); bumped when the card's statistics change: older cached cards are recomputed
 CACHE_LIMIT = 500  # cards kept on disk, newest last (öz-denetim 5, Ö18)
 TRIALS_FILE = LOG_DIR / "screen_trials.csv"
 VERSION_FILES = (DATA_DIR / "corporate_actions.csv", DATA_DIR / "price_fix_approvals.csv",
@@ -62,6 +62,7 @@ class CardStats:
     day_mean: float | None = None  # mean of the daily means (each entry date once); low/high are its interval
     base: float | None = None  # the same day mean for every eligible stock-day ("tüm hisseler")
     no_index: bool = False  # XU100 was missing: nothing could be measured
+    independent_dates: int = 0  # Faz C M5-8: entry dates at least h sessions apart, all stocks together
 
     @property
     def label(self) -> str:
@@ -105,16 +106,22 @@ def _day_means(dates: np.ndarray, values: np.ndarray) -> np.ndarray:
     return np.add.reduceat(values, start) / np.diff(np.append(start, len(values)))
 
 
-def _interval(days: np.ndarray, seed: int = 0) -> tuple[float, float] | tuple[None, None]:
-    """95% circular block bootstrap of the mean of the daily means (blocks of BLOCK sessions)."""
+def block_for(horizon: int) -> int:
+    """Faz C M5-7: a block of only `horizon` sessions covered ~90% at h = 20; at least twice the holding."""
+
+    return max(BLOCK, 2 * horizon)
+
+
+def _interval(days: np.ndarray, seed: int = 0, block: int = BLOCK) -> tuple[float, float] | tuple[None, None]:
+    """95% circular block bootstrap of the mean of the daily means (blocks of `block` sessions)."""
 
     n = len(days)
-    if n < 2 * BLOCK:
+    if n < 2 * block:
         return None, None
     rng = np.random.default_rng(seed)
-    blocks = int(np.ceil(n / BLOCK))
+    blocks = int(np.ceil(n / block))
     starts = rng.integers(0, n, size=(SAMPLES, blocks))
-    index = ((starts[:, :, None] + np.arange(BLOCK)) % n).reshape(SAMPLES, -1)[:, :n]
+    index = ((starts[:, :, None] + np.arange(block)) % n).reshape(SAMPLES, -1)[:, :n]
     low, high = np.quantile(days[index].mean(axis=1), [0.025, 0.975])
     return float(low), float(high)
 
@@ -137,7 +144,9 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         if eligible is not None:
             if symbol not in eligible.columns:
                 continue
-            ok &= eligible[symbol].reindex(table.index).ffill().fillna(False).astype(bool).to_numpy()
+            member = eligible[symbol]
+            held = member.reindex(table.index).ffill().fillna(False).astype(bool).to_numpy()
+            ok &= held & (table.index <= member.index.max())  # Faz C M5-9: not carried past the table
         members[symbol] = ok
         checks[symbol] = E.frame(frames[symbol], symbol, bench.index, actions)
     # the same eliminations as the live list, each day with its own data (K-45)
@@ -163,8 +172,15 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         entry, bench_entry = df["open"].shift(-1), b["open"].shift(-1)
         # K-75 (M5-3): an entry day locked at the upper limit does not fill
         entry = entry.where(~pd.Series(locked_up(df), index=df.index).shift(-1, fill_value=False))
+        # Faz C M5-5: a stock whose data ends before the period (delisted) exits at its last close; its last
+        # events used to vanish (a −40% fall was not counted)
+        ended = len(df) and df.index[-1] < bench.index[-1]
         for h in horizons:
-            gross = ((df["close"].shift(-h) / entry - 1) - (b["close"].shift(-h) / bench_entry - 1)).to_numpy()
+            exit_, bench_exit = df["close"].shift(-h), b["close"].shift(-h)
+            if ended:
+                tail = exit_.isna() & entry.notna()
+                exit_, bench_exit = exit_.where(~tail, df["close"].iloc[-1]), bench_exit.where(~tail, b["close"].iloc[-1])
+            gross = ((exit_ / entry - 1) - (bench_exit / bench_entry - 1)).to_numpy()
             excess = gross - ROUND_TRIP_COST
             # a zero or missing open makes ±inf, not NaN (M5 ORTA): only finite results count
             every = np.flatnonzero(universe & np.isfinite(excess))  # "tüm hisseler": the same days without the query
@@ -182,14 +198,17 @@ def history(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         events = pd.concat(rows[h], ignore_index=True)
         values = events["excess"].to_numpy()
         days = _day_means(events["date"].to_numpy(), values)
-        low, high = _interval(days)
+        low, high = _interval(days, block=block_for(h))
+        dates = np.unique(events["date"].to_numpy())
+        independent_dates = _independent(np.sort(bench.index.get_indexer(dates)), h)
         best = events.groupby("symbol")["excess"].sum().nlargest(TOP_EXCLUDED).index
         rest = events.loc[~events["symbol"].isin(best), "excess"]
         everyone = pd.concat(base[h], ignore_index=True)
         base_days = _day_means(everyone["date"].to_numpy(), everyone["excess"].to_numpy())
         out[h] = CardStats(len(values), independent[h], float(values.mean()), float(np.median(values)),
                            float((values > 0).mean()), low, high, float(rest.mean()) if len(rest) else None,
-                           float(events["gross"].mean()), float(days.mean()), float(base_days.mean()))
+                           float(events["gross"].mean()), float(days.mean()), float(base_days.mean()),
+                           independent_dates=independent_dates)
     return out
 
 
