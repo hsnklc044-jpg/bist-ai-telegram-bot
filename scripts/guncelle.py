@@ -60,6 +60,15 @@ ENV = {"PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
 LOG: list[str] = []
 
 
+def failed_names(output: str, limit: int = 3) -> str:
+    """The failed tests of a pytest run, short, for the Telegram line (05.11.2026: it said only "1 failed")."""
+
+    names = [line.split(" - ")[0].removeprefix("FAILED ").removeprefix("tests/").strip()
+             for line in output.splitlines() if line.startswith("FAILED ")]
+    shown = ", ".join(names[:limit])
+    return shown + (f" (+{len(names) - limit})" if len(names) > limit else "")
+
+
 def log(msg: str) -> None:
     line = f"[{datetime.now():%H:%M:%S}] {msg}"
     print(line, flush=True)
@@ -354,8 +363,9 @@ def _main(argv: list[str]) -> int:
             tests = run([str(python), "-m", "pytest", "-q", "-p", "no:cacheprovider"], cwd=stage, timeout=1800)
             result = (tests.stdout.strip().splitlines() or ["?"])[-1]
             if ruff.returncode != 0 or tests.returncode != 0:
-                summary = (f"KURULMADI: v{latest} deneme kopyasında başarısız (ruff {ruff.returncode}; {result}). "
-                           f"v{installed} çalışmaya devam ediyor.")
+                names = failed_names(tests.stdout)
+                summary = (f"KURULMADI: v{latest} deneme kopyasında başarısız (ruff {ruff.returncode}; {result})"
+                           + (f"; başarısız: {names}" if names else "") + f". v{installed} çalışmaya devam ediyor.")
                 return code
             log(f"deneme kopyası: {result}")
         finally:

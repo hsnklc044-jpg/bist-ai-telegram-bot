@@ -239,3 +239,21 @@ class BildirTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FailedTestNamesTest(unittest.TestCase):
+    """05.11.2026: the Telegram line said "1 failed" without its name; the PC's data made it fail."""
+
+    def test_failed_names_are_kept_short(self):
+        out = ("....F..\n=========================== short test summary info ============================\n"
+               "FAILED tests/test_a.py::ATest::test_one - AssertionError: x\n"
+               "FAILED tests/test_b.py::BTest::test_two - ValueError: y\n"
+               "1 failed, 1300 passed in 1354.32s\n")
+        self.assertEqual(g.failed_names(out), "test_a.py::ATest::test_one, test_b.py::BTest::test_two")
+
+    def test_more_than_three_are_counted(self):
+        out = "".join(f"FAILED tests/t.py::T::test_{i} - E\n" for i in range(5))
+        self.assertTrue(g.failed_names(out).endswith("(+2)"))
+
+    def test_none(self):
+        self.assertEqual(g.failed_names("5 passed\n"), "")

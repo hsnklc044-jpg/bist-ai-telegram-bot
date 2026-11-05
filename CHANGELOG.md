@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.84 – 05.11.2026 (güncelleyici başarısız testin adını yazıyor)
+- 05.11 08:26: v0.99.78 bilgisayardaki deneme kopyasında "1 failed" ile kurulmadı. CI'ın dört işi (Windows dahil) yeşildi. Deneme kopyası bilgisayarın gerçek `data` klasörüyle çalıştığı için fark oradan gelebilir; neden henüz bilinmiyor.
+- Telegram mesajı artık başarısız testlerin adını da yazıyor (en çok 3 tane, fazlası sayıyla).
+- Bu düzeltme ancak bir sürüm kurulduktan sonra çalışır. O zamana kadar ayrıntı `C:\Projeler\QuantBIST_otomasyon\logs\guncelle_*.log` dosyasında.
+- Doğrulama: `test_guncelle` (FailedTestNamesTest, 3 test), önce kırmızı sonra yeşil.
+
 ## v0.99.83 – 05.11.2026 (Faz C, 5. parti: teknik görünüm skorunun çevresi, M1; Faz C'nin temiz maddeleri tamam)
 - Skorun kendisi değişmedi. M1-4 bilerek bırakıldı, çünkü skoru değiştirmek canlı ölçümü sıfırlar.
 - **M1-3:** `/analyze`, son 60 seansta tavan/taban sınırını aşan bir kapanış değişimi görürse kaydı eksik bir şirket işlemine karşı uyarıyor. Böyle bir durumda görünüm, hacim ve oynaklık yanıltıcı olabilir.
