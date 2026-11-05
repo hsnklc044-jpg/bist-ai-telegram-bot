@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.106 – 05.11.2026 (günlük rapordaki iki ifade düzeltmesi)
+- "23.10.2026'den bu yana" artık "23.10.2026'dan bu yana": ek, yılın okunuşuna göre seçiliyor (yirmi altı → 'dan, yirmi beş → 'ten).
+- Pozisyonun altındaki destek satırı: "güç 0 ölçülmemiş puan, -0,0 ATR" yerine "güç puanı 0, bu puan doğrulanmadı; kapanışa uzaklık 0,0 ATR". ATR uzaklığı hiçbir yerde "-0,0" yazılmıyor.
+- Kural, eşik ya da K-79 parçası değişmedi.
+- Doğrulama: `test_report_wording` (3 test; 19 yıl için ek), seviye ve rapor testleri.
+
 ## v0.99.105 – 05.11.2026 (tarama aboneliğine destek ve direnç)
 - Akşamki abonelik mesajı artık ilk listedeki ve yeni giren hisselerin en yakın küme destek ve direncini, kapanışa yüzde uzaklığıyla yazıyor (en çok 40 satır; kalanlar `/seviye KOD`). Seviye hesaplanamazsa liste yine gider.
 - Kural, eşik ve K-79 parçaları değişmedi.

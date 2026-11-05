@@ -1103,6 +1103,23 @@ def _risk_budget(account, values, frames, total, bench, perf, day, limits=None) 
         return "", []
 
 
+_ONES = {1: "'den", 2: "'den", 3: "'ten", 4: "'ten", 5: "'ten", 6: "'dan", 7: "'den", 8: "'den", 9: "'dan"}
+_TENS = {1: "'dan", 2: "'den", 3: "'dan", 4: "'tan", 5: "'den", 6: "'tan", 7: "'ten", 8: "'den", 9: "'dan"}
+
+
+def date_from(day: date) -> str:
+    """"23.10.2026'dan": the ablative suffix follows the spoken year (iki bin yirmi altı → 'dan)."""
+
+    y = day.year
+    if y % 10:
+        suffix = _ONES[y % 10]
+    elif y % 100:
+        suffix = _TENS[(y // 10) % 10]
+    else:
+        suffix = "'den"  # yüz, bin
+    return f"{day:%d.%m.%Y}{suffix}"
+
+
 def _basis_line(growth: pd.Series) -> str:
     """Talimat C: growth since the first record, nominal / real / USD / against cash (K-51)."""
 
@@ -1111,7 +1128,7 @@ def _basis_line(growth: pd.Series) -> str:
 
         start, end = growth.index[0].date(), growth.index[-1].date()
         result = macro.four_basis(float(growth.iloc[-1] / growth.iloc[0] - 1), start, end)
-        return f"{start:%d.%m.%Y}'den bu yana: {result.line()}"
+        return f"{date_from(start)} bu yana: {result.line()}"
     except Exception:  # noqa: BLE001 - extra information; the report still goes out
         logger.exception("Four-basis line failed")
         return ""

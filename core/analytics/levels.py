@@ -338,6 +338,14 @@ def write_log(day: date, frames: dict[str, pd.DataFrame], path=None, now=None) -
     return len(rows)
 
 
+def atr_text(x: float) -> str:
+    """Distance in ATR with one decimal and a Turkish comma; never "-0,0"."""
+
+    if round(x, 1) == 0:
+        return "0,0"
+    return f"{x:+.1f}".replace(".", ",")
+
+
 def position_line(df: pd.DataFrame) -> str:
     """The daily report's information line under a position: the nearest cluster support."""
 
@@ -347,8 +355,8 @@ def position_line(df: pd.DataFrame) -> str:
     if not supports:
         return ""
     lv = max(supports, key=lambda lv: lv.price)
-    distance = f"{lv.dist_atr:+.1f}".replace(".", ",")
-    return f"     en yakın destek {tr(lv.price, 2)} (küme, güç {lv.strength} {UNMEASURED}, {distance} ATR) – {LABEL}, {STUDY_NOTE}"
+    return (f"     en yakın destek {tr(lv.price, 2)} (küme; güç puanı {lv.strength}, bu puan doğrulanmadı; "
+            f"kapanışa uzaklık {atr_text(lv.dist_atr)} ATR) – {LABEL}, {STUDY_NOTE}")
 
 
 def nearest(found: list[Level], k: int = 3) -> dict[str, list[Level]]:
@@ -362,10 +370,10 @@ def _line(lv: Level) -> str:
 
     power = (f" · güç {lv.strength} ({UNMEASURED}; {lv.touches} dokunma, {lv.breaks} kırılma)"
              if lv.strength is not None else "")
-    atr_text = f"{lv.dist_atr:+.1f}".replace(".", ",")
+    atr = atr_text(lv.dist_atr)
     pct_text = f"{'+' if lv.dist_pct >= 0 else '−'}%{abs(lv.dist_pct):.1f}".replace(".", ",")
     method = f"{lv.method} {lv.name}" if lv.name else lv.method
-    return f"  {tr(lv.price, 2)} · {method} · {atr_text} ATR ({pct_text}){power}"
+    return f"  {tr(lv.price, 2)} · {method} · {atr} ATR ({pct_text}){power}"
 
 
 def levels_text(symbol: str, df: pd.DataFrame, day: date | None = None, k: int | None = None) -> str:
