@@ -30,7 +30,7 @@ import pandas as pd
 # K-80 quality gate (fixed 05.11.2026 before any count of a forward download was seen)
 MAX_LAST_MISSING = 0.05   # share of sessions without their last hourly candle (17:30; half day 11:30)
 MAX_SHORT_SESSIONS = 0.05  # share of full sessions with fewer than 9 candles
-MAX_EMPTY_SESSIONS = 0     # sessions with no candle at all, per stock
+MAX_EMPTY_SHARE = 0.005    # share of stock-sessions with no candle at all (K-80 correction; was 0 in total)
 MAX_ZERO_VOLUME = 0.02     # share of candles with zero volume, the opening candle not counted (K-80 correction)
 OPEN_CANDLE = time(9, 30)  # Yahoo gives it zero volume on nearly every session (B: 98.3%); reported, not gated
 FULL_CANDLES = 9
@@ -47,6 +47,7 @@ class Quality:
     last_missing: float = 0.0
     short_sessions: float = 0.0
     empty_sessions: int = 0
+    empty_share: float = 0.0
     zero_volume: float = 0.0
     open_zero_volume: float = 0.0
     passed: bool = False
@@ -96,8 +97,9 @@ def quality(frames: dict[str, pd.DataFrame], start: date, end: date) -> Quality:
         fails.append(f"son mum eksik %{q.last_missing * 100:.1f} > %{MAX_LAST_MISSING * 100:.0f}")
     if q.short_sessions > MAX_SHORT_SESSIONS:
         fails.append(f"eksik saatli seans %{q.short_sessions * 100:.1f} > %{MAX_SHORT_SESSIONS * 100:.0f}")
-    if q.empty_sessions > MAX_EMPTY_SESSIONS:
-        fails.append(f"mumsuz seans {q.empty_sessions}")
+    q.empty_share = q.empty_sessions / n
+    if q.empty_share > MAX_EMPTY_SHARE:
+        fails.append(f"mumsuz seans {q.empty_sessions} (%{q.empty_share * 100:.2f} > %{MAX_EMPTY_SHARE * 100:.1f})")
     if q.zero_volume > MAX_ZERO_VOLUME:
         fails.append(f"hacmi 0 mum %{q.zero_volume * 100:.1f} > %{MAX_ZERO_VOLUME * 100:.0f}")
     q.passed, q.reason = (not fails), ("; ".join(fails) or "kapıdan geçti")

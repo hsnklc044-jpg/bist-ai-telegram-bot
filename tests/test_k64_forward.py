@@ -147,6 +147,20 @@ class QualityTest(unittest.TestCase):
             self.assertFalse(q.passed, word)
             self.assertIn(word, q.reason)
 
+    def test_one_stock_missing_one_day_does_not_stop_the_test(self):
+        """K-80 correction: the empty-session gate is a share (0.5%), not zero in total."""
+
+        frames = {f"S{i:02d}": session_frame(self.first, self.last) for i in range(30)}
+        frames["S00"] = session_frame(self.first, self.last, drop_whole=(date(2026, 11, 3),))
+        q = F.quality(frames, self.first, self.last)
+        self.assertEqual(q.empty_sessions, 1)
+        self.assertTrue(q.passed, q.reason)
+        frames = {f"S{i:02d}": session_frame(self.first, self.last, drop_whole=(date(2026, 11, 3),))
+                  for i in range(30)}
+        q = F.quality(frames, self.first, self.last)
+        self.assertFalse(q.passed)
+        self.assertIn("mumsuz seans 30", q.reason)
+
     def test_small_gaps_inside_the_limits_pass(self):
         q = F.quality({"A": session_frame(self.first, self.last, drop_last=2, zero=10)}, self.first, self.last)
         self.assertTrue(q.passed, q.reason)

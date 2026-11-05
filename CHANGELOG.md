@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.98 – 05.11.2026 (K-80 mumsuz seans eşiği pay oldu)
+- K-80 kapısında "mumsuz seans" eşiği toplamda 0'dı; tek bir hissenin tek gün işlem görmemesi ileri testi durduruyordu. Artık eşik bir pay: mumsuz hisse-seans payı en fazla %0,5. Kullanıcı onayıyla; başka eşik değişmedi.
+- K-79 özetleri yalnız `k64_forward.py` için güncellendi (`quality`, `Quality`, `MAX_EMPTY_SHARE`). K-64'ün kendi kodunun özetleri aynı.
+- Doğrulama: `test_k64_forward` (yeni test: 30 hissede bir hisse-gün eksik kapıdan geçer, her hissede bir gün eksik geçemez); dondurma testi değişikliği yakaladı, özetler güncellenince yeşil.
+
 ## v0.99.97 – 05.11.2026 (K-78 tabanda çıkış kuralı)
 - Yeni `factor_study.exit_fill`: Tutuş ayının son günü tabanda kilitliyse satış dolmaz. Çıkış, kilitli olmayan ilk sonraki günün açılışından yapılır; bu, projenin mevcut Karar 2 kuralıyla aynı. Holdout verisi okunmaz: o tarihe kadar kilitsiz gün yoksa son kilitli kapanış kullanılır ve not düşülür. Bu aylar ölçümden atılmaz.
 - Getiri hesaplanmadı; K-78 ölçümü başlamadı.
