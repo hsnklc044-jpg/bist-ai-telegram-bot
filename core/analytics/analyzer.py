@@ -137,6 +137,17 @@ def _risk_level(
 # =====================================================
 
 
+JUMP_MOVE = 0.105  # beyond any limit move: only an unrecorded corporate action (Faz C M1-3)
+JUMP_LOOKBACK = 60
+
+
+def has_jump(close: pd.Series, lookback: int = JUMP_LOOKBACK) -> bool:
+    """A close-to-close move beyond the daily limit in the last `lookback` sessions."""
+
+    tail = close.astype(float).iloc[-lookback:]
+    return bool((tail / tail.shift(1) - 1).abs().gt(JUMP_MOVE).any())
+
+
 def analyze_stock(
     symbol: str,
 ) -> dict | None:
@@ -273,6 +284,9 @@ def analyze_stock(
 
             "trend":
                 snapshot.trend.value,
+
+            "jump_warning":
+                has_jump(df["close"]),
 
 
             "momentum":

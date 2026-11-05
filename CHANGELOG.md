@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.83 – 05.11.2026 (Faz C, 5. parti: teknik görünüm skorunun çevresi, M1; Faz C'nin temiz maddeleri tamam)
+- Skorun kendisi değişmedi. M1-4 bilerek bırakıldı, çünkü skoru değiştirmek canlı ölçümü sıfırlar.
+- **M1-3:** `/analyze`, son 60 seansta tavan/taban sınırını aşan bir kapanış değişimi görürse kaydı eksik bir şirket işlemine karşı uyarıyor. Böyle bir durumda görünüm, hacim ve oynaklık yanıltıcı olabilir.
+- **M1-5:** Günlük skor kaydı, `/analyze` ile aynı 60 mumluk alt sınırı uyguluyor. Önceden 50–59 mumlu hissede kayıt "güçlü negatif" yazarken `/analyze` "analiz yapılamadı" diyordu.
+- **M1-8:** `/performans`, canlı ve referans ortalamaların maliyet öncesi olduğunu yazıyor.
+- **M1-9:** `/analyze`'daki trend satırı, skordan ayrı bir tanım (EMA20/50/200) kullandığını söylüyor.
+- **Faz C durumu:** İleri testi etkilemeyen bütün maddeler v0.99.79–83'te kapandı. K-64 değerlendirme kodunu değiştiren maddeler 03.02.2027 ileri testinden sonraya kaldı: M31-2 (etiket = kartın işlemi), M31-3 (kalibrasyon), M31-8 (K-64 test etiketi), M31-10/12 ve M31 yeniden doğrulamasının D3, D4, D6, D7 maddeleri.
+- Doğrulama: yeni `test_faz_c_m1` (5 test), önce kırmızı sonra yeşil.
+
 ## v0.99.82 – 05.11.2026 (Faz C, 4. parti: sanal defterde aynı kural, seviyelerde K-49'a uyum; M32-3, M8)
 - **M32-3:** Saatlik takip artık günlük kuralı uyguluyor. Bir günün zirvesi iz süren stopu ancak ertesi seanstan itibaren yükseltiyor; saatlik ve günlük yol aynı sonucu veriyor. Önceden gün içindeki zirve stopu aynı gün yükseltiyordu; saatlik yol, ölçülen kuraldan daha sık ve daha erken stop yazıyordu. Günlük çerçevede sonuç birebir aynı.
 - **M8-3:** Bir seviye kümesinin fiyat aralığı küme genişliğini (0,5 ATR) aşamıyor. Önceden zincirleme birleşme vardı: 0,45 arayla dizilmiş 10 tepe 4 fiyat birimine yayılan tek bir seviye oluyor, dokunma sayısı ve güç puanı şişiyordu.

@@ -1,4 +1,4 @@
-# Durum notu (04.11.2026, kod v0.99.78)
+# Durum notu (05.11.2026, kod v0.99.83)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -42,7 +42,12 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
     3. Kayıt: iş akışları artık tamam, sonuç JSON'larına damga v0.99.78'de eklendi.
   - Düzeltilenler: M32 Y1 (saatlik kilit), O2, O3, D6, D7; M31 Y1, O1, O2, O3, D1, D2, D5, D8.
   - Ertelenenler: M31 D3, D4, D6, D7 ve ML etiketlerinde süre kilidi (Faz C ya da 03.02.2027 sonrası).
-- ⏳ Sıradaki: Faz C'nin temiz maddeleri. Kullanıcı Faz C kararını raporu gördükten sonra vereceğini söyledi; ardından genel onay verdi.
+- ✅ **Faz C, temiz maddeler (v0.99.79–83):**
+  - M30 (K-77): blok bootstrap, PIT başlangıç, holdout etiket sonu, getiri ve kuyruk koşulu, kilitli süre dolumu, skor adı.
+  - M5 karne; M27 senaryo karnesi; M32-3 saatlik ve günlük aynı kural; M8 seviyeler; M1 skorun çevresi.
+  - ⏸ K-64'e dokunanlar 03.02.2027 sonrasına kaldı.
+- ⏳ Sıradaki: M30'un bağımsız yeniden doğrulaması (ROADMAP "Faz C bitince M30"). Sonra yol haritasının 2. bölümü: karar desteği, önce portföy sağlık raporu.
+- **Kullanıcı (05.11):** "onay komut almadan devam et, her türlü izni veriyorum". Güvenlik kuralları, holdout ve ileri test sınırları yine geçerli.
 - **Genel onay (kullanıcı, 04.11 akşam):** "Benden onay bekleme, her aşamaya onay veriyorum." Sıra şöyle:
   1. M31 ve M32 bağımsız inceleme raporları (başlatıldı 18:14 UTC, yalnız rapor).
   2. Bulguların önem sırasıyla düzeltilmesi; her düzeltme önce kırmızı test, sonra kod.

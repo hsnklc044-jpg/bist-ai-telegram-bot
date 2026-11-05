@@ -38,6 +38,7 @@ import pandas as pd
 from core.config.paths import EQUITY_LOG_FILE, SIGNAL_LOG_FILE
 from core.config.thresholds import SIGNAL_VIEW_LABELS
 from core.infrastructure.logger import get_logger
+from core.market.indicators import MIN_HISTORY_LENGTH
 from core.market.universe import BENCHMARK
 from core.reports.daily import DISCLAIMER, adjusted_bars, pct, read_equity
 from core.signals_log import audit_log, log_signal
@@ -80,7 +81,7 @@ def log_daily_scores(
 
     for symbol in universe:
         df = bars(symbol)
-        if df.empty:
+        if df.empty or len(df) < MIN_HISTORY_LENGTH:  # Faz C M1-5: the floor /analyze uses
             continue
 
         last = score_frame(df).iloc[-1]
@@ -467,7 +468,8 @@ def forward_report(
             f"{MIN_DAYS} işlem günü gerekir."
         )
     else:
-        lines.append("Teknik görünüm → sonraki getirinin XU100'den farkı (ortalama, %95 aralık)")
+        lines.append("Teknik görünüm → sonraki getirinin XU100'den farkı (ortalama, %95 aralık; maliyet öncesi; "
+                     "referans da aynı yöntemle)")
         if reference:
             any_ref = next(iter(reference.values()))
             lines.append(

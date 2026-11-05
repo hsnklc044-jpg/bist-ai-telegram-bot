@@ -61,13 +61,22 @@ def _levels(result: dict) -> str:
 ⬆️ 4 ATR üstü : {result["target_2"]}"""
 
 
+def _jump(result: dict) -> str:
+    """Faz C M1-3: an unrecorded corporate action turns the view; say so."""
+
+    if not result.get("jump_warning"):
+        return ""
+    return ("\n⚠️ Son 60 seansta tavan/taban sınırını aşan bir kapanış değişimi var: kaydı eksik bir şirket işlemi "
+            "olabilir; görünüm, hacim ve oynaklık yanıltıcı olabilir.")
+
+
 def _format_analysis(result: dict, levels: str = "") -> str:
     return f"""📊 {result["symbol"]}
 
 💰 Fiyat : {result["price"]}
 
 📊 Görünüm : {view_label(result["signal"])} (skor {result["score"]})
-📈 Trend : {result["trend"]}
+📈 Trend (EMA20/50/200; skordan ayrı tanım) : {result["trend"]}{_jump(result)}
 
 ⚡ RSI : {result["rsi"]:.1f}
 📉 MACD : {result["macd"]:.2f}

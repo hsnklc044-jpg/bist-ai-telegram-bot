@@ -259,7 +259,7 @@ Her iş önce test, sonra kod, sonra tam test sırasıyla yapılır; sürüm ve 
 ### Ölçüm altyapısı (K-76) ✅ 04.11 (v0.99.75–77)
 Veri ve kod kimliği her ölçümde yazılıyor. Holdout öncesi saatlik ve günlük görüntü donduruldu (Actions 41880444802). İki indirme ve iki çalıştırma birebir aynı çıktı. Bilgisayarda tek komut: `scripts\olcum.ps1`. 41→36 farkının nedeni bilinmiyor (açık risk).
 
-### Faz C: Araştırma yöntemi (bir model yeniden ölçülmeden önce şart)
+### Faz C: Araştırma yöntemi (bir model yeniden ölçülmeden önce şart) ✅ temiz maddeler v0.99.79–83; K-64'e dokunanlar ⏸ 03.02.2027 sonrası
 Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanılmayan modeller için kod değişikliği değil. Hepsi yeni bir ölçüm yapılmadan önce yapılacak. Ölçüm onlarsız başlatılmaz.
 | Bulgu | İş | Durum |
 |---|---|---|
@@ -267,14 +267,14 @@ Bu modellerin hiçbiri kullanılmıyor; M30 ve M31 kapalı. Bu işler, kullanıl
 | M30-2 | 2022 öncesi zaman noktası üyelik; kaynak yoksa ölçüm 2022'den başlar | ✅ v0.99.79: ölçüm 01.04.2022'den |
 | M30-3, M31-8 | Test etiketinin bittiği gün de holdout'tan önce olmalı; canlı model holdout dönemiyle eğitilmemeli | M30-3 ✅ v0.99.79; canlı model ✅ v0.99.78; K-64 test etiketi 03.02.2027 sonrası |
 | M30-5 | Geçme koşuluna maliyet sonrası ortalama getiri ve kayıp kuyruğu eklenmeli | ✅ v0.99.79 (K-77) |
-| M31-2 | Etiket, kartın gerçek işlemiyle (iz süren stop ve hedef) aynı olmalı | C |
+| M31-2 | Etiket, kartın gerçek işlemiyle (iz süren stop ve hedef) aynı olmalı | ⏸ K-64 kodu: 03.02.2027 ileri testinden sonra |
 | M31-3, M30-9 | Olasılık kalibre edilmeli ya da "olasılık" diye gösterilmemeli | ✅ adı "skor" oldu (v0.99.78–79); kalibrasyon K-64 kodunda, 03.02.2027 sonrası |
-| M31-10, M31-12 | Canlı aramada küme kuralı; kart çalışmasındaki iki küçük yanlılık | C |
+| M31-10, M31-12 | Canlı aramada küme kuralı; kart çalışmasındaki iki küçük yanlılık | ⏸ K-64/K-68 kodu: 03.02.2027 ileri testinden sonra |
 | M5-2, M5-5, M5-7, M5-8, M5-9 | Karne: evren zaman noktasında seçilmeli; verisi biten hisse sayılmalı; aralık kapsamı ve blok uzunluğu; hisseler arası bağımlılık; üyelik ileri taşıma | | ✅ v0.99.80 (M5-2: evren denetimi holdout öncesi verisiyle) |
 | M27-4, M27-8 | Senaryo karnesinde ağırlık tutarlılığı; dönem sonu yanlılığı | | ✅ v0.99.81 |
 | M32-3 | Saatlik ve günlük takip aynı kuralı uygulamalı (gün içi zirve yalnız kapanışta) | | ✅ v0.99.82 |
 | M8-3, M8-5, M8-6 | Kümeleme genişlik sınırı; kaydı eksik şirket işlemi uyarısı; kilitli gün kuralı | | ✅ v0.99.82 |
-| M1-3, M1-5, M1-8, M1-9 | Sıçrama denetimi; kısa geçmişte iki yol; referansta maliyet; trend tanımı | C |
+| M1-3, M1-5, M1-8, M1-9 | Sıçrama denetimi; kısa geçmişte iki yol; referansta maliyet; trend tanımı | ✅ v0.99.83 |
 
 ### Bilinçli olarak bırakılanlar
 | Bulgu | Gerekçe |
