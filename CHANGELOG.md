@@ -8,6 +8,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
   - `snapshot`: Yahoo'dan baştan günlük indirme ve dondurma (B). 11.11.2026'dan önce reddeder.
   - `measure`: A (çalışma 41880444802) ve verilen B çalışmasıyla tek ölçüm. "K-78 tek ölçüm" onay metni olmadan çalışmaz.
 - Doğrulama: `test_factor_measure` 18 test (yeni: koşullar sağlanmazsa ölçüm hiç başlamaz; holdout ve ortak başlangıç kesimi; sentetik görüntülerle uçtan uca).
+- v0.99.101 CI'da kırmızıydı (slow-machine): karar testleri sınıf düzeyinde paylaşılan bir rastgele üreteç kullanıyordu; karışık sırada bir test başka seri gördü. Her test artık kendi tohumuyla, ortalaması sıfırlanmış seri kullanıyor; CI'ın karıştırma tohumuyla yerelde yeşil.
 
 ## v0.99.101 – 05.11.2026 (K-78 ölçüm kodu; gerçek veride çalıştırılmadı)
 - Yeni `core/analytics/factor_measure.py`: K-78'de önceden yazılan kurallarla aylık tutuş getirisi, devir maliyeti (%0,15 / %0,15; bilgi satırı %0,30), dilim − evren fazla getirisi, 3 aylık hareketli blok bootstrap (10.000, tohum 0), karar (KEŞİFTE GEÇTİ / GEÇMEDİ (etki dışlandı) / YANITLANAMADI / ÖLÇÜLEMEDİ) ve iki indirmenin birleştirilmesi (VERİYE DUYARLI).

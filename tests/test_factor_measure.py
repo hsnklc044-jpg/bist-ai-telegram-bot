@@ -64,24 +64,30 @@ def series_of(excess, slice_net=None, universe_net=None, start="2022-11"):
     return s
 
 
+def noise(sd, seed=1, n=48):
+    """Zero-mean noise from its own seed: the result never depends on test order (slow-machine shuffles)."""
+
+    x = np.random.default_rng(seed).normal(0, sd, n)
+    return x - x.mean()
+
+
 class JudgeTest(unittest.TestCase):
-    rng = np.random.default_rng(1)
 
     def test_too_few_months_is_unmeasured(self):
         v = M.judge("momentum", series_of([0.01] * 35), draws=200)
         self.assertEqual(v.label, M.UNMEASURED)
 
     def test_clear_effect_passes(self):
-        v = M.judge("momentum", series_of(0.02 + self.rng.normal(0, 0.01, 48)), draws=1000)
+        v = M.judge("momentum", series_of(0.02 + noise(0.01)), draws=1000)
         self.assertEqual(v.label, M.PASSED, v.reasons)
 
     def test_tight_zero_excludes_literature_effect(self):
-        v = M.judge("momentum", series_of(self.rng.normal(0, 0.002, 48)), draws=1000)
+        v = M.judge("momentum", series_of(noise(0.002)), draws=1000)
         self.assertEqual(v.label, M.EXCLUDED)
         self.assertLess(v.upper, M.LITERATURE)
 
     def test_wide_noise_is_unanswered(self):
-        v = M.judge("momentum", series_of(self.rng.normal(0, 0.05, 48)), draws=1000)
+        v = M.judge("momentum", series_of(noise(0.05)), draws=1000)
         self.assertEqual(v.label, M.UNANSWERED)
 
     def test_years_condition(self):
@@ -92,7 +98,7 @@ class JudgeTest(unittest.TestCase):
         self.assertTrue(any("pozitif yıl" in r for r in v.reasons))
 
     def test_low_volatility_also_needs_lower_risk(self):
-        x = 0.02 + self.rng.normal(0, 0.01, 48)
+        x = 0.02 + noise(0.01)
         calm = M.judge("dusuk_oynaklik", series_of(x, slice_net=x, universe_net=x * 3), draws=1000)
         self.assertEqual(calm.label, M.PASSED)
         wild = M.judge("dusuk_oynaklik", series_of(x, slice_net=x * 3, universe_net=x), draws=1000)
