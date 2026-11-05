@@ -1,10 +1,10 @@
-# Durum notu (05.11.2026, kod v0.99.96)
+# Durum notu (05.11.2026, kod v0.99.97)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
 ## 05.11.2026 – Son durum (v0.99.96)
 - K-80 hacmi 0 kapısı düzeltildi (09:30 mumu sayılmıyor). **Açık karar:** "mumsuz seans = 0" eşiği tek hisse-günle kapıyı kapatabiliyor; kullanıcı karar verecek.
-- K-78: 48 ay, güç tablosu, ikinci indirme Yahoo'dan baştan, veri kırığı kuralı yazıldı. **Açık:** tabanda çıkış kuralı. K-78 ölçümü başlamadı; en erken 11.11.2026.
+- K-78: 48 ay, güç tablosu, ikinci indirme Yahoo'dan baştan, veri kırığı kuralı yazıldı. ✅ Tabanda çıkış kuralı (v0.99.97, `exit_fill`). K-78 ölçümü başlamadı; en erken 11.11.2026.
 - K-64 ileri test beklentisi: yaklaşık 13 onay, 50'nin altında. Beklenen sonuç "GEÇMEDİ (örneklem yetersiz)".
 
 ## Faz B (ROADMAP "Eksiksiz iş planı")

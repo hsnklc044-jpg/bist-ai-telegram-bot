@@ -201,6 +201,43 @@ class ApplicabilityTest(unittest.TestCase):
         self.assertEqual(len(m.universe), 72)
 
 
+class LockedExitTest(unittest.TestCase):
+    """K-78 exit at the lower limit (written before any return was computed; the project's Karar 2 rule)."""
+
+    entry, last = date(2024, 6, 3), date(2024, 6, 28)
+
+    def lock(self, df, days):
+        df = df.copy()
+        for d in days:
+            ts = pd.Timestamp(d)
+            prev = df.loc[df.index < ts, "close"].iloc[-1]
+            df.loc[ts, ["open", "high", "low", "close"]] = prev * 0.90
+        return df
+
+    def test_free_exit_is_the_month_end_close(self):
+        df = bars(n=300, end="2024-07-31")
+        self.assertEqual(F.exit_fill(df, self.entry, self.last),
+                         (date(2024, 6, 28), float(df.at[pd.Timestamp("2024-06-28"), "close"]), ""))
+
+    def test_locked_month_end_exits_at_the_first_unlocked_open(self):
+        df = self.lock(bars(n=300, end="2024-07-31"), ["2024-06-28", "2024-07-01"])
+        day, price, note = F.exit_fill(df, self.entry, self.last)
+        self.assertEqual(day, date(2024, 7, 2))
+        self.assertEqual(price, float(df.at[pd.Timestamp("2024-07-02"), "open"]))
+        self.assertIn("2 seans sonra", note)
+
+    def test_never_reads_the_holdout(self):
+        df = self.lock(bars(n=300, end="2024-07-31"), ["2024-06-28"])
+        day, price, note = F.exit_fill(df, self.entry, self.last, stop=pd.Timestamp("2024-07-01"))
+        self.assertEqual((day, price), (date(2024, 6, 28), float(df.at[pd.Timestamp("2024-06-28"), "close"])))
+        self.assertIn("holdout öncesi kilitsiz gün yok", note)
+
+    def test_stopped_stock_and_no_data(self):
+        df = bars(n=300, end="2024-07-31")
+        self.assertEqual(F.exit_fill(df.loc[:"2024-06-14"], self.entry, self.last)[0], date(2024, 6, 14))
+        self.assertIsNone(F.exit_fill(df.loc[:"2024-05-31"], self.entry, self.last))
+
+
 class CoverageTest(unittest.TestCase):
     def test_counts_only(self):
         frames = {f"S{i:02d}.IS": bars(n=400, end="2023-01-31", seed=i, volume=1e6 * (i + 1)) for i in range(90)}

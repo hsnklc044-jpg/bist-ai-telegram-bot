@@ -148,6 +148,35 @@ def exit_close(df: pd.DataFrame, entry: date, last: date) -> tuple[date, float] 
     return part.index[-1].date(), float(part.iloc[-1])
 
 
+def exit_fill(df: pd.DataFrame, entry: date, last: date, stop=None) -> tuple[date, float, str] | None:
+    """
+    The exit as it could have been filled (K-78, the project's Karar 2 rule): the holding month's last close;
+    when that day is locked at the lower limit nothing sells, so the exit is the open of the first later day
+    that is not locked down. No data on or after `stop` (HOLDOUT_START) is read: if no such day comes before
+    it, the last locked close is used and the note says so (counted in the report, never dropped, so the
+    worst months are not removed).
+    """
+
+    from core.backtest.run import HOLDOUT_START
+    from core.market.limits import locked_down
+
+    found = exit_close(df, entry, last)
+    if found is None:
+        return None
+    day, price = found
+    stop = pd.Timestamp(HOLDOUT_START if stop is None else stop)
+    seen = df.loc[df.index < stop]
+    start = int(seen.index.searchsorted(pd.Timestamp(day)))
+    part, locked = seen.iloc[start:], locked_down(seen)[start:]  # the previous close decides a limit day
+    if not len(locked) or not locked[0]:
+        return day, price, ""
+    free = [i for i in range(1, len(part)) if not locked[i]]
+    if not free:
+        return day, price, "tabanda kilitli; holdout öncesi kilitsiz gün yok, kilitli kapanış kullanıldı"
+    i = free[0]
+    return part.index[i].date(), float(part["open"].iloc[i]), f"tabanda kilitli; {i} seans sonra açılıştan çıkış"
+
+
 @dataclass
 class Month:
     formation: date
@@ -290,6 +319,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["FACTORS", "Month", "adjust", "adjust_checked", "break_window", "chosen", "coverage", "entry_problem", "exit_close",
+__all__ = ["FACTORS", "Month", "adjust", "adjust_checked", "break_window", "chosen", "coverage", "entry_problem",
+           "exit_close", "exit_fill",
            "formation_days", "liquidity_cut", "market_days", "momentum", "month", "next_session", "power",
            "volatility"]

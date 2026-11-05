@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.97 – 05.11.2026 (K-78 tabanda çıkış kuralı)
+- Yeni `factor_study.exit_fill`: Tutuş ayının son günü tabanda kilitliyse satış dolmaz. Çıkış, kilitli olmayan ilk sonraki günün açılışından yapılır; bu, projenin mevcut Karar 2 kuralıyla aynı. Holdout verisi okunmaz: o tarihe kadar kilitsiz gün yoksa son kilitli kapanış kullanılır ve not düşülür. Bu aylar ölçümden atılmaz.
+- Getiri hesaplanmadı; K-78 ölçümü başlamadı.
+- Doğrulama: `test_factor_study` (4 yeni test: serbest çıkış, iki gün kilitli, holdout sınırı, işlemden kalkan hisse). İlk sürüm, kilitli günü önceki kapanışı görmeden değerlendirdiği için kilidi hiç yakalamıyordu; testler bunu gösterdi.
+
 ## v0.99.96 – 05.11.2026 (K-80 kalite kapısı düzeltmesi; K-78 ekleri)
 - K-80 kapısındaki hata düzeltildi: Yahoo 09:30 mumunda hacmi neredeyse her seans 0 veriyor (B'de %98,3). Bu mum sayılınca pay kendiliğinden yaklaşık %11 oluyor, %2 eşiği her indirmeyi eliyor ve ileri test her durumda ÖLÇÜLEMEDİ çıkıyordu. Artık 09:30 mumu bu sayıma girmiyor, eşik %2 kaldı; 09:30 payı yalnız bilgi olarak yazılıyor. Ağustos–Ekim 2026'da hem A hem B kapıdan geçiyor.
 - `k64_forward`: GEÇMEDİ sonucunun nedeni yazılıyor; onay sayısı 50'nin altındaysa "örneklem yetersiz, model hakkında sonuç vermez". Ölçüt ve karar tablosu değişmedi.
