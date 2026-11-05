@@ -50,6 +50,14 @@ async def rebalance(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await reply(update, text)
 
 
+async def weekly_now(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /ozet: the weekly operations summary now (the Sunday job sends it by itself)."""
+
+    from core.reports import weekly
+
+    await reply(update, await asyncio.to_thread(weekly.summary))
+
+
 async def calendar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /takvim: the user's own dividend and corporate event calendar."""
 

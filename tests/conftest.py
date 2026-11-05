@@ -95,6 +95,10 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
     monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")
+    # the weekly summary's send record stays private too
+    from core.reports import weekly as _weekly
+
+    monkeypatch.setattr(_weekly, "SENT_FILE", tmp_path / "weekly_summary_sent.txt")
     # the user's event calendar (/takvim) stays private too
     from core.reports import events as _events
 

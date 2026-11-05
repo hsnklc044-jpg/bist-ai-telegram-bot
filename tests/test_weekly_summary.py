@@ -80,5 +80,52 @@ class JobTest(unittest.TestCase):
         self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.WEEKLY_JOB)), 1)
 
 
+
+class SentRecordAndWatchTest(unittest.TestCase):
+    """05.11.2026: the summary watches everything but itself; a missing Sunday summary is a fault too."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.path = Path(tmp.name) / "weekly_summary_sent.txt"
+
+    def test_missing_after_sunday(self):
+        monday = datetime(2026, 11, 9, 9, 0)
+        self.assertIn("gönderilmedi", W.missing_warning(monday, self.path))  # never sent
+        W.record_sent(datetime(2026, 11, 8, 18, 0, 5), self.path)
+        self.assertIsNone(W.missing_warning(monday, self.path))
+        W.record_sent(datetime(2026, 11, 1, 18, 0, 5), self.path)  # a later write of an older stamp
+        self.assertIsNone(W.missing_warning(monday, self.path))  # the newest stamp counts
+        next_monday = datetime(2026, 11, 16, 9, 0)
+        self.assertIn("08.11.2026", W.missing_warning(next_monday, self.path))
+
+    def test_watch_job_and_command(self):
+        from telegram.ext import ApplicationBuilder
+
+        from bot import handlers, scheduler
+
+        sent = []
+
+        async def send_message(chat_id, text):
+            sent.append(text)
+
+        context = SimpleNamespace(bot=SimpleNamespace(send_message=send_message), job=SimpleNamespace(chat_id=7))
+        with mock.patch.object(W, "missing_warning", return_value="⚠️ yok"):
+            asyncio.run(scheduler.weekly_watch_job(context))
+        with mock.patch.object(W, "missing_warning", return_value=None):
+            asyncio.run(scheduler.weekly_watch_job(context))
+        self.assertEqual(sent, ["⚠️ yok"])
+        with mock.patch.object(W, "summary", return_value="🗒 özet"), mock.patch.object(W, "record_sent") as rec:
+            asyncio.run(scheduler.weekly_summary_job(context))
+        rec.assert_called_once()
+        app = ApplicationBuilder().token("123:abc").build()
+        self.assertTrue(scheduler.schedule_weekly_summary(app, 7))
+        self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.WEEKLY_WATCH_JOB)), 1)
+        self.assertIn("ozet", [name for name, _ in handlers.COMMANDS])
+
+
 if __name__ == "__main__":
     unittest.main()

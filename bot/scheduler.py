@@ -323,12 +323,38 @@ async def weekly_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     if chat:
         await context.bot.send_message(chat, text)
+        try:  # only a message that went out counts as sent (the Monday watch reads this)
+            weekly.record_sent(now_istanbul())
+        except OSError:
+            logger.exception("Weekly summary send record failed")
+
+
+WEEKLY_WATCH_JOB = "weekly_summary_watch"
+WEEKLY_WATCH_AT = time(9, 0, tzinfo=ISTANBUL)
+MONDAY = (1,)
+
+
+async def weekly_watch_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Monday 09:00: the Sunday summary was not sent -> say so (a summary cannot report its own absence)."""
+
+    from core.reports import weekly
+
+    try:
+        text = weekly.missing_warning(now_istanbul())
+    except Exception:  # noqa: BLE001
+        logger.exception("Weekly summary watch failed")
+        return
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if text and chat:
+        await context.bot.send_message(chat, text)
 
 
 def schedule_weekly_summary(app: Application, chat_id: int | None = None) -> bool:
     if app.job_queue is None:
         return False
     app.job_queue.run_daily(weekly_summary_job, time=WEEKLY_AT, days=SUNDAY, name=WEEKLY_JOB,
+                            job_kwargs=LATE_START, chat_id=chat_id)
+    app.job_queue.run_daily(weekly_watch_job, time=WEEKLY_WATCH_AT, days=MONDAY, name=WEEKLY_WATCH_JOB,
                             job_kwargs=LATE_START, chat_id=chat_id)
     return True
 

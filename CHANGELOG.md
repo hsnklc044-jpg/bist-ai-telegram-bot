@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.90 – 05.11.2026 (haftalık özet kendi eksikliğini de bildiriyor; /ozet)
+- **Sorun:** Haftalık özet başka arızaları yakalıyor, ama kendisi gelmediğinde bunu haber veremiyor (kullanıcının uyarısı).
+- **Kayıt:** Pazar özeti gönderildikçe zamanı `logs/weekly_summary_sent.txt` dosyasına yazılıyor. Yalnız gerçekten giden mesaj sayılıyor.
+- **Bekçi:** Pazartesi 09:00'da son pazarın 18:00 özeti için kayıt yoksa bot ayrı bir uyarı gönderiyor: tarih, son gönderim, nereye bakılacağı.
+- **Yeni `/ozet`:** Özeti istendiği anda gönderiyor; kullanıcı gönderimi kendisi deneyebiliyor.
+- Doğrulama: `test_weekly_summary` (7 test). Hiç kayıt yokken uyarı; o pazarın kaydı varken uyarı yok; eski bir kaydın sonradan yazılması durumu bozmuyor; bir hafta sonra eski kayıt uyarı veriyor; bekçi işi; komut. Gerçek zamanlayıcıyla hesaplanan sonraki çalışmalar: haftalık özet pazar 08.11.2026 18:00 +03, sağlık raporu cumartesi 07.11.2026 10:00 +03 (Europe/Istanbul).
+
 ## v0.99.89 – 05.11.2026 (yol planı 4. bölüm: haftalık işletme özeti ve tatbikat sonucu)
 - Bot her pazar 18:00'de kendiliğinden haftalık işletme özeti gönderiyor. İçeriği:
   - kurulu sürüm;
