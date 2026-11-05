@@ -1,4 +1,4 @@
-# Durum notu (05.11.2026, kod v0.99.99)
+# Durum notu (05.11.2026, kod v0.99.100)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -162,3 +162,4 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ Canlı model eğitimleri `logs/model_egitim.csv`'ye yazılıyor (cuma ve `/tara ai`). Cuma 06.11 eğitiminden sonra bu dosyada "cuma" satırı görünmeli.
 - ✅ `/tara ai` bekleme metni düzeltildi.
 - Açık: yfinance Pandas4Warning gürültüsü.
+- ✅ v0.99.100: cuma model kontrolü eğitimden sonra kendiliğinden çalışıp Telegram'a gidiyor; kullanıcının elle komut çalıştırması gerekmiyor. Kullanıcı tercihi (05.11): komutları parça parça kullanıcıya uygulatma; mümkün olanı otomatikleştir.

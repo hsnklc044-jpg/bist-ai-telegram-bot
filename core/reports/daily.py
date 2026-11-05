@@ -702,7 +702,7 @@ def _record_scenarios(day: date) -> None:
         logger.exception("Scenario recording failed")
 
 
-def _signal_book(day: date) -> None:
+def _signal_book(day: date, notify=None) -> None:
     """K-60: follow the paper signals, check the 6% breaker, record today's ML signals (K-59)."""
 
     try:
@@ -724,13 +724,27 @@ def _signal_book(day: date) -> None:
             members = ml_filter.liquid_members(_live(_bist100())[0])
             frames = {s: df for s, df in _live(sorted(members(pd.Timestamp(day))))[0].items() if df is not None}
         logger.info("%s", book.run(day, raw_bars, frames))
-        _refit_signal_model(day)
+        _refit_signal_model(day, notify)
     except Exception:  # noqa: BLE001 - the report was already sent
         logger.exception("Signal book step failed")
 
 
-def _refit_signal_model(day: date) -> None:
-    """/tara ai's model (K-64) is retrained on Fridays with every label known by then."""
+def _model_check_main():
+    """scripts/kart_modeli_kontrol.py's main (the script stays runnable by hand as well)."""
+
+    import importlib.util
+
+    from core.config.paths import ROOT_DIR
+
+    spec = importlib.util.spec_from_file_location("kart_modeli_kontrol", ROOT_DIR / "scripts" / "kart_modeli_kontrol.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.main
+
+
+def _refit_signal_model(day: date, notify=None) -> None:
+    """/tara ai's model (K-64) is retrained on Fridays with every label known by then; the check of the
+    new model runs right after and its output goes to Telegram (05.11.2026: no hand-run commands)."""
 
     from core.ml import signal_filter as S
     from core.signals import panic
@@ -743,6 +757,23 @@ def _refit_signal_model(day: date) -> None:
     rows = S.fit_live(frames, members, day)
     training_log.record(day, "cuma", "haftalık yeniden eğitim", rows)
     logger.info("Signal model refit | rows %d", rows)
+    if notify is None:
+        return
+    import io
+    from contextlib import redirect_stdout
+
+    out = io.StringIO()
+    try:
+        with redirect_stdout(out):
+            _model_check_main()()
+        text = out.getvalue().strip()
+    except Exception as exc:  # noqa: BLE001 - the check must never stop the job
+        logger.exception("Model check failed")
+        text = (out.getvalue().strip() + f"\nSONUÇ: DOĞRULANAMADI – kontrol çalışmadı ({exc})").strip()
+    try:
+        notify("🧪 Cuma model kontrolü (otomatik)\n" + text)
+    except Exception:  # noqa: BLE001
+        logger.exception("Model check not sent")
 
 
 def _bist100() -> list[str]:
@@ -1153,7 +1184,7 @@ def _run_locked(args) -> DailyResult:
         _record_levels(result.day)
         _record_scenarios(result.day)
         _refresh_scenario_cards(result.day)
-        _signal_book(result.day)
+        _signal_book(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id))
     return result
 
 

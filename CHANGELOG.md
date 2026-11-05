@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.100 – 05.11.2026 (cuma model kontrolü kendiliğinden çalışıyor)
+- Cuma yeniden eğitiminden hemen sonra `scripts/kart_modeli_kontrol.py` kendiliğinden çalışıyor ve çıktısı Telegram'a "🧪 Cuma model kontrolü (otomatik)" başlığıyla gidiyor. Kullanıcının PowerShell'de elle komut çalıştırması gerekmiyor (kullanıcı isteği). Betik elle de çalışmaya devam ediyor.
+- Kontrol çökerse iş durmuyor; mesajda "DOĞRULANAMADI" ve neden yazıyor.
+- Doğrulama: `test_friday_model_check` (4 test: cuma çıktısı gider, başka gün gitmez, çöken kontrol bildirilir, gerçek betik bulunur).
+
 ## v0.99.99 – 05.11.2026 (canlı model eğitimleri kayda geçiyor)
 - Yeni `logs/model_egitim.csv` (kişisel, depoya girmez): `/tara ai` modelinin her eğitimi bir satır yazıyor. Kayıtta zaman, gün, kaynak ("cuma" ya da "tara-ai"), neden (model yok ya da model eski), satır sayısı ve sürüm var. Önceden `/tara ai`'nin eski modeli yeniden eğitmesi iz bırakmıyordu; bir kartın hangi modelle puanlandığı bilinemiyordu. Kaydın yazılamaması eğitimi durdurmaz.
 - `/tara ai` bekleme mesajı düzeltildi: "ilk seferde model eğitilir" yerine "model yoksa ya da 10 günden eskiyse önce yeniden eğitilir".
