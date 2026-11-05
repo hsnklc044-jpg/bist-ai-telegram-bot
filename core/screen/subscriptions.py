@@ -227,6 +227,49 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
     return out
 
 
+def morning(day: date, live=None, path: Path | None = None, saved_path: Path | None = None, suspects=None,
+            universe_of=None) -> list[str]:
+    """
+    The full candidate list of every subscription before the session, from the last closes. It reads and
+    changes no evening state, so the 18:30 changes message stays as it was. Nothing on a holiday or while
+    the breaker or panic lock is on.
+    """
+
+    from core.market.calendar import is_session_day
+    from core.screen import engine, universe
+    from core.screen.command import DISCLAIMER, _live
+    from core.signals import store
+
+    subscribed = sorted(active(path).items())
+    if not subscribed or not is_session_day(day) or store.locked(day):
+        return []
+    messages, empty = [], []
+    for name, chat in subscribed:
+        criteria = criteria_of(name, saved_path)
+        if criteria is None:
+            continue
+        try:
+            query = parse(criteria)
+            chat_id = int(chat) if str(chat).lstrip("-").isdigit() else None
+            frames, bench = (live or _live)((universe_of or universe.symbols)(query.universe, chat_id))
+            found = universe.suspects() if suspects is None else suspects
+            symbols = [m.symbol for m in engine.run(query, frames, bench, found).matches]
+        except Exception as exc:  # noqa: BLE001 - one screen never stops the others
+            logger.exception("Morning list %s failed", name)
+            messages.append(f"⚠️ Sabah listesi {name} hazırlanamadı: {exc}")
+            continue
+        if not symbols:
+            empty.append(name)
+            continue
+        last = max(df.index.max() for df in frames.values() if len(df))
+        messages.append("\n".join([f"🌅 Sabah aday listesi: {name} ({criteria}) · son kapanış {last:%d.%m.%Y}",
+                                   f"{len(symbols)} hisse: {_codes(symbols)}", *_level_lines(symbols, frames),
+                                   f"Koşul değerleri: /tara_aciklama KOD {name}", DISCLAIMER]))
+    if empty:
+        messages.append(f"🌅 Sabah listesinde hisse çıkmayan taramalar: {', '.join(empty)}.")
+    return messages
+
+
 def save_state(outcome: Outcome, path: Path | None = None) -> None:
     path = Path(path or STATE_FILE)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -235,5 +278,5 @@ def save_state(outcome: Outcome, path: Path | None = None) -> None:
     tmp.replace(path)
 
 
-__all__ = ["MAX_SUBSCRIPTIONS", "Outcome", "active", "cancel_text", "list_text", "run", "save_state",
+__all__ = ["MAX_SUBSCRIPTIONS", "Outcome", "active", "cancel_text", "list_text", "morning", "run", "save_state",
            "subscribe_text"]

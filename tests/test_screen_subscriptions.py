@@ -106,8 +106,6 @@ class RunTest(Files):
         self.assertEqual(subscriptions._level_lines(["YOK.IS"], frames), [])
 
     def test_level_failure_does_not_stop_the_list(self):
-        from unittest import mock
-
         frames, bench = market()
         self.sub("dusuk")
         with mock.patch("core.analytics.levels.levels", side_effect=ValueError("bad")):
@@ -122,6 +120,64 @@ class RunTest(Files):
         lines = subscriptions._level_lines(list(many), many)
         self.assertEqual(lines[-1], "  ve 3 hisse daha: /seviye KOD")
         self.assertEqual(len(lines), subscriptions.MAX_LEVEL_LINES + 2)
+
+    def test_morning_sends_the_full_list_and_keeps_the_evening_state(self):
+        frames, bench = market()
+        self.sub("dusuk")
+        before = self.state.read_text() if self.state.exists() else None
+        kwargs = dict(live=lambda _s: (frames, bench), suspects=set(), universe_of=lambda *_: list(frames), **self.paths)
+        with mock.patch("core.signals.store.locked", return_value=False), \
+                mock.patch("core.market.calendar.is_session_day", return_value=True):
+            messages = subscriptions.morning(DAY, **kwargs)
+        self.assertEqual(len(messages), 1)
+        self.assertIn("Sabah aday listesi: dusuk", messages[0])
+        self.assertIn("S00", messages[0])
+        self.assertIn("Yakın destek", messages[0])
+        self.assertEqual(self.state.read_text() if self.state.exists() else None, before)
+        self.assertTrue(messages[0].rstrip().endswith(command.DISCLAIMER))
+
+    def test_morning_is_silent_on_a_holiday_or_a_lock(self):
+        frames, bench = market()
+        self.sub("dusuk")
+        kwargs = dict(live=lambda _s: (frames, bench), suspects=set(), universe_of=lambda *_: list(frames), **self.paths)
+        with mock.patch("core.signals.store.locked", return_value=True), \
+                mock.patch("core.market.calendar.is_session_day", return_value=True):
+            self.assertEqual(subscriptions.morning(DAY, **kwargs), [])
+        with mock.patch("core.signals.store.locked", return_value=False), \
+                mock.patch("core.market.calendar.is_session_day", return_value=False):
+            self.assertEqual(subscriptions.morning(DAY, **kwargs), [])
+
+    def test_morning_failure_of_one_screen_is_reported(self):
+        self.sub("dusuk")
+        def boom(_s):
+            raise ValueError("yok")
+        with mock.patch("core.signals.store.locked", return_value=False), \
+                mock.patch("core.market.calendar.is_session_day", return_value=True):
+            messages = subscriptions.morning(DAY, live=boom, suspects=set(), universe_of=lambda *_: [], **self.paths)
+        self.assertIn("hazırlanamadı", messages[0])
+
+    def test_morning_job_is_scheduled_on_weekdays_and_sends(self):
+        import asyncio
+        from datetime import time as clock
+        from types import SimpleNamespace
+
+        from telegram.ext import ApplicationBuilder
+
+        from bot import scheduler
+
+        sent = []
+
+        async def send_message(chat_id, text):
+            sent.append(text)
+
+        context = SimpleNamespace(bot=SimpleNamespace(send_message=send_message), job=SimpleNamespace(chat_id=7))
+        with mock.patch("core.screen.subscriptions.morning", return_value=["liste"]):
+            asyncio.run(scheduler.morning_screens_job(context))
+        self.assertEqual(sent, ["liste"])
+        self.assertEqual(scheduler.MORNING_AT.replace(tzinfo=None), clock(9, 30))
+        app = ApplicationBuilder().token("123:abc").build()
+        self.assertTrue(scheduler.schedule_morning_screens(app, 7))
+        self.assertEqual(len(app.job_queue.get_jobs_by_name(scheduler.MORNING_JOB)), 1)
 
     def test_a_regime_change_says_why_the_list_emptied(self):
         # öz-denetim 8: rejim= empties the list on another regime's day; the message names it

@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.106 – 05.11.2026 (09:30 sabah aday listesi)
+- İşlem günleri 09:30'da her abone taramanın tam listesi, son kapanışa göre destek ve dirençle gönderiliyor. Akşam değişiklik mesajı ve durumu aynı kaldı. Tatilde ve devre kesici ya da panik kilidinde sabah mesajı yok.
+- Kural, eşik ve K-79 parçaları değişmedi.
+
 ## v0.99.105 – 05.11.2026 (tarama aboneliğine destek ve direnç)
 - Akşamki abonelik mesajı artık ilk listedeki ve yeni giren hisselerin en yakın küme destek ve direncini, kapanışa yüzde uzaklığıyla yazıyor (en çok 40 satır; kalanlar `/seviye KOD`). Seviye hesaplanamazsa liste yine gider.
 - Kural, eşik ve K-79 parçaları değişmedi.
