@@ -728,3 +728,29 @@ Kullanıcının onayladığı seçenek 1. Tekrarlanabilirlik kontrolüdür, kara
   Mum farkının hangi hisselerde ve hangi saatlerde olduğu hisse hisse karşılaştırmayla incelenecek (`provenance compare`).
 - **Karar:** Değişen bir şey yok. K-63 ve K-64 saatlik GEÇMEDİ. Bu ölçüm 03.02.2027 ileri testinin verinin dondurulmasına ve özetinin kaydedilmesine dayanması gerektiğini bir kez daha gösteriyor.
 
+### 05.11.2026 – Dondurulmuş görüntü (A) ile bilgisayarın indirmesinin (B) hisse hisse karşılaştırması (gözlenen fark; neden iddia edilmez)
+
+A: Actions 41880444802, 04.11 20:47 TSİ, `4fc8a1bc…`, 62.075 mum. B: bilgisayar, 05.11 11:34, `2d126a5a…`, 65.736 mum. İkisi de 02.11.2026 öncesi. Karşılaştırma `provenance compare` ve bilgisayarda çalışan, yalnız okuyan bir betikle yapıldı.
+- **Mum sayısı:**
+  - Hemen her hissede A'da 2 mum fazla: pencere başlangıcı, 05.11.2025 09:30 ve 10:30.
+  - B'de her hissede 114–126 mum fazla; toplam 3.719.
+- **Fazla mumların saati:** 17:30'da 3.014; diğer saatlerin her birinde 85–90. Yani A'da yaklaşık 100 işlem gününde günün son saatlik mumu (17:30) yok, ayrıca yaklaşık 3 işlem günü tamamen eksik.
+- **Fazla mumların ayı:** Kasım 2025: 469, Aralık: 690, Ocak 2026: 630, Şubat: 840, Mart: 540, Temmuz: 549, Ağustos: 1. Nisan–Haziran ve Ağustos–Ekim'de mum sayısı aynı.
+- **Ortak zamanlarda değeri değişen mumlar:**
+
+  | Sütun | Adet | Medyan göreli fark | En büyük fark |
+  |---|---|---|---|
+  | Açılış | 211 | %0,08 | %0,66 |
+  | Kapanış | 208 | %0,10 | %1,13 |
+  | En yüksek | 97 | %0,15 | %1,13 |
+  | En düşük | 90 | %0,11 | %0,93 |
+  | Hacim | 5.744 | %100 | sonsuz |
+
+  Hacimdeki örüntü, bir indirmede hacmi 0 olan mumun ötekinde 0 olmadığını gösteriyor; yönü ayrılamadı.
+- **K-64 ile ilgisi:**
+  - Etiket "16 mum sonraki kapanış"; eksik 17:30 mumları sayımı kaydırır.
+  - Hacim anomalisi ve CMF öznitelikleri hacme dayanır.
+  - Aynı kod A'da 36, B'de 32 onay verdi.
+- **Yorum:** Yahoo'nun saatlik verisi, aynı geçmiş dönem için zamanla değişebiliyor. 04.11'de 5 dakika arayla yapılan iki indirme aynıydı; yaklaşık 15 saat arayla yapılan indirmeler farklı. 41→36 farkı için güçlü bir aday mekanizma, ama 41'in verisi saklanmadığı için **kanıt değil**; O4 açık kalıyor. Hangi indirmenin doğru olduğu bağımsız kaynak olmadan bilinmiyor.
+- **Karar:** Değişen bir şey yok. K-64 kodu donmuş (K-79). 03.02.2027 ileri testinin veri protokolü için kullanıcıya öneri sunuldu (karar kullanıcıda).
+
