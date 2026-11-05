@@ -69,9 +69,14 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
       - Çalışan sürüm büyük olasılıkla v0.99.88 (10:09'da kuruldu, sonraki güncelleme 11:08).
       - Kod gereği model 2 günlük (03.11) olduğu için yeniden eğitilmemeli (MAX_MODEL_AGE 10 gün; test: test_a_fresh_model_is_not_retrained).
       - Tetik olmadığı için kart yazılmamalı.
-      - Kayıtlardan doğrulama için kullanıcıya komut verildi; sonuç bekleniyor.
+      - **Doğrulandı (PC çıktısı, 05.11):**
+        - Sürüm v0.99.88: 10:02 güncellemesi 10:09:13'te bitti, sonraki güncelleme 11:02'de.
+        - 05.11'de ve 02.11'den beri kart ya da sinyal kaydı yok.
+        - Model dosyası en son 03.11.2026 22:50:50'de yazılmış (eğitim günü 2026-11-03, 744 satır). Yani 10:36 çağrısı yeniden eğitim yapmadı.
+        - Mevcut model 03.11 22:48'deki `/tara ai` çağrısıyla, eski kuralla eğitildi.
       - Cuma eğitimi bitene kadar `/tara ai` çalıştırılmayacak.
   - **Açık iş (düzeltilmedi):** `bot/reports.py:120`'deki "ilk seferde model eğitilir" metni eğitim yapılmasa da her çağrıda gösteriliyor. Yanıltıcı metin.
+  - **Açık iş (düzeltilmedi):** `/tara ai` yolundaki yeniden eğitim günlüğe yazılmıyor; yalnız cuma eğitimi "Signal model refit" yazıyor. 03.11 eğitimi bu yüzden günlükte görünmüyor.
   - A3 (kullanıcı onayladı: özel depo ve OneDrive ikinci yedek):
     - Depoyu oturum açamadı (GitHub 403).
     - Kullanıcı `quantbist-veri` adlı özel depoyu açacak, Claude GitHub uygulamasına ekleyecek ve artifact zip'ini web arayüzünden yükleyecek.
