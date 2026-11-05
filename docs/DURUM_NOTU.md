@@ -1,4 +1,4 @@
-# Durum notu (05.11.2026, kod v0.99.102)
+# Durum notu (05.11.2026, kod v0.99.103)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -161,7 +161,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 ## v0.99.99
 - ✅ Canlı model eğitimleri `logs/model_egitim.csv`'ye yazılıyor (cuma ve `/tara ai`). Cuma 06.11 eğitiminden sonra bu dosyada "cuma" satırı görünmeli.
 - ✅ `/tara ai` bekleme metni düzeltildi.
-- Açık: yfinance Pandas4Warning gürültüsü.
+- ✅ yfinance Pandas4Warning gürültüsü gizlendi (v0.99.103).
 - ✅ v0.99.100: cuma model kontrolü eğitimden sonra kendiliğinden çalışıp Telegram'a gidiyor; kullanıcının elle komut çalıştırması gerekmiyor. Kullanıcı tercihi (05.11): komutları parça parça kullanıcıya uygulatma; mümkün olanı otomatikleştir.
 - ✅ v0.99.101: K-78 ölçüm kodu (`factor_measure.py`), yalnız sentetik test. Sıradaki K-78 adımı: ikinci günlük indirmeyi (≥ 11.11.2026, Yahoo'dan baştan) yapıp donduran workflow ve ölçüm workflow'u.
 - ✅ v0.99.102: `factor-study.yml`. **11.11.2026 ya da sonrası:** `step=snapshot` çalıştırılır (B). Sonra `step=measure`, `b_run_id`, `b_date`, `confirm="K-78 tek ölçüm"`. Ölçüm bir kez; sonuç RESEARCH_LOG'a.

@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.103 – 05.11.2026 (yfinance uyarı gürültüsü)
+- yfinance'ın kendi kodundan gelen pandas kullanımdan kalkma uyarıları (Pandas4Warning) artık gizleniyor. Bu uyarılar her indirme günlüğünü dolduruyordu ve QuantBIST hakkında bir şey söylemiyordu. QuantBIST modüllerinden gelen uyarılar görünmeye devam ediyor. yfinance içe aktarılınca kendi filtresini öne eklediği için bizim filtre ondan sonra ekleniyor.
+- Doğrulama: `test_quiet_yfinance` (2 test).
+
 ## v0.99.102 – 05.11.2026 (K-78 ölçüm girişi ve workflow'u; ölçüm yapılmadı)
 - `python -m core.analytics.factor_measure A B --tarih-a … --tarih-b …`: K-78'in tek ölçümü. A dondurulmuş günlük görüntü değilse ya da iki indirme arası 7 günden azsa ölçüme başlamadan durur. İki indirme aynı başlangıca ve holdout öncesine kesilir, şirket işlemleri K-78 kuralıyla uygulanır. Her faktör için A, B ve birleşik sonuç yazılır.
 - Yeni `.github/workflows/factor-study.yml` (elle başlatılır):

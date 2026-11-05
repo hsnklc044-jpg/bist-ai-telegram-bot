@@ -56,8 +56,30 @@ def _configure() -> None:
     # yfinance and urllib3 are very chatty at INFO level.
     for noisy in ("yfinance", "urllib3", "httpx", "peewee"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
+    quiet_yfinance()
 
     _configured = True
+
+
+def quiet_yfinance() -> None:
+    """
+    Hide the pandas deprecation warnings (Pandas4Warning) that yfinance's own code raises (inplace=True and
+    the like): they are the library's, flood every download log and say nothing about QuantBIST. Warnings
+    raised from our modules still show. yfinance adds its own 'default' filter when imported, so it is
+    imported first and this filter goes in front of it.
+    """
+
+    import warnings
+
+    try:
+        import yfinance  # noqa: F401
+    except Exception:  # noqa: BLE001 - no yfinance, nothing to quiet
+        pass
+    try:
+        from pandas.errors import Pandas4Warning as category
+    except ImportError:  # older pandas
+        category = DeprecationWarning
+    warnings.filterwarnings("ignore", category=category, module=r"yfinance(\..*)?")
 
 
 def get_logger(name: str) -> logging.Logger:

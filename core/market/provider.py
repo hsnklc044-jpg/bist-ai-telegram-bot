@@ -16,7 +16,7 @@ from typing import Protocol
 import pandas as pd
 import yfinance as yf
 
-from core.infrastructure.logger import get_logger
+from core.infrastructure.logger import get_logger, quiet_yfinance
 
 logger = get_logger(__name__)
 
@@ -27,6 +27,7 @@ warnings.filterwarnings(
     message=".*inplace keyword.*",
     module=r"yfinance(\..*)?",
 )
+quiet_yfinance()
 
 COLUMNS = ("open", "high", "low", "close", "volume")
 
