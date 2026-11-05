@@ -91,6 +91,38 @@ class RunTest(Files):
         for word in ("al ", "sat ", "öneri", "fırsat"):
             self.assertNotIn(word, out.messages[0].replace(command.DISCLAIMER, "").lower())
 
+    def test_listed_stocks_show_their_nearest_levels(self):
+        frames, bench = market()
+        self.sub("dusuk")
+        message = self.run_on(DAY, frames, bench).messages[0]
+        self.assertIn("Yakın destek ve direnç", message)
+        self.assertRegex(message, r"S00: (destek|direnç) \d+,\d\d \([+-]\d+,\d%\)")
+        self.assertTrue(message.rstrip().endswith(command.DISCLAIMER))
+
+    def test_only_new_entries_get_level_lines(self):
+        frames, _ = market()
+        lines = subscriptions._level_lines(["S00.IS"], frames)
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(subscriptions._level_lines(["YOK.IS"], frames), [])
+
+    def test_level_failure_does_not_stop_the_list(self):
+        from unittest import mock
+
+        frames, bench = market()
+        self.sub("dusuk")
+        with mock.patch("core.analytics.levels.levels", side_effect=ValueError("bad")):
+            message = self.run_on(DAY, frames, bench).messages[0]
+        self.assertIn("İlk liste", message)
+        self.assertNotIn("Yakın destek", message)
+
+    def test_long_lists_are_capped(self):
+        frames, _ = market()
+        one = frames["S00.IS"]
+        many = {f"X{i:03d}.IS": one for i in range(subscriptions.MAX_LEVEL_LINES + 3)}
+        lines = subscriptions._level_lines(list(many), many)
+        self.assertEqual(lines[-1], "  ve 3 hisse daha: /seviye KOD")
+        self.assertEqual(len(lines), subscriptions.MAX_LEVEL_LINES + 2)
+
     def test_a_regime_change_says_why_the_list_emptied(self):
         # öz-denetim 8: rejim= empties the list on another regime's day; the message names it
         frames, bench = market()

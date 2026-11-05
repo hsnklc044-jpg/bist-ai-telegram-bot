@@ -29,6 +29,7 @@ STATE_FILE = LOG_DIR / "screen_subscriptions_state.json"
 COLUMNS = ("at", "chat", "name", "action")
 SUBSCRIBE, CANCEL = "abone", "iptal"
 MAX_SUBSCRIPTIONS = 5
+MAX_LEVEL_LINES = 40  # keeps the message inside Telegram's limit
 USAGE = "Kullanım: /tara_abone AD (kayıtlı tarama ya da şablon; /tara_liste, /tara_sablonlar)"
 CANCEL_USAGE = "Kullanım: /tara_abone_iptal AD (abonelikler: /tara_abonelikler)"
 
@@ -135,13 +136,44 @@ def _codes(symbols) -> str:
     return ", ".join(s.removesuffix(".IS") for s in sorted(symbols))
 
 
+def _price(value: float) -> str:
+    return f"{value:.2f}".replace(".", ",")
+
+
+def _level_lines(symbols, frames) -> list[str]:
+    """The nearest cluster support and resistance of each listed stock; a stock without one is left out."""
+
+    from core.analytics.levels import levels, nearest
+
+    rows = []
+    for symbol in sorted(symbols)[:MAX_LEVEL_LINES]:
+        df = (frames or {}).get(symbol)
+        if df is None:
+            continue
+        try:
+            near = nearest([lv for lv in levels(df) if lv.method == "küme"], 1)
+        except Exception:  # noqa: BLE001 - a level line never stops the list
+            logger.exception("Levels failed for %s", symbol)
+            continue
+        parts = [f"{kind} {_price(found[0].price)} ({found[0].dist_pct:+.1f}%)".replace(".", ",")
+                 for kind, found in near.items() if found]
+        if parts:
+            rows.append(f"  {symbol.removesuffix('.IS')}: " + " · ".join(parts))
+    if not rows:
+        return []
+    more = len(symbols) - MAX_LEVEL_LINES
+    tail = [f"  ve {more} hisse daha: /seviye KOD"] if more > 0 else []
+    return ["Yakın destek ve direnç (küme):", *rows, *tail]
+
+
 def _message(name: str, criteria: str, day: date, now: list[str], before: list[str] | None,
-             note: str = "") -> str | None:
+             note: str = "", frames=None) -> str | None:
     from core.screen.command import DISCLAIMER
 
     head = f"🔔 Tarama aboneliği: {name} ({criteria}) · veri {day:%d.%m.%Y}"
     if before is None:
         body = [f"İlk liste: {len(now)} hisse" + (f": {_codes(now)}" if now else " (şu an koşulu sağlayan yok).")]
+        body += _level_lines(now, frames)
     else:
         entered, left = set(now) - set(before), set(before) - set(now)
         if not entered and not left:
@@ -152,6 +184,7 @@ def _message(name: str, criteria: str, day: date, now: list[str], before: list[s
         if left:
             body.append(f"➖ Çıkanlar: {_codes(left)}")
         body.append(f"Şimdi {len(now)} hisse.")
+        body += _level_lines(entered, frames)
     if note:
         body.append(note)
     return "\n".join([head, *body, f"Ayrıntı ve karne: /tara {name}", DISCLAIMER])
@@ -187,7 +220,7 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
         before = previous.get("symbols") if previous and previous.get("criteria") == criteria else None
         note = (f"(bugünkü rejim {result.regime}; rejim={query.regime} filtresi bugün listeyi boş bırakır, /piyasa)"
                 if result.regime_blocked else "")
-        message = _message(name, criteria, day, symbols, before, note)
+        message = _message(name, criteria, day, symbols, before, note, frames)
         if message:
             out.messages.append(message)
         out.state[name] = {"day": day.isoformat(), "criteria": criteria, "symbols": symbols}

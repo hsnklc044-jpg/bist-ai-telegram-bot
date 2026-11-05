@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.105 – 05.11.2026 (tarama aboneliğine destek ve direnç)
+- Akşamki abonelik mesajı artık ilk listedeki ve yeni giren hisselerin en yakın küme destek ve direncini, kapanışa yüzde uzaklığıyla yazıyor (en çok 40 satır; kalanlar `/seviye KOD`). Seviye hesaplanamazsa liste yine gider.
+- Kural, eşik ve K-79 parçaları değişmedi.
+
 ## v0.99.104 – 05.11.2026 (K-78 ölçümünden önceki beş düzeltme; ölçüm yok)
 - Etiket: alt sınır pozitif olup yıl ya da risk koşulu kalırsa sonuç artık "güç yetersiz" değil, "GEÇMEDİ (alt sınır pozitif, ek koşul sağlanmadı)". Kullanıcı onayıyla, getiri görülmeden.
 - Tek çalışma: `snapshot` ve `measure` başlamadan önce Actions kayıtlarını sayıyor; başarılı çalışma ya da iki deneme varsa duruyor. Denemeler `research-results` dalına yazılıyor.
