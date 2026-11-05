@@ -65,7 +65,13 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
     - K-64'ün canlı modelden ayrımı testli (v0.99.92).
     - Model elle yeniden eğitilmeyecek.
     - 06.11 cuma eğitiminden sonra kullanıcı `scripts\kart_modeli_kontrol.py` çalıştıracak; DOĞRULANMAZSA kullanıcıya bildirilecek.
-    - 05.11 10:36'da `/tara ai` çağrıldı: model 2 günlüktü, yeniden eğitilmedi; tetik yoktu, kart yazılmadı.
+    - 05.11 10:36 `/tara ai` (kullanıcı): yanıt "bugün BIST 30'da teknik tetik (dip dönüşü) olan hisse yok".
+      - Çalışan sürüm büyük olasılıkla v0.99.88 (10:09'da kuruldu, sonraki güncelleme 11:08).
+      - Kod gereği model 2 günlük (03.11) olduğu için yeniden eğitilmemeli (MAX_MODEL_AGE 10 gün; test: test_a_fresh_model_is_not_retrained).
+      - Tetik olmadığı için kart yazılmamalı.
+      - Kayıtlardan doğrulama için kullanıcıya komut verildi; sonuç bekleniyor.
+      - Cuma eğitimi bitene kadar `/tara ai` çalıştırılmayacak.
+  - **Açık iş (düzeltilmedi):** `bot/reports.py:120`'deki "ilk seferde model eğitilir" metni eğitim yapılmasa da her çağrıda gösteriliyor. Yanıltıcı metin.
   - A3 (kullanıcı onayladı: özel depo ve OneDrive ikinci yedek):
     - Depoyu oturum açamadı (GitHub 403).
     - Kullanıcı `quantbist-veri` adlı özel depoyu açacak, Claude GitHub uygulamasına ekleyecek ve artifact zip'ini web arayüzünden yükleyecek.
