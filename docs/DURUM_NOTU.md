@@ -78,6 +78,11 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
   - **Açık iş (düzeltilmedi):** `bot/reports.py:120`'deki "ilk seferde model eğitilir" metni eğitim yapılmasa da her çağrıda gösteriliyor. Yanıltıcı metin.
   - **Açık iş (düzeltilmedi):** `/tara ai` yolundaki yeniden eğitim günlüğe yazılmıyor; yalnız cuma eğitimi "Signal model refit" yazıyor. 03.11 eğitimi bu yüzden günlükte görünmüyor.
   - A3: ✅ tamamlandı (yukarıda).
+- ✅ **PC ölçüm kontrolü (05.11 11:34; RESEARCH_LOG):**
+  - PC v0.99.92'de; tekrarlanabilir.
+  - Yeni indirme 65.736 mum (dondurulmuş görüntü 62.075) ve K-64'te 32 onay (dondurulmuşta 36). Bu, O4 ile tutarlı ama kanıt değil.
+  - Hisse hisse karşılaştırma için kullanıcıya komut verildi.
+  - Açık iş: yfinance'in `Pandas4Warning` satırları `olcum.ps1` çıktısını kalabalıklaştırıyor; sonucu etkilemiyor.
 - ⛔ **K-78 (3. bölüm, faktörler) ONAYLANMADI.** Kullanıcının B1–B11 düzeltmeleri yapılıp fark gösterilecek. Onay ve commit olmadan faktör verisinde ölçüm yok, sonuçlara bakılmaz.
 - Kullanıcıya ait işler: v0.99.90 kurulunca `/ozet` (SLO gerçek değerlerle); `scripts\olcum.ps1` çalıştırıp `logs\olcum_report.txt` göndermek. Pazar özeti gelmezse kullanıcı bunu arıza sayacak (bot kapalıyken bekçi de çalışmaz).
 - ⏳ Eski not: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.

@@ -703,3 +703,28 @@ Kullanıcının onayladığı seçenek 1. Tekrarlanabilirlik kontrolüdür, kara
 
 **Karar:** Değişen bir şey yok. K-63 ve K-64 saatlik GEÇMEDİ. 50 onay koşulu, eşikler ve 03.02.2027 ileri testi aynı. 03.02.2027'de rapor, veri özetini ve commit'i bu biçimde yazacak.
 
+## 05.11.2026 – Bilgisayarda ölçüm kontrolü (`scripts\olcum.ps1`; tekrarlanabilirlik, karar ölçümü değil)
+
+- **Kod:** v0.99.92, commit 83858e1 (temiz); Python 3.11.8, pandas 3.1.0, numpy 2.4.6, scikit-learn 1.9.1, yfinance 1.7.0. Çalışma 05.11.2026 11:34.
+- **Saatlik indirme (02.11.2026 öncesi):**
+  - 30 hisse, 65.736 mum, 05.11.2025 11:30 – 30.10.2026 17:30.
+  - Veri özeti `2d126a5a0509c84d135d3f1b8926d8eb5c88cdb8c12f4c25996192adbf86a4fd`.
+  - Görüntü: `OneDrive\QuantBIST-yedek\olcum\saatlik_20261105_1134`.
+- **Tekrarlanabilirlik:** K-63 ve K-64 bu veride ayrı süreçlerde iki kez çalıştı; raporlar birebir aynı.
+  - K-63: GEÇMEDİ; rapor özeti `be66e113…`.
+  - K-64 saatlik: GEÇMEDİ, 32 onay (< 50); rapor özeti `bf2513ca…`.
+- **Günlük depo:** 209 hisse, 240.291 mum, 21.10.2021 – 30.10.2026; özet `cdd040e8…`. Bu, bilgisayarın kendi `market.db`'si; GitHub'daki günlük görüntüden ayrı bir veridir.
+- **Dondurulmuş görüntüyle karşılaştırma (Actions 41880444802):**
+
+  | | Dondurulmuş (04.11 20:47 TSİ) | Bilgisayar (05.11 11:34) |
+  |---|---|---|
+  | Aralık | 05.11.2025 09:30 – 30.10.2026 17:30 | 05.11.2025 11:30 – 30.10.2026 17:30 |
+  | Mum | 62.075 | 65.736 (+3.661) |
+  | Veri özeti | `4fc8a1bc…` | `2d126a5a…` |
+  | K-64 onay | 36 | 32 |
+
+  Aralık neredeyse aynı, ama bilgisayarın indirmesinde 3.661 mum daha fazla var. Aynı kod iki veride 36 ve 32 onay verdi.
+- **Yorum:** Yahoo aynı dönem için iki indirmede farklı sayıda saatlik mum verebiliyor. Bu, 41→36 farkının bir veri farkı olabileceğiyle **tutarlı, ama onu kanıtlamaz**: 41'i veren veri saklanmadı. O4 açık risk olarak kalıyor.
+  Mum farkının hangi hisselerde ve hangi saatlerde olduğu hisse hisse karşılaştırmayla incelenecek (`provenance compare`).
+- **Karar:** Değişen bir şey yok. K-63 ve K-64 saatlik GEÇMEDİ. Bu ölçüm 03.02.2027 ileri testinin verinin dondurulmasına ve özetinin kaydedilmesine dayanması gerektiğini bir kez daha gösteriyor.
+
