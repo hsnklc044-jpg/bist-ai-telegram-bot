@@ -2,6 +2,17 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.92 – 05.11.2026 (K-64'ün canlı modelden ayrımı testle; cuma kart modeli kontrolü)
+- Yeni `tests/test_k64_isolation.py`: "K-64 ileri testi canlı modeli kullanmıyor" iddiası artık hem kod analiziyle hem çalıştırmayla sınanıyor. Ayrıca `/tara ai`'nin modeli yalnız dondurulmuş `fit_live` ile eğitebildiği, genç bir modeli yeniden eğitmediği sınanıyor.
+- Yeni `scripts/kart_modeli_kontrol.py` (model ve sinyal defteri için yalnız okur). Gösterdikleri:
+  - modelin eğitim günü ve satır sayısı;
+  - kurulu `fit_live`'ın dondurulmuş kodla aynı olup olmadığı;
+  - dondurulmuş kurala göre beklenen satır sayısı ve en son etiketin holdout öncesinde olup olmadığı;
+  - 03.11 modelinden bu yana yazılmış `/tara ai` kartları. Bu kartlar `logs/kart_holdout_isareti.csv`'ye işaretleniyor.
+  Sonuç satırı "DOĞRULANDI" ya da "DOĞRULANAMADI".
+- Kod değişikliği yok: K-64 ve `fit_live` dondurulmuş haliyle duruyor (K-79).
+- Doğrulama: `test_k64_isolation` (5 test; bir ihlal eklenince kırmızı oldu) ve `test_kart_modeli_kontrol` (4 test).
+
 ## v0.99.91 – 05.11.2026 (K-64 donduruldu; görüntü doğrulama workflow'u; K-79)
 - Yeni `tests/test_k64_freeze.py`: K-64'ün kural, eşik, veri ve değerlendirme kodu, canlı model (`fit_live`), model parametreleri ve paket kilidi özetlendi. Bir değişiklik CI'ı kırmızı yapar. Özetler yalnız kullanıcı onayıyla güncellenir (K-79).
 - Yeni `snapshot-check.yml` (elle başlatılır, yalnız okur): Dondurulmuş görüntü artifact'ını indirip `thaw` ile açıyor ve veri özetinin beklenen değerle (`4fc8a1bc…`) aynı olduğunu doğruluyor. Bu kapsayıcının ağı artifact deposuna erişemediği için doğrulama GitHub'da yapılıyor.

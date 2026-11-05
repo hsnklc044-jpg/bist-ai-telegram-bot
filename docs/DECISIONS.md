@@ -17,6 +17,11 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - **Dondurulduğu nokta:** c598008 (v0.99.90). 213f71d'den (son K-64 ölçümü) bu yana değişen tek K-64 parçası `fit_live`: v0.99.78'de (5b89a6c) canlı model holdout'u görmeyecek şekilde sınırlandı. K-64 saatlik ileri testi `fit_live`'ı kullanmıyor; değerlendirme kendi katlarını `fit` ile eğitiyor.
 - **Kural:** Özetler yalnız kullanıcının açık onayıyla ve gerekçesi burada yazılarak güncellenir; CI'ı yeşile çevirmek için asla güncellenmez.
 - **Doğrulama:** Onay eşiği, ağaç sayısı ya da kilit dosyası geçici olarak değiştirildiğinde test kırmızı oldu; geri alınınca yeşil. CRLF'li bir kopyada aynı özetleri veriyor.
+- **Ek (v0.99.92), `tests/test_k64_isolation.py`:**
+  1. K-64 ölçümü canlı modele dokunmuyor. `main()`'den erişilebilen hiçbir fonksiyon `load_live`, `fit_live`, `model_file` ya da `joblib` adını içermiyor (kod analizi). Bunlar hata fırlatacak şekilde değiştirildiğinde de ölçüm dondurulmuş görüntüyle çalışıyor.
+  2. `/tara ai` modeli yalnız `fit_live` ile eğitebiliyor. `ai.py`'de başka bir eğitici ya da model yazma çağrısı yok. Eski model `fit_live` ile yeniden eğitiliyor; 10 günden genç model yeniden eğitilmiyor.
+  `evaluate` içine geçici olarak bir `load_live()` çağrısı eklendiğinde iki test de kırmızı oldu.
+- **Açık risk:** `/tara ai`, modeli 10 günden eskiyse yeniden eğitebiliyor. Bu yol yalnız dondurulmuş `fit_live`'ı kullanıyor (test). Bilgisayardaki model 03.11.2026'da eski kuralla eğitildi; 02.11'den sonra kart yazılmadı. 06.11 cuma eğitimi `scripts/kart_modeli_kontrol.py` ile doğrulanacak. Aradaki kartlar silinmeden `logs/kart_holdout_isareti.csv`'ye "holdout etkisi olabilir" olarak yazılır.
 
 ## 04.11.2026
 

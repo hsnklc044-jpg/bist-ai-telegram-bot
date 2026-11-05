@@ -61,6 +61,15 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
     - 06.11 cuma yeniden eğitimi yeni (holdout'u görmeyen) kuralla yapılacak.
     Düzeltme yapılmadı (kullanıcı talimatı).
   - PC: 05.11 10:09'da v0.99.88 kuruldu (1376 geçti). Saatlik güncelleme görevi çalışıyor.
+  - A1 (kullanıcı 05.11):
+    - K-64'ün canlı modelden ayrımı testli (v0.99.92).
+    - Model elle yeniden eğitilmeyecek.
+    - 06.11 cuma eğitiminden sonra kullanıcı `scripts\kart_modeli_kontrol.py` çalıştıracak; DOĞRULANMAZSA kullanıcıya bildirilecek.
+    - 05.11 10:36'da `/tara ai` çağrıldı: model 2 günlüktü, yeniden eğitilmedi; tetik yoktu, kart yazılmadı.
+  - A3 (kullanıcı onayladı: özel depo ve OneDrive ikinci yedek):
+    - Depoyu oturum açamadı (GitHub 403).
+    - Kullanıcı `quantbist-veri` adlı özel depoyu açacak, Claude GitHub uygulamasına ekleyecek ve artifact zip'ini web arayüzünden yükleyecek.
+    - Sonra doğrulama (özel olduğu API'den, özet 4fc8a1bc…) ve DECISIONS kaydı.
 - ⛔ **K-78 (3. bölüm, faktörler) ONAYLANMADI.** Kullanıcının B1–B11 düzeltmeleri yapılıp fark gösterilecek. Onay ve commit olmadan faktör verisinde ölçüm yok, sonuçlara bakılmaz.
 - Kullanıcıya ait işler: v0.99.90 kurulunca `/ozet` (SLO gerçek değerlerle); `scripts\olcum.ps1` çalıştırıp `logs\olcum_report.txt` göndermek. Pazar özeti gelmezse kullanıcı bunu arıza sayacak (bot kapalıyken bekçi de çalışmaz).
 - ⏳ Eski not: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.
