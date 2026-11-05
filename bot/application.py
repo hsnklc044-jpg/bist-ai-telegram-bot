@@ -14,6 +14,7 @@ from bot.scheduler import (
     schedule_fundamentals_inbox,
     schedule_heartbeat,
     schedule_macro_refresh,
+    schedule_morning_screens,
     schedule_portfolio_health,
     schedule_report_watch,
     schedule_signal_tracking,
@@ -78,6 +79,7 @@ def build_app() -> Application:
     schedule_fundamentals_inbox(app, config.chat_id)
     schedule_portfolio_health(app, config.chat_id)
     schedule_weekly_summary(app, config.chat_id)
+    schedule_morning_screens(app, config.chat_id)
     schedule_signal_tracking(app, config.chat_id)
 
     return app

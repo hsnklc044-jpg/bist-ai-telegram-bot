@@ -329,6 +329,36 @@ async def weekly_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
             logger.exception("Weekly summary send record failed")
 
 
+MORNING_JOB = "morning_screens"
+MORNING_AT = time(9, 30, tzinfo=ISTANBUL)
+WEEKDAYS = (1, 2, 3, 4, 5)  # python-telegram-bot: 0 = Sunday
+
+
+async def morning_screens_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """The subscribed screens' full lists before the session opens; holidays and the locks send nothing."""
+
+    from core.screen import subscriptions
+
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if not chat:
+        return
+    try:
+        messages = await asyncio.to_thread(subscriptions.morning, now_istanbul().date())
+    except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told
+        logger.exception("Morning screens failed")
+        messages = [f"⚠️ Sabah aday listesi hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}"]
+    for text in messages:
+        await context.bot.send_message(chat, text)
+
+
+def schedule_morning_screens(app: Application, chat_id: int | None = None) -> bool:
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_daily(morning_screens_job, time=MORNING_AT, days=WEEKDAYS, name=MORNING_JOB,
+                            job_kwargs={"misfire_grace_time": 1800, "coalesce": True}, chat_id=chat_id)
+    return True
+
+
 WEEKLY_WATCH_JOB = "weekly_summary_watch"
 WEEKLY_WATCH_AT = time(9, 0, tzinfo=ISTANBUL)
 MONDAY = (1,)
