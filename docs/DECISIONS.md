@@ -21,6 +21,20 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
   1. K-64 ölçümü canlı modele dokunmuyor. `main()`'den erişilebilen hiçbir fonksiyon `load_live`, `fit_live`, `model_file` ya da `joblib` adını içermiyor (kod analizi). Bunlar hata fırlatacak şekilde değiştirildiğinde de ölçüm dondurulmuş görüntüyle çalışıyor.
   2. `/tara ai` modeli yalnız `fit_live` ile eğitebiliyor. `ai.py`'de başka bir eğitici ya da model yazma çağrısı yok. Eski model `fit_live` ile yeniden eğitiliyor; 10 günden genç model yeniden eğitilmiyor.
   `evaluate` içine geçici olarak bir `load_live()` çağrısı eklendiğinde iki test de kırmızı oldu.
+- **Dondurulmuş veri görüntülerinin kalıcı kopyası (05.11.2026; kullanıcı onayı, A3):**
+  - **Birincil kopya:** özel depo https://github.com/hsnklc044-jpg/quantbist-veri. GitHub API'si `"visibility": "private"` döndürdü. Commit `eab856b` zip'leri, `aac3c75` `ICERIK.md`'yi ekledi.
+  - **Saatlik görüntü:**
+    - zip `hourly-snapshot-41880444802.zip`, sha256 `ec889f40dc6787a0143e9c6e9f4f9a191f875483f2ea18e441530b23a64c63d0`;
+    - veri özeti `4fc8a1bc97045caebb14a914097df181418883e841eb96bfee3e23474c506a0b`;
+    - 30 hisse, 62.075 mum, 05.11.2025 09:30 – 30.10.2026 17:30.
+  - **Günlük görüntü:**
+    - zip `daily-snapshot-41880444802.zip`, sha256 `30f278894b7e86067ae6cd2ad1a8ffa47aa4e33a75107a3d779568d2baaf9e4e`;
+    - veri özeti `56016f5992f458527a3100321379a11a5a6753730e0e1fbc848ce30505508a18`;
+    - 208 hisse, 238.667 mum, 01.11.2021 – 30.10.2026.
+  - **Kaynak:** Actions çalışması 41880444802, commit `46c226f`.
+  - **Doğrulama:** Zip özetleri üç kaynakta aynı: artifact kaydı, kullanıcının bilgisayarı, özel depo. İki görüntü temiz bir klasörde `thaw` ile açıldı; veri özetleri DOĞRULANDI. Herkese açık artifact da `snapshot-check.yml` ile doğrulandı (çalışma 41987336455).
+  - **İkinci yedek:** kullanıcının OneDrive'ı (`scripts\olcum.ps1`). Özeti, rapor gelince karşılaştırılacak.
+  - Özel depoya anahtar ya da gizli bilgi konmadı. Claude GitHub uygulamasının erişimi yalnız `bist-ai-telegram-bot` ve `quantbist-veri` ile sınırlı.
 - **Açık risk:** `/tara ai`, modeli 10 günden eskiyse yeniden eğitebiliyor. Bu yol yalnız dondurulmuş `fit_live`'ı kullanıyor (test). Bilgisayardaki model 03.11.2026'da eski kuralla eğitildi; 02.11'den sonra kart yazılmadı. 06.11 cuma eğitimi `scripts/kart_modeli_kontrol.py` ile doğrulanacak. Aradaki kartlar silinmeden `logs/kart_holdout_isareti.csv`'ye "holdout etkisi olabilir" olarak yazılır.
 
 ## 04.11.2026

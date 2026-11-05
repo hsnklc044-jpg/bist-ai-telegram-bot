@@ -53,7 +53,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - ✅ **K-79 (v0.99.91):** K-64 donduruldu (`tests/test_k64_freeze.py`). Özetler yalnız kullanıcı onayıyla güncellenir.
 - **Açık riskler (kullanıcı 05.11):**
   - O4 (41→36) açık kalıyor. K-64 ayrım ölçümü GEÇERSİZ kalıyor; inceleyicinin dolaylı kanıtı bu kaydı değiştirmez.
-  - Dondurulan görüntünün artifact'ı 02.02.2027 17:47 UTC'de siliniyor. Kalıcı kopya için kullanıcıya seçenek sunuldu (lisans ve görünürlük). `snapshot-check.yml` özeti GitHub'da doğrular.
+  - ✅ **Artifact silinme tarihi (02.02.2027) artık risk değil:** saatlik ve günlük görüntü özel depoda (`hsnklc044-jpg/quantbist-veri`, eab856b ve aac3c75); 05.11'de DOĞRULANDI (veri özetleri 4fc8a1bc… ve 56016f59…). İkinci yedek OneDrive; `olcum_report.txt` bekleniyor (DECISIONS K-79).
   - `fit_live` (v0.99.78) yalnız canlı `/tara ai` modelini etkiliyor; K-64 ileri testi onu kullanmıyor. PC çıktısı (05.11):
     - kayıtlı model 03.11.2026'da eski kuralla eğitilmiş (744 satır), yani etiketi 02.11'de biten satırları içerebilir;
     - günlükte cuma yeniden eğitimi yok;
@@ -77,10 +77,7 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
       - Cuma eğitimi bitene kadar `/tara ai` çalıştırılmayacak.
   - **Açık iş (düzeltilmedi):** `bot/reports.py:120`'deki "ilk seferde model eğitilir" metni eğitim yapılmasa da her çağrıda gösteriliyor. Yanıltıcı metin.
   - **Açık iş (düzeltilmedi):** `/tara ai` yolundaki yeniden eğitim günlüğe yazılmıyor; yalnız cuma eğitimi "Signal model refit" yazıyor. 03.11 eğitimi bu yüzden günlükte görünmüyor.
-  - A3 (kullanıcı onayladı: özel depo ve OneDrive ikinci yedek):
-    - Depoyu oturum açamadı (GitHub 403).
-    - Kullanıcı `quantbist-veri` adlı özel depoyu açacak, Claude GitHub uygulamasına ekleyecek ve artifact zip'ini web arayüzünden yükleyecek.
-    - Sonra doğrulama (özel olduğu API'den, özet 4fc8a1bc…) ve DECISIONS kaydı.
+  - A3: ✅ tamamlandı (yukarıda).
 - ⛔ **K-78 (3. bölüm, faktörler) ONAYLANMADI.** Kullanıcının B1–B11 düzeltmeleri yapılıp fark gösterilecek. Onay ve commit olmadan faktör verisinde ölçüm yok, sonuçlara bakılmaz.
 - Kullanıcıya ait işler: v0.99.90 kurulunca `/ozet` (SLO gerçek değerlerle); `scripts\olcum.ps1` çalıştırıp `logs\olcum_report.txt` göndermek. Pazar özeti gelmezse kullanıcı bunu arıza sayacak (bot kapalıyken bekçi de çalışmaz).
 - ⏳ Eski not: yol planı 4. bölüm (haftalık otomatik özet, aylık DR tatbikatı raporu). 3. bölüm (araştırma programı) önceden yazılmış kurallar ister; kullanıcıya önerilecek.
