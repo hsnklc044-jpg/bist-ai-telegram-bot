@@ -40,6 +40,7 @@ Portföy ve risk:
 /stres – pozisyonlar XU100'ün en kötü geçmiş düşüşlerinde ve en büyük kur şoklarında ne kaybederdi (/stres sanal)
 /saglik – portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, reel ve dolar bazında getiri (her cumartesi de gelir)
 /denge THYAO=30 ASELS=20 – hedef ağırlığa dönmek için gereken işlem hesabı (öneri değil, emir yok)
+/takvim – temettü ve şirket olayları takvimi; /takvim ekle THYAO 05.12.2026 temettü 3,25 TL (elle girilir)
 /yil – yıllık döküm: satış sonuçları, temettü, komisyon (/yil 2026 sanal)
 /alarm THYAO altında 240 – kapanış alarmı (akşam raporunda bir kez); %5 de olur (son kapanışa göre); /alarm liste, /alarm sil 1
 /tara rsi<30 ema20>ema50 – hisseleri kendi gösterge koşullarınla filtrele, geçmiş karnesiyle (/tara: kılavuz ve örnekler; /tara_alanlar, /tara_aciklama THYAO rsi<30, /tara_devam, /tara_kaydet AD koşullar, /tara_liste, /tara_sil AD). Filtredir, öneri değildir

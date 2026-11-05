@@ -30,6 +30,7 @@ SCREEN_SUBSCRIPTIONS_FILE = DATA_DIR / "screen_subscriptions.csv"
 SCREEN_VIRTUAL_FILE = DATA_DIR / "screen_virtual.csv"
 FUNDAMENTALS_FILE = DATA_DIR / "fundamentals.csv"
 RISK_LIMITS_FILE = DATA_DIR / "risk_limits.csv"  # Talimat E: the user's limits (K-56)
+EVENTS_FILE = DATA_DIR / "events.csv"  # the user's dividend / corporate event calendar (05.11.2026)
 SIGNALS_DB = DATA_DIR / "signals.db"  # BIST 30 hedefi: the paper signal book (K-60)
 SIGNAL_LOG_FILE = DATA_DIR / "signal_log.csv"
 EQUITY_LOG_FILE = DATA_DIR / "equity_log.csv"
@@ -54,6 +55,7 @@ __all__ = [
     "SCREEN_VIRTUAL_FILE",
     "FUNDAMENTALS_FILE",
     "RISK_LIMITS_FILE",
+    "EVENTS_FILE",
     "SIGNALS_DB",
     "SIGNAL_LOG_FILE",
     "EQUITY_LOG_FILE",

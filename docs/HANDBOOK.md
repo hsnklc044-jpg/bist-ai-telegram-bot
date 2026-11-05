@@ -347,6 +347,7 @@ summary - portföy ve piyasa özeti
 portfolio - pozisyonlar ve kâr/zarar
 saglik - portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, reel ve dolar bazında getiri
 denge - hedef ağırlığa dönmek için gereken işlem hesabı: /denge THYAO=30 ASELS=20 (öneri değil)
+takvim - temettü ve şirket olayları takvimi (elle girilen): /takvim ekle THYAO 05.12.2026 temettü
 alerts - açık risk uyarıları
 performans - canlı ölçüm ve sanal hesap
 rapor_tekrar - kayıtlı günlük raporu yeniden gönder

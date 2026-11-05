@@ -95,6 +95,10 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(macro, "USD_FILE", tmp_path / "usdtry.csv")
     monkeypatch.setattr(macro, "CPI_LOCAL", tmp_path / "cpi_local.csv")
     monkeypatch.setattr(macro, "SECOND_FILE", tmp_path / "usd_second_source.json")
+    # the user's event calendar (/takvim) stays private too
+    from core.reports import events as _events
+
+    monkeypatch.setattr(_events, "EVENTS_FILE", tmp_path / "events.csv")
     # M32 re-validation D7: no test may lock the real bot with data/panic.lock
     monkeypatch.setattr(panic, "PANIC_FILE", tmp_path / "panic.lock")
     # /tara ai retrains a stale live model (M31-13); the retrain must not land in the real logs/

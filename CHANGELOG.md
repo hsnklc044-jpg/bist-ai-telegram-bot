@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.88 – 05.11.2026 (yol planı 2. bölüm tamam: temettü ve şirket olayları takvimi)
+- **Yeni `/takvim`:**
+  - Varsayılan görünüm: portföydeki ve izleme listesindeki hisselerin önümüzdeki 30 gündeki kayıtları.
+  - `/takvim hepsi`: gelecekteki bütün kayıtlar.
+  - `/takvim ekle THYAO 05.12.2026 temettü 3,25 TL brüt` kayıt ekler, `/takvim sil 3` bir kaydı siler.
+- KAP'a otomatik erişim yok (K-48); kayıtları kullanıcı elle girer. Dosya `data/events.csv` yalnız ekleme yapılarak tutuluyor: silme de yeni bir satır, hiçbir satırın üzerine yazılmıyor. Dosya kişisel kayıt sayılıyor: yedeğe giriyor, depoya girmiyor (`.gitignore`, gizli dosya testi).
+- Haftalık `/saglik` raporu, portföydeki hisselerin yaklaşan takvim kayıtlarını da listeliyor.
+- Temel analiz kartı zaten vardı: `/temel` (K-57) posta kutusu verisiyle çalışıyor ve yalnız yayımlandıktan sonraki gün bilinen değerleri kullanıyor. Yol planında tamamlandı olarak işaretlendi.
+- Doğrulama: yeni `test_events` (6 test). Yazılırken bir test yalıtım hatası bulundu: kişisel dosya yolu `paths` modülünde yamalanınca, yedek listesi bir testte ilk kez yüklenirse geçici yolu alıyordu. Yama artık yalnız `events` modülünde.
+
 ## v0.99.87 – 05.11.2026 (yol planı 2. bölüm: yeniden dengeleme yardımcısı ve stres testinde kur şoku)
 - **Yeni `/denge THYAO=30 ASELS=20 [bant=5] [sanal]`:** Her hissenin kullanıcının kendi hedef ağırlığından sapmasını ve hedefe dönmek için gereken en az işlemi tam adet olarak hesaplıyor. Kurallar:
   - bant içindeki sapmaya dokunulmuyor (varsayılan ±5 puan);

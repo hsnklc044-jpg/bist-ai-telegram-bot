@@ -309,8 +309,8 @@ Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe
    - `/durum`'un sadeleştirilmesi.
 2. **Uzun vade için karar desteği.**
    - Haftalık portföy sağlık raporu: dağılım, yoğunlaşma, korelasyon, maliyet sonrası reel ve dolar bazlı getiri, BIST 100 farkı. ✅ v0.99.86 (`/saglik`, cumartesi 10:00)
-   - Temettü ve şirket olayları takvimi (otomatik erişim yok).
-   - Temel analiz kartı: posta kutusu verisiyle, yalnız yayından sonra bilinen değerlerle.
+   - Temettü ve şirket olayları takvimi (otomatik erişim yok). ✅ v0.99.88 (`/takvim`, elle girilen)
+   - Temel analiz kartı: posta kutusu verisiyle, yalnız yayından sonra bilinen değerlerle. ✅ `/temel` (K-57, v0.99.50)
    - Yeniden dengeleme yardımcısı: hedef ağırlıktan sapma ve en az işlem; emir yok. ✅ v0.99.87 (`/denge`)
    - Senaryo ve stres testi: endeks düşüşü ve kur şoku. ✅ v0.99.87 (`/stres` kur şoku bölümü)
 3. **Dürüst araştırma programı.**

@@ -44,6 +44,7 @@ from core.config.paths import (
     ALERTS_LOG_FILE,
     DATA_DIR,
     EQUITY_LOG_FILE,
+    EVENTS_FILE,
     FUNDAMENTALS_FILE,
     LEDGER_FILE,
     MARKET_DB,
@@ -76,6 +77,7 @@ PERSONAL_FILES = (
     FUNDAMENTALS_FILE,
     RISK_LIMITS_FILE,
     SIGNALS_DB,  # SQLite; written only by the daily run, briefly
+    EVENTS_FILE,
 )
 MANIFEST = "manifest.json"
 PREFIX = "quantbist_"

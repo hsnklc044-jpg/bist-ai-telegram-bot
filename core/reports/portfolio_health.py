@@ -54,6 +54,7 @@ class Health:
     corr: float | None = None
     corr_days: int = 0
     periods: list[Period] = field(default_factory=list)
+    events: list[str] = field(default_factory=list)  # the user's calendar entries for the stocks held
 
 
 def concentration(weights: dict[str, float]) -> float | None:
@@ -190,6 +191,8 @@ def text(health: Health) -> str:
                      f"reel {_pct(p.real)}, dolar bazında {_pct(p.usd)}; BIST 100 {_pct(p.bench)}, fark {excess}")
     if any(p.nominal is not None and p.real is None for p in health.periods):
         lines.append("  Reel getiri, dönemi kapsayan TÜFE ayı yayımlanınca hesaplanır.")
+    if health.events:
+        lines += ["Yaklaşan olaylar (/takvim):", *health.events]
     lines.append(DISCLAIMER)
     return "\n".join(lines)
 
@@ -218,6 +221,12 @@ def report(day: date | None = None) -> str:
     for account in ("real", "paper"):
         equity = read_equity(EQUITY_LOG_FILE, account) if EQUITY_LOG_FILE.exists() else pd.Series(dtype=float)
         h = build(account, day, entries, equity, adjusted_bars, bench, cpi, rates)
+        try:
+            from core.reports import events
+
+            h.events = events.upcoming_lines(None, day, set(h.weights) | set(h.unpriced))
+        except Exception:  # noqa: BLE001 - a damaged calendar never stops the report
+            h.events = []
         if account == "real" and not h.weights and not h.unpriced:
             continue
         parts.append(text(h))

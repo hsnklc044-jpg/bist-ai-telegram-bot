@@ -50,6 +50,14 @@ async def rebalance(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await reply(update, text)
 
 
+async def calendar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /takvim: the user's own dividend and corporate event calendar."""
+
+    from core.reports import events
+
+    await reply(update, await asyncio.to_thread(events.command_text, list(context.args or [])))
+
+
 async def trade(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /trade (record a real, already executed trade)."""
 
