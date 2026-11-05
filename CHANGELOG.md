@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.93 – 05.11.2026 (veri farkı sayımı; K-80 taslağı için)
+- Yeni `scripts/veri_farki.py`. Yalnız okur; K-63/K-64'ü çalıştırmaz, getiri hesaplamaz, yalnız sayar.
+  - `saatlik A B`: Her görüntü için BIST takvimindeki seanslar sayılır. Ayrıca son saatlik mumu eksik seanslar (17:30; yarım günde 11:30), eksik saatli tam seanslar, hiç mumu olmayan seanslar ve hacmi 0 olan mumlar sayılır.
+  - `gunluk A B`: Mum ve değer farkı sayıları. Ayrıca her ay sonunda K-78 v2'nin likidite elemesinin (o günkü BIST 100 üyelerinin 20 seans medyan TL hacmine göre en düşük %20'si) iki indirmede kaç ayda ve kaç isimle farklı olduğu.
+- Hangi indirmenin doğru olduğunu söylemez; bağımsız kaynak yok.
+- Doğrulama: `test_veri_farki` (3 test, sentetik veri).
+
 ## v0.99.92 – 05.11.2026 (K-64'ün canlı modelden ayrımı testle; cuma kart modeli kontrolü)
 - Yeni `tests/test_k64_isolation.py`: "K-64 ileri testi canlı modeli kullanmıyor" iddiası artık hem kod analiziyle hem çalıştırmayla sınanıyor. Ayrıca `/tara ai`'nin modeli yalnız dondurulmuş `fit_live` ile eğitebildiği, genç bir modeli yeniden eğitmediği sınanıyor.
 - Yeni `scripts/kart_modeli_kontrol.py` (model ve sinyal defteri için yalnız okur). Gösterdikleri:
