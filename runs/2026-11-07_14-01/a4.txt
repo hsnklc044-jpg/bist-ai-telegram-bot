@@ -1,0 +1,1 @@
+a4 taraması 27.04.2027'den önce çalıştırılmadı (deneme bütçesi: 6 ayda bir döngü, docs/RESEARCH_PROGRAM.md). Ön kayıt: docs/RESEARCH_LOG.md "a4 ön kaydı".
