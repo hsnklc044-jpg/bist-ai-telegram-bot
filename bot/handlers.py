@@ -28,7 +28,7 @@ from bot.analysis import (
     upper_cmd,
 )
 from bot.commands_risk import risk
-from bot.control import panic_cmd, resume_cmd
+from bot.control import otonom_resume_cmd, otonom_stop_cmd, panic_cmd, resume_cmd
 from bot.portfolio import (
     alerts,
     calendar,
@@ -109,6 +109,8 @@ COMMANDS = (
     ("durum", status),
     ("panik", panic_cmd),
     ("devam", resume_cmd),
+    ("otonom_dur", otonom_stop_cmd),
+    ("otonom_devam", otonom_resume_cmd),
     ("rapor_tekrar", resend),
     ("yil", yearly),
     ("stres", stress_test),
@@ -176,6 +178,8 @@ MENU = (
     ("watchscan", "takip listesini tara"),
     ("trade", "gerçekleşmiş işlemi deftere yaz"),
     ("paper", "sanal emir"),
+    ("otonom_dur", "otonom geliştirmeyi durdur: birleştirme, kurulum, silme yok; bot çalışır"),
+    ("otonom_devam", "otonom geliştirmeyi yeniden aç (frenleri de kaldırır)"),
 )
 
 

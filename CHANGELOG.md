@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.120 – 10.11.2026 (/otonom_dur, /otonom_devam, 21:00 otonom özeti)
+- `/otonom_dur`: `data/otonom_dur.flag` yazar; bayrak varken otonom çalışma birleştirme, canlı kurulum ve silme yapmaz, yalnız rapor üretir. Bot ve günlük rapor normal çalışır.
+- `/otonom_devam`: kullanıcının bayrağını ve otomatik frenin bayrağını (`<araçlar>/cikti/otonom_dur.flag`) kaldırır; freni yalnız kullanıcı kaldırır.
+- Her gün 21:00 tek bilgi mesajı: bugün kurulan sürümler (botun kendi başlangıç satırlarından; başlık CHANGELOG'dan), otonom çalışmanın kaydı (paket dalları, CI bağlantıları, geri dönüş, olgunluk, yarın sıradaki iş), 7 SLO; cumartesi haftalık SLO tablosu. Soru içermez.
+- Doğrulama: `test_otonom` (bayrak yaz/kaldır, komut kaydı ve yanıtı, özet içeriği, eski kayıt bugünmüş gibi gösterilmez, 21:00 zamanlaması); testlerde bayrak ve araç klasörü geçici klasöre yönlenir.
+
 ## v0.99.119 – 10.11.2026 (skill'ler, CLAUDE.md, sürüm kapısı)
 - Kullanıcının 10.11 onay devri: birleştirme ve canlı kurulum `scripts/surum_kapisi.py` kapısından geçer (OPERATIONS §5a). Koşullar: test+ruff+CI yeşil, canlı sürüm sağlıklı (≥3 ERROR'suz yaşam sinyali), SLO kötüleşmedi, kurulum seans (09:40–18:15) ve rapor (18:00–20:00) pencereleri dışında, tek paket ve günde ≤4 kurulum, ileri sarma, paket istisnası (güncelleyici/yedek/geri yükleme/kayıt biçimi). Kilit dosyası iki oturumun aynı anda birleştirmesini önler; canlı klasöre hiçbir şey yazılmaz.
 - `.claude/skills/`: `siradaki-is` (CHARTER §4), `surum-kapisi`, `olgunluk` (salt okunur), `on-kayit` (ölçümden önce DECISIONS kaydı).

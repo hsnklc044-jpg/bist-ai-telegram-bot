@@ -48,4 +48,21 @@ async def resume_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     await reply(update, await asyncio.to_thread(resume_text))
 
 
-__all__ = ["panic_cmd", "panic_text", "resume_cmd", "resume_text"]
+async def otonom_stop_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /otonom_dur: stop the autonomous development (no merge, install or delete; reports only)."""
+
+    from core import otonom
+    from core.market.calendar import now_istanbul
+
+    await reply(update, await asyncio.to_thread(otonom.stop, now_istanbul()))
+
+
+async def otonom_resume_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /otonom_devam: lift the user's stop flag and the automatic brake."""
+
+    from core import otonom
+
+    await reply(update, await asyncio.to_thread(otonom.resume))
+
+
+__all__ = ["otonom_resume_cmd", "otonom_stop_cmd", "panic_cmd", "panic_text", "resume_cmd", "resume_text"]

@@ -389,6 +389,33 @@ def schedule_weekly_summary(app: Application, chat_id: int | None = None) -> boo
     return True
 
 
+OTONOM_JOB = "otonom_summary"
+OTONOM_AT = time(21, 0, tzinfo=ISTANBUL)
+
+
+async def otonom_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """10.11.2026: one information message a day on the autonomous development (installs, rollbacks, SLOs)."""
+
+    from core import otonom
+
+    try:
+        text = await asyncio.to_thread(otonom.build_summary, now_istanbul())
+    except Exception:  # noqa: BLE001 - a summary never stops the bot
+        logger.exception("Autonomous summary failed")
+        return
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if chat:
+        await context.bot.send_message(chat, text)
+
+
+def schedule_otonom_summary(app: Application, chat_id: int | None = None) -> bool:
+    if app.job_queue is None or chat_id is None:
+        return False
+    app.job_queue.run_daily(otonom_summary_job, time=OTONOM_AT, name=OTONOM_JOB, job_kwargs=LATE_START,
+                            chat_id=chat_id)
+    return True
+
+
 INBOX_JOB = "fundamentals_inbox"
 
 

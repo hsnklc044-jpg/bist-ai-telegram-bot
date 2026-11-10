@@ -386,6 +386,8 @@ watchremove - listeden çıkar
 watchscan - takip listesini tara
 trade - gerçekleşmiş işlemi deftere yaz
 paper - sanal emir
+otonom_dur - otonom geliştirmeyi durdur: birleştirme, kurulum, silme yok; bot çalışır
+otonom_devam - otonom geliştirmeyi yeniden aç (frenleri de kaldırır)
 ```
 
 ## 9. Destek ve direnç seviyeleri (/seviye; K-49)

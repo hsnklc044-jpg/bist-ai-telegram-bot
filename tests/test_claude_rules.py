@@ -11,6 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ("olgunluk", "siradaki-is", "surum-kapisi", "on-kayit")
 
 
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8").replace("\r\n", "\n")
+
+
 def gate():
     spec = importlib.util.spec_from_file_location("surum_kapisi", ROOT / "scripts" / "surum_kapisi.py")
     module = importlib.util.module_from_spec(spec)
@@ -20,16 +24,15 @@ def gate():
 
 class ClaudeMdTest(unittest.TestCase):
     def test_hard_limits_are_the_k54_list(self):
-        decisions = (ROOT / "docs" / "DECISIONS.md").read_text(encoding="utf-8")
+        decisions = read(ROOT / "docs" / "DECISIONS.md")
         k54 = re.search(r"\*\*K-54\..*?yapamayacağım şeylerdir: (.*?)\. Kaynak", decisions, re.S).group(1)
         expected = [item.strip() for item in k54.split(",")]
-        text = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
-        section = text.replace("\r\n", "\n").split("## Kesin sınırlar")[1].split("\n\n")[0]
+        section = read(ROOT / "CLAUDE.md").split("## Kesin sınırlar")[1].split("\n\n")[0]
         listed = [ln[2:].strip() for ln in section.splitlines() if ln.startswith("- ")]
         self.assertEqual(listed, expected)
 
     def test_the_live_folder_rule_and_the_gate_are_named(self):
-        text = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+        text = read(ROOT / "CLAUDE.md")
         for words in (r"C:\Projeler\QuantBIST-yeni", "emir", "surum-kapisi", "on-kayit", "siradaki-is"):
             self.assertIn(words, text)
 
@@ -37,7 +40,7 @@ class ClaudeMdTest(unittest.TestCase):
 class SkillFilesTest(unittest.TestCase):
     def test_every_skill_has_a_valid_header(self):
         for name in SKILLS:
-            text = (ROOT / ".claude" / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
+            text = read(ROOT / ".claude" / "skills" / name / "SKILL.md")
             head = re.match(r"---\n(.*?)\n---\n", text, re.S)
             self.assertIsNotNone(head, name)
             fields = dict(line.split(":", 1) for line in head.group(1).splitlines())
@@ -47,12 +50,12 @@ class SkillFilesTest(unittest.TestCase):
 
     def test_no_skill_touches_the_updater_backup_or_env(self):
         for name in SKILLS:
-            text = (ROOT / ".claude" / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
+            text = read(ROOT / ".claude" / "skills" / name / "SKILL.md")
             self.assertNotRegex(text, r"(?i)\.env['\"]?\s*(dosyasını )?(yaz|düzenle|oku)")
             self.assertNotIn("guncelle.py'yi değiştir", text)
 
     def test_operations_has_the_gate_section(self):
-        text = (ROOT / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
+        text = read(ROOT / "docs" / "OPERATIONS.md")
         self.assertIn("## 5a. Sürüm kapısı ve paketleme", text)
         self.assertIn("günde en fazla 4 kurulum", text)
 
@@ -101,7 +104,7 @@ class GateRulesTest(unittest.TestCase):
                          ["scripts/guncelle.py", "core/backup.py"])
 
     def test_the_gate_never_writes_into_the_live_folder(self):
-        text = (ROOT / "scripts" / "surum_kapisi.py").read_text(encoding="utf-8")
+        text = read(ROOT / "scripts" / "surum_kapisi.py")
         self.assertNotIn("--force", text)
         self.assertNotRegex(text, r"LIVE\s*/[^\n]*\.(write_text|write_bytes|open\()")
 

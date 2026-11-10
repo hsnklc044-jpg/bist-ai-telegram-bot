@@ -83,6 +83,10 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(slo, "FRESHNESS_FILE", tmp_path / "freshness.csv")
     monkeypatch.setattr(slo, "RESTORE_FILE", tmp_path / "restore_tests.csv")
     monkeypatch.setattr(slo, "CI_LAST_FILE", tmp_path / "ci_last.json")
+    from core import otonom as _otonom
+
+    monkeypatch.setattr(_otonom, "STOP_FILE", tmp_path / "otonom_dur.flag")
+    monkeypatch.setattr(_otonom, "TOOLS_DIR", tmp_path / "araclar")
     monkeypatch.setattr(slo, "RETRY_WAIT", 0)
     monkeypatch.setattr(ping, "STATE_FILE", tmp_path / "monitoring.json")
     monkeypatch.setattr(daily, "REPORT_TEXT_DIR", tmp_path / "reports")
