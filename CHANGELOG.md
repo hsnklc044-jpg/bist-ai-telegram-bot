@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.122 – 10.11.2026 (robot skill'i ve robot günlüğü)
+- `.claude/skills/robot/SKILL.md`: kullanıcının "robot modu": fren → durum → iş seçimi → yapım (önce başarısız test) → CI → kapı ve paket → sağlık → kayıt → baştan; yalnız iş kalmayınca, frende ya da sıradaki adım kullanıcıya kaldığında durur. Kurallar için CLAUDE.md, OPERATIONS §5a ve diğer skill'lere işaret eder, sayı kopyalamaz (testli). Tek robot: `C:\Projeler\QuantBIST_otomasyonobot.lock`, 6 saatten eskisi devralınır.
+- `docs/ROBOT_LOG.md`: her iş için tek satır.
+
 ## v0.99.121 – 10.11.2026 (ağ kesintisi ERROR değil, seyrek uyarı)
 - 10.11 sabahı internet yaklaşık bir saat kesildi (DNS: getaddrinfo failed); Telegram yoklama döngüsü her 30 sn'de bir "Telegram handler failed" ERROR'u ve tam iz yazdı (113 satır). Kesinti bir kod hatası değil: artık iz olmadan tek WARNING ("Telegram'a ulaşılamıyor (ağ)"), aynı kesinti sürerken en fazla 10 dakikada bir. Gerçek hatalar ve "iki bot" uyarısı değişmedi.
 - Neden önemli: sürüm kapısı "kurulumdan beri ERROR yok" koşuluna bakıyor; kısa bir ağ kesintisi gereksiz bir geri dönüşe yol açabilirdi.

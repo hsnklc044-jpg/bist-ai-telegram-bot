@@ -8,7 +8,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ("olgunluk", "siradaki-is", "surum-kapisi", "on-kayit")
+SKILLS = ("olgunluk", "siradaki-is", "surum-kapisi", "on-kayit", "robot")
 
 
 def read(path: Path) -> str:
@@ -53,6 +53,13 @@ class SkillFilesTest(unittest.TestCase):
             text = read(ROOT / ".claude" / "skills" / name / "SKILL.md")
             self.assertNotRegex(text, r"(?i)\.env['\"]?\s*(dosyasını )?(yaz|düzenle|oku)")
             self.assertNotIn("guncelle.py'yi değiştir", text)
+
+    def test_the_robot_points_to_the_rules_instead_of_copying_numbers(self):
+        text = read(ROOT / ".claude" / "skills" / "robot" / "SKILL.md")
+        for ref in ("CLAUDE.md", "OPERATIONS.md", "surum-kapisi", "siradaki-is", "robot.lock"):
+            self.assertIn(ref, text)
+        for number in ("09:40", "18:15", "günde en fazla", "≤4", "%98"):
+            self.assertNotIn(number, text)
 
     def test_operations_has_the_gate_section(self):
         text = read(ROOT / "docs" / "OPERATIONS.md")
