@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.110 – 10.11.2026 (/karne: 12 göstergeli teknik karne)
+- Yeni `/karne THYAO`: kullanıcının TradingView "Teknik Gösterge Değerlendirici" betiğindeki 12 gösterge ve puanlar (toplam 100) aynen uygulanıyor: Supertrend 5, MACD 10, RSI 10, SMA 10, ATR 5, Bollinger 10, ADX/DI 10, PSAR 10, OBV 10, CCI 5, göreceli hacim 10, MFI 5. Kapanmış günlük mumlarla hesaplanır; hesaplanamayan gösterge sıfır puan almaz, "veri yok" yazılır ve toplamın yanında sayılır. Altında Trend, Momentum, Hacim, Bantlar ve oynaklık özeti var (toplamı değiştirmez). Yalnız bilgi; hiçbir kural, model ya da eşik değişmedi.
+- Betiğin kendine özgü tanımları korundu: ADX, DX'in SMA'sı (Wilder değil); ATR eşiği ortalamasının %110'u; RelVol bugünü ortalamaya dahil ediyor.
+- Bulgu: `ta` kütüphanesinin PSAR'ı bu ortamda güvenilmez (pandas 3'te `self._psar[i] = ...` satır ekliyor, 600 mum için 609 değer dönüyor; ayrıca iki önceki zirveyi Wilder kuralından farklı sınırlıyor). PSAR bu yüzden TradingView'ın yerleşik `ta.sar` algoritmasıyla yazıldı.
+- Doğrulama: `test_scorecard` 26 test: RSI, MACD, CCI, MFI, OBV, ATR, DI+/DI- `ta` kütüphanesiyle; PSAR elle hesaplanmış örnek ve değişmezlerle; ADX, CCI, MFI elle. Gerçek veri: 100 hissede hata ve eksik gösterge yok; GARAN'ın 11 fiyat göstergesi kullanıcının 06.11 TradingView ekranıyla aynı yönde ("İyi"); toplam farkı canlı mumun kısmî hacminden.
+
 ## v0.99.109 – 10.11.2026 (signals.db yedeği SQLite yedek API'siyle)
 - Günlük yedek `signals.db`'yi düz bayt okumasıyla kopyalıyordu. WAL dosyasında bekleyen onaylı satırlar kopyaya girmeyebilir, yarım bir yazma yakalanabilir. Artık `market.db` yedeğindeki gibi SQLite'ın çevrimiçi yedek API'si kullanılıyor; SQLite olmayan dosya aynen kopyalanıyor. Anlık görüntü alınamazsa uyarı günlüğe yazılıyor ve dosya olduğu gibi yedekleniyor (diğer dosyalar kaybolmasın); geri yükleme testi bunu yakalar.
 - Doğrulama: `test_backup_restore` içinde 4 yeni test (WAL'de bekleyen satır, onaylanmamış yazma, API hatasında geri dönüş, SQLite olmayan dosya).

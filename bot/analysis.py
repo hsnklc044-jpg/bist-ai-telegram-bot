@@ -19,8 +19,11 @@ from bot.common import reply
 from core.analytics.analyzer import analyze_stock
 from core.analytics.signals import get_top_signals
 from core.config.thresholds import SIGNAL_VIEW_LABELS
+from core.infrastructure.logger import get_logger
 from core.signals_log import log_analysis
 from core.watchlist.service import normalize_symbol
+
+logger = get_logger(__name__)
 
 VIEW_LABELS = SIGNAL_VIEW_LABELS
 
@@ -149,6 +152,38 @@ def _level_block(symbol: str, k: int | None) -> str:
         return levels_text(symbol, adjusted_bars(symbol), k=k)
     except Exception:  # noqa: BLE001
         return ""
+
+
+def _scorecard_text(symbol: str) -> str:
+    from core.analytics import scorecard
+    from core.reports.daily import adjusted_bars
+
+    bars = adjusted_bars(symbol)
+    if bars is None or len(bars) == 0:
+        return f"{symbol} için fiyat verisi yok."
+    return scorecard.text(symbol, bars)
+
+
+async def scorecard_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /karne SYMBOL: the twelve-indicator scorecard of the user's TradingView script (information only)."""
+
+    if len(context.args or []) != 1:
+        await reply(update, "Kullanım:\n/karne THYAO")
+        return
+    try:
+        symbol = normalize_symbol(context.args[0])
+    except ValueError as exc:
+        await reply(update, str(exc))
+        return
+    try:
+        text = await asyncio.to_thread(_scorecard_text, symbol)
+    except Exception:  # noqa: BLE001 - a failed card never stops the bot
+        logger.exception("/karne failed for %s", symbol)
+        text = f"{symbol} için karne hesaplanamadı; ayrıntı logs/quantbist.log içinde."
+    await reply(update, text)
 
 
 async def fundamentals_cmd(

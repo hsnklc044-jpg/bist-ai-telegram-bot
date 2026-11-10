@@ -1,4 +1,4 @@
-# Durum notu (10.11.2026, kod v0.99.108)
+# Durum notu (10.11.2026, kod v0.99.110)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
 
@@ -7,8 +7,10 @@ Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir 
 - **Düzeltme (dal `claude/geri-yukleme-duzeltme`):** `signals.db` salt okunur açılıyor (kopya değişmiyor, onarılmıyor); bütünlük, `signals` ve `breaker` tabloları ve uygulamanın okuma sorguları denetleniyor. Veritabanı olmayan, bozuk ya da tablosu eksik dosya açık nedenle reddediliyor. Kodlama hatası yutulmuyor.
 - **Kanıt:** 8 yeni regresyon testi; düzeltme olmadan 4'ü kırmızı (sağlam ve boş defter, tablo eksik, CSV adlı dosya), 4'ü reddetme davranışını koruyor. Yerel tam test: 1504 geçti, 2 atlandı. Gerçek 09.11 arşivi (kopya): 9 dosyanın 9'u geçti, `store.connect` ile okuma sorgusu çalıştı. CI sonucu commit'in kendi çalışmasında; birleştirme ve kurulum onay bekliyor.
 - **NOT_RUN:** Canlı Windows'ta haftalık geri yükleme testi (v0.99.108 kurulduktan sonraki ilk haftalık rapor). Orijinal yedek ve canlı `signals.db` değişmedi.
-- **Açık risk (düzeltilmedi):** Günlük yedek `signals.db`'yi düz dosya kopyası olarak alıyor; `market.db` gibi çevrimiçi yedek API'siyle değil. Günlük çalışma o sırada yazıyorsa bozuk kopya mümkün. Ayrı iş.
+- **Yedek riski (v0.99.109'da düzeltildi):** Günlük yedek `signals.db`'yi düz bayt olarak okuyordu; WAL'de bekleyen onaylı satırlar kopyaya girmeyebilirdi (test bunu gösteriyor). Artık SQLite çevrimiçi yedek API'si kullanılıyor.
+- **Cuma modeli kontrolü (06.11, 19:10): DOĞRULANDI.** Model 06.11'de yeni `fit_live` ile, 743 satırla eğitildi (günlükte 18:47 "Signal model refit"); en son etiket 27.10, yani holdout öncesi; kurulu `fit_live` dondurulmuş kodla aynı; 03.11'den beri `/tara ai` kartı yok. `kart_kontrol_HATA.txt` eğitimden önceki 18:44 denemesiydi.
 - **Çalışma süresi (CHARTER §4, salt okunur; ayar değişmedi):** %93,2 = 1 − 10,08 sa / 147,3 sa (pencere ilk sinyalden, 03.11 15:14, başlıyor). Kesintinin tamamı tek aralık: 04.11 21:48 → 05.11 07:58 (605 dk, aynı süreç, "uyku/askı"). Windows olay günlüğünde 05.11 03:21'de uyku girişi/çıkışı ve 07:56'da uyanma var; 21:48–03:21 arası nedeni kanıtlanamadı. 34 yeniden başlamanın 30'u sürüm kurulumu, 4'ü aynı sürümle (hepsi 03–04.11); hepsi en fazla 5 dk sürdü ve SLO tanımı gereği (iki sinyal arası 10 dk altı) hiç kesinti sayılmıyor. Beklenmedik kapanma (süreç ölümü, yeniden başlatma) bulunmadı. Uyku kapatıldığından beri (05.11 öğleden sonra) 10 dk'yı aşan boşluk yok.
+- **/karne (v0.99.110):** 12 göstergeli teknik karne, kullanıcının TradingView betiğiyle aynı kurallar. Kalan: `/tablo` (EMA seti ve mum formasyonu kuralları kullanıcıdan gelecek). Açık ipucu: kullanıcının 06.11 ekranında GARAN'ın önceki kapanışı 140,4 görünüyor; veri deposunda 05.11 kapanışı 142,00. Hangi güne ait olduğu bilinmiyor; aracı kurum fiyat dosyası karşılaştırması bunu netleştirir (Veri doğruluğu).
 - **Projeksiyon:** Yeni kesinti olmazsa 605 dk'lık aralık, ilk sinyali (04.11 21:48) 7 günlük pencereden çıktığında, yaklaşık 11.11 21:50'de tamamen düşer ve değer %100'e atlar (önceki tahminim 12.11 civarıydı).
 - **Ölçüm özelliği (öneri, uygulanmadı):** `slo.bot_uptime` yalnız pencere içindeki iki sinyalin arasını sayıyor. Pencere başını aşan bir aralık tamamen düşüyor (alt sayım), ilk haftada payda ilk sinyalden başlıyor. Öneri: aralığı pencere başına kırpmak. Canlı ayar değişikliği gerekmedi; değişiklik ayrı onay ister.
 
