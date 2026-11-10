@@ -372,6 +372,7 @@ top - teknik skoru en yüksek hisseler (tahmin gücü yok)
 analyze - tek hisse: /analyze THYAO
 seviye - destek/direnç seviyeleri: /seviye THYAO (öneri değil)
 karne - 12 göstergeli teknik karne, 100 puan: /karne THYAO (öneri değil)
+tablo - RSI, fiyat/EMA, hacim ve mum tablosu: /tablo, /tablo AD, /tablo THYAO GARAN
 piyasa - piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)
 senaryo - senaryo hesabı: /senaryo THYAO (giriş, geçersizlik, hedef, R; öneri değil)
 risk - risk bütçesi: /risk, /risk ekle THYAO 100, /risk denge (öneri değil)

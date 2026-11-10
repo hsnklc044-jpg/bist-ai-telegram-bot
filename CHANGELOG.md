@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.111 – 10.11.2026 (/tablo: RSI, fiyat/EMA, hacim ve mum tablosu)
+- Yeni `/tablo`: her hisse için bir satır; RSI(14), kapanışın EMA setine göre durumu (Tümü Üzerinde / Tümü Altında / Karışık), son 5 seansın hacmi (Ortalama Altında / Üzerinde / Yüksek) ve son kapanmış mumun formasyonu (Yutan Boğa / Yutan Ayı, Yükseliş / Düşüş Marubozu). `/tablo` takip listesini, `/tablo AD` kayıtlı bir taramayı ya da şablonu, `/tablo THYAO GARAN` seçilen hisseleri gösterir. Devre kesici ya da panik kilidinde tarama tablosu durur. En çok 30 satır. Yalnız bilgi; kural, model ya da eşik değişmedi.
+- Kullanıcı tablonun görünümünü verdi, kurallarını vermedi; kurallar burada yazıldı ve çıktının sonunda belirtiliyor: EMA seti 5/20/50/100/200 (kullanıcının karne betiğiyle aynı); Hacim = son 5 seans ortalaması / önceki 20 seans ortalaması (1 ve üstü "Üzerinde", 1,5 ve üstü "Yüksek"); Marubozu = gövde ≥ %90 aralık ve aralık ≥ 0,5 ATR; yutan mum = karşı renk, önceki gövdeyi kapsayan ve daha büyük gövde.
+- Doğrulama: `test_symbol_table` 22 test (her kural elle kurulmuş mumlarla; komutun takip listesi, kayıtlı tarama, hisse listesi, kilit ve hata yolları).
+
 ## v0.99.110 – 10.11.2026 (/karne: 12 göstergeli teknik karne)
 - Yeni `/karne THYAO`: kullanıcının TradingView "Teknik Gösterge Değerlendirici" betiğindeki 12 gösterge ve puanlar (toplam 100) aynen uygulanıyor: Supertrend 5, MACD 10, RSI 10, SMA 10, ATR 5, Bollinger 10, ADX/DI 10, PSAR 10, OBV 10, CCI 5, göreceli hacim 10, MFI 5. Kapanmış günlük mumlarla hesaplanır; hesaplanamayan gösterge sıfır puan almaz, "veri yok" yazılır ve toplamın yanında sayılır. Altında Trend, Momentum, Hacim, Bantlar ve oynaklık özeti var (toplamı değiştirmez). Yalnız bilgi; hiçbir kural, model ya da eşik değişmedi.
 - Betiğin kendine özgü tanımları korundu: ADX, DX'in SMA'sı (Wilder değil); ATR eşiği ortalamasının %110'u; RelVol bugünü ortalamaya dahil ediyor.

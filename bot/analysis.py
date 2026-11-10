@@ -154,6 +154,56 @@ def _level_block(symbol: str, k: int | None) -> str:
         return ""
 
 
+def _table_text(chat_id, words: list[str]) -> str:
+    """/tablo: the watchlist, a saved screen or template, or the symbols given."""
+
+    from core.analytics import symbol_table as T
+    from core.market.calendar import now_istanbul
+    from core.reports.daily import adjusted_bars
+    from core.screen import engine, universe
+    from core.screen.command import _live
+    from core.screen.language import normalize, parse
+    from core.screen.subscriptions import criteria_of
+    from core.signals import store
+    from core.watchlist.service import get_watchlist
+
+    if not words:
+        symbols = get_watchlist(chat_id)
+        if not symbols:
+            return "Takip listen boş. /tablo THYAO GARAN ya da /tablo bist100_trend yazabilirsin."
+        return T.text("takip listen", T.rows({s: adjusted_bars(s) for s in symbols}, symbols))
+    name = normalize(words[0])
+    criteria = criteria_of(name) if len(words) == 1 else None
+    if criteria is not None:
+        if store.locked(now_istanbul().date()):
+            return "Tarama devre kesici ya da panik kilidi nedeniyle durdu."
+        query = parse(criteria)
+        frames, bench = _live(universe.symbols(query.universe, chat_id))
+        result = engine.run(query, frames, bench, universe.suspects())
+        symbols = [m.symbol for m in result.matches]
+        if not symbols:
+            return f"📊 Tablo: {name}: şu an koşulu sağlayan hisse yok."
+        return T.text(name, T.rows(frames, symbols))
+    symbols = [normalize_symbol(w) for w in words[:T.MAX_ROWS]]
+    return T.text("seçtiğin hisseler", T.rows({s: adjusted_bars(s) for s in symbols}, symbols))
+
+
+async def table_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /tablo [AD | KOD KOD ...]: RSI, price against EMAs, volume and candle pattern per stock."""
+
+    try:
+        text = await asyncio.to_thread(_table_text, update.effective_chat.id, list(context.args or []))
+    except ValueError as exc:
+        text = str(exc)
+    except Exception:  # noqa: BLE001 - a failed table never stops the bot
+        logger.exception("/tablo failed")
+        text = "Tablo hazırlanamadı; ayrıntı logs/quantbist.log içinde."
+    await reply(update, text)
+
+
 def _scorecard_text(symbol: str) -> str:
     from core.analytics import scorecard
     from core.reports.daily import adjusted_bars

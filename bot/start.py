@@ -17,6 +17,7 @@ Komutlar:
 /analyze THYAO – tek hisse teknik analizi (en yakın 3 destek ve 3 direnç dahil)
 /seviye THYAO – bütün destek/direnç seviyeleri: yöntem, güç, ATR uzaklığı (teknik seviye, öneri değil)
 /karne THYAO – 12 göstergeli teknik karne, 100 puan (TradingView betiğinin kuralları; öneri değil)
+/tablo – takip listen, kayıtlı tarama ya da seçtiğin hisseler için RSI, fiyat/EMA, hacim ve mum tablosu (öneri değil)
 /piyasa – piyasa rejimi (yükseliş/düşüş/karışık/yüksek oynaklık), genişlik ve dört ana sektör (etiket, sinyal değil)
 /senaryo THYAO – senaryo şablonları: giriş varsayımı, geçersizlik, hedef, R ve adet hesabı (hesap aracı, öneri değil); /senaryo THYAO giris 240 gecersiz 232 hedef 262
 /risk [gercek|sanal] – risk bütçesi: sınırlarının kullanımı; /risk ekle THYAO 100 (ya şöyle olsaydı), /risk denge (hesap sonucu, öneri değil)
