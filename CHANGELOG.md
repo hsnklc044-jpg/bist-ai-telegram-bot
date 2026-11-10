@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.119 – 10.11.2026 (skill'ler, CLAUDE.md, sürüm kapısı)
+- Kullanıcının 10.11 onay devri: birleştirme ve canlı kurulum `scripts/surum_kapisi.py` kapısından geçer (OPERATIONS §5a). Koşullar: test+ruff+CI yeşil, canlı sürüm sağlıklı (≥3 ERROR'suz yaşam sinyali), SLO kötüleşmedi, kurulum seans (09:40–18:15) ve rapor (18:00–20:00) pencereleri dışında, tek paket ve günde ≤4 kurulum, ileri sarma, paket istisnası (güncelleyici/yedek/geri yükleme/kayıt biçimi). Kilit dosyası iki oturumun aynı anda birleştirmesini önler; canlı klasöre hiçbir şey yazılmaz.
+- `.claude/skills/`: `siradaki-is` (CHARTER §4), `surum-kapisi`, `olgunluk` (salt okunur), `on-kayit` (ölçümden önce DECISIONS kaydı).
+- `CLAUDE.md`: kesin sınırlar K-54 listesiyle aynı (testli), canlı klasör kuralı, çalışma düzeni.
+- Doğrulama: `test_claude_rules` (K-54 eşleşmesi, dört SKILL.md başlığı, kapının saf kuralları: sonraki kurulum saati, pencere, günlük kurulum sayısı, SLO kötüleşmesi, canlı sağlık, paket istisnası, canlıya yazmama).
+
 ## v0.99.118 – 10.11.2026 (araştırma raporu: DSR ve PBO, yalnız bilgi; K-81)
 - K-81 ölçümden önce DECISIONS.md'ye yazıldı (kullanıcı onayı). Haftalık araştırma raporunda Bonferroni notunun altına bir satır: "Aşırı uyum (bilgi, K-81; karar değişmez): en yüksek Sharpe … · DSR %NN (N strateji) · PBO %NN (CSCV, 16 blok)".
 - DSR (Deflated Sharpe Ratio): deneme sayısı, Sharpe oranlarının yayılımı, örnek uzunluğu, çarpıklık ve basıklıkla en iyi stratejinin şans eseri olmama olasılığı. PBO: C(16,8) = 12 870 eğitim/test ayrımında eğitimde en iyinin testte alt yarıda kalma oranı.

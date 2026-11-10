@@ -105,6 +105,27 @@ Zip kişisel dosyaları içermez (`.gitignore`), bu yüzden kopyalama onları ez
 - o satırları geçici olarak çıkar,
 - ya da temettü satırı olmayan bir yedeği geri yükle (`python -m core.backup --list`).
 
+## 5a. Sürüm kapısı ve paketleme (10.11.2026, kullanıcının onay devri)
+
+Birleştirme ve canlı kurulum için kullanıcı onayı beklenmez; `scripts/surum_kapisi.py` (skill: `surum-kapisi`)
+koşulların hepsini ✅ bulursa bot dalı ileri sarılır, güncelleyici sonraki :40 çalışmasında kurar.
+
+| # | Koşul |
+|---|---|
+| 0 | Durdurma bayrağı yok (`data/otonom_dur.flag` ya da araçlar `cikti/otonom_dur.flag`); canlı klasörde yerel değişiklik yok |
+| 1 | Birleştirilecek SHA'da tam test ve ruff yerelde geçti; aynı SHA'nın CI'ı yeşil |
+| 2 | Canlı sürüm sağlıklı: SHA ve sürüm, "Telegram bot started", sonrasında ≥3 ERROR'suz yaşam sinyali |
+| 3 | Önceki kurulumdan beri hiçbir SLO kötüleşmedi |
+| 4 | Kurulum seans günü 09:40–18:15 ve 18:00–20:00 dışında; hafta sonu ve tatil açık (güncelleyici 07:40–23:40 arası saatte bir) |
+| 5 | Aynı anda tek paket (bot dalı = canlı SHA), günde en fazla 4 kurulum |
+| 6–7 | Zincir ileri sarılabilir; pakette güncelleyici, yedek, geri yükleme ya da kişisel kayıt biçimi değişikliği yok |
+
+- **Paketleme:** zincir halinde bekleyen dallar tek tek değil, ucu tek kurulumla birleştirilir. Paketteki her dalın kendi CI'ı yeşil, tam test paketi geçmiş olmalı.
+- **Paket dışı:** güncelleyici, yedek, geri yükleme tek başına ve yalnız hafta sonu; önce aynı SHA'da `dr-drill` başarılı; güncelleyicinin önceki sürümü `C:\Projeler\QuantBIST_otomasyon\` altına kopyalanır; ilk güncelleyici çalışması ve ilk yedek doğrulanana kadar başka birleştirme yok. Kişisel kayıt biçimi yalnız geriye uyumlu, geri yükleme testi geçerek.
+- **Sorun:** bot başlamaz, ERROR görülür ya da bir SLO düşerse önceki sürüme dönülür (bot dalına revert commit'i; geçmiş yeniden yazılmaz), sorunlu dal tek tek denenerek bulunur.
+- **Otomatik fren** (bayrak yazılır, yalnız kurtarma işi yapılır, kullanıcı kaldırır): aynı gün 2 geri dönüş; KRİTİK SLO; canlı klasörde beklenmeyen değişiklik; güncelleyicinin üst üste 2 başarısız çalışması; aynı hatayı iki kez düzeltememek.
+- **Rapor:** her kurulumdan sonra tek satır (sürüm, paketteki dallar, CI bağlantıları, canlı sağlık kanıtı).
+
 ## 6. Sunucu seçenekleri (karar kullanıcıda)
 
 | Seçenek | Artı | Eksi |
