@@ -73,6 +73,23 @@ class TextTest(unittest.TestCase):
         self.assertIn(f"ve {40 - M.MAX_LIST} hisse daha", text)
         self.assertIn(f"/uzun_liste {M.MAX_LIST}", M.ranking_text(items, limit=1))
 
+    def test_the_next_page_hint_is_not_shown_at_the_largest_page(self):
+        items = M.rank({f"S{i:02d}.IS": trend(400) for i in range(40)})
+        text = M.ranking_text(items, limit=M.MAX_LIST)
+        self.assertNotIn(f"/uzun_liste {M.MAX_LIST}", text)
+        self.assertIn(f"ve {40 - M.MAX_LIST} hisse daha", text)
+
+    def test_few_results_have_no_more_line_and_an_empty_list_does_not_crash(self):
+        text = M.ranking_text(M.rank({"AAA.IS": trend(400), "BBB.IS": bars(120)}), limit=15)
+        self.assertNotIn("hisse daha", text)
+        self.assertEqual(len([ln for ln in text.splitlines() if ln[:2] in ("1.", "2.")]), 2)
+        empty = M.ranking_text([], limit=15)
+        self.assertIn("0 hisse", empty)
+
+    def test_a_non_numeric_limit_is_rejected_by_the_command_not_here(self):
+        items = M.rank({"AAA.IS": trend(400)})
+        self.assertEqual(len(M.ranking_text(items, limit=-5).splitlines()), 1 + 1 + 1)  # clamped to 1 row
+
 
 class CommandTest(unittest.TestCase):
     def run_command(self, args, **patches):

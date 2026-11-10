@@ -244,7 +244,11 @@ def ranking_text(items: list[tuple[str, Result]], limit: int = 15, saved: int = 
         marks = marks or "veri yok"
         lines.append(f"{i}. {symbol.removesuffix('.IS')} · {r.card.total}/{MAXIMUM} · {r.status} — {marks}")
     if len(items) > limit:
-        lines.append(f"ve {len(items) - limit} hisse daha: /uzun_liste {MAX_LIST}")
+        more = len(items) - limit
+        if limit < MAX_LIST:
+            lines.append(f"ve {more} hisse daha: /uzun_liste {MAX_LIST}")
+        else:  # already at the largest page: pointing at the same command would loop
+            lines.append(f"ve {more} hisse daha (en çok {MAX_LIST} satır gösterilir; tek hisse için /uzun KOD)")
     lines.append(f"Temel filtre: değerlendirilmedi (finansal veri bağlı değil) · sektör farkı: veri yok · kayıtlı üst alım "
                  f"fiyatı: {saved}/{len(items)} hisse (/uzun_ust). Ayrıntı: /uzun KOD. {DISCLAIMER}")
     return "\n".join(lines)
