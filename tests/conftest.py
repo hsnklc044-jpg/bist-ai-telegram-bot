@@ -83,6 +83,9 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(slo, "FRESHNESS_FILE", tmp_path / "freshness.csv")
     monkeypatch.setattr(slo, "RESTORE_FILE", tmp_path / "restore_tests.csv")
     monkeypatch.setattr(slo, "CI_LAST_FILE", tmp_path / "ci_last.json")
+    from core.infrastructure import outbox as _outbox
+
+    monkeypatch.setattr(_outbox, "OUTBOX_FILE", tmp_path / "telegram_giden.jsonl")
     from core import otonom as _otonom
 
     monkeypatch.setattr(_otonom, "STOP_FILE", tmp_path / "otonom_dur.flag")

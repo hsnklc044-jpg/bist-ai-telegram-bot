@@ -192,7 +192,10 @@ async def report_watch_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     checks = await asyncio.to_thread(health_checks, now)
     for check in due_alerts(checks, now, LOG_DIR / ALERT_STATE):
         logger.warning("Health watch: %s | %s", check.name, check.text)
-        await context.bot.send_message(context.job.chat_id, _alert_text(check, now))
+        from core.infrastructure import outbox
+
+        with outbox.source("sağlık uyarısı"):
+            await context.bot.send_message(context.job.chat_id, _alert_text(check, now))
 
 
 SIGNAL_TRACK_JOB = "signal_track"
@@ -224,8 +227,11 @@ async def _guarded(context, name: str, fn):
         now = now_istanbul()
         chat = getattr(getattr(context, "job", None), "chat_id", None)
         if chat and retry.should_alert(exc, now):
-            await context.bot.send_message(chat, f"🚨 KRİTİK: {name} 5 denemede de çalışmadı; bot çalışmaya devam "
-                                                 f"ediyor.\n{retry.payload(exc, now)}")
+            from core.infrastructure import outbox
+
+            with outbox.source("sağlık uyarısı"):
+                await context.bot.send_message(chat, f"🚨 KRİTİK: {name} 5 denemede de çalışmadı; bot çalışmaya "
+                                                     f"devam ediyor.\n{retry.payload(exc, now)}")
     except Exception:  # noqa: BLE001 - a bug: logged with its trace, the bot keeps running
         logger.exception("Job failed | %s", name)
     return None
@@ -405,7 +411,10 @@ async def otonom_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     if chat:
-        await context.bot.send_message(chat, text)
+        from core.infrastructure import outbox
+
+        with outbox.source("robot özeti"):
+            await context.bot.send_message(chat, text)
 
 
 def schedule_otonom_summary(app: Application, chat_id: int | None = None) -> bool:

@@ -5,7 +5,7 @@ Telegram Application
 
 from __future__ import annotations
 
-from telegram.ext import Application, ApplicationBuilder
+from telegram.ext import Application, ApplicationBuilder, ExtBot
 
 from bot.handlers import register_handlers
 from bot.scheduler import (
@@ -25,6 +25,31 @@ from core.infrastructure.logger import get_logger
 from core.infrastructure.settings import require_bot_settings
 
 logger = get_logger(__name__)
+
+
+class RecordingBot(ExtBot):
+    """Every message the bot sends (replies and job messages) is copied to logs/telegram_giden.jsonl with its
+    source (core.infrastructure.outbox; the user's 10.11.2026 request). A failed send is recorded too."""
+
+    async def send_message(self, chat_id, text, *args, **kwargs):
+        from core.infrastructure import outbox
+
+        try:
+            message = await super().send_message(chat_id, text, *args, **kwargs)
+        except Exception:
+            outbox.record(outbox.current_source(), text, False)
+            raise
+        outbox.record(outbox.current_source(), text, True)
+        return message
+
+
+def _bot(token: str) -> RecordingBot:
+    """The same request settings ApplicationBuilder uses by default (256 connections; 1 for polling)."""
+
+    from telegram.request import HTTPXRequest
+
+    return RecordingBot(token=token, request=HTTPXRequest(connection_pool_size=256),
+                        get_updates_request=HTTPXRequest(connection_pool_size=1))
 
 # A network error while starting (e.g. DNS not ready right after the PC wakes up) is retried
 # with python-telegram-bot's back-off (1 s growing to 30 s): 20 tries is about 7 minutes.
@@ -69,7 +94,7 @@ def _warm_templates() -> None:
 def build_app() -> Application:
     config = require_bot_settings()
 
-    app = ApplicationBuilder().token(config.bot_token).post_init(_start_up).build()
+    app = ApplicationBuilder().bot(_bot(config.bot_token)).post_init(_start_up).build()
 
     register_handlers(app, config.chat_id, config.user_id)
     schedule_daily_report(app)

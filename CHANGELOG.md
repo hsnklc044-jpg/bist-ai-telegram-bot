@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.124 – 10.11.2026 (giden Telegram mesajlarının kopyası: logs/telegram_giden.jsonl)
+- Kullanıcı isteği: botun gönderdiği her mesaj (yanıtlar ve zamanlanmış işlerin mesajları) ve günlük rapor, gönderimin hemen etrafında `logs/telegram_giden.jsonl`'a bir satır olarak yazılır: zaman, kaynak (bot / günlük rapor / robot özeti / sağlık uyarısı; güncelleyici ayrı sürümde), sonuç (gönderildi / başarısız), metin. Başarısız gönderim de yazılır.
+- Token, chat_id ve izleme adresleri dosyaya asla yazılmaz (`[gizli]`; ortam değişkenleri ve genel token/adres kalıpları); testli.
+- Dosya yalnız sonuna eklenir. 30 günden eski satırlar mesajın ayına göre `telegram_giden_YYYY-MM.jsonl` arşivine taşınır (önce arşive yazılıp diske işlenir, sonra ana dosya değiştirilir), silinmez. Kayıt hatası mesajı asla durdurmaz.
+- Bot: `RecordingBot` (ExtBot alt sınıfı) aynı bağlantı ayarlarıyla (256 bağlantı; yoklama 1). Sağlık uyarıları ve 21:00 robot özeti kaynak etiketiyle.
+- Doğrulama: `test_outbox` (önce başarısız testler: kayıt alanları, başarısız gönderim, gizli bilgi, yalnız ekleme, aylık arşiv, bot ve günlük rapor bağlantısı, iş etiketleri).
+
 ## v0.99.123 – 10.11.2026 (Ö36: canlı sinyal takibinin hata yolları testli)
 - Kapsam ölçüldü: core+bot %92 (kapı %91). Bugün eklenen modüller %96–100.
 - `core/signals/live.py` (%76) hata yolları test edildi: sinyal defteri açılamazsa boş döner ve uyarı yazar; Yahoo hatası botu durdurmaz; `strict` ile geçici hata yeniden denemeye bırakılır, geçici olmayan hata yutulur; her durumun Telegram satırı. Kod değişmedi.

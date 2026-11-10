@@ -545,13 +545,16 @@ SEND_ATTEMPTS = 3
 SEND_PAUSES = (5, 20)  # seconds between attempts
 
 
-def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None) -> None:
+def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None, source: str = "günlük rapor") -> None:
     """
     Send with the Bot HTTP API. A network error, a 5xx or a 429 is retried
     (SEND_ATTEMPTS times); a 4xx such as a wrong token is not. Each part is
     retried on its own, so a part that went out is never sent twice.
-    `post` and `sleep` are injectable for tests.
+    `post` and `sleep` are injectable for tests. Every part is copied to logs/telegram_giden.jsonl with
+    `source` and whether it went out (core.infrastructure.outbox; a failed part too).
     """
+
+    from core.infrastructure import outbox
 
     import time
 
@@ -561,23 +564,34 @@ def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None) ->
     sleep = sleep or time.sleep
     retryable = (ConnectionError, OSError, TimeoutError, httpx.TransportError)
     for part in split_text(text):
-        for attempt in range(SEND_ATTEMPTS):
-            try:
-                response = post(
-                    f"https://api.telegram.org/bot{token}/sendMessage",
-                    json={"chat_id": chat_id, "text": part},
-                    timeout=30,
-                )
-                status = getattr(response, "status_code", 200)
-                if status == 429 or status >= 500:
-                    raise ConnectionError(f"Telegram HTTP {status}")
-                response.raise_for_status()
-                break
-            except retryable as exc:
-                if attempt == SEND_ATTEMPTS - 1:
-                    raise
-                logger.warning("Telegram send failed, retrying | %s", exc)
-                sleep(SEND_PAUSES[min(attempt, len(SEND_PAUSES) - 1)])
+        try:
+            _send_part(part, token, chat_id, post, sleep, retryable)
+        except Exception:
+            outbox.record(source, part, False)
+            raise
+        outbox.record(source, part, True)
+
+
+def _send_part(part: str, token: str, chat_id: int, post, sleep, retryable) -> None:
+    """One part with retries: a network error, a 5xx or a 429 is retried; a 4xx is not."""
+
+    for attempt in range(SEND_ATTEMPTS):
+        try:
+            response = post(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                json={"chat_id": chat_id, "text": part},
+                timeout=30,
+            )
+            status = getattr(response, "status_code", 200)
+            if status == 429 or status >= 500:
+                raise ConnectionError(f"Telegram HTTP {status}")
+            response.raise_for_status()
+            break
+        except retryable as exc:
+            if attempt == SEND_ATTEMPTS - 1:
+                raise
+            logger.warning("Telegram send failed, retrying | %s", exc)
+            sleep(SEND_PAUSES[min(attempt, len(SEND_PAUSES) - 1)])
 
 
 def _with_backup_line(text: str) -> str:
