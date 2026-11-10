@@ -204,6 +204,50 @@ async def table_cmd(
     await reply(update, text)
 
 
+def _parse_price(raw: str) -> float:
+    try:
+        value = float(raw.replace(",", "."))
+    except ValueError:
+        raise ValueError("Fiyat sayı olmalı: /uzun THYAO 250") from None
+    if not value > 0:
+        raise ValueError("Üst alım fiyatı sıfırdan büyük olmalı: /uzun THYAO 250")
+    return value
+
+
+def _long_text(symbol: str, upper: float | None) -> str:
+    from core.analytics import long_model
+    from core.reports.daily import adjusted_bars
+
+    bars = adjusted_bars(symbol)
+    if bars is None or len(bars) == 0:
+        return f"{symbol} için fiyat verisi yok."
+    return long_model.text(symbol, bars, upper)
+
+
+async def long_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /uzun SYMBOL [UPPER_PRICE]: the 6-12 month model's technical score and, apart from it, the entry decision."""
+
+    args = list(context.args or [])
+    if not 1 <= len(args) <= 2:
+        await reply(update, "Kullanım:\n/uzun THYAO\n/uzun THYAO 250  (250: üst alım fiyatı)")
+        return
+    try:
+        symbol = normalize_symbol(args[0])
+        upper = _parse_price(args[1]) if len(args) == 2 else None
+    except ValueError as exc:
+        await reply(update, str(exc))
+        return
+    try:
+        text = await asyncio.to_thread(_long_text, symbol, upper)
+    except Exception:  # noqa: BLE001 - a failed card never stops the bot
+        logger.exception("/uzun failed for %s", symbol)
+        text = f"{symbol} için model hesaplanamadı; ayrıntı logs/quantbist.log içinde."
+    await reply(update, text)
+
+
 def _scorecard_text(symbol: str) -> str:
     from core.analytics import scorecard
     from core.reports.daily import adjusted_bars

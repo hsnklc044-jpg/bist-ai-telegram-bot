@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.112 – 10.11.2026 (/uzun: 6–12 ay modelinin teknik puanı ve ayrı giriş kararı)
+- Yeni `/uzun THYAO [üst alım fiyatı]`: kullanıcının 06.11 tanımındaki teknik puan, Trend /40 (SMA trendi 15, Supertrend 8, ADX/DMI 10, PSAR 4, Bollinger 3), Momentum /25 (MACD 10, RSI 10, CCI 5), Hacim /35 (OBV 10, göreceli hacim 15, MFI 10), toplam /100. Hacim önceki 20 seansın medyanına göre ve bugünü paydaya katmıyor; ADX Wilder'ın standart ADX'i. Eksik gösterge yeniden 100'e ölçeklenmiyor.
+- Puan ile karar ayrı: karar "Giriş adayı" olmak için SMA trendi, önceki 20 seansın en yüksek fiyatının üstünde kapanış (kırılım; bugünün kendi zirvesi sayılmaz), göreceli hacim ≥ 1,5 ve fiyatın üst alım fiyatını aşmaması gerekir. Yüksek puanlı ama koşulu eksik hisse "İzle" olur ve eksik koşul yazılır; üst alım fiyatı girilmezse hiçbir hisse "Giriş adayı" olamaz. Hesaplanamayan koşul "Veri yetersiz".
+- Henüz yok ve çıktıda yazılıyor: temel filtre (finansal veri bağlı değil, "Elendi" durumu bu yüzden üretilmiyor), KAP tarihi, sektör farkı (sektör haritası yok), lot hesabı, A/B/C geçmiş testi.
+- Doğrulama: `test_long_model` 15 test.
+
 ## v0.99.111 – 10.11.2026 (/tablo: RSI, fiyat/EMA, hacim ve mum tablosu)
 - Yeni `/tablo`: her hisse için bir satır; RSI(14), kapanışın EMA setine göre durumu (Tümü Üzerinde / Tümü Altında / Karışık), son 5 seansın hacmi (Ortalama Altında / Üzerinde / Yüksek) ve son kapanmış mumun formasyonu (Yutan Boğa / Yutan Ayı, Yükseliş / Düşüş Marubozu). `/tablo` takip listesini, `/tablo AD` kayıtlı bir taramayı ya da şablonu, `/tablo THYAO GARAN` seçilen hisseleri gösterir. Devre kesici ya da panik kilidinde tarama tablosu durur. En çok 30 satır. Yalnız bilgi; kural, model ya da eşik değişmedi.
 - Kullanıcı tablonun görünümünü verdi, kurallarını vermedi; kurallar burada yazıldı ve çıktının sonunda belirtiliyor: EMA seti 5/20/50/100/200 (kullanıcının karne betiğiyle aynı); Hacim = son 5 seans ortalaması / önceki 20 seans ortalaması (1 ve üstü "Üzerinde", 1,5 ve üstü "Yüksek"); Marubozu = gövde ≥ %90 aralık ve aralık ≥ 0,5 ATR; yutan mum = karşı renk, önceki gövdeyi kapsayan ve daha büyük gövde.
