@@ -233,6 +233,49 @@ def _long_text(symbol: str, upper: float | None) -> str:
     return long_model.text(symbol, bars, upper, saved) + note
 
 
+def _long_list_text(chat_id, limit: int) -> str:
+    from core.analytics import long_model
+    from core.infrastructure.exceptions import PersonalFileError
+    from core.market import upper_buy
+    from core.reports.daily import adjusted_bars
+    from core.screen import universe
+
+    symbols = universe.symbols("bist100", chat_id)
+    note = ""
+    try:
+        uppers = {s: price for s, (price, _) in upper_buy.load().items()}
+    except PersonalFileError as exc:
+        uppers, note = {}, f"\n⚠️ Kayıtlı üst alım fiyatları okunamadı: {exc}"
+    items = long_model.rank({s: adjusted_bars(s) for s in symbols}, uppers)
+    if not items:
+        return "BIST 100 için fiyat verisi yok."
+    saved = sum(1 for s, _ in items if s in uppers)
+    return long_model.ranking_text(items, limit, saved) + note
+
+
+async def long_list_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /uzun_liste [N]: the 6-12 month model over BIST 100, entry candidates first, then by score."""
+
+    from core.analytics import long_model
+
+    args = list(context.args or [])
+    limit = 15
+    if args:
+        if len(args) != 1 or not args[0].isdigit() or not 1 <= int(args[0]) <= long_model.MAX_LIST:
+            await reply(update, f"Kullanım:\n/uzun_liste\n/uzun_liste 25  (1–{long_model.MAX_LIST} hisse)")
+            return
+        limit = int(args[0])
+    try:
+        text = await asyncio.to_thread(_long_list_text, update.effective_chat.id, limit)
+    except Exception:  # noqa: BLE001 - a failed list never stops the bot
+        logger.exception("/uzun_liste failed")
+        text = "Sıralama hazırlanamadı; ayrıntı logs/quantbist.log içinde."
+    await reply(update, text)
+
+
 async def upper_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,

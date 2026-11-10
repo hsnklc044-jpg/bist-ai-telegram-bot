@@ -20,6 +20,7 @@ Komutlar:
 /tablo – takip listen, kayıtlı tarama ya da seçtiğin hisseler için RSI, fiyat/EMA, hacim ve mum tablosu (öneri değil)
 /uzun THYAO [üst alım fiyatı] – 6–12 ay modeli: 100 puanlık teknik puan ve puandan ayrı giriş kararı (İzle / Giriş adayı / Veri yetersiz; temel filtre henüz yok; öneri değil)
 /uzun_ust THYAO 250 – üst alım fiyatını kalıcı kaydet (/uzun bunu kullanır); /uzun_ust THYAO sil; /uzun_ust liste (sınır senindir, öneri değil)
+/uzun_liste [N] – BIST 100'ü 6–12 ay modeline göre sırala: önce giriş adayları, sonra puan; her hissenin eksik koşulu görünür (temel filtre henüz yok; öneri değil)
 /piyasa – piyasa rejimi (yükseliş/düşüş/karışık/yüksek oynaklık), genişlik ve dört ana sektör (etiket, sinyal değil)
 /senaryo THYAO – senaryo şablonları: giriş varsayımı, geçersizlik, hedef, R ve adet hesabı (hesap aracı, öneri değil); /senaryo THYAO giris 240 gecersiz 232 hedef 262
 /risk [gercek|sanal] – risk bütçesi: sınırlarının kullanımı; /risk ekle THYAO 100 (ya şöyle olsaydı), /risk denge (hesap sonucu, öneri değil)

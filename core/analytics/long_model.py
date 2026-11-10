@@ -206,3 +206,45 @@ def text(symbol: str, df: pd.DataFrame, upper: float | None = None, saved: bool 
             else f"Üst alım fiyatı için: /uzun {code} FİYAT ya da kalıcı: /uzun_ust {code} FİYAT")
     lines.append(f"{DISCLAIMER} {hint}")
     return "\n".join(lines)
+
+
+# --- the ranking (/uzun_liste) ---------------------------------------------------------------------------
+
+_ORDER = {ENTER: 0, WATCH: 1, LACKING: 2, OUT: 3}
+_SHORT = ("SMA trendi", "kırılım", "hacim", "üst alım")
+MAX_LIST = 30
+
+
+def rank(frames: dict[str, pd.DataFrame], uppers: dict[str, float] | None = None) -> list[tuple[str, Result]]:
+    """Every stock evaluated; entry candidates first, then watch, then missing data; inside a group by score,
+    then by code. The decision stays separate from the score: a high score is not a candidate by itself."""
+
+    items = []
+    for symbol, df in frames.items():
+        if df is None or len(df) == 0:
+            continue
+        price = (uppers or {}).get(symbol)
+        items.append((symbol, evaluate(df, price, saved=price is not None)))
+    return sorted(items, key=lambda it: (_ORDER.get(it[1].status, 9), -it[1].card.total, it[0]))
+
+
+def ranking_text(items: list[tuple[str, Result]], limit: int = 15, saved: int = 0, title: str = "BIST 100") -> str:
+    from collections import Counter
+
+    limit = max(1, min(int(limit), MAX_LIST))
+    days = sorted({r.card.day for _, r in items if r.card.day})
+    counts = Counter(r.status for _, r in items)
+    when = f" · son kapanış {days[-1]:%d.%m.%Y}" if days else ""
+    head = (f"🧭 6–12 ay modeli sıralaması: {title}{when} · {len(items)} hisse · "
+            + " · ".join(f"{k}: {counts.get(k, 0)}" for k in (ENTER, WATCH, LACKING)))
+    lines = [head]
+    for i, (symbol, r) in enumerate(items[:limit], 1):
+        marks = " · ".join(
+            f"{name} " + ("❔" if c.ok is None else ("✅" if c.ok else "❌")) for name, c in zip(_SHORT, r.conditions))
+        marks = marks or "veri yok"
+        lines.append(f"{i}. {symbol.removesuffix('.IS')} · {r.card.total}/{MAXIMUM} · {r.status} — {marks}")
+    if len(items) > limit:
+        lines.append(f"ve {len(items) - limit} hisse daha: /uzun_liste {MAX_LIST}")
+    lines.append(f"Temel filtre: değerlendirilmedi (finansal veri bağlı değil) · sektör farkı: veri yok · kayıtlı üst alım "
+                 f"fiyatı: {saved}/{len(items)} hisse (/uzun_ust). Ayrıntı: /uzun KOD. {DISCLAIMER}")
+    return "\n".join(lines)

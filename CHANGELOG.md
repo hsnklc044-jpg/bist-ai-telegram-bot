@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.114 – 10.11.2026 (/uzun_liste: 6–12 ay modeli BIST 100 sıralaması)
+- Yeni `/uzun_liste [N]`: BIST 100'ün 100 hissesini 6–12 ay modeline göre değerlendirir; önce "Giriş adayı", sonra "İzle", sonra "Veri yetersiz"; her grupta puana göre, eşitlikte koda göre. Her satırda dört koşulun durumu görünür (SMA trendi, kırılım, hacim, üst alım fiyatı), yani yüksek puanlı ama koşulu eksik hissenin neyi beklediği tek bakışta okunur. Kayıtlı üst alım fiyatları (`/uzun_ust`) kullanılır. Karar mantığı `/uzun` ile aynı; kural, eşik, K-79 parçası değişmedi.
+- Henüz yok ve çıktıda yazıyor: temel filtre (finansal veri bağlı değil), sektör farkı.
+- Doğrulama: `test_long_list` testleri; gerçek veride 100 hissenin 100'ü hatasız işlendi (yaklaşık 7 sn).
+
 ## v0.99.113 – 10.11.2026 (üst alım fiyatı kalıcı kayıt: /uzun_ust)
 - Yeni `/uzun_ust THYAO 250`: kullanıcının üst alım fiyatı `data/upper_buy.csv` dosyasına ekleme-yalnız yazılır (son satır geçerli, `sil` kaydı kapatır, `/uzun_ust` listeyi gösterir). `/uzun THYAO` kayıtlı fiyatı kullanır ("kayıtlı" diye işaretler); komutta verilen fiyat o çağrı için kaydı geçersiz kılar. Böylece `/uzun` kayıtlı fiyatla "Giriş adayı" kararı verebilir; fiyat yoksa hiçbir hisse aday olamaz (kural değişmedi).
 - Fiyat kullanıcının kendi sınırıdır, hesaplanmaz. Yazım hatası korumaları: sıfır, negatif, sayı olmayan ve 1.000.000 TL üstü fiyat reddedilir; bozuk satır satır numarasıyla bildirilir.
