@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.118 – 10.11.2026 (araştırma raporu: DSR ve PBO, yalnız bilgi; K-81)
+- K-81 ölçümden önce DECISIONS.md'ye yazıldı (kullanıcı onayı). Haftalık araştırma raporunda Bonferroni notunun altına bir satır: "Aşırı uyum (bilgi, K-81; karar değişmez): en yüksek Sharpe … · DSR %NN (N strateji) · PBO %NN (CSCV, 16 blok)".
+- DSR (Deflated Sharpe Ratio): deneme sayısı, Sharpe oranlarının yayılımı, örnek uzunluğu, çarpıklık ve basıklıkla en iyi stratejinin şans eseri olmama olasılığı. PBO: C(16,8) = 12 870 eğitim/test ayrımında eğitimde en iyinin testte alt yarıda kalma oranı.
+- Karar değişmedi: bootstrap + Bonferroni aynı; eşik yok, sinyal ya da ayar tetiklemez. Holdout'a dokunulmadı.
+- Yeni `core/backtest/overfit.py`. Doğrulama: `test_overfit` (12 test, fonksiyonlardan önce yazıldı: tek strateji, belirgin üstünlük, saf gürültü ≈ %50, daha çok deneme DSR'ı düşürür, kısa veri), `test_backtest` rapor satırı.
+
 ## v0.99.117 – 10.11.2026 (Kalite SLO: GitHub hatası açık yazılır)
 - 10.11 14:24 haftalık özetinde "Kalite: GitHub sorgulanamadı (HTTPStatusError)" yazıyordu; durum kodu yoktu. Artık HTTP kodu yazılır; kota dolmuşsa (403/429, kalan 0) "GitHub kotası doldu, SS:DD'de açılır".
 - Kota dışındaki bir hata 3 sn sonra bir kez yeniden denenir; dolu kotada yeniden sorulmaz (yalnız kotayı harcar).

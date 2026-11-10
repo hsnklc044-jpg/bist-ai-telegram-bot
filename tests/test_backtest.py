@@ -270,6 +270,8 @@ class ResearchSmokeTest(unittest.TestCase):
         self.assertIn("XU100: nominal", bases)
         self.assertIn("reel", bases)
         self.assertIn("nakde göre", bases)
+        # K-81: the overfitting line stands under the Bonferroni note, information only
+        self.assertIn("Aşırı uyum (bilgi, K-81; karar değişmez):", text.split("GA:")[1].split("Sağlamlık")[0])
 
     def test_fragile_strategy_is_flagged(self):
         import pandas as pd

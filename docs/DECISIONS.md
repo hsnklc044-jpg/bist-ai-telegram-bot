@@ -2,6 +2,24 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 10.11.2026
+
+**K-81. Araştırma raporuna aşırı uyum ölçüleri: Deflated Sharpe Ratio ve PBO (10.11.2026; kullanıcı onayı "Evet, kaydet"). Ölçüm yapılmadan, araştırma sonuçlarına bakılmadan yazıldı.**
+- **Soru:** Haftalık araştırma birden çok strateji deniyor. En yüksek Sharpe'lı stratejinin üstünlüğü, deneme sayısı hesaba katıldığında şans eseri olabilir mi?
+- **Bilgi, karar değil:** Mevcut karar (21 seanslık blok bootstrap, Bonferroni düzeltmeli güven aralığı; "aralık sıfırın üstünde değilse XU100'ü geçmiş sayılmaz") değişmez. DSR ve PBO raporda yalnız bilgi satırıdır; eşik yok, hiçbir kararı, sinyali, ayarı tetiklemez.
+- **Veri:** Bonferroni'nin saydığı test edilen stratejiler (al-tut karşılaştırmaları hariç). Günlük getiriler, ortak tarihler (iç birleşim). Holdout'a dokunulmaz; araştırmanın kendi dönemi kullanılır.
+- **DSR (Bailey ve López de Prado, 2014):** SR, T, γ₃, γ₄ ortak dönemde en yüksek günlük Sharpe'lı stratejinin; N = test edilen strateji sayısı; V[SR] = test edilen stratejilerin günlük Sharpe oranlarının varyansı (ddof=1).
+  - SR₀ = √V[SR] · ((1 − γ)·Φ⁻¹(1 − 1/N) + γ·Φ⁻¹(1 − 1/(N·e))), γ = 0,5772156649.
+  - DSR = Φ((SR − SR₀)·√(T − 1) / √(1 − γ₃·SR + (γ₄ − 1)/4·SR²)); γ₄ basıklık (normalde 3).
+  - N < 2 ya da karekök içi ≤ 0 ise "hesaplanmadı".
+- **PBO, CSCV (Bailey, Borwein, López de Prado, Zhu, 2017):** Ortak getiri matrisi S = 16 ardışık, eşit boyda bloğa bölünür; 8 bloğun her seçimi eğitim, kalan 8 test: C(16,8) = 12 870 ayrım.
+  - Ölçü: birleştirilmiş blokların günlük Sharpe oranı.
+  - Eğitimde en iyi stratejinin testteki sırası r (1 = en kötü; eşitlikte ortalama sıra); ω = r/(N + 1); λ = ln(ω/(1 − ω)).
+  - PBO = λ ≤ 0 olan ayrımların oranı.
+  - N < 2 ya da blok başına 5 seanstan az gözlem varsa "hesaplanmadı".
+- **Rapor satırı:** "Aşırı uyum (bilgi, K-81; karar değişmez): en yüksek Sharpe <strateji> · DSR %NN (N strateji) · PBO %NN (CSCV, 16 blok)".
+- **Doğrulama (ölçümden önce yazılan testler):** tek strateji → hesaplanmadı; belirgin pozitif kaymalı tek strateji + gürültüler → DSR yüksek, PBO düşük; yalnız gürültü → PBO yaklaşık %50; aynı en iyi stratejiye daha çok gürültü stratejisi eklemek DSR'ı düşürür.
+
 ## 05.11.2026
 
 **K-80. K-64 saatlik ileri testi: yöntem, veri ve iki indirme kuralı (05.11.2026; kullanıcının "onay beklemeden devam" talimatı, önerilen yanıtlarla). Holdout verisine bakılmadan yazıldı.**

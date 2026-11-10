@@ -31,6 +31,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from core.backtest import overfit
 from core.backtest.cash import parse_cash_option
 from core.backtest.engine import BacktestConfig, buy_and_hold, compute_metrics, run_backtest
 from core.backtest.reliability import contribution, yearly_returns
@@ -253,6 +254,7 @@ def research_report(
         f"GA: blok bootstrap güven aralığı (21 seanslık bloklar). {tested} strateji test edildiği için "
         f"Bonferroni düzeltmeli (%{level * 100:.1f}). Aralık tamamen sıfırın üstünde değilse "
         "strateji XU100'ü geçmiş sayılmaz.",
+        overfit.report_line({name: equity for name, equity, _ in rows[:tested]}),
         "",
     ]
     lines += _robustness_lines(robust, xu, compute_metrics(xu / xu.iloc[0] * base.initial_capital).get("cagr"))
