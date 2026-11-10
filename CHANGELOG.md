@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.116 – 10.11.2026 (temel veri girişi: şablon, deneme, TL birimi)
+- `python -m core.fundamentals.store --template DOSYA --symbols THYAO,GARAN --period 2026-09-30`: 9 ana kalemlik boş tablo (var olan dosyanın üzerine yazmaz).
+- `--check DOSYA`: içe aktarmanın ne yapacağını gösterir, hiçbir şey yazmaz; eklenecek / zaten var / reddedilecek satırlar ve her raporda eksik ana kalemler.
+- Birim TL dışındaysa satır reddedilir ("bin TL" ise 1000 ile çarp mesajıyla); önceden birim saklanıyor ama hiç okunmuyordu, yani "bin TL" girilen bir değer piyasa değeriyle karıştırıldığında 1000 kat yanlış sonuç verirdi. Sonsuz değer reddedilir. Henüz veri dosyası yok, mevcut kayıt etkilenmez.
+- Yeni `docs/TEMEL_VERI.md`: en küçük girdi (9 ana kalem ve KAP karşılıkları), adımlar, kurallar.
+- Doğrulama: `test_fundamentals_store` (32 test).
+
 ## v0.99.115 – 10.11.2026 (SLO: "Bot ayakta kalma" penceresi kırpılır)
 - Ölçüm tanımı değişti (onayla): 7 günlük pencerenin başını aşan bir yaşam sinyali aralığı artık tamamen düşmüyor; pencere öncesinden bir sinyal tutulur ve kesinti yalnız pencereye giren dilimi kadar sayılır. 5 dakikalık tolerans önce tüm aralıktan düşülür (kesinti t1+5 dk'dan t2'ye), sonra pencereye kırpılır. Eski hesapta 605 dakikalık bir uyku/askı aralığı pencere sınırını aşınca değer bir anda %94,0'dan %100'e atlıyordu; artık dilim dilim azalır.
 - Çıktıya "uyku/askı hariç %X" eklendi (aynı süreçle gelen boşluklar çıkarılır). SLO değeri ve eşik (%98) HAM değer olarak kalır.

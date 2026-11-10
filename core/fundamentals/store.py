@@ -17,12 +17,19 @@ data/fundamentals.csv, one row per item of one report:
     python -m core.fundamentals.store --import FILE      # check and append
     python -m core.fundamentals.store --compare FILE      # differences against a second source
     python -m core.fundamentals.store --status            # what /durum shows
+    python -m core.fundamentals.store --check FILE        # dry run: what an import WOULD do, nothing written
+    python -m core.fundamentals.store --template FILE --symbols THYAO,GARAN --period 2026-09-30
+                                                           # an empty sheet of the 9 core items to fill in
+
+Values are full TL (a KAP table "bin TL" is multiplied by 1,000 before it comes in): a unit other than TL is
+rejected, because the scores mix items and a market value (price x shares) and never read the unit.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import math
 import re
 from datetime import date, datetime
 from pathlib import Path
@@ -88,7 +95,12 @@ def _check(r: dict) -> tuple[dict | None, str]:
     try:
         value = float((r.get("value") or "").strip())
     except ValueError:
-        return None, f"değer bir sayı olmalı ('{r.get('value')}')"
+        return None, f"değer bir sayı olmalı, ondalık ayırıcı nokta, binlik ayırıcı yok ('{r.get('value')}')"
+    if not math.isfinite(value):
+        return None, f"değer sonlu bir sayı olmalı ('{r.get('value')}')"
+    unit = (r.get("unit") or "TL").strip()
+    if unit.upper() != "TL":
+        return None, f"birim TL olmalı ('{unit}'); 'bin TL' tablosundaki değeri 1000 ile çarp"
     consolidated = (r.get("consolidated") or "").strip()
     inflation = (r.get("inflation_adjusted") or "").strip()
     if consolidated not in ("1", "0") or inflation not in ("1", "0", ""):
@@ -97,7 +109,7 @@ def _check(r: dict) -> tuple[dict | None, str]:
     if not source:
         return None, "kaynak boş (KAP bildirim bağlantısı ya da sağlayıcı adı)"
     return {"symbol": symbol, "period_end": period, "published_at": published.isoformat(timespec="seconds"),
-            "item": item, "value": repr(value), "unit": (r.get("unit") or "TL").strip(),
+            "item": item, "value": repr(value), "unit": "TL",
             "consolidated": consolidated, "inflation_adjusted": inflation, "source": source}, ""
 
 
@@ -142,6 +154,57 @@ def import_file(source: Path, path: Path | None = None, now: datetime | None = N
             for r in rows:
                 writer.writerow({**r, "recorded_at": stamp})
     return len(rows), rejected
+
+
+def check_file(source: Path, path: Path | None = None) -> str:
+    """A dry run of import_file: which rows would be added, which rejected and why, which are already in the
+    store, and which core items each report still lacks. Nothing is written."""
+
+    known = {_key(r) for r in load(path).to_dict("records")}
+    new, dup, rejected = [], 0, []
+    with open(source, encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        missing_cols = set(SOURCE_COLUMNS) - set(reader.fieldnames or []) - {"unit", "inflation_adjusted"}
+        if missing_cols:
+            return f"{Path(source).name}: eksik sütun {sorted(missing_cols)}; beklenen: {','.join(SOURCE_COLUMNS)}"
+        for n, r in enumerate(reader, start=2):
+            clean, why = _check(r)
+            if clean is None:
+                rejected.append(f"  satır {n}: {why}")
+            elif _key(clean) in known:
+                dup += 1
+            else:
+                known.add(_key(clean))
+                new.append(clean)
+    reports: dict[tuple, set] = {}
+    for r in new:
+        reports.setdefault((r["symbol"], r["period_end"], r["consolidated"]), set()).add(r["item"])
+    lines = [f"Deneme (hiçbir şey yazılmadı): {len(new)} satır eklenecek, {dup} satır zaten var, "
+             f"{len(rejected)} satır reddedilecek"]
+    if rejected:
+        lines += rejected[:20] + ([f"  ... ve {len(rejected) - 20} satır daha"] if len(rejected) > 20 else [])
+    for (symbol, period, consolidated), items in sorted(reports.items()):
+        lack = [i for i in CORE_ITEMS if i not in items]
+        kind = "konsolide" if consolidated == "1" else "solo"
+        lines.append(f"  {symbol} {period} ({kind}): {len(items)} kalem; "
+                     + (f"eksik ana kalem: {', '.join(lack)}" if lack else "9 ana kalemin hepsi var"))
+    return "\n".join(lines)
+
+
+def template(symbols, period_end: str, published_at: str = "") -> str:
+    """An empty sheet: one row per stock and core item, value and source left for the user to fill."""
+
+    if not _DAY.fullmatch(period_end):
+        raise ValueError(f"dönem sonu YYYY-AA-GG olmalı ('{period_end}')")
+    codes = [s.strip().upper().removesuffix(".IS") for s in symbols if s.strip()]
+    bad = [c for c in codes if not _SYMBOL.fullmatch(c)]
+    if not codes or bad:
+        raise ValueError(f"geçersiz hisse kodu: {bad or 'yok'}")
+    out = [",".join(SOURCE_COLUMNS)]
+    for code in codes:
+        for item in CORE_ITEMS:
+            out.append(",".join([code, period_end, published_at, item, "", "TL", "1", "1", ""]))
+    return "\n".join(out) + "\n"
 
 
 def _usable(data: pd.DataFrame, symbol: str, item: str) -> pd.DataFrame:
@@ -241,7 +304,27 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--import", dest="source", metavar="DOSYA")
     parser.add_argument("--compare", metavar="DOSYA")
     parser.add_argument("--status", action="store_true")
+    parser.add_argument("--check", metavar="DOSYA", help="deneme: içe aktarma ne yapardı, hiçbir şey yazılmaz")
+    parser.add_argument("--template", metavar="DOSYA", help="9 ana kalemlik boş tablo yaz (var olan dosyanın üzerine yazmaz)")
+    parser.add_argument("--symbols", default="", help="şablon için: THYAO,GARAN")
+    parser.add_argument("--period", default="", help="şablon için dönem sonu: 2026-09-30")
     args = parser.parse_args(argv)
+    if args.check:
+        print(check_file(Path(args.check)))
+        return 0
+    if args.template:
+        target = Path(args.template)
+        if target.exists():
+            print(f"{target} zaten var; üzerine yazılmadı.")
+            return 1
+        try:
+            text = template(args.symbols.split(","), args.period)
+        except ValueError as exc:
+            print(exc)
+            return 1
+        target.write_text(text, encoding="utf-8")
+        print(f"{target}: {text.count(chr(10)) - 1} satırlık boş tablo yazıldı; value, published_at ve source sütunlarını doldur.")
+        return 0
     if args.source:
         added, rejected = import_file(Path(args.source))
         print(f"{added} satır eklendi, {len(rejected)} satır reddedildi")
@@ -258,4 +341,5 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["COLUMNS", "CORE_ITEMS", "ITEMS", "as_of", "compare", "import_file", "load", "panel", "status_text"]
+__all__ = ["COLUMNS", "CORE_ITEMS", "ITEMS", "as_of", "check_file", "compare", "import_file", "load", "panel",
+           "status_text", "template"]

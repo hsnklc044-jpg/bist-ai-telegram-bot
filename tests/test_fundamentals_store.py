@@ -60,6 +60,17 @@ class ImportTest(Files):
         for word in ("yayın tarihi", "bilinmeyen kalem", "sayı", "kaynak", "kod", "tarih", "konsolide"):
             self.assertIn(word, text)
 
+    def test_a_unit_other_than_tl_and_a_turkish_number_are_rejected(self):
+        added, rejected = store.import_file(
+            self.source(row(unit="bin TL"), row(item="revenue", value='"1.234,5"'), row(item="sga", value="inf"),
+                        row(item="cash", unit="tl")), self.path)
+        self.assertEqual(added, 1)  # "tl" is TL
+        text = " ".join(rejected)
+        self.assertIn("1000 ile çarp", text)
+        self.assertIn("binlik ayırıcı yok", text)
+        self.assertIn("sonlu", text)
+        self.assertEqual(set(store.load(self.path)["unit"]), {"TL"})
+
     def test_append_only(self):
         store.import_file(self.source(row()), self.path)
         before = self.path.read_text(encoding="utf-8")
@@ -140,6 +151,57 @@ class CommandLineTest(Files):
         self.assertIn("bilinmeyen kalem", text)
         self.assertIn("1 kalem aynı", text)
         self.assertIn("son yayın 05.03.2026", text)
+
+
+class DryRunAndTemplateTest(Files):
+    def test_the_dry_run_writes_nothing_and_names_what_is_missing(self):
+        store.import_file(self.source(row(item="revenue")), self.path)
+        before = self.path.read_bytes()
+        src = self.source(row(item="revenue"), row(item="net_income"), row(item="tahmin"),
+                          row(symbol="GARAN", item="total_assets", consolidated="0"))
+        text = store.check_file(src, self.path)
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertIn("2 satır eklenecek, 1 satır zaten var, 1 satır reddedilecek", text)
+        self.assertIn("satır 4: bilinmeyen kalem", text)
+        self.assertIn("THYAO 2025-12-31 (konsolide): 1 kalem; eksik ana kalem: revenue, gross_profit", text)
+        self.assertIn("GARAN 2025-12-31 (solo)", text)
+        self.assertIn("3 satır eklenecek", store.check_file(src, self.dir / "missing.csv"))
+        self.assertFalse((self.dir / "missing.csv").exists())  # a dry run on an empty store creates nothing
+
+    def test_a_complete_report_is_said_and_a_missing_column_is_named(self):
+        items = [row(item=i, value="1") for i in store.CORE_ITEMS]
+        self.assertIn("9 ana kalemin hepsi var", store.check_file(self.source(*items), self.path))
+        bad = self.dir / "bad.csv"
+        bad.write_text("symbol,period_end,value\nTHYAO,2025-12-31,1\n", encoding="utf-8")
+        self.assertIn("eksik sütun", store.check_file(bad, self.path))
+
+    def test_the_template_has_every_core_item_and_is_rejected_until_filled(self):
+        text = store.template(["thyao", "GARAN.IS"], "2026-09-30")
+        lines = text.splitlines()
+        self.assertEqual(lines[0], ",".join(store.SOURCE_COLUMNS))
+        self.assertEqual(len(lines), 1 + 2 * len(store.CORE_ITEMS))
+        self.assertTrue(lines[1].startswith("THYAO,2026-09-30,,revenue,,TL,1,1,"))
+        sheet = self.dir / "sablon.csv"
+        sheet.write_text(text, encoding="utf-8")
+        added, rejected = store.import_file(sheet, self.path)
+        self.assertEqual((added, len(rejected)), (0, 18))  # empty cells never enter the store
+        for bad in ((["THY AO"], "2026-09-30"), (["THYAO"], "30.09.2026"), ([], "2026-09-30")):
+            with self.assertRaises(ValueError):
+                store.template(*bad)
+
+    def test_the_command_line_does_not_overwrite_a_file(self):
+        import contextlib
+        import io
+
+        target = self.dir / "t.csv"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(store.main(["--template", str(target), "--symbols", "THYAO", "--period", "2026-09-30"]), 0)
+            first = target.read_text(encoding="utf-8")
+            self.assertEqual(store.main(["--template", str(target), "--symbols", "GARAN", "--period", "2026-09-30"]), 1)
+            self.assertEqual(store.main(["--template", str(self.dir / "u.csv"), "--symbols", "THYAO",
+                                         "--period", "x"]), 1)
+        self.assertEqual(target.read_text(encoding="utf-8"), first)
+        self.assertFalse((self.dir / "u.csv").exists())
 
 
 class WiringTest(unittest.TestCase):
