@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.121 – 10.11.2026 (ağ kesintisi ERROR değil, seyrek uyarı)
+- 10.11 sabahı internet yaklaşık bir saat kesildi (DNS: getaddrinfo failed); Telegram yoklama döngüsü her 30 sn'de bir "Telegram handler failed" ERROR'u ve tam iz yazdı (113 satır). Kesinti bir kod hatası değil: artık iz olmadan tek WARNING ("Telegram'a ulaşılamıyor (ağ)"), aynı kesinti sürerken en fazla 10 dakikada bir. Gerçek hatalar ve "iki bot" uyarısı değişmedi.
+- Neden önemli: sürüm kapısı "kurulumdan beri ERROR yok" koşuluna bakıyor; kısa bir ağ kesintisi gereksiz bir geri dönüşe yol açabilirdi.
+- Doğrulama: `test_bot` (önce başarısız test).
+
 ## v0.99.120 – 10.11.2026 (/otonom_dur, /otonom_devam, 21:00 otonom özeti)
 - `/otonom_dur`: `data/otonom_dur.flag` yazar; bayrak varken otonom çalışma birleştirme, canlı kurulum ve silme yapmaz, yalnız rapor üretir. Bot ve günlük rapor normal çalışır.
 - `/otonom_devam`: kullanıcının bayrağını ve otomatik frenin bayrağını (`<araçlar>/cikti/otonom_dur.flag`) kaldırır; freni yalnız kullanıcı kaldırır.

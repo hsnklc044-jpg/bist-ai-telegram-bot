@@ -120,6 +120,33 @@ class SecondInstanceTest(unittest.TestCase):
         self.assertIn("aynı anda iki bot", record.getMessage())
         self.assertIsNone(record.exc_info)
 
+    def test_a_network_outage_is_a_rare_warning_not_an_error(self):
+        # 10.11.2026 10:5x-11:5x: DNS failed, the polling loop logged 113 ERROR tracebacks (one every 30 s).
+        # An outage is not a code error; the release gate's "no ERROR since the install" must not roll back for it.
+        import asyncio
+        import logging
+        from types import SimpleNamespace
+        from unittest import mock
+
+        from telegram.error import NetworkError, TimedOut
+
+        from bot import handlers
+
+        clock = [1000.0]
+        with mock.patch.object(handlers, "_network_reported_at", None), \
+                mock.patch.object(handlers.time, "monotonic", side_effect=lambda: clock[0]), \
+                self.assertLogs("bot.handlers", level="DEBUG") as logs:
+            for _ in range(5):
+                asyncio.run(handlers.on_error(None, SimpleNamespace(error=NetworkError("getaddrinfo failed"))))
+                clock[0] += 30
+            clock[0] += handlers.NETWORK_REPORT_EVERY
+            asyncio.run(handlers.on_error(None, SimpleNamespace(error=TimedOut())))
+        warnings = [r for r in logs.records if r.levelno == logging.WARNING]
+        self.assertEqual(len(warnings), 2)  # once at the start, once after the quiet period
+        self.assertFalse([r for r in logs.records if r.levelno >= logging.ERROR])
+        self.assertIn("ağ", warnings[0].getMessage())
+        self.assertIsNone(warnings[0].exc_info)
+
 
 class StartupNetworkTest(unittest.TestCase):
     """27.10 08:36 on the user's PC: one DNS failure (getaddrinfo) at start-up ended the bot

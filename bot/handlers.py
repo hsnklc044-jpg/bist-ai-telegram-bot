@@ -5,6 +5,8 @@ Handler Registry
 
 from __future__ import annotations
 
+import time
+
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -75,6 +77,8 @@ from core.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
 _conflict_reported = False  # a second bot with the same token is reported once per run
+_network_reported_at: float | None = None  # a network outage is reported once per NETWORK_REPORT_EVERY
+NETWORK_REPORT_EVERY = 600  # seconds
 
 COMMANDS = (
     ("start", start),
@@ -189,7 +193,17 @@ async def on_error(
 ) -> None:
     """Log the failure and tell the user something went wrong."""
 
-    from telegram.error import Conflict
+    from telegram.error import Conflict, NetworkError
+
+    if isinstance(context.error, NetworkError) and not isinstance(context.error, Conflict):
+        # 10.11.2026: the internet was down for an hour and polling logged an ERROR traceback every 30 s.
+        # An outage is not a code error: one WARNING without a traceback, again only after a quiet period.
+        global _network_reported_at
+        now = time.monotonic()
+        if _network_reported_at is None or now - _network_reported_at >= NETWORK_REPORT_EVERY:
+            _network_reported_at = now
+            logger.warning("Telegram'a ulaşılamıyor (ağ): %s; bot yeniden deniyor.", context.error)
+        return
 
     if isinstance(context.error, Conflict):
         # another process polls with the same token; Telegram repeats this every few seconds
