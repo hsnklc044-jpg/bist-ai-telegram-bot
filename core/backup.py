@@ -237,6 +237,36 @@ def backup_market_db(db: Path | None = None, target: Path | None = None, keep: i
     return backup
 
 
+SIGNALS_TABLES = ("signals", "breaker")
+
+
+def _check_signals_db(path: Path) -> str:
+    """
+    The paper signal book is SQLite, not a CSV: open the restored copy read-only (the check never repairs or
+    changes it), run the integrity check, require the tables the app uses and read them with the app's own
+    queries. A file that is not a database, is damaged or lacks a table fails with its reason.
+    """
+
+    import sqlite3
+
+    conn = sqlite3.connect(f"{Path(path).resolve().as_uri()}?mode=ro", uri=True)
+    try:
+        result = conn.execute("PRAGMA integrity_check").fetchone()[0]
+        if result != "ok":
+            raise BackupError(f"{path.name}: SQLite bütünlük kontrolü: {result}")
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        missing = [t for t in SIGNALS_TABLES if t not in tables]
+        if missing:
+            raise BackupError(f"{path.name}: beklenen tablo yok: {', '.join(missing)}")
+        signals = conn.execute(
+            "SELECT count(*) FROM (SELECT id, created, symbol, status FROM signals ORDER BY created, symbol)"
+        ).fetchone()[0]
+        days = conn.execute("SELECT count(*) FROM (SELECT day, change FROM breaker)").fetchone()[0]
+    finally:
+        conn.close()
+    return f"sinyal defteri bütünlük ok ({signals} sinyal, {days} devre kesici günü)"
+
+
 def _check_file(path: Path) -> str:
     """Read one restored file with the code that uses it; returns a short description."""
 
@@ -266,6 +296,8 @@ def _check_file(path: Path) -> str:
         finally:
             conn.close()
         return f"fiyat veritabanı bütünlük ok ({tables} tablo)"
+    if name == SIGNALS_DB.name:
+        return _check_signals_db(path)
     with open(path, encoding="utf-8", newline="") as fh:
         rows = list(_csv.DictReader(fh))
     return f"{path.stem} {len(rows)} satır"

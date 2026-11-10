@@ -47,6 +47,72 @@ class RestoreTest(unittest.TestCase):
         self.assertIn("fiyat veritabanı bütünlük ok", text)
         self.assertEqual({p.name: p.read_bytes() for p in self.data.iterdir()}, before)
 
+    def make_signals_db(self, signals=1, breaker=1):
+        from core.signals import store
+
+        path = self.data / "signals.db"
+        conn = store.connect(path)
+        for i in range(signals):
+            conn.execute("INSERT INTO signals (created, symbol, signal_close, source) VALUES (?, ?, 10.0, 'test')",
+                         (f"2026-11-0{i + 1}", f"S{i}.IS"))
+        for i in range(breaker):
+            conn.execute("INSERT INTO breaker (day, change) VALUES (?, -0.07)", (f"2026-11-0{i + 1}",))
+        conn.commit()
+        conn.close()
+        return path
+
+    def restore_signals(self):
+        b = backup.create_backup([*self.files, self.data / "signals.db"], target=self.target)  # hashes match
+        return backup.test_restore([b.path])
+
+    def test_signals_db_is_read_as_sqlite_not_as_csv(self):
+        self.make_signals_db(signals=2, breaker=1)
+        before = (self.data / "signals.db").read_bytes()
+        text = "\n".join(self.restore_signals())
+        self.assertIn("sinyal defteri bütünlük ok (2 sinyal, 1 devre kesici günü)", text)
+        self.assertEqual((self.data / "signals.db").read_bytes(), before)
+
+    def test_an_empty_signal_book_is_a_valid_restore(self):
+        self.make_signals_db(signals=0, breaker=0)
+        self.assertIn("(0 sinyal, 0 devre kesici günü)", "\n".join(self.restore_signals()))
+
+    def test_a_file_that_is_not_a_database_is_rejected_with_a_clear_error(self):
+        (self.data / "signals.db").write_text("id,created\n1,2026-11-01\n", encoding="utf-8")  # a CSV by name
+        with self.assertRaisesRegex(backup.BackupError, r"signals\.db geri yüklendi ama okunamadı"):
+            self.restore_signals()
+
+    def test_a_damaged_database_is_rejected(self):
+        path = self.make_signals_db(signals=1)
+        data = path.read_bytes()
+        path.write_bytes(data[: len(data) // 2] + b"\xb9" * (len(data) - len(data) // 2))
+        with self.assertRaisesRegex(backup.BackupError, r"signals\.db"):
+            self.restore_signals()
+
+    def test_a_database_without_the_expected_tables_is_rejected(self):
+        path = self.data / "signals.db"
+        conn = sqlite3.connect(path)
+        conn.execute("CREATE TABLE other (x INTEGER)")
+        conn.commit()
+        conn.close()
+        with self.assertRaisesRegex(backup.BackupError, "beklenen tablo yok: signals, breaker"):
+            self.restore_signals()
+
+    def test_a_database_with_a_missing_column_fails_on_the_apps_own_query(self):
+        path = self.data / "signals.db"
+        conn = sqlite3.connect(path)
+        conn.execute("CREATE TABLE signals (id INTEGER PRIMARY KEY, created TEXT)")
+        conn.execute("CREATE TABLE breaker (day TEXT, change REAL)")
+        conn.commit()
+        conn.close()
+        with self.assertRaisesRegex(backup.BackupError, "okunamadı"):
+            self.restore_signals()
+
+    def test_the_encoding_error_is_not_hidden_for_a_text_file(self):
+        (self.data / "ledger.csv").write_bytes(b"id,date\n1,\xb9\xb9\n")
+        b = backup.create_backup(self.files, target=self.target)
+        with self.assertRaisesRegex(backup.BackupError, "okunamadı"):
+            backup.test_restore([b.path])
+
     def test_corrupt_backup_is_detected(self):
         b = backup.create_backup(self.files, target=self.target)
         with zipfile.ZipFile(b.path) as zf:

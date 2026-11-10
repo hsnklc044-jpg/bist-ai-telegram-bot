@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.108 – 10.11.2026 (haftalık geri yükleme testi signals.db'yi SQLite olarak okuyor)
+- Hata: 09.11.2026 18:31 haftalık geri yükleme testi "signals.db geri yüklendi ama okunamadı: 'utf-8' codec can't decode byte 0xb9" ile kaldı. Neden: `core/backup.py::_check_file` yalnız `market.db` için SQLite dalına sahipti; `signals.db` (v0.99.14'ten beri günlük yedekte) genel dala düşüp CSV gibi `utf-8` ile okunuyordu. Arşiv sağlamdı: gerçek 09.11 arşivinde `testzip` temiz, `signals.db` başlığı `SQLite format 3`, `PRAGMA integrity_check` = ok.
+- Düzeltme: `signals.db` salt okunur açılıyor (kopya değiştirilmez, onarılmaz); bütünlük kontrolü, `signals` ve `breaker` tabloları ve uygulamanın kendi okuma sorgusu denetleniyor. Veritabanı olmayan, bozuk ya da tablosu eksik dosya açık nedenle reddediliyor. Kodlama hatası yutulmuyor, doğrulama atlanmıyor.
+- Doğrulama: `test_backup_restore` içinde 8 yeni regresyon testi.
+
 ## v0.99.107 – 05.11.2026 (09:30 sabah aday listesi)
 - İşlem günleri 09:30'da her abone taramanın tam listesi, son kapanışa göre destek ve dirençle gönderiliyor. Akşam değişiklik mesajı ve durumu aynı kaldı. Tatilde ve devre kesici ya da panik kilidinde sabah mesajı yok.
 - Kural, eşik ve K-79 parçaları değişmedi.

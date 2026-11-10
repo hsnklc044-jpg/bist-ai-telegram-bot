@@ -1,6 +1,16 @@
-# Durum notu (05.11.2026, kod v0.99.104)
+# Durum notu (10.11.2026, kod v0.99.108)
 
 Bağlam sıkıştırılınca ilk iş bu dosya okunur ve buna göre devam edilir (kullanıcı talimatı, 04.11.2026).
+
+## 10.11.2026 – Geri yükleme testi ve çalışma süresi (v0.99.108)
+- **Geri yükleme hatası (09.11.2026 18:31), kök neden:** `core/backup.py::_check_file` yalnız `market.db` için SQLite dalına sahipti. `signals.db` (v0.99.14'ten beri günlük yedekte) genel dala düşüp CSV gibi `utf-8` ile okunuyordu; hata mesajındaki `0xb9`, SQLite başlığından sonraki ilk ikili baytlardan biri. Arşiv sağlamdı. Gerçek 09.11 arşivinde (OneDrive kopyası, 3124a4ec…, geçici dizinde): `testzip` temiz, 9 dosya doğrulandı, `signals.db` 24.576 bayt, başlık `SQLite format 3`, `PRAGMA integrity_check` ok, tablolar `signals` (0 satır), `breaker` (0), `sqlite_sequence`.
+- **Düzeltme (dal `claude/geri-yukleme-duzeltme`):** `signals.db` salt okunur açılıyor (kopya değişmiyor, onarılmıyor); bütünlük, `signals` ve `breaker` tabloları ve uygulamanın okuma sorguları denetleniyor. Veritabanı olmayan, bozuk ya da tablosu eksik dosya açık nedenle reddediliyor. Kodlama hatası yutulmuyor.
+- **Kanıt:** 8 yeni regresyon testi; düzeltme olmadan 4'ü kırmızı (sağlam ve boş defter, tablo eksik, CSV adlı dosya), 4'ü reddetme davranışını koruyor. Yerel tam test: 1504 geçti, 2 atlandı. Gerçek 09.11 arşivi (kopya): 9 dosyanın 9'u geçti, `store.connect` ile okuma sorgusu çalıştı. CI sonucu commit'in kendi çalışmasında; birleştirme ve kurulum onay bekliyor.
+- **NOT_RUN:** Canlı Windows'ta haftalık geri yükleme testi (v0.99.108 kurulduktan sonraki ilk haftalık rapor). Orijinal yedek ve canlı `signals.db` değişmedi.
+- **Açık risk (düzeltilmedi):** Günlük yedek `signals.db`'yi düz dosya kopyası olarak alıyor; `market.db` gibi çevrimiçi yedek API'siyle değil. Günlük çalışma o sırada yazıyorsa bozuk kopya mümkün. Ayrı iş.
+- **Çalışma süresi (CHARTER §4, salt okunur; ayar değişmedi):** %93,2 = 1 − 10,08 sa / 147,3 sa (pencere ilk sinyalden, 03.11 15:14, başlıyor). Kesintinin tamamı tek aralık: 04.11 21:48 → 05.11 07:58 (605 dk, aynı süreç, "uyku/askı"). Windows olay günlüğünde 05.11 03:21'de uyku girişi/çıkışı ve 07:56'da uyanma var; 21:48–03:21 arası nedeni kanıtlanamadı. 34 yeniden başlamanın 30'u sürüm kurulumu, 4'ü aynı sürümle (hepsi 03–04.11); hepsi en fazla 5 dk sürdü ve SLO tanımı gereği (iki sinyal arası 10 dk altı) hiç kesinti sayılmıyor. Beklenmedik kapanma (süreç ölümü, yeniden başlatma) bulunmadı. Uyku kapatıldığından beri (05.11 öğleden sonra) 10 dk'yı aşan boşluk yok.
+- **Projeksiyon:** Yeni kesinti olmazsa 605 dk'lık aralık, ilk sinyali (04.11 21:48) 7 günlük pencereden çıktığında, yaklaşık 11.11 21:50'de tamamen düşer ve değer %100'e atlar (önceki tahminim 12.11 civarıydı).
+- **Ölçüm özelliği (öneri, uygulanmadı):** `slo.bot_uptime` yalnız pencere içindeki iki sinyalin arasını sayıyor. Pencere başını aşan bir aralık tamamen düşüyor (alt sayım), ilk haftada payda ilk sinyalden başlıyor. Öneri: aralığı pencere başına kırpmak. Canlı ayar değişikliği gerekmedi; değişiklik ayrı onay ister.
 
 ## K-78 ölçümü (v0.99.104)
 Beş eksik kapandı (etiket, tek çalışma, B indirmesi, rapor, sıra). Ölçüm yapılmadı. Sıradaki adımlar: 11.11.2026 ya da sonrasında `factor-study` `snapshot`; sonra kullanıcı onayıyla `measure`. Bu dala yalnız tek oturum yazar.
