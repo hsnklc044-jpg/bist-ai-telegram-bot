@@ -75,7 +75,7 @@ Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı ku
 | # | Önem | Bulgu | Durum |
 |---|---|---|---|
 | Ö35 | DÜŞÜK | Senaryolarda "2R" hedefi, giriş bilinmeden hesaplandığı için sinyal günü kapanışıyla kuruluyor (giriş + 2 × risk yerine kapanış + 2 × risk). Ertesi açılış farklıysa gerçek R 2'den biraz sapar. | kabul: hedef sinyal günü sabitlenmeli (geleceği görmemek için); K-55'e not olarak düşüldü. |
-| Ö36 | BİLGİ | Kapsam %92,4'ten %91,6'ya indi; kapı %91. Yeni modüllerin hata yolları (ağ, bozuk dosya) kısmen testsiz. | açık: sonraki sürümlerde hata yolu testleri eklenecek. |
+| Ö36 | BİLGİ | Kapsam %92,4'ten %91,6'ya indi; kapı %91. Yeni modüllerin hata yolları (ağ, bozuk dosya) kısmen testsiz. | açık: sonraki sürümlerde hata yolu testleri eklenecek. 10.11.2026 (v0.99.123): kapsam %92 (17.302 satırın 1.420'si testsiz); bugünkü yeni modüller %96–100; `core/signals/live.py` %76'dan hata yolları (defter açılamaz, Yahoo hatası, geçici hata yeniden deneme, durum mesajları) testlendi. En zayıflar: `core/backtest/scenarios.py` %22 (Actions araştırması), `bot/application.py` %60. |
 | Ö37 | BİLGİ | Cuma karnesi (senaryolar) akşam raporunun ardından bütün geçmişle hesaplanıyor. GitHub'da 26 sn sürdü; PC'de birkaç dakika sürebilir. Rapor zaten gönderilmiş oluyor. | kabul: rapor görevinin 30 dakikalık sınırı içinde. |
 | Ö38 | BİLGİ | `datacheck.yml` iş akışı İş Yatırım kapalıyken yalnız kapalı olduğunu yazıyor. | kabul (D13). |
 

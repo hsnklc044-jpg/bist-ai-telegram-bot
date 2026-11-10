@@ -258,6 +258,49 @@ class LiveTrackingTest(unittest.TestCase):
         self.assertTrue(S.locked(date(2026, 11, 3), self.path))
         self.assertFalse(S.locked(date(2026, 11, 4), self.path))
 
+    def test_error_paths_never_stop_the_bot_and_transient_ones_are_retried(self):
+        # Ö36: the failure branches of the hourly pass (book cannot be opened, Yahoo fails)
+        from unittest import mock
+
+        from core.signals import live
+
+        conn = S.connect(self.path)
+        S.add(conn, date(2026, 11, 2), "A.IS", 100.0)
+        conn.close()
+        with mock.patch.object(S, "connect", side_effect=OSError("kilitli")), \
+                self.assertLogs("core.signals.live", level="WARNING") as logs:
+            self.assertEqual(live.track(date(2026, 11, 3), self.path), [])
+        self.assertIn("Signal book open failed", logs.output[0])
+
+        def failing(symbols):
+            raise OSError("Yahoo yanıt vermiyor")
+
+        with self.assertLogs("core.signals.live", level="WARNING") as logs:
+            self.assertEqual(live.track(date(2026, 11, 3), self.path, load=failing), [])
+        self.assertIn("Live signal tracking failed", logs.output[0])
+        with self.assertRaises(OSError):  # the bot's job retries a transient failure (v0.99.49)
+            live.track(date(2026, 11, 3), self.path, load=failing, strict=True)
+
+        def broken(symbols):
+            raise ValueError("bozuk mum")
+
+        with self.assertLogs("core.signals.live", level="WARNING"):
+            self.assertEqual(live.track(date(2026, 11, 3), self.path, load=broken, strict=True), [])  # not transient
+
+    def test_every_status_has_its_message(self):
+        from types import SimpleNamespace
+
+        from core.signals import live
+
+        def s(status, r=0.0):
+            return SimpleNamespace(symbol="A.IS", status=status, entry_price=100.0, stop=95.0, target=104.0, r=r)
+
+        self.assertEqual(live._line(s("acik")), "🧪 Sanal sinyal A: girildi 100.00 TL (stop 95.00, hedef 104.00)")
+        self.assertIn("tavan açılış, giriş olmadı", live._line(s("dolmadi")))
+        self.assertEqual(live._line(s("stop", -0.05)), "🧪 Sanal sinyal A: stop oldu (-5,00%)")
+        self.assertIn("süresi doldu (+1,25%)", live._line(s("sure", 0.0125)))
+        self.assertIn("hedefe ulaştı", live._line(s("hedef", 0.04)))
+
     def test_in_session(self):
         from datetime import datetime
 

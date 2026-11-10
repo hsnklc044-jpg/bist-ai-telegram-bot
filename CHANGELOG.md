@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.123 – 10.11.2026 (Ö36: canlı sinyal takibinin hata yolları testli)
+- Kapsam ölçüldü: core+bot %92 (kapı %91). Bugün eklenen modüller %96–100.
+- `core/signals/live.py` (%76) hata yolları test edildi: sinyal defteri açılamazsa boş döner ve uyarı yazar; Yahoo hatası botu durdurmaz; `strict` ile geçici hata yeniden denemeye bırakılır, geçici olmayan hata yutulur; her durumun Telegram satırı. Kod değişmedi.
+
 ## v0.99.122 – 10.11.2026 (robot skill'i ve robot günlüğü)
 - `.claude/skills/robot/SKILL.md`: kullanıcının "robot modu": fren → durum → iş seçimi → yapım (önce başarısız test) → CI → kapı ve paket → sağlık → kayıt → baştan; yalnız iş kalmayınca, frende ya da sıradaki adım kullanıcıya kaldığında durur. Kurallar için CLAUDE.md, OPERATIONS §5a ve diğer skill'lere işaret eder, sayı kopyalamaz (testli). Tek robot: `C:\Projeler\QuantBIST_otomasyonobot.lock`, 6 saatten eskisi devralınır.
 - `docs/ROBOT_LOG.md`: her iş için tek satır.
