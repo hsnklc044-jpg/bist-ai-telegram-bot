@@ -76,6 +76,41 @@ class RestoreTest(unittest.TestCase):
         self.make_signals_db(signals=0, breaker=0)
         self.assertIn("(0 sinyal, 0 devre kesici günü)", "\n".join(self.restore_signals()))
 
+    def test_committed_rows_still_in_the_wal_file_are_in_the_backup(self):
+        path = self.make_signals_db(signals=1, breaker=0)
+        writer = sqlite3.connect(path)  # stays open: the WAL is not folded into the main file
+        writer.execute("PRAGMA journal_mode=WAL")
+        writer.execute("INSERT INTO signals (created, symbol, signal_close, source) VALUES ('2026-11-09', 'WAL.IS', 5.0, 't')")
+        writer.commit()
+        self.addCleanup(writer.close)
+        self.assertNotEqual(len(path.read_bytes()), 0)
+        self.assertIn("(2 sinyal, 0 devre kesici günü)", "\n".join(self.restore_signals()))
+
+    def test_an_uncommitted_write_is_not_in_the_backup(self):
+        path = self.make_signals_db(signals=1, breaker=0)
+        writer = sqlite3.connect(path)
+        writer.execute("BEGIN")
+        writer.execute("INSERT INTO signals (created, symbol, signal_close, source) VALUES ('2026-11-09', 'X.IS', 5.0, 't')")
+        self.addCleanup(writer.close)
+        self.assertIn("(1 sinyal, 0 devre kesici günü)", "\n".join(self.restore_signals()))
+
+    def test_a_failed_snapshot_falls_back_to_the_plain_copy_and_logs(self):
+        path = self.make_signals_db(signals=1)
+        real = sqlite3.connect
+        with mock.patch("sqlite3.connect", side_effect=sqlite3.DatabaseError("kilitli")), \
+                self.assertLogs("core.backup", level="WARNING") as logs:
+            data = backup._backup_bytes(path)
+        self.assertEqual(data, path.read_bytes())
+        self.assertIn("backed up as it is", logs.output[0])
+        self.assertIs(sqlite3.connect, real)
+
+    def test_a_plain_file_and_a_non_sqlite_db_are_copied_as_they_are(self):
+        csv_file = self.data / "ledger.csv"
+        self.assertEqual(backup._backup_bytes(csv_file), csv_file.read_bytes())
+        fake = self.data / "other.db"
+        fake.write_bytes(b"not sqlite")
+        self.assertEqual(backup._backup_bytes(fake), b"not sqlite")
+
     def test_a_file_that_is_not_a_database_is_rejected_with_a_clear_error(self):
         (self.data / "signals.db").write_text("id,created\n1,2026-11-01\n", encoding="utf-8")  # a CSV by name
         with self.assertRaisesRegex(backup.BackupError, r"signals\.db geri yüklendi ama okunamadı"):

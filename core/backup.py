@@ -129,6 +129,41 @@ def verify(path: Path) -> dict[str, str]:
     return manifest["files"]
 
 
+SQLITE_MAGIC = b"SQLite format 3\x00"
+
+
+def _backup_bytes(path: Path) -> bytes:
+    """
+    The bytes to put in a backup. A SQLite file (signals.db) is copied with SQLite's online backup API, like
+    market.db: a plain file read can miss committed rows that still sit in a -wal file or catch a write half
+    done. Anything else, or a file SQLite cannot back up (the restore test then says why), is read as it is.
+    """
+
+    import sqlite3
+    import tempfile
+
+    path = Path(path)
+    if path.suffix != ".db":
+        return path.read_bytes()
+    with open(path, "rb") as fh:
+        if fh.read(len(SQLITE_MAGIC)) != SQLITE_MAGIC:
+            return path.read_bytes()
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            copy = Path(tmp) / path.name
+            source = sqlite3.connect(path, timeout=60)
+            dest = sqlite3.connect(copy)
+            try:
+                source.backup(dest)
+            finally:
+                dest.close()
+                source.close()
+            return copy.read_bytes()
+    except sqlite3.Error:
+        logger.warning("SQLite snapshot failed for %s; the file is backed up as it is", path.name, exc_info=True)
+        return path.read_bytes()
+
+
 def create_backup(
     files: tuple[Path, ...] | list[Path] | None = None,
     target: Path | None = None,
@@ -151,7 +186,7 @@ def create_backup(
 
     with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for f in present:
-            data = f.read_bytes()
+            data = _backup_bytes(f)
             zf.writestr(f.name, data)
             manifest["files"][f.name] = _sha256(data)
         zf.writestr(MANIFEST, json.dumps(manifest, indent=2))
