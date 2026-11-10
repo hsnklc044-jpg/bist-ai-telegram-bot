@@ -155,30 +155,37 @@ def bot_uptime(now: datetime, path: Path) -> SloResult:
     if path.exists():
         for r in _rows(path):
             at = _when(r["at"])
-            if at is not None and now - WINDOW <= at <= now:
+            if at is not None and at <= now:
                 beats.append((at, r["pid"]))
     beats.sort()
     if not beats or now - beats[0][0] < MIN_HISTORY:
         first = f" (ilk kayıt {beats[0][0]:%d.%m %H:%M})" if beats else ""
         return SloResult(name, UNKNOWN, None, f"veri birikiyor{first}; en az 1 günlük yaşam sinyali gerekir")
 
+    # One beat before the window is kept: a gap that straddles the window's start is counted for the part
+    # inside the window instead of being dropped whole (v0.99.115). The 5-minute tolerance is taken off the
+    # whole interval first (down time runs from t1 + BEAT to t2), only then is it clipped to the window.
     start = max(now - WINDOW, beats[0][0])
     total = now - start
     down, sleep, restarts = timedelta(), timedelta(), 0
     for (t1, p1), (t2, p2) in zip(beats, beats[1:], strict=False):
+        if t2 <= start:
+            continue
         if p1 != p2:
             restarts += 1
-        gap = t2 - t1 - BEAT
-        if gap > BEAT:
+        if t2 - t1 - BEAT > BEAT:
+            gap = t2 - max(t1 + BEAT, start)
             down += gap
             if p1 == p2:
                 sleep += gap
-    tail = now - beats[-1][0] - BEAT
-    if tail > BEAT:
-        down += tail
+    tail_from = max(beats[-1][0] + BEAT, start)
+    if now - tail_from > BEAT:
+        down += now - tail_from
     value = 1 - down / total
     hours = sleep.total_seconds() / 3600
     text = f"son sinyal {beats[-1][0]:%d.%m %H:%M}; bunun içinde uyku/askı {hours:.0f} saat; {restarts} yeniden başlama"
+    if sleep > timedelta() and total > sleep:  # same-process gaps shown apart; the raw value stays the SLO value
+        text += f"; uyku/askı hariç %{(1 - (down - sleep) / (total - sleep)) * 100:.1f}"
     return SloResult(name, OK if value >= 0.98 else WARN, value, text)
 
 

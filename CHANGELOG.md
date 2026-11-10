@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.115 – 10.11.2026 (SLO: "Bot ayakta kalma" penceresi kırpılır)
+- Ölçüm tanımı değişti (onayla): 7 günlük pencerenin başını aşan bir yaşam sinyali aralığı artık tamamen düşmüyor; pencere öncesinden bir sinyal tutulur ve kesinti yalnız pencereye giren dilimi kadar sayılır. 5 dakikalık tolerans önce tüm aralıktan düşülür (kesinti t1+5 dk'dan t2'ye), sonra pencereye kırpılır. Eski hesapta 605 dakikalık bir uyku/askı aralığı pencere sınırını aşınca değer bir anda %94,0'dan %100'e atlıyordu; artık dilim dilim azalır.
+- Çıktıya "uyku/askı hariç %X" eklendi (aynı süreçle gelen boşluklar çıkarılır). SLO değeri ve eşik (%98) HAM değer olarak kalır.
+- Testler: pencere öncesi / sınır içinde / tamamen dışarıda / tolerans sırası / uyku hariç değer.
+
 ## v0.99.114 – 10.11.2026 (/uzun_liste: 6–12 ay modeli BIST 100 sıralaması)
 - Yeni `/uzun_liste [N]`: BIST 100'ün 100 hissesini 6–12 ay modeline göre değerlendirir; önce "Giriş adayı", sonra "İzle", sonra "Veri yetersiz"; her grupta puana göre, eşitlikte koda göre. Her satırda dört koşulun durumu görünür (SMA trendi, kırılım, hacim, üst alım fiyatı), yani yüksek puanlı ama koşulu eksik hissenin neyi beklediği tek bakışta okunur. Kayıtlı üst alım fiyatları (`/uzun_ust`) kullanılır. Karar mantığı `/uzun` ile aynı; kural, eşik, K-79 parçası değişmedi.
 - Henüz yok ve çıktıda yazıyor: temel filtre (finansal veri bağlı değil), sektör farkı.

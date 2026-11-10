@@ -109,6 +109,48 @@ class BotUptimeTest(Temp):
         self.assertLess(r.value, 0.98)
         self.assertIn("uyku/askı 20 saat", r.text)
 
+    def beats_with_gap(self, gap_start, gap_end, pid_after=1):
+        """Five-minute beats for 9 days before NOW, none between gap_start and gap_end (beats at both ends)."""
+        out, t = [], NOW - timedelta(days=9)
+        while t <= NOW:
+            if t < gap_start or t > gap_end:
+                out.append((t, 1 if t < gap_start else pid_after))
+            t += timedelta(minutes=5)
+        return sorted(out + [(gap_start, 1), (gap_end, pid_after)])
+
+    def test_the_gap_is_clipped_to_the_window_not_dropped_whole(self):
+        # a 610-minute interval (605 counted); the window starts 4 h after the last beat before it
+        g1 = NOW - timedelta(days=7) - timedelta(hours=4)
+        g2 = g1 + timedelta(minutes=610)
+        r = slo.bot_uptime(NOW, self.log(self.beats_with_gap(g1, g2)))
+        total = timedelta(days=7)
+        inside = g2 - (NOW - timedelta(days=7))  # 6 h 10 min of the interval lie inside the window
+        self.assertAlmostEqual(r.value, 1 - inside / total, places=4)
+        self.assertLess(r.value, 1.0)
+
+    def test_a_gap_fully_inside_counts_in_full_and_a_gap_fully_outside_not_at_all(self):
+        inside_start = NOW - timedelta(days=3)
+        r = slo.bot_uptime(NOW, self.log(self.beats_with_gap(inside_start, inside_start + timedelta(minutes=610))))
+        self.assertAlmostEqual(r.value, 1 - timedelta(minutes=605) / timedelta(days=7), places=4)
+        outside = NOW - timedelta(days=8)
+        r = slo.bot_uptime(NOW, self.log(self.beats_with_gap(outside, outside + timedelta(minutes=610))))
+        self.assertEqual(r.value, 1.0)
+
+    def test_the_tolerance_comes_off_the_whole_interval_before_clipping(self):
+        # the window starts 3 minutes after the last beat: the first 5 minutes are tolerance, so only the part
+        # after t1 + 5 min is down time
+        g1 = NOW - timedelta(days=7) - timedelta(minutes=3)
+        g2 = g1 + timedelta(minutes=70)
+        r = slo.bot_uptime(NOW, self.log(self.beats_with_gap(g1, g2)))
+        down = (g2 - (g1 + timedelta(minutes=5)))  # 65 minutes, all of it after the window start
+        self.assertAlmostEqual(r.value, 1 - down / timedelta(days=7), places=4)
+
+    def test_the_value_without_sleep_is_shown_next_to_the_raw_one(self):
+        g1 = NOW - timedelta(days=3)
+        r = slo.bot_uptime(NOW, self.log(self.beats_with_gap(g1, g1 + timedelta(minutes=610))))
+        self.assertLess(r.value, 0.98 + 0.03)  # raw value keeps the sleep in
+        self.assertIn("uyku/askı hariç %100.0", r.text)
+
     def test_a_restart_is_counted(self):
         start = NOW - timedelta(days=7)
         beats = [(start + timedelta(minutes=5 * i), 1 if i < 500 else 2) for i in range(7 * 24 * 12 + 1)]
