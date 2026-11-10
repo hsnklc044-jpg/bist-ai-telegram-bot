@@ -216,12 +216,40 @@ def _parse_price(raw: str) -> float:
 
 def _long_text(symbol: str, upper: float | None) -> str:
     from core.analytics import long_model
+    from core.infrastructure.exceptions import PersonalFileError
+    from core.market import upper_buy
     from core.reports.daily import adjusted_bars
 
     bars = adjusted_bars(symbol)
     if bars is None or len(bars) == 0:
         return f"{symbol} için fiyat verisi yok."
-    return long_model.text(symbol, bars, upper)
+    saved, note = False, ""
+    if upper is None:  # the price typed in the command wins; otherwise the user's saved one
+        try:
+            upper = upper_buy.latest(symbol)
+            saved = upper is not None
+        except PersonalFileError as exc:
+            note = f"\n⚠️ Kayıtlı üst alım fiyatları okunamadı: {exc}"
+    return long_model.text(symbol, bars, upper, saved) + note
+
+
+async def upper_cmd(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+) -> None:
+    """Handle /uzun_ust [SYMBOL PRICE | SYMBOL sil]: the user's saved upper buy prices."""
+
+    from core.infrastructure.exceptions import PersonalFileError
+    from core.market import upper_buy
+
+    try:
+        text = await asyncio.to_thread(upper_buy.command_text, list(context.args or []))
+    except (ValueError, PersonalFileError) as exc:
+        text = str(exc)
+    except Exception:  # noqa: BLE001 - a failed command never stops the bot
+        logger.exception("/uzun_ust failed")
+        text = "Üst alım fiyatı kaydedilemedi; ayrıntı logs/quantbist.log içinde."
+    await reply(update, text)
 
 
 async def long_cmd(

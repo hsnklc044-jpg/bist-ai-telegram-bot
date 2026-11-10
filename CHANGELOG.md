@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.113 – 10.11.2026 (üst alım fiyatı kalıcı kayıt: /uzun_ust)
+- Yeni `/uzun_ust THYAO 250`: kullanıcının üst alım fiyatı `data/upper_buy.csv` dosyasına ekleme-yalnız yazılır (son satır geçerli, `sil` kaydı kapatır, `/uzun_ust` listeyi gösterir). `/uzun THYAO` kayıtlı fiyatı kullanır ("kayıtlı" diye işaretler); komutta verilen fiyat o çağrı için kaydı geçersiz kılar. Böylece `/uzun` kayıtlı fiyatla "Giriş adayı" kararı verebilir; fiyat yoksa hiçbir hisse aday olamaz (kural değişmedi).
+- Fiyat kullanıcının kendi sınırıdır, hesaplanmaz. Yazım hatası korumaları: sıfır, negatif, sayı olmayan ve 1.000.000 TL üstü fiyat reddedilir; bozuk satır satır numarasıyla bildirilir.
+- Dosya yedeğe giriyor, sağlık denetiminde şemasıyla izleniyor, git dışında. Kural, eşik, K-79 parçası değişmedi.
+- Doğrulama: `test_upper_buy` testleri.
+
 ## v0.99.112 – 10.11.2026 (/uzun: 6–12 ay modelinin teknik puanı ve ayrı giriş kararı)
 - Yeni `/uzun THYAO [üst alım fiyatı]`: kullanıcının 06.11 tanımındaki teknik puan, Trend /40 (SMA trendi 15, Supertrend 8, ADX/DMI 10, PSAR 4, Bollinger 3), Momentum /25 (MACD 10, RSI 10, CCI 5), Hacim /35 (OBV 10, göreceli hacim 15, MFI 10), toplam /100. Hacim önceki 20 seansın medyanına göre ve bugünü paydaya katmıyor; ADX Wilder'ın standart ADX'i. Eksik gösterge yeniden 100'e ölçeklenmiyor.
 - Puan ile karar ayrı: karar "Giriş adayı" olmak için SMA trendi, önceki 20 seansın en yüksek fiyatının üstünde kapanış (kırılım; bugünün kendi zirvesi sayılmaz), göreceli hacim ≥ 1,5 ve fiyatın üst alım fiyatını aşmaması gerekir. Yüksek puanlı ama koşulu eksik hisse "İzle" olur ve eksik koşul yazılır; üst alım fiyatı girilmezse hiçbir hisse "Giriş adayı" olamaz. Hesaplanamayan koşul "Veri yetersiz".

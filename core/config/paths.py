@@ -27,6 +27,7 @@ ALERTS_LOG_FILE = DATA_DIR / "alerts_log.csv"
 PRICE_ALARMS_FILE = DATA_DIR / "price_alarms.csv"
 SCREENS_FILE = DATA_DIR / "screens.csv"
 SCREEN_SUBSCRIPTIONS_FILE = DATA_DIR / "screen_subscriptions.csv"
+UPPER_BUY_FILE = DATA_DIR / "upper_buy.csv"  # the user's upper buy price per stock (/uzun_ust)
 SCREEN_VIRTUAL_FILE = DATA_DIR / "screen_virtual.csv"
 FUNDAMENTALS_FILE = DATA_DIR / "fundamentals.csv"
 RISK_LIMITS_FILE = DATA_DIR / "risk_limits.csv"  # Talimat E: the user's limits (K-56)
@@ -52,6 +53,7 @@ __all__ = [
     "PRICE_ALARMS_FILE",
     "SCREENS_FILE",
     "SCREEN_SUBSCRIPTIONS_FILE",
+    "UPPER_BUY_FILE",
     "SCREEN_VIRTUAL_FILE",
     "FUNDAMENTALS_FILE",
     "RISK_LIMITS_FILE",

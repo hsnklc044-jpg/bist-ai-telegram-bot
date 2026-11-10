@@ -56,6 +56,7 @@ from core.config.paths import (
     SCREENS_FILE,
     SIGNAL_LOG_FILE,
     SIGNALS_DB,
+    UPPER_BUY_FILE,
     WATCHLIST_FILE,
 )
 from core.infrastructure import settings as _settings  # noqa: F401 - loads .env (BACKUP_DIR)
@@ -73,6 +74,7 @@ PERSONAL_FILES = (
     PRICE_ALARMS_FILE,
     SCREENS_FILE,
     SCREEN_SUBSCRIPTIONS_FILE,
+    UPPER_BUY_FILE,
     SCREEN_VIRTUAL_FILE,
     FUNDAMENTALS_FILE,
     RISK_LIMITS_FILE,

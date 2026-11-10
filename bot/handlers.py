@@ -24,6 +24,7 @@ from bot.analysis import (
     scorecard_cmd,
     table_cmd,
     top,
+    upper_cmd,
 )
 from bot.commands_risk import risk
 from bot.control import panic_cmd, resume_cmd
@@ -84,6 +85,7 @@ COMMANDS = (
     ("karne", scorecard_cmd),
     ("tablo", table_cmd),
     ("uzun", long_cmd),
+    ("uzun_ust", upper_cmd),
     ("piyasa", market_cmd),
     ("senaryo", scenario_cmd),
     ("risk", risk),
@@ -160,6 +162,7 @@ MENU = (
     ("karne", "12 göstergeli teknik karne, 100 puan: /karne THYAO (öneri değil)"),
     ("tablo", "RSI, fiyat/EMA, hacim ve mum tablosu: /tablo, /tablo AD, /tablo THYAO GARAN"),
     ("uzun", "6-12 ay modeli: teknik puan ve ayrı giriş kararı: /uzun THYAO [üst alım fiyatı]"),
+    ("uzun_ust", "üst alım fiyatını kaydet: /uzun_ust THYAO 250, /uzun_ust THYAO sil, /uzun_ust"),
     ("piyasa", "piyasa rejimi, genişlik, sektörler (etiket, sinyal değil)"),
     ("senaryo", "senaryo hesabı: /senaryo THYAO (giriş, geçersizlik, hedef, R; öneri değil)"),
     ("risk", "risk bütçesi: /risk, /risk ekle THYAO 100, /risk denge (öneri değil)"),

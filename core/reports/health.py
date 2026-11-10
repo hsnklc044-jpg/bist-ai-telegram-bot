@@ -40,6 +40,7 @@ from core.config.paths import (
     SCREEN_VIRTUAL_FILE,
     SCREENS_FILE,
     SIGNAL_LOG_FILE,
+    UPPER_BUY_FILE,
 )
 from core.market.calendar import (
     ISTANBUL,
@@ -438,6 +439,7 @@ def _personal_readers() -> dict:
     from core.screen import command as screen
     from core.alerts import budget
     from core.fundamentals import store as fundamentals
+    from core.market import upper_buy
     from core.screen import subscriptions, virtual
     from core.ledger import load_ledger
     from core.ledger.paper import load_orders
@@ -452,6 +454,7 @@ def _personal_readers() -> dict:
         PRICE_ALARMS_FILE: levels.active,
         SCREENS_FILE: screen.load_saved,
         SCREEN_SUBSCRIPTIONS_FILE: subscriptions.active,
+        UPPER_BUY_FILE: upper_buy.load,
         SCREEN_VIRTUAL_FILE: virtual.books,
         FUNDAMENTALS_FILE: fundamentals.load,
         RISK_LIMITS_FILE: lambda p: budget.load_limits("paper", p),
@@ -491,6 +494,7 @@ SCHEMAS = {
     PRICE_ALARMS_FILE: ({"id", "at", "symbol", "direction", "level", "event", "close"},),
     SCREENS_FILE: ({"at", "name", "criteria"},),
     SCREEN_SUBSCRIPTIONS_FILE: ({"at", "chat", "name", "action"},),
+    UPPER_BUY_FILE: ({"at", "symbol", "price", "note"},),
     SCREEN_VIRTUAL_FILE: ({"at", "name", "criteria", "action"},),
     FUNDAMENTALS_FILE: ({"symbol", "period_end", "published_at", "item", "value", "unit", "consolidated",
                          "inflation_adjusted", "source", "recorded_at"},),

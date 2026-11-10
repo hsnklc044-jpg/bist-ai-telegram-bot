@@ -63,6 +63,7 @@ class Result:
     breakout_level: float = math.nan
     close: float = math.nan
     upper: float | None = None
+    upper_saved: bool = False
 
 
 def _n(x: float, d: int = 2) -> str:
@@ -77,10 +78,10 @@ def _wilder_adx(df: pd.DataFrame, n: int = 14) -> tuple[float, float, float]:
     return S._last(plus), S._last(minus), S._last(S.rma(dx, n))
 
 
-def evaluate(df: pd.DataFrame, upper: float | None = None) -> Result:
+def evaluate(df: pd.DataFrame, upper: float | None = None, saved: bool = False) -> Result:
     card = S.Card(day=df.index[-1].date() if len(df) else None)
     meta = {name: (group, top) for name, group, top in RULES}
-    result = Result(card=card, upper=upper)
+    result = Result(card=card, upper=upper, upper_saved=saved)
     if len(df) < MIN_CANDLES:
         card.rows = [S.Row(name, g, f"yetersiz geçmiş ({len(df)} < {MIN_CANDLES} mum)", None, 0, m)
                      for name, (g, m) in meta.items()]
@@ -157,7 +158,8 @@ def evaluate(df: pd.DataFrame, upper: float | None = None) -> Result:
         Condition("Göreceli hacim ≥ 1,5", volume_ok, f"{_n(last['rel'])}×" if ok(last["rel"]) else "veri yok"),
         Condition("Fiyat üst alım fiyatını aşmıyor (referans: son kapanış)",
                   None if upper is None else bool(last["close"] <= upper),
-                  "üst alım fiyatı girilmedi" if upper is None else f"{_n(last['close'])} / üst {_n(upper)}"),
+                  "üst alım fiyatı girilmedi" if upper is None
+                  else f"{_n(last['close'])} / üst {_n(upper)}" + (" (kayıtlı)" if saved else "")),
     ]
     result.status, result.why = decide(result.conditions)
     return result
@@ -179,8 +181,8 @@ def decide(conditions: list[Condition]) -> tuple[str, str]:
     return WATCH, "; ".join(parts)
 
 
-def text(symbol: str, df: pd.DataFrame, upper: float | None = None) -> str:
-    r = evaluate(df, upper)
+def text(symbol: str, df: pd.DataFrame, upper: float | None = None, saved: bool = False) -> str:
+    r = evaluate(df, upper, saved)
     code = symbol.removesuffix(".IS")
     card = r.card
     lines = [f"🧭 {code} 6–12 ay modeli (teknik) · fiyat verisi {card.day:%d.%m.%Y}" if card.day
@@ -200,5 +202,7 @@ def text(symbol: str, df: pd.DataFrame, upper: float | None = None) -> str:
     lines.append("Temel filtre: değerlendirilmedi (finansal veri bağlı değil) · KAP tarihi: veri yok · "
                  "sektör farkı: veri yok")
     lines.append(f"Karar: {r.status}" + (f" — {r.why}" if r.why else ""))
-    lines.append(f"{DISCLAIMER} Üst alım fiyatı için: /uzun {code} FİYAT")
+    hint = (f"Kayıtlı fiyatı değiştirmek için: /uzun_ust {code} FİYAT" if saved
+            else f"Üst alım fiyatı için: /uzun {code} FİYAT ya da kalıcı: /uzun_ust {code} FİYAT")
+    lines.append(f"{DISCLAIMER} {hint}")
     return "\n".join(lines)
