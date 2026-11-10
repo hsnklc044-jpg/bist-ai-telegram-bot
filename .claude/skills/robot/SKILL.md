@@ -20,12 +20,13 @@ Kurallar başka yerde; burada sayı kopyalanmaz:
 1. **Fren:** `/otonom_dur` bayrağı ya da otomatik fren bayrağı varsa yalnız kurtarma (geri dönüş, tanılama) yap ve dur.
    Bayrağı asla kendin kaldırma.
 2. **Durum:** canlı sürüm ve sağlığı (SHA, sürüm, "Telegram bot started", yaşam sinyali, ERROR), CI'lar, bekleyen dallar, SLO'lar.
-3. **İş seçimi:** `siradaki-is` sırasıyla koşulu oluşan ilk iş.
+3. **İş seçimi:** önce kuyruk sınırı (`docs/OPERATIONS.md` §5a): aşıldıysa yeni dal açma, yalnız kuyruğu canlıya çıkar,
+   kurtarma ve kuyruktaki dalların düzeltmelerini yap. Aşılmadıysa `siradaki-is` sırasıyla koşulu oluşan ilk iş.
 4. **Yapım:** worktree'de (`C:\Projeler\QuantBIST-araclar\` altında) yeni dal; önce başarısız test, sonra en küçük düzeltme;
    ruff ve tam test paketi; dalı gönder. Sürüm, CHANGELOG.
 5. **CI:** aynı SHA'nın CI'ını arka planda bekle (GitHub API'yi seyrek sorgula); bu arada sıradaki işi hazırla.
-6. **Kapı ve kurulum:** `surum-kapisi` ile zincirin ucunu tek paket birleştir; kurulum penceresi kapalıysa beklemek durma nedeni
-   değildir, o sırada sonraki işleri geliştir.
+6. **Kapı ve kurulum:** `surum-kapisi` ile kuyruğu küçük paketlerle (OPERATIONS §5a) birleştir; her paket bir öncekinin canlıda
+   sağlıklı olduğu görüldükten sonra. Kurulum penceresi kapalıysa beklemek durma nedeni değildir.
 7. **Sağlık:** kurulumdan sonra `surum-kapisi`'nin sağlık koşulu; sorun varsa geri dön ve fren kurallarını uygula.
 8. **Kayıt:** `docs/ROBOT_LOG.md`'ye tek satır (tarih saat · iş · dal/SHA · sonuç) ve `cikti\OTONOM_RAPOR.md`; 1. adıma dön.
 

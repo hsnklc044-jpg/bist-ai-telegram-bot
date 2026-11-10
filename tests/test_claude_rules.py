@@ -65,6 +65,8 @@ class SkillFilesTest(unittest.TestCase):
         text = read(ROOT / "docs" / "OPERATIONS.md")
         self.assertIn("## 5a. Sürüm kapısı ve paketleme", text)
         self.assertIn("günde en fazla 4 kurulum", text)
+        self.assertIn("Kuyruk sınırı", text)
+        self.assertIn("kuyruk sınırı", read(ROOT / ".claude" / "skills" / "robot" / "SKILL.md"))
 
 
 class GateRulesTest(unittest.TestCase):

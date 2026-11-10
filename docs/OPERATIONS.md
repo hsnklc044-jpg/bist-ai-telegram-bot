@@ -120,7 +120,8 @@ koşulların hepsini ✅ bulursa bot dalı ileri sarılır, güncelleyici sonrak
 | 5 | Aynı anda tek paket (bot dalı = canlı SHA), günde en fazla 4 kurulum |
 | 6–7 | Zincir ileri sarılabilir; pakette güncelleyici, yedek, geri yükleme ya da kişisel kayıt biçimi değişikliği yok |
 
-- **Paketleme:** zincir halinde bekleyen dallar tek tek değil, ucu tek kurulumla birleştirilir. Paketteki her dalın kendi CI'ı yeşil, tam test paketi geçmiş olmalı.
+- **Kuyruk sınırı (10.11.2026):** canlıya çıkmamış sürüm sayısı 5'i geçerse yeni dal açılmaz; önce kuyruk canlıya çıkarılır. Bu sırada yalnız kurtarma ve kuyruktaki dalların düzeltmeleri yapılır.
+- **Paketleme:** zincir halinde bekleyen dallar küçük paketlere bölünür (düşük risk ve bot davranışı ayrı); her paket bir öncekinin canlıda sağlıklı olduğu görüldükten sonra birleştirilir. Paketteki her dalın kendi CI'ı yeşil, tam test paketi geçmiş olmalı.
 - **Paket dışı:** güncelleyici, yedek, geri yükleme tek başına ve yalnız hafta sonu; önce aynı SHA'da `dr-drill` başarılı; güncelleyicinin önceki sürümü `C:\Projeler\QuantBIST_otomasyon\` altına kopyalanır; ilk güncelleyici çalışması ve ilk yedek doğrulanana kadar başka birleştirme yok. Kişisel kayıt biçimi yalnız geriye uyumlu, geri yükleme testi geçerek.
 - **Sorun:** bot başlamaz, ERROR görülür ya da bir SLO düşerse önceki sürüme dönülür (bot dalına revert commit'i; geçmiş yeniden yazılmaz), sorunlu dal tek tek denenerek bulunur.
 - **Otomatik fren** (bayrak yazılır, yalnız kurtarma işi yapılır, kullanıcı kaldırır): aynı gün 2 geri dönüş; KRİTİK SLO; canlı klasörde beklenmeyen değişiklik; güncelleyicinin üst üste 2 başarısız çalışması; aynı hatayı iki kez düzeltememek.
