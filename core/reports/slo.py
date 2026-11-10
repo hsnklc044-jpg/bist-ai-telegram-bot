@@ -16,6 +16,7 @@ suspended); a new process id is a restart (PC switched on, task restarted the bo
 from __future__ import annotations
 
 import csv
+import json
 import os
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
@@ -339,30 +340,80 @@ def fetch_accuracy(get=None) -> dict | None:
 COVERAGE_GATE = 91  # CI fails below this (ci.yml --cov-fail-under); never lowered (CHARTER §2)
 CI_API = "https://api.github.com/repos/hsnklc044-jpg/bist-ai-telegram-bot/actions/workflows/ci.yml/runs"
 BRANCH = "claude/borsa-bot-creation-n7nmc9"
+CI_LAST_FILE = LOG_DIR / "ci_last.json"  # the last answer GitHub gave, shown (never counted) when it cannot be asked
+RETRY_WAIT = 3  # seconds before the one retry
 
 
-def quality(now: datetime, get=None) -> SloResult:
-    """The latest finished CI run on the release branch: green means tests, ruff and the coverage gate passed."""
+def _github_error(exc: Exception) -> tuple[str, bool]:
+    """(text for the report, whether the hourly quota is spent). The status code and, for a spent quota, the
+    time GitHub opens again are named (10.11.2026: the weekly summary only said "HTTPStatusError")."""
+
+    response = getattr(exc, "response", None)
+    status = getattr(response, "status_code", None)
+    if status is None:
+        return f"GitHub sorgulanamadı ({type(exc).__name__})", False
+    headers = getattr(response, "headers", {}) or {}
+    spent = status in (403, 429) and str(headers.get("X-RateLimit-Remaining", "")) == "0"
+    if not spent:
+        return f"GitHub sorgulanamadı (HTTP {status})", False
+    text = f"GitHub sorgulanamadı (HTTP {status}, GitHub kotası doldu"
+    try:
+        opens = datetime.fromtimestamp(int(headers["X-RateLimit-Reset"]), ISTANBUL)
+        text += f", {opens:%H:%M}'de açılır"
+    except (KeyError, TypeError, ValueError):
+        pass
+    return text + ")", True
+
+
+def _last_known(path: Path) -> str:
+    try:
+        last = json.loads(Path(path).read_text(encoding="utf-8"))
+        return f"; son bilinen ({last['asked']}): {last['text']}"
+    except (OSError, ValueError, KeyError, TypeError):
+        return ""
+
+
+def quality(now: datetime, get=None, sleep=None, cache: Path | None = None) -> SloResult:
+    """The latest finished CI run on the release branch: green means tests, ruff and the coverage gate passed.
+
+    A failed request is tried once more after a short wait, except a spent quota (asking again only spends
+    more). When GitHub cannot be asked, the last answer it gave is shown with its time, but the state stays
+    unknown: an old green is never counted as healthy."""
+
+    import time as _time
 
     from core.reports import health
 
     name = "Kalite (CI, kapsam)"
-    try:
-        get = get or health._http_get or __import__("httpx").get
-        response = get(CI_API, params={"branch": BRANCH, "per_page": 5}, timeout=10)
-        response.raise_for_status()
-        runs = [r for r in response.json().get("workflow_runs", []) if r.get("status") == "completed"]
-    except Exception as exc:  # noqa: BLE001 - offline: unknown, never healthy
-        return SloResult(name, UNKNOWN, None, f"GitHub sorgulanamadı ({type(exc).__name__})")
+    cache = Path(cache or CI_LAST_FILE)
+    get = get or health._http_get or __import__("httpx").get
+    sleep = sleep or _time.sleep
+    runs = None
+    for attempt in (1, 2):
+        try:
+            response = get(CI_API, params={"branch": BRANCH, "per_page": 5}, timeout=10)
+            response.raise_for_status()
+            runs = [r for r in response.json().get("workflow_runs", []) if r.get("status") == "completed"]
+            break
+        except Exception as exc:  # noqa: BLE001 - offline: unknown, never healthy
+            text, spent = _github_error(exc)
+            if spent or attempt == 2:
+                return SloResult(name, UNKNOWN, None, text + _last_known(cache))
+            sleep(RETRY_WAIT)
     if not runs:
         return SloResult(name, UNKNOWN, None, "tamamlanmış CI çalışması yok")
     last = runs[0]
     started = datetime.fromisoformat(last["run_started_at"].replace("Z", "+00:00")).astimezone(ISTANBUL)
     text = f"son CI {started:%d.%m %H:%M} ({last.get('head_sha', '')[:7]}): {last.get('conclusion')}"
+    try:
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps({"asked": f"{now.astimezone(ISTANBUL):%d.%m %H:%M}", "text": text},
+                                    ensure_ascii=False), encoding="utf-8")
+    except OSError:
+        pass  # a cache that cannot be written only loses the "last known" line
     if last.get("conclusion") != "success":
         return SloResult(name, WARN, None, text)
     return SloResult(name, OK, None, f"{text}; testler, ruff ve kapsam kapısı %{COVERAGE_GATE} geçti")
-
 
 # --- record integrity -----------------------------------------------------------------------------
 

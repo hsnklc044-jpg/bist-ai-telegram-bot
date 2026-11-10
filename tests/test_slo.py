@@ -268,6 +268,63 @@ class QualitySloTest(Temp):
 
         self.assertEqual(slo.quality(NOW, get=offline).state, UNKNOWN)
 
+    def failing(self, status, remaining=None, reset=None, calls=None):
+        """A GitHub answer with an error status; `calls` counts the requests."""
+        import httpx
+
+        def get(*a, **k):
+            if calls is not None:
+                calls.append(1)
+            headers = {}
+            if remaining is not None:
+                headers["X-RateLimit-Remaining"] = str(remaining)
+            if reset is not None:
+                headers["X-RateLimit-Reset"] = str(int(reset.timestamp()))
+            request = httpx.Request("GET", slo.CI_API)
+            return httpx.Response(status, headers=headers, request=request)
+
+        return get
+
+    def test_a_rate_limit_names_the_status_and_when_it_opens(self):
+        reset = NOW + timedelta(minutes=23)
+        calls = []
+        r = slo.quality(NOW, get=self.failing(403, remaining=0, reset=reset, calls=calls), sleep=lambda s: None,
+                        cache=self.dir / "ci_last.json")
+        self.assertEqual(r.state, UNKNOWN)
+        self.assertIn("HTTP 403", r.text)
+        self.assertIn("GitHub kotası doldu", r.text)
+        self.assertIn(f"{reset:%H:%M}'de açılır", r.text)
+        self.assertEqual(len(calls), 1)  # a full quota is not asked again
+
+    def test_another_failure_is_tried_once_more_after_a_short_wait(self):
+        calls, waits = [], []
+        r = slo.quality(NOW, get=self.failing(502, calls=calls), sleep=waits.append, cache=self.dir / "ci_last.json")
+        self.assertEqual((len(calls), len(waits)), (2, 1))
+        self.assertIn("HTTP 502", r.text)
+        state = {"n": 0}
+        good = self.get("success")
+
+        def flaky(*a, **k):
+            state["n"] += 1
+            if state["n"] == 1:
+                raise OSError("ağ yok")
+            return good()
+
+        self.assertEqual(slo.quality(NOW, get=flaky, sleep=lambda s: None, cache=self.dir / "c2.json").state, OK)
+
+    def test_the_last_known_result_is_shown_but_never_counted_healthy(self):
+        cache = self.dir / "ci_last.json"
+        slo.quality(NOW - timedelta(hours=2), get=self.get("success"), cache=cache)
+        r = slo.quality(NOW, get=self.failing(403, remaining=0), sleep=lambda s: None, cache=cache)
+        self.assertEqual(r.state, UNKNOWN)
+        self.assertIsNone(r.value)
+        self.assertIn("son bilinen (", r.text)
+        self.assertIn("abc1234", r.text)
+        self.assertIn("success", r.text)
+        broken = self.dir / "broken.json"
+        broken.write_text("{bozuk", encoding="utf-8")
+        self.assertEqual(slo.quality(NOW, get=self.failing(500), sleep=lambda s: None, cache=broken).state, UNKNOWN)
+
     def test_gate_matches_the_ci_workflow(self):
         ci = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         self.assertIn(f"--cov-fail-under={slo.COVERAGE_GATE}", ci)

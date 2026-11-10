@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.117 – 10.11.2026 (Kalite SLO: GitHub hatası açık yazılır)
+- 10.11 14:24 haftalık özetinde "Kalite: GitHub sorgulanamadı (HTTPStatusError)" yazıyordu; durum kodu yoktu. Artık HTTP kodu yazılır; kota dolmuşsa (403/429, kalan 0) "GitHub kotası doldu, SS:DD'de açılır".
+- Kota dışındaki bir hata 3 sn sonra bir kez yeniden denenir; dolu kotada yeniden sorulmaz (yalnız kotayı harcar).
+- Son başarılı CI cevabı `logs/ci_last.json`'a yazılır; GitHub sorulamazsa "son bilinen (saat): …" gösterilir, durum yine ❔ kalır, eski bir yeşil asla sağlıklı sayılmaz.
+- GitHub API isteği (kimliksiz, saatte 60): güncelleyici saatte 1, günlük rapor günde 1 (Kalite), /durum ve sağlık denetimi her çağrıda 2 (Kalite + araştırma), haftalık özet haftada 1. Botun kendisi saatte birkaç istekte kalır; 10.11'deki kota dolmalarının asıl kaynağı geliştirme oturumunun 3 dakikada bir yaptığı CI sorgularıydı (o izleme artık yerel dosyalara bakıyor).
+- Doğrulama: `test_slo` (kota, yeniden deneme, son bilinen sonuç), testlerde önbellek dosyası geçici klasöre yönlenir.
+
 ## v0.99.116 – 10.11.2026 (temel veri girişi: şablon, deneme, TL birimi)
 - `python -m core.fundamentals.store --template DOSYA --symbols THYAO,GARAN --period 2026-09-30`: 9 ana kalemlik boş tablo (var olan dosyanın üzerine yazmaz).
 - `--check DOSYA`: içe aktarmanın ne yapacağını gösterir, hiçbir şey yazmaz; eklenecek / zaten var / reddedilecek satırlar ve her raporda eksik ana kalemler.
