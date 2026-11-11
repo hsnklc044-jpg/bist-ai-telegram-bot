@@ -100,6 +100,10 @@ class Row:
     # split day 04.02.2025, "01&04" on TSPOR's reduction and rights day 19.06.2025; None when empty or old system.
     # (REFERANS FIYAT is 0 on those days, and ONCEKI KAPANIS FIYATI is the raw previous close: neither shows it.)
     corp_action: str | None = None
+    # old system only (r2, K-92): the first traded session's BAZ FIYAT and the last traded session's AOF; BAZ is the
+    # previous day's AOF (99.8 %), a deviation is the exchange's corporate action factor. Not stored in the database.
+    base: float | None = None
+    aof: float | None = None
 
 
 @dataclass
@@ -240,6 +244,8 @@ def read_file(path: Path) -> FileResult:
             value=_old(sum(_num(get(c, "ISLEM HACMI")) or 0.0 for _, c in group), day, OLD_LIRA),
             quantity=_old(sum(_num(get(c, "ISLEM MIKTARI")) or 0.0 for _, c in group), day, OLD_QUANTITY),
             bist100=_flag(get(first, "BSIT100 ENDEKS")), bist30=None,
+            base=_old(_num(get(first, "BAZ FIYAT")) or None, day, p),
+            aof=_old(_num(get(last, "AOF")) or None, day, p),
         ))
     return result
 
