@@ -4,6 +4,10 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-89. a5 ön kaydı: H6a, H6b, H7a, H7b (11.11.2026; kullanıcı kararı F ve I madde 4). Hiçbir veri görülmeden.**
+- Ayrıntı RESEARCH_LOG "a5 ön kaydı". Dört hipotez bu döngüye özel istisna (bütçe 3; K-22); Bonferroni 4, %98,75 GA. Tarama en erken 27.10.2027 (6 ay kuralı, değişmedi). "Geçti" yalnız Seviye 1/2 veriyle (K-82): resmî fiyat ve endeks, KAP'tan girilen temel veri.
+- H7a/H7b reddedilen teknik sinyal ailesinden; kullanıcının renk kararı için kayda alındı, beklenti GEÇMEDİ. Eski a5 taslağı (Novy-Marx) yerine geçti, silinmedi.
+
 **K-88. Profesyonel teknik puan: sabitler (11.11.2026; kullanıcı kararı I). Veri görülmeden yazıldı; sonuçlara göre ayar yapılmaz.**
 - **Uzun vadeli trend 20:** kapanış > SMA200 (10); SMA50 > SMA200 (10).
 - **Orta vadeli momentum 20:** `getiri_12a_1a_haric` > 0 (10); `getiri_6a_1a_haric` > 0 (10).

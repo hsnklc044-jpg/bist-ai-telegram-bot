@@ -417,7 +417,42 @@ Research çalışması 40488966701 (kod v0.48.0, `runs/2026-10-27_13-30/phase3.t
 
 ---
 
-## a5 ön kayıt taslağı — ONAYLANMADI (profesyonel filtreler Aşama 5, 29.10.2026)
+## a5 ön kaydı — H6a, H6b, H7a, H7b (11.11.2026, kullanıcı kararı F ve I madde 4; değiştirilmez)
+
+Bu bölüm **dört kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve commit'iyle zaman damgalandı. Önceki "a5 ön kayıt taslağı" (H6 kârlılık + değer, Novy-Marx) bunun yerine geçti; taslak silinmedi, aşağıda duruyor.
+
+### Bütçe ve çakışmalar (açıkça)
+- **Hipotez sayısı 4:** RESEARCH_PROGRAM bütçesi döngü başına en çok 3 diyor (K-22). Dört hipotezi kullanıcı açıkça istedi ve "Bonferroni bu döngünün hipotez sayısıyla" dedi; istisna bu döngüye özel, Bonferroni 4'e göre (**%98,75 GA**). Sonraki döngülerde bütçe yine 3.
+- **Zaman:** 6 ayda bir döngü kuralı aynen: a4 taraması 27.04.2027 → a5 taraması **27.10.2027'den önce çalıştırılmaz** (ölçüm kodu yazılırken tarih kapısıyla).
+- **Reddedilen tür:** H7a ve H7b teknik sinyal ailesinden (RESEARCH_LOG "Reddedilen fikir türleri"; bu ailenin varyantları normalde denenmez). Kullanıcı renklerin hangi puandan geleceğini bu ölçümle seçmek istediği için kayda alındı. Beklenti aşağıda.
+- **Veri güveni (K-82):** "geçti" yalnız Seviye 1 ya da 2 veriyle. Fiyat: Borsa İstanbul resmî gün sonu (K-84, K-85), XU100: resmî endeks (K-86). H6a/H6b temel verisi: `data/fundamentals.csv` (kullanıcının KAP tablolarından girdiği, Seviye 1); veri gelmeden H6 ölçülmez.
+
+### Hipotezler (parametreler sabit, ayar yapılmayacak)
+
+| # | Hipotez | Kural |
+|---|---|---|
+| H6a | Değer + kalite | Her çeyrek, tabloların yayımından sonraki ilk seansta (yayın günü + 1, K-48/K-57), o gün BIST 100 üyesi olan hisselerden PD/DD'si en düşük %30'a giren ve Piotroski F ≥ 7 olanlar eşit ağırlıkla alınır, bir çeyrek tutulur. Bankalar ve negatif özkaynaklılar dışarıda. Uygun hisse yoksa nakit (politika faizi, `data/cash/policy_rate.csv`) |
+| H6b | Değer + kalite + trend | H6a ve ek olarak alım günü kapanış > 200 günlük ortalama |
+| H7a | Betik karnesi | Karnesi (`scorecard.py`, betiğin birebir aktarımı) ≥ 70 olan BIST 100 hissesi ertesi açılışta sanal alınır, < 50 olunca ertesi açılışta satılır. Eşit ağırlık, en fazla 10 pozisyon; aday 10'dan fazlaysa yüksek puan önce, eşitse kod sırası |
+| H7b | Profesyonel puan | H7a'nın aynısı, profesyonel teknik puanla (K-88) |
+
+### Test kuralları
+- **Tarama dönemi ve evren:** 2023-08-01 – 30.10.2026 (`SCREEN_END`; holdout kodla kapalı), geçmiş BIST 100 üyeliği (resmî günlük işaret, K-85). İşlem ertesi seansın açılışında.
+- **Maliyet:** her yönde komisyon %0,10 + kayma %0,05.
+- **Birincil ölçüt:** XU100'e göre günlük fazla getirinin 21 seanslık blok bootstrap GA'sı tamamen sıfırın üstünde; Bonferroni 4 hipotez: %98,75 GA. Aynı tabloda eşit ağırlıklı BIST 100 (H4 kuralı) karşılaştırması bilgi olarak. DSR ve PBO bilgi olarak (K-81).
+- **Sağlamlık kapıları (hepsi):** iki başlangıç tarihi (2023-08-01 ve 2024-01-02); en kârlı 5 hisse hariç; MaxDD XU100'den kötü değil. H6a/H6b ayrıca TMS 29 öncesi ve sonrası alt dönemlerin ikisinde de XU100'ün üstünde.
+- **Holdout kararı:** taramayı geçen kural 02.11.2026'dan itibaren en az 250 seanslık ileri veriyle, aynı kural, parametre ve ölçütle; tek yönlü test, Bonferroni holdout'a giren kural sayısına göre.
+- **Canlı sanal ölçüm:** tarama sonrası; gerçek para, emir ya da öneri yok.
+- **Renk kuralı (kullanıcı, I madde 4):** canlı ölçümün ilk kararında H7a ile H7b'den hangisi daha iyiyse renkler onunla kalır; ikisi de XU100'ü geçemezse renkler yine açıklama olarak kalır ve detayda bu sonuç yazılır.
+
+### Beklenti (ölçümden önce)
+- H6a/H6b: belirsiz; TMS 29 geçişi ve kısa temel veri geçmişi gücü düşürür. En olası sonuç "ölçülemedi" (veri) ya da GEÇMEDİ.
+- H7a/H7b: teknik sinyal ailesi BIST'te şimdiye kadar geçemedi; en olası sonuç ikisi için de GEÇMEDİ. Renk kararı bu durumda "açıklama olarak kalır" kuralına düşer.
+
+### Reddedilen
+Sonuca göre eşik (70/50, %30, F ≥ 7, 10 pozisyon), dönem, evren ya da maliyeti değiştirmek; bir hipotezi sonradan çıkarmak ya da eklemek; başarısız ölçümü başka ayarla yeniden çalıştırmak.
+
+## a5 ön kayıt taslağı — ONAYLANMADI (11.11.2026'da yukarıdaki a5 ön kaydı yerine geçti) (profesyonel filtreler Aşama 5, 29.10.2026)
 
 Bu bir **taslaktır**. Hiçbir veride hesaplanmadı; hesaplanamaz da, çünkü temel veri deposu (`data/fundamentals.csv`, K-48) boş. Onaylanana kadar test yapılmaz. Onaydan sonra bu bölüm bir ön kayıt olarak dondurulur ve değiştirilmez.
 

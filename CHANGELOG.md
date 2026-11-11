@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.134 – 11.11.2026 (a5 ön kaydı: H6a, H6b, H7a, H7b; ölçüm yok; K-89)
+- Kullanıcı kararı (11.11, F ve I madde 4): dört hipotez veri görülmeden ön kayda alındı (RESEARCH_LOG "a5 ön kaydı"). Değer + kalite (PD/DD en düşük %30 ve Piotroski F ≥ 7), aynısı + 200 günlük ortalama, betik karnesi ≥ 70 / < 50 ve profesyonel puan ≥ 70 / < 50; eşit ağırlık, en fazla 10 pozisyon.
+- Açıkça yazılan çakışmalar: döngü bütçesi 3 iken 4 hipotez (kullanıcının istisnası, Bonferroni 4); 6 ay kuralı aynen (tarama en erken 27.10.2027); H7'ler reddedilen teknik sinyal ailesinden (beklenti GEÇMEDİ). "Geçti" yalnız Seviye 1/2 veriyle.
+- Doğrulama: `test_a5` (ön kaydın alanları, Bonferroni düzeyi, tarih kapısı, reddedilenler).
+
 ## v0.99.133 – 11.11.2026 (/tablo ve /karne: profesyonel puan, renkler ve sınıflar; göstergeler "detay"da)
 - Kullanıcı kararı (11.11, C): `/tablo` varsayılan çıktısı "TEKNİK TABLO · tarih", "N hisse · Ort. puan X · sınıf", puanı ≥ 40 olan en fazla 6 hissenin `<pre>` tablosu (renk, hisse, puan, en yakın destek, en yakın direnç; sağa hizalı, satır ≤ 32 karakter), yalnız varsa "Zayıf N · Çok zayıf M · Veri eksik K", düşüş mumu uyarısı ve yükseliş mumu notu, "Ayrıntı: /tablo … detay".
 - Puan profesyonel teknik puandır (K-88); göreli güç her zaman BIST 100 evreninde sıralanır (takip listesindeki birkaç hisse kendi aralarında sıralanmaz). Destek ve direnç `/seviye`'nin kendi hesabından en yakın seviye. Eksik boyutlu hisse renksiz; tabloya girmez, "Veri eksik" sayısında ve detayda görünür. Oynaklık sırası ≥ 90 ⚠️.
