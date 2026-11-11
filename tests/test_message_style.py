@@ -60,6 +60,9 @@ class CheckTest(unittest.TestCase):
         for term in ("sürüm numarası", "CI", "SLO", "K-numarası", "D-numarası", "SHA", "HTTP hata adı", "dosya yolu",
                      "ATR", "CHARTER", "AL", "SAT"):
             self.assertIn(term, found)
+        found = set(style.forbidden("python -m core.backup · .env'de BACKUP_DIR · OPERATIONS §7 · M30 kapalı"))
+        for term in ("komut", "ayar dosyası", "belge bölümü", "model numarası"):
+            self.assertIn(term, found)
 
     def test_ordinary_turkish_words_are_not_caught(self):
         for text in ("Salı günü alım fiyatı", "Satış tutarı", "Kalan süre", "ALARM · THYAO · 11.11.2026",

@@ -782,6 +782,20 @@ def _progress_plain(p) -> str:
             f"model doğrulama {p.validated}/{p.high_risk} · {tail}")
 
 
+def _plain_text(text: str) -> str:
+    """The parts of a check's text without internal codes, commands or file names (H, 11.11.2026 rehearsal);
+    the full text stays in /durum tum."""
+
+    from core.reports.style import forbidden
+
+    parts = [p.strip() for p in text.replace(". ", "; ").split(";") if p.strip()]
+    kept = [p for p in parts if not forbidden(p)]
+    if not kept:
+        return "ayrıntı /durum tum"
+    out = "; ".join(kept).rstrip(".")
+    return out + (" (ayrıntı /durum tum)" if len(kept) < len(parts) else "")
+
+
 def compact_report(now: datetime, checks: list, results, progress_lines: list[str], book_lines: list[str]) -> str:
     """/durum (the first screen) in the message style: "DURUM · date", one status line, only what needs
     attention, the objectives in one line, the price data's source and level, "Ayrıntı: /durum tum"."""
@@ -797,7 +811,7 @@ def compact_report(now: datetime, checks: list, results, progress_lines: list[st
         mark = "❌" if any(c.state == CRIT for c in problems) else "⚠️"
         status = f"{mark} {len(problems)} konu var; {healthy} bileşen sağlıklı"
     lines = [header("Durum", now.date()), status]
-    lines += [f"{c.name}: {c.text}" for c in attention]
+    lines += [f"{c.name}: {_plain_text(c.text)}" for c in attention]
     if results is not None:
         lines.append(_objectives_line(results))
     lines += [_plain_mark(x) for x in [*progress_lines, *book_lines] if x.strip()]

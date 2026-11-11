@@ -48,6 +48,23 @@ class CompactTest(unittest.TestCase):
         from core.reports import style
 
         self.assertEqual([p for p in style.problems(text, "durum") if "emoji" in p or "yasak" in p], [])
+
+    def test_technical_parts_of_a_check_go_to_the_detail(self):
+        # as on the live data in the 11.11.2026 rehearsal
+        from core.reports import style
+
+        checks = [health.Check("Temel veri", health.INFO, "veri yok. KAP'tan otomatik çekme kullanım koşulları "
+                               "teyit edilene kadar kapalı (K-48); içe aktarma: python -m core.fundamentals.store --import"),
+                  health.Check("Dışarıdan izleme", health.INFO, "kurulmadı (isteğe bağlı): .env'de HC_REPORT_URL yok; "
+                               "OPERATIONS §7"),
+                  health.Check("Model kapısı", health.INFO, "M30 kapalı (K-60)")]
+        with mock.patch.object(health, "health_checks", return_value=checks), \
+                mock.patch("core.reports.slo.measure", return_value=SLOS), \
+                mock.patch.object(health, "signal_book_lines", return_value=[]):
+            text = health.health_report(NOW, full=False)
+        self.assertIn("Temel veri: veri yok (ayrıntı /durum tum)", text)
+        self.assertIn("Model kapısı: ayrıntı /durum tum", text)
+        self.assertEqual(style.forbidden(text), [])
         self.assertLess(len(text.splitlines()), len(report(full=True).splitlines()))
 
     def test_full_list_is_the_old_report(self):
