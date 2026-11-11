@@ -26,7 +26,7 @@ DISPLAY = ("kapanis", "atr", "islem_tl", "gg_20", "hacim_oran", "rsi")
 ORDER_KEYS = {"goreli_guc": ("gg_20", True), "hacim": ("hacim_oran", True), "rsi": ("rsi", False)}
 
 
-LABELS = {"rsi": "RSI", "ema20": "EMA20", "ema50": "EMA50", "ema200": "EMA200", "macd": "MACD",
+LABELS = {"pd_dd": "PD/DD", "fk": "F/K", "fso": "FSO", "piyasa_degeri": "piyasa değeri", "rsi": "RSI", "ema20": "EMA20", "ema50": "EMA50", "ema200": "EMA200", "macd": "MACD",
           "macd_sinyal": "MACD sinyal", "macd_hist": "MACD hist", "hacim_oran": "hacim", "kapanis": "kapanış",
           "adx": "ADX", "atr": "ATR", "islem_tl": "işlem"}
 
@@ -43,6 +43,8 @@ def value_text(column: str, x: float) -> str:
     unit = F.FIELDS[F.split(column)[0]].unit
     if unit == "×":
         return f"{tr(x, 1)}×"
+    if unit == "milyar TL":
+        return f"{tr(x, 1)} mr TL"
     if unit == "milyon TL":
         return f"{tr(x, 0)} mn TL"
     if unit == "adet":
@@ -108,6 +110,7 @@ class Result:
     regime: str = ""  # today's market regime label, when the query has rejim= (K-51)
     regime_blocked: bool = False  # rejim= names another regime than today's: nothing is listed
     ml_note: str = ""  # ml=evet: why the filter is off, or how many it kept (K-59)
+    no_fundamentals: list[tuple[str, str]] = field(default_factory=list)  # (symbol, field): "veri yok" (E)
 
     @property
     def illiquid(self) -> list[str]:
@@ -136,9 +139,14 @@ def run(query: Query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame,
         elif df.index[-1] != latest:
             result.missing.append((symbol, f"son kapanış {df.index[-1]:%d.%m}"))
         else:
-            tables[symbol] = F.table(df, bench["close"], wanted, recent=LOOKBACK + 2)
+            tables[symbol] = F.table(df, bench["close"], wanted, recent=LOOKBACK + 2, symbol=symbol)
             checks[symbol] = E.frame(df, symbol, bench.index, actions).iloc[-1]
     result.scanned = len(tables)
+    asked = [c for c in wanted if F.split(c)[0] in F.FUNDAMENTAL]
+    for symbol, t in tables.items():  # a condition on a missing fundamental is not met: say so, by name
+        gone = [c for c in asked if pd.isna(t[c].iloc[-1])]
+        if gone:
+            result.no_fundamentals.append((symbol, gone[0]))
     cut = E.atr_cut([c["atr_pct"] for c in checks.values()]) if query.elimination.move else None
 
     if tables:

@@ -149,7 +149,8 @@ def signals(query, frames: dict[str, pd.DataFrame], bench: pd.DataFrame) -> dict
     for symbol, df in frames.items():
         if df.empty:
             continue
-        out[symbol] = query.mask(F.table(df, bench["close"], sorted(query.fields))).fillna(False).astype(bool)
+        out[symbol] = query.mask(F.table(df, bench["close"], sorted(query.fields), symbol=symbol)
+                                 ).fillna(False).astype(bool)
         checks[symbol] = E.frame(df, symbol, bench.index, E.corporate_actions())
     cut = E.daily_cut(checks) if query.elimination.move and checks else None
     for symbol, mask in out.items():  # the same eliminations as the list, day by day (K-45)

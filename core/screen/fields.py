@@ -124,6 +124,11 @@ FIELDS = {
     "kapanis": Field("Fiyat konumu", "son kapanış", "TL"),
     "acilis": Field("Fiyat konumu", "son açılış", "TL"),
 }
+# E madde 1 (11.11.2026): fundamental fields from data/fundamentals.csv, usable the day after publication
+from core.fundamentals.fields import NAMES as FUNDAMENTAL  # noqa: E402
+from core.fundamentals.fields import TEXTS as _FUNDAMENTAL_TEXTS  # noqa: E402
+
+FIELDS.update({name: Field("Temel", *_FUNDAMENTAL_TEXTS[name]) for name in FUNDAMENTAL})
 ALIASES = {"hacim": "hacim_oran", "goreli_guc": "gg_20", "stokastik": "stok_k"}
 # ranked across the scanned stocks (engine), each day's members (card), the list (/tara_aciklama): rank -> base
 RANKED = {"gg_sira": "gg_60", "goreli_guc_yuzdelik": "rs_puan", "momentum_sira": "getiri_6a_1a_haric",
@@ -217,8 +222,10 @@ def _supertrend(df: pd.DataFrame, period: int, multiplier: float) -> pd.Series:
 
 
 class _Table:
-    def __init__(self, df: pd.DataFrame, bench_close: pd.Series, recent: int | None = None):
+    def __init__(self, df: pd.DataFrame, bench_close: pd.Series, recent: int | None = None,
+                 symbol: str | None = None):
         self.recent = recent
+        self.symbol = symbol
         self.df, self.close = df, df["close"]
         self.bench = bench_close.reindex(df.index)
         self.memo: dict[str, pd.Series] = {}
@@ -266,6 +273,12 @@ class _Table:
 
         name, n = split(column)
         df, close = self.df, self.close
+        if name in FUNDAMENTAL:  # E madde 1: never 0 without data; NaN when the stock is unknown
+            if self.symbol is None:
+                return pd.Series(float("nan"), index=df.index)
+            from core.fundamentals.fields import series
+
+            return series(self.symbol, name, df.index, close)
         if name in LEVEL_SERIES:  # support / resistance (core.analytics.levels, K-49), computed once per stock
             if self._levels is None:
                 from core.analytics.levels import daily_series
@@ -406,11 +419,12 @@ class _Table:
         raise KeyError(column)
 
 
-def table(df: pd.DataFrame, bench_close: pd.Series, columns, recent: int | None = None) -> pd.DataFrame:
+def table(df: pd.DataFrame, bench_close: pd.Series, columns, recent: int | None = None,
+          symbol: str | None = None) -> pd.DataFrame:
     """The requested columns (field keys) for every candle of `df`; `recent`: the costly level fields
     only for the last `recent` candles (the live list; the history card needs them all)."""
 
-    t = _Table(df, bench_close, recent)
+    t = _Table(df, bench_close, recent, symbol)
     wanted = list(dict.fromkeys(columns))
     wanted += [RANKED[c] for c in list(wanted) if c in RANKED and RANKED[c] not in wanted]
     return pd.DataFrame({c: t.get(c) for c in wanted}, index=df.index)

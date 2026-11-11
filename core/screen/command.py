@@ -97,6 +97,12 @@ def format_result(result: engine.Result, card: dict | None, note: str = "", rows
     if result.missing:
         lines.append("Veri eksik (taranmadı): " + "; ".join(f"{s.removesuffix('.IS')} ({why})"
                                                              for s, why in result.missing))
+    if result.no_fundamentals:  # E madde 1: never counted as 0; the condition is simply not met
+        shown = result.no_fundamentals[:ELIMINATED_ROWS]
+        more = f" +{len(result.no_fundamentals) - len(shown)}" if len(result.no_fundamentals) > len(shown) else ""
+        lines.append(f"Temel veri yok ({len(result.no_fundamentals)} hisse; koşul sağlanmış sayılmadı): "
+                     + ", ".join(f"{s.removesuffix('.IS')} ({name})" for s, name in shown) + more
+                     + ". Veri girişi: /temel ve docs/TEMEL_VERI.md")
     lines.append("")
     lines += card_lines(card, trials)
     lines.append(DISCLAIMER)
@@ -260,10 +266,10 @@ def explain_text(words: list[str], chat_id=None, live=None, history_data=None, s
         lines.append(f"⚠️ /tara bu hisseyi taranmadı sayar: son kapanış {df.index[-1]:%d.%m} "
                      f"(son seans {latest:%d.%m}); değerler {df.index[-1]:%d.%m} kapanışından.")
     wanted = engine.columns(query)
-    table = F.table(df, bench["close"], wanted, recent=engine.LOOKBACK + 2)
+    table = F.table(df, bench["close"], wanted, recent=engine.LOOKBACK + 2, symbol=symbol)
     ranked = sorted(query.fields & F.CROSS_SECTIONAL)
     if ranked:  # the same percentile the list uses, among the scanned stocks
-        others = {s: F.table(f, bench["close"], ranked) for s, f in frames.items()
+        others = {s: F.table(f, bench["close"], ranked, symbol=s) for s, f in frames.items()
                   if s != symbol and f is not None and not f.empty and f.index[-1] == latest}
         others[symbol] = table
         F.rank_last(others, ranked)

@@ -83,7 +83,7 @@ class CardStats:
 
 def _tables(query: Query, frames: dict, bench: pd.DataFrame, eligible: pd.DataFrame | None) -> dict:
     wanted = sorted(query.fields | {"islem_tl"})
-    tables = {s: F.table(df, bench["close"], wanted) for s, df in frames.items() if not df.empty}
+    tables = {s: F.table(df, bench["close"], wanted, symbol=s) for s, df in frames.items() if not df.empty}
     if tables:
         F.rank_panel(tables, sorted(query.fields & F.CROSS_SECTIONAL), eligible)
     return tables

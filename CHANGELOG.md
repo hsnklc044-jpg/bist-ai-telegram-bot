@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.141 – 11.11.2026 (taramalara temel alanlar: piyasa değeri, PD/DD, F/K, ÖKK, borç/özkaynak, gelir artışı, FSO, Piotroski, Altman Z)
+- Kullanıcı kararı (11.11, E madde 1): `/tara` dilinde on temel alan (grup "Temel"): `piyasa_degeri` (milyar TL), `pd_dd`, `fk`, `ozkaynak_karliligi`, `borc_ozkaynak`, `gelir_artisi_yillik`, `gelir_artisi_ceyreklik`, `fso`, `piotroski`, `altman_z`. Kaynak `data/fundamentals.csv`; her değer yayının ertesi gününden itibaren (K-48, K-57), geleceği görme yok.
+- KAP tabloları yıl başından kümülatif: 12 aylık rakam = bu dönem + geçen yıl sonu − geçen yılın aynı dönemi. Çeyreklik gelir artışı çeyreğin kendi hasılatıyla. Zarar, negatif özkaynak ya da eksik kalem: "veri yok". TMS 29 geçişini kapsayan değişim ve 12 aylık rakam hesaplanmaz.
+- Veri yoksa koşul sağlanmış sayılmaz, sıfır sayılmaz; cevapta "Temel veri yok (N hisse; koşul sağlanmış sayılmadı): KOD (alan)" satırı.
+- Bugün temel veri deposu boş: alanlar çalışır, her hisse "veri yok" görünür; veri girilince kendiliğinden dolar.
+- Doğrulama: `test_fundamental_fields` (önce başarısız testler: yayın ertesi gün, fiyat alanları, 12 ay hesabı, çeyreklik, veri yokken NaN, zarar ve negatif özkaynak, TMS 29, tarama dilinde alanlar, adıyla veri yok satırı).
+
 ## v0.99.140 – 11.11.2026 (/durum ilk ekranı mesaj stilinde)
 - Mesaj stili (H): `/durum` "DURUM · tarih", "✅ Sistem sağlıklı (N bileşen)" ya da "⚠️/❌ N konu var; M bileşen sağlıklı", yalnız dikkat isteyen bileşenler, "Hedefler: a/b tamam, c ölçülemiyor; hedef dışında: …", güvenilirlik ve sanal kasa satırları, fiyat verisinin kaynağı ve seviyesi, "Ayrıntı: /durum tum". İzin dışı emojiler ve "SLO" kelimesi ilk ekranda yok; hiçbir sorun gizlenmez.
 - `/durum tum` değişmedi.

@@ -131,7 +131,9 @@ class FieldTest(unittest.TestCase):
         pd.testing.assert_series_equal(t["atr_yuzde"], sf["volatility"] * 100, check_names=False)
 
     def test_every_field_computes(self):
-        conditions = fields.CROSS_SECTIONAL | {"egim", "kirdi_yukari", "kirdi_asagi"} | set(fields.SCENARIO_SERIES)
+        # fundamental fields need data/fundamentals.csv; they are tested in test_fundamental_fields (E, 11.11.2026)
+        conditions = (fields.CROSS_SECTIONAL | {"egim", "kirdi_yukari", "kirdi_asagi"} | set(fields.SCENARIO_SERIES)
+                      | set(fields.FUNDAMENTAL))
         names = [f"{name}>-1000000" for name in fields.FIELDS if name not in conditions] + [
             "ema(40)>0", "sma(10)>0", "rsi(7)>0", "roc(5)>-100", "atr(20)>0", "adx(20)>0", "egim(sma200,21)>-100",
             "kirdi_yukari(direnc)", "kirdi_asagi(destek)", "senaryo(destek_tepkisi)", "senaryo(direnc_kirilimi)",

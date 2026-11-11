@@ -175,6 +175,16 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Oynaklık | `oynaklik_20g` | 20 günlük tarihsel oynaklık (yıllık) | % |
 | Oynaklık | `oynaklik_60g` | 60 günlük tarihsel oynaklık (yıllık) | % |
 | Oynaklık | `oynaklik_sira` | oynaklik_60g'nin taranan evrendeki yüzdelik sırası (100 = en oynak) | 0–100 |
+| Temel | `piyasa_degeri` | kapanış × ödenmiş sermaye (pay adedi) | milyar TL |
+| Temel | `pd_dd` | piyasa değeri / özkaynak (özkaynak ≤ 0: veri yok) | × |
+| Temel | `fk` | piyasa değeri / son 12 ay net kâr (zarar: veri yok) | × |
+| Temel | `ozkaynak_karliligi` | son 12 ay net kâr / özkaynak × 100 | % |
+| Temel | `borc_ozkaynak` | finansal borç / özkaynak | × |
+| Temel | `gelir_artisi_yillik` | yıl başından hasılat, geçen yılın aynı dönemine göre (TMS 29 geçişinde yok) | % |
+| Temel | `gelir_artisi_ceyreklik` | çeyreğin hasılatı, geçen yılın aynı çeyreğine göre (TMS 29 geçişinde yok) | % |
+| Temel | `fso` | piyasa değeri / son 12 ay hasılat (fiyat/satış) | × |
+| Temel | `piotroski` | Piotroski F puanı (0–9) | puan |
+| Temel | `altman_z` | Altman Z | puan |
 | Hacim | `hacim_oran(n)` (varsayılan 20) | bugünkü hacim / önceki n gün ortalaması (20: canlı analizle aynı) | × |
 | Hacim | `hacim_degisim` | bugünkü hacmin dünküne göre değişimi | % |
 | Hacim | `ort_hacim(n)` (varsayılan 30) | n günlük ortalama hacim (adet) | milyon adet |
@@ -309,6 +319,8 @@ Her şablonun yanında ait olduğu araştırma türü yazar: RESEARCH_LOG'daki "
 | `zirveye_yakin` | George & Hwang (2004) | Kapanışı 52 hafta zirvesinin en az %95'inde olanlar | Geçmiş getiriye dayalı sıralamalar momentum ailesinden sayılıp araştırma programından dışlandı | ABD verisi; BIST'te ayrıca sınanmadı |
 | `goreli_guc_ust` | Jegadeesh & Titman (1993), 6-1 momentum | 6 ay getirisi (son ay hariç) evrenin üst %20'si | Kesitsel momentum reddedildi: 2025 +%88, 2026 −%73 (RESEARCH_LOG) | Rejime çok bağlı |
 | `dusuk_oynaklik` | Ang, Hodrick, Xing & Zhang (2006); Blitz & van Vliet (2007) | 60 günlük oynaklığı evrenin en düşük %20'si | H1 düşük oynaklık reddedildi: +%0,9 [−16,5; +18,6] | Düşük oynaklık "düşük risk" garantisi değildir |
+
+Temel alanlar (E, 11.11.2026; `data/fundamentals.csv`, yayının ertesi günü; 12 ay = bu dönem + geçen yıl sonu − geçen yılın aynı dönemi; veri yoksa koşul sağlanmış sayılmaz ve cevapta adıyla yazılır).
 
 Yeni alanlar: `sma150`, `zirve_52h`, `dip_52h`, `zirve_52h_oran`, `dip_52h_oran`, `egim(alan,n)`, `getiri_6a_1a_haric`, `getiri_12a_1a_haric`, `oynaklik_60g`, `rs_puan`, `goreli_guc_yuzdelik`, `momentum_sira`, `oynaklik_sira`.
 - **Sıralar evren içidir.** Canlı listede taranan hisseler arasında, karnede o günkü BIST 100 üyeleri arasında hesaplanır.
