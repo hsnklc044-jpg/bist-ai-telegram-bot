@@ -121,7 +121,8 @@ def branches_line(repo: Path | None = None, run=None) -> str:
     import subprocess
 
     repo = Path(repo or Path(__file__).resolve().parents[1])
-    run = run or (lambda args, **k: subprocess.run(args, cwd=repo, capture_output=True, text=True, timeout=30))
+    run = run or (lambda args, **k: subprocess.run(args, cwd=repo, capture_output=True, text=True, encoding="utf-8",
+                                                     errors="replace", timeout=30))
 
     def sha(ref: str) -> str | None:
         out = run(["git", "rev-parse", "-q", "--verify", ref])

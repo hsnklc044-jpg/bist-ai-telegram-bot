@@ -5,7 +5,6 @@ how old the newest copy of the files outside the repository is. The project docu
 repository are in docs/ now; scripts with a personal value (the Telegram chat id) never enter the public repository."""
 
 import re
-import subprocess
 import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -122,8 +121,6 @@ class MovedDocsTest(unittest.TestCase):
         self.assertFalse(Path("scripts/araclar/tarama_ekle2.py").exists())
 
     def test_the_converter_writes_outside_the_repository_by_default(self):
-        out = subprocess.run(["python", "-c", "import ast,sys; print('ok')"], capture_output=True, text=True)
-        self.assertEqual(out.returncode, 0)
         source = Path("scripts/araclar/fiyat_cevir.py").read_text(encoding="utf-8")
         self.assertIn("--klasor", source)
 
