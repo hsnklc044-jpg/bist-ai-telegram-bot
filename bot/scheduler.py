@@ -140,17 +140,40 @@ ALERT_ON_UNKNOWN = {"Günlük rapor"}  # an unverifiable report is a problem; ot
 REPEAT_AFTER_DAYS = 3
 
 
-def _alert_text(check, now) -> str:
-    from core.reports.health import LABELS
+# what the user can do, in plain words (the message style forbids paths and commands; the full guidance with
+# them stays in /durum through GUIDANCE)
+PLAIN = {
+    "Günlük rapor": "bilgisayarın açık ve internete bağlı olduğuna bak",
+    "Fiyat verisi": "internet bağlantısına bak; çoğu zaman ertesi gün kendiliğinden düzelir",
+    "Fiyat veritabanı": "botu durdur ve son fiyat yedeğini geri yükle (adımlar /durum'da)",
+    "Canlı ölçüm kaydı": "performans ekranındaki kayıt sağlığına bak",
+    "Sanal hesap kaydı": "sanal hesap kaydını kontrol et (adımlar /durum'da)",
+    "Veri şeması": "son güncellemeyi geri al; kayıt dosyalarına dokunma",
+    "Kişisel dosyalar": "mesajdaki satırı düzelt ya da yedekten geri yükle (adımlar /durum'da)",
+    "Yedek": "yedek klasörünün erişilebilir olduğuna bak",
+    "Disk": "diskte yer aç",
+    "Tatil takvimi": "tatil takvimini güncelle",
+    "Model doğrulama": "modelin yeniden doğrulanması gerekiyor (adımlar /durum'da)",
+    "Makro veri": "internet bağlantısına bak; akşam raporu kendiliğinden tamamlar",
+    "GitHub araştırması": "haftalık araştırmanın çalışıp çalışmadığına bak",
+    "Bakım takvimi": "bakım takvimindeki işe bak (adımlar /durum'da)",
+    "Dışarıdan izleme": "dış izleme ayarına ve internet bağlantısına bak",
+    "Telegram botu": "botu Windows görevinden yeniden başlat (elle açma)",
+}
 
-    impact, action = GUIDANCE.get(check.name, ("", "/durum"))
-    return (
-        f"{check.state} {LABELS[check.state]} · {check.name} · önem: {severity(check)}\n"
-        f"Tespit: {now:%d.%m.%Y %H:%M} · {check.text}\n"
-        f"Etkisi: {impact}\n"
-        f"Otomatik işlem: yok (bot yalnızca bildirir)\n"
-        f"Yapılacak: {action}"
-    )
+
+def _alert_text(check, now) -> str:
+    """H (11.11.2026): "❌ OLAY · saat" / "⚠️ UYARI · saat", the state, what is expected, "/durum" (≤ 4 lines)."""
+
+    from core.reports import style
+    from core.reports.health import CRIT
+
+    impact, _ = GUIDANCE.get(check.name, ("", "/durum"))
+    head = f"❌ OLAY · {now:%H:%M}" if check.state == CRIT else f"⚠️ UYARI · {now:%H:%M}"
+    state = check.text if check.text and not style.forbidden(check.text) else (impact or "sorun var")
+    expect = PLAIN.get(check.name)
+    third = f"Senden beklenen: {expect}." if expect else "Bot yalnız bildirdi; otomatik işlem yok."
+    return "\n".join([head, f"{check.name}: {state}", third, "/durum"])
 
 
 def due_alerts(checks, now, state_path) -> list:
@@ -231,9 +254,10 @@ async def _guarded(context, name: str, fn):
         if chat and retry.should_alert(exc, now):
             from core.infrastructure import outbox
 
+            logger.error("Job failed after retries | %s", retry.payload(exc, now))  # the details stay in the log
             with outbox.source("sağlık uyarısı"):
-                await context.bot.send_message(chat, f"🚨 KRİTİK: {name} 5 denemede de çalışmadı; bot çalışmaya "
-                                                     f"devam ediyor.\n{retry.payload(exc, now)}")
+                await context.bot.send_message(chat, f"❌ OLAY · {now:%H:%M}\n{name.capitalize()} 5 denemede de "
+                                                     "çalışmadı.\nBot çalışmaya devam ediyor.\n/durum")
     except Exception:  # noqa: BLE001 - a bug: logged with its trace, the bot keeps running
         logger.exception("Job failed | %s", name)
     return None

@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.136 – 11.11.2026 (sağlık uyarıları mesaj stilinde)
+- Mesaj stili (H): 20:00 sağlık kontrolünün uyarısı "❌ OLAY · saat" (uyarı düzeyinde "⚠️ UYARI · saat"), tek satır durum, "Senden beklenen: …" düz dille, "/durum"; en fazla 4 satır. Dosya yolu, komut ya da önem kodu mesajda yok; ayrıntılı yönlendirme `/durum`'da.
+- Durum metni teknik terim içeriyorsa (dosya yolu, hata adı) yerine kontrolün etkisi yazılır.
+- 5 denemede çalışmayan iş: "❌ OLAY · saat", "… 5 denemede de çalışmadı.", "Bot çalışmaya devam ediyor.", "/durum". JSON ayrıntısı artık mesajda değil, günlükte.
+- Doğrulama: `test_alert_message` (önce başarısız testler: dört satır, uyarı/olay ayrımı, teknik metnin yerine etki, her kontrol için temiz satır, 5 deneme mesajı); `test_scheduler` ve `test_retry` yeni metne göre.
+
 ## v0.99.135 – 11.11.2026 (21:00 robot özeti mesaj stilinde; ayrıntı /robot_detay'da)
 - Mesaj stili (H): sorun yoksa üç satır ("ROBOT · tarih", "✅ N güncelleme sorunsuz kuruldu", "Yarın: …"); sorun varsa durum satırı, sorunlar düz dille (durdurma bayrağı, geri dönüş, hedef dışındaki hedefler, farklı dal, eski depo dışı kopya), varsa "Senden beklenen:", "/robot_detay"; en fazla altı satır. Sürüm numaraları, bağlantılar ve kuyruk mesajda yok.
 - Yeni `/robot_detay`: bugünkü güncellemeler sürüm ve CI bağlantılarıyla, geri dönüş, bütün hedefler, dal ve yedek satırları, kuyruk, yarın sıradaki iş (önceki 21:00 mesajının tamamı); cumartesi haftalık tablo.

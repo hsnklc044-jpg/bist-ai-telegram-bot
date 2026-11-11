@@ -116,8 +116,8 @@ class ReportWatchTest(unittest.TestCase):
                 sent = self._run([health.Check("Günlük rapor", state, "x")])
                 self.assertEqual(sent[0][0], 777)
                 self.assertIn("Günlük rapor", sent[0][1])
-                self.assertIn("Etkisi:", sent[0][1])
-                self.assertIn("Yapılacak:", sent[0][1])
+                self.assertIn("Senden beklenen:", sent[0][1])  # the message style (H, 11.11.2026)
+                self.assertTrue(sent[0][1].endswith("/durum"))
 
     def test_other_unknowns_only_in_durum(self):
         from core.reports import health
@@ -167,7 +167,8 @@ class SeverityTest(unittest.TestCase):
         self.assertEqual(scheduler.severity(Check("GitHub araştırması", WARN, "")), "DÜŞÜK")
         self.assertEqual(scheduler.severity(Check("Bilinmeyen", CRIT, "")), "ORTA")
         self.assertTrue(set(scheduler.SEVERITY) <= set(scheduler.GUIDANCE))
-        self.assertIn("önem: KRİTİK", scheduler._alert_text(Check("Veri şeması", CRIT, "x"), datetime(2026, 10, 26, 20)))
+        self.assertIn("❌ OLAY", scheduler._alert_text(Check("Veri şeması", CRIT, "x"), datetime(2026, 10, 26, 20)))
+        self.assertEqual(set(scheduler.PLAIN), set(scheduler.GUIDANCE))
 
 
 class SleepWakeTest(unittest.TestCase):

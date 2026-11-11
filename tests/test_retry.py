@@ -109,5 +109,5 @@ class JobTest(unittest.TestCase):
             self.assertEqual(track.call_count, 5)
             self.assertTrue(track.call_args.kwargs.get("strict"))
         self.assertEqual(len(sent), 1)
-        self.assertIn("🚨", sent[0])
-        self.assertIn('"is": "saatlik takip"', sent[0])
+        self.assertIn("❌ OLAY", sent[0])  # the message style (H); the JSON details are in the log
+        self.assertIn("Saatlik takip", sent[0])
