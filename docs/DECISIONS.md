@@ -4,6 +4,18 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-88. Profesyonel teknik puan: sabitler (11.11.2026; kullanıcı kararı I). Veri görülmeden yazıldı; sonuçlara göre ayar yapılmaz.**
+- **Uzun vadeli trend 20:** kapanış > SMA200 (10); SMA50 > SMA200 (10).
+- **Orta vadeli momentum 20:** `getiri_12a_1a_haric` > 0 (10); `getiri_6a_1a_haric` > 0 (10).
+- **Göreli güç 20:** `rs_puan`'ın BIST 100 evrenindeki yüzdelik sırası ≥ 70 (20), 30–69 (10), < 30 (0).
+- **52 hafta zirvesine yakınlık 15:** zirveye uzaklık ≤ %10 (15), ≤ %25 (7), fazlası 0.
+- **Kısa vadeli teyit 15:** MACD > sinyal (5); 50 ≤ RSI ≤ 70 (5); kapanış > EMA20 (5).
+- **Hacim teyidi 10:** `obv_egim` > 0 (5); `cmf` > 0 (5).
+- **Uyarı (puana dahil değil):** `oynaklik_sira` ≥ 90 → ⚠️.
+- **Eksik boyut:** "veri yok"; sıfır sayılmaz, renk verilmez.
+- **Sınıflar:** mesaj stilindeki B sınıfları. Renkli toplar ve `/tablo` sıralaması bu puandan gelir (sonraki sürüm). `/karne` betiğin birebir aktarımı olarak kalır ve iki puan yan yana gösterilir.
+- **Ölçüm:** H7a (betik karnesi) ve H7b (bu puan) ön kayıtları ayrı; ilk canlı kararda hangisi iyiyse renkler onunla kalır.
+
 **K-87. Depo dışı dosyalar: hangisi depoya, hangisi değil (11.11.2026; kullanıcı isteği L).**
 - **Kural (kullanıcı):** depo herkese açık; yalnız kod, test ve belge girer. Kişisel kayıtlar, Borsa İstanbul dosyaları ve 100 MB üstü dosyalar girmez.
 - **Depoya alınan:** proje belgeleri (`docs/MODEL_6_12_AY.md`, `KARNE_KURALI.md`, `OTONOM_KURALLAR.md`, `OTONOM_GOREV.md`, `GOZLEMLER.md`) ve `scripts/araclar/fiyat_cevir.py`. Tarama: token, sohbet kimliği, e-posta, ad, hesap yok; özel depo B'nin adı karartıldı.

@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.132 – 11.11.2026 (profesyonel teknik puan: hesap; tablo ve karnede gösterimi sonraki sürümde; K-88)
+- Kullanıcı kararı (11.11, I): renkli topların kaynağı olacak "Profesyonel teknik puan" (0–100), `core/analytics/pro_score.py`. Altı boyut: uzun vadeli trend 20, orta vadeli momentum 20, göreli güç 20, 52 hafta zirvesine yakınlık 15, kısa vadeli teyit 15, hacim teyidi 10. Eşikler veri görülmeden yazıldı (K-88); sonuca göre ayar yapılmaz.
+- Hesaplanamayan boyut "veri yok": sıfır sayılmaz, puan "N/100 (eksik boyut: …)" diye gösterilir ve renk verilmez. Oynaklık sırası ≥ 90 puana girmez, ⚠️ uyarısıdır.
+- Bütün girdiler `/tara` alanları (`core/screen/fields.py`); aynı hesap iki yerde yazılmadı. Kullanıcının karnesi (`scorecard.py` RULES) değişmedi.
+- Hesabın çalıştığı kopya veride görüldü (10.11 kapanışı, BIST 100): 100 hisse, 1'inde eksik boyut; sınıflar 10 Güçlü, 14 Olumlu, 17 Karışık, 28 Zayıf, 30 Çok zayıf; oynaklık uyarısı 11. Eşikler buna göre değiştirilmedi.
+- Doğrulama: `test_pro_score` (önce başarısız testler: toplam 100 ve 0–100 sınırı, her boyutun eşikleri ve sınır değerleri, eksik boyut, tek eksik girdinin bütün boyutu eksik yapması, oynaklık uyarısının puan olmaması, yükselen > yatay > düşen, girdilerin tarama alanı olması, karnenin değişmemesi).
+
 ## v0.99.131 – 11.11.2026 (mesaj stili ve puan sınıfları: kurallar ve denetim; mesajlar sonraki sürümlerde)
 - Kullanıcı kararı (11.11, A ve B): bütün kullanıcı mesajları üç soruya cevap verir (her şey yolunda mı, önemli ne değişti, kullanıcının bir şey yapması gerekiyor mu). Kurallar ve şablonlar `docs/MESAJ_STILI.md`'de.
 - `core/reports/style.py`: Türkçe sayı (`1.234.567,89`), işaretli tek ondalık yüzde (`+1,2%`), fiyat (1.000 TL ve üstü ondalıksız), büyük harfli başlık ve tarih, puan sınıfları (80–100 🟢 Güçlü, 60–79 🟢 Olumlu, 40–59 🟡 Karışık, 20–39 🟠 Zayıf, 0–19 🔴 Çok zayıf), yasak terim denetimi (iç kodlar, geliştirici terimleri, AL ve SAT), satır sınırları, ≤ 32 karakterlik tablo satırı ve izinli emojiler.
