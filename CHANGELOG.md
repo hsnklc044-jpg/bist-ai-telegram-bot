@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.131 – 11.11.2026 (mesaj stili ve puan sınıfları: kurallar ve denetim; mesajlar sonraki sürümlerde)
+- Kullanıcı kararı (11.11, A ve B): bütün kullanıcı mesajları üç soruya cevap verir (her şey yolunda mı, önemli ne değişti, kullanıcının bir şey yapması gerekiyor mu). Kurallar ve şablonlar `docs/MESAJ_STILI.md`'de.
+- `core/reports/style.py`: Türkçe sayı (`1.234.567,89`), işaretli tek ondalık yüzde (`+1,2%`), fiyat (1.000 TL ve üstü ondalıksız), büyük harfli başlık ve tarih, puan sınıfları (80–100 🟢 Güçlü, 60–79 🟢 Olumlu, 40–59 🟡 Karışık, 20–39 🟠 Zayıf, 0–19 🔴 Çok zayıf), yasak terim denetimi (iç kodlar, geliştirici terimleri, AL ve SAT), satır sınırları, ≤ 32 karakterlik tablo satırı ve izinli emojiler.
+- Şablonların hepsi (akşam raporu, tarama aboneliği, fiyat alarmı, robot özeti, haftalık kontrol, acil uyarı, kullanıcının işi) kendi denetiminden temiz geçiyor. Mesajların bu biçime geçirilmesi sırayla sonraki sürümlerde; hesaplar, kurallar ve karne puanları değişmez.
+- Not (I madde 0): karnede "SMA (fiyat üstü)" ve "Bollinger (orta bant)" aynı koşul (kapanış > SMA20), ikisi de 10 puan; betik böyle, değiştirilmedi; belgede yazılı.
+- Doğrulama: `test_message_style` (önce başarısız testler: sayı, yüzde, fiyat, beş sınıf ve sınırları, başlık ve Türkçe büyük harf, yasak terimler ve sıradan kelimelerin yakalanmaması, satır sınırları, tablo genişliği, emojiler, belgenin kural ve şablonları).
+
 ## v0.99.130 – 11.11.2026 (bütün bilgiler güvende: depo dışı belgeler depoda, her gece dal ve yedek satırı; K-87)
 - Kullanıcı isteği (11.11, L): depo dışındaki iki klasör hiçbir yedekte değildi. Proje belgesi niteliğindeki dosyalar gizli bilgi taramasından geçirilip `docs/`'a alındı: `MODEL_6_12_AY.md`, `KARNE_KURALI.md`, `OTONOM_KURALLAR.md`, `OTONOM_GOREV.md` (özel depo B'nin adı karartıldı), `GOZLEMLER.md`. Eski dosyalar silinmez; sürüm canlıya çıktıktan sonra başlarına "taşındı" notu eklenir.
 - Skill'ler (robot, siradaki-is) ek kuralları artık depodaki `docs/OTONOM_KURALLAR.md`'den okur.
