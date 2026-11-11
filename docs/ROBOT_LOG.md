@@ -15,3 +15,7 @@ Her satır: tarih saat · iş · dal / SHA · sonuç. En yeni en altta. Kurallar
 - 11.11.2026 11:30 · J veri güveni (güven seviyeleri, not satırı, ön bulgu) · veri-guveni · dal
 - 11.11.2026 12:30 · J madde 4: fiyat satırının kaynağı ve kaynak arayüzü · kaynak-arayuzu · dal
 - 11.11.2026 11:15 · K madde 1: Borsa İstanbul resmî gün sonu okuyucusu ve official.db · resmi-fiyat · dal
+- 11.11.2026 07:05–08:47 · Paket 1 (115–119) ve Paket 2 (120–122) · 475e074, b5c6d64 · ikisi de kuruldu, sağlıklı (0 ERROR)
+- 11.11.2026 19:52 · Paket 3 (123–124: hata yolu testleri, giden mesaj kaydı) · 7186b9e · kapı 9/9, tam test 1656; 20:44 v0.99.124 başladı, 3 sinyal, 0 ERROR; 21:00 özeti telegram_giden.jsonl'e yazıldı (gizli bilgi yok)
+- 11.11.2026 21:00 · Paket 4 (125–127: veri güveni, kaynak arayüzü, resmî fiyat okuyucusu) · 36ba603 · kapı 9/9, tam test 1703; 21:44 v0.99.127 başladı, 3 sinyal, 0 ERROR. Günde 4 kurulum sınırı doldu
+- 11.11.2026 22:00 · Kuyruk boşaldı; K2 (128) resmi-veri-kullanimi af4817b, K3 (129) resmi-endeks 3bcbd28, L (130) yedek-github-duzeni f5671a3 CI için gönderildi; kurulum 12.11 akşamı ayrı paketler. Yerel zincir 131–147 (ucu c7bb214) bekliyor; A–I ve r2 kota modu gereği 18.11 sonrası. Robot durdu; 12.11'de /robot ile devam
