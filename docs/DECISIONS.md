@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-90. Taramalar: teknik + temel (11.11.2026; kullanıcı kararı E).**
+- Kullanıcının şablonlarına eşiği bilinen temel koşullar geri eklendi: 05 piyasa değeri > 2 milyar TL; 08 piyasa değeri 1–2 milyar TL ve FSO < 1; tek tuş trend piyasa değeri > 10 milyar TL. 05 ve 06'daki gelir artışı, ÖGO ve borç/özkaynak eşikleri hiçbir yerde yazılı değil (28.10'daki ekran görüntülerinden yalnız teknik kısım alınmıştı): tahmin edilmez, "eşiği kullanıcıdan bekleniyor" diye yazılır.
+- Yeni şablon `deger_kalite_trend`: `pd_dd_sira<=30 piotroski>=7 kapanis>sma(200)`, likidite elemesi varsayılan. "En düşük %30" için `pd_dd_sira` (taranan evrende yüzdelik; verisi olmayan sırada yok).
+- Abonelikler: `bist100_aday`, `bist30_aday`, `bist100_trend` kapatıldı; kişisel abonelik dosyası değiştirilmedi (kodda kapatma, 12.11.2026 öncesi abonelik satırları için; yeniden abone olmak çalışır). Kalanlar: `bist100_geri_cekilme`, `bist100_kirilim`; temel veri gelince `deger_kalite_trend` ve tamamlanmış 05 eklenmesi kullanıcının kararı.
+- Reddedilen türlerden yeni tek başına teknik filtre eklenmez (E madde 6).
+
 **K-89. a5 ön kaydı: H6a, H6b, H7a, H7b (11.11.2026; kullanıcı kararı F ve I madde 4). Hiçbir veri görülmeden.**
 - Ayrıntı RESEARCH_LOG "a5 ön kaydı". Dört hipotez bu döngüye özel istisna (bütçe 3; K-22); Bonferroni 4, %98,75 GA. Tarama en erken 27.10.2027 (6 ay kuralı, değişmedi). "Geçti" yalnız Seviye 1/2 veriyle (K-82): resmî fiyat ve endeks, KAP'tan girilen temel veri.
 - H7a/H7b reddedilen teknik sinyal ailesinden; kullanıcının renk kararı için kayda alındı, beklenti GEÇMEDİ. Eski a5 taslağı (Novy-Marx) yerine geçti, silinmedi.

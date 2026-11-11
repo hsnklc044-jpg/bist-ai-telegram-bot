@@ -18,12 +18,13 @@ from tests.test_screen import market
 EXPECTED = {
     "basit_teknik": "goreli_hacim>1 kesti_yukari(rsi,50) kesti_yukari(ema5,ema20)",
     "basit_teknik_3g": "goreli_hacim>1 son(3,kesti_yukari(rsi,50)) son(3,kesti_yukari(ema5,ema20))",
-    "bebek_teknik": "goreli_hacim>1 momentum10>0",
+    "bebek_teknik": "goreli_hacim>1 momentum10>0 piyasa_degeri 1..2 fso<1",  # E, 11.11.2026
     "duseni_kiran": "kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 "
                     "ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis",
     "tek_tus_trend": "kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 "
-                     "ema20<kapanis degisim_3a<60",
-    "teknik_temel_ema": "kapanis>ema50 ema50>ema200",
+                     "ema20<kapanis degisim_3a<60 piyasa_degeri>10",
+    "teknik_temel_ema": "kapanis>ema50 ema50>ema200 piyasa_degeri>2",
+    "deger_kalite_trend": "pd_dd_sira<=30 piotroski>=7 kapanis>sma(200)",
     # /tara görevi Aşama 5, verildiği gibi
     "trend_takibi": "ema20>ema50 ema50>ema200 adx>20",
     "asiri_satim": "rsi<30 kapanis>ema200",
@@ -49,6 +50,8 @@ class DefinitionTest(unittest.TestCase):
                 parse(t.criteria)  # every template is valid /tara
                 if name in PRO:
                     self.assertRegex(t.source, r"\(\d{4}\)")  # author and year
+                elif name == "deger_kalite_trend":
+                    self.assertIn("kullanıcı kararı 11.11.2026", t.source)
                 else:
                     self.assertIn("kullanıcının TradingView taraması" if name in TV else "görev örneği", t.source)
 
@@ -57,7 +60,8 @@ class DefinitionTest(unittest.TestCase):
         table = text.split("## Reddedilen fikir türleri", 1)[1].split("\n---\n", 1)[0]
         for name, t in templates.TEMPLATES.items():
             with self.subTest(name):
-                self.assertIn(f"| {t.rejected} |", table)
+                if t.rejected != "—":  # deger_kalite_trend is not a rejected type: a5 H6b, not yet measured
+                    self.assertIn(f"| {t.rejected} |", table)
         self.assertEqual(templates.TEMPLATES["goreli_guc"].rejected, "Kesitsel momentum")
         self.assertEqual(templates.TEMPLATES["dusuk_oynaklik"].rejected, "Düşük oynaklık (H1)")
         self.assertIn("2025 +%88, 2026 −%73", templates.TEMPLATES["goreli_guc_ust"].source)
@@ -66,10 +70,11 @@ class DefinitionTest(unittest.TestCase):
         self.assertIn("RESEARCH_LOG", listed)
 
     def test_left_out_conditions_are_named(self):
-        self.assertIn("piyasa değeri", templates.TEMPLATES["bebek_teknik"].skipped)
-        self.assertIn("FSO", templates.TEMPLATES["bebek_teknik"].skipped)
+        self.assertIn("piyasa_degeri 1..2 fso<1", templates.TEMPLATES["bebek_teknik"].criteria)  # E, 11.11.2026
         self.assertIn("beta", templates.TEMPLATES["tek_tus_trend"].skipped)
         self.assertIn("gelir artışı", templates.TEMPLATES["teknik_temel_ema"].skipped)
+        self.assertIn("kullanıcıdan bekleniyor", templates.TEMPLATES["teknik_temel_ema"].skipped)
+        self.assertIn("kullanıcıdan bekleniyor", templates.TEMPLATES["basit_teknik"].skipped)
         self.assertEqual(templates.TEMPLATES["duseni_kiran"].skipped, "—")
 
     def test_no_praise_words(self):

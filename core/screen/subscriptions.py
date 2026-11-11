@@ -40,17 +40,38 @@ class Outcome:
     state: dict = field(default_factory=dict)  # written by save_state once the messages went out
 
 
+# E madde 4 (the user's 11.11.2026 decision): closed, not deleted. The subscription file is a personal record and
+# stays as it is; a subscription to one of these made before CLOSED_AT is simply not in force. Subscribing again
+# later works as usual.
+CLOSED = ("bist100_aday", "bist30_aday", "bist100_trend")
+CLOSED_AT = "2026-11-12"
+
+
+def _closed(name: str, at: str) -> bool:
+    return name in CLOSED and at[:10] < CLOSED_AT
+
+
 def active(path: Path | None = None) -> dict[str, str]:
     """name -> chat of the subscriptions in force (the last row for a name decides)."""
 
     path = Path(path or SUBSCRIPTIONS_FILE)
     found: dict[str, str] = {}
     for _, row in read_rows(path, COLUMNS):
-        if row["action"] == SUBSCRIBE:
+        if row["action"] == SUBSCRIBE and not _closed(row["name"], row["at"]):
             found[row["name"]] = row["chat"]
         else:
             found.pop(row["name"], None)
     return found
+
+
+def closed(path: Path | None = None) -> list[str]:
+    """The subscriptions closed by the 11.11.2026 decision that were in force before it."""
+
+    path = Path(path or SUBSCRIPTIONS_FILE)
+    last: dict[str, dict] = {}
+    for _, row in read_rows(path, COLUMNS):
+        last[row["name"]] = row
+    return sorted(n for n, r in last.items() if r["action"] == SUBSCRIBE and _closed(n, r["at"]))
 
 
 def _append(path: Path, chat_id, name: str, action: str, now: datetime | None) -> None:
@@ -114,11 +135,15 @@ def end_for_deleted(name: str, path: Path | None = None, now: datetime | None = 
 
 def list_text(path: Path | None = None, saved_path: Path | None = None) -> str:
     current = active(path)
+    gone = closed(path)
+    tail = [f"Kapatılan (kullanıcı kararı 11.11.2026; kayıt duruyor, yeniden açmak: /tara_abone AD): {', '.join(gone)}"
+            ] if gone else []
     if not current:
-        return "Abonelik yok. Başlatmak için: /tara_abone AD\nFiltre sonucudur, yatırım önerisi değildir."
+        return "\n".join(["Abonelik yok. Başlatmak için: /tara_abone AD", *tail,
+                          "Filtre sonucudur, yatırım önerisi değildir."])
     lines = [f"🔔 Abonelikler ({len(current)}/{MAX_SUBSCRIPTIONS}), her işlem günü 18:30 raporundan sonra:"]
     lines += [f"  {name}: {criteria_of(name, saved_path) or '(tarama bulunamadı)'}" for name in sorted(current)]
-    lines += ["İptal: /tara_abone_iptal AD", "Filtre sonucudur, yatırım önerisi değildir."]
+    lines += [*tail, "İptal: /tara_abone_iptal AD", "Filtre sonucudur, yatırım önerisi değildir."]
     return "\n".join(lines)
 
 

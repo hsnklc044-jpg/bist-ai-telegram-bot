@@ -31,6 +31,11 @@ Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştır
 - Arayüz `core/market/sources.py`. Fiyat deposu her satırın kaynağını tutar (`price_sources`).
 - Bağlantı: kaynak seçilince adaptörü yazılır (önce şartları buraya), kullanıcı `.env`'e `QUANTBIST_PRICE_SOURCE=<ad>` ve `QUANTBIST_PRICE_SOURCE_KEY=<anahtar>` girer. O akşam son 60 günün karşılaştırma raporu bir kez gönderilir.
 
+### Temel veri: gereken kalemler ve kaynak seçenekleri (E madde 5, 11.11.2026)
+- **Kalemler** (`core/fundamentals/store.py` ITEMS, TL; her satırda dönem sonu ve yayın zamanı): hasılat, satışların maliyeti, brüt kâr, esas faaliyet kârı, FVÖK, net kâr (ana ortaklık), işletme faaliyetlerinden nakit akışı, amortisman, genel yönetim + pazarlama giderleri, toplam varlıklar, dönen varlıklar, ticari alacaklar, maddi duran varlıklar, nakit, toplam yükümlülükler, kısa vadeli yükümlülükler, uzun vadeli finansal borçlar, toplam finansal borçlar, özkaynak (ana ortaklık), geçmiş yıllar kârları, ödenmiş sermaye, ödenen temettü.
+- **Dönem sayısı:** tarama alanları için son çeyrek, geçen yıl sonu ve geçen yılın aynı çeyreği (en az 5 çeyrek); Piotroski için geçen yılın aynı dönemi; araştırma (a5 H6a/H6b) için tarama dönemini kapsayan bütün çeyrekler (2023-08'den, tercihen 2018'den).
+- **Kaynak seçenekleri (kullanıcının işi: lisans ve ücret; hiçbir site kazınmaz):** KAP Veri Yayını Servisi, Finnet, Matriks, Foreks, Fintables. Seçilen kaynak `core/market/sources.py`'deki `FundamentalSource` arayüzüyle bağlanır; o güne kadar veri kullanıcının KAP tablolarından elle girişiyle gelir (`docs/TEMEL_VERI.md`).
+
 ## Durum özeti
 
 | Kaynak | Ne için | Erişim | Koşul | Durum |

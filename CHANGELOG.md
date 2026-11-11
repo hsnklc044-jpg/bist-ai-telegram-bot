@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.142 – 11.11.2026 (şablonlara temel koşullar, deger_kalite_trend, üç abonelik kapandı; K-90)
+- Kullanıcı kararı (11.11, E madde 2–6): eşiği bilinen temel koşullar şablonlara döndü (05 piyasa değeri > 2 milyar TL; 08 piyasa değeri 1–2 milyar TL ve FSO < 1; tek tuş trend piyasa değeri > 10 milyar TL). Eşiği yazılı olmayan gelir artışı, ÖGO, borç/özkaynak "eşiği kullanıcıdan bekleniyor".
+- Yeni şablon `deger_kalite_trend` (PD/DD evrenin en ucuz %30'u, Piotroski ≥ 7, kapanış > SMA200, likidite elemesi); yeni alan `pd_dd_sira`. Temel veri gelene kadar liste boştur ve cevap nedenini söyler.
+- `bist100_aday`, `bist30_aday`, `bist100_trend` abonelikleri kapandı (silinmedi; kişisel dosya aynen; `/tara_abonelikler` "Kapatılan" satırıyla gösterir; yeniden abone olunabilir).
+- `docs/DATA_SOURCES.md`: gereken temel kalemler, dönem sayısı ve kaynak seçenekleri (KAP Veri Yayını Servisi, Finnet, Matriks, Foreks, Fintables; kullanıcının işi).
+- Doğrulama: `test_screen_templates` kullanıcı kararına göre; `test_template_fundamentals` (önce başarısız testler: üç kapalı abonelik ve dosyanın değişmemesi, yeniden abone olma, yeni şablon ve sıra alanı).
+
 ## v0.99.141 – 11.11.2026 (taramalara temel alanlar: piyasa değeri, PD/DD, F/K, ÖKK, borç/özkaynak, gelir artışı, FSO, Piotroski, Altman Z)
 - Kullanıcı kararı (11.11, E madde 1): `/tara` dilinde on temel alan (grup "Temel"): `piyasa_degeri` (milyar TL), `pd_dd`, `fk`, `ozkaynak_karliligi`, `borc_ozkaynak`, `gelir_artisi_yillik`, `gelir_artisi_ceyreklik`, `fso`, `piotroski`, `altman_z`. Kaynak `data/fundamentals.csv`; her değer yayının ertesi gününden itibaren (K-48, K-57), geleceği görme yok.
 - KAP tabloları yıl başından kümülatif: 12 aylık rakam = bu dönem + geçen yıl sonu − geçen yılın aynı dönemi. Çeyreklik gelir artışı çeyreğin kendi hasılatıyla. Zarar, negatif özkaynak ya da eksik kalem: "veri yok". TMS 29 geçişini kapsayan değişim ve 12 aylık rakam hesaplanmaz.

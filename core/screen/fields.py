@@ -129,10 +129,12 @@ from core.fundamentals.fields import NAMES as FUNDAMENTAL  # noqa: E402
 from core.fundamentals.fields import TEXTS as _FUNDAMENTAL_TEXTS  # noqa: E402
 
 FIELDS.update({name: Field("Temel", *_FUNDAMENTAL_TEXTS[name]) for name in FUNDAMENTAL})
+FIELDS["pd_dd_sira"] = Field("Temel", "pd_dd'nin taranan evrendeki yüzdelik sırası (0 = en ucuz; veri yoksa sırada yok)",
+                             "0–100")
 ALIASES = {"hacim": "hacim_oran", "goreli_guc": "gg_20", "stokastik": "stok_k"}
 # ranked across the scanned stocks (engine), each day's members (card), the list (/tara_aciklama): rank -> base
 RANKED = {"gg_sira": "gg_60", "goreli_guc_yuzdelik": "rs_puan", "momentum_sira": "getiri_6a_1a_haric",
-          "oynaklik_sira": "oynaklik_60g"}
+          "oynaklik_sira": "oynaklik_60g", "pd_dd_sira": "pd_dd"}
 CROSS_SECTIONAL = set(RANKED)
 LEVEL_SERIES = ("destek_uzaklik_atr", "direnc_uzaklik_atr", "seviye_gucu", "kirdi_yukari", "kirdi_asagi")
 SCENARIO_SERIES = ("senaryo_destek_tepkisi", "senaryo_direnc_kirilimi", "senaryo_trend_geri_cekilme")

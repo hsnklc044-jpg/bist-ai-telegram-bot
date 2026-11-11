@@ -33,32 +33,35 @@ class Template:
 
 
 TEMPLATES = {
+    # E (11.11.2026): the fundamental conditions whose thresholds the user gave are back; the ones whose
+    # thresholds were never written down are named, not guessed ("eşiği kullanıcıdan bekleniyor")
     "basit_teknik": Template(
         "Basit teknik (06)", "goreli_hacim>1 kesti_yukari(rsi,50) kesti_yukari(ema5,ema20)",
-        f"{SOURCE} 06, teknik kısım; kesişimler o günkü mumda", "piyasa değeri, gelir artışı, ÖGO, borç/öz kaynak",
-        SIGNAL),
+        f"{SOURCE} 06, teknik kısım; kesişimler o günkü mumda",
+        "piyasa değeri, gelir artışı, ÖGO, borç/öz kaynak (eşiği kullanıcıdan bekleniyor)", SIGNAL),
     "basit_teknik_3g": Template(
         "Basit teknik, 3 gün (06 gevşek)",
         "goreli_hacim>1 son(3,kesti_yukari(rsi,50)) son(3,kesti_yukari(ema5,ema20))",
-        f"{SOURCE} 06, kesişimler son 3 seansta", "piyasa değeri, gelir artışı, ÖGO, borç/öz kaynak", SIGNAL),
+        f"{SOURCE} 06, kesişimler son 3 seansta", "piyasa değeri, gelir artışı, ÖGO, borç/öz kaynak (eşiği kullanıcıdan bekleniyor)",
+        SIGNAL),
     "bebek_teknik": Template(
-        "Bebek hisse, teknik kısım (08)", "goreli_hacim>1 momentum10>0",
-        f"{SOURCE} 08", "piyasa değeri 1–2 milyar TL, FSO < 1", SIGNAL),
+        "Bebek hisse (08)", "goreli_hacim>1 momentum10>0 piyasa_degeri 1..2 fso<1",
+        f"{SOURCE} 08; piyasa değeri 1–2 milyar TL ve FSO < 1 temel veriden", "—", SIGNAL),
     "duseni_kiran": Template(
         "Düşeni kıran (10)",
         "kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 ema50>ema100 "
         "ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis",
         f"{SOURCE} 10 (ve 3, aynı EMA dizilimi)", "—", TREND),
     "tek_tus_trend": Template(
-        "Tek tuş trend, teknik kısım",
+        "Tek tuş trend",
         "kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis "
-        "degisim_3a<60",
-        f"{SOURCE} BIST TEK TUŞ TREND",
-        "piyasa değeri > 10 milyar TL; beta 0,8–1,5 (fiyattan hesaplanır, `beta` alanı var; şablon görevdeki "
-        "tanımla bırakıldı)", TREND),
+        "degisim_3a<60 piyasa_degeri>10",
+        f"{SOURCE} BIST TEK TUŞ TREND; piyasa değeri > 10 milyar TL temel veriden",
+        "beta 0,8–1,5 (fiyattan hesaplanır, `beta` alanı var; şablon görevdeki tanımla bırakıldı)", TREND),
     "teknik_temel_ema": Template(
-        "Teknik-temel, EMA kısmı (05)", "kapanis>ema50 ema50>ema200",
-        f"{SOURCE} 05", "piyasa değeri > 2 milyar TL, gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak", TREND),
+        "Teknik-temel (05)", "kapanis>ema50 ema50>ema200 piyasa_degeri>2",
+        f"{SOURCE} 05; piyasa değeri > 2 milyar TL temel veriden",
+        "gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak (eşiği kullanıcıdan bekleniyor)", TREND),
     "trend_takibi": Template("Trend takibi", "ema20>ema50 ema50>ema200 adx>20", TASK, "—", TREND),
     "asiri_satim": Template("Aşırı satım, uzun trend üstünde", "rsi<30 kapanis>ema200", TASK, "—", SIGNAL),
     "kirilim": Template("20 gün kırılımı, hacimli", "kapanis>yuksek_20g hacim_oran>1.5", TASK, "—", TREND),
@@ -79,6 +82,11 @@ TEMPLATES = {
         "6-1 momentum, evrenin üst %20'si", "momentum_sira>=80",
         f"{PRO}: Jegadeesh & Titman (1993), 6 ay getirisi, son 1 ay hariç. Bu sistemde kesitsel momentum "
         "reddedildi (2025 +%88, 2026 −%73; RESEARCH_LOG)", "—", MOMENTUM),
+    # E madde 3 (11.11.2026): the user's new template; its research form is a5 H6b (K-89), not yet measured
+    "deger_kalite_trend": Template(
+        "Değer + kalite + trend", "pd_dd_sira<=30 piotroski>=7 kapanis>sma(200)",
+        "kullanıcı kararı 11.11.2026 (E madde 3); likidite elemesi varsayılan; araştırma biçimi a5 H6b (K-89)", "—",
+        "—"),
     "dusuk_oynaklik": Template(
         "Düşük oynaklık, evrenin en sakin %20'si", "oynaklik_sira<=20",
         f"{PRO}: Ang, Hodrick, Xing & Zhang (2006); Blitz & van Vliet (2007). Bu sistemde H1 düşük oynaklık "
@@ -113,10 +121,11 @@ def list_text(cards: dict | None = None) -> str:
              "Çalıştırmak: /tara AD"]
     for name, t in TEMPLATES.items():
         stats = cards.get(name) if cards is not None else C.peek(parse(t.criteria))
+        kind = (f"  tür: {t.rejected}; bu tür 27.10.2026'da test edildi, XU100'ü geçmedi "
+                "(RESEARCH_LOG, Reddedilen fikir türleri)") if t.rejected != "—" else \
+            "  tür: değer + kalite; a5 ön kaydı (H6b), henüz ölçülmedi; temel veri gelmeden liste boştur"
         lines += [f"\n{t.title} · /tara {name}", f"  {t.criteria}", f"  kaynak: {t.source}",
-                  f"  atlanan (veri yok): {t.skipped}", f"  {_card_line(stats)}",
-                  f"  tür: {t.rejected}; bu tür 27.10.2026'da test edildi, XU100'ü geçmedi "
-                  "(RESEARCH_LOG, Reddedilen fikir türleri)"]
+                  f"  atlanan: {t.skipped}", f"  {_card_line(stats)}", kind]
     lines.append("\nKarneler geçmişin özetidir (maliyet dahil); şablonlar sonuçlara bakılarak ayarlanmaz ve "
                  "araştırma programına aday kural değildir.")
     lines.append(DISCLAIMER)

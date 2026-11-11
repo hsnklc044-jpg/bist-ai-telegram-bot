@@ -185,6 +185,7 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Temel | `fso` | piyasa değeri / son 12 ay hasılat (fiyat/satış) | × |
 | Temel | `piotroski` | Piotroski F puanı (0–9) | puan |
 | Temel | `altman_z` | Altman Z | puan |
+| Temel | `pd_dd_sira` | pd_dd'nin taranan evrendeki yüzdelik sırası (0 = en ucuz) | 0–100 |
 | Hacim | `hacim_oran(n)` (varsayılan 20) | bugünkü hacim / önceki n gün ortalaması (20: canlı analizle aynı) | × |
 | Hacim | `hacim_degisim` | bugünkü hacmin dünküne göre değişimi | % |
 | Hacim | `ort_hacim(n)` (varsayılan 30) | n günlük ortalama hacim (adet) | milyon adet |
