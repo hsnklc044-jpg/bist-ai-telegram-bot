@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-86. Resmî endeks dosyaları: ölçek adımları ve kapsam (11.11.2026; K madde 8).**
+- **Ölçek:** puanlar 02.01.1997 ve 01.07.2020'de ÷ 100 yeniden ölçeklenmiş (dosyaların kendi değerlerinden). Her adımdan önceki puan bölünür; seri bugünkü ölçekte ve kesintisiz. Talimattaki tek tarih (27.07.2020) iki hataya yol açardı; kabul ölçütü ("geçiş günlerinde sıçrama yok") bu kuralla sağlanıyor.
+- **2005:** endeks puanı para değil; değişmez. TL hacim ÷ 1.000.000.
+- **Kapsam:** XU100, XU030, XU050, XUTUM, XBANK, XUSIN, XUHIZ, XUMAL, XHOLD ve XU100 getiri endeksi. Kaldıraçlı ve risk kontrol endeksleri okunmaz.
+- **Kullanım:** kapanmış aylarda XU100 karşılaştırmaları ve endeks zamanlama araştırmaları bu seriyle (Seviye 1); içinde bulunulan ay Yahoo ile (Seviye 3). Araştırmaya geçiş ayrı sürümde, holdout kuralıyla.
+
 **K-85. Resmî gün sonu verisinin kullanımı (11.11.2026; K madde 2–3).**
 - **Yahoo kontrolü:** kapanmış ay, günlük getiri, mevcut crosscheck kuralları (yeni eşik yok). Açıklayan günler: borsanın kurumsal işlem kodu ve `corporate_actions.csv`. Özet "Veri doğruluğu" hedefine; kaynak "Borsa İstanbul resmî gün sonu". Araştırmada resmî kapanış esas (kullanımı ayrı sürümde, holdout kuralıyla).
 - **Seviye:** kapanmış ayın günleri resmî dosyayla Seviye 1; içinde bulunulan ay Yahoo, Seviye 3. Geçen ayın kontrolü bugünkü fiyatın seviyesini değiştirmez (talimat: "içinde bulunulan ay için Yahoo, Seviye 3").

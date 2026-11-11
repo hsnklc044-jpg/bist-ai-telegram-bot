@@ -95,6 +95,33 @@ def yahoo_check(now: datetime, bars=None, codes: list[str] | None = None, db: Pa
     return summary
 
 
+def yahoo_index_check(now: datetime, bars=None, db: Path | None = None) -> str | None:
+    """Last closed month: Yahoo's XU100 against the official index, on daily returns (crosscheck rules)."""
+
+    from core.market import crosscheck
+    from core.market.universe import BENCHMARK
+    from core.official import indices
+
+    start, end = _previous_month(now.date())
+    official = indices.series("XU100", start, end, db=db)
+    if official.empty:
+        return None
+    if bars is None:
+        from core.reports.daily import raw_bars as bars
+    result = crosscheck.compare(BENCHMARK, bars(BENCHMARK), official.to_frame("close"))
+    if result.error:
+        line = f"XU100 (resmî, {start:%m.%Y}): kontrol edilemedi ({result.error})"
+    else:
+        line = (f"XU100 (resmî, {start:%m.%Y}, {result.days} gün): "
+                + ("tutarlı" if not result.mismatched else f"{len(result.mismatched)} günde fark"))
+    details = [line] + [f"  {d:%d.%m.%Y} Yahoo {a * 100:+.2f}% / resmî {b * 100:+.2f}%"
+                        for d, a, b, _ in result.mismatched]
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    (REPORT_DIR / f"resmi_xu100_{start:%Y-%m}.txt").write_text("\n".join(details) + "\n", encoding="utf-8")
+    logger.info("Official check of Yahoo XU100 | %s", line)
+    return line
+
+
 @dataclass
 class ActionsReport:
     matched: list[tuple[str, date]] = field(default_factory=list)

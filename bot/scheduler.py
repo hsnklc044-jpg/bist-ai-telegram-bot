@@ -502,10 +502,20 @@ async def official_prices_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception:  # noqa: BLE001 - the bot never stops on this
         logger.exception("Official prices import failed")
         return
-    try:  # K madde 2: last closed month, Yahoo against the official closes (feeds "Veri doğruluğu")
+    try:  # K madde 8: the index folders
+        from core.official import indices
+
+        index_result = await asyncio.to_thread(indices.import_folder)
+        result.files += index_result.files
+        result.rows += index_result.rows
+        result.rejected += index_result.rejected
+    except Exception:  # noqa: BLE001 - the bot never stops on this
+        logger.exception("Official indices import failed")
+    try:  # K madde 2 and 8: last closed month, Yahoo against the official closes and XU100
         from core.official import compare
 
         await asyncio.to_thread(compare.yahoo_check, now_istanbul())
+        await asyncio.to_thread(compare.yahoo_index_check, now_istanbul())
     except Exception:  # noqa: BLE001
         logger.exception("Official check of Yahoo failed")
     chat = getattr(getattr(context, "job", None), "chat_id", None)

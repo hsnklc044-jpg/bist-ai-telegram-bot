@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.129 – 11.11.2026 (Borsa İstanbul resmî endeks verisi: XU100 ve getiri endeksi 1988'den; K-86)
+- Kullanıcının indirdiği "Gün Sonu Endeks ve İşlem Hacmi" klasörleri (`data/inbox/bist_endeks/YYYYMM`, 1988–2026, 466 ay) okunur (`core/official/indices.py`) ve `data/official.db`'de ayrı tabloya yazılır: XU100, XU030, XU050, XUTUM, XBANK, XUSIN, XUHIZ, XUMAL, XHOLD; XU100'ün getiri endeksi (temettü dahil) de. Kaldıraçlı ve risk kontrol dosyaları okunmaz. Başlıklar isimle; bilinmeyen başlık dosyayı reddeder.
+- Biçimler (11.11'de bütün klasörler okunarak): eski sistem seanslı, UTF-8 (talimattaki cp1254 değil; Latin-5 de okunur); Kasım 2015'ten başlık üçüncü satırda; Aralık 2015'ten UTF-16; Şubat 2016'da `.txt` uzantısı.
+- **Ölçek (talimattan farklı, kanıtlı):** endeks puanları dosyalarda iki kez ÷ 100 olmuş: 02.01.1997 (27.12.1996 XU100 97.588,81 → 988,93) ve 01.07.2020 (30.06.2020 116.524,78 → 01.07.2020 1.153,15). Talimattaki "27.07.2020 öncesi ÷ 100" 01–24.07.2020'yi iki kez bölerdi ve 1997'yi kaçırırdı. Her iki adımdan önceki puanlar bölünür; 2005'te puan değişmedi (29.12.2004 24.971,68 → 03.01.2005 25.445,15), yalnız TL hacim ÷ 1.000.000.
+- Gerçek dosyalarla deneme: 467 dosya 4 sn, 71.644 endeks-gün, 0 red; XU100 9.710 gün kesintisiz, %15'i aşan günler yalnız 1998 ve 2000–2001 kriz günleri.
+- Kapanmış ay: Yahoo'nun XU100'ü resmî seriyle günlük getiri bazında karşılaştırılır (`logs/resmi_xu100_YYYY-MM.txt`); deneme: Ekim, Eylül, Haziran 2026 ve Ocak 2023 tutarlı. İçinde bulunulan ay Yahoo ile (Seviye 3).
+- Doğrulama: `test_official_indices` (önce başarısız testler: başlık satırları ve UTF-16, getiri endeksi satırı, 1997 ve 2020 ölçek adımları sıçramasız, 2005'te puan değişmemesi, okunmayan dosyalar, bilinmeyen başlık, seanslar, bir kez okuma, 2016 `.txt`, Yahoo XU100 kontrolü, gece işi).
+
 ## v0.99.128 – 11.11.2026 (resmî verinin kullanımı: Yahoo kontrolü, kurumsal işlem ve üyelik raporu, ay başı hatırlatması; K-85)
 - Kapanmış ay: Yahoo, resmî kapanışlarla günlük getiri bazında, mevcut crosscheck kurallarıyla (eşik, piyasa geneli gün, tek gün kapanış hatası) karşılaştırılır. Borsanın kurumsal işlem kodu ve `corporate_actions.csv` farkı açıklar. Özet "Veri doğruluğu" hedefinin dosyasına "Borsa İstanbul resmî gün sonu" kaynağıyla yazılır; farklı hisseler adıyla `logs/resmi_karsilastirma_YYYY-MM.txt`'de. Gece 02:30'da içe aktarmadan sonra çalışır.
 - Gerçek veriyle deneme (11.11, kopyalarda): Ekim 2026 206 hissede 1 farklı (RALYH), Eylül 0, Ağustos 0, Haziran 2 (KONTR, TRILC); Ocak 2023'te 05.01 Yahoo sorunu piyasa geneli gün olarak ayrıldı.
