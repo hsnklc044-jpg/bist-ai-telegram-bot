@@ -62,7 +62,7 @@ class OverviewTest(unittest.TestCase):
             store.update([BENCHMARK, *SYMBOLS])
             text = overview.build_overview(SYMBOLS).text
 
-        self.assertIn("QuantBIST özet", text)
+        self.assertIn("ÖZET · ", text)
         self.assertIn("XU100", text)
         self.assertIn("Sanal hesap", text)
         self.assertIn("Açık risk uyarısı yok", text)

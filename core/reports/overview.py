@@ -33,9 +33,10 @@ class Overview:
 
     @property
     def text(self) -> str:
-        title = f"📋 QuantBIST özet – {self.as_of:%d.%m.%Y} kapanışı" if self.as_of else (
-            "📋 QuantBIST özet – fiyat verisi yok"
-        )
+        from core.reports.style import header
+
+        # the message style (H, 11.11.2026): title and date; the content is the evening report's detail
+        title = header("Özet", self.as_of) if self.as_of else "ÖZET · fiyat verisi yok"
         return "\n".join(
             [title, "", *self.market, "", self.portfolio, "", self.alerts, "", DISCLAIMER]
         )

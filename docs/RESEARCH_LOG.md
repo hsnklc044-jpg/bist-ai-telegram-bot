@@ -447,6 +447,26 @@ Kuralların hepsi geçemez (BIST'te 2016–2023 de yüksek enflasyon ve yüksek 
 ### Reddedilen
 Dönemi, evreni, maliyeti ya da kurumsal işlem dolgusunu sonuca göre değiştirmek; 2023-08 sonrasını eklemek; holdout'a bakmak.
 
+### Sonuç (11.11.2026 14:32; ölçüt değiştirilmedi)
+`python scripts/r1.py` (kod 5e59ad2; deneme veritabanı, 467 fiyat ve 466 endeks dosyasından). 535 hisse (300 seanstan kısa geçmişliler dışarıda), 04.01.2016 – 31.07.2023, holdout kapalı.
+
+| Kural | XU100'e göre fazla getiri (yıllık; Bonferroni GA) | Karar |
+|---|---|---|
+| Bot sinyali | −12,9% [−28,5; +3,0] (%99,2) | geçmedi |
+| Bot sinyali + rejim filtresi | −14,7% [−32,5; +3,3] | geçmedi |
+| Trend kuralı | +1,4% [−22,7; +23,6] | geçmedi; en kârlı 5 hisse olmadan XU100'ün altında |
+| Momentum 6 ay, en iyi 10 | −5,2% [−26,2; +17,0] | geçmedi |
+| Momentum 6 ay + rejim | −10,9% [−32,5; +11,5] | geçmedi |
+| Momentum walk-forward | −7,8% [−31,4; +16,8] | geçmedi (16 pencerenin 6'sında XU100'ün üstünde) |
+| A3-H1 düşük oynaklık | −4,5% [−16,6; +8,1] (%98,3) | geçmedi (kapı 3 dışında hepsi ✗) |
+| A3-H2 endeks trendi | — | **ölçülemedi**: politika faizi serisi 23.06.2023'te başlıyor; dönemin çoğunda nakit %0 sayıldı (ön kayıt: "kapsamazsa ölçülemedi") |
+| A3-H3 ay dönümü | — | **ölçülemedi**: aynı neden |
+
+- XU100 al-tut bu dönemde yıllık +%36,0 (2022: +%196,6).
+- Aşırı uyum (bilgi, K-81): en yüksek Sharpe trend kuralı, DSR %100, PBO %73 (CSCV).
+- Raporun "Veri güveni: Yahoo · Seviye 3" satırı canlı fiyatın seviyesidir; r1'in verisi resmî, Seviye 1. Anlamlı çıkan kural olmadığı için karara etkisi yok.
+- **Sonuç:** ölçülebilen yedi kuralın hiçbiri hiç bakılmamış ikinci bir dönemde de XU100'ü geçmedi; "Reddedilen fikir türleri" iki bağımsız dönemde tutarlı. H2/H3 için 2016–2023 politika faizi serisi eklenirse aynı ön kayıtla ölçülebilir (veri işi).
+
 ## a5 ön kaydı — H6a, H6b, H7a, H7b (11.11.2026, kullanıcı kararı F ve I madde 4; değiştirilmez)
 
 Bu bölüm **dört kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve commit'iyle zaman damgalandı. Önceki "a5 ön kayıt taslağı" (H6 kârlılık + değer, Novy-Marx) bunun yerine geçti; taslak silinmedi, aşağıda duruyor.
