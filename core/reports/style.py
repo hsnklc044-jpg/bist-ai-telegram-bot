@@ -85,7 +85,8 @@ def problems(text: str, kind: str, sorun: bool = False) -> list[str]:
     """What breaks the style rules: line count for the kind, table width, emojis, forbidden terms."""
 
     found = []
-    lines = [line for line in text.splitlines() if line.strip()]
+    counted = re.sub(r"<pre>.*?</pre>", "<tablo>", text, flags=re.S)  # a table counts as one line
+    lines = [line for line in counted.splitlines() if line.strip()]
     if kind in LIMITS:
         limit = LIMITS[kind][1 if sorun else 0]
         if len(lines) > limit:

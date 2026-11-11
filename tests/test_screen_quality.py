@@ -60,8 +60,10 @@ class CharterTest(unittest.TestCase):
             body = re.sub(r"(öneri|tavsiye)(si)? değil(dir)?", "", text.replace(command.DISCLAIMER, "").lower())
             for word in ADVICE:
                 self.assertIsNone(re.search(word, body), (word, text[:80]))
-        for text in (texts[0], texts[1], texts[3], texts[5], message):
+        for text in (texts[0], texts[1], texts[3], texts[5]):
             self.assertTrue(text.rstrip().endswith(command.DISCLAIMER), text[-80:])
+        # the subscription message follows the message style (H, 11.11.2026): the note stays in /tara's detail
+        self.assertTrue(message.rstrip().endswith("/tara x"), message[-80:])
 
 
 if __name__ == "__main__":

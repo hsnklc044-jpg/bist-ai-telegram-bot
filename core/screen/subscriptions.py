@@ -140,54 +140,77 @@ def _price(value: float) -> str:
     return f"{value:.2f}".replace(".", ",")
 
 
-def _level_lines(symbols, frames) -> list[str]:
-    """The nearest cluster support and resistance of each listed stock; a stock without one is left out."""
+TABLE_ROWS = 5  # the message style: at most five stocks in a subscription message (H)
 
+
+def _num(value: float | None) -> str:
+    from core.reports.style import number
+
+    return "—" if value is None else number(value, 0 if value >= 1000 else 2)
+
+
+def _table(symbols, frames, bench_close) -> list[str]:
+    """The listed stocks, best professional score first (at most TABLE_ROWS): colour, code, score, close, the
+    nearest support (/seviye's own levels). Relative strength is ranked in the scanned universe."""
+
+    from core.analytics import pro_score
     from core.analytics.levels import levels, nearest
 
-    rows = []
-    for symbol in sorted(symbols)[:MAX_LEVEL_LINES]:
-        df = (frames or {}).get(symbol)
-        if df is None:
-            continue
-        try:
-            near = nearest([lv for lv in levels(df) if lv.method == "küme"], 1)
-        except Exception:  # noqa: BLE001 - a level line never stops the list
-            logger.exception("Levels failed for %s", symbol)
-            continue
-        parts = [f"{kind} {_price(found[0].price)} ({found[0].dist_pct:+.1f}%)".replace(".", ",")
-                 for kind, found in near.items() if found]
-        if parts:
-            rows.append(f"  {symbol.removesuffix('.IS')}: " + " · ".join(parts))
-    if not rows:
+    present = {s: frames[s] for s in symbols if s in (frames or {}) and len(frames[s])}
+    if not present:
         return []
-    more = len(symbols) - MAX_LEVEL_LINES
-    tail = [f"  ve {more} hisse daha: /seviye KOD"] if more > 0 else []
-    return ["Yakın destek ve direnç (küme):", *rows, *tail]
+    try:
+        scores = pro_score.latest(present, bench_close, universe=frames) if bench_close is not None else {}
+    except Exception:  # noqa: BLE001 - a missing score never stops the list
+        logger.exception("Scores failed for the subscription table")
+        scores = {}
+
+    def rank(symbol):
+        sc = scores.get(symbol)
+        return (-(sc.total if sc is not None and not sc.missing else -1), symbol)
+
+    rows = [f"{'':2}{'Hisse':<6}{'Puan':>4}{'Fiyat':>9}{'Destek':>9}"]
+    for symbol in sorted(present, key=rank)[:TABLE_ROWS]:
+        sc = scores.get(symbol)
+        colour = sc.colour() if sc is not None else None
+        points = str(sc.total) if sc is not None and not sc.missing else "—"
+        try:
+            found = nearest(levels(present[symbol]), 1)["destek"]
+            support = found[0].price if found else None
+        except Exception:  # noqa: BLE001 - a missing level never stops the list
+            logger.exception("Levels failed for %s", symbol)
+            support = None
+        rows.append(f"{colour[0] if colour else '·'} {symbol.removesuffix('.IS'):<6}{points:>4}"
+                    f"{_num(float(present[symbol]['close'].iloc[-1])):>9}{_num(support):>9}")
+    out = ["<pre>" + "\n".join(rows) + "</pre>"]
+    if len(present) > TABLE_ROWS:
+        out.append(f"ve {len(present) - TABLE_ROWS} hisse daha")
+    return out
 
 
 def _message(name: str, criteria: str, day: date, now: list[str], before: list[str] | None,
-             note: str = "", frames=None) -> str | None:
-    from core.screen.command import DISCLAIMER
+             note: str = "", frames=None, bench_close=None) -> str | None:
+    """The evening message in the message style (H): only when something changed (or the first list)."""
 
-    head = f"🔔 Tarama aboneliği: {name} ({criteria}) · veri {day:%d.%m.%Y}"
+    from core.reports.style import header
+
     if before is None:
-        body = [f"İlk liste: {len(now)} hisse" + (f": {_codes(now)}" if now else " (şu an koşulu sağlayan yok).")]
-        body += _level_lines(now, frames)
+        second = f"İlk liste · {len(now)} hisse" if now else "İlk liste · şu an koşulu sağlayan hisse yok"
+        shown, left = now, set()
     else:
         entered, left = set(now) - set(before), set(before) - set(now)
         if not entered and not left:
             return None
-        body = []
-        if entered:
-            body.append(f"➕ Girenler: {_codes(entered)}")
-        if left:
-            body.append(f"➖ Çıkanlar: {_codes(left)}")
-        body.append(f"Şimdi {len(now)} hisse.")
-        body += _level_lines(entered, frames)
+        second = " · ".join(x for x in (f"{len(entered)} yeni" if entered else "",
+                                         f"{len(left)} çıkan" if left else "") if x)
+        shown = sorted(entered)
+    lines = [header(f"Tarama · {name.upper()}", day), second, *_table(shown, frames, bench_close)]
+    if left:
+        lines.append(f"Çıkan: {_codes(left)}")
     if note:
-        body.append(note)
-    return "\n".join([head, *body, f"Ayrıntı ve karne: /tara {name}", DISCLAIMER])
+        lines.append(note)
+    lines.append(f"/tara {name}")
+    return "\n".join(lines)
 
 
 def run(day: date, live=None, path: Path | None = None, saved_path: Path | None = None,
@@ -220,7 +243,7 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
         before = previous.get("symbols") if previous and previous.get("criteria") == criteria else None
         note = (f"(bugünkü rejim {result.regime}; rejim={query.regime} filtresi bugün listeyi boş bırakır, /piyasa)"
                 if result.regime_blocked else "")
-        message = _message(name, criteria, day, symbols, before, note, frames)
+        message = _message(name, criteria, day, symbols, before, note, frames, bench["close"])
         if message:
             out.messages.append(message)
         out.state[name] = {"day": day.isoformat(), "criteria": criteria, "symbols": symbols}
@@ -236,8 +259,9 @@ def morning(day: date, live=None, path: Path | None = None, saved_path: Path | N
     """
 
     from core.market.calendar import is_session_day
+    from core.reports.style import header
     from core.screen import engine, universe
-    from core.screen.command import DISCLAIMER, _live
+    from core.screen.command import _live
     from core.signals import store
 
     subscribed = sorted(active(path).items())
@@ -262,11 +286,10 @@ def morning(day: date, live=None, path: Path | None = None, saved_path: Path | N
             empty.append(name)
             continue
         last = max(df.index.max() for df in frames.values() if len(df))
-        messages.append("\n".join([f"🌅 Sabah aday listesi: {name} ({criteria}) · son kapanış {last:%d.%m.%Y}",
-                                   f"{len(symbols)} hisse: {_codes(symbols)}", *_level_lines(symbols, frames),
-                                   f"Koşul değerleri: /tara_aciklama KOD {name}", DISCLAIMER]))
+        messages.append("\n".join([header(f"Tarama · {name.upper()}", last.date()), f"Sabah listesi · {len(symbols)} hisse",
+                                   *_table(symbols, frames, bench["close"]), f"/tara {name}"]))
     if empty:
-        messages.append(f"🌅 Sabah listesinde hisse çıkmayan taramalar: {', '.join(empty)}.")
+        messages.append(f"{header('Sabah taramaları', day)}\nHisse çıkmayan: {', '.join(empty)}")
     return messages
 
 

@@ -77,7 +77,8 @@ class RunTest(Files):
         self.assertEqual(len(first.messages), 1)
         self.assertIn("İlk liste", first.messages[0])
         self.assertIn("S00", first.messages[0])
-        self.assertTrue(first.messages[0].rstrip().endswith(command.DISCLAIMER))
+        self.assertTrue(first.messages[0].startswith("TARAMA · DUSUK · "))  # the message style (H)
+        self.assertTrue(first.messages[0].rstrip().endswith("/tara dusuk"))
         subscriptions.save_state(first, self.state)
 
         self.assertEqual(self.run_on(date(2026, 10, 29), frames, bench).messages, [])  # nothing changed
@@ -86,8 +87,9 @@ class RunTest(Files):
         changed["S01.IS"].loc[changed["S01.IS"].index[-5:], ["open", "high", "low", "close"]] *= 1.6  # recovers
         out = self.run_on(date(2026, 10, 30), changed, bench)
         self.assertEqual(len(out.messages), 1)
-        self.assertIn("➖ Çıkanlar: S01", out.messages[0])
-        self.assertNotIn("➕", out.messages[0])
+        self.assertIn("Çıkan: S01", out.messages[0])
+        self.assertIn("1 çıkan", out.messages[0])
+        self.assertNotIn("yeni", out.messages[0])
         for word in ("al ", "sat ", "öneri", "fırsat"):
             self.assertNotIn(word, out.messages[0].replace(command.DISCLAIMER, "").lower())
 
@@ -95,15 +97,19 @@ class RunTest(Files):
         frames, bench = market()
         self.sub("dusuk")
         message = self.run_on(DAY, frames, bench).messages[0]
-        self.assertIn("Yakın destek ve direnç", message)
-        self.assertRegex(message, r"S00: (destek|direnç) \d+,\d\d \([+-]\d+,\d%\)")
-        self.assertTrue(message.rstrip().endswith(command.DISCLAIMER))
+        self.assertIn("<pre>", message)
+        self.assertRegex(message, r"S00 +(\d+|—) +\d+,\d\d +(\d+,\d\d|—)")
+        from core.reports import style
 
-    def test_only_new_entries_get_level_lines(self):
-        frames, _ = market()
-        lines = subscriptions._level_lines(["S00.IS"], frames)
-        self.assertEqual(len(lines), 2)
-        self.assertEqual(subscriptions._level_lines(["YOK.IS"], frames), [])
+        self.assertEqual(style.problems(message, "abonelik"), [])
+
+    def test_the_table_shows_at_most_five_best_first(self):
+        frames, bench = market()
+        lines = subscriptions._table(list(frames), frames, bench["close"])
+        rows = lines[0].removeprefix("<pre>").removesuffix("</pre>").splitlines()
+        self.assertLessEqual(len(rows) - 1, subscriptions.TABLE_ROWS)
+        self.assertTrue(all(len(r) <= 32 for r in rows), rows)
+        self.assertEqual(subscriptions._table(["YOK.IS"], frames, bench["close"]), [])
 
     def test_level_failure_does_not_stop_the_list(self):
         frames, bench = market()
@@ -111,15 +117,14 @@ class RunTest(Files):
         with mock.patch("core.analytics.levels.levels", side_effect=ValueError("bad")):
             message = self.run_on(DAY, frames, bench).messages[0]
         self.assertIn("İlk liste", message)
-        self.assertNotIn("Yakın destek", message)
+        self.assertRegex(message, r"S00 +(\d+|—) +\d+,\d\d +—")  # no support found: shown as —
 
     def test_long_lists_are_capped(self):
-        frames, _ = market()
+        frames, bench = market()
         one = frames["S00.IS"]
-        many = {f"X{i:03d}.IS": one for i in range(subscriptions.MAX_LEVEL_LINES + 3)}
-        lines = subscriptions._level_lines(list(many), many)
-        self.assertEqual(lines[-1], "  ve 3 hisse daha: /seviye KOD")
-        self.assertEqual(len(lines), subscriptions.MAX_LEVEL_LINES + 2)
+        many = {f"X{i:03d}.IS": one for i in range(subscriptions.TABLE_ROWS + 3)}
+        lines = subscriptions._table(list(many), many, bench["close"])
+        self.assertEqual(lines[-1], "ve 3 hisse daha")
 
     def test_morning_sends_the_full_list_and_keeps_the_evening_state(self):
         frames, bench = market()
@@ -130,11 +135,12 @@ class RunTest(Files):
                 mock.patch("core.market.calendar.is_session_day", return_value=True):
             messages = subscriptions.morning(DAY, **kwargs)
         self.assertEqual(len(messages), 1)
-        self.assertIn("Sabah aday listesi: dusuk", messages[0])
+        self.assertTrue(messages[0].startswith("TARAMA · DUSUK · "))
+        self.assertIn("Sabah listesi", messages[0])
         self.assertIn("S00", messages[0])
-        self.assertIn("Yakın destek", messages[0])
+        self.assertIn("<pre>", messages[0])
         self.assertEqual(self.state.read_text() if self.state.exists() else None, before)
-        self.assertTrue(messages[0].rstrip().endswith(command.DISCLAIMER))
+        self.assertTrue(messages[0].rstrip().endswith("/tara dusuk"))
 
     def test_morning_is_silent_on_a_holiday_or_a_lock(self):
         frames, bench = market()
@@ -195,7 +201,7 @@ class RunTest(Files):
         subscriptions.save_state(first, self.state)
         with regime_is("yükseliş"):
             out = self.run_on(date(2026, 10, 30), frames, bench)
-        self.assertIn("➖ Çıkanlar: S00", out.messages[0])
+        self.assertIn("Çıkan: S00", out.messages[0])
         self.assertIn("bugünkü rejim yükseliş", out.messages[0])
 
     def test_same_data_day_twice_runs_once(self):
@@ -303,3 +309,9 @@ class PersonalFileTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NameCaseTest(unittest.TestCase):
+    def test_a_screen_name_is_capitalised_in_ascii(self):
+        text = subscriptions._message("bist100_kirilim", "x", DAY, [], None)
+        self.assertTrue(text.startswith("TARAMA · BIST100_KIRILIM · "), text)

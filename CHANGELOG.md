@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.137 – 11.11.2026 (tarama abonelikleri mesaj stilinde)
+- Mesaj stili (H): akşam değişiklik mesajı "TARAMA · AD · tarih", "N yeni · M çıkan" (ilk listede "İlk liste · N hisse"), en fazla 5 hisselik `<pre>` tablo (renk, hisse, profesyonel puan, kapanış, en yakın destek; puanı yüksek olan önce), "Çıkan: …", "/tara AD". Değişiklik yoksa mesaj yok (önceden de böyleydi).
+- Sabah listesi aynı biçimde ("Sabah listesi · N hisse"); hisse çıkmayan taramalar tek mesajda.
+- "Filtre sonucudur" notu mesaj stilinde abonelik mesajından çıktı; `/tara` ayrıntısında duruyor. Satır sınırında bir tablo tek satır sayılır.
+- Doğrulama: `test_screen_subscriptions` ve `test_screen_quality` yeni biçime göre (tablo, 5 hisse sınırı, 32 karakter, stil denetimi).
+
 ## v0.99.136 – 11.11.2026 (sağlık uyarıları mesaj stilinde)
 - Mesaj stili (H): 20:00 sağlık kontrolünün uyarısı "❌ OLAY · saat" (uyarı düzeyinde "⚠️ UYARI · saat"), tek satır durum, "Senden beklenen: …" düz dille, "/durum"; en fazla 4 satır. Dosya yolu, komut ya da önem kodu mesajda yok; ayrıntılı yönlendirme `/durum`'da.
 - Durum metni teknik terim içeriyorsa (dosya yolu, hata adı) yerine kontrolün etkisi yazılır.
