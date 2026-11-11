@@ -19,6 +19,7 @@ Kaynak DataStore (K-84), 01.1988–10.2026, 467 dosya; deneme veritabanında oku
 - 2005 geçişi: fiyat ÷ 1.000 ve adet ÷ 1.000 ile 297 hissenin hiçbirinde sıçrama yok (÷ 1.000.000 ile hepsinde 1.000 kat).
 - **Üyelik:** BIST 100 işareti 2001'den (2001'de satırların %37'si, 2002'den itibaren hepsi işaretli), günde ortalama 100 hisse. BIST 30 işareti 16.11.2015'ten. 2001 öncesi için üyelik bu dosyalardan kurulamaz; o dönemde araştırma evreni ayrıca belirlenir.
 - Açılış fiyatı: 2007 öncesi yok; 2007–2015 satırların %8–28'inde yok (eski sistemde yalnız açılış seansı fiyatı var).
+- Kurumsal işlem kodu (`OZSERMAYE HALI`): 2015-11 sonrası 570 hissede 2.902 gün (06: 2.023, 03: 564, 01: 261). TUKAS'ın resmî bölünme günü 04.02.2025; `corporate_actions.csv` Yahoo'nun sıçrama günü 03.02'yi yazıyor.
 - Yahoo ile 2026 Ağustos–Ekim, 6 hisse: 5'inde günlük kapanış birebir aynı; BIMAS'ta bir gün %0,59 fark.
 - Bu kaynak K-16'daki "veri kısa" sınırını kaldırabilir; yeniden değerlendirme ve mevcut testlerin 2015 sonrası tekrarı ayrı sürümde ve holdout kuralıyla.
 

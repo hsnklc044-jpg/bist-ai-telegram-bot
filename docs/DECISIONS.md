@@ -9,6 +9,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - **Biçim tanıma:** başlıklar isimle; bilinen üç biçimin alan listesi koddadır (11.11'de 467 dosyanın başlığından). Listede olmayan bir başlık ya da gerekli alanın eksikliği dosyayı reddeder; tahmin yapılmaz.
 - **2005 öncesi:** fiyat ÷ 1.000, adet ÷ 1.000, TL hacim ÷ 1.000.000. Kullanıcının talimatı fiyat ve hacim için ÷ 1.000.000 diyordu; talimatın kendi kabul ölçütü ("2004 sonu ile 2005 başı arasında sıçrama yok") bununla sağlanmadı (297 hissede 1.000 kat). Gerekçe: 1 Ocak 2005'te altı sıfırın atılmasıyla birlikte 1.000 eski pay 1 paya birleşti; dosyalardaki fiyat eski payın fiyatıdır. Kanıt: dosyanın 03.01.2005 satırındaki "önceki kapanış" alanı ve hacim/adet/kapanış oranının her yıl ~1 olması.
 - **Eski sistem seansları:** kapanış son işlem gören seansın kapanışı; yüksek ve düşük seansların en ucu; hacim ve adet toplam; önceki kapanış ilk seansın. Açılış fiyatı dosyada yoksa boş.
+- **Kurumsal işlem kodu:** yeni sistemdeki `OZSERMAYE HALI` ham kod olarak saklanır (boş ve "0" = yok); anlamı tahmin edilmez.
 - **Depolama:** `data/official.db`, yalnız normal hisseler ve gereken sütunlar. Ham klasör ve bu veritabanı yedeğe girmez: ham dosyalar DataStore'dan yeniden indirilebilir, veritabanı onlardan yeniden kurulur (DISASTER_RECOVERY).
 - **Değişmeyen:** `market.db`, fiyat akışı, hesaplar. Resmî verinin araştırmada ve "Veri doğruluğu" hedefinde kullanımı ayrı sürümde.
 

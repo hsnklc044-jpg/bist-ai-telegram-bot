@@ -96,6 +96,10 @@ class Row:
     quantity: float  # shares traded
     bist100: int | None  # the day's membership flag; None = not in the file
     bist30: int | None
+    # OZSERMAYE HALI (new system): the exchange's corporate action code on that day, e.g. "03" on TUKAS's bonus
+    # split day 04.02.2025, "01&04" on TSPOR's reduction and rights day 19.06.2025; None when empty or old system.
+    # (REFERANS FIYAT is 0 on those days, and ONCEKI KAPANIS FIYATI is the raw previous close: neither shows it.)
+    corp_action: str | None = None
 
 
 @dataclass
@@ -141,6 +145,11 @@ def _flag(text: str) -> int | None:
     if text in ("0", "H"):
         return 0
     return None
+
+
+def _code_or_none(text: str) -> str | None:
+    text = text.strip()
+    return None if text in ("", "0") else text
 
 
 def _system(header: list[str]) -> tuple[str | None, str | None]:
@@ -198,6 +207,7 @@ def read_file(path: Path) -> FileResult:
                 value=_num(get(cells, "TOPLAM ISLEM HACMI")) or 0.0,
                 quantity=_num(get(cells, "TOPLAM ISLEM ADEDI")) or 0.0,
                 bist100=_flag(get(cells, "BIST 100 ENDEKS")), bist30=_flag(get(cells, "BIST 30 ENDEKS")),
+                corp_action=_code_or_none(get(cells, "OZSERMAYE HALI")),
             ))
         return result
 
@@ -240,7 +250,8 @@ _SCHEMA = """
 CREATE TABLE IF NOT EXISTS official_prices (
     code TEXT NOT NULL, date TEXT NOT NULL,
     open REAL, high REAL NOT NULL, low REAL NOT NULL, close REAL NOT NULL, prev_close REAL,
-    value REAL NOT NULL, quantity REAL NOT NULL, bist100 INTEGER, bist30 INTEGER, file TEXT NOT NULL,
+    value REAL NOT NULL, quantity REAL NOT NULL, bist100 INTEGER, bist30 INTEGER, corp_action TEXT,
+    file TEXT NOT NULL,
     PRIMARY KEY (code, date)
 );
 CREATE TABLE IF NOT EXISTS official_files (
@@ -311,9 +322,10 @@ def import_folder(folder: Path | None = None, db: Path | None = None) -> ImportR
                             if other != path.name:
                                 result.overlaps.append((code, date.fromisoformat(day)))
                 conn.executemany(
-                    "INSERT OR REPLACE INTO official_prices VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT OR REPLACE INTO official_prices (code, date, open, high, low, close, prev_close, value, "
+                    "quantity, bist100, bist30, corp_action, file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [(r.code, r.day.isoformat(), r.open, r.high, r.low, r.close, r.prev_close, r.value,
-                      r.quantity, r.bist100, r.bist30, path.name) for r in got.rows])
+                      r.quantity, r.bist100, r.bist30, r.corp_action, path.name) for r in got.rows])
                 result.rows += len(got.rows)
             conn.execute("INSERT OR REPLACE INTO official_files VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                          (path.name, stat.st_size, stat.st_mtime_ns, got.system, len(got.rows),

@@ -50,12 +50,12 @@ def old_row(day, session, code, series="E", low="8", high="8.06", prev="7.97", c
 
 
 def new_row(day, code, opening="10", high="11", low="9", close="10.5", prev="10", value="5000", qty="500",
-            bist100="1", bist30="0"):
+            bist100="1", bist30="0", corp=""):
     cells = dict.fromkeys(NEW_HEAD.split(";"), "0")
     cells.update({"TARIH": day, "ISLEM  KODU": code, "ACILIS FIYATI": opening, "EN YUKSEK FIYAT": high,
                   "EN DUSUK FIYAT": low, "KAPANIS FIYATI": close, "ONCEKI KAPANIS FIYATI": prev,
                   "TOPLAM ISLEM HACMI": value, "TOPLAM ISLEM ADEDI": qty, "BIST 100 ENDEKS": bist100,
-                  "BIST 30 ENDEKS": bist30})
+                  "BIST 30 ENDEKS": bist30, "OZSERMAYE HALI": corp})
     return ";".join(cells[h] for h in NEW_HEAD.split(";"))
 
 
@@ -92,6 +92,19 @@ class NewSystemTest:
         r = got.rows[0]
         assert (r.open, r.high, r.low, r.close, r.prev_close) == (10.0, 11.0, 9.0, 300.25, 10.0)
         assert (r.value, r.quantity, r.bist100, r.bist30) == (5000.0, 500.0, 1, 1)
+        assert r.corp_action is None
+
+    def test_the_exchange_corporate_action_code_is_kept(self, inbox):
+        # as TUKAS's bonus split day 04.02.2025 ("03") and TSPOR's reduction and rights day 19.06.2025 ("01&04")
+        path = write(inbox, "PP_GUNSONUFIYATHACIM.M.202502.csv", [
+            NEW_HEAD, NEW_HEAD_EN, new_row("2025-02-04", "TUKAS.E", prev="6.23", close="2.04", corp="03"),
+            new_row("2025-02-04", "TSPOR.E", corp="01&04"), new_row("2025-02-04", "THYAO.E", corp="0")])
+        got = {r.code: r.corp_action for r in prices.read_file(path).rows}
+        assert got == {"TUKAS": "03", "TSPOR": "01&04", "THYAO": None}
+        prices.import_folder(inbox)
+        with sqlite3.connect(prices.OFFICIAL_DB) as conn:
+            stored = dict(conn.execute("SELECT code, corp_action FROM official_prices"))
+        assert stored == {"TUKAS": "03", "TSPOR": "01&04", "THYAO": None}
 
     def test_the_2015_2019_header_with_midday_columns_is_matched_by_name(self, inbox):
         head = NEW_HEAD.replace("PAZAR GRUBU", "A_B_C_D GRUBU").replace(
