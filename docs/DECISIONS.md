@@ -8,7 +8,7 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 - Dönem 2016-01-04 – 2023-07-31 (önceki araştırmanın görmediği), resmî fiyat ve endeks, resmî günlük BIST 100 üyeliği; holdout kapalı.
 - 2015 sonrası resmî dosyalarda düzeltme oranı yok: borsanın kurumsal işlem kodunun olduğu günde hissenin getirisi yerine XU100'ün getirisi (06 nakit temettü hariç). Kod anlamları bilinen olaylarla doğrulandı (03 bedelsiz, 01 bedelli, 04 azaltım, 06 temettü).
 - Tekrar çalışmasıdır; deneme bütçesinden harcamaz ve bir kuralı canlandırmaz. Ayrıntı RESEARCH_LOG "r1 ön kaydı".
-- **Sonuç (11.11.2026):** ölçülebilen 7 kuralın hiçbiri 2016–2023/07'de XU100'ü geçmedi; H2/H3 ölçülemedi (politika faizi serisi 2023-06'da başlıyor).
+- **Sonuç (11.11.2026):** 9 kuralın hiçbiri 2016–2023/07'de XU100'ü geçmedi (H2/H3 nakit verisi TCMB tablosundan eklenince ölçüldü: −6,3% ve −13,1%, anlamlı değil).
 
 **K-90. Taramalar: teknik + temel (11.11.2026; kullanıcı kararı E).**
 - Kullanıcının şablonlarına eşiği bilinen temel koşullar geri eklendi: 05 piyasa değeri > 2 milyar TL; 08 piyasa değeri 1–2 milyar TL ve FSO < 1; tek tuş trend piyasa değeri > 10 milyar TL. 05 ve 06'daki gelir artışı, ÖGO ve borç/özkaynak eşikleri hiçbir yerde yazılı değil (28.10'daki ekran görüntülerinden yalnız teknik kısım alınmıştı): tahmin edilmez, "eşiği kullanıcıdan bekleniyor" diye yazılır.

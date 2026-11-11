@@ -459,14 +459,14 @@ Dönemi, evreni, maliyeti ya da kurumsal işlem dolgusunu sonuca göre değişti
 | Momentum 6 ay + rejim | −10,9% [−32,5; +11,5] | geçmedi |
 | Momentum walk-forward | −7,8% [−31,4; +16,8] | geçmedi (16 pencerenin 6'sında XU100'ün üstünde) |
 | A3-H1 düşük oynaklık | −4,5% [−16,6; +8,1] (%98,3) | geçmedi (kapı 3 dışında hepsi ✗) |
-| A3-H2 endeks trendi | — | **ölçülemedi**: politika faizi serisi 23.06.2023'te başlıyor; dönemin çoğunda nakit %0 sayıldı (ön kayıt: "kapsamazsa ölçülemedi") |
-| A3-H3 ay dönümü | — | **ölçülemedi**: aynı neden |
+| A3-H2 endeks trendi | ilk çalıştırma: ölçülemedi (nakit serisi 23.06.2023'te başlıyordu); nakit verisi eklenince (15:02): −6,3% [−16,3; +3,7] (%98,3) | geçmedi (bütün kapılar ✗) |
+| A3-H3 ay dönümü | ilk çalıştırma: ölçülemedi; nakit verisiyle: −13,1% [−32,6; +8,4] | geçmedi (yalnız düşüş kapısı ✓) |
 
 - XU100 al-tut bu dönemde yıllık +%36,0 (2022: +%196,6).
 - Aşırı uyum (bilgi, K-81): en yüksek Sharpe trend kuralı, DSR %100, PBO %73 (CSCV).
 - Raporun "Veri güveni: Yahoo · Seviye 3" satırı canlı fiyatın seviyesidir; r1'in verisi resmî, Seviye 1. Anlamlı çıkan kural olmadığı için karara etkisi yok.
 - **H2/H3 nakit verisi (11.11.2026 14:55, ölçümden önce):** `data/cash/policy_rate.csv`'ye 2015-02 – 2023-02 bir hafta repo değişiklikleri TCMB'nin kendi tablosundan, `withholding.csv`'ye 23.12.2020 öncesi %10 stopaj (Ziraat Bankası vergilendirme tablosu) eklendi. Not: 2017–2018'de fiilî fonlama bir hafta repodan yüksek pencerelerden yapıldı; seri o yıllarda nakdi düşük gösterir, bu H2/H3'ün aleyhinedir. Kural, parametre ve ölçüt aynen; aynı `scripts/r1.py`.
-- **Sonuç:** ölçülebilen yedi kuralın hiçbiri hiç bakılmamış ikinci bir dönemde de XU100'ü geçmedi; "Reddedilen fikir türleri" iki bağımsız dönemde tutarlı. H2/H3 için 2016–2023 politika faizi serisi eklenirse aynı ön kayıtla ölçülebilir (veri işi).
+- **Sonuç:** dokuz kuralın hiçbiri hiç bakılmamış ikinci bir dönemde de XU100'ü geçmedi; "Reddedilen fikir türleri" iki bağımsız dönemde tutarlı. (H2/H3 ilk çalıştırmada ön kayıttaki kuralla "ölçülemedi" yazıldı; nakit verisi kaynaklı olarak eklenip aynı betikle ölçüldü, diğer satırlar birebir aynı kaldı.)
 
 ## a5 ön kaydı — H6a, H6b, H7a, H7b (11.11.2026, kullanıcı kararı F ve I madde 4; değiştirilmez)
 

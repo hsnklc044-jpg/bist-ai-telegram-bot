@@ -3,7 +3,7 @@
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
 ## v0.99.144 – 11.11.2026 (r1 sonucu: reddedilen kurallar bağımsız dönemde de geçmedi; /summary başlığı)
-- r1 (K-91), 2016-01 – 2023-07 resmî veri, 535 hisse, holdout kapalı: bot sinyali, rejimli bot sinyali, trend, momentum (düz, rejimli, walk-forward) ve A3-H1 düşük oynaklık XU100'ü geçmedi; ret iki bağımsız dönemde tutarlı. A3-H2 ve A3-H3 ölçülemedi: politika faizi serisi 23.06.2023'te başlıyor (ön kayıttaki kural). Ayrıntı RESEARCH_LOG "r1 ön kaydı · Sonuç".
+- r1 (K-91), 2016-01 – 2023-07 resmî veri, 535 hisse, holdout kapalı: bot sinyali, rejimli bot sinyali, trend, momentum (düz, rejimli, walk-forward) ve A3-H1 düşük oynaklık XU100'ü geçmedi; ret iki bağımsız dönemde tutarlı. A3-H2 ve A3-H3 ilk çalıştırmada ölçülemedi (politika faizi serisi 23.06.2023'te başlıyordu); `data/cash/policy_rate.csv`'ye 2015–2023 bir hafta repo (TCMB tablosu) ve `withholding.csv`'ye 23.12.2020 öncesi %10 stopaj (Ziraat Bankası tablosu) eklenince ölçüldü: −6,3% ve −13,1%, geçmedi. Ayrıntı RESEARCH_LOG "r1 ön kaydı · Sonuç".
 - Araç: `core/official/frames.py` (resmî veriden araştırma serileri; kurumsal işlem gününde XU100 getirisi; TL hacim korunur; holdout yüklenemez), `scripts/r1.py`.
 - `/summary` (ve web paneli) "ÖZET · tarih" başlığıyla; içerik akşam raporunun ayrıntısı olarak aynen (piyasa, hesaplar, risk uyarıları).
 
