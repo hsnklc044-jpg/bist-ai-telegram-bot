@@ -86,7 +86,8 @@ def problems(text: str, kind: str, sorun: bool = False) -> list[str]:
 
     found = []
     counted = re.sub(r"<pre>.*?</pre>", "<tablo>", text, flags=re.S)  # a table counts as one line
-    lines = [line for line in counted.splitlines() if line.strip()]
+    note = "Veri: doğrulanmamış kaynak"  # core.market.trust.NOTE: a system line, not counted
+    lines = [line for line in counted.splitlines() if line.strip() and line.strip() != note]
     if kind in LIMITS:
         limit = LIMITS[kind][1 if sorun else 0]
         if len(lines) > limit:

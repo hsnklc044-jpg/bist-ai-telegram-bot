@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.138 – 11.11.2026 (akşam raporu mesaj stilinde; fiyat alarmları ayrı mesaj)
+- Mesaj stili (H): akşam Telegram'a giden rapor "AKŞAM RAPORU · tarih", durum ("✅ Rapor tamam, sorun yok." ya da "⚠️ N konu: …"), "BIST 100: değer (değişim)", "Piyasa: renk sınıf (trenddeki hisse %N)" (50 günlük ortalamanın üstündeki hisse oranının puan sınıfı), "Sanal hesap: değer · bugün · başlangıçtan · reel", yalnız gerekiyorsa "Senden beklenen: …", "/summary"; en fazla 7 satır. Sayılar hesaplandıkları yerden alınır, metinden ayıklanmaz; olmayan sayı yazılmaz.
+- Tam rapor eskisi gibi üretilir ve saklanır (`/rapor_tekrar`, `logs/reports/`); hesaplar değişmedi.
+- Sorun satırları: yedek, haftalık geri yükleme denetimi, puan kaydı, alarm denetimi, sağlık uyarıları ve risk uyarılarının sayısı; teknik terimli bir satır "/durum"a yönlendirir.
+- Fiyat alarmı artık ayrı mesaj: "🔔 ALARM · KOD · tarih", "Kapanış … TL · koşul: … TL altı/üstü", "/alarm"; bir kez gönderilir.
+- Veri notu ("Veri: doğrulanmamış kaynak") satır sınırına sayılmaz (sistem satırı).
+- Doğrulama: `test_evening_message` (önce başarısız testler: sessiz gün, sorunlu gün ve beklenen iş, eksik sayının yazılmaması, piyasa sınıfları, veri notu, alarm mesajları, gönderim bağlantısı).
+
 ## v0.99.137 – 11.11.2026 (tarama abonelikleri mesaj stilinde)
 - Mesaj stili (H): akşam değişiklik mesajı "TARAMA · AD · tarih", "N yeni · M çıkan" (ilk listede "İlk liste · N hisse"), en fazla 5 hisselik `<pre>` tablo (renk, hisse, profesyonel puan, kapanış, en yakın destek; puanı yüksek olan önce), "Çıkan: …", "/tara AD". Değişiklik yoksa mesaj yok (önceden de böyleydi).
 - Sabah listesi aynı biçimde ("Sabah listesi · N hisse"); hisse çıkmayan taramalar tek mesajda.

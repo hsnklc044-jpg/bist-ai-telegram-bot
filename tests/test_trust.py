@@ -160,7 +160,8 @@ class WiringTest(unittest.TestCase):
 
         source = inspect.getsource(scheduler)
         self.assertEqual(source.count("trust.data_message()"), 3)  # screens, hourly signals, portfolio health
-        self.assertEqual(inspect.getsource(daily).count("data=True)"), 3)  # report, subscriptions, signal book
+        # the short report, the price alarms (H), the subscriptions and the signal book
+        self.assertEqual(inspect.getsource(daily).count("data=True)"), 4)
 
     def test_the_daily_sender_puts_the_note_under_the_title_on_level_3(self):
         from types import SimpleNamespace

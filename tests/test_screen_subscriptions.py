@@ -269,7 +269,9 @@ class DailyTest(unittest.TestCase):
 
     def test_after_the_report(self):
         result, sent, ran, saved = self.run_daily(already_sent=False)
-        self.assertEqual(sent, ["rapor", "değişiklik"])
+        self.assertEqual(len(sent), 2)  # the short evening message (H), then the subscription change
+        self.assertTrue(sent[0].startswith("AKŞAM RAPORU · "))
+        self.assertEqual(sent[1], "değişiklik")
         self.assertEqual(ran.call_args.args[0], DAY)
         saved.assert_called_once()
         self.assertEqual(result.status, "sent")

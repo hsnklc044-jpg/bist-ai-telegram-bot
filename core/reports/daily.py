@@ -213,6 +213,20 @@ def record_equity(path: Path, day: date, account: str, value: float, cash: float
 # ---------------------------------------------------------------------------
 
 
+def breadth(frames: dict[str, pd.DataFrame]) -> tuple[int, int, int]:
+    """(stocks with 200 candles, how many close above their 50-day average, above their 200-day average)."""
+
+    above50 = above200 = counted = 0
+    for df in frames.values():
+        if len(df) < 200:
+            continue
+        counted += 1
+        c = df["close"]
+        above50 += c.iloc[-1] > c.tail(50).mean()
+        above200 += c.iloc[-1] > c.tail(200).mean()
+    return counted, int(above50), int(above200)
+
+
 def market_section(frames: dict[str, pd.DataFrame], bench: pd.DataFrame) -> list[str]:
     lines = ["📊 Piyasa"]
     if len(bench) >= 200:
@@ -223,14 +237,7 @@ def market_section(frames: dict[str, pd.DataFrame], bench: pd.DataFrame) -> list
         lines.append(
             f"XU100 {tr(close)} ({pct(change, 2)}); 200 günlük ortalamanın %{tr(abs(close / sma200 - 1) * 100, 1)} {side}"
         )
-    above50 = above200 = counted = 0
-    for df in frames.values():
-        if len(df) < 200:
-            continue
-        counted += 1
-        c = df["close"]
-        above50 += c.iloc[-1] > c.tail(50).mean()
-        above200 += c.iloc[-1] > c.tail(200).mean()
+    counted, above50, above200 = breadth(frames)
     if counted:
         lines.append(
             f"Katılım ({counted} hisse): 50 günlük ortalamanın üstünde olan oranı %{above50 / counted * 100:.0f}, "
@@ -263,6 +270,8 @@ class DailyResult:
     # built | sent | skipped (second run) | holiday (no session today) | stale (no new candle)
     status: str = "built"
     note: str = ""
+    # H (11.11.2026): the numbers of the short evening message, taken where they are computed (never parsed back)
+    facts: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -384,6 +393,12 @@ def build_daily(
 
     lines = [f"🗓 QuantBIST günlük rapor – {day:%d.%m.%Y} kapanışı", ""]
     lines += market_section(frames, bench)
+    facts: dict = {}
+    if len(bench) >= 2:
+        facts["xu100"] = (float(bench["close"].iloc[-1]), float(bench["close"].iloc[-1] / bench["close"].iloc[-2] - 1))
+    counted, above50, _ = breadth(frames)
+    if counted:
+        facts["breadth"] = above50 / counted * 100
     alerts = []
     for account in ACCOUNTS:
         positions = open_positions(entries, account)
@@ -403,6 +418,8 @@ def build_daily(
             lines.append(f"Hisse değeri {tr(invested)} TL")
         equity = guarded(lambda: read_equity(paths.equity, account), pd.Series(dtype=float))
         growth = performance_index(equity, entries, account)  # buys and sales are not gains or losses
+        if account == "paper":
+            facts["paper"] = {"total": total}
         if len(growth) >= 2:
             change = pct(growth.iloc[-1] / growth.iloc[-2] - 1, 2)
             before, last = growth.index[-2].date(), growth.index[-1].date()
@@ -410,9 +427,13 @@ def build_daily(
             # a missing day (PC off) makes the change cover several sessions: say since when
             lines.append(f"Günlük değişim {change}" if gap <= 1
                          else f"{before:%d.%m} kaydından bu yana değişim {change} ({gap} seans)")
-            basis = _basis_line(growth)
-            if basis:
-                lines.append(basis)
+            found = _basis(growth)
+            if found is not None:
+                lines.append(f"{date_from(growth.index[0].date())} bu yana: {found.line()}")
+            if account == "paper":
+                facts["paper"].update(day=float(growth.iloc[-1] / growth.iloc[-2] - 1) if gap <= 1 else None,
+                                      start=float(growth.iloc[-1] / growth.iloc[0] - 1),
+                                      real=found.real if found is not None else None)
         for p, price, value in rows:
             pnl = value - p.cost
             ret = pnl / p.cost if p.cost else 0.0
@@ -451,6 +472,7 @@ def build_daily(
         alerts += evaluate_account(account, growth)
 
     events = guarded(lambda: update_alert_log(alerts, day, paths.alerts, write=record_alerts), [])
+    facts["risk"] = len(alerts)
     lines += ["", "⚠️ Risk uyarıları"]
     if not alerts and not events:
         lines.append("Uyarı yok.")
@@ -497,7 +519,7 @@ def build_daily(
             lines.append(f"  Güncel olmayan: {', '.join(s.removesuffix('.IS') for s in stale)}")
 
     lines += ["", DISCLAIMER]
-    return DailyResult(day, "\n".join(lines), events, fills)
+    return DailyResult(day, "\n".join(lines), events, fills, facts=facts)
 
 
 # ---------------------------------------------------------------------------
@@ -599,6 +621,61 @@ def _send_part(part: str, token: str, chat_id: int, post, sleep, retryable) -> N
                 raise
             logger.warning("Telegram send failed, retrying | %s", exc)
             sleep(SEND_PAUSES[min(attempt, len(SEND_PAUSES) - 1)])
+
+
+def short_report(day: date, facts: dict, problems: list[str], expect: str | None) -> str:
+    """H (11.11.2026; docs/MESAJ_STILI.md): the evening message. The full report is kept for /rapor_tekrar."""
+
+    from core.reports.style import header, number, percent, score_class
+
+    lines = [header("Akşam raporu", day)]
+    if problems:
+        lines.append(f"⚠️ {len(problems)} konu: " + "; ".join(problems))
+    else:
+        lines.append("✅ Rapor tamam, sorun yok.")
+    if "xu100" in facts:
+        close, change = facts["xu100"]
+        lines.append(f"BIST 100: {number(close, 0)} ({percent(change)})")
+    if "breadth" in facts:
+        share = facts["breadth"]
+        colour, label = score_class(min(max(share, 0), 100))
+        lines.append(f"Piyasa: {colour} {label} (trenddeki hisse %{round(share)})")
+    paper = facts.get("paper")
+    if paper and paper.get("total") is not None:
+        parts = [f"Sanal hesap: {number(paper['total'], 0)} TL"]
+        for key, name in (("day", "bugün"), ("start", "başlangıçtan"), ("real", "reel")):
+            if paper.get(key) is not None:
+                parts.append(f"{name} {percent(paper[key])}")
+        lines.append(" · ".join(parts))
+    if expect:
+        lines.append(f"Senden beklenen: {expect}")
+    lines.append("/summary")
+    return "\n".join(lines)
+
+
+def alarm_messages(day: date, hits: list) -> list[str]:
+    """H: every crossed price alarm as its own message (it fires once)."""
+
+    from core.reports.style import number
+
+    out = []
+    for h in hits:
+        side = "altı" if h.alarm.direction == "below" else "üstü"
+        out.append("\n".join([f"🔔 ALARM · {h.alarm.symbol.removesuffix('.IS')} · {day:%d.%m.%Y}",
+                              f"Kapanış {number(h.close, 2)} TL · koşul: {number(h.alarm.level, 2)} TL {side}",
+                              "/alarm"]))
+    return out
+
+
+def _plain(line: str) -> str:
+    """A problem line for the short message: no leading mark; a technical one becomes a pointer to /durum."""
+
+    from core.reports.style import forbidden
+
+    text = line.strip().lstrip("⚠️❌🛑💾 ").strip()
+    if forbidden(text):
+        return "sağlık kontrolünde sorun var (/durum)"
+    return text.rstrip(".")
 
 
 def _with_backup_line(text: str) -> str:
@@ -1166,18 +1243,22 @@ def date_from(day: date) -> str:
     return f"{day:%d.%m.%Y}{suffix}"
 
 
-def _basis_line(growth: pd.Series) -> str:
-    """Talimat C: growth since the first record, nominal / real / USD / against cash (K-51)."""
+def _basis(growth: pd.Series):
+    """Talimat C: growth since the first record, nominal / real / USD / against cash (K-51); None on failure."""
 
     try:
         from core.market import macro
 
         start, end = growth.index[0].date(), growth.index[-1].date()
-        result = macro.four_basis(float(growth.iloc[-1] / growth.iloc[0] - 1), start, end)
-        return f"{date_from(start)} bu yana: {result.line()}"
+        return macro.four_basis(float(growth.iloc[-1] / growth.iloc[0] - 1), start, end)
     except Exception:  # noqa: BLE001 - extra information; the report still goes out
         logger.exception("Four-basis line failed")
-        return ""
+        return None
+
+
+def _basis_line(growth: pd.Series) -> str:
+    found = _basis(growth)
+    return f"{date_from(growth.index[0].date())} bu yana: {found.line()}" if found is not None else ""
 
 
 def _update_macro() -> None:
@@ -1233,8 +1314,18 @@ def _run_locked(args) -> DailyResult:
         result.text = _before_disclaimer(result.text, reminder)
     if score_warning:
         result.text = _before_disclaimer(result.text, score_warning)
+    before = set(result.text.splitlines())
     result.text = _with_backup_line(result.text)
     result.text = _with_health_warnings(result.text)
+    added = [x for x in result.text.splitlines() if x not in before]  # the backup, restore check and health lines
+
+    # H (11.11.2026): the short message goes out; the full report above is kept for /rapor_tekrar
+    problems = [_plain(x) for x in (score_warning, alarm_line, *added)
+                if isinstance(x, str) and x.lstrip().startswith(("⚠️", "❌", "🛑"))]
+    if isinstance(result.facts, dict) and result.facts.get("risk"):
+        problems.append(f"{result.facts['risk']} risk uyarısı (/alerts)")
+    expect = reminder.removeprefix("Senden beklenen: ") if reminder else None
+    short = short_report(result.day, result.facts if isinstance(result.facts, dict) else {}, problems, expect)
 
     # send first: a problem while printing must never stop the report
     if args.send:
@@ -1242,8 +1333,10 @@ def _run_locked(args) -> DailyResult:
 
         s = require_bot_settings()
         _keep_report_text(result.day, result.text)
-        send_telegram(result.text, s.bot_token, s.chat_id, data=True)
+        send_telegram(short, s.bot_token, s.chat_id, data=True)
         result.status = "sent"
+        for message in alarm_messages(result.day, hits):
+            send_telegram(message, s.bot_token, s.chat_id, data=True)
         _mark_alarms(hits)
         logger.info("Daily report sent to Telegram | %s", result.day)
         _screen_subscriptions(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id, data=True))
