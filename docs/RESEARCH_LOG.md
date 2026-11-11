@@ -465,6 +465,7 @@ Dönemi, evreni, maliyeti ya da kurumsal işlem dolgusunu sonuca göre değişti
 - XU100 al-tut bu dönemde yıllık +%36,0 (2022: +%196,6).
 - Aşırı uyum (bilgi, K-81): en yüksek Sharpe trend kuralı, DSR %100, PBO %73 (CSCV).
 - Raporun "Veri güveni: Yahoo · Seviye 3" satırı canlı fiyatın seviyesidir; r1'in verisi resmî, Seviye 1. Anlamlı çıkan kural olmadığı için karara etkisi yok.
+- **H2/H3 nakit verisi (11.11.2026 14:55, ölçümden önce):** `data/cash/policy_rate.csv`'ye 2015-02 – 2023-02 bir hafta repo değişiklikleri TCMB'nin kendi tablosundan, `withholding.csv`'ye 23.12.2020 öncesi %10 stopaj (Ziraat Bankası vergilendirme tablosu) eklendi. Not: 2017–2018'de fiilî fonlama bir hafta repodan yüksek pencerelerden yapıldı; seri o yıllarda nakdi düşük gösterir, bu H2/H3'ün aleyhinedir. Kural, parametre ve ölçüt aynen; aynı `scripts/r1.py`.
 - **Sonuç:** ölçülebilen yedi kuralın hiçbiri hiç bakılmamış ikinci bir dönemde de XU100'ü geçmedi; "Reddedilen fikir türleri" iki bağımsız dönemde tutarlı. H2/H3 için 2016–2023 politika faizi serisi eklenirse aynı ön kayıtla ölçülebilir (veri işi).
 
 ## a5 ön kaydı — H6a, H6b, H7a, H7b (11.11.2026, kullanıcı kararı F ve I madde 4; değiştirilmez)
