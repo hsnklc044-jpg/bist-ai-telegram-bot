@@ -417,6 +417,33 @@ Research çalışması 40488966701 (kod v0.48.0, `runs/2026-10-27_13-30/phase3.t
 
 ---
 
+## r2 ön kaydı — reddedilen kurallar, eski sistem dönemi 2002–2015 (11.11.2026; K-92; değiştirilmez)
+
+Ölçümden önce, hiçbir sonuç görülmeden yazıldı. r1'in (K-91) devamı: üçüncü, bağımsız dönem.
+
+### Soru
+a1–a3'te reddedilen kurallar 2002–2015'te de XU100'ü geçmiyor mu?
+
+### Veri
+- **Dönem:** 2002-01-02 – 2015-11-13 (eski işlem sisteminin son günü). Isınma 2001-01-02'den. Daha önceki araştırmalar bu döneme hiç bakmadı.
+- **Fiyat:** Borsa İstanbul resmî gün sonu, eski sistem (K-84; 2005 öncesi fiyat ÷ 1.000).
+- **Kurumsal işlem düzeltmesi:** borsanın kendi çarpanı. Eski sistemde bir günün ilk seansının BAZ FIYAT'ı, önceki günün son seansının AOF'sidir (11.11'de 252.849 gün geçişinin %99,8'inde ±%0,5 içinde); sapma (|BAZ / önceki AOF − 1| > %0,5) kurumsal işlemdir (bölünme 0,512, temettü ~0,97 gibi) ve o günden önceki seri bu oranla çarpılır. Temettüler de düzeltildiği için ölçüt **XU100 getiri endeksi**dir (resmî, K-86).
+- **Evren:** o günkü BIST 100 (resmî BSIT100 işareti; 2001'de kısmi, 2002'den tam). 300 seanstan kısa geçmişli hisse dışarıda.
+- **Maliyet:** her yönde %0,10 + %0,05.
+- **Nakit (H2/H3):** politika faizi ve stopaj serisi dönemi kapsamazsa "ölçülemedi" yazılır, tahmin edilmez.
+
+### Kurallar
+a1–a3'ün kod ve parametreleri aynen (`research_report`, `phase3`); a3'ün iki başlangıç kapısı 2002-01-02 ve 2002-06-03. Çalıştırma: `python scripts/r2.py`.
+
+### Ölçüt
+r1 ile aynı: XU100'e göre günlük fazla getirinin 21 seanslık blok bootstrap GA'sı, Bonferroni kural sayısına göre. Tekrar çalışmasıdır; bütçe harcamaz, bir kuralı canlandırmaz.
+
+### Beklenti
+Hepsi geçemez (r1 ve a1–a3 ile tutarlı).
+
+### Reddedilen
+Dönemi, evreni, maliyeti, %0,5 eşiğini ya da ölçüt endeksini sonuca göre değiştirmek; 2015-11 sonrasını eklemek; holdout'a bakmak.
+
 ## r1 ön kaydı — reddedilen kuralların resmî veriyle bağımsız dönemde tekrarı (11.11.2026; K-91; değiştirilmez)
 
 Ölçümden önce, hiçbir sonuç görülmeden yazıldı. Kullanıcı kararı (K madde 7): "veri kısa" sınırı (K-16) resmî kaynakla yeniden değerlendirilir; önce 2015 sonrası ile mevcut testler tekrarlanır, holdout aynen.

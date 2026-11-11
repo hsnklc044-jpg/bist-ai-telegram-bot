@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.146 – 11.11.2026 (r2 ön kaydı ve aracı: reddedilen kurallar 2002–2015; K-92)
+- Ön kayıt (ölçümden önce): a1–a3 kuralları aynen, 2002-01-02 – 2015-11-13, resmî eski sistem fiyatları, resmî BSIT100 üyeliği.
+- Bulgu: eski sistem dosyalarında BAZ FIYAT önceki günün AOF'sine eşit (252.849 geçişin %99,8'i); sapma borsanın kurumsal işlem çarpanı (bölünme, bedelli, temettü). Seri bu çarpanla düzeltilir; ölçüt XU100 getiri endeksi.
+
 ## v0.99.145 – 11.11.2026 (gerçek veriyle prova: /durum ilk ekranında teknik parçalar ayrıntıya)
 - Zincirdeki mesajlar canlı verinin kopyasıyla prova edildi (hiçbir şey gönderilmedi): kısa akşam raporu, robot özeti, haftalık kontrol biçime uygun. `/durum` ilk ekranında bazı kontrol metinlerinde iç kod, komut ve ayar dosyası adı vardı (K-48, M30, `python -m …`, `.env`, OPERATIONS §7).
 - İlk ekran artık bir kontrol metninin yalnız düz kısmını gösterir, kalanı için "(ayrıntı /durum tum)"; `/durum tum` aynen.

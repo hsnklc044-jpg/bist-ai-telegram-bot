@@ -4,6 +4,10 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-92. r2: reddedilen kurallar, 2002–2015 eski sistem dönemi (11.11.2026). Ölçümden önce.**
+- Eski sistemde BAZ FIYAT önceki günün AOF'sidir (%99,8); sapma borsanın kurumsal işlem çarpanıdır ve temettüleri de kapsar. Bu yüzden seri bu çarpanla düzeltilir ve ölçüt XU100 getiri endeksidir.
+- Dönem 2002-01-02 – 2015-11-13, resmî BSIT100 üyeliği, kurallar aynen; ayrıntı RESEARCH_LOG "r2 ön kaydı".
+
 **K-91. r1: reddedilen kuralların resmî veriyle bağımsız dönemde tekrarı (11.11.2026; K madde 7). Ölçümden önce.**
 - Dönem 2016-01-04 – 2023-07-31 (önceki araştırmanın görmediği), resmî fiyat ve endeks, resmî günlük BIST 100 üyeliği; holdout kapalı.
 - 2015 sonrası resmî dosyalarda düzeltme oranı yok: borsanın kurumsal işlem kodunun olduğu günde hissenin getirisi yerine XU100'ün getirisi (06 nakit temettü hariç). Kod anlamları bilinen olaylarla doğrulandı (03 bedelsiz, 01 bedelli, 04 azaltım, 06 temettü).
