@@ -78,8 +78,47 @@ def changelog_title(version: str, changelog: str) -> str:
     return m.group(1) if m else "CHANGELOG'da başlık yok"
 
 
+PROBLEM_STATES = ("⚠️", "🛑")  # core.reports.slo WARN, CRIT; "❔" (cannot be measured) is not a problem here
+ROBOT_LINES = 6
+
+
+def short_text(now: datetime, log_lines: list[str], slo_results, record: dict | None,
+               checks: list[str] | None = None) -> str:
+    """The 21:00 message in the message style (H, 11.11.2026; docs/MESAJ_STILI.md): three lines on a quiet day,
+    at most six with problems; versions, links and the queue are in /robot_detay (summary_text)."""
+
+    from core.reports.style import header
+
+    record = record or {}
+    installed = installs_today(log_lines, now.date())
+    problems = []
+    if stopped():
+        problems.append("Otomatik geliştirme durduruldu; güncelleme kurulmuyor.")
+    if record.get("rollbacks"):
+        problems.append(f"{record['rollbacks']} güncelleme geri alındı.")
+    bad = [r.name for r in slo_results if r.state in PROBLEM_STATES]
+    if bad:
+        problems.append("Hedef dışında: " + ", ".join(bad) + ".")
+    problems += [c.removeprefix("⚠️").strip() for c in (checks or []) if c.startswith("⚠️")]
+    title = header("Robot", now.date())
+    if not problems:
+        status = (f"✅ {len(installed)} güncelleme sorunsuz kuruldu" if installed
+                  else "✅ Bugün güncelleme yok; her şey yolunda")
+        return "\n".join([title, status, f"Yarın: {record.get('next') or 'planlı iş yok'}"])
+    expect = record.get("expect")
+    room = ROBOT_LINES - 3 - (1 if expect else 0)
+    status = f"⚠️ {len(problems)} konu var" + (f"; {len(installed)} güncelleme kuruldu" if installed else "")
+    lines = [title, status, *problems[:room]]
+    if expect:
+        lines.append(f"Senden beklenen: {expect}")
+    lines.append("/robot_detay")
+    return "\n".join(lines)
+
+
 def summary_text(now: datetime, log_lines: list[str], changelog: str, slo_results, record: dict | None,
                  checks: list[str] | None = None) -> str:
+    """/robot_detay: installs with versions and links, rollbacks, every objective, the checks, the queue."""
+
     record = record or {}
     lines = [f"🤖 Otonom günlük özet ({now:%d.%m.%Y}) — yalnız bilgi"]
     flags = stopped()
@@ -104,6 +143,8 @@ def summary_text(now: datetime, log_lines: list[str], changelog: str, slo_result
     if record.get("maturity"):
         lines.append("Olgunluk: " + " · ".join(f"{k} %{v}" for k, v in record["maturity"].items()))
     lines += checks or []
+    if record.get("queue"):
+        lines.append(f"Kuyrukta: {record['queue']}")
     lines.append(f"Yarın sıradaki iş: {record.get('next') or 'kayıt yok'}")
     if now.weekday() == 5:
         from core.reports import slo
@@ -148,7 +189,21 @@ def branches_line(repo: Path | None = None, run=None) -> str:
         return f"⚠️ Dallar: kontrol edilemedi ({type(exc).__name__})"
     if not problems:
         return f"✅ Dallar: {len(names)} yerel dal GitHub'daki kopyasıyla aynı"
-    return f"⚠️ Dallar: {len(names)} dalın {len(problems)}'ü farklı: " + ", ".join(problems)
+    return f"⚠️ Dallar: {len(names)} dalın {of_suffix(len(problems))} farklı: " + ", ".join(problems)
+
+
+_SUFFIX = {0: "'ı", 1: "'i", 2: "'si", 3: "'ü", 4: "'ü", 5: "'i", 6: "'sı", 7: "'si", 8: "'i", 9: "'u"}
+_TENS = {10: "'u", 20: "'si", 30: "'u", 40: "'ı", 50: "'si", 60: "'ı", 70: "'i", 80: "'i", 90: "'ı"}
+
+
+def of_suffix(n: int) -> str:
+    """"N'i" with Turkish vowel harmony, as in "22 dalın 2'si farklı"."""
+
+    if n % 10:
+        return f"{n}{_SUFFIX[n % 10]}"
+    if n % 100:
+        return f"{n}{_TENS[n % 100]}"
+    return f"{n}'ü" if n % 1000 else f"{n}'i"
 
 
 OUTSIDE_PATTERN = "quantbist_depo_disi_*.zip"
@@ -174,7 +229,7 @@ def outside_copy_line(folder: Path | None, now: datetime) -> str:
     return f"{mark} Depo dışı dosyalar: son kopya {at:%d.%m} ({days} gün önce)"
 
 
-def build_summary(now: datetime) -> str:
+def _inputs(now: datetime):
     from core.reports import slo
 
     log_path = LOG_DIR / "quantbist.log"
@@ -188,8 +243,22 @@ def build_summary(now: datetime) -> str:
     except (OSError, ValueError):
         record = None
     checks = [branches_line(), outside_copy_line(None, now)]
-    return summary_text(now, log, changelog, slo.measure(now), record, checks=checks)
+    return log, changelog, slo.measure(now), record, checks
 
 
-__all__ = ["STOP_FILE", "brake_file", "branches_line", "build_summary", "changelog_title", "installs_today", "resume", "stop",
+def build_summary(now: datetime) -> str:
+    """The 21:00 message (short, message style)."""
+
+    log, _, results, record, checks = _inputs(now)
+    return short_text(now, log, results, record, checks=checks)
+
+
+def build_detail(now: datetime) -> str:
+    """/robot_detay."""
+
+    log, changelog, results, record, checks = _inputs(now)
+    return summary_text(now, log, changelog, results, record, checks=checks)
+
+
+__all__ = ["STOP_FILE", "brake_file", "branches_line", "build_detail", "build_summary", "short_text", "changelog_title", "installs_today", "resume", "stop",
            "stopped", "summary_text"]

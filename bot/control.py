@@ -57,6 +57,15 @@ async def otonom_stop_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     await reply(update, await asyncio.to_thread(otonom.stop, now_istanbul()))
 
 
+async def robot_detail_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /robot_detay: today's updates with versions and links, rollbacks, every objective, the queue."""
+
+    from core import otonom
+    from core.market.calendar import now_istanbul
+
+    await reply(update, await asyncio.to_thread(otonom.build_detail, now_istanbul()))
+
+
 async def otonom_resume_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /otonom_devam: lift the user's stop flag and the automatic brake."""
 

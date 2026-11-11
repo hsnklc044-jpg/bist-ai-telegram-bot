@@ -84,6 +84,10 @@ class OutsideCopyTest(unittest.TestCase):
             os.utime(new, (NOW.timestamp(), (NOW - timedelta(days=9)).timestamp()))
             self.assertIn("⚠️ Depo dışı dosyalar: son kopya", otonom.outside_copy_line(Path(d), NOW))
 
+    def test_the_turkish_suffix_after_a_number(self):
+        self.assertEqual([otonom.of_suffix(n) for n in (1, 2, 3, 4, 5, 6, 9, 10, 22, 40, 100)],
+                         ["1'i", "2'si", "3'ü", "4'ü", "5'i", "6'sı", "9'u", "10'u", "22'si", "40'ı", "100'ü"])
+
     def test_the_summary_carries_both_lines(self):
         text = otonom.summary_text(NOW, [], "", [], {"next": "x"}, checks=["✅ Dallar: 1", "✅ Depo dışı: 1"])
         lines = text.splitlines()
@@ -91,7 +95,7 @@ class OutsideCopyTest(unittest.TestCase):
         self.assertLess(lines.index("✅ Depo dışı: 1"), lines.index("Yarın sıradaki iş: x"))
         import inspect
 
-        source = inspect.getsource(otonom.build_summary)
+        source = inspect.getsource(otonom._inputs)
         self.assertIn("branches_line(", source)
         self.assertIn("outside_copy_line(", source)
 

@@ -96,7 +96,7 @@ class SummaryTest(unittest.TestCase):
         otonom.day_file().write_text(json.dumps({"day": "2026-11-09", "rollbacks": 3, "next": "x"}), encoding="utf-8")
         with mock.patch("core.reports.slo.measure", return_value=SLO), \
                 mock.patch.object(otonom, "LOG_DIR", otonom.TOOLS_DIR):
-            text = otonom.build_summary(NOW)
+            text = otonom.build_detail(NOW)  # the full record is /robot_detay since the message style (H)
         self.assertIn("Geri dönüş: 0", text)
         self.assertIn("Yarın sıradaki iş: x", text)
 

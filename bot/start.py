@@ -27,7 +27,7 @@ Komutlar:
 /temel THYAO – temel puanlar: Piotroski F, Altman Z'', Beneish M, Greenblatt, Novy-Marx (yayın tarihli veriden; veri yoksa 'veri yok')
 /summary – portföy ve piyasa özeti
 /panik – acil durdurma: bekleyen sinyalleri iptal eder, açık pozisyonları son kapanıştan kapatır, taramaları kilitler; /devam – kilidi kaldırır
-/otonom_dur – otonom geliştirmeyi durdurur (birleştirme, canlı kurulum, silme yapılmaz; bot ve rapor çalışır); /otonom_devam – yeniden açar
+/otonom_dur – otonom geliştirmeyi durdurur (birleştirme, canlı kurulum, silme yapılmaz; bot ve rapor çalışır); /otonom_devam – yeniden açar; /robot_detay – robotun bugünkü güncellemeleri ve bağlantıları
 /watchlist – takip listesi
 /watchadd EREGL – listeye ekle
 /watchremove EREGL – listeden çıkar

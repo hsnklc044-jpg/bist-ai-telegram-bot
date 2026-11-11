@@ -30,7 +30,7 @@ from bot.analysis import (
     upper_cmd,
 )
 from bot.commands_risk import risk
-from bot.control import otonom_resume_cmd, otonom_stop_cmd, panic_cmd, resume_cmd
+from bot.control import otonom_resume_cmd, otonom_stop_cmd, panic_cmd, resume_cmd, robot_detail_cmd
 from bot.portfolio import (
     alerts,
     calendar,
@@ -115,6 +115,7 @@ COMMANDS = (
     ("devam", resume_cmd),
     ("otonom_dur", otonom_stop_cmd),
     ("otonom_devam", otonom_resume_cmd),
+    ("robot_detay", robot_detail_cmd),
     ("rapor_tekrar", resend),
     ("yil", yearly),
     ("stres", stress_test),
@@ -184,6 +185,7 @@ MENU = (
     ("paper", "sanal emir"),
     ("otonom_dur", "otonom geliştirmeyi durdur: birleştirme, kurulum, silme yok; bot çalışır"),
     ("otonom_devam", "otonom geliştirmeyi yeniden aç (frenleri de kaldırır)"),
+    ("robot_detay", "robotun bugünkü güncellemeleri, bağlantılar ve kuyruk"),
 )
 
 

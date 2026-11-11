@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.135 – 11.11.2026 (21:00 robot özeti mesaj stilinde; ayrıntı /robot_detay'da)
+- Mesaj stili (H): sorun yoksa üç satır ("ROBOT · tarih", "✅ N güncelleme sorunsuz kuruldu", "Yarın: …"); sorun varsa durum satırı, sorunlar düz dille (durdurma bayrağı, geri dönüş, hedef dışındaki hedefler, farklı dal, eski depo dışı kopya), varsa "Senden beklenen:", "/robot_detay"; en fazla altı satır. Sürüm numaraları, bağlantılar ve kuyruk mesajda yok.
+- Yeni `/robot_detay`: bugünkü güncellemeler sürüm ve CI bağlantılarıyla, geri dönüş, bütün hedefler, dal ve yedek satırları, kuyruk, yarın sıradaki iş (önceki 21:00 mesajının tamamı); cumartesi haftalık tablo.
+- Türkçe ek: "22 dalın 1'i farklı" (sayının sesine göre ek).
+- Doğrulama: `test_robot_message` (önce başarısız testler: sessiz gün üç satır, kurulumsuz gün, sorunlu gün ve altı satır sınırı, stil denetimi, sürüm ve bağlantıların detayda kalması, iş ve komut bağlantısı); `test_otonom` ve `test_safekeeping` yeni yapıya göre.
+
 ## v0.99.134 – 11.11.2026 (a5 ön kaydı: H6a, H6b, H7a, H7b; ölçüm yok; K-89)
 - Kullanıcı kararı (11.11, F ve I madde 4): dört hipotez veri görülmeden ön kayda alındı (RESEARCH_LOG "a5 ön kaydı"). Değer + kalite (PD/DD en düşük %30 ve Piotroski F ≥ 7), aynısı + 200 günlük ortalama, betik karnesi ≥ 70 / < 50 ve profesyonel puan ≥ 70 / < 50; eşit ağırlık, en fazla 10 pozisyon.
 - Açıkça yazılan çakışmalar: döngü bütçesi 3 iken 4 hipotez (kullanıcının istisnası, Bonferroni 4); 6 ay kuralı aynen (tarama en erken 27.10.2027); H7'ler reddedilen teknik sinyal ailesinden (beklenti GEÇMEDİ). "Geçti" yalnız Seviye 1/2 veriyle.
