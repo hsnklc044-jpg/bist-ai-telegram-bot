@@ -2,6 +2,18 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.127 – 11.11.2026 (Borsa İstanbul resmî gün sonu fiyatları: okuyucu ve data/official.db; K-84)
+- Kullanıcı kararı (11.11): Borsa İstanbul DataStore'un ücretsiz aylık "Gün Sonu Fiyat ve İşlem Hacmi" dosyaları Seviye 1 kaynak. Kullanıcı dosyaları elle indirip `data/inbox/bist`'e koyar (Ocak 1988 – Ekim 2026, 467 dosya, 2,4 GB); otomatik giriş ya da indirme yok.
+- Okuyucu (`core/official/prices.py`): başlıklar isimle eşleşir; bilinen üç biçim (11.11'de 467 dosyanın başlığı okunarak bulundu): eski sistem (Kasım 2015'e kadar, seanslı), yeni sistem 2015–2019 (gün ortası sütunlarıyla) ve 2019 sonrası. Bilinmeyen başlık ya da eksik alan dosyayı reddeder, nedeni yazılır. Yalnız normal hisseler (.E / seri E); varant, sertifika, fon dışarıda.
+- Eski sistem: bir günün seansları birleşir (kapanış son seansın, yüksek/düşük en uç, hacim ve adet toplam, önceki kapanış ilk seansın). Açılış fiyatı yoksa boş kalır, uydurulmaz. Virgüllü ve noktalı ondalık, Latin-5 kodlama okunur.
+- **2005 öncesi birimler (talimattan farklı, kanıtlı):** fiyat ÷ 1.000, adet ÷ 1.000, TL hacim ÷ 1.000.000. 1 Ocak 2005'te altı sıfır atıldı ve 1.000 eski pay bir pay oldu. Talimattaki "fiyat ÷ 1.000.000" ile 03.01.2005'te 297 hissede 1.000 katlık sıçrama çıktı (THYAO 29.12.2004 7950 → 03.01.2005 7,85; dosyanın kendi "önceki kapanış" alanı 7,95). ÷ 1.000 ile sıçrama yok; hacim/adet/kapanış oranı 1988–2006 her yıl ~1,00.
+- Kasım 2015'in iki dosyası birlikte okunur (eski: 02–27.11, yeni: 30.11); iki dosyada aynı gün yok, olursa raporlanır.
+- Sonuç ayrı veritabanında: `data/official.db` (yalnız normal hisseler, gereken sütunlar); `market.db` ve akış değişmedi. Ham dosyalar yalnız okunur; değiştirilmez, taşınmaz, silinmez; git'e ve günlük yedeğe girmez.
+- İlk doldurma ve sonraki aylar gece 02:30'da botun işiyle (bot açılışında ve 18:00–20:00'de ağır okuma yok). Yalnız yeni ya da değişmiş dosyalar okunur. Okunan ya da reddedilen dosya varsa tek kısa mesaj.
+- Gerçek dosyalarla deneme (11.11, deneme veritabanına): 467 dosya 128 sn, 3.100.577 hisse-gün, 0 red, 0 çakışma, veritabanı 443 MB. Yahoo ile 2026 Ağustos–Ekim, 6 hisse: 5'inde kapanışlar birebir aynı, BIMAS'ta bir gün %0,59 fark.
+- Bulgu: BIST 100 üyelik işareti eski sistem dosyalarında da var (2001'den itibaren dolu, günde ortalama 100 hisse); BIST 30 işareti 16.11.2015'ten.
+- Doğrulama: `test_official_prices` (önce başarısız testler: iki başlık satırı ve yalnız .E, 2015–2019 başlığı, seans birleştirme, açılışın uydurulmaması, 2005 geçişi, Latin-5, bilinmeyen/eksik başlıkta red, bir kez okuma ve ham dosyaya dokunmama, Kasım 2015, üyelik işaretleri, gece işi, yedek dışı).
+
 ## v0.99.126 – 11.11.2026 (kaynak değiştirmeye hazırlık: her fiyat satırının kaynağı, tek kaynak arayüzü; K-83)
 - Fiyat deposunda her satırın kaynağı tutulur (`price_sources` tablosu, `prices` ile aynı anahtar). Bu sürümden önce yazılan satırlar Yahoo sayılır. Ayrı tablo seçildi, çünkü `prices`'a 8. sütun eklemek önceki sürüme geri dönüşte eski yazma kodunu bozardı (K-83).
 - Fiyat ve temel veri için tek kaynak arayüzü (`core/market/sources.py`). Lisanslı bir kaynak üç şey varken bağlanır: kullanım şartları `docs/DATA_SOURCES.md`'ye yazıldıktan sonra yazılmış bir adaptör, `.env`'de `QUANTBIST_PRICE_SOURCE` (adı) ve `QUANTBIST_PRICE_SOURCE_KEY` (anahtarı). Bugün kayıtlı adaptör yok; kaynak seçimi kullanıcının.

@@ -4,6 +4,14 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-84. Borsa İstanbul resmî gün sonu dosyaları: okuma kuralları (11.11.2026; kullanıcı kararı K bölümü).**
+- **Kaynak:** DataStore "Gün Sonu Fiyat ve İşlem Hacmi", aylık, 0 TL, yalnız kişisel kullanım; kullanıcı elle indirir. Seviye 1 (K-82).
+- **Biçim tanıma:** başlıklar isimle; bilinen üç biçimin alan listesi koddadır (11.11'de 467 dosyanın başlığından). Listede olmayan bir başlık ya da gerekli alanın eksikliği dosyayı reddeder; tahmin yapılmaz.
+- **2005 öncesi:** fiyat ÷ 1.000, adet ÷ 1.000, TL hacim ÷ 1.000.000. Kullanıcının talimatı fiyat ve hacim için ÷ 1.000.000 diyordu; talimatın kendi kabul ölçütü ("2004 sonu ile 2005 başı arasında sıçrama yok") bununla sağlanmadı (297 hissede 1.000 kat). Gerekçe: 1 Ocak 2005'te altı sıfırın atılmasıyla birlikte 1.000 eski pay 1 paya birleşti; dosyalardaki fiyat eski payın fiyatıdır. Kanıt: dosyanın 03.01.2005 satırındaki "önceki kapanış" alanı ve hacim/adet/kapanış oranının her yıl ~1 olması.
+- **Eski sistem seansları:** kapanış son işlem gören seansın kapanışı; yüksek ve düşük seansların en ucu; hacim ve adet toplam; önceki kapanış ilk seansın. Açılış fiyatı dosyada yoksa boş.
+- **Depolama:** `data/official.db`, yalnız normal hisseler ve gereken sütunlar. Ham klasör ve bu veritabanı yedeğe girmez: ham dosyalar DataStore'dan yeniden indirilebilir, veritabanı onlardan yeniden kurulur (DISASTER_RECOVERY).
+- **Değişmeyen:** `market.db`, fiyat akışı, hesaplar. Resmî verinin araştırmada ve "Veri doğruluğu" hedefinde kullanımı ayrı sürümde.
+
 **K-83. Fiyat satırının kaynağı ayrı tabloda; lisanslı kaynak arayüzü (11.11.2026; J madde 4).**
 - **Ne:** Her fiyat satırının kaynağı `price_sources(symbol, date, source)` tablosunda, `prices` ile aynı anahtarla. Kaydı olmayan satır Yahoo'dur (bu sürümden önce yazılmıştır).
 - **Neden sütun değil tablo:** 0.99.125 ve öncesi `INSERT OR REPLACE INTO prices VALUES (7 değer)` ile yazar. `prices`'a 8. sütun eklenirse geri dönüşte eski sürüm fiyat yazamaz. Ayrı tablo eski sürüme görünmez; geri dönüş güvenli kalır.

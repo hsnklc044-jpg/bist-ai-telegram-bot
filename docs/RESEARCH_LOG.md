@@ -13,6 +13,15 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+## 11.11.2026 – Borsa İstanbul resmî gün sonu verisi: kapsam (ölçüm değil)
+Kaynak DataStore (K-84), 01.1988–10.2026, 467 dosya; deneme veritabanında okundu. Getiri ölçülmedi, holdout'a bakılmadı.
+- 3.100.577 hisse-gün; 0 reddedilen dosya; Kasım 2015'in iki dosyasında çakışan gün yok.
+- 2005 geçişi: fiyat ÷ 1.000 ve adet ÷ 1.000 ile 297 hissenin hiçbirinde sıçrama yok (÷ 1.000.000 ile hepsinde 1.000 kat).
+- **Üyelik:** BIST 100 işareti 2001'den (2001'de satırların %37'si, 2002'den itibaren hepsi işaretli), günde ortalama 100 hisse. BIST 30 işareti 16.11.2015'ten. 2001 öncesi için üyelik bu dosyalardan kurulamaz; o dönemde araştırma evreni ayrıca belirlenir.
+- Açılış fiyatı: 2007 öncesi yok; 2007–2015 satırların %8–28'inde yok (eski sistemde yalnız açılış seansı fiyatı var).
+- Yahoo ile 2026 Ağustos–Ekim, 6 hisse: 5'inde günlük kapanış birebir aynı; BIMAS'ta bir gün %0,59 fark.
+- Bu kaynak K-16'daki "veri kısa" sınırını kaldırabilir; yeniden değerlendirme ve mevcut testlerin 2015 sonrası tekrarı ayrı sürümde ve holdout kuralıyla.
+
 ## 05.11.2026 – A ve B veri farkı sayıları (K-80 madde 6; ölçüm değil)
 Getiri ve K-63/K-64 çalıştırılmadı; iki görüntü de holdout öncesi. Hangi indirmenin doğru olduğu bilinmiyor; bağımsız kaynak yok.
 - **Saatlik, 30 hisse, 248 seans** (`scripts/veri_farki.py saatlik`):

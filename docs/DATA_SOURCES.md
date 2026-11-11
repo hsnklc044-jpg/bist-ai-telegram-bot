@@ -43,6 +43,7 @@ Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştır
 | TCMB EVDS | USD/TRY, TÜFE serisi (C, planlı) | web servisi, API anahtarı | kaynak gösterilerek kullanılabilir ve yayımlanabilir (arşivli) | **planlı, yedek yol**; anahtar kullanıcı adımı |
 | Yahoo `USDTRY=X` | USD/TRY ikinci kaynak (C, planlı) | yfinance | Yahoo ile aynı | **planlı** |
 | TÜFE (TÜİK verisi, TCMB tablosu) | reel getiri | TCMB "Tüketici Fiyatları" sayfası | TCMB site şartları: kaynak gösterilerek, ticari olmayan (arşivli) | **kullanımda (v0.95.0)**; `data/macro/cpi.csv` + PC'nin eklediği aylar |
+| Borsa İstanbul DataStore gün sonu dosyaları | resmî fiyat, hacim, BIST 100/30 üyelik işaretleri (1988–) | **kullanıcı elle indirir** (`data/inbox/bist`), 0 TL | DataStore koşulu: yalnız kişisel kullanım; kullanım şartlarını kullanıcı kontrol etti (11.11.2026) | **Seviye 1, okuyucu v0.99.127** (K-84); yeniden yayımlanmaz, depoya girmez |
 | Borsa İstanbul (site ve dosyaları) | sektör üyeliği (C, planlı); BIST 100 değişiklikleri (mevcut) | `borsaistanbul.com` | robots.txt `Allow: /`, ama telif bildirimi bilgilerin yazılı izinsiz "kopya edilemez … ileride kullanılmak üzere saklanamaz" diyor (arşivli) | **sektör dosyası kullanılmaz**; mevcut kullanım AUDIT D14, kullanıcı kararı |
 
 ## Ayrıntı
@@ -105,6 +106,13 @@ Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştır
 - **Koşul:** Ağ erişimi yok, otomatik toplama yok. Kullanıcı dosyayı kendi hakkıyla indirir.
 - **Kural:** Kökeni Yahoo olan dosya reddedilir; doğrulama birincil kaynağa geri düşmez (K-70).
 - **Komut:** `python -m core.market.second_source --dosya DOSYA.csv --kaynak "nereden geldiği"`. Özet `logs/price_second_source.json`'a yazılır ve "Veri doğruluğu" SLO'sunda kaynağıyla görünür.
+
+### Borsa İstanbul DataStore (resmî gün sonu dosyaları, K-84)
+- **Ne:** "Pay Piyasası Verileri → Gün Sonu Fiyat ve İşlem Hacmi Bilgileri", aylık `PP_GUNSONUFIYATHACIM.M.YYYYMM.csv`. Ücret 0 TL. Güven: Seviye 1.
+- **Erişim:** kullanıcı DataStore'dan elle indirir ve `data/inbox/bist`'e koyar. Her ay yeni ayın dosyası. DataStore'a otomatik giriş ya da indirme yapılmaz.
+- **Koşul:** yalnız kişisel kullanım (DataStore koşulu). Kullanım şartlarını kullanıcı kontrol etti (11.11.2026). Dosyalar depoya girmez, yeniden yayımlanmaz; `data/inbox/` git dışında (testli).
+- **Okuma:** `core/official/prices.py` → `data/official.db`. Biçimler ve 2005 öncesi birimler K-84'te.
+- **Endeks dosyaları** (`data/inbox/bist_endeks`, "Gün Sonu Endeks ve İşlem Hacmi"): indirildi; okuyucusu ayrı sürümde.
 
 ### Borsa İstanbul
 - **Telif bildirimi** (`sources/2026-10-28_20-28-55/001.html`):

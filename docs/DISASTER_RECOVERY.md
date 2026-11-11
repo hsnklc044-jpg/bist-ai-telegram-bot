@@ -49,6 +49,17 @@ Yerel otomasyon ayda bir çalıştırır; canlı dosyalara dokunmaz:
 ```
 Beklenen: her dosya için "okundu" satırı. Rapor da haftada bir aynı testi yapar; sonuç `/durum`'daki "Yedek" hedefinde görünür.
 
+## 2a. Borsa İstanbul resmî verisi (yedekte yok, yeniden kurulur)
+
+- `data/inbox/bist` ve `data/inbox/bist_endeks` (yaklaşık 2,5 GB) günlük yedeğe girmez. Kaynak: Borsa İstanbul DataStore, "Pay Piyasası Verileri → Gün Sonu Fiyat ve İşlem Hacmi Bilgileri" ve "Gün Sonu Endeks ve İşlem Hacmi Bilgileri". Kullanıcı DataStore kütüphanesinden aylık dosyaları yeniden indirir ve aynı klasörlere koyar.
+- `data/official.db` (yaklaşık 450 MB) de yedeğe girmez; ham dosyalardan yeniden kurulur:
+```powershell
+.venv\Scripts\python -m core.official.prices
+.venv\Scripts\python -m core.official.prices --durum
+```
+  Tam doldurma bu PC'de yaklaşık 2 dakika sürer. Bot da her gece 02:30'da yalnız yeni dosyaları okur.
+- Kişisel yedeğin boyutu ve süresi değişmez; haftalık geri yükleme testi etkilenmez.
+
 ## 3. Token sızdı (ya da sızdığından şüpheleniliyor)
 
 1. Telegram'da **@BotFather** → `/revoke` → botu seç. Eski token anında geçersiz olur.

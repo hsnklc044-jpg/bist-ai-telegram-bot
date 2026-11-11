@@ -15,6 +15,7 @@ from bot.scheduler import (
     schedule_heartbeat,
     schedule_macro_refresh,
     schedule_morning_screens,
+    schedule_official_prices,
     schedule_otonom_summary,
     schedule_portfolio_health,
     schedule_report_watch,
@@ -110,6 +111,7 @@ def build_app() -> Application:
     schedule_otonom_summary(app, config.chat_id)
     schedule_morning_screens(app, config.chat_id)
     schedule_signal_tracking(app, config.chat_id)
+    schedule_official_prices(app, config.chat_id)
 
     return app
 

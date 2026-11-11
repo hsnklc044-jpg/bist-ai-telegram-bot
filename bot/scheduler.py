@@ -476,6 +476,48 @@ def schedule_macro_refresh(app: Application) -> bool:
     return True
 
 
+OFFICIAL_JOB = "official_prices"
+
+
+def official_message(result) -> str | None:
+    """Only when something was read or refused; nothing on a quiet night."""
+
+    if not result.files:
+        return None
+    lines = [f"📥 Borsa İstanbul gün sonu dosyaları: {result.files - len(result.rejected)} dosya okundu"]
+    if result.rejected:
+        lines.append(f"⚠️ {len(result.rejected)} dosya okunamadı: " + "; ".join(r.split(':')[0] for r in result.rejected[:3]))
+        lines.append("Ayrıntı: python -m core.official.prices --durum")
+    return "\n".join(lines)
+
+
+async def official_prices_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """K: the official monthly files the user dropped into data/inbox/bist; the first fill and then only new
+    months, at night (never at bot start or during the 18:00–20:00 report window)."""
+
+    from core.official import prices
+
+    try:
+        result = await asyncio.to_thread(prices.import_folder)
+    except Exception:  # noqa: BLE001 - the bot never stops on this
+        logger.exception("Official prices import failed")
+        return
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    text = official_message(result)
+    if chat and text:
+        await context.bot.send_message(chat, text)
+
+
+def schedule_official_prices(app: Application, chat_id: int | None = None) -> bool:
+    from core.official.prices import IMPORT_AT
+
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_daily(official_prices_job, time=IMPORT_AT.replace(tzinfo=ISTANBUL), name=OFFICIAL_JOB,
+                            chat_id=chat_id)
+    return True
+
+
 HEARTBEAT_JOB = "heartbeat"
 
 
