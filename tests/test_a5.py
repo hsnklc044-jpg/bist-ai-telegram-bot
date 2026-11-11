@@ -34,3 +34,15 @@ class A5Test(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class R1Test(unittest.TestCase):
+    """K-91: the r1 replication was pre-registered before any measurement."""
+
+    def test_the_period_the_data_and_the_rules(self):
+        log = Path("docs/RESEARCH_LOG.md").read_text(encoding="utf-8")
+        start = log.index("## r1 ön kaydı")
+        text = log[start:log.index("\n## ", start + 5)]
+        for part in ("2016-01-04 – 2023-07-31", "holdout", "XU100'ün o günkü getirisi", "deneme bütçesinden harcamaz",
+                     "### Reddedilen", "### Beklenti"):
+            self.assertIn(part, text)

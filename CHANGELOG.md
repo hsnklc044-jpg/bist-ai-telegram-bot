@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.143 – 11.11.2026 (r1 ön kaydı: reddedilen kurallar 2016–2023/07 resmî veriyle; ölçüm yok; K-91)
+- K madde 7: "veri kısa" sınırı resmî kaynakla kalkıyor. Ölçümden önce yazılan ön kayıt: a1–a3'te reddedilen kurallar aynen, hiç bakılmamış 2016-01 – 2023-07 döneminde, resmî fiyat/endeks ve resmî günlük BIST 100 üyeliğiyle; holdout kapalı.
+- Bulgu: 2015 sonrası resmî dosyalarda bedelsiz/bedelli düzeltme oranı yok (REFERANS FIYAT 0); kurumsal işlem günü hissenin getirisi yerine XU100'ün getirisi kullanılacak. Borsanın kodlarının anlamı bilinen olaylarla doğrulandı: 03 bedelsiz/bölünme, 01 bedelli, 04 sermaye azaltımı, 06 nakit temettü (2015 öncesi dosyalarda "BAZ FIYAT" düzeltme bilgisini veriyor).
+- Tekrar çalışmasıdır: deneme bütçesinden harcamaz, bir kuralı canlandırmaz.
+
 ## v0.99.142 – 11.11.2026 (şablonlara temel koşullar, deger_kalite_trend, üç abonelik kapandı; K-90)
 - Kullanıcı kararı (11.11, E madde 2–6): eşiği bilinen temel koşullar şablonlara döndü (05 piyasa değeri > 2 milyar TL; 08 piyasa değeri 1–2 milyar TL ve FSO < 1; tek tuş trend piyasa değeri > 10 milyar TL). Eşiği yazılı olmayan gelir artışı, ÖGO, borç/özkaynak "eşiği kullanıcıdan bekleniyor".
 - Yeni şablon `deger_kalite_trend` (PD/DD evrenin en ucuz %30'u, Piotroski ≥ 7, kapanış > SMA200, likidite elemesi); yeni alan `pd_dd_sira`. Temel veri gelene kadar liste boştur ve cevap nedenini söyler.

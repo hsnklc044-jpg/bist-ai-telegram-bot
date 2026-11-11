@@ -4,6 +4,11 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-91. r1: reddedilen kuralların resmî veriyle bağımsız dönemde tekrarı (11.11.2026; K madde 7). Ölçümden önce.**
+- Dönem 2016-01-04 – 2023-07-31 (önceki araştırmanın görmediği), resmî fiyat ve endeks, resmî günlük BIST 100 üyeliği; holdout kapalı.
+- 2015 sonrası resmî dosyalarda düzeltme oranı yok: borsanın kurumsal işlem kodunun olduğu günde hissenin getirisi yerine XU100'ün getirisi (06 nakit temettü hariç). Kod anlamları bilinen olaylarla doğrulandı (03 bedelsiz, 01 bedelli, 04 azaltım, 06 temettü).
+- Tekrar çalışmasıdır; deneme bütçesinden harcamaz ve bir kuralı canlandırmaz. Ayrıntı RESEARCH_LOG "r1 ön kaydı".
+
 **K-90. Taramalar: teknik + temel (11.11.2026; kullanıcı kararı E).**
 - Kullanıcının şablonlarına eşiği bilinen temel koşullar geri eklendi: 05 piyasa değeri > 2 milyar TL; 08 piyasa değeri 1–2 milyar TL ve FSO < 1; tek tuş trend piyasa değeri > 10 milyar TL. 05 ve 06'daki gelir artışı, ÖGO ve borç/özkaynak eşikleri hiçbir yerde yazılı değil (28.10'daki ekran görüntülerinden yalnız teknik kısım alınmıştı): tahmin edilmez, "eşiği kullanıcıdan bekleniyor" diye yazılır.
 - Yeni şablon `deger_kalite_trend`: `pd_dd_sira<=30 piotroski>=7 kapanis>sma(200)`, likidite elemesi varsayılan. "En düşük %30" için `pd_dd_sira` (taranan evrende yüzdelik; verisi olmayan sırada yok).

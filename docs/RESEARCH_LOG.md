@@ -417,6 +417,34 @@ Research çalışması 40488966701 (kod v0.48.0, `runs/2026-10-27_13-30/phase3.t
 
 ---
 
+## r1 ön kaydı — reddedilen kuralların resmî veriyle bağımsız dönemde tekrarı (11.11.2026; K-91; değiştirilmez)
+
+Ölçümden önce, hiçbir sonuç görülmeden yazıldı. Kullanıcı kararı (K madde 7): "veri kısa" sınırı (K-16) resmî kaynakla yeniden değerlendirilir; önce 2015 sonrası ile mevcut testler tekrarlanır, holdout aynen.
+
+### Soru
+a1–a3'te reddedilen kurallar (RESEARCH_LOG "Reddedilen fikir türleri"; 2022–2026'da XU100'ü geçmediler) hiç bakılmamış bir dönemde de geçmiyor mu?
+
+### Veri
+- **Dönem:** 2016-01-04 – 2023-07-31. Daha önceki araştırmanın gördüğü 2023-08-01 sonrası ve holdout (02.11.2026'dan) dışarıda.
+- **Fiyat:** Borsa İstanbul resmî gün sonu (K-84), XU100 resmî endeks (K-86); Seviye 1.
+- **Evren:** o günkü BIST 100 (resmî günlük işaret, kod değişiklikleri ALIASES ile; K-85).
+- **Kurumsal işlem günleri:** resmî dosyalarda 2015 sonrası düzeltme oranı yok (REFERANS FIYAT 0; ONCEKI KAPANIS ham). Bu yüzden borsanın kodunun olduğu günde (01 bedelli, 03 bedelsiz/bölünme, 04 sermaye azaltımı, 05, 99) hissenin o günkü getirisi yerine XU100'ün o günkü getirisi kullanılır (piyasa nötr dolgu); 06 (nakit temettü) günü ham getiriyle kalır (temettü dahil edilmez; XU100 de fiyat endeksi). Kod anlamları 11.11'de bilinen olaylarla doğrulandı (bedelsiz → 03, bedelli → 01, azaltım + bedelli → 01&04; 06'nın %88'i Mart–Ağustos, ortalama −%1,9).
+- **Maliyet:** her yönde %0,10 + %0,05 (RESEARCH_PROGRAM).
+
+### Kurallar
+a1–a3'ün kod ve parametreleri aynen (`core/backtest/research.py` ana tablo ve aday kurallar, `phase3.py` H1–H3); yeni parametre yok.
+
+### Ölçüt
+- XU100'e göre günlük fazla getirinin 21 seanslık blok bootstrap GA'sı, Bonferroni kural sayısına göre.
+- **Bu bir tekrar çalışmasıdır, yeni hipotez değildir:** deneme bütçesinden harcamaz. Bir kuralın burada "geçmesi" onu canlandırmaz; yalnız bilgi olarak yazılır ve ancak yeni bir döngüde ön kayıtla aday olabilir (çünkü kural 2022–2026 verisine bakılarak seçilmişti).
+- Beklenen kullanım: "reddedildi" kararının dayanıklılığı. Hepsi yine geçemezse ret iki bağımsız dönemde tutarlıdır.
+
+### Beklenti
+Kuralların hepsi geçemez (BIST'te 2016–2023 de yüksek enflasyon ve yüksek oynaklık dönemi; teknik kuralların maliyet sonrası XU100'ü geçmesi beklenmez).
+
+### Reddedilen
+Dönemi, evreni, maliyeti ya da kurumsal işlem dolgusunu sonuca göre değiştirmek; 2023-08 sonrasını eklemek; holdout'a bakmak.
+
 ## a5 ön kaydı — H6a, H6b, H7a, H7b (11.11.2026, kullanıcı kararı F ve I madde 4; değiştirilmez)
 
 Bu bölüm **dört kuralın hiçbiri hiçbir veride hesaplanmadan** yazıldı ve commit'iyle zaman damgalandı. Önceki "a5 ön kayıt taslağı" (H6 kârlılık + değer, Novy-Marx) bunun yerine geçti; taslak silinmedi, aşağıda duruyor.
