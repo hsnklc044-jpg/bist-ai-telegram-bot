@@ -20,6 +20,9 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from core.config.paths import LOG_DIR
+from core.infrastructure.logger import get_logger
+
+logger = get_logger(__name__)
 
 DRILL_URL = ("https://raw.githubusercontent.com/hsnklc044-jpg/bist-ai-telegram-bot/"
              "research-results/drills/latest.txt")
@@ -63,20 +66,43 @@ def drill_line(now: datetime, get=None) -> str:
     return f"✅ Felaket kurtarma tatbikatı: {drill.day:%d.%m.%Y} başarılı (temiz Windows'a yedekten kurulum)"
 
 
+PROBLEM_LINES = 2  # the message style: at most six lines with problems
+
+
 def summary(now: datetime | None = None) -> str:
-    import core
+    """H (11.11.2026): "HAFTALIK KONTROL · date" and "✅ Sistem sağlıklı" when every objective is met and the
+    disaster recovery drill passed; otherwise how many objectives are met, the problems, one sentence and /durum.
+    The objective lines and the version are in /durum tum and /robot_detay."""
+
     from core.market.calendar import now_istanbul
+    from core.otonom import of_suffix
     from core.reports import slo
+    from core.reports.style import header
 
     now = now or now_istanbul()
-    lines = [f"🗒 Haftalık işletme özeti ({now:%d.%m.%Y}) – kurulu sürüm v{core.__version__}"]
+    title = header("Haftalık kontrol", now.date())
+    problems = []
     try:
-        lines += slo.lines(slo.measure(now))
-    except Exception as exc:  # noqa: BLE001 - the summary still goes out
-        lines.append(f"📐 SLO ölçülemedi: {type(exc).__name__}: {str(exc)[:150]}")
-    lines.append(drill_line(now))
-    lines.append("Ayrıntı: /durum tum. Bir hedef tutmuyorsa önce o düzeltilir (CHARTER §4).")
-    return "\n".join(lines)
+        results = slo.measure(now)
+        met = sum(r.state == slo.OK for r in results)
+        problems += [f"{r.name}: {'ölçülemiyor' if r.state == slo.UNKNOWN else 'hedef dışında'}"
+                     for r in results if r.state != slo.OK]
+        total = len(results)
+    except Exception:  # noqa: BLE001 - the summary still goes out
+        logger.exception("Weekly objectives failed")
+        met, total = 0, 0
+        problems.append("hedefler ölçülemedi")
+    drill = drill_line(now)
+    if not drill.startswith("✅"):
+        problems.append("Felaket kurtarma tatbikatı: " + ("başarısız" if drill.startswith("❌") else "sonucu okunamadı"
+                                                           if drill.startswith("❔") else "eski"))
+    if not problems:
+        return f"{title}\n✅ Sistem sağlıklı"
+    shown = problems[:PROBLEM_LINES]
+    if len(problems) > PROBLEM_LINES:
+        shown[-1] += f" (ve {len(problems) - PROBLEM_LINES + 1} konu daha)"
+    status = f"⚠️ {total} hedeften {of_suffix(met)} tamam" if total else "⚠️ Haftalık kontrol tamamlanamadı"
+    return "\n".join([title, status, *shown, "Önce bunlar düzeltilir.", "/durum"])
 
 
 # --- the summary's own watch (05.11.2026: it watches everything but itself) ---------------------

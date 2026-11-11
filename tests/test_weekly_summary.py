@@ -49,9 +49,25 @@ class SummaryTest(unittest.TestCase):
         with mock.patch.object(slo, "measure", return_value=results), \
                 mock.patch.object(W, "drill_line", return_value="✅ Felaket kurtarma tatbikatı: 03.11.2026 başarılı"):
             text = W.summary(NOW)
-        self.assertIn(f"v{core.__version__}", text)
-        self.assertIn("📐 SLO (son 7 gün): 1/1 hedefte", text)
-        self.assertIn("tatbikatı", text)
+        # the message style (H, 11.11.2026): every objective met and the drill passed -> two lines
+        self.assertEqual(text.splitlines()[1], "✅ Sistem sağlıklı")
+        self.assertTrue(text.startswith("HAFTALIK KONTROL · "))
+        self.assertNotIn(f"v{core.__version__}", text)
+
+    def test_problems_are_named_in_at_most_six_lines(self):
+        from core.reports import slo, style
+
+        results = [slo.SloResult("Rapor teslimi", slo.OK, 1.0, "x"), slo.SloResult("Veri doğruluğu", slo.UNKNOWN, None, "x"),
+                   slo.SloResult("Bot ayakta kalma", slo.WARN, 0.9, "x"), slo.SloResult("Yedek", "🛑", 0.0, "x")]
+        with mock.patch.object(slo, "measure", return_value=results), \
+                mock.patch.object(W, "drill_line", return_value="❌ Felaket kurtarma tatbikatı: BAŞARISIZ"):
+            text = W.summary(NOW)
+        lines = text.splitlines()
+        self.assertEqual(lines[1], "⚠️ 4 hedeften 1'i tamam")
+        self.assertIn("Veri doğruluğu: ölçülemiyor", lines[2])
+        self.assertIn("konu daha", lines[3])
+        self.assertEqual(lines[-1], "/durum")
+        self.assertEqual(style.problems(text, "haftalik", sorun=True), [])
 
     def test_workflow_writes_latest(self):
         from pathlib import Path

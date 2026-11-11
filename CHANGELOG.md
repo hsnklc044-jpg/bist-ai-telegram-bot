@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.139 – 11.11.2026 (pazar haftalık kontrolü mesaj stilinde)
+- Mesaj stili (H): bütün hedefler tamam ve felaket kurtarma tatbikatı başarılıysa iki satır: "HAFTALIK KONTROL · tarih", "✅ Sistem sağlıklı". Değilse "⚠️ 7 hedeften N'i tamam", sorunlar (en fazla iki satır; fazlası "ve N konu daha"), "Önce bunlar düzeltilir.", "/durum"; en fazla altı satır. Sürüm ve hedef satırlarının tamamı `/durum tum` ve `/robot_detay`'da.
+- Doğrulama: `test_weekly_summary` (sessiz hafta iki satır, sorunlu hafta ve altı satır sınırı, stil denetimi).
+
 ## v0.99.138 – 11.11.2026 (akşam raporu mesaj stilinde; fiyat alarmları ayrı mesaj)
 - Mesaj stili (H): akşam Telegram'a giden rapor "AKŞAM RAPORU · tarih", durum ("✅ Rapor tamam, sorun yok." ya da "⚠️ N konu: …"), "BIST 100: değer (değişim)", "Piyasa: renk sınıf (trenddeki hisse %N)" (50 günlük ortalamanın üstündeki hisse oranının puan sınıfı), "Sanal hesap: değer · bugün · başlangıçtan · reel", yalnız gerekiyorsa "Senden beklenen: …", "/summary"; en fazla 7 satır. Sayılar hesaplandıkları yerden alınır, metinden ayıklanmaz; olmayan sayı yazılmaz.
 - Tam rapor eskisi gibi üretilir ve saklanır (`/rapor_tekrar`, `logs/reports/`); hesaplar değişmedi.
