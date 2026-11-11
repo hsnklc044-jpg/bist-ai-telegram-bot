@@ -13,3 +13,4 @@ Her satır: tarih saat · iş · dal / SHA · sonuç. En yeni en altta. Kurallar
 - 11.11.2026 07:59 · Paket 2 (120–122) kapıdan geçti, 08:46 v0.99.122 sağlıklı · bot dalı b5c6d64 · kuruldu
 - 11.11.2026 10:25 · fren tatbikatı: /otonom_dur bayrağı ve kapalı kapı, /otonom_devam ile dönüş · kullanıcı · doğrulandı
 - 11.11.2026 11:30 · J veri güveni (güven seviyeleri, not satırı, ön bulgu) · veri-guveni · dal
+- 11.11.2026 12:30 · J madde 4: fiyat satırının kaynağı ve kaynak arayüzü · kaynak-arayuzu · dal

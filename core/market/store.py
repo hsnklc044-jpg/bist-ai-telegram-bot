@@ -50,7 +50,17 @@ CREATE TABLE IF NOT EXISTS sync (
     checked_at TEXT NOT NULL,
     source     TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS price_sources (
+    symbol TEXT NOT NULL,
+    date   TEXT NOT NULL,
+    source TEXT NOT NULL,
+    PRIMARY KEY (symbol, date)
+);
 """
+# Each price row's source (J madde 4, K-83) lives in its own table keyed like `prices`, not as an 8th column of
+# `prices`: versions up to 0.99.125 insert positionally (7 values), so a new column would break a rollback.
+# A row with no source entry was written before this version, by Yahoo.
+DEFAULT_SOURCE = "yahoo"
 
 _db_path: Path = MARKET_DB
 _lock = threading.Lock()
@@ -122,9 +132,11 @@ def _write(
     symbol: str,
     df: pd.DataFrame,
     replace_all: bool = False,
+    source: str = DEFAULT_SOURCE,
 ) -> int:
     if replace_all:
         conn.execute("DELETE FROM prices WHERE symbol = ?", (symbol,))
+        conn.execute("DELETE FROM price_sources WHERE symbol = ?", (symbol,))
 
     rows = [
         (
@@ -143,8 +155,34 @@ def _write(
         "INSERT OR REPLACE INTO prices VALUES (?, ?, ?, ?, ?, ?, ?)",
         rows,
     )
+    conn.executemany(
+        "INSERT OR REPLACE INTO price_sources VALUES (?, ?, ?)",
+        [(symbol, row[1], source) for row in rows],
+    )
 
     return len(rows)
+
+
+def read_sources(symbol: str) -> pd.Series:
+    """Each stored row's source, oldest first; rows written before v0.99.126 are Yahoo's."""
+
+    query = ("SELECT p.date, COALESCE(s.source, ?) FROM prices p LEFT JOIN price_sources s "
+             "ON s.symbol = p.symbol AND s.date = p.date WHERE p.symbol = ? ORDER BY p.date")
+    with _connect() as conn:
+        rows = conn.execute(query, (DEFAULT_SOURCE, symbol)).fetchall()
+    return pd.Series([r[1] for r in rows], index=pd.to_datetime([r[0] for r in rows]), dtype=object)
+
+
+def source_of(symbol: str, day: date) -> str | None:
+    """The source of one stored row; None when there is no such row."""
+
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT COALESCE(s.source, ?) FROM prices p LEFT JOIN price_sources s "
+            "ON s.symbol = p.symbol AND s.date = p.date WHERE p.symbol = ? AND p.date = ?",
+            (DEFAULT_SOURCE, symbol, day.isoformat()),
+        ).fetchone()
+    return row[0] if row else None
 
 
 def _istanbul(moment: datetime) -> datetime:
@@ -249,7 +287,7 @@ def update(
                             readjust.append(symbol)
                             continue
 
-                    _write(conn, symbol, df, replace_all=(mode == "full"))
+                    _write(conn, symbol, df, replace_all=(mode == "full"), source=provider.name)
                     status[symbol] = mode
 
                     conn.execute(
@@ -274,7 +312,7 @@ def update(
                         status[symbol] = "failed"
                         continue
 
-                    _write(conn, symbol, df, replace_all=True)
+                    _write(conn, symbol, df, replace_all=True, source=provider.name)
                     status[symbol] = "readjusted"
                     conn.execute(
                         "INSERT OR REPLACE INTO sync VALUES (?, ?, ?)",
@@ -293,6 +331,8 @@ __all__ = [
     "REFRESH_MINUTES",
     "configure",
     "read",
+    "read_sources",
+    "source_of",
     "last_date",
     "symbols",
     "update",

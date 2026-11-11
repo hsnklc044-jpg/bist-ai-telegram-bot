@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-83. Fiyat satırının kaynağı ayrı tabloda; lisanslı kaynak arayüzü (11.11.2026; J madde 4).**
+- **Ne:** Her fiyat satırının kaynağı `price_sources(symbol, date, source)` tablosunda, `prices` ile aynı anahtarla. Kaydı olmayan satır Yahoo'dur (bu sürümden önce yazılmıştır).
+- **Neden sütun değil tablo:** 0.99.125 ve öncesi `INSERT OR REPLACE INTO prices VALUES (7 değer)` ile yazar. `prices`'a 8. sütun eklenirse geri dönüşte eski sürüm fiyat yazamaz. Ayrı tablo eski sürüme görünmez; geri dönüş güvenli kalır.
+- **Arayüz:** `PriceSource` (fetch, ad, seviye, köken) ve `FundamentalSource` (statements). Adaptör yalnız kaynağın kullanım şartları DATA_SOURCES'a yazıldıktan sonra yazılır. Bağlantı için `.env`'de ad ve anahtar; anahtarın girilmesi kullanıcının şartları kabul etmesidir. İlk iş karşılaştırma raporu ve ikinci kaynak kontrolünün yeniden açılmasıdır.
+- **Değişmeyen:** fiyatların kendisi, okuma yolu (`store.read`), hesaplar.
+
 **K-82. Veri güven seviyeleri (11.11.2026; kullanıcı kararı "filtreler sağlam veriye dayanmalı").**
 - **Seviyeler:** 1 resmî ya da lisanslı kaynak (Borsa İstanbul, KAP, lisanslı dağıtıcı, aracı kurum API'si); 2 resmî olmayan ama ikinci bağımsız kaynakla doğrulanmış; 3 resmî olmayan ve doğrulanmamış.
 - **Yahoo fiyatları:** Seviye 3. Seviye 2'ye çıkma koşulu "Veri doğruluğu" hedefinin ölçüsüdür, yeni eşik yok: kullanıcının ikinci kaynak dosyası kontrolü (`logs/price_second_source.json`) son 8 günde ve en fazla %1 hisse farklı.

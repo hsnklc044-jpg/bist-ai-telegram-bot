@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.126 – 11.11.2026 (kaynak değiştirmeye hazırlık: her fiyat satırının kaynağı, tek kaynak arayüzü; K-83)
+- Fiyat deposunda her satırın kaynağı tutulur (`price_sources` tablosu, `prices` ile aynı anahtar). Bu sürümden önce yazılan satırlar Yahoo sayılır. Ayrı tablo seçildi, çünkü `prices`'a 8. sütun eklemek önceki sürüme geri dönüşte eski yazma kodunu bozardı (K-83).
+- Fiyat ve temel veri için tek kaynak arayüzü (`core/market/sources.py`). Lisanslı bir kaynak üç şey varken bağlanır: kullanım şartları `docs/DATA_SOURCES.md`'ye yazıldıktan sonra yazılmış bir adaptör, `.env`'de `QUANTBIST_PRICE_SOURCE` (adı) ve `QUANTBIST_PRICE_SOURCE_KEY` (anahtarı). Bugün kayıtlı adaptör yok; kaynak seçimi kullanıcının.
+- Bağlandığı ilk akşam ilk iş, son 60 günün eski veriyle karşılaştırma raporu (mevcut crosscheck kuralları). Özet "Veri doğruluğu" hedefinin okuduğu dosyaya yazılır, yani ikinci kaynak kontrolü yeniden açılır. Rapor bir kez gönderilir. Anahtar hiçbir dosyaya yazılmaz.
+- `data/otonom_dur.flag` git dışında (fren tatbikatında `git status`'ta görünüyordu; güncelleyiciyi engellemiyordu).
+- Doğrulama: `test_sources` (önce başarısız testler: satır kaynağı, eski satırlar Yahoo, eski sürümün 7 değerli yazımı çalışır, tam yeniden yazımda kaynak da yenilenir, adaptör/ad/anahtar olmadan bağlanmaz, ilk karşılaştırma ve tekrar etmemesi, anahtarın hiçbir dosyaya girmemesi).
+
 ## v0.99.125 – 11.11.2026 (veri güveni: her verinin güven seviyesi; K-82)
 - Kullanıcı kararı (11.11): filtreler sağlam veriye dayanmalı. Her veri kaynağına güven seviyesi: 1 resmî ya da lisanslı, 2 ikinci bağımsız kaynakla doğrulanmış, 3 doğrulanmamış (`core/market/trust.py`, `docs/DATA_SOURCES.md` "Güven seviyeleri").
 - Bugün Yahoo fiyatları Seviye 3 (ikinci kaynak kapalı). Kullanıcının ikinci kaynak dosyası kontrolü son 8 günde geçtiyse (en fazla %1 hisse farklı, "Veri doğruluğu" hedefiyle aynı ölçü) Seviye 2 olur.

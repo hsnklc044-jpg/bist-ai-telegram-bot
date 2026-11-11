@@ -723,6 +723,19 @@ def _record_scenarios(day: date) -> None:
         logger.exception("Scenario recording failed")
 
 
+def _first_source_connection(notify) -> None:
+    """J madde 4: the first evening after a licensed price source is connected, the comparison report (once)."""
+
+    try:
+        from core.market import sources
+
+        text = sources.first_connection(now_istanbul())
+        if text:
+            notify(text)
+    except Exception:  # noqa: BLE001 - never stops the evening run
+        logger.exception("First source connection report failed")
+
+
 def _signal_book(day: date, notify=None) -> None:
     """K-60: follow the paper signals, check the 6% breaker, record today's ML signals (K-59)."""
 
@@ -1223,6 +1236,7 @@ def _run_locked(args) -> DailyResult:
         _record_scenarios(result.day)
         _refresh_scenario_cards(result.day)
         _signal_book(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id, data=True))
+        _first_source_connection(lambda text: send_telegram(text, s.bot_token, s.chat_id))
     return result
 
 

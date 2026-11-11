@@ -27,7 +27,9 @@ Sıra kullanıcının belirlediği gibidir. Hiçbir site kazınmaz; robots.txt v
 2. **Lisanslı dağıtıcılar:** Matriks, Foreks, Finnet: kullanıcı soruyor.
 3. **Geçmiş veri: Borsa İstanbul DataStore** (gün sonu fiyat ve endeks dosyaları): kullanıcı 11.11.2026'da 1988–2026 dosyalarını elle indirdi; okuyucusu ayrı sürümde (K bölümü).
 
-Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştırma raporudur ve "Veri doğruluğu" hedefinin ikinci kaynak kontrolü yeniden açılır (kaynak arayüzü ve fiyat deposundaki kaynak sütunu ayrı sürümde).
+Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştırma raporudur ve "Veri doğruluğu" hedefinin ikinci kaynak kontrolü yeniden açılır (v0.99.126, K-83):
+- Arayüz `core/market/sources.py`. Fiyat deposu her satırın kaynağını tutar (`price_sources`).
+- Bağlantı: kaynak seçilince adaptörü yazılır (önce şartları buraya), kullanıcı `.env`'e `QUANTBIST_PRICE_SOURCE=<ad>` ve `QUANTBIST_PRICE_SOURCE_KEY=<anahtar>` girer. O akşam son 60 günün karşılaştırma raporu bir kez gönderilir.
 
 ## Durum özeti
 

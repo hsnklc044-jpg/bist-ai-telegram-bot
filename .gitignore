@@ -92,6 +92,7 @@ data/fundamentals.csv
 data/risk_limits.csv
 data/events.csv
 data/panic.lock
+data/otonom_dur.flag
 data/signal_log.csv
 data/equity_log.csv
 data/backups/
