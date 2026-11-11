@@ -741,6 +741,14 @@ def _slo_summary(results) -> str:
     return line + (f"; hedef dışı: {', '.join(off)}" if off else "")
 
 
+def data_trust_line(now: datetime) -> str:
+    """The price data's source and trust level (J, 11.11.2026; docs/DATA_SOURCES.md)."""
+
+    from core.market import trust
+
+    return f"📦 Fiyat verisi: {trust.price_trust(now).label()}"
+
+
 def health_report(now: datetime | None = None, bars=adjusted_bars, full: bool = True) -> str:
     """/durum tum (full=True): every check and SLO. /durum (full=False, K-70 madde 7): the healthy
     checks counted on one line, every other check on its own line, the SLOs in one line."""
@@ -769,6 +777,7 @@ def health_report(now: datetime | None = None, bars=adjusted_bars, full: bool = 
         verdict(checks),
         "",
         *body,
+        data_trust_line(now),
         *objectives,
         *signal_book_lines(now, bars),
         "",

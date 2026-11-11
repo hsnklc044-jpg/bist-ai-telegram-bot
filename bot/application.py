@@ -33,7 +33,9 @@ class RecordingBot(ExtBot):
 
     async def send_message(self, chat_id, text, *args, **kwargs):
         from core.infrastructure import outbox
+        from core.market import trust
 
+        text = trust.note_outgoing(text)  # level 3 data: one line under the title (J, 11.11.2026)
         try:
             message = await super().send_message(chat_id, text, *args, **kwargs)
         except Exception:

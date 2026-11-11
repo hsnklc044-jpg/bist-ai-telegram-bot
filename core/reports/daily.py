@@ -545,13 +545,15 @@ SEND_ATTEMPTS = 3
 SEND_PAUSES = (5, 20)  # seconds between attempts
 
 
-def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None, source: str = "günlük rapor") -> None:
+def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None, source: str = "günlük rapor",
+                  data: bool = False) -> None:
     """
     Send with the Bot HTTP API. A network error, a 5xx or a 429 is retried
     (SEND_ATTEMPTS times); a 4xx such as a wrong token is not. Each part is
     retried on its own, so a part that went out is never sent twice.
     `post` and `sleep` are injectable for tests. Every part is copied to logs/telegram_giden.jsonl with
     `source` and whether it went out (core.infrastructure.outbox; a failed part too).
+    `data`: the text is built on price data; on level 3 data the trust note goes under its title (J).
     """
 
     from core.infrastructure import outbox
@@ -563,6 +565,11 @@ def send_telegram(text: str, token: str, chat_id: int, post=None, sleep=None, so
     post = post or httpx.post
     sleep = sleep or time.sleep
     retryable = (ConnectionError, OSError, TimeoutError, httpx.TransportError)
+    if data:
+        from core.market import trust
+        from core.market.calendar import now_istanbul
+
+        text = trust.with_note(text, trust.price_trust(now_istanbul()))
     for part in split_text(text):
         try:
             _send_part(part, token, chat_id, post, sleep, retryable)
@@ -1207,15 +1214,15 @@ def _run_locked(args) -> DailyResult:
 
         s = require_bot_settings()
         _keep_report_text(result.day, result.text)
-        send_telegram(result.text, s.bot_token, s.chat_id)
+        send_telegram(result.text, s.bot_token, s.chat_id, data=True)
         result.status = "sent"
         _mark_alarms(hits)
         logger.info("Daily report sent to Telegram | %s", result.day)
-        _screen_subscriptions(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id))
+        _screen_subscriptions(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id, data=True))
         _record_levels(result.day)
         _record_scenarios(result.day)
         _refresh_scenario_cards(result.day)
-        _signal_book(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id))
+        _signal_book(result.day, lambda text: send_telegram(text, s.bot_token, s.chat_id, data=True))
     return result
 
 

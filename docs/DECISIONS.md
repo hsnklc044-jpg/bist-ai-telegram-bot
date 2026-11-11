@@ -2,6 +2,16 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 11.11.2026
+
+**K-82. Veri güven seviyeleri (11.11.2026; kullanıcı kararı "filtreler sağlam veriye dayanmalı").**
+- **Seviyeler:** 1 resmî ya da lisanslı kaynak (Borsa İstanbul, KAP, lisanslı dağıtıcı, aracı kurum API'si); 2 resmî olmayan ama ikinci bağımsız kaynakla doğrulanmış; 3 resmî olmayan ve doğrulanmamış.
+- **Yahoo fiyatları:** Seviye 3. Seviye 2'ye çıkma koşulu "Veri doğruluğu" hedefinin ölçüsüdür, yeni eşik yok: kullanıcının ikinci kaynak dosyası kontrolü (`logs/price_second_source.json`) son 8 günde ve en fazla %1 hisse farklı.
+- **Taşıma:** Bir puan, tarama ya da filtre kullandığı en zayıf verinin seviyesini taşır.
+- **Gösterim:** Seviye 3'te fiyat verisine dayanan Telegram mesajlarının başlığı altında tek satır "Veri: doğrulanmamış kaynak"; `/durum`'da kaynak ve seviye.
+- **Araştırma:** H6a, H6b, H7a, H7b ve sonraki hipotezler yalnız Seviye 1 ya da 2 veriyle "geçti" kararı alabilir; Seviye 3'te sonuç "ön bulgu" diye işaretlenir. Karar kuralı (blok bootstrap, Bonferroni) değişmez.
+- **Değişmeyen:** hesaplar, kurallar, karne puanları, holdout.
+
 ## 10.11.2026
 
 **K-81. Araştırma raporuna aşırı uyum ölçüleri: Deflated Sharpe Ratio ve PBO (10.11.2026; kullanıcı onayı "Evet, kaydet"). Ölçüm yapılmadan, araştırma sonuçlarına bakılmadan yazıldı.**

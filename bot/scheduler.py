@@ -22,6 +22,7 @@ from datetime import time
 from telegram.ext import Application, ContextTypes
 
 from core.infrastructure.logger import get_logger
+from core.market import trust
 from core.market.calendar import ISTANBUL, now_istanbul
 
 logger = get_logger(__name__)
@@ -212,7 +213,8 @@ async def signal_track_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     lines = await _guarded(context, "saatlik takip", lambda: live.track(now.date(), strict=True))
     if lines:
-        await context.bot.send_message(context.job.chat_id, "\n".join(lines))
+        with trust.data_message():
+            await context.bot.send_message(context.job.chat_id, "\n".join(lines))
 
 
 async def _guarded(context, name: str, fn):
@@ -300,7 +302,8 @@ async def portfolio_health_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         text = f"⚠️ Haftalık portföy sağlık raporu hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}"
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     if chat:
-        await context.bot.send_message(chat, text)
+        with trust.data_message():
+            await context.bot.send_message(chat, text)
 
 
 def schedule_portfolio_health(app: Application, chat_id: int | None = None) -> bool:
@@ -354,7 +357,8 @@ async def morning_screens_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         logger.exception("Morning screens failed")
         messages = [f"⚠️ Sabah aday listesi hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}"]
     for text in messages:
-        await context.bot.send_message(chat, text)
+        with trust.data_message():
+            await context.bot.send_message(chat, text)
 
 
 def schedule_morning_screens(app: Application, chat_id: int | None = None) -> bool:

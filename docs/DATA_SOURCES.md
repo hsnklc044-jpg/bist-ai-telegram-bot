@@ -9,6 +9,26 @@ Talimat C §C1.1 ve AUDIT D5. Sistemin okuduğu ya da okuması planlanan her dı
 - Hiçbir kaynak için şifre ya da token istenmez. Anahtar gerekirse kullanıcı kendi `.env`'ine girer (BENİM ADIMLARIM); depoya girmez.
 - KAP ya da Telegram içeriği depoya konmaz ve yeniden yayımlanmaz.
 
+## Güven seviyeleri (K-82, kullanıcı kararı 11.11.2026)
+
+| Seviye | Tanım | Bugün |
+|---|---|---|
+| 1 | Resmî ya da lisanslı kaynak: Borsa İstanbul, KAP, lisanslı dağıtıcı, aracı kurum API'si | TCMB kurları ve politika faizi; TÜFE (TCMB tablosu); kullanıcının KAP tablolarından girdiği temel veri (`data/fundamentals.csv`, `--check` ile denetlenir) |
+| 2 | Resmî olmayan, ikinci bağımsız kaynakla doğrulanmış | Yahoo fiyatları, yalnız kullanıcının ikinci kaynak dosyası kontrolü son 8 günde geçtiyse |
+| 3 | Resmî olmayan ve doğrulanmamış | **Yahoo fiyatları ve XU100 (ikinci kaynak kapalı, D13)** |
+
+- Bir puan, tarama ya da filtre kullandığı en zayıf verinin seviyesini taşır (`core/market/trust.py`).
+- Seviye 3'te fiyat verisine dayanan Telegram mesajlarında başlığın altında tek satır: "Veri: doğrulanmamış kaynak". `/durum` kaynak ve seviyeyi yazar.
+- Araştırma kararları (H6a, H6b, H7a, H7b ve sonrakiler) yalnız Seviye 1 ya da 2 veriyle "geçti" olabilir; Seviye 3'te "ön bulgu".
+
+### Kaynak seçimi: kullanıcı soruyor (ödeme, lisans ve hesap kararı kullanıcınındır)
+Sıra kullanıcının belirlediği gibidir. Hiçbir site kazınmaz; robots.txt ve kullanım şartları aşılmaz. Anahtar gerekirse kullanıcı kendi `.env`'ine girer.
+1. **Kullanıcının aracı kurumunun API'si** (fiyat; varsa temel veri): kullanıcı soruyor.
+2. **Lisanslı dağıtıcılar:** Matriks, Foreks, Finnet: kullanıcı soruyor.
+3. **Geçmiş veri: Borsa İstanbul DataStore** (gün sonu fiyat ve endeks dosyaları): kullanıcı 11.11.2026'da 1988–2026 dosyalarını elle indirdi; okuyucusu ayrı sürümde (K bölümü).
+
+Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştırma raporudur ve "Veri doğruluğu" hedefinin ikinci kaynak kontrolü yeniden açılır (kaynak arayüzü ve fiyat deposundaki kaynak sütunu ayrı sürümde).
+
 ## Durum özeti
 
 | Kaynak | Ne için | Erişim | Koşul | Durum |

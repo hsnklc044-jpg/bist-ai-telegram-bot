@@ -257,7 +257,7 @@ class DailyTest(unittest.TestCase):
                 mock.patch("core.infrastructure.settings.require_bot_settings", return_value=settings), \
                 mock.patch.object(subscriptions, "run", return_value=subscriptions.Outcome(["değişiklik"], {})) as ran, \
                 mock.patch.object(subscriptions, "save_state") as saved, \
-                mock.patch.object(daily, "send_telegram", side_effect=lambda t, *a: sent.append(t)):
+                mock.patch.object(daily, "send_telegram", side_effect=lambda t, *a, **k: sent.append(t)):
             result = daily._run_locked(SimpleNamespace(no_update=True, send=True, force=False))
         return result, sent, ran, saved
 

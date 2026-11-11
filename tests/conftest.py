@@ -86,6 +86,10 @@ def _private_run_files(tmp_path, monkeypatch):
     from core.infrastructure import outbox as _outbox
 
     monkeypatch.setattr(_outbox, "OUTBOX_FILE", tmp_path / "telegram_giden.jsonl")
+    from core.market import trust as _trust
+
+    monkeypatch.setattr(_trust, "SECOND_SOURCE_FILE", tmp_path / "price_second_source.json")
+    _trust.clear_cache()
     from core import otonom as _otonom
 
     monkeypatch.setattr(_otonom, "STOP_FILE", tmp_path / "otonom_dur.flag")

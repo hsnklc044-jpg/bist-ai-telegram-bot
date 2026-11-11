@@ -38,6 +38,8 @@ from core.backtest.reliability import contribution, yearly_returns
 from core.backtest.run import load_frames, tradable_symbols
 from core.backtest.stats import bonferroni_level, bootstrap_excess, excess_returns
 from core.backtest.walkforward import walk_forward
+from core.market import trust
+from core.market.calendar import now_istanbul
 from core.market.universe import BENCHMARK
 from core.strategy.filters import apply_eligibility
 from core.strategy.rules import (
@@ -255,6 +257,7 @@ def research_report(
         f"Bonferroni düzeltmeli (%{level * 100:.1f}). Aralık tamamen sıfırın üstünde değilse "
         "strateji XU100'ü geçmiş sayılmaz.",
         overfit.report_line({name: equity for name, equity, _ in rows[:tested]}),
+        trust.research_line(trust.price_trust(now_istanbul())),
         "",
     ]
     lines += _robustness_lines(robust, xu, compute_metrics(xu / xu.iloc[0] * base.initial_capital).get("cagr"))

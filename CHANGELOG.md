@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.125 – 11.11.2026 (veri güveni: her verinin güven seviyesi; K-82)
+- Kullanıcı kararı (11.11): filtreler sağlam veriye dayanmalı. Her veri kaynağına güven seviyesi: 1 resmî ya da lisanslı, 2 ikinci bağımsız kaynakla doğrulanmış, 3 doğrulanmamış (`core/market/trust.py`, `docs/DATA_SOURCES.md` "Güven seviyeleri").
+- Bugün Yahoo fiyatları Seviye 3 (ikinci kaynak kapalı). Kullanıcının ikinci kaynak dosyası kontrolü son 8 günde geçtiyse (en fazla %1 hisse farklı, "Veri doğruluğu" hedefiyle aynı ölçü) Seviye 2 olur.
+- Bir puan, tarama ya da filtre kullandığı en zayıf verinin seviyesini taşır. Seviye 3'teyken fiyat verisine dayanan Telegram mesajlarında başlığın altına tek satır: "Veri: doğrulanmamış kaynak" (komut yanıtları, sabah tarama listesi, saatlik sinyal takibi, haftalık portföy sağlığı, akşam raporu, tarama abonelikleri, sinyal defteri). Uzun mesajda yalnız ilk parçaya. Bot denetimi ve uyarı mesajlarına eklenmez.
+- `/durum`: "Fiyat verisi: kaynak · Seviye N (ad)" satırı.
+- Araştırma: "geçti" kararı yalnız Seviye 1 ya da 2 veriyle; Seviye 3'te anlamlı çıkan sonuç "ön bulgu". Haftalık araştırma raporuna veri güveni satırı. Hesaplar, kurallar ve karne puanları değişmedi.
+- Doğrulama: `test_trust` (önce başarısız testler: en zayıf veri, ikinci kaynak kontrolüyle seviye, başlık altı not ve `<pre>` içine girmemesi, Seviye 3'te "geçti" verilememesi, komut ve iş bağlantıları, `/durum` satırı).
+
 ## v0.99.124 – 10.11.2026 (giden Telegram mesajlarının kopyası: logs/telegram_giden.jsonl)
 - Kullanıcı isteği: botun gönderdiği her mesaj (yanıtlar ve zamanlanmış işlerin mesajları) ve günlük rapor, gönderimin hemen etrafında `logs/telegram_giden.jsonl`'a bir satır olarak yazılır: zaman, kaynak (bot / günlük rapor / robot özeti / sağlık uyarısı; güncelleyici ayrı sürümde), sonuç (gönderildi / başarısız), metin. Başarısız gönderim de yazılır.
 - Token, chat_id ve izleme adresleri dosyaya asla yazılmaz (`[gizli]`; ortam değişkenleri ve genel token/adres kalıpları); testli.
@@ -14,7 +22,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 - `core/signals/live.py` (%76) hata yolları test edildi: sinyal defteri açılamazsa boş döner ve uyarı yazar; Yahoo hatası botu durdurmaz; `strict` ile geçici hata yeniden denemeye bırakılır, geçici olmayan hata yutulur; her durumun Telegram satırı. Kod değişmedi.
 
 ## v0.99.122 – 10.11.2026 (robot skill'i ve robot günlüğü)
-- `.claude/skills/robot/SKILL.md`: kullanıcının "robot modu": fren → durum → iş seçimi → yapım (önce başarısız test) → CI → kapı ve paket → sağlık → kayıt → baştan; yalnız iş kalmayınca, frende ya da sıradaki adım kullanıcıya kaldığında durur. Kurallar için CLAUDE.md, OPERATIONS §5a ve diğer skill'lere işaret eder, sayı kopyalamaz (testli). Tek robot: `C:\Projeler\QuantBIST_otomasyonobot.lock`, 6 saatten eskisi devralınır.
+- `.claude/skills/robot/SKILL.md`: kullanıcının "robot modu": fren → durum → iş seçimi → yapım (önce başarısız test) → CI → kapı ve paket → sağlık → kayıt → baştan; yalnız iş kalmayınca, frende ya da sıradaki adım kullanıcıya kaldığında durur. Kurallar için CLAUDE.md, OPERATIONS §5a ve diğer skill'lere işaret eder, sayı kopyalamaz (testli). Tek robot: `C:\Projeler\QuantBIST_otomasyon\robot.lock`, 6 saatten eskisi devralınır.
 - `docs/ROBOT_LOG.md`: her iş için tek satır.
 
 ## v0.99.121 – 10.11.2026 (ağ kesintisi ERROR değil, seyrek uyarı)

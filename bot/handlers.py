@@ -257,7 +257,11 @@ def register_handlers(
 
     allowed = filters.Chat(chat_id=chat_id) & filters.User(user_id=user_id or chat_id)
 
+    from core.market import trust
+
     for command, callback in COMMANDS:
+        if command in trust.DATA_COMMANDS:
+            callback = trust.tagged(callback)  # answers built on price data carry the data trust note
         app.add_handler(
             CommandHandler(
                 command,
