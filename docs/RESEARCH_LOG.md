@@ -430,6 +430,8 @@ a1–a3'te reddedilen kurallar (RESEARCH_LOG "Reddedilen fikir türleri"; 2022�
 - **Evren:** o günkü BIST 100 (resmî günlük işaret, kod değişiklikleri ALIASES ile; K-85).
 - **Kurumsal işlem günleri:** resmî dosyalarda 2015 sonrası düzeltme oranı yok (REFERANS FIYAT 0; ONCEKI KAPANIS ham). Bu yüzden borsanın kodunun olduğu günde (01 bedelli, 03 bedelsiz/bölünme, 04 sermaye azaltımı, 05, 99) hissenin o günkü getirisi yerine XU100'ün o günkü getirisi kullanılır (piyasa nötr dolgu); 06 (nakit temettü) günü ham getiriyle kalır (temettü dahil edilmez; XU100 de fiyat endeksi). Kod anlamları 11.11'de bilinen olaylarla doğrulandı (bedelsiz → 03, bedelli → 01, azaltım + bedelli → 01&04; 06'nın %88'i Mart–Ağustos, ortalama −%1,9).
 - **Maliyet:** her yönde %0,10 + %0,05 (RESEARCH_PROGRAM).
+- **Isınma ve başlangıçlar** (ölçümden önce eklendi): veriler 16.11.2015'ten (kodlu yeni sistem); 200 günlük göstergeler Eylül 2016'ya kadar oluşmaz. a3'ün iki başlangıç kapısı 2016-01-04 ve 2016-06-01. 300 seanstan kısa geçmişli hisse dışarıda (araştırmadaki gibi). Çalıştırma: `python scripts/r1.py`.
+- **Nakit:** H2/H3 politika faizi serisi dönemi kapsamazsa "ölçülemedi" yazılır, tahmin edilmez.
 
 ### Kurallar
 a1–a3'ün kod ve parametreleri aynen (`core/backtest/research.py` ana tablo ve aday kurallar, `phase3.py` H1–H3); yeni parametre yok.
