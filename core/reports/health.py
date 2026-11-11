@@ -749,12 +749,79 @@ def data_trust_line(now: datetime) -> str:
     return f"📦 Fiyat verisi: {trust.price_trust(now).label()}"
 
 
+def _objectives_line(results) -> str:
+    """The compact /durum's objectives in plain words (no internal term; H, 11.11.2026)."""
+
+    met = sum(r.state == OK for r in results)
+    unknown = sum(r.state == UNKNOWN for r in results)
+    off = [f"{r.name} " + ("—" if r.value is None else f"%{r.value * 100:.1f}".replace(".", ","))
+           for r in results if r.state not in (OK, UNKNOWN)]
+    line = f"Hedefler: {met}/{len(results)} tamam, {unknown} ölçülemiyor"
+    return line + (f"; hedef dışında: {', '.join(off)}" if off else "")
+
+
+def _plain_mark(line: str) -> str:
+    """A leading emoji the message style does not allow is dropped (the status marks stay)."""
+
+    from core.reports.style import ALLOWED_EMOJI, _EMOJI
+
+    text = line
+    while text and _EMOJI.match(text[0]) and text[0] not in ALLOWED_EMOJI:
+        text = text[1:].lstrip("\ufe0f ").lstrip()
+    return text
+
+
+def _progress_plain(p) -> str:
+    """The reliability line of the first screen without internal codes (H); /durum tum keeps the original."""
+
+    from core.reports.progress import OBSERVE_TARGET
+
+    missing = "; ".join(m.replace("SLO", "hedef") for m in p.missing)
+    tail = "tam güvenilir: evet" if p.reliable else f"tam güvenilir: hayır ({missing})"
+    return (f"Güvenilirlik: gözlem {p.observed}/{OBSERVE_TARGET} seans · hedef {p.slo_met}/{p.slo_total} · "
+            f"model doğrulama {p.validated}/{p.high_risk} · {tail}")
+
+
+def compact_report(now: datetime, checks: list, results, progress_lines: list[str], book_lines: list[str]) -> str:
+    """/durum (the first screen) in the message style: "DURUM · date", one status line, only what needs
+    attention, the objectives in one line, the price data's source and level, "Ayrıntı: /durum tum"."""
+
+    from core.reports.style import header
+
+    healthy = sum(c.state == OK for c in checks)
+    attention = [c for c in checks if c.state != OK]
+    problems = [c for c in attention if c.state in (CRIT, WARN, UNKNOWN)]
+    if not problems:
+        status = f"✅ Sistem sağlıklı ({healthy} bileşen)"
+    else:
+        mark = "❌" if any(c.state == CRIT for c in problems) else "⚠️"
+        status = f"{mark} {len(problems)} konu var; {healthy} bileşen sağlıklı"
+    lines = [header("Durum", now.date()), status]
+    lines += [f"{c.name}: {c.text}" for c in attention]
+    if results is not None:
+        lines.append(_objectives_line(results))
+    lines += [_plain_mark(x) for x in [*progress_lines, *book_lines] if x.strip()]
+    lines.append(_plain_mark(data_trust_line(now)))
+    lines.append("Ayrıntı: /durum tum")
+    return "\n".join(lines)
+
+
 def health_report(now: datetime | None = None, bars=adjusted_bars, full: bool = True) -> str:
     """/durum tum (full=True): every check and SLO. /durum (full=False, K-70 madde 7): the healthy
     checks counted on one line, every other check on its own line, the SLOs in one line."""
 
     now = now or now_istanbul()
     checks = health_checks(now, bars)
+    if not full:  # H (11.11.2026): the first screen in the message style
+        try:
+            from core.reports import progress, slo
+
+            results = slo.measure(now)
+            progress_lines = [_progress_plain(progress.measure(now, results))]
+        except Exception:  # noqa: BLE001 - /durum must still answer
+            logger.exception("SLO measurement failed")
+            results, progress_lines = None, ["Hedefler ölçülemedi"]
+        return compact_report(now, checks, results, progress_lines, signal_book_lines(now, bars))
     try:
         from core.reports import progress, slo
 

@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.140 – 11.11.2026 (/durum ilk ekranı mesaj stilinde)
+- Mesaj stili (H): `/durum` "DURUM · tarih", "✅ Sistem sağlıklı (N bileşen)" ya da "⚠️/❌ N konu var; M bileşen sağlıklı", yalnız dikkat isteyen bileşenler, "Hedefler: a/b tamam, c ölçülemiyor; hedef dışında: …", güvenilirlik ve sanal kasa satırları, fiyat verisinin kaynağı ve seviyesi, "Ayrıntı: /durum tum". İzin dışı emojiler ve "SLO" kelimesi ilk ekranda yok; hiçbir sorun gizlenmez.
+- `/durum tum` değişmedi.
+- Doğrulama: `test_durum_compact` yeni biçime göre (başlık, durum satırı, sorunlar, hedef satırı, veri satırı, stil denetimi).
+
 ## v0.99.139 – 11.11.2026 (pazar haftalık kontrolü mesaj stilinde)
 - Mesaj stili (H): bütün hedefler tamam ve felaket kurtarma tatbikatı başarılıysa iki satır: "HAFTALIK KONTROL · tarih", "✅ Sistem sağlıklı". Değilse "⚠️ 7 hedeften N'i tamam", sorunlar (en fazla iki satır; fazlası "ve N konu daha"), "Önce bunlar düzeltilir.", "/durum"; en fazla altı satır. Sürüm ve hedef satırlarının tamamı `/durum tum` ve `/robot_detay`'da.
 - Doğrulama: `test_weekly_summary` (sessiz hafta iki satır, sorunlu hafta ve altı satır sınırı, stil denetimi).

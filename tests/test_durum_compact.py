@@ -33,15 +33,21 @@ def report(full):
 class CompactTest(unittest.TestCase):
     def test_short_summary_keeps_every_problem(self):
         text = report(full=False)
-        self.assertIn("✅ 2 bileşen sağlıklı", text)
+        lines = text.splitlines()
+        self.assertEqual(lines[0], "DURUM · 04.11.2026")  # the message style (H, 11.11.2026)
+        self.assertEqual(lines[1], "⚠️ 2 konu var; 2 bileşen sağlıklı")
         self.assertNotIn("Telegram botu: çalışıyor", text)  # healthy ones are counted, not listed
         self.assertIn("Yedek: 02.11 eksik", text)
         self.assertIn("Makro veri: okunamadı", text)  # unknown is never hidden
         self.assertIn("Temel veri", text)  # information stays
-        self.assertIn("📐 SLO: 1/3 hedefte, 1 ölçülemiyor; hedef dışı: Yedek %66,7", text)
-        self.assertIn("🎯 Güvenilirlik", text)
-        self.assertIn("🧪 Sanal kasa", text)
-        self.assertIn("/durum tum", text)
+        self.assertIn("Hedefler: 1/3 tamam, 1 ölçülemiyor; hedef dışında: Yedek %66,7", text)
+        self.assertIn("Güvenilirlik", text)
+        self.assertIn("Sanal kasa", text)
+        self.assertIn("Fiyat verisi: Yahoo · Seviye 3", text)
+        self.assertEqual(lines[-1], "Ayrıntı: /durum tum")
+        from core.reports import style
+
+        self.assertEqual([p for p in style.problems(text, "durum") if "emoji" in p or "yasak" in p], [])
         self.assertLess(len(text.splitlines()), len(report(full=True).splitlines()))
 
     def test_full_list_is_the_old_report(self):
