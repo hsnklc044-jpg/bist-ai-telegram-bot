@@ -8,7 +8,7 @@ description: QuantBIST'te sıradaki işi CHARTER §4 karar algoritmasıyla seçi
 ## Önce
 - Durdurma bayrağı (`C:\Projeler\QuantBIST-yeni\data\otonom_dur.flag` ya da `C:\Projeler\QuantBIST-araclar\cikti\otonom_dur.flag`)
   varsa yalnız rapor üret; birleştirme, kurulum, silme yok. Fren bayrağı kendiliğinden kaldırılmaz.
-- Kuralları oku: `C:\Projeler\QuantBIST-araclar\otonom_kurallar.md`, `docs/CHARTER.md` §4 ve §9, `CLAUDE.md`.
+- Kuralları oku: `docs/OTONOM_KURALLAR.md`, `docs/CHARTER.md` §4 ve §9, `CLAUDE.md`.
 - Canlı klasöre (`C:\Projeler\QuantBIST-yeni`) yazma; çalışma worktree'de.
 
 ## Sıra (CHARTER §4; ilk koşulu oluşan iş yapılır)

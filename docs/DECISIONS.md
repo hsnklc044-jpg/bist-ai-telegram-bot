@@ -4,6 +4,13 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-87. Depo dışı dosyalar: hangisi depoya, hangisi değil (11.11.2026; kullanıcı isteği L).**
+- **Kural (kullanıcı):** depo herkese açık; yalnız kod, test ve belge girer. Kişisel kayıtlar, Borsa İstanbul dosyaları ve 100 MB üstü dosyalar girmez.
+- **Depoya alınan:** proje belgeleri (`docs/MODEL_6_12_AY.md`, `KARNE_KURALI.md`, `OTONOM_KURALLAR.md`, `OTONOM_GOREV.md`, `GOZLEMLER.md`) ve `scripts/araclar/fiyat_cevir.py`. Tarama: token, sohbet kimliği, e-posta, ad, hesap yok; özel depo B'nin adı karartıldı.
+- **Alınmayan (silinmez; silme kullanıcı onayına tabi):** `tarama_ekle.py` ve `tarama_ekle2.py` (sohbet kimliği gömülü, tek seferlik, işlevi `/tara_kaydet` ve `/tara_abone`'de); `kapi.py` (yerine `scripts/surum_kapisi.py`); `yerel_ilerleme.py` (6 Kasım haftasına özel; Windows görevi hâlâ çalıştırıyor; görevi kapatmak kullanıcı kararı).
+- **Tek kaynak:** ek otonom kurallar artık `docs/OTONOM_KURALLAR.md`; değişikliği dal ve kapı üzerinden.
+- **Ayrı ve hafta sonu:** `scripts/bildir.py`'nin eski klasörden ayar okuması ve depo dışı dosyaların günlük yedeğe eklenmesi (güncelleyici ve yedek değişikliği; dr-drill sonrası, tek başına).
+
 **K-86. Resmî endeks dosyaları: ölçek adımları ve kapsam (11.11.2026; K madde 8).**
 - **Ölçek:** puanlar 02.01.1997 ve 01.07.2020'de ÷ 100 yeniden ölçeklenmiş (dosyaların kendi değerlerinden). Her adımdan önceki puan bölünür; seri bugünkü ölçekte ve kesintisiz. Talimattaki tek tarih (27.07.2020) iki hataya yol açardı; kabul ölçütü ("geçiş günlerinde sıçrama yok") bu kuralla sağlanıyor.
 - **2005:** endeks puanı para değil; değişmez. TL hacim ÷ 1.000.000.

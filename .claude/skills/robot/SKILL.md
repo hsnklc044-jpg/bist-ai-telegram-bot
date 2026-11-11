@@ -9,7 +9,7 @@ Kurallar başka yerde; burada sayı kopyalanmaz:
 - Kesin sınırlar: `CLAUDE.md`, `docs/CHARTER.md` §9.
 - Kapı, paketleme, paket dışı işler, fren: `docs/OPERATIONS.md` §5a ve `surum-kapisi` skill'i.
 - İş seçimi: `siradaki-is` skill'i (CHARTER §4). Ölçüm: önce `on-kayit`.
-- Makinedeki ek kurallar: `C:\Projeler\QuantBIST-araclar\otonom_kurallar.md`.
+- Otonom çalışmanın ek kuralları: `docs/OTONOM_KURALLAR.md`.
 
 ## Başlarken
 1. Kilit: `C:\Projeler\QuantBIST_otomasyon\robot.lock`. Varsa ve 6 saatten yeniyse başka robot çalışıyordur: başlama, rapora yaz,

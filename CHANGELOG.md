@@ -2,6 +2,15 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.130 – 11.11.2026 (bütün bilgiler güvende: depo dışı belgeler depoda, her gece dal ve yedek satırı; K-87)
+- Kullanıcı isteği (11.11, L): depo dışındaki iki klasör hiçbir yedekte değildi. Proje belgesi niteliğindeki dosyalar gizli bilgi taramasından geçirilip `docs/`'a alındı: `MODEL_6_12_AY.md`, `KARNE_KURALI.md`, `OTONOM_KURALLAR.md`, `OTONOM_GOREV.md` (özel depo B'nin adı karartıldı), `GOZLEMLER.md`. Eski dosyalar silinmez; sürüm canlıya çıktıktan sonra başlarına "taşındı" notu eklenir.
+- Skill'ler (robot, siradaki-is) ek kuralları artık depodaki `docs/OTONOM_KURALLAR.md`'den okur.
+- `scripts/araclar/fiyat_cevir.py`: ikinci kaynak fiyat dosyası dönüştürücüsü depoya alındı; girdi ve çıktı git dışındaki `data/inbox/` altında (`--klasor`).
+- Depoya alınmayanlar (K-87, silinmedi): `tarama_ekle.py`, `tarama_ekle2.py` (Telegram sohbet kimliği gömülü; 05.11'de bir kez kullanıldı; işlevi botta), `kapi.py` (yerine `scripts/surum_kapisi.py`), `yerel_ilerleme.py` (6 Kasım haftasına özel; "QuantBIST-YerelIlerleme" Windows görevi hâlâ çalıştırıyor, kapatılması kullanıcı kararı).
+- 21:00 özetine iki satır: bütün yerel dallar GitHub'daki kopyasıyla aynı mı (yalnız okuma, GitHub'a bağlanmaz; fark türü adıyla: gönderilmemiş commit, GitHub'da yok, ayrışmış, GitHub ileride) ve depo dışı dosyaların yedekteki son kopyasının yaşı (7 günden eskiyse ⚠️). Bugün: 22 dalın 1'i farklı (`claude/k80-kapi-k78-duzeltme`, ayrışmış; kullanıcı kararı bekliyor); son kopya 11.11.
+- Bilinen: güncelleyici görevi zaten depodaki `scripts/guncelle.py`'yi çalıştırıyor; depodaki `scripts/bildir.py` ayarları eski `C:\Projeler\QuantBIST` kopyasından okuyor. Düzeltmesi ve depo dışı dosyaların günlük yedeğe eklenmesi güncelleyici/yedek değişikliği olduğu için ayrı, tek başına ve hafta sonu.
+- Doğrulama: `test_safekeeping` (önce başarısız testler: dal satırı, her fark türü, git hatası, yalnız okuma, depo dışı kopyanın yaşı, özetteki yer, taşınan belgeler, özel depo adı ve sohbet kimliğinin depoda olmaması, skill yolları, dönüştürücünün depo dışına yazması).
+
 ## v0.99.129 – 11.11.2026 (Borsa İstanbul resmî endeks verisi: XU100 ve getiri endeksi 1988'den; K-86)
 - Kullanıcının indirdiği "Gün Sonu Endeks ve İşlem Hacmi" klasörleri (`data/inbox/bist_endeks/YYYYMM`, 1988–2026, 466 ay) okunur (`core/official/indices.py`) ve `data/official.db`'de ayrı tabloya yazılır: XU100, XU030, XU050, XUTUM, XBANK, XUSIN, XUHIZ, XUMAL, XHOLD; XU100'ün getiri endeksi (temettü dahil) de. Kaldıraçlı ve risk kontrol dosyaları okunmaz. Başlıklar isimle; bilinmeyen başlık dosyayı reddeder.
 - Biçimler (11.11'de bütün klasörler okunarak): eski sistem seanslı, UTF-8 (talimattaki cp1254 değil; Latin-5 de okunur); Kasım 2015'ten başlık üçüncü satırda; Aralık 2015'ten UTF-16; Şubat 2016'da `.txt` uzantısı.

@@ -60,6 +60,10 @@ Beklenen: her dosya için "okundu" satırı. Rapor da haftada bir aynı testi ya
   Tam doldurma bu PC'de yaklaşık 2 dakika sürer. Bot da her gece 02:30'da yalnız yeni dosyaları okur.
 - Kişisel yedeğin boyutu ve süresi değişmez; haftalık geri yükleme testi etkilenmez.
 
+## 2b. Depo dışındaki dosyalar
+- Proje belgeleri ve kurallar artık depoda (`docs/`, K-87). Depo dışında kalanlar: `C:\Projeler\QuantBIST-araclar` (çıktılar, worktree'ler, eski araçlar) ve `C:\Projeler\QuantBIST_otomasyon` (güncelleyici kayıtları, kilit, eski kopyalar).
+- Bunların bir kopyası OneDrive yedek klasöründe `quantbist_depo_disi_*.zip` (11.11.2026 elle alındı). 21:00 özeti son kopyanın yaşını yazar; 7 günden eskiyse ⚠️. Günlük yedeğe eklenmesi hafta sonu ayrı sürümde.
+
 ## 3. Token sızdı (ya da sızdığından şüpheleniliyor)
 
 1. Telegram'da **@BotFather** → `/revoke` → botu seç. Eski token anında geçersiz olur.
