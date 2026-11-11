@@ -76,7 +76,8 @@ def price_trust(now: datetime) -> Trust:
         day = date.fromisoformat(data["date"])
         checked = int(data["checked"])
         share = len(data.get("differing") or []) / checked
-        if checked > 0 and now.date() - day <= CHECK_MAX_AGE and share <= MAX_DIFFERING:
+        current = data.get("kind") != "resmi_aylik"  # the official check covers last month, not today's prices
+        if current and checked > 0 and now.date() - day <= CHECK_MAX_AGE and share <= MAX_DIFFERING:
             result = Trust(2, f"Yahoo, {data.get('source') or 'ikinci kaynak'} ile doğrulandı ({day:%d.%m})")
     except (OSError, ValueError, KeyError, TypeError, ZeroDivisionError):
         pass
@@ -97,6 +98,23 @@ def with_note(text: str, t: Trust) -> str:
         if depth <= 0:
             return "\n".join([*lines[: i + 1], NOTE, *lines[i + 1:]])
     return text + "\n" + NOTE
+
+
+OFFICIAL = "Borsa İstanbul resmî gün sonu"
+
+
+def for_day(day: date, now: datetime) -> Trust:
+    """A price of `day`: level 1 when that day is in the official files (K), else the current price level."""
+
+    try:
+        from core.official import prices
+
+        with prices._connect() as conn:
+            if conn.execute("SELECT 1 FROM official_prices WHERE date = ? LIMIT 1", (day.isoformat(),)).fetchone():
+                return Trust(1, OFFICIAL)
+    except Exception:  # noqa: BLE001 - no official database yet: the current level
+        pass
+    return price_trust(now)
 
 
 def research_verdict(significant: bool, t: Trust) -> str:
@@ -153,5 +171,5 @@ def tagged(handler):
 
 
 __all__ = ["DATA_COMMANDS", "FAILED", "LEVEL_NAMES", "NOTE", "PASSED", "PRELIMINARY", "Trust", "clear_cache",
-           "data_message", "note_outgoing", "price_trust", "research_line", "research_verdict", "tagged", "weakest",
+           "data_message", "for_day", "note_outgoing", "price_trust", "research_line", "research_verdict", "tagged", "weakest",
            "with_note"]

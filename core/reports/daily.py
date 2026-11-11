@@ -860,6 +860,18 @@ def _mark_alarms(hits: list) -> None:
         logger.exception("Price alarms could not be marked as triggered")
 
 
+def _official_reminder(day: date) -> str | None:
+    """K madde 3: from the first trading day of a month until last month's official files are in the inbox."""
+
+    try:
+        from core.official import compare
+
+        return compare.reminder(day)
+    except Exception:  # noqa: BLE001 - never stops the report
+        logger.exception("Official files reminder failed")
+        return None
+
+
 def _before_disclaimer(text: str, line: str) -> str:
     head, sep, tail = text.rpartition(DISCLAIMER)
     return f"{head}{line}\n\n{sep}{tail}" if sep else f"{text}\n\n{line}"
@@ -1216,6 +1228,9 @@ def _run_locked(args) -> DailyResult:
     hits, alarm_line = _alarm_hits(result.day)
     if alarm_line:
         result.text = _before_disclaimer(result.text, alarm_line)
+    reminder = _official_reminder(result.day)
+    if reminder:
+        result.text = _before_disclaimer(result.text, reminder)
     if score_warning:
         result.text = _before_disclaimer(result.text, score_warning)
     result.text = _with_backup_line(result.text)

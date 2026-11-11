@@ -112,6 +112,8 @@ Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştır
 - **Erişim:** kullanıcı DataStore'dan elle indirir ve `data/inbox/bist`'e koyar. Her ay yeni ayın dosyası. DataStore'a otomatik giriş ya da indirme yapılmaz.
 - **Koşul:** yalnız kişisel kullanım (DataStore koşulu). Kullanım şartlarını kullanıcı kontrol etti (11.11.2026). Dosyalar depoya girmez, yeniden yayımlanmaz; `data/inbox/` git dışında (testli).
 - **Okuma:** `core/official/prices.py` → `data/official.db`. Biçimler ve 2005 öncesi birimler K-84'te.
+- **Kullanım (K-85):** kapanmış ayda Yahoo'nun günlük getiri kontrolü ("Veri doğruluğu" hedefi; `/durum`'da kaynak "Borsa İstanbul resmî gün sonu"), kurumsal işlem ve üyelik raporları (`python -m core.official.compare`). İçinde bulunulan ay Yahoo, Seviye 3; ay dosyası gelince o ay Seviye 1.
+- **Kullanıcının aylık işi:** her ay yeni ayın fiyat dosyası ve endeks klasörü. Ayın ilk işlem gününden gelene kadar akşam raporunda "Senden beklenen" satırı.
 - **Endeks dosyaları** (`data/inbox/bist_endeks`, "Gün Sonu Endeks ve İşlem Hacmi"): indirildi; okuyucusu ayrı sürümde.
 
 ### Borsa İstanbul

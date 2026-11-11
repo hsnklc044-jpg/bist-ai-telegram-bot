@@ -86,6 +86,13 @@ def _private_run_files(tmp_path, monkeypatch):
     from core.infrastructure import outbox as _outbox
 
     monkeypatch.setattr(_outbox, "OUTBOX_FILE", tmp_path / "telegram_giden.jsonl")
+    from core.official import compare as _compare
+    from core.official import prices as _prices
+
+    monkeypatch.setattr(_prices, "INBOX", tmp_path / "inbox" / "bist")  # absent: no monthly reminder in tests
+    monkeypatch.setattr(_prices, "OFFICIAL_DB", tmp_path / "official.db")
+    monkeypatch.setattr(_compare, "INDEX_INBOX", tmp_path / "inbox" / "bist_endeks")
+    monkeypatch.setattr(_compare, "REPORT_DIR", tmp_path)
     from core.market import trust as _trust
 
     monkeypatch.setattr(_trust, "SECOND_SOURCE_FILE", tmp_path / "price_second_source.json")

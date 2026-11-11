@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.128 – 11.11.2026 (resmî verinin kullanımı: Yahoo kontrolü, kurumsal işlem ve üyelik raporu, ay başı hatırlatması; K-85)
+- Kapanmış ay: Yahoo, resmî kapanışlarla günlük getiri bazında, mevcut crosscheck kurallarıyla (eşik, piyasa geneli gün, tek gün kapanış hatası) karşılaştırılır. Borsanın kurumsal işlem kodu ve `corporate_actions.csv` farkı açıklar. Özet "Veri doğruluğu" hedefinin dosyasına "Borsa İstanbul resmî gün sonu" kaynağıyla yazılır; farklı hisseler adıyla `logs/resmi_karsilastirma_YYYY-MM.txt`'de. Gece 02:30'da içe aktarmadan sonra çalışır.
+- Gerçek veriyle deneme (11.11, kopyalarda): Ekim 2026 206 hissede 1 farklı (RALYH), Eylül 0, Ağustos 0, Haziran 2 (KONTR, TRILC); Ocak 2023'te 05.01 Yahoo sorunu piyasa geneli gün olarak ayrıldı.
+- Güven seviyesi: kapanmış ayın dosyası gelince o ayın günleri Seviye 1 (`trust.for_day`). İçinde bulunulan ay Yahoo, Seviye 3; resmî aylık kontrol bunu yükseltmez.
+- Kurumsal işlem raporu: resmî kodlu günler ile `corporate_actions.csv` (aynı gün, ±3 gün içinde farklı gün, yalnız bir tarafta). Deneme: aynı gün 7, farklı gün 5 (TUKAS, EUREN, KENT, CVKMD, SKBNK; dosyamızda Yahoo'nun sıçrama günü yazılı), yalnız bizde 17. Talimattaki "ham fiyat ile önceki kapanış farkı" yöntemi yeni sistem dosyalarında işe yaramıyor (alan ham önceki kapanış; REFERANS FIYAT o günlerde 0); borsanın kodu kullanıldı.
+- Üyelik raporu: resmî günlük BIST 100 işaretleri ile bizim liste, kod değişiklikleri (`membership.ALIASES`) izlenerek; o gün işlem görmeyen hisse "üye değil" sayılmaz. 2022–2026: 1.208 günün 1.201'inde aynı; kalan 7 gün işlem görmeyen günler (ISDMR Şubat 2023, OBAMS, KONTR). Resmîde olup bizde olmayan hisse yok.
+- Ay başı: ayın ilk işlem gününden itibaren, geçen ayın fiyat dosyası ya da endeks klasörü gelene kadar akşam raporunda tek satır: "Senden beklenen: geçen ayın borsa fiyat ve endeks dosyalarını indir".
+- `python -m core.official.compare`: üç raporu birlikte yazar.
+- Doğrulama: `test_official_compare` (önce başarısız testler: temiz ay ve kaynak adı, adıyla fark ve kurumsal işlem günü, dosya yokken kontrol yok, ay geçişinde seviye, aylık kontrolün bugünü yükseltmemesi, kurumsal işlem eşleştirmesi, kod değişikliği ve işlem görmeyen gün, hatırlatmanın başlaması ve kaybolması, rapor ve gece işi bağlantıları).
+
 ## v0.99.127 – 11.11.2026 (Borsa İstanbul resmî gün sonu fiyatları: okuyucu ve data/official.db; K-84)
 - Kullanıcı kararı (11.11): Borsa İstanbul DataStore'un ücretsiz aylık "Gün Sonu Fiyat ve İşlem Hacmi" dosyaları Seviye 1 kaynak. Kullanıcı dosyaları elle indirip `data/inbox/bist`'e koyar (Ocak 1988 – Ekim 2026, 467 dosya, 2,4 GB); otomatik giriş ya da indirme yok.
 - Okuyucu (`core/official/prices.py`): başlıklar isimle eşleşir; bilinen üç biçim (11.11'de 467 dosyanın başlığı okunarak bulundu): eski sistem (Kasım 2015'e kadar, seanslı), yeni sistem 2015–2019 (gün ortası sütunlarıyla) ve 2019 sonrası. Bilinmeyen başlık ya da eksik alan dosyayı reddeder, nedeni yazılır. Yalnız normal hisseler (.E / seri E); varant, sertifika, fon dışarıda.

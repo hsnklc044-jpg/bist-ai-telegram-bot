@@ -502,6 +502,12 @@ async def official_prices_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception:  # noqa: BLE001 - the bot never stops on this
         logger.exception("Official prices import failed")
         return
+    try:  # K madde 2: last closed month, Yahoo against the official closes (feeds "Veri doğruluğu")
+        from core.official import compare
+
+        await asyncio.to_thread(compare.yahoo_check, now_istanbul())
+    except Exception:  # noqa: BLE001
+        logger.exception("Official check of Yahoo failed")
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     text = official_message(result)
     if chat and text:

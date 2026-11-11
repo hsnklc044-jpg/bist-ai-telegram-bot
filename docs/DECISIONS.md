@@ -4,6 +4,13 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 11.11.2026
 
+**K-85. Resmî gün sonu verisinin kullanımı (11.11.2026; K madde 2–3).**
+- **Yahoo kontrolü:** kapanmış ay, günlük getiri, mevcut crosscheck kuralları (yeni eşik yok). Açıklayan günler: borsanın kurumsal işlem kodu ve `corporate_actions.csv`. Özet "Veri doğruluğu" hedefine; kaynak "Borsa İstanbul resmî gün sonu". Araştırmada resmî kapanış esas (kullanımı ayrı sürümde, holdout kuralıyla).
+- **Seviye:** kapanmış ayın günleri resmî dosyayla Seviye 1; içinde bulunulan ay Yahoo, Seviye 3. Geçen ayın kontrolü bugünkü fiyatın seviyesini değiştirmez (talimat: "içinde bulunulan ay için Yahoo, Seviye 3").
+- **Kurumsal işlem:** talimattaki ham fiyat ile ONCEKI KAPANIS FIYATI farkı yöntemi yeni sistemde çalışmıyor (alan ham; REFERANS FIYAT o günlerde 0). Borsanın günlük kodu kullanılır; eşleşme ±3 gün. Kodların anlamı tahmin edilmez.
+- **Üyelik:** resmî işaret yalnız işlem gören satırda olduğundan işlem görmeyen gün karşılaştırılmaz; kod değişiklikleri ALIASES ile.
+- **Hatırlatma:** ayın ilk işlem gününden geçen ayın fiyat dosyası ve endeks klasörü gelene kadar tek satır.
+
 **K-84. Borsa İstanbul resmî gün sonu dosyaları: okuma kuralları (11.11.2026; kullanıcı kararı K bölümü).**
 - **Kaynak:** DataStore "Gün Sonu Fiyat ve İşlem Hacmi", aylık, 0 TL, yalnız kişisel kullanım; kullanıcı elle indirir. Seviye 1 (K-82).
 - **Biçim tanıma:** başlıklar isimle; bilinen üç biçimin alan listesi koddadır (11.11'de 467 dosyanın başlığından). Listede olmayan bir başlık ya da gerekli alanın eksikliği dosyayı reddeder; tahmin yapılmaz.

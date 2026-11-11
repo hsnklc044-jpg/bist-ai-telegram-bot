@@ -21,6 +21,7 @@ Kaynak DataStore (K-84), 01.1988–10.2026, 467 dosya; deneme veritabanında oku
 - Açılış fiyatı: 2007 öncesi yok; 2007–2015 satırların %8–28'inde yok (eski sistemde yalnız açılış seansı fiyatı var).
 - Kurumsal işlem kodu (`OZSERMAYE HALI`): 2015-11 sonrası 570 hissede 2.902 gün (06: 2.023, 03: 564, 01: 261). TUKAS'ın resmî bölünme günü 04.02.2025; `corporate_actions.csv` Yahoo'nun sıçrama günü 03.02'yi yazıyor.
 - Yahoo ile 2026 Ağustos–Ekim, 6 hisse: 5'inde günlük kapanış birebir aynı; BIMAS'ta bir gün %0,59 fark.
+- **Yahoo kontrolü (K-85, 11.11 deneme):** Ekim 2026 206 hissede 1 farklı (RALYH, %0,5), Eylül 0, Ağustos 0, Haziran 2 (KONTR, TRILC); Ocak 2023'te 05.01 piyasa geneli gün. Üyelik: ALIASES ile 2022–2026 1.208 günün 1.201'inde aynı, kalan 7 gün işlem görmeyen günler; D14'teki değişiklik kaydı içerik olarak resmî işaretlerle doğrulandı (telif sorusu ayrı, kullanıcı kararı).
 - Bu kaynak K-16'daki "veri kısa" sınırını kaldırabilir; yeniden değerlendirme ve mevcut testlerin 2015 sonrası tekrarı ayrı sürümde ve holdout kuralıyla.
 
 ## 05.11.2026 – A ve B veri farkı sayıları (K-80 madde 6; ölçüm değil)
