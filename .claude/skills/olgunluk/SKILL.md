@@ -1,6 +1,6 @@
 ---
 name: olgunluk
-description: QuantBIST olgunluk durumunu (docs/MATURITY.md S1–S5) güncel kanıtlarla karşılaştırıp her seviyenin yüzdesini ve resmî seviyeyi yazar. Salt okunur; belgeyi yalnız açıkça istenirse günceller.
+description: QuantBIST olgunluk durumunu (docs/MATURITY.md S1–S5) güncel kanıtlarla karşılaştırıp her seviyenin yüzdesini ve resmî seviyeyi yazar. Ölçüm salt okunur; belgeyle çelişen kanıt bulursa MATURITY.md'yi dal üzerinden düzeltir.
 ---
 
 # Olgunluk
@@ -12,4 +12,9 @@ description: QuantBIST olgunluk durumunu (docs/MATURITY.md S1–S5) güncel kan�
 4. Resmî seviye: bütün çıkış kanıtları tam olan en yüksek ardışık seviye.
 5. Çıktı: seviye başına "S2 GÜVENİLİR: %62 (5 satırın 2,5'i)", her satır için tek cümle kanıt ve tarihi; resmî
    seviye. Belgeyle çelişen kanıt varsa ayrıca yaz.
-6. `docs/MATURITY.md` yalnız kullanıcı isterse, dal üzerinden güncellenir.
+6. Belgeyle çelişen kanıt bulunduysa (kullanıcı kararı, 11.11.2026: "tekrar geriye dönmeyelim") `docs/MATURITY.md`
+   dal üzerinden düzeltilir: çelişen satıra tarihli "**GG.AA durumu:**" notu ve kanıtı, baştaki "Son ölçüm" satırına
+   yüzdeler. Satır silinmez, eski kanıt korunur. Canlı klasöre yazılmaz; kuyruk sınırı doluysa düzeltme yerel
+   zincirin ucuna commit edilir. Çelişki yoksa belge değişmez.
+7. SLO ölçümü: `measure(now)` saat dilimli bir zamanla çağrılır (`datetime.now(timezone.utc).astimezone()`);
+   Windows konsolunda `PYTHONIOENCODING=utf-8`.

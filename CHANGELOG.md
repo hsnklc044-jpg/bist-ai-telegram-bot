@@ -4,6 +4,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 
 ## v0.99.147 – 11.11.2026 (olgunluk belgesi güncel kanıtla)
 - MATURITY: 11.11 ölçümü (S2 %70, S3 %75, S4 %50). S2 SLO satırı: 02–09.11 haftası hedefte değil (bot %70,7, rapor %80), sayaç 09.11'den, en erken kapanış 07.12 (önceki "24.11" artık geçerli değil). Veri doğruluğu: ikinci kaynak 29.10'dan beri kapalı, yerine Borsa İstanbul resmî gün sonu verisi (K1/K2). İzleme, 30 gün sayacı, sunucu kararı ara sonucu ve r1 tarihli notlarla.
+- `olgunluk` skill'i: belgeyle çelişen kanıt bulunca MATURITY dal üzerinden kendiliğinden düzeltilir (kullanıcı kararı 11.11, değişiklik kullanıcı onayıyla); SLO ölçümü saat dilimli zamanla.
 
 ## v0.99.146 – 11.11.2026 (r2 ön kaydı ve aracı: reddedilen kurallar 2002–2015; K-92)
 - Ön kayıt (ölçümden önce): a1–a3 kuralları aynen, 2002-01-02 – 2015-11-13, resmî eski sistem fiyatları, resmî BSIT100 üyeliği.
