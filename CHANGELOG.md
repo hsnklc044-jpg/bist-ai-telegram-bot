@@ -2,6 +2,16 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.133 – 11.11.2026 (/tablo ve /karne: profesyonel puan, renkler ve sınıflar; göstergeler "detay"da)
+- Kullanıcı kararı (11.11, C): `/tablo` varsayılan çıktısı "TEKNİK TABLO · tarih", "N hisse · Ort. puan X · sınıf", puanı ≥ 40 olan en fazla 6 hissenin `<pre>` tablosu (renk, hisse, puan, en yakın destek, en yakın direnç; sağa hizalı, satır ≤ 32 karakter), yalnız varsa "Zayıf N · Çok zayıf M · Veri eksik K", düşüş mumu uyarısı ve yükseliş mumu notu, "Ayrıntı: /tablo … detay".
+- Puan profesyonel teknik puandır (K-88); göreli güç her zaman BIST 100 evreninde sıralanır (takip listesindeki birkaç hisse kendi aralarında sıralanmaz). Destek ve direnç `/seviye`'nin kendi hesabından en yakın seviye. Eksik boyutlu hisse renksiz; tabloya girmez, "Veri eksik" sayısında ve detayda görünür. Oynaklık sırası ≥ 90 ⚠️.
+- `/tablo … detay`: önceki gösterge satırları (RSI, fiyat/EMA, hacim, mum) ve altında her hissenin puanı, destek ve direnci.
+- Kopya veride (10.11 kapanışı, 10 hisse) 1,5 sn; çıktı mesaj stili denetiminden temiz.
+- Kullanıcı kararı (11.11, D ve I madde 3): `/karne HİSSE` üstte "renk PRO-PUAN/100 · sınıf", altında "Betik karnesi: KARNE/100"; altı profesyonel boyutun 10 kutuluk çubukları (█/░, her kutu %10) ve puanı; fiyat, en yakın destek ve direnç ile kapanışa uzaklık; "Geçmiş · SINIF ARALIĞI puan · 20 gün" ve "Ort. ±X% · XU100 ±Y% · İsabet Z%" (araştırma dönemi, holdout öncesi; hissenin aynı sınıfta olduğu günlerin 20 seans sonrası; 20 seansı verinin içinde olmayan gün sayılmaz; 30 günden az: "Geçmiş örnek az"; İsabet = o günlerin yükseldiği payı). "/karne HİSSE detay": altı boyutun kriterleri ✓/✗ ve betiğin 12 göstergesi (karne değişmedi).
+- Göreli güç her gün o günün BIST 100 üyeleri arasında sıralanır (tarama kartıyla aynı veri ve yöntem). Günün ilk karnesi geçmiş hesabı için kopya veride 6,8 sn, sonrakiler 1,3 sn.
+- Doğrulama: `test_pro_card` (önce başarısız testler: çubuk, başlık ve iki puan, fiyat/destek/direnç uzaklığı, geçmiş satırı ve az örnek, eksik boyut, aynı sınıf günleri ve ileriye bakmama, vektör hesap = satır hesabı, komut); `test_scorecard` yeni varsayılana göre (12 gösterge `detay` ile);
+- Doğrulama: `test_pro_table` (önce başarısız testler: başlık ve özet satırı, sıralama, 6 satır ve 40 eşiği, 32 karakter, fiyat biçimi, destek/direnç yokken "—", zayıf sayıları ve mum notlarının yalnız varken çıkması, detay komutu, stil denetimi, BIST 100 içinde sıralama); `test_symbol_table` yeni varsayılana göre güncellendi (göstergeler `detay` ile).
+
 ## v0.99.132 – 11.11.2026 (profesyonel teknik puan: hesap; tablo ve karnede gösterimi sonraki sürümde; K-88)
 - Kullanıcı kararı (11.11, I): renkli topların kaynağı olacak "Profesyonel teknik puan" (0–100), `core/analytics/pro_score.py`. Altı boyut: uzun vadeli trend 20, orta vadeli momentum 20, göreli güç 20, 52 hafta zirvesine yakınlık 15, kısa vadeli teyit 15, hacim teyidi 10. Eşikler veri görülmeden yazıldı (K-88); sonuca göre ayar yapılmaz.
 - Hesaplanamayan boyut "veri yok": sıfır sayılmaz, puan "N/100 (eksik boyut: …)" diye gösterilir ve renk verilmez. Oynaklık sırası ≥ 90 puana girmez, ⚠️ uyarısıdır.

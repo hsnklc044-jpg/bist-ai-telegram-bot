@@ -222,8 +222,11 @@ class CommandTest(unittest.TestCase):
         return sent
 
     def test_a_symbol_returns_the_card(self):
-        sent = self.run_command(["THYAO"], bars())
-        self.assertIn("THYAO teknik gösterge karnesi", sent[0][0])
+        sent = self.run_command(["THYAO"], bars())  # D (11.11.2026): the professional score first
+        self.assertIn("THYAO · TEKNİK KARNE", sent[0][0])
+        self.assertIn("Betik karnesi:", sent[0][0])
+        detail = self.run_command(["THYAO", "detay"], bars())  # the script's twelve indicators, unchanged
+        self.assertIn("THYAO teknik gösterge karnesi", detail[0][0])
 
     def test_usage_and_a_bad_symbol(self):
         self.assertIn("/karne THYAO", self.run_command([])[0][0])

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from datetime import date
 
 import pandas as pd
 
@@ -110,3 +111,111 @@ def text(title: str, table: list[Row]) -> str:
         lines.append(f"ve {len(table) - MAX_ROWS} hisse daha: /tablo KOD KOD ...")
     lines.append(f"{DISCLAIMER} EMA seti 5/20/50/100/200; Hacim: son 5 seans / önceki 20 seans ortalaması.")
     return "\n".join(lines)
+
+
+# --- C (11.11.2026): the default /tablo with the professional score (core.analytics.pro_score, K-88) -------------
+
+PRO_MIN, PRO_ROWS = 40, 6
+BEARISH = ("Yutan Ayı", "Düşüş Marubozu")
+BULLISH = ("Yutan Boğa", "Yükseliş Marubozu")
+
+
+@dataclass(frozen=True)
+class ProRow:
+    symbol: str
+    score: object  # core.analytics.pro_score.ProScore
+    support: float | None
+    resistance: float | None
+    pattern: str
+    day: date | None
+
+
+def pro_rows(frames: dict[str, pd.DataFrame], symbols: list[str], bench_close: pd.Series,
+             universe: dict[str, pd.DataFrame] | None = None) -> list[ProRow]:
+    """Score (relative strength ranked in `universe`), the nearest support and resistance (/seviye's own levels)
+    and the candle pattern of each listed stock that has candles."""
+
+    from core.analytics import pro_score
+    from core.analytics.levels import levels, nearest
+
+    present = {s: frames[s] for s in symbols if s in frames and frames[s] is not None and len(frames[s])}
+    scores = pro_score.latest(present, bench_close, universe=universe)
+    out = []
+    for s in symbols:
+        df = present.get(s)
+        if df is None or s not in scores:
+            continue
+        try:
+            near = nearest(levels(df), 1)
+        except Exception:  # noqa: BLE001 - a missing level never stops the table
+            near = {"destek": [], "direnç": []}
+        out.append(ProRow(s, scores[s], near["destek"][0].price if near["destek"] else None,
+                          near["direnç"][0].price if near["direnç"] else None, patterns(df), df.index[-1].date()))
+    return out
+
+
+def _level(value: float | None) -> str:
+    if value is None:
+        return "—"
+    from core.reports.style import number
+
+    return number(value, 0 if value >= 1000 else 2)
+
+
+def pro_text(name: str, table: list[ProRow]) -> str:
+    from core.reports.style import header, score_class
+
+    days = sorted({r.day for r in table if r.day})
+    lines = [header("Teknik tablo", days[-1]) if days else "TEKNİK TABLO"]
+    complete = [r for r in table if not r.score.missing]
+    if complete:
+        mean = round(sum(r.score.total for r in complete) / len(complete))
+        colour, label = score_class(mean)
+        lines.append(f"{len(table)} hisse · Ort. puan {mean} · {colour} {label}")
+    else:
+        lines.append(f"{len(table)} hisse · puan hesaplanamadı")
+    shown = sorted((r for r in complete if r.score.total >= PRO_MIN), key=lambda r: -r.score.total)[:PRO_ROWS]
+    lines.append("")
+    if shown:
+        body = [f"{'':2} {'Hisse':<5}{'Puan':>5}{'Destek':>9}{'Direnç':>9}"]
+        for r in shown:
+            colour = r.score.colour()[0]
+            mark = "⚠️" if r.score.warning else ""
+            body.append(f"{colour} {r.symbol.removesuffix('.IS'):<5}{r.score.total:>5}{_level(r.support):>9}"
+                        f"{_level(r.resistance):>9}{mark}")
+        lines.append("<pre>" + "\n".join(body) + "</pre>")
+    else:
+        lines.append("Puanı 40 ve üstü hisse yok.")
+    counts = {"Zayıf": 0, "Çok zayıf": 0}
+    for r in complete:
+        label = score_class(r.score.total)[1]
+        if label in counts:
+            counts[label] += 1
+    missing = len(table) - len(complete)
+    tail = [f"{k} {v}" for k, v in counts.items() if v] + ([f"Veri eksik {missing}"] if missing else [])
+    notes = []
+    if tail:
+        notes.append(" · ".join(tail))
+    down = [r.symbol.removesuffix(".IS") for r in table if r.pattern in BEARISH]
+    up = [r.symbol.removesuffix(".IS") for r in table if r.pattern in BULLISH]
+    if down:
+        notes.append(f"Uyarı: {', '.join(down)} düşüş mumu")
+    if up:
+        notes.append(f"Not: {', '.join(up)} yükseliş mumu")
+    if notes:
+        lines += ["", *notes]
+    lines += ["", f"Ayrıntı: /tablo {name} detay" if name else "Ayrıntı: /tablo detay"]
+    return "\n".join(lines)
+
+
+def pro_detail_lines(table: list[ProRow]) -> list[str]:
+    """The score and the nearest levels under the indicator lines of /tablo ... detay."""
+
+    lines = ["Profesyonel teknik puan, en yakın destek / direnç:"]
+    for r in table:
+        colour = r.score.colour()
+        mark = f"{colour[0]} " if colour else ""
+        warn = " ⚠️ oynaklık yüksek" if r.score.warning else ""
+        lines.append(f"{mark}{r.symbol.removesuffix('.IS')}: {r.score.label()} · destek {_level(r.support)} · "
+                     f"direnç {_level(r.resistance)}{warn}")
+    return lines

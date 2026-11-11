@@ -167,11 +167,23 @@ def _table_text(chat_id, words: list[str]) -> str:
     from core.signals import store
     from core.watchlist.service import get_watchlist
 
+    # C (11.11.2026): the default is the short professional-score table; "detay" keeps the indicator lines
+    detail = bool(words) and words[-1].lower() == "detay"
+    words = words[:-1] if detail else words
+
+    def answer(title: str, name: str, frames: dict, symbols: list[str]) -> str:
+        bist100, bench = _live(universe.symbols(parse("rsi>0 evren=bist100").universe, chat_id))
+        table = T.pro_rows({**frames, **{s: bist100[s] for s in symbols if s in bist100 and s not in frames}},
+                           symbols, bench["close"], universe=bist100)
+        if detail:
+            return "\n".join([T.text(title, T.rows(frames, symbols)), "", *T.pro_detail_lines(table)])
+        return T.pro_text(name, table)
+
     if not words:
         symbols = get_watchlist(chat_id)
         if not symbols:
             return "Takip listen boş. /tablo THYAO GARAN ya da /tablo bist100_trend yazabilirsin."
-        return T.text("takip listen", T.rows({s: adjusted_bars(s) for s in symbols}, symbols))
+        return answer("takip listen", "", {s: adjusted_bars(s) for s in symbols}, symbols)
     name = normalize(words[0])
     criteria = criteria_of(name) if len(words) == 1 else None
     if criteria is not None:
@@ -183,9 +195,10 @@ def _table_text(chat_id, words: list[str]) -> str:
         symbols = [m.symbol for m in result.matches]
         if not symbols:
             return f"📊 Tablo: {name}: şu an koşulu sağlayan hisse yok."
-        return T.text(name, T.rows(frames, symbols))
+        return answer(name, name, frames, symbols)
     symbols = [normalize_symbol(w) for w in words[:T.MAX_ROWS]]
-    return T.text("seçtiğin hisseler", T.rows({s: adjusted_bars(s) for s in symbols}, symbols))
+    return answer("seçtiğin hisseler", " ".join(s.removesuffix(".IS") for s in symbols),
+                  {s: adjusted_bars(s) for s in symbols}, symbols)
 
 
 async def table_cmd(
@@ -319,32 +332,62 @@ async def long_cmd(
     await reply(update, text)
 
 
-def _scorecard_text(symbol: str) -> str:
-    from core.analytics import scorecard
+def _scorecard_text(symbol: str, detail: bool = False) -> str:
+    """D and I madde 3 (11.11.2026): the professional score and the user's scorecard side by side; "detay": the
+    dimensions' criteria and the script's 12 indicators (the scorecard itself is unchanged)."""
+
+    from core.analytics import pro_card, pro_score, scorecard
+    from core.analytics.levels import levels, nearest
     from core.reports.daily import adjusted_bars
+    from core.screen import universe
+    from core.screen.command import _live
+    from core.screen.language import parse
 
     bars = adjusted_bars(symbol)
     if bars is None or len(bars) == 0:
         return f"{symbol} için fiyat verisi yok."
-    return scorecard.text(symbol, bars)
+    bist100, bench = _live(universe.symbols(parse("rsi>0 evren=bist100").universe, None))
+    row = pro_score.latest_rows({symbol: bars}, bench["close"], universe=bist100)[symbol]
+    if detail:
+        return pro_card.detail(symbol, row, scorecard.text(symbol, bars))
+    score = pro_score.score(row)
+    try:
+        near = nearest(levels(bars), 1)
+    except Exception:  # noqa: BLE001 - a missing level never stops the card
+        logger.exception("Levels failed for %s", symbol)
+        near = {"destek": [], "direnç": []}
+    past = None
+    if not score.missing:
+        try:
+            scores, closes, bench_close = pro_card.history_totals()
+            if symbol in scores:
+                past = pro_card.past(scores[symbol], closes[symbol].dropna(), bench_close, current=score.total)
+        except Exception:  # noqa: BLE001 - the past line is optional
+            logger.exception("Past classes failed for %s", symbol)
+    return pro_card.text(symbol, bars.index[-1].date(), score, scorecard.score(bars).total,
+                         float(bars["close"].iloc[-1]),
+                         near["destek"][0].price if near["destek"] else None,
+                         near["direnç"][0].price if near["direnç"] else None, past)
 
 
 async def scorecard_cmd(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ) -> None:
-    """Handle /karne SYMBOL: the twelve-indicator scorecard of the user's TradingView script (information only)."""
+    """Handle /karne SYMBOL [detay]: the professional score and the user's scorecard (information only)."""
 
-    if len(context.args or []) != 1:
-        await reply(update, "Kullanım:\n/karne THYAO")
+    args = list(context.args or [])
+    detail = len(args) == 2 and args[1].lower() == "detay"
+    if len(args) != 1 and not detail:
+        await reply(update, "Kullanım:\n/karne THYAO\n/karne THYAO detay")
         return
     try:
-        symbol = normalize_symbol(context.args[0])
+        symbol = normalize_symbol(args[0])
     except ValueError as exc:
         await reply(update, str(exc))
         return
     try:
-        text = await asyncio.to_thread(_scorecard_text, symbol)
+        text = await asyncio.to_thread(_scorecard_text, symbol, detail)
     except Exception:  # noqa: BLE001 - a failed card never stops the bot
         logger.exception("/karne failed for %s", symbol)
         text = f"{symbol} için karne hesaplanamadı; ayrıntı logs/quantbist.log içinde."

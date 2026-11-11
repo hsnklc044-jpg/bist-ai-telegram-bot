@@ -132,19 +132,23 @@ class CommandTest(unittest.TestCase):
         self.assertIn("/tablo", HELP_TEXT)
 
     def test_the_watchlist_when_no_argument(self):
-        text = self.run_table([], **{"core.watchlist.service.get_watchlist": dict(return_value=["THYAO.IS"]),
-                                     "core.reports.daily.adjusted_bars": dict(return_value=bars(300))})
-        self.assertIn("Tablo: takip listen", text)
+        patches = {"core.watchlist.service.get_watchlist": dict(return_value=["THYAO.IS"]),
+                   "core.reports.daily.adjusted_bars": dict(return_value=bars(300))}
+        text = self.run_table([], **patches)  # C (11.11.2026): the professional-score table by default
+        self.assertIn("TEKNİK TABLO", text)
         self.assertIn("THYAO", text)
+        self.assertIn("Tablo: takip listen", self.run_table(["detay"], **patches))  # the indicator lines
 
     def test_an_empty_watchlist_says_how_to_start(self):
         text = self.run_table([], **{"core.watchlist.service.get_watchlist": dict(return_value=[])})
         self.assertIn("Takip listen boş", text)
 
     def test_symbols_given(self):
-        text = self.run_table(["THYAO", "GARAN"], **{"core.reports.daily.adjusted_bars": dict(return_value=bars(300))})
-        self.assertIn("seçtiğin hisseler", text)
+        patches = {"core.reports.daily.adjusted_bars": dict(return_value=bars(300))}
+        text = self.run_table(["THYAO", "GARAN"], **patches)
         self.assertIn("GARAN", text)
+        self.assertIn("Ayrıntı: /tablo THYAO GARAN detay", text)
+        self.assertIn("seçtiğin hisseler", self.run_table(["THYAO", "GARAN", "detay"], **patches))
 
     def test_a_saved_screen_shows_its_matches_and_respects_the_lock(self):
         found = SimpleNamespace(matches=[SimpleNamespace(symbol="AAA.IS")])
@@ -155,8 +159,9 @@ class CommandTest(unittest.TestCase):
                    "core.screen.engine.run": dict(return_value=found),
                    "core.signals.store.locked": dict(return_value=False)}
         text = self.run_table(["deneme"], **patches)
-        self.assertIn("Tablo: deneme", text)
+        self.assertIn("TEKNİK TABLO", text)
         self.assertIn("AAA", text)
+        self.assertIn("Tablo: deneme", self.run_table(["deneme", "detay"], **patches))
         patches["core.signals.store.locked"] = dict(return_value=True)
         self.assertIn("kilidi nedeniyle durdu", self.run_table(["deneme"], **patches))
 
