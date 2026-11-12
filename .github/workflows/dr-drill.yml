@@ -8,7 +8,8 @@ on:
   schedule:
     - cron: "41 4 3 * *"  # 3rd of each month, 07:41 Istanbul
   workflow_dispatch:
-  push:  # 12.11.2026: a change to a gate ALONE file (scripts/surum_kapisi.py) drills its own SHA; no manual start
+  push:  # 12.11.2026: a change to a gate ALONE file (scripts/surum_kapisi.py) drills its own SHA; no manual start.
+    # tests/test_dr_drill_trigger.py keeps these paths a superset of ALONE.
     paths:
       - "scripts/guncelle.py"
       - "scripts/register_update_task.ps1"

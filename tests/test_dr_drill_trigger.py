@@ -23,7 +23,7 @@ def _on_block() -> str:
 
 
 def _push_paths() -> set[str]:
-    block = re.search(r"^  push:\n((?:    .*\n)*)", _on_block(), re.M)
+    block = re.search(r"^  push:.*\n((?:    .*\n)*)", _on_block(), re.M)
     assert block, "no push trigger"
     return set(re.findall(r'^\s+- "([^"]+)"', block.group(1), re.M))
 
