@@ -8,6 +8,17 @@ on:
   schedule:
     - cron: "41 4 3 * *"  # 3rd of each month, 07:41 Istanbul
   workflow_dispatch:
+  push:  # 12.11.2026: a change to a gate ALONE file (scripts/surum_kapisi.py) drills its own SHA; no manual start
+    paths:
+      - "scripts/guncelle.py"
+      - "scripts/register_update_task.ps1"
+      - "core/backup.py"
+      - "core/infrastructure/csvfiles.py"
+      - "core/signals/store.py"
+      - "setup.ps1"
+      - "scripts/setup.ps1"  # the real path; the gate ALONE list says setup.ps1
+      - "requirements.lock"
+      - ".github/workflows/dr-drill.yml"
 
 permissions:
   contents: write  # push the drill report to research-results only
