@@ -47,6 +47,7 @@ from core.config.paths import (
     EVENTS_FILE,
     FUNDAMENTALS_FILE,
     LEDGER_FILE,
+    LOG_DIR,
     MARKET_DB,
     PAPER_ORDERS_FILE,
     PRICE_ALARMS_FILE,
@@ -81,6 +82,8 @@ PERSONAL_FILES = (
     SIGNALS_DB,  # SQLite; written only by the daily run, briefly
     EVENTS_FILE,
 )
+WEEKLY_SLO_DIR = LOG_DIR / "haftalik_slo"  # same folder as core.otonom.WEEKLY_DIR: dated Saturday SLO tables (2b)
+WEEKLY_PREFIX = "haftalik_slo/"  # their name inside the zip; restored to WEEKLY_SLO_DIR, not to data/
 MANIFEST = "manifest.json"
 PREFIX = "quantbist_"
 DEFAULT_KEEP = 30
@@ -134,6 +137,20 @@ def verify(path: Path) -> dict[str, str]:
 SQLITE_MAGIC = b"SQLite format 3\x00"
 
 
+def _weekly_files() -> list[Path]:
+    return sorted(WEEKLY_SLO_DIR.glob("*.txt")) if WEEKLY_SLO_DIR.is_dir() else []
+
+
+def _arcname(path: Path) -> str:
+    return WEEKLY_PREFIX + path.name if path.parent == WEEKLY_SLO_DIR else path.name
+
+
+def _restore_path(name: str, data_dir: Path) -> Path:
+    if name.startswith(WEEKLY_PREFIX):
+        return WEEKLY_SLO_DIR / Path(name).name
+    return data_dir / name
+
+
 def _backup_bytes(path: Path) -> bytes:
     """
     The bytes to put in a backup. A SQLite file (signals.db) is copied with SQLite's online backup API, like
@@ -175,6 +192,8 @@ def create_backup(
     """Zip the existing personal files (default: PERSONAL_FILES as it is now); None when there is nothing."""
 
     present = [Path(f) for f in (PERSONAL_FILES if files is None else files) if Path(f).exists()]
+    if files is None:
+        present += _weekly_files()
 
     if not present:
         return None
@@ -189,8 +208,8 @@ def create_backup(
     with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for f in present:
             data = _backup_bytes(f)
-            zf.writestr(f.name, data)
-            manifest["files"][f.name] = _sha256(data)
+            zf.writestr(_arcname(f), data)
+            manifest["files"][_arcname(f)] = _sha256(data)
         zf.writestr(MANIFEST, json.dumps(manifest, indent=2))
 
     verify(tmp)
@@ -311,6 +330,9 @@ def _check_file(path: Path) -> str:
     import sqlite3
 
     name = path.name
+    if path.parent.name == WEEKLY_PREFIX.rstrip("/"):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        return f"haftalık SLO {path.stem} {len(lines)} satır"
     if name == LEDGER_FILE.name:
         from core.ledger.book import load_ledger, replay
 
@@ -359,7 +381,9 @@ def test_restore(paths: list[Path] | None = None) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
             with zipfile.ZipFile(path) as zf:
                 for name in names:
-                    (Path(tmp) / name).write_bytes(zf.read(name))
+                    out = Path(tmp) / name
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_bytes(zf.read(name))
             for name in sorted(names):
                 try:
                     lines.append(f"{path.name}: {_check_file(Path(tmp) / name)}")
@@ -382,14 +406,16 @@ def restore_backup(path: Path, data_dir: Path = DATA_DIR) -> tuple[list[str], Ba
     data_dir = Path(data_dir)
 
     safety = create_backup(
-        [data_dir / n for n in names],
+        [_restore_path(n, data_dir) for n in names],
         target=path.parent,
         name=f"{PREFIX}before_restore_{datetime.now():%Y%m%d-%H%M%S}.zip",
     )
 
     with zipfile.ZipFile(path) as zf:
         for name in names:
-            (data_dir / name).write_bytes(zf.read(name))
+            out = _restore_path(name, data_dir)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_bytes(zf.read(name))
 
     logger.info("Backup restored | %s | %d files", path.name, len(names))
 

@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.132 – 12.11.2026 (haftalık SLO dosyaları günlük yedekte)
+- Günlük yedek `logs/haftalik_slo/*.txt` dosyalarını da alır (zip içinde `haftalik_slo/` altında); geri yükleme onları `data/` değil `logs/haftalik_slo/` klasörüne yazar, geri yükleme testi de okur.
+- Paket dışı (`core/backup.py`): tek başına, hafta sonu, önce aynı SHA'da `dr-drill`.
+
 ## v0.99.131 – 12.11.2026 (haftalık SLO tablosu dosyaya da yazılır; K-17 düzeltmesi)
 - Cumartesi 21:00 özeti (haftalık SLO tablosuyla) gönderilmeden önce `logs/haftalik_slo/YYYY-MM-DD.txt` dosyasına da yazılır. K-17 bunu söz vermişti, hiç yapılmamıştı (öz-denetim 10).
 - Testler: cumartesi dosya yazılır, diğer günler yazılmaz, özet işi dosyayı gönderimden önce yazar.
