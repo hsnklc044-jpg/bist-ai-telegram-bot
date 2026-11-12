@@ -2,6 +2,10 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 12.11.2026
+
+**K-93. Akşam robot görevi 20:30'dan 20:15'e (12.11.2026, kullanıcı isteği).** Görev `quantbist-otonom-aksam` cron `30 20 * * *` ve uygulamanın 662 saniyelik başlatma kaydırmasıyla 20:41'de çalışıyor (11.11 çalışması 17:41:36Z); güncelleyicinin 20:40 turunu kaçırıyor, akşamın ilk kurulumu 21:40'a kayıyor (11.11'de Paket 4 bu yüzden ertelendi, OTONOM_RAPOR satır 148). Yeni cron `15 20 * * *`: en geç ~20:26'da başlar, birleştirme 20:40'tan önce olur. Kurallarla uyumu: kurulum zamanı yine güncelleyicinin :40 turu ve 20:40 rapor penceresinin (18:00–20:00) dışında (`scripts/surum_kapisi.py` satır 16–17); birleştirme kurulum değildir; 21:00 özeti ve 19:15 salt okunur bakımla çakışmaz; günde ≤4 kurulum, tek paket ve sağlık koşulları değişmez. Kota modundaki "yalnız akşam görevi" kuralı aynen; yalnız saati değişti. 18.11'de 07:00 görevi açılırken bu saat korunur.
+
 ## 11.11.2026
 
 **K-92. r2: reddedilen kurallar, 2002–2015 eski sistem dönemi (11.11.2026). Ölçümden önce.**
