@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.133 – 12.11.2026 (resmî veri içe aktarımı /durum'da; Ö39)
+- Gece 02:30 resmî veri işinin sonucu `logs/official_import.json` dosyasına yazılır (`core/official/status.py`); `/durum` yeni "Resmî veri içe aktarımı" satırında başarısız çalışmayı ve okunamayan dosyaları ⚠️ olarak gösterir. Önceden yalnız log uyarısı vardı (öz-denetim 10, Ö39).
+- Sessiz gece (yeni dosya yok) son okumayı ve reddedilen dosyaları silmez; yeni bir okuma gelince güncellenir.
+
 ## v0.99.132 – 12.11.2026 (haftalık SLO dosyaları günlük yedekte)
 - Günlük yedek `logs/haftalik_slo/*.txt` dosyalarını da alır (zip içinde `haftalik_slo/` altında); geri yükleme onları `data/` değil `logs/haftalik_slo/` klasörüne yazar, geri yükleme testi de okur.
 - Paket dışı (`core/backup.py`): tek başına, hafta sonu, önce aynı SHA'da `dr-drill`.
