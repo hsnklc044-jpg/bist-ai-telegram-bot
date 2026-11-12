@@ -109,6 +109,37 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual((kwargs["time"].hour, kwargs["time"].minute, kwargs["chat_id"]), (21, 0, 42))
         self.assertFalse(scheduler.schedule_otonom_summary(app, None))
 
+SATURDAY = datetime(2026, 11, 14, 21, 0, tzinfo=ISTANBUL)
+
+
+def test_the_saturday_table_is_also_written_to_a_file(tmp_path, monkeypatch):
+    """K-17 promised the weekly SLO table in a file; it only ever went to Telegram (12.11.2026)."""
+    monkeypatch.setattr(otonom, "WEEKLY_DIR", tmp_path / "haftalik_slo")
+    text = "ROBOT\nHaftalık SLO tablosu:\n✅ Rapor teslimi"
+    path = otonom.save_weekly(SATURDAY, text)
+    assert path == tmp_path / "haftalik_slo" / "2026-11-14.txt"
+    assert path.read_text(encoding="utf-8") == text + "\n"
+
+
+def test_other_days_write_no_weekly_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(otonom, "WEEKLY_DIR", tmp_path / "haftalik_slo")
+    assert otonom.save_weekly(NOW, "x") is None
+    assert not (tmp_path / "haftalik_slo").exists()
+
+
+def test_the_saturday_job_writes_the_file_before_sending(tmp_path, monkeypatch):
+    from bot import scheduler
+
+    monkeypatch.setattr(otonom, "WEEKLY_DIR", tmp_path / "haftalik_slo")
+    monkeypatch.setattr(otonom, "build_summary", lambda now: "ROBOT · 14.11")
+    monkeypatch.setattr(scheduler, "now_istanbul", lambda: SATURDAY)
+    bot = SimpleNamespace(send_message=mock.AsyncMock())
+    context = SimpleNamespace(job=SimpleNamespace(chat_id=42), bot=bot)
+    asyncio.run(scheduler.otonom_summary_job(context))
+    assert (tmp_path / "haftalik_slo" / "2026-11-14.txt").read_text(encoding="utf-8") == "ROBOT · 14.11\n"
+    bot.send_message.assert_awaited_once()
+
+
 
 if __name__ == "__main__":
     unittest.main()

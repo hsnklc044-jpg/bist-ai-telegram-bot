@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.131 – 12.11.2026 (haftalık SLO tablosu dosyaya da yazılır; K-17 düzeltmesi)
+- Cumartesi 21:00 özeti (haftalık SLO tablosuyla) gönderilmeden önce `logs/haftalik_slo/YYYY-MM-DD.txt` dosyasına da yazılır. K-17 bunu söz vermişti, hiç yapılmamıştı (öz-denetim 10).
+- Testler: cumartesi dosya yazılır, diğer günler yazılmaz, özet işi dosyayı gönderimden önce yazar.
+
 ## v0.99.130 – 11.11.2026 (bütün bilgiler güvende: depo dışı belgeler depoda, her gece dal ve yedek satırı; K-87)
 - Kullanıcı isteği (11.11, L): depo dışındaki iki klasör hiçbir yedekte değildi. Proje belgesi niteliğindeki dosyalar gizli bilgi taramasından geçirilip `docs/`'a alındı: `MODEL_6_12_AY.md`, `KARNE_KURALI.md`, `OTONOM_KURALLAR.md`, `OTONOM_GOREV.md` (özel depo B'nin adı karartıldı), `GOZLEMLER.md`. Eski dosyalar silinmez; sürüm canlıya çıktıktan sonra başlarına "taşındı" notu eklenir.
 - Skill'ler (robot, siradaki-is) ek kuralları artık depodaki `docs/OTONOM_KURALLAR.md`'den okur.

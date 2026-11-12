@@ -24,6 +24,7 @@ from core.config.paths import DATA_DIR, LOG_DIR
 
 STOP_FILE = DATA_DIR / "otonom_dur.flag"
 TOOLS_DIR = Path(os.environ.get("QUANTBIST_TOOLS_DIR", r"C:\Projeler\QuantBIST-araclar"))
+WEEKLY_DIR = LOG_DIR / "haftalik_slo"  # K-17 correction (12.11.2026): the Saturday table also goes to a file
 
 
 def brake_file() -> Path:
@@ -192,5 +193,18 @@ def build_summary(now: datetime) -> str:
     return summary_text(now, log, changelog, slo.measure(now), record, checks=checks)
 
 
-__all__ = ["STOP_FILE", "brake_file", "branches_line", "build_summary", "changelog_title", "installs_today", "resume", "stop",
+def save_weekly(now: datetime, text: str) -> Path | None:
+    """Saturday: the summary with the weekly SLO table, also as logs/haftalik_slo/YYYY-MM-DD.txt (K-17).
+
+    Other days write nothing. The folder is in logs/ (not tracked by git); the bot never writes into docs/."""
+
+    if now.weekday() != 5:
+        return None
+    path = WEEKLY_DIR / f"{now:%Y-%m-%d}.txt"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text + "\n", encoding="utf-8", newline="\n")
+    return path
+
+
+__all__ = ["STOP_FILE", "brake_file", "branches_line", "build_summary", "changelog_title", "installs_today", "resume", "save_weekly", "stop",
            "stopped", "summary_text"]

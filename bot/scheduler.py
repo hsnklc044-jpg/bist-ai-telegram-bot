@@ -409,10 +409,15 @@ async def otonom_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     from core import otonom
 
     try:
-        text = await asyncio.to_thread(otonom.build_summary, now_istanbul())
+        now = now_istanbul()
+        text = await asyncio.to_thread(otonom.build_summary, now)
     except Exception:  # noqa: BLE001 - a summary never stops the bot
         logger.exception("Autonomous summary failed")
         return
+    try:
+        otonom.save_weekly(now, text)
+    except OSError:
+        logger.exception("Weekly SLO table could not be written")
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     if chat:
         from core.infrastructure import outbox
