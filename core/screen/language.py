@@ -26,7 +26,7 @@ import pandas as pd
 from core.screen import fields as F
 
 MAX_LENGTH = 400
-MA_PERIODS = (5, 10, 20, 40, 50, 100, 150, 200)  # the periods the user's screens use (görev 28.10, Aşama A)
+MA_PERIODS = (5, 10, 14, 20, 40, 50, 100, 150, 200)  # the periods the user's screens use (görev 28.10, Aşama A; 14: roket, K-86)
 MAX_CONDITIONS = 15  # the user's own "Düşeni Kıran" screen has 14 price conditions (DECISIONS K-34)
 PARAM_RANGE = (2, 250)
 WINDOW_RANGE = (1, 60)

@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.129 – 12.11.2026 (kullanıcının "roket" TradingView taraması `/tara` şablonu; K-86)
+- Yeni şablon `/tara roket`: Ichimoku, ortalamalar, MACD, Aroon, RSI, haftalık değişim ve göreli hacim koşulları; TradingView taramasının 16 koşulunun 15'i (çıkan "BB üst > BB orta" her zaman doğru). Listede "fiyat > öncü B yok, fiyat bulutun içinde kalabilir" notu.
+- Yeni `/tara` alanları: `ichimoku_donusum`, `ichimoku_baz`, `ichimoku_a`, `ichimoku_b`, `aroon_yukari`, `vwap`, `pivot_fib`, `bb_orta`; `ema(14)` artık geçerli.
+- Doğrulama: `test_screen_tv_fields.RoketFieldsTest` (Ichimoku elle ve 25 seans kaydırma, VWAP, Bollinger orta bandı, Aroon eşitlik ve pencere uçları, önceki ayın pivotu ve eksik ay, sonraki mumun önceki değerleri değiştirmemesi, ema14), `test_screen_templates` (şablonun koşulları ve atlanan notu).
+
 ## v0.99.128 – 11.11.2026 (resmî verinin kullanımı: Yahoo kontrolü, kurumsal işlem ve üyelik raporu, ay başı hatırlatması; K-85)
 - Kapanmış ay: Yahoo, resmî kapanışlarla günlük getiri bazında, mevcut crosscheck kurallarıyla (eşik, piyasa geneli gün, tek gün kapanış hatası) karşılaştırılır. Borsanın kurumsal işlem kodu ve `corporate_actions.csv` farkı açıklar. Özet "Veri doğruluğu" hedefinin dosyasına "Borsa İstanbul resmî gün sonu" kaynağıyla yazılır; farklı hisseler adıyla `logs/resmi_karsilastirma_YYYY-MM.txt`'de. Gece 02:30'da içe aktarmadan sonra çalışır.
 - Gerçek veriyle deneme (11.11, kopyalarda): Ekim 2026 206 hissede 1 farklı (RALYH), Eylül 0, Ağustos 0, Haziran 2 (KONTR, TRILC); Ocak 2023'te 05.01 Yahoo sorunu piyasa geneli gün olarak ayrıldı.

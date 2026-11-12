@@ -23,6 +23,10 @@ EXPECTED = {
                     "ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis",
     "tek_tus_trend": "kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 "
                      "ema20<kapanis degisim_3a<60",
+    # kullanıcının "roket" taraması (12.11.2026, K-86): 16 koşulun 15'i; BB üst > BB orta hep doğru
+    "roket": "ichimoku_donusum>ichimoku_a ichimoku_donusum>ichimoku_baz kapanis>ichimoku_a kapanis>ichimoku_donusum "
+             "kapanis>ichimoku_baz kapanis>ema14 kapanis>vwap kapanis>bb_orta pivot_fib<bb_orta macd>macd_sinyal "
+             "aroon_yukari>50 rsi<75 degisim_1h>5 goreli_hacim 0.15..3 goreli_hacim>1",
     "teknik_temel_ema": "kapanis>ema50 ema50>ema200",
     # /tara görevi Aşama 5, verildiği gibi
     "trend_takibi": "ema20>ema50 ema50>ema200 adx>20",
@@ -38,7 +42,8 @@ EXPECTED = {
     "dusuk_oynaklik": "oynaklik_sira<=20",
 }
 PRO = ("minervini", "zirveye_yakin", "goreli_guc_ust", "dusuk_oynaklik")
-TV = ("basit_teknik", "basit_teknik_3g", "bebek_teknik", "duseni_kiran", "tek_tus_trend", "teknik_temel_ema")
+TV = ("basit_teknik", "basit_teknik_3g", "bebek_teknik", "duseni_kiran", "tek_tus_trend", "teknik_temel_ema",
+      "roket")
 
 
 class DefinitionTest(unittest.TestCase):
@@ -71,6 +76,8 @@ class DefinitionTest(unittest.TestCase):
         self.assertIn("beta", templates.TEMPLATES["tek_tus_trend"].skipped)
         self.assertIn("gelir artışı", templates.TEMPLATES["teknik_temel_ema"].skipped)
         self.assertEqual(templates.TEMPLATES["duseni_kiran"].skipped, "—")
+        self.assertIn("hep doğru", templates.TEMPLATES["roket"].skipped)
+        self.assertIn("öncü B", templates.TEMPLATES["roket"].skipped)
 
     def test_no_praise_words(self):
         for name, t in templates.TEMPLATES.items():

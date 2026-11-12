@@ -145,6 +145,11 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Trend | `uzaklik_sma(n)` (varsayılan 20) | kapanışın sma(n)'ye uzaklığı | % |
 | Trend | `adx(n)` (varsayılan 14) | ADX(n), trendin gücü (yönsüz) | 0–100 |
 | Trend | `supertrend` | Supertrend (10, 3) yönü: 1 yukarı, -1 aşağı | ±1 |
+| Trend | `ichimoku_donusum` | Ichimoku dönüşüm çizgisi: son 9 seansın (en yüksek + en düşük) / 2 (TradingView 'Conversion line') | TL |
+| Trend | `ichimoku_baz` | Ichimoku baz çizgisi: son 26 seansın (en yüksek + en düşük) / 2 (TradingView 'Base line') | TL |
+| Trend | `ichimoku_a` | Ichimoku öncü A, bugünkü bulut değeri: 25 seans önceki (dönüşüm + baz) / 2 (TradingView 'Leading span A') | TL |
+| Trend | `ichimoku_b` | Ichimoku öncü B, bugünkü bulut değeri: 25 seans önceki 52 seansın (en yüksek + en düşük) / 2 (TradingView 'Leading span B') | TL |
+| Trend | `aroon_yukari` | Aroon yukarı (14): 100 × (14 − son 15 seansın zirvesinden bu yana geçen seans) / 14 (TradingView 'Aroon Up') | 0–100 |
 | Momentum | `rsi(n)` (varsayılan 14) | RSI(n) (14: canlı analizle aynı) | 0–100 |
 | Momentum | `macd` | MACD (12, 26) (canlı analizle aynı) | TL |
 | Momentum | `macd_sinyal` | MACD sinyal çizgisi (9) | TL |
@@ -169,6 +174,7 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Oynaklık | `atr_yuzde` | ATR(14) / kapanış (canlı analizle aynı) | % |
 | Oynaklık | `bb_ust` | Bollinger üst bandı (20, 2) | TL |
 | Oynaklık | `bb_alt` | Bollinger alt bandı (20, 2) | TL |
+| Oynaklık | `bb_orta` | Bollinger orta bandı: 20 seans basit ortalama (TradingView 'BB, 20, Basis') | TL |
 | Oynaklık | `bb_genislik` | Bollinger genişliği / orta bant | % |
 | Oynaklık | `bb_yuzde` | Bollinger %b ×100 (0 alt bant, 100 üst bant) | % |
 | Oynaklık | `bb_genislik_yuzdelik` | bugünkü genişliğin son 126 seanstaki yüzdelik sırası | 0–100 |
@@ -180,6 +186,7 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Hacim | `ort_hacim(n)` (varsayılan 30) | n günlük ortalama hacim (adet) | milyon adet |
 | Hacim | `vwma(n)` (varsayılan 20) | hacim ağırlıklı ortalama fiyat, n gün | TL |
 | Hacim | `vwma20` | hacim ağırlıklı ortalama fiyat, 20 gün (TradingView 'VWMA, 20') | TL |
+| Hacim | `vwap` | günlük mumun VWAP'ı: (yüksek + düşük + kapanış) / 3 (TradingView 'VWAP', günlük grafikte tek mum) | TL |
 | Hacim | `goreli_hacim` | bugünkü hacim / önceki 10 seans ortalaması (TradingView 'Göreceli hacim'; hacim_oran 20 günlüktür) | × |
 | Hacim | `ortalama_hacim_30g` | 30 günlük ortalama hacim, adet (TradingView 'Ort. hacim, 30G') | adet |
 | Hacim | `likidite` | 20 günlük ortalama işlem hacmi, TL (likidite= seçeneği milyon TL'dir) | TL |
@@ -210,6 +217,7 @@ Son kapanışı son seans olmayan hisse her zaman "veri eksik" olarak ayrıca ya
 | Fiyat konumu | `dusuk_20g` | önceki 20 seansın en düşüğü (bugün hariç) | TL |
 | Fiyat konumu | `zirve_1a` | son 21 seansın en yükseği, bugün dahil (TradingView 'Yüksek, 1A') | TL |
 | Fiyat konumu | `bosluk` | açılışın önceki kapanışa göre boşluğu | % |
+| Fiyat konumu | `pivot_fib` | Fibonacci pivot P: bir önceki tamamlanmış takvim ayının (en yüksek + en düşük + son kapanış) / 3 (TradingView 'Pivot Fibonacci P', günlükte aylık) | TL |
 | Fiyat konumu | `kapanis` | son kapanış | TL |
 | Fiyat konumu | `acilis` | son açılış | TL |
 
@@ -284,6 +292,7 @@ Keşif testinde elenen grup %3,07 geride kalmıştı. Bunun ileri veride tekrar 
 | `bebek_teknik` | `goreli_hacim>1 momentum10>0` | kullanıcının TradingView taraması 08 | piyasa değeri 1–2 milyar TL, FSO < 1 |
 | `duseni_kiran` | `kapanis<zirve_1a rsi 50..70 goreli_hacim>1.5 ema5>ema10 ema10>ema20 ema20>ema40 ema50>ema100 ema100>ema200 vwma20<kapanis degisim_1h<15 degisim_1a<20 cci>-100 kapanis>acilis` | kullanıcının TradingView taraması 10 (ve 3, aynı EMA dizilimi) | — |
 | `tek_tus_trend` | `kapanis>ema50 ema50>ema200 rsi 60..70 adx>20 ortalama_hacim_30g>10000000 degisim_1a<30 ema20<kapanis degisim_3a<60` | kullanıcının TradingView taraması BIST TEK TUŞ TREND | piyasa değeri > 10 milyar TL; beta 0,8–1,5 (fiyattan hesaplanır, `beta` alanı var; şablon görevdeki tanımla bırakıldı) |
+| `roket` | `ichimoku_donusum>ichimoku_a ichimoku_donusum>ichimoku_baz kapanis>ichimoku_a kapanis>ichimoku_donusum kapanis>ichimoku_baz kapanis>ema14 kapanis>vwap kapanis>bb_orta pivot_fib<bb_orta macd>macd_sinyal aroon_yukari>50 rsi<75 degisim_1h>5 goreli_hacim 0.15..3 goreli_hacim>1` | kullanıcının TradingView taraması 'roket' (12.11.2026, 16 koşul; K-86) | BB üst > BB orta (tanım gereği hep doğru; 15 koşul sınırı). Taramada fiyat > öncü B yok: fiyat bulutun içinde kalabilir |
 | `teknik_temel_ema` | `kapanis>ema50 ema50>ema200` | kullanıcının TradingView taraması 05 | piyasa değeri > 2 milyar TL, gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak |
 | `trend_takibi` | `ema20>ema50 ema50>ema200 adx>20` | /tara görev örneği (Aşama 5) | — |
 | `asiri_satim` | `rsi<30 kapanis>ema200` | /tara görev örneği (Aşama 5) | — |
@@ -295,7 +304,7 @@ Keşif testinde elenen grup %3,07 geride kalmıştı. Bunun ileri veride tekrar 
 | `goreli_guc_ust` | `momentum_sira>=80` | profesyonel filtre (Aşama 2): Jegadeesh & Titman (1993), 6 ay getirisi, son 1 ay hariç. Bu sistemde kesitsel momentum reddedildi (2025 +%88, 2026 −%73; RESEARCH_LOG) | — |
 | `dusuk_oynaklik` | `oynaklik_sira<=20` | profesyonel filtre (Aşama 2): Ang, Hodrick, Xing & Zhang (2006); Blitz & van Vliet (2007). Bu sistemde H1 düşük oynaklık reddedildi (+%0,9 [−16,5; +18,6]; RESEARCH_LOG) | — |
 
-Her şablonun yanında ait olduğu araştırma türü yazar: RESEARCH_LOG'daki "Reddedilen fikir türleri" tablosu (27.10.2026'da test edildi, XU100'ü geçmedi). Teknik sinyal: `basit_teknik`, `basit_teknik_3g`, `bebek_teknik`, `asiri_satim`. Tek hissede trend/kırılım: `duseni_kiran`, `tek_tus_trend`, `teknik_temel_ema`, `trend_takibi`, `kirilim`, `sikisma`. Kesitsel momentum: `goreli_guc`.
+Her şablonun yanında ait olduğu araştırma türü yazar: RESEARCH_LOG'daki "Reddedilen fikir türleri" tablosu (27.10.2026'da test edildi, XU100'ü geçmedi). Teknik sinyal: `basit_teknik`, `basit_teknik_3g`, `bebek_teknik`, `asiri_satim`. Tek hissede trend/kırılım: `duseni_kiran`, `roket`, `tek_tus_trend`, `teknik_temel_ema`, `trend_takibi`, `kirilim`, `sikisma`. Kesitsel momentum: `goreli_guc`.
 
 **Profesyonel filtreler ve elemeler** (K-45, K-47). Bunlar filtre ve eleme araçlarıdır, öneri değildir. Kaynakları başka piyasalarda yapılmış çalışmalardır; BIST'teki durumu bu sistemin kendi karnesi gösterir ve karne kanıt sayılmaz. Hiçbirine "güvenilir" ya da "kanıtlanmış" denmez.
 

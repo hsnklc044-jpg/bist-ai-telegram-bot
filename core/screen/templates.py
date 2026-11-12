@@ -56,6 +56,14 @@ TEMPLATES = {
         f"{SOURCE} BIST TEK TUŞ TREND",
         "piyasa değeri > 10 milyar TL; beta 0,8–1,5 (fiyattan hesaplanır, `beta` alanı var; şablon görevdeki "
         "tanımla bırakıldı)", TREND),
+    "roket": Template(
+        "Roket (Ichimoku, ortalamalar ve hacim)",
+        "ichimoku_donusum>ichimoku_a ichimoku_donusum>ichimoku_baz kapanis>ichimoku_a kapanis>ichimoku_donusum "
+        "kapanis>ichimoku_baz kapanis>ema14 kapanis>vwap kapanis>bb_orta pivot_fib<bb_orta macd>macd_sinyal "
+        "aroon_yukari>50 rsi<75 degisim_1h>5 goreli_hacim 0.15..3 goreli_hacim>1",
+        f"{SOURCE} 'roket' (12.11.2026, 16 koşul; K-86)",
+        "BB üst > BB orta: tanım gereği hep doğru, sonucu değiştirmez (15 koşul sınırı). Taramada fiyat > "
+        "öncü B yok: fiyat bulutun içinde kalabilir", TREND),
     "teknik_temel_ema": Template(
         "Teknik-temel, EMA kısmı (05)", "kapanis>ema50 ema50>ema200",
         f"{SOURCE} 05", "piyasa değeri > 2 milyar TL, gelir artışı (çeyreklik/yıllık), ÖGO, borç/öz kaynak", TREND),

@@ -37,6 +37,16 @@ FIELDS = {
     "uzaklik_sma": Field("Trend", "kapanışın sma(n)'ye uzaklığı", "%", 20),
     "adx": Field("Trend", "ADX(n), trendin gücü (yönsüz)", "0–100", 14),
     "supertrend": Field("Trend", "Supertrend (10, 3) yönü: 1 yukarı, -1 aşağı", "±1"),
+    "ichimoku_donusum": Field("Trend", "Ichimoku dönüşüm çizgisi: son 9 seansın (en yüksek + en düşük) / 2 "
+                                       "(TradingView 'Conversion line')", "TL"),
+    "ichimoku_baz": Field("Trend", "Ichimoku baz çizgisi: son 26 seansın (en yüksek + en düşük) / 2 "
+                                   "(TradingView 'Base line')", "TL"),
+    "ichimoku_a": Field("Trend", "Ichimoku öncü A, bugünkü bulut değeri: 25 seans önceki (dönüşüm + baz) / 2 "
+                                 "(TradingView 'Leading span A')", "TL"),
+    "ichimoku_b": Field("Trend", "Ichimoku öncü B, bugünkü bulut değeri: 25 seans önceki 52 seansın "
+                                 "(en yüksek + en düşük) / 2 (TradingView 'Leading span B')", "TL"),
+    "aroon_yukari": Field("Trend", "Aroon yukarı (14): 100 × (14 − son 15 seansın zirvesinden bu yana geçen "
+                                   "seans) / 14 (TradingView 'Aroon Up')", "0–100"),
     # momentum
     "rsi": Field("Momentum", "RSI(n) (14: canlı analizle aynı)", "0–100", 14),
     "macd": Field("Momentum", "MACD (12, 26) (canlı analizle aynı)", "TL"),
@@ -66,6 +76,7 @@ FIELDS = {
     "atr_yuzde": Field("Oynaklık", "ATR(14) / kapanış (canlı analizle aynı)", "%"),
     "bb_ust": Field("Oynaklık", "Bollinger üst bandı (20, 2)", "TL"),
     "bb_alt": Field("Oynaklık", "Bollinger alt bandı (20, 2)", "TL"),
+    "bb_orta": Field("Oynaklık", "Bollinger orta bandı: 20 seans basit ortalama (TradingView 'BB, 20, Basis')", "TL"),
     "bb_genislik": Field("Oynaklık", "Bollinger genişliği / orta bant", "%"),
     "bb_yuzde": Field("Oynaklık", "Bollinger %b ×100 (0 alt bant, 100 üst bant)", "%"),
     "bb_genislik_yuzdelik": Field("Oynaklık", "bugünkü genişliğin son 126 seanstaki yüzdelik sırası", "0–100"),
@@ -78,6 +89,8 @@ FIELDS = {
     "ort_hacim": Field("Hacim", "n günlük ortalama hacim (adet)", "milyon adet", 30),
     "vwma": Field("Hacim", "hacim ağırlıklı ortalama fiyat, n gün", "TL", 20),
     "vwma20": Field("Hacim", "hacim ağırlıklı ortalama fiyat, 20 gün (TradingView 'VWMA, 20')", "TL"),
+    "vwap": Field("Hacim", "günlük mumun VWAP'ı: (yüksek + düşük + kapanış) / 3 (TradingView 'VWAP', günlük "
+                           "grafikte tek mum)", "TL"),
     "goreli_hacim": Field("Hacim", "bugünkü hacim / önceki 10 seans ortalaması (TradingView 'Göreceli hacim'; "
                                    "hacim_oran 20 günlüktür)", "×"),
     "ortalama_hacim_30g": Field("Hacim", "30 günlük ortalama hacim, adet (TradingView 'Ort. hacim, 30G')", "adet"),
@@ -121,6 +134,9 @@ FIELDS = {
     "dusuk_20g": Field("Fiyat konumu", "önceki 20 seansın en düşüğü (bugün hariç)", "TL"),
     "zirve_1a": Field("Fiyat konumu", "son 21 seansın en yükseği, bugün dahil (TradingView 'Yüksek, 1A')", "TL"),
     "bosluk": Field("Fiyat konumu", "açılışın önceki kapanışa göre boşluğu", "%"),
+    "pivot_fib": Field("Fiyat konumu", "Fibonacci pivot P: bir önceki tamamlanmış takvim ayının (en yüksek + en "
+                                       "düşük + son kapanış) / 3 (TradingView 'Pivot Fibonacci P', günlükte aylık)",
+                       "TL"),
     "kapanis": Field("Fiyat konumu", "son kapanış", "TL"),
     "acilis": Field("Fiyat konumu", "son açılış", "TL"),
 }
@@ -191,6 +207,45 @@ def _adx(high: pd.Series, low: pd.Series, close: pd.Series, window: int) -> pd.S
     for i in range(window + 1, n):
         adx[i] = ((adx[i - 1] * (window - 1)) + dx[i - 1]) / float(window)
     return pd.Series(np.concatenate((np.zeros(window - 1), adx)), index=close.index)
+
+
+def _midpoint(df: pd.DataFrame, n: int) -> pd.Series:
+    return (df["high"].rolling(n, min_periods=n).max() + df["low"].rolling(n, min_periods=n).min()) / 2
+
+
+ICHIMOKU = (9, 26, 52, 26)  # conversion, base, span B, displacement (TradingView defaults)
+
+
+def _ichimoku(df: pd.DataFrame, line: str) -> pd.Series:
+    """TradingView draws the leading spans displacement − 1 sessions ahead: today's cloud is the value
+    computed 25 sessions ago, so it uses past candles only."""
+
+    conv, base, span_b, disp = ICHIMOKU
+    if line == "donusum":
+        return _midpoint(df, conv)
+    if line == "baz":
+        return _midpoint(df, base)
+    if line == "a":
+        return ((_midpoint(df, conv) + _midpoint(df, base)) / 2).shift(disp - 1)
+    return _midpoint(df, span_b).shift(disp - 1)
+
+
+def _aroon_up(high: pd.Series, n: int = 14) -> pd.Series:
+    """TradingView: 100 × (highestbars(high, n + 1) + n) / n; on a tie the newest high counts."""
+
+    since = high.rolling(n + 1, min_periods=n + 1).apply(lambda a: float(np.argmax(a[::-1])), raw=True)
+    return 100 * (n - since) / n
+
+
+def _monthly_pivot(df: pd.DataFrame) -> pd.Series:
+    """Fibonacci pivot P of the previous calendar month, given to every day of the next month; a month
+    without candles in between leaves the pivot unknown (never a value from two months back)."""
+
+    months = pd.DatetimeIndex(df.index).to_period("M")
+    g = df.groupby(months)
+    p = (g["high"].max() + g["low"].min() + g["close"].last()) / 3
+    previous = p.shift(1).where(pd.Series(p.index, index=p.index).shift(1) == p.index - 1)
+    return pd.Series(previous.reindex(months).to_numpy(), index=df.index)
 
 
 def _supertrend(df: pd.DataFrame, period: int, multiplier: float) -> pd.Series:
@@ -347,6 +402,14 @@ class _Table:
             return _adx(df["high"], df["low"], close, n).where(pd.Series(np.arange(len(df)) >= 2 * n, index=df.index))
         if name == "supertrend":
             return _supertrend(df, *SUPERTREND)
+        if name.startswith("ichimoku_"):
+            return _ichimoku(df, name.removeprefix("ichimoku_"))
+        if name == "aroon_yukari":
+            return _aroon_up(df["high"])
+        if name == "vwap":
+            return (df["high"] + df["low"] + close) / 3
+        if name == "pivot_fib":
+            return _monthly_pivot(df)
         if name == "rsi":
             return RSIIndicator(close, window=n).rsi().round(4)
         if name == "macd_sinyal":
@@ -367,6 +430,8 @@ class _Table:
             return self.bb().bollinger_hband()
         if name == "bb_alt":
             return self.bb().bollinger_lband()
+        if name == "bb_orta":
+            return self.bb().bollinger_mavg()
         if name == "bb_genislik":
             return self.bb().bollinger_wband()
         if name == "bb_yuzde":

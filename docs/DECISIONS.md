@@ -2,6 +2,16 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 12.11.2026
+
+**K-86. Kullanıcının "roket" TradingView taraması `/tara` şablonu olarak (12.11.2026; kullanıcı isteği). Karneye bakılmadan yazıldı.**
+- **Ne:** Kullanıcının TradingView ekranındaki 16 koşullu tarama, diğer şablonlar gibi (K-38) kodda sabit, sonuca göre ayarlanmayan bir filtre şablonu: `roket`. Öneri değildir; araştırma programına aday kural değildir; tür: "Tek hissede trend takibi / kırılım" (RESEARCH_LOG, reddedilen tür).
+- **Yeni alanlar (TradingView tanımıyla, yalnız kapanmış mumlardan):** `ichimoku_donusum` (9), `ichimoku_baz` (26), `ichimoku_a` ve `ichimoku_b` (52; öncü çizgiler 25 seans önce hesaplanan değer, TradingView'in çizdiği gibi), `aroon_yukari` (14; 15 seanslık pencere, eşitlikte en yeni zirve), `vwap` (günlük mumda (Y+D+K)/3), `pivot_fib` (bir önceki tamamlanmış takvim ayı; ay eksikse bilinmiyor), `bb_orta`. `ema(14)` için 14 ortalama dönemlerine eklendi.
+- **Koşullar:** 16 koşulun 15'i (MAX_CONDITIONS = 15). Çıkarılan "BB üst > BB orta" tanım gereği her zaman doğrudur, sonucu değiştirmez. "Perf 1H" mevcut `degisim_1h` (5 seans, K-37), "Rel vol" `goreli_hacim` (önceki 10 seans) ile eşlendi.
+- **Bilinen fark:** Taramada "fiyat > öncü B" yok; fiyat bulutun içinde kalabilir. Şablon verildiği gibi kalır; listede yazılır.
+- **Kapsam dışı (CHARTER §9):** TradingView "Strong Buy" derecesi ve "ilk 3'ü alacağız" türü sıralama al/sat etiketidir, eklenmez. Telegram kanal içeriği yeniden yayımlanmaz; yalnız taramanın koşulları kullanıldı.
+- **Değişmeyen:** diğer şablonlar, karne yöntemi, holdout, araştırma programı.
+
 ## 11.11.2026
 
 **K-85. Resmî gün sonu verisinin kullanımı (11.11.2026; K madde 2–3).**

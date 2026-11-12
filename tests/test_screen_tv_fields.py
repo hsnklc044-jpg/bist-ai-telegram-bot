@@ -80,7 +80,92 @@ class PeriodTest(unittest.TestCase):
         for text in ("ema7>ema20", "ema(30)>0", "sma(15)<kapanis"):
             with self.subTest(text=text), self.assertRaises(ScreenError) as caught:
                 parse(text)
-            self.assertIn("geçerli değerler: 5, 10, 20, 40, 50, 100, 150, 200", str(caught.exception))
+            self.assertIn("geçerli değerler: 5, 10, 14, 20, 40, 50, 100, 150, 200", str(caught.exception))
+
+
+class RoketFieldsTest(unittest.TestCase):
+    """K-86: the fields of the user's 'roket' screen, each by its TradingView definition and from
+    closed candles only (a later candle never changes an earlier value)."""
+
+    NEW = ("ichimoku_donusum", "ichimoku_baz", "ichimoku_a", "ichimoku_b", "aroon_yukari", "vwap", "pivot_fib",
+           "bb_orta")
+
+    def setUp(self):
+        self.df, self.bench = walk(400, 0.0004, 31, volume=3e7), walk(400, 0.0, 32)
+
+    def table(self, df=None):
+        df = self.df if df is None else df
+        return fields.table(df, self.bench["close"].reindex(df.index), list(self.NEW))
+
+    @staticmethod
+    def mid(df, end, n):
+        window = df.iloc[end - n + 1:end + 1]
+        return (window["high"].max() + window["low"].min()) / 2
+
+    def test_ichimoku_by_hand_and_displaced_25_sessions(self):
+        t, df = self.table(), self.df
+        i = 300
+        self.assertAlmostEqual(t["ichimoku_donusum"].iloc[i], self.mid(df, i, 9))
+        self.assertAlmostEqual(t["ichimoku_baz"].iloc[i], self.mid(df, i, 26))
+        j = i - 25  # today's cloud was computed 25 sessions ago
+        self.assertAlmostEqual(t["ichimoku_a"].iloc[i], (self.mid(df, j, 9) + self.mid(df, j, 26)) / 2)
+        self.assertAlmostEqual(t["ichimoku_b"].iloc[i], self.mid(df, j, 52))
+        self.assertTrue(t["ichimoku_b"].iloc[:76].isna().all())  # 52 candles, then 25 ahead
+        self.assertFalse(np.isnan(t["ichimoku_b"].iloc[76]))
+
+    def test_vwap_and_bollinger_basis(self):
+        t, df = self.table(), self.df
+        pd.testing.assert_series_equal(t["vwap"], (df["high"] + df["low"] + df["close"]) / 3, check_names=False)
+        np.testing.assert_allclose(t["bb_orta"].iloc[19:], df["close"].rolling(20).mean().iloc[19:])
+
+    def test_aroon_up(self):
+        index = pd.bdate_range("2026-01-05", periods=30)
+        high = pd.Series(1.0, index=index)
+
+        def up(h):
+            df = pd.DataFrame({"open": 1.0, "high": h, "low": 0.5, "close": 1.0, "volume": 1.0}, index=index)
+            return fields.table(df, df["close"], ["aroon_yukari"])["aroon_yukari"]
+
+        self.assertTrue(up(high).iloc[:14].isna().all())
+        self.assertAlmostEqual(up(high).iloc[-1], 100.0)  # every high equal: the newest counts
+        newest = high.copy()
+        newest.iloc[-1] = 5.0
+        self.assertAlmostEqual(up(newest).iloc[-1], 100.0)
+        oldest = high.copy()
+        oldest.iloc[-15] = 5.0  # 14 sessions ago, the oldest candle of the 15
+        self.assertAlmostEqual(up(oldest).iloc[-1], 0.0)
+        seven = high.copy()
+        seven.iloc[-8] = 5.0
+        self.assertAlmostEqual(up(seven).iloc[-1], 50.0)
+        t = self.table()
+        self.assertTrue(t["aroon_yukari"].dropna().between(0, 100).all())
+
+    def test_pivot_is_the_previous_month(self):
+        t, df = self.table(), self.df
+        first = df.index[0].to_period("M")
+        self.assertTrue(t.loc[df.index.to_period("M") == first, "pivot_fib"].isna().all())
+        month = df.index.to_period("M").unique()[3]
+        prev = df[df.index.to_period("M") == month - 1]
+        expected = (prev["high"].max() + prev["low"].min() + prev["close"].iloc[-1]) / 3
+        days = t.loc[df.index.to_period("M") == month, "pivot_fib"]
+        np.testing.assert_allclose(days.to_numpy(), expected)
+
+    def test_a_missing_month_leaves_the_pivot_unknown(self):
+        months = self.df.index.to_period("M")
+        gap = months.unique()[4]
+        df = self.df[months != gap]
+        t = self.table(df)
+        after = t.loc[df.index.to_period("M") == gap + 1, "pivot_fib"]
+        self.assertTrue(len(after) > 0 and after.isna().all())
+
+    def test_closed_candles_only(self):
+        cut = 250
+        full = self.table()
+        past = self.table(self.df.iloc[:cut + 1])
+        pd.testing.assert_frame_equal(full.iloc[:cut + 1], past)
+
+    def test_ema14_is_allowed(self):
+        self.assertIn("ema(14)", parse("kapanis>ema14").fields)
 
 
 class LengthTest(unittest.TestCase):
