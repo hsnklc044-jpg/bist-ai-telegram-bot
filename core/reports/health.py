@@ -386,6 +386,37 @@ def database_check(db: Path | None = None) -> Check:
     return Check("Fiyat veritabanı", OK, f"bütünlük ok ({db.stat().st_size / 1e6:.0f} MB)")
 
 
+def official_check(path: Path | None = None) -> Check:
+    """Ö39: the nightly official import (02:30); a failure or a refused file shows here, not only in the log."""
+
+    from core.official.status import read_state
+
+    name = "Resmî veri içe aktarımı"
+    try:
+        state = read_state(path)
+    except (OSError, ValueError) as exc:
+        return Check(name, WARN, f"durum dosyası okunamadı ({exc})")
+    if state is None:
+        return Check(name, INFO, "henüz çalışma kaydı yok (gece 02:30 işi)")
+
+    def when(text: str | None) -> str:
+        try:
+            return datetime.fromisoformat(text).strftime("%d.%m %H:%M")
+        except (TypeError, ValueError):
+            return "?"
+
+    if state.get("error"):
+        return Check(name, WARN, f"son çalışma {when(state.get('at'))} başarısız: {state['error'][:150]}; ayrıntı log'da")
+    last = state.get("last_read")
+    if not last:
+        return Check(name, OK, f"son çalışma {when(state.get('at'))}: yeni dosya yok")
+    if last.get("rejected"):
+        names = ", ".join(last["rejected"][:3])
+        return Check(name, WARN, f"{when(last.get('at'))}: {len(last['rejected'])} dosya okunamadı ({names}); "
+                                 "ayrıntı: python -m core.official.prices --durum")
+    return Check(name, OK, f"son okuma {when(last.get('at'))}: {last.get('files')} dosya, {last.get('rows')} satır")
+
+
 def disk_check(folder: Path | None = None) -> Check:
     import shutil
 
@@ -684,6 +715,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         personal_files_check(),
         backup_check(now),
         disk_check(),
+        official_check(),
         calendar_check(now),
         fundamentals_check(),
         macro_check(now),

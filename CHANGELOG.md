@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.132 – 14.11.2026 (resmî veri içe aktarımı /durum'da; Ö39)
+- Gece 02:30 resmî veri işinin sonucu `logs/official_import.json` dosyasına yazılır (`core/official/status.py`); `/durum` yeni "Resmî veri içe aktarımı" satırında başarısız çalışmayı ve okunamayan dosyaları ⚠️ olarak gösterir. Önceden yalnız log uyarısı vardı (öz-denetim 10, Ö39).
+- Sessiz gece (yeni dosya yok) son okumayı ve reddedilen dosyaları silmez; yeni bir okuma gelince güncellenir.
+- 12.11'de v0.99.133 olarak yazıldı; yedek değişikliğinin (eski 132) önüne alındı, numara kuralı gereği 132 oldu.
+
 ## v0.99.131 – 12.11.2026 (haftalık SLO tablosu dosyaya da yazılır; K-17 düzeltmesi)
 - Cumartesi 21:00 özeti (haftalık SLO tablosuyla) gönderilmeden önce `logs/haftalik_slo/YYYY-MM-DD.txt` dosyasına da yazılır. K-17 bunu söz vermişti, hiç yapılmamıştı (öz-denetim 10).
 - Testler: cumartesi dosya yazılır, diğer günler yazılmaz, özet işi dosyayı gönderimden önce yazar.

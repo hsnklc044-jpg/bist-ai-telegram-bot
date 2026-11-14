@@ -500,13 +500,15 @@ async def official_prices_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     """K: the official monthly files the user dropped into data/inbox/bist; the first fill and then only new
     months, at night (never at bot start or during the 18:00–20:00 report window)."""
 
-    from core.official import prices
+    from core.official import prices, status
 
     try:
         result = await asyncio.to_thread(prices.import_folder)
-    except Exception:  # noqa: BLE001 - the bot never stops on this
+    except Exception as exc:  # noqa: BLE001 - the bot never stops on this
         logger.exception("Official prices import failed")
+        status.record_run(error=f"fiyat: {type(exc).__name__}: {exc}")  # Ö39: shown in /durum
         return
+    errors = []
     try:  # K madde 8: the index folders
         from core.official import indices
 
@@ -514,8 +516,9 @@ async def official_prices_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         result.files += index_result.files
         result.rows += index_result.rows
         result.rejected += index_result.rejected
-    except Exception:  # noqa: BLE001 - the bot never stops on this
+    except Exception as exc:  # noqa: BLE001 - the bot never stops on this
         logger.exception("Official indices import failed")
+        errors.append(f"endeks: {type(exc).__name__}: {exc}")
     try:  # K madde 2 and 8: last closed month, Yahoo against the official closes and XU100
         from core.official import compare
 
@@ -523,6 +526,7 @@ async def official_prices_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         await asyncio.to_thread(compare.yahoo_index_check, now_istanbul())
     except Exception:  # noqa: BLE001
         logger.exception("Official check of Yahoo failed")
+    status.record_run(result, "; ".join(errors) or None)
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     text = official_message(result)
     if chat and text:
