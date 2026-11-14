@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.133 – 14.11.2026 (güven düzeyi: resmî veritabanı hatası log'a yazılır; Ö40)
+- `core/market/trust.py` `for_day`: resmî veritabanı okunamazsa yine güncel fiyat düzeyine düşer ama hatayı artık sessizce yutmaz, log'a WARNING yazar (öz-denetim 10, Ö40).
+- 12.11'de v0.99.134 olarak yazıldı; yedek değişikliğinin önüne alındı.
+
 ## v0.99.132 – 14.11.2026 (resmî veri içe aktarımı /durum'da; Ö39)
 - Gece 02:30 resmî veri işinin sonucu `logs/official_import.json` dosyasına yazılır (`core/official/status.py`); `/durum` yeni "Resmî veri içe aktarımı" satırında başarısız çalışmayı ve okunamayan dosyaları ⚠️ olarak gösterir. Önceden yalnız log uyarısı vardı (öz-denetim 10, Ö39).
 - Sessiz gece (yeni dosya yok) son okumayı ve reddedilen dosyaları silmez; yeni bir okuma gelince güncellenir.

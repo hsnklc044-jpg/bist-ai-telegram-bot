@@ -192,3 +192,22 @@ class WiringTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_an_official_database_error_is_logged_not_swallowed(monkeypatch):
+    """Ö40 (öz-denetim 10): for_day falls back to the current level, but the error reaches the log."""
+    import logging
+    import sqlite3
+
+    from core.official import prices
+
+    def broken(*args, **kwargs):
+        raise sqlite3.OperationalError("database disk image is malformed")
+
+    monkeypatch.setattr(prices, "_connect", broken)
+    now = datetime(2026, 11, 12, 10, 0)
+    case = unittest.TestCase()
+    with case.assertLogs("core.market.trust", level=logging.WARNING) as logs:
+        got = trust.for_day(date(2026, 11, 11), now)
+    assert got == trust.price_trust(now)
+    assert "malformed" in "\n".join(logs.output)

@@ -19,6 +19,9 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 
 from core.config.paths import LOG_DIR
+from core.infrastructure.logger import get_logger
+
+logger = get_logger(__name__)
 
 LEVEL_NAMES = {
     1: "resmî ya da lisanslı",
@@ -112,8 +115,9 @@ def for_day(day: date, now: datetime) -> Trust:
         with prices._connect() as conn:
             if conn.execute("SELECT 1 FROM official_prices WHERE date = ? LIMIT 1", (day.isoformat(),)).fetchone():
                 return Trust(1, OFFICIAL)
-    except Exception:  # noqa: BLE001 - no official database yet: the current level
-        pass
+    except Exception as exc:  # noqa: BLE001 - the current level, but never silently (Ö40)
+        logger.warning("Official database not read for %s; current price level used | %s: %s",
+                       day, type(exc).__name__, exc)
     return price_trust(now)
 
 
