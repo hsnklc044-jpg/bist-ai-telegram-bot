@@ -65,6 +65,38 @@ Kontrol edilenler: yeni komutlar yalnız okur (/rapor_tekrar, /yil); kullanıcı
 
 Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı kurmaz, sürüm ve zip aynı commit'ten; depoya gizli bilgi girmedi (`bildir.py` token'ı .env'den okur, `test_guncelle.BildirTest`); alarm tetiklenmesi rapor gittikten sonra yazılır, `--force` ile tekrar söylenmez; a4 ve sapma nedenleri ileriye bakmaz; testler gerçek `data/`, `logs/`a dokunmaz. **Kritik ya da yüksek bulgu yok.**
 
+**Öz-denetim 10 — 12.11.2026 (kod v0.99.131; hesap mantığı daha önce okunmamış modüller).** Salt okunur. Kapsam:
+- resmî veri hattı (`core/official/`, `core/market/trust.py`), SLO ve robot;
+- daha önce okunmamış hesap modülleri: `core/market/macro.py`, `core/signals/store.py`, `core/alerts/budget.py`, `core/analytics/provenance.py`, `core/analytics/scenarios.py`, `core/ml/` (3.662 satır).
+
+| # | Önem | Bulgu | Durum |
+|---|---|---|---|
+| Ö39 | ORTA | Resmî fiyat içe aktarımının başarısızlığı ya da dosya reddi yalnız log'da ve bir kerelik Telegram mesajında görünüyordu; `/durum` (`health.py`, `slo.py`) resmî veriyi hiç okumuyordu. | ✅ canlıda v0.99.132 (07dfe92, 14.11.2026 13:45): `logs/official_import.json` + `/durum` "Resmî veri içe aktarımı" satırı. |
+| Ö40 | DÜŞÜK | `core/market/trust.py` `for_day` resmî veritabanı hatasını `except: pass` ile yutuyordu. | ✅ canlıda v0.99.133 (bc3ba60, 14.11.2026 14:45): yine güncel düzeye düşer, hata log'a WARNING. |
+| Ö41 | DÜŞÜK | Saat dilimsiz zaman: `slo.py` saat dilimli ve dilimsiz zamanı karşılaştırınca TypeError (11.11 14:22Z, elle dilimsiz çağrı, `slo.py:465`→`:159`). Üretim çağrıları dilimli (`daily.py:905`, `scripts/surum_kapisi.py:151`). | yalnız belge; düzeltme istenmedi. |
+| Ö42 | DÜŞÜK | Belge ve çıktı uyumsuzlukları: "Veri: doğrulanmamış kaynak" satırı, hisse çıkmayan tarama mesajında başlığın altında değil en altta (kural: başlığın hemen altı); akşam robotu K-93 (8a51f34) ile 20:15'e alındı, hafta planı tablosu 20:30 yazıyor. | açık: biçim notu A (18.11 sonrası). |
+| Ö43 | BİLGİ | `core/official/prices.py` `_num` "1.234,56" biçimini (binlik nokta + ondalık virgül) okuyamaz, `None` döner. Bugünkü dosyalarda bu biçim yok (467 dosya, 0 red). | kabul; bu biçim görülürse dosya reddi Ö39 satırında görünür. |
+| Ö44 | BİLGİ | `core/infrastructure/outbox.py:85-86` giden mesaj kopyası yazılamazsa sessiz (`except: pass`). | kabul: kopya mesajı durdurmamalı; log satırı sonra eklenebilir. |
+| Ö45 | BİLGİ | `core/reports/events.py:57-65,93` okunamayan olay satırını sessizce atlıyor. | kabul: kişisel dosya şema denetimi ayrıca var. |
+| Ö46 | BİLGİ | `core/ml/k64_forward.py` hiçbir iş akışında çalışmıyor. | açık: ileri ölçüm takvimi K-64 kararıyla birlikte. |
+| Ö47 | DÜŞÜK | Aynı mumda hem hedef hem stop varsa "stop" sayılıyor; açılış hedefin üstündeyse (yukarı boşluk) hedef açılışta, stoptan önce dolar. `core/signals/store.py:258-260` (iz süren stop) ve `core/ml/features.py:73-75` (etiket) açılışa bakmıyor; `scenarios.py:161-164` bakıyor. | açık: etiketi değiştirir → ön kayıt (K) olmadan düzeltilmez. |
+| Ö48 | DÜŞÜK | `core/analytics/scenarios.py:169-170` süre dolumunda tabanda kilitli son seansın kapanışından satış sayıyor; K-75 / M30-5 kuralı (ilk kilitsiz açılış) `features.py:80-84` ve `store.py:269-275`'te var, burada yok. | açık: senaryo R'sini değiştirir → ön kayıt. |
+| Ö49 | DÜŞÜK | `core/alerts/budget.py:132-143` hesap değeri ≤ 0 iken `m.weights` boş kalır; `portfolio_risk` erken döner (`core/alerts/portfolio.py:81`), sonra `m.weights[s]` KeyError → `/risk` çöker (sanal hesap nakdi eksiye düşerse). | açık: önce başarısız test. |
+| Ö50 | DÜŞÜK | `core/ml/signal_filter.py:181` en yeni raporda `approved = 0` ise yanlış sayılıp eski kayıtlı K-64 değerleri dönüyor; okuma hatası `:185-186` sessiz. | açık: önce başarısız test. |
+| Ö51 | DÜŞÜK | `core/market/macro.py:95` TÜFE endeksi `cumprod` ile zincirleniyor, eksik ay denetlenmiyor; bir ay atlanırsa reel getiri olduğundan yüksek çıkar, hata verilmez. | açık: önce başarısız test. |
+| Ö52 | BİLGİ | `core/signals/store.py:3-5` "ML etiketleriyle aynı kurallar" diyor; kod K-67 iz süren stopu kullanıyor (`:244-254`), etiket sabit %2 stop. | açık: belge düzeltmesi. |
+| Ö53 | BİLGİ | `core/ml/ml_filter.py:168` "Wilson aralığı" diyor; kod `block_bootstrap` kullanıyor (`:84`), `wilson()` hiçbir yerden çağrılmıyor. | açık: belge düzeltmesi. |
+| Ö54 | ORTA | Güncelleyici GitHub API'yi kimliksiz (saatte 60) sorguluyor; Cloudflare WARP ortak çıkış IP'sinde hak yabancılarca tükeniyor: 12.11 21:40 çalışması 403 ile 3 denemede vazgeçti (sıfırlanmadan 43 sn sonra kalan 38/60). | kullanıcı tarafında çözüldü (12.11 22:39 WARP split tunnel: api.github.com, github.com, codeload.github.com; hak 60/60). Kod tarafı açık: 403'te sıfırlanma saatine kadar bekle (güncelleyici, tek başına). |
+| Ö55 | DÜŞÜK | Kapının tek başına listesi `setup.ps1` diyor; dosya `scripts/setup.ps1`. Kurulum betiği değişikliği tek başına diye yakalanmıyor. | açık (dr-drill tetikleyicisi iki yolu da içeriyor). |
+
+**Doğrulanmamış (ajan "emin değilim" dedi, koddan kontrol edilmedi):** Türkçe "İ" içeren sembol girişi (`budget.py:388,402`, `scenarios.py:374`); saatlik veride tavan kontrolünün önceki saat kapanışına göre yapılması (`signal_filter.py:70`); `macro.py:235,266-280` "eklenen gün" sayısının kur gelmeyen günleri de sayması. Numara verilmedi; doğrulanırsa Ö54'ten devam eder.
+
+**Bulgu yok:** `core/analytics/provenance.py`, `core/ml/live.py`, `core/ml/training_log.py`; `core/ml/k64_forward.py` (Ö46 dışında).
+
+**Ö36 notu:** "Ö36 satırı güncel değil" iddiası geri alındı; satır 10.11 güncellemesini taşıyor.
+
+**Kritik ya da yüksek bulgu yok.**
+
 **Öz-denetim 9 — 29.10.2026 (v0.95.5 → v0.98.0, 10 sürüm).** Kapsam: `git diff 7b7480b..5a0eeaf -- core bot .github`:
 - kur süre sınırı ve ikinci kaynak;
 - eleme canlı ölçümü;
