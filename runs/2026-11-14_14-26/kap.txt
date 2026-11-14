@@ -1,0 +1,21 @@
+KAP kurumsal işlem bildirimleri, son 14 gün (14.11.2026); hiçbir şey kendiliğinden uygulanmaz.
+
+Sermaye artırımı / azaltımı (bedelsiz, bedelli, bölünme):
+  SKBNK 02.11 – Geri Alınan Paylara Ait Rüçhan Hakkı Hk. – kayıtlı
+    https://www.kap.org.tr/tr/Bildirim/1691186
+  SKBNK 06.11 – Bedelli Sermaye Artırımında Kullanılmayan Rüçhan Hakkı Tutarı Hk. – kayıtlı
+    https://www.kap.org.tr/tr/Bildirim/1693697
+  SKBNK 09.11 – Sermaye Artırımının Tamamlanması Hk. – kayıtlı
+    https://www.kap.org.tr/tr/Bildirim/1695690
+  SKBNK 09.11 – Yeni pay alma (Rüçhan) haklarının kullanılmasından sonra kalan payların satışının tamamlanması – kayıtlı
+    https://www.kap.org.tr/tr/Bildirim/1695433
+  NETAS 10.11 – Bedelli Sermaye Artırımı Başvurusu Kapsamında SPK Onayına Sunulan İzahname – ⚠️ corporate_actions.csv'de yok: KAP'ta doğrula, hak kullanım günü eklenecek
+    https://www.kap.org.tr/tr/Bildirim/1696536
+
+Kâr payı (temettü; fiyat düzeltmesini Yahoo yapar, elinde varsa deftere temettü işlenir):
+  OYAKC 06.11 – Kar Dağıtım Önerisi
+    https://www.kap.org.tr/tr/Bildirim/1694380
+  IEYHO 09.11 – 2025 Yılı Kâr Payı Dağıtımına İlişkin Yönetim Kurulu Kararı
+    https://www.kap.org.tr/tr/Bildirim/1695589
+  KATMR 09.11 – Kar Payı Dağıtımına İlişkin Bildirim
+    https://www.kap.org.tr/tr/Bildirim/1695182

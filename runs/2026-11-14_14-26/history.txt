@@ -1,0 +1,29 @@
+Araştırma geçmişi: 13 çalışma, son 2026-11-14 14:26, önceki 2026-11-07 14:01
+
+[geçmiş üyelik] dönem 2023-08-01 – 2026-10-30
+  Bot sinyali: yıllık +9.8% (önceki +9.8%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Bot sinyali + rejim filtresi: yıllık +8.1% (önceki +8.1%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Trend kuralı: yıllık +37.3% (önceki +37.3%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Momentum 6 ay, en iyi 10: yıllık -13.8% (önceki -13.8%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Momentum 6 ay, en iyi 10 + rejim: yıllık -13.5% (önceki -13.5%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Momentum walk-forward (test dönemleri): yıllık +14.6% (önceki +14.6%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  XU100 al-tut: yıllık +13.3% (önceki +13.3%)
+
+[bugünkü liste] dönem 2023-08-01 – 2026-10-30
+  Bot sinyali: yıllık +7.2% (önceki +7.2%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Bot sinyali + rejim filtresi: yıllık +3.3% (önceki +3.3%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Trend kuralı: yıllık +15.9% (önceki +15.9%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Momentum 6 ay, en iyi 10: yıllık -9.5% (önceki -9.5%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Momentum 6 ay, en iyi 10 + rejim: yıllık -3.2% (önceki -3.2%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Momentum walk-forward (test dönemleri): yıllık +19.4% (önceki +19.4%) | anlamlı değil; anlamlı yüksek 0/13 çalışmada
+  Eşit ağırlık al-tut (aynı hisseler): yıllık +14.1% (önceki +14.1%)
+  XU100 al-tut: yıllık +13.3% (önceki +13.3%)
+
+[Aşama 3 ön kayıtlı] dönem 2023-08-01 – 2026-10-30
+  A3-H1 Düşük oynaklık (60 seans, en sakin 10, aylık): yıllık +11.6% (önceki +11.6%) | anlamlı değil; anlamlı yüksek 0/8 çalışmada
+  A3-H2 Endeks trendi (XU100 > 200 seans ort., aylık; değilse nakit): yıllık +21.3% (önceki +21.3%) | anlamlı değil; anlamlı yüksek 0/7 çalışmada
+  A3-H2 Endeks trendi (XU100 > 200 seans ort., aylık; değilse nakit) [nakit −3 puan]: yıllık +20.6% (önceki +20.6%) | anlamlı değil; anlamlı yüksek 0/7 çalışmada
+  A3-H3 Ay dönümü (son 3 + ilk 3 seans XU100; değilse nakit): yıllık +25.7% (önceki +25.7%) | anlamlı değil; anlamlı yüksek 0/7 çalışmada
+  A3-H3 Ay dönümü (son 3 + ilk 3 seans XU100; değilse nakit) [nakit −3 puan]: yıllık +23.6% (önceki +23.6%) | anlamlı değil; anlamlı yüksek 0/7 çalışmada
+
+Not: aynı stratejilere her hafta bakmak da çoklu denemedir; tek bir haftanın 'anlamlı' sonucu kanıt sayılmaz, sürekliliğine bakılır.
