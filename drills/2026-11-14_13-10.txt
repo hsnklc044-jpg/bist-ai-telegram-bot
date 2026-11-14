@@ -1,0 +1,41 @@
+DR drill 2026-11-14_13-10 (4c6f6038e4d8dd3704b2a8a75c7e3dd9565d24e8): success
+run: https://github.com/hsnklc044-jpg/bist-ai-telegram-bot/actions/runs/43583526485
+🩺 QuantBIST v0.99.134 durum – 14.11.2026 13:10
+⚠️ UYARI: dikkat gereken bileşen var
+
+❔ BİLİNMİYOR · Telegram botu: yaşam sinyali yok (bot v0.37.0 öncesi ya da hiç başlamadı)
+❔ BİLİNMİYOR · Günlük rapor: henüz gönderim kaydı yok (kayıt v0.22.0 ile başladı)
+✅ SAĞLIKLI · Fiyat verisi: XU100 son kapanış 13.11.2026
+✅ SAĞLIKLI · Fiyat veritabanı: bütünlük ok (23 MB)
+❔ BİLİNMİYOR · Canlı ölçüm kaydı: signal_log.csv yok
+❔ BİLİNMİYOR · Sanal hesap kaydı: equity_log.csv yok
+✅ SAĞLIKLI · Veri şeması: 2 dosya bu sürümle uyumlu
+✅ SAĞLIKLI · Kişisel dosyalar: 3 dosya sonuna kadar okundu
+⚠️ UYARI · Yedek: quantbist_2026-11-14.zip (14.11 13:10); yedek verilerle aynı diskte; disk arızasında ikisi birlikte kaybolur. BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın
+✅ SAĞLIKLI · Disk: 32.8 GB boş
+ℹ️ BİLGİ · Resmî veri içe aktarımı: henüz çalışma kaydı yok (gece 02:30 işi)
+✅ SAĞLIKLI · Tatil takvimi: 2027 sonuna kadar; 2027 geçici
+ℹ️ BİLGİ · Temel veri: veri yok. KAP'tan otomatik çekme kullanım koşulları teyit edilene kadar kapalı (K-48); içe aktarma: python -m core.fundamentals.store --import DOSYA
+⚠️ UYARI · Makro veri: TÜFE 09.2026, 10.2026 verisi eklenmedi (data/macro/cpi.csv), kur önbelleği boş
+✅ SAĞLIKLI · Model doğrulama: yüksek riskli modellerin 14/14'i bağımsız doğrulandı (M1 kısıtlı kullanılabilir, M5 kısıtlı kullanılabilir, M8 kısıtlı kullanılabilir, M11 kısıtlı kullanılabilir, M12 kısıtlı kullanılabilir, M14 kısıtlı kullanılabilir, M15 kısıtlı kullanılabilir, M16 kısıtlı kullanılabilir, M24 kısıtlı kullanılabilir, M27 kısıtlı kullanılabilir, M28 kısıtlı kullanılabilir, M30 kullanılamaz, M31 kullanılamaz, M32 kısıtlı kullanılabilir); kullanılamaz: M30, M31 (model kapısı otomatik eylemlerini kapalı tutar)
+ℹ️ BİLGİ · Model kapısı: otomatik eylemler: M30 kapalı (kullanılamaz): günlük adımda kendiliğinden sanal sinyal yazmak (K-60)
+❔ BİLİNMİYOR · Seviye hesabı: henüz kayıt yok (her akşam rapordan sonra yazılır)
+✅ SAĞLIKLI · Bakım takvimi: sonraki BIST 100 dönemi 01.01.2027
+ℹ️ BİLGİ · Dışarıdan izleme: kurulmadı (isteğe bağlı): .env'de HC_REPORT_URL ve HC_BOT_URL yok; OPERATIONS §7
+✅ SAĞLIKLI · GitHub araştırması: son çalışma 07.11 14:01: success
+📦 Fiyat verisi: Yahoo · Seviye 3 (doğrulanmamış)
+
+📐 SLO (son 7 gün): 1/7 hedefte, 5 ölçülemiyor
+  ❔ Rapor teslimi: — (hedef ≥ %99 seans 19:00'a kadar) · runs.csv yok
+  ❔ Bot ayakta kalma: — (hedef ≥ %98) · veri birikiyor; en az 1 günlük yaşam sinyali gerekir
+  ❔ Veri tazeliği: — (hedef ≥ %98 hisse 19:00'da güncel) · freshness.csv yok (ilk raporla başlar)
+  ❔ Veri doğruluğu: — (hedef ≤ %1 hisse ikinci kaynaktan farklı) · İş Yatırım ikinci kaynak kapalı: sitenin robots.txt'si /_layouts/ yolunu bütün otomatik erişime yasaklıyor (D13, K-54)
+  ⚠️ Yedek: — (hedef her gün + haftalık geri yükleme testi) · 0/0 seans günü yedekli; ölçüm 14.11'de başladı; geri yükleme testi 14.11 başarılı
+  ❔ Kayıt bütünlüğü: — (hedef 0 bozuk / tekrar / eksik) · signal_log.csv yok
+  ✅ Kalite (CI, kapsam): — (hedef CI yeşil, kapsam ≥ %90) · son CI 14.11 10:54 (d7f6d4e): success; testler, ruff ve kapsam kapısı %91 geçti
+🎯 Güvenilirlik (K-70): gözlem 0/20 seans · SLO 1/7 · model doğrulama 14/14
+  tam güvenilir: hayır (eksik: gözlem 0/20 seans; SLO 1/7 hedefte; veri doğruluğu ölçülmedi)
+
+🧪 Sanal kasa: 100.000 TL; sinyal defteri boş (sistem kendiliğinden sinyal yazmaz: ML katmanı örneklem dışı ölçümü geçmedi; /tara ai kartındaki ✅ ile siz girersiniz)
+
+Windows görevi buradan görülemez; çalışması logs/runs.csv kayıtlarından izlenir.
