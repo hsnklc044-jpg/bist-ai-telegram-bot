@@ -124,3 +124,55 @@ class DailyIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WeeklySloBackupTest(unittest.TestCase):
+    """2b (12.11.2026): the Saturday SLO tables in logs/haftalik_slo/ are personal records too."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.data = self.root / "data"
+        self.data.mkdir()
+        self.weekly = self.root / "logs" / "haftalik_slo"
+        self.weekly.mkdir(parents=True)
+        (self.weekly / "2026-11-14.txt").write_text("ROBOT · 14.11\nSLO 6/7\n", encoding="utf-8")
+        self.ledger = self.data / "notes.csv"
+        self.ledger.write_text("id,date\n1,2026-10-26\n", encoding="utf-8")
+        self.target = self.root / "backups"
+        patcher = mock.patch.object(backup, "WEEKLY_SLO_DIR", self.weekly)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_daily_backup_includes_weekly_slo_files(self):
+        with mock.patch.object(backup, "PERSONAL_FILES", (self.ledger,)):
+            result = backup.create_backup(target=self.target)
+
+        self.assertEqual(result.files, ["haftalik_slo/2026-11-14.txt", "notes.csv"])
+        self.assertIn("haftalik_slo/2026-11-14.txt", backup.verify(result.path))
+
+    def test_restore_puts_weekly_files_back_in_logs(self):
+        with mock.patch.object(backup, "PERSONAL_FILES", (self.ledger,)):
+            path = backup.create_backup(target=self.target).path
+        (self.weekly / "2026-11-14.txt").unlink()
+
+        names, _ = backup.restore_backup(path, data_dir=self.data)
+
+        self.assertIn("haftalik_slo/2026-11-14.txt", names)
+        self.assertEqual((self.weekly / "2026-11-14.txt").read_text(encoding="utf-8"), "ROBOT · 14.11\nSLO 6/7\n")
+        self.assertFalse((self.data / "haftalik_slo").exists())
+
+    def test_restore_test_reads_weekly_files(self):
+        with mock.patch.object(backup, "PERSONAL_FILES", (self.ledger,)):
+            path = backup.create_backup(target=self.target).path
+
+        lines = backup.test_restore([path])
+
+        self.assertTrue(any("haftalık SLO 2026-11-14" in line for line in lines), lines)
+
+
+def test_weekly_slo_dir_is_the_saturday_writers_folder():
+    from core import otonom
+
+    assert backup.WEEKLY_SLO_DIR == otonom.WEEKLY_DIR

@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.134 – 14.11.2026 (haftalık SLO dosyaları günlük yedekte)
+- Günlük yedek `logs/haftalik_slo/*.txt` dosyalarını da alır (zip içinde `haftalik_slo/` altında); geri yükleme onları `data/` değil `logs/haftalik_slo/` klasörüne yazar, geri yükleme testi de okur.
+- Paket dışı (`core/backup.py`): tek başına, hafta sonu, önce aynı SHA'da `dr-drill`.
+- `dr-drill` artık kapının tek başına dosyalarından biri değişince (push) kendiliğinden çalışır; elle başlatma (gh, token) gerekmez.
+- 12.11'de v0.99.132 olarak yazıldı; insan onayıyla hafta sonu birleştirileceği için Ö39 ve Ö40'ın arkasına alındı.
+
 ## v0.99.133 – 14.11.2026 (güven düzeyi: resmî veritabanı hatası log'a yazılır; Ö40)
 - `core/market/trust.py` `for_day`: resmî veritabanı okunamazsa yine güncel fiyat düzeyine düşer ama hatayı artık sessizce yutmaz, log'a WARNING yazar (öz-denetim 10, Ö40).
 - 12.11'de v0.99.134 olarak yazıldı; yedek değişikliğinin önüne alındı.
