@@ -263,6 +263,7 @@ class DailyResult:
     # built | sent | skipped (second run) | holiday (no session today) | stale (no new candle)
     status: str = "built"
     note: str = ""
+    yahoo_down: bool = False  # Ö56: XU100 did not download in this run
 
 
 @dataclass
@@ -1195,9 +1196,44 @@ def _update_macro() -> None:
         logger.exception("Macro data update failed")
 
 
-def _run(args) -> DailyResult:
+# Ö56: on 16.11.2026 Yahoo was empty 18:30-18:35 and back at 18:39. One retry after 10 minutes;
+# a run takes ~5 minutes and the Windows task stops at 30 (scripts/register_daily_task.ps1).
+STALE_RETRY_WAIT = 10 * 60
+
+
+def _run(args, sleep=None) -> DailyResult:
     with report_lock():
-        return _run_locked(args)
+        result = _run_locked(args)
+    if not (args.send and not args.no_update and result.status == "stale" and result.yahoo_down):
+        return result
+    import time
+
+    logger.warning("Yahoo did not answer; trying the daily report again in %d s", STALE_RETRY_WAIT)
+    (sleep or time.sleep)(STALE_RETRY_WAIT)
+    with report_lock():
+        result = _run_locked(args)
+    if result.status == "stale" and result.yahoo_down and "ikinci kaynak" not in result.note:
+        _send_yahoo_down_line()
+    return result
+
+
+def _send_yahoo_down_line() -> None:
+    """Once per missing session, when neither Yahoo nor the second source gave anything (Ö56)."""
+
+    from core.infrastructure.settings import require_bot_settings
+
+    expected = last_final_session_date(now_istanbul())
+    name = f"yahoo_yok_{expected.isoformat()}"
+    if (REPORT_TEXT_DIR / f"{name}.txt").exists():
+        return
+    text = (f"⚠️ {expected:%d.%m.%Y} raporu gönderilemedi: Yahoo veri vermedi (iki deneme); "
+            "rapor veri gelince bir sonraki çalışmada gelir.")
+    try:
+        s = require_bot_settings()
+        send_telegram(text, s.bot_token, s.chat_id)
+        _keep_report_text(name, text, prefix="")
+    except Exception:  # noqa: BLE001 - a stale day stays a stale day, never an error
+        logger.exception("Yahoo-down line not sent")
 
 
 def _run_locked(args) -> DailyResult:
@@ -1217,6 +1253,7 @@ def _run_locked(args) -> DailyResult:
     if args.send and not args.force and already_sent(result.day):
         # never send the same data day twice; say why in logs/runs.csv
         result.status, result.note = _not_sent_reason(result.day)
+        result.yahoo_down = yahoo_down
         if result.status == "stale" and yahoo_down:  # a late candle comes later; no second source for that
             sent = _send_second_source(args)
             if sent:
