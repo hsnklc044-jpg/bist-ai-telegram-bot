@@ -160,7 +160,7 @@ def report_file(zaman: str = "gunluk"):
 @dataclass(frozen=True)
 class TrackRecord:
     approved: int
-    precision: float
+    precision: float | None  # None when nothing was approved (Ö50)
     base_rate: float
     source: str
 
@@ -178,12 +178,18 @@ def track_record(zaman: str = "gunluk") -> TrackRecord | None:
 
     try:
         got = json.loads(report_file(zaman).read_text(encoding="utf-8"))
-        if isinstance(got, dict) and got.get("approved") and got.get("precision") is not None and got.get("base_rate") is not None:
+        approved = got.get("approved") if isinstance(got, dict) else None
+        # Ö50: approved = 0 is a result too, not a missing one
+        if approved is not None and got.get("base_rate") is not None and (
+                got.get("precision") is not None or int(approved) == 0):
             commit = str(((got.get("provenance") or {}).get("code") or {}).get("commit") or "")[:7]
-            return TrackRecord(int(got["approved"]), float(got["precision"]), float(got["base_rate"]),
+            precision = float(got["precision"]) if int(approved) else None
+            return TrackRecord(int(approved), precision, float(got["base_rate"]),
                                "bu bilgisayardaki son ölçüm" + (f", commit {commit}" if commit else ""))
-    except (OSError, ValueError, TypeError):
-        pass
+    except FileNotFoundError:
+        pass  # the usual case on the PC: the evaluation runs on GitHub Actions
+    except (OSError, ValueError, TypeError) as exc:
+        logger.warning("Signal filter report %s not read (%s); using the recorded K-64 figures", zaman, exc)
     return RECORDED.get(zaman)
 
 

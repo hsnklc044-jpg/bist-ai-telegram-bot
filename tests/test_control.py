@@ -152,6 +152,37 @@ class AiTest(unittest.TestCase):
         self.assertIn("onaylanan 60 sinyalde isabet %45,0", text)
         self.assertNotIn("artırmadı", text)
 
+    def test_a_newer_report_with_no_approval_is_not_replaced_by_old_figures(self):
+        """Öz-denetim 10, Ö50: approved = 0 counted as false and the old K-64 figures came back."""
+        import json
+        import tempfile
+
+        from core.ml import signal_filter as S
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "signal_filter_gunluk.json"
+            path.write_text(json.dumps({"approved": 0, "precision": None, "base_rate": 0.33, "tested": 500}),
+                            encoding="utf-8")
+            with mock.patch.object(S, "report_file", return_value=path):
+                record = S.track_record("gunluk")
+                text = ai.message(self.candidate(0.64), validated=False)
+        self.assertEqual((record.approved, record.precision), (0, None))
+        self.assertIn("hiçbir sinyali onaylamadı", text)
+        self.assertNotIn("onaylanan 42", text)
+
+    def test_a_broken_report_is_logged(self):
+        """Ö50: a report that cannot be read was skipped silently."""
+        import tempfile
+
+        from core.ml import signal_filter as S
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "signal_filter_gunluk.json"
+            path.write_text("{bozuk", encoding="utf-8")
+            with mock.patch.object(S, "report_file", return_value=path), \
+                    self.assertLogs(S.logger.name, "WARNING"):
+                self.assertEqual(S.track_record("gunluk"), S.RECORDED["gunluk"])
+
     def test_card_states_its_own_rule_result(self):
         # v0.99.37: K-68 measured the card's exact rule; the card says what it found
         from core.analytics import card_study

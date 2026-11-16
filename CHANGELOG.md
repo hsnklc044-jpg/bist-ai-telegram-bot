@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.137 – 16.11.2026 (sinyal filtresi: 0 onaylı rapor eski sayılarla değişmez; Ö50)
+- `core/ml/signal_filter.py` `track_record`: en yeni raporda `approved = 0` yanlış sayılıyor, eski K-64 sayıları (42 onay) gösteriliyordu. Artık kart 'son ölçümde filtre hiçbir sinyali onaylamadı' der.
+- Bozuk rapor dosyası artık sessizce atlanmaz, log'a WARNING yazılır; dosyanın yokluğu (olağan durum) sessiz kalır.
+- Doğrulama: `tests/test_control.py` iki yeni test (önce başarısızdı).
+
 ## v0.99.136 – 16.11.2026 (/risk toplam sıfır ya da eksiyken çökmez; Ö49)
 - `core/alerts/budget.py` `measure`: hesap toplamı ≤ 0 iken ağırlıklar boş kalıyor, oynaklık hesabı `KeyError` veriyordu (/risk çöküyordu). Artık bu durumda ölçümler 'hesaplanamadı' kalır.
 - Doğrulama: `tests/test_risk_budget.py` `test_zero_or_negative_total_is_not_a_crash` (önce başarısızdı).

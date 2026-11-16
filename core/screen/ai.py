@@ -145,6 +145,9 @@ def _record_line() -> list[str]:
     if r is None:
         return own
     x, y = SPEC["gunluk"]
+    if not r.approved:  # Ö50
+        return [f"<b>Geçmiş ölçüm:</b> son ölçümde filtre hiçbir sinyali onaylamadı; tüm tetiklerde isabet "
+                f"%{_n(r.base_rate * 100, 1)} ({html.escape(r.source)})", *own]
     verdict = ("onay isabeti artırmadı" if r.precision <= r.base_rate else "onaylananlar tabanın üstünde")
     return [f"<b>Geçmiş ölçüm:</b> onaylanan {r.approved} sinyalde isabet %{_n(r.precision * 100, 1)}, "
             f"tüm tetiklerde %{_n(r.base_rate * 100, 1)} ({verdict}; isabet: {x} seans sonra kapanış ≥ "
