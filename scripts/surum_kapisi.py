@@ -42,7 +42,7 @@ MAX_INSTALLS = 4
 CI_MINUTES = 25
 UPDATER_FIRST, UPDATER_LAST = 7, 23  # "QuantBIST Guncelle": 07:40 then hourly for 16 hours
 ALONE = ("scripts/guncelle.py", "scripts/register_update_task.ps1", "core/backup.py", "core/infrastructure/csvfiles.py",
-         "core/signals/store.py", "setup.ps1", "requirements.lock")
+         "core/signals/store.py", "scripts/setup.ps1", "requirements.lock")  # Ö55: was "setup.ps1"
 RANK = {"✅": 0, "❔": 1, "⚠️": 2, "🛑": 3}
 
 

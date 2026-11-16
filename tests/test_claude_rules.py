@@ -112,6 +112,11 @@ class GateRulesTest(unittest.TestCase):
         self.assertEqual(self.g.alone_files(["core/reports/slo.py", "scripts/guncelle.py", "core/backup.py"]),
                          ["scripts/guncelle.py", "core/backup.py"])
 
+    def test_every_alone_file_exists_and_setup_is_caught(self):
+        """Öz-denetim 10, Ö55: the list said setup.ps1; the file is scripts/setup.ps1, so it was never caught."""
+        self.assertEqual(self.g.alone_files(["scripts/setup.ps1"]), ["scripts/setup.ps1"])
+        self.assertEqual([f for f in self.g.ALONE if not (ROOT / f).exists()], [])
+
     def test_the_gate_never_writes_into_the_live_folder(self):
         text = read(ROOT / "scripts" / "surum_kapisi.py")
         self.assertNotIn("--force", text)

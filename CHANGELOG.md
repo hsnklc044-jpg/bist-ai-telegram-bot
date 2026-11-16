@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.139 – 16.11.2026 (kapı kurulum betiğini tek başına yakalar; Ö55)
+- `scripts/surum_kapisi.py` tek başına listesi `setup.ps1` diyordu; dosya `scripts/setup.ps1`. Kurulum betiği değişikliği pakete karışabiliyordu. Kural sıkılaştı, gevşemedi.
+- Doğrulama: `tests/test_claude_rules.py` listedeki her dosyanın var olduğunu da denetler (önce başarısızdı).
+
 ## v0.99.138 – 16.11.2026 (TÜFE dosyasında eksik ay reddedilir; Ö51)
 - `core/market/macro.py` `load_cpi`: TÜFE endeksi aylık değişimlerin çarpımıyla zincirleniyor; bir ay eksikse endeks düşük, reel getiri yüksek çıkıyordu ve hata verilmiyordu. Artık eksik ay adıyla `ValueError`; rapor satırları 'hesaplanamadı' der.
 - Depodaki dosya (2021-01 → 2026-09, 69 ay) eksiksiz.
