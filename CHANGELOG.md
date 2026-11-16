@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.136 – 16.11.2026 (/risk toplam sıfır ya da eksiyken çökmez; Ö49)
+- `core/alerts/budget.py` `measure`: hesap toplamı ≤ 0 iken ağırlıklar boş kalıyor, oynaklık hesabı `KeyError` veriyordu (/risk çöküyordu). Artık bu durumda ölçümler 'hesaplanamadı' kalır.
+- Doğrulama: `tests/test_risk_budget.py` `test_zero_or_negative_total_is_not_a_crash` (önce başarısızdı).
+
 ## v0.99.135 – 16.11.2026 (Yahoo boş dönünce rapor bir kez daha denenir; Ö56)
 - 16.11 18:30'da Yahoo bütün semboller için boş döndü, rapor `stale` olarak sessizce atlandı; 18:39'da Yahoo geri gelmişti. Artık XU100 inmezse rapor 10 dakika sonra bir kez daha denenir (Windows görevi 30 dakikada durur).
 - İkinci denemede de veri yoksa ve ikinci kaynak da bir şey göndermediyse Telegram'a o seans için bir kez tek satır uyarı gider; gün yine `stale` sayılır.

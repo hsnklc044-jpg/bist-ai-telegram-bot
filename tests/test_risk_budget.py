@@ -60,6 +60,15 @@ class MeasureTest(unittest.TestCase):
         rows = B.rows(m, {"oynaklik": 0.30})
         self.assertIn("hesaplanamadı", next(r for r in rows if r.name == "oynaklik").text)
 
+    def test_zero_or_negative_total_is_not_a_crash(self):
+        """Öz-denetim 10, Ö49: a total <= 0 left weights empty and m.weights[s] raised KeyError (/risk)."""
+        for total in (0.0, -5_000.0):
+            with self.subTest(total):
+                m = B.measure(self.values, self.frames, total, self.bench)
+                self.assertEqual(m.weights, {})
+                self.assertIsNone(m.volatility)
+                B.rows(m, {"oynaklik": 0.30})
+
 
 class LimitTest(unittest.TestCase):
     def setUp(self):

@@ -132,7 +132,7 @@ def measure(values: dict[str, float], frames: dict[str, pd.DataFrame], total: fl
     if total > 0:
         m.weights = {s: v / total for s, v in priced.items()}
     m.drawdown = drawdown(perf)
-    if not priced or m.unpriced:
+    if not priced or m.unpriced or total <= 0:  # Ö49: no weights without a positive total
         return m
 
     risk = portfolio_risk(priced, {s: frames[s] for s in priced}, total)
