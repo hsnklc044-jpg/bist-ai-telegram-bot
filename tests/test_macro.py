@@ -91,6 +91,11 @@ class CpiTest(Files):
         with self.assertRaises(ValueError):
             self.cpi("2026-08,2.00,30.0,2026-08-15,x\n")  # published before the month ended
 
+    def test_a_missing_month_is_refused(self):
+        """Öz-denetim 10, Ö51: a skipped month made the chained index too low and real returns too high."""
+        with self.assertRaisesRegex(ValueError, "2026-08"):
+            self.cpi("2026-07,2.00,30.0,2026-08-04,x\n", "2026-09,1.00,29.0,2026-10-05,x\n")
+
 
 BULLETIN = """<?xml version="1.0" encoding="UTF-8"?>
 <Tarih_Date Tarih="27.10.2026" Date="10/27/2026" Bulten_No="2026/203">

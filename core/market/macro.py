@@ -92,7 +92,13 @@ def load_cpi(path: Path | str | None = None, local: Path | str | None = None) ->
         month_end = pd.Period(period, "M").end_time.normalize()
         if published <= month_end:
             raise ValueError(f"{path}: {period} yayım tarihi {published:%d.%m.%Y} ay bitmeden")
-    df["index"] = (1 + df["monthly_pct"] / 100).cumprod()
+    # Ö51: the index is chained month by month; a skipped month would make real returns too high
+    months = pd.PeriodIndex(df.index, freq="M")
+    full = pd.period_range(months[0], months[-1], freq="M")
+    if len(full) != len(months):
+        missing = sorted(set(full.astype(str)) - set(df.index))
+        raise ValueError(f"{path}: TÜFE ayı eksik: {', '.join(missing)}")
+    df["index"] =(1 + df["monthly_pct"] / 100).cumprod()
     return df
 
 
