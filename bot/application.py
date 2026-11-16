@@ -55,9 +55,12 @@ def _bot(token: str) -> RecordingBot:
                         get_updates_request=HTTPXRequest(connection_pool_size=1))
 
 # A network error while starting (e.g. DNS not ready right after the PC wakes up) is retried
-# with python-telegram-bot's back-off (1 s growing to 30 s): 20 tries is about 7 minutes.
-# After that the bot exits and the "QuantBIST Bot" task restarts it. A wrong token is never retried.
-BOOTSTRAP_RETRIES = 20
+# with python-telegram-bot's back-off (1 s growing to 30 s); a TimedOut is retried at once after
+# its own ~7 s timeout. -1 = until Telegram answers. A limit is not safe: on 16.11 23:03 twenty
+# timeouts were gone in ~2 minutes, the bot exited with code 1, and the "QuantBIST Bot" task does
+# not restart a program that exits with an error (its restart setting covers a failed launch only).
+# A wrong token is never retried.
+BOOTSTRAP_RETRIES = -1
 
 
 async def _set_menu(app: Application) -> None:

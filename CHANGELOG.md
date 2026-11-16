@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.140 – 16.11.2026 (bot açılışta Telegram zaman aşımıyla kapanmaz; Ö57)
+- 16.11 23:01 yeniden başlatma: açılışta Telegram yanıt vermedi; kütüphane `TimedOut`'u beklemeden yeniden dener (her deneme ~7 sn), 20 deneme ~2 dakikada bitti (23:03:21 "Failed run number 20 of 20. Aborting."), bot 1 koduyla kapandı. "QuantBIST Bot" görevinin yeniden başlatma ayarı (3 × 5 dk) yalnız açılamayan görev için çalışır, hata koduyla çıkan programı yeniden açmaz: bot 19 dakika kapalı kaldı (23:20'de elle açıldı).
+- `bot/application.py` `BOOTSTRAP_RETRIES = -1`: ağ hatası ve zaman aşımı Telegram yanıt verene kadar denenir; yanlış token yine hemen durur. Görev kaydı değişmedi.
+- Doğrulama: `tests/test_bot.py` `test_timeouts_at_start_up_never_end_the_bot` (önce başarısızdı), `test_a_wrong_token_still_stops_at_once`.
+
 ## v0.99.139 – 16.11.2026 (kapı kurulum betiğini tek başına yakalar; Ö55)
 - `scripts/surum_kapisi.py` tek başına listesi `setup.ps1` diyordu; dosya `scripts/setup.ps1`. Kurulum betiği değişikliği pakete karışabiliyordu. Kural sıkılaştı, gevşemedi.
 - Doğrulama: `tests/test_claude_rules.py` listedeki her dosyanın var olduğunu da denetler (önce başarısızdı).

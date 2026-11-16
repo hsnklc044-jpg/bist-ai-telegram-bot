@@ -163,7 +163,7 @@ class StartupNetworkTest(unittest.TestCase):
                 mock.patch.object(application, "require_bot_settings", return_value=settings):
             application.main()
         retries = app.run_polling.call_args.kwargs.get("bootstrap_retries", 0)
-        self.assertGreaterEqual(retries, 10)  # about 2 minutes of back-off before giving up
+        self.assertLess(retries, 0)  # never give up on the network (Ö57); 0 would stop at the first failure
 
     def test_one_dns_failure_then_success_keeps_starting(self):
         """PC log 27.10 08:36: 'getaddrinfo failed' once, then the network was back. With our setting the
@@ -195,4 +195,51 @@ class StartupNetworkTest(unittest.TestCase):
         calls.clear()
         with self.assertRaises(NetworkError):  # the old default: the bot stopped at the first failure
             asyncio.run(start(0))
+
+    def test_timeouts_at_start_up_never_end_the_bot(self):
+        """PC log 16.11 23:03:21: 'Timed out ... Failed run number 20 of 20. Aborting.' The library retries a
+        TimedOut at once (no wait), so 20 tries were gone in ~2 minutes, the bot exited with code 1 and the
+        "QuantBIST Bot" task did not start it again (Last Result 1; it was down 19 minutes). Ö57."""
+
+        import asyncio
+        from unittest import mock
+
+        from telegram.error import TimedOut
+        from telegram.ext._utils.networkloop import network_retry_loop
+
+        from bot.application import BOOTSTRAP_RETRIES
+
+        calls = []
+
+        async def get_me():
+            calls.append(1)
+            if len(calls) <= 40:  # Telegram unreachable for ~5 minutes of 7-second timeouts
+                raise TimedOut()
+
+        async def start():
+            with mock.patch("asyncio.sleep", new=mock.AsyncMock()):
+                await network_retry_loop(action_cb=get_me, description="Bootstrap Initialize Application",
+                                         interval=1, max_retries=BOOTSTRAP_RETRIES)
+
+        asyncio.run(start())
+        self.assertEqual(len(calls), 41)  # kept trying and started
+
+    def test_a_wrong_token_still_stops_at_once(self):
+        import asyncio
+
+        from telegram.error import InvalidToken
+        from telegram.ext._utils.networkloop import network_retry_loop
+
+        from bot.application import BOOTSTRAP_RETRIES
+
+        calls = []
+
+        async def get_me():
+            calls.append(1)
+            raise InvalidToken()
+
+        with self.assertRaises(InvalidToken):
+            asyncio.run(network_retry_loop(action_cb=get_me, description="Bootstrap Initialize Application",
+                                           interval=1, max_retries=BOOTSTRAP_RETRIES))
+        self.assertEqual(len(calls), 1)
 
