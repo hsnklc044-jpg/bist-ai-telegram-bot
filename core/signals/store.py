@@ -2,8 +2,9 @@
 QuantBIST
 Paper signal book (BIST 30 hedefi, adım 3, K-60): every signal the ML screen produces is written to
 SQLite (data/signals.db) and followed with the prices: enter at the next session's open, 2% stop,
-4% target, at most HORIZON sessions; the same rules as the ML labels (core.ml.features), so what
-is followed is what was measured. Each signal is a fixed SIZE of a virtual CAPITAL.
+4% target, at most HORIZON sessions. Unlike the ML labels (core.ml.features, fixed 2% stop) the
+stop here trails the highest price seen before each candle (K-67), so a followed signal can stop
+later, and higher, than its label (Ö52). Each signal is a fixed SIZE of a virtual CAPITAL.
 
 Followed twice: during the session every hour on hourly candles (core.signals.live, stop and
 target only), and after the close on the final daily candles (also the 10-session expiry).

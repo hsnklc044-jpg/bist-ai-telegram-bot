@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.141 – 17.11.2026 (belge: Ö52, Ö53; sunucu kararı kayıtta, K-89)
+- `core/signals/store.py`: kâğıt defterinin stopu etiketten farklı (K-67 iz süren stop); "ML etiketleriyle aynı kurallar" cümlesi düzeltildi (Ö52).
+- `core/ml/ml_filter.py` `walk_forward`: "Wilson aralığı" değil blok bootstrap (Ö53). Davranış değişmedi.
+- DECISIONS K-89: 14.11 sunucu kararı; ROADMAP Ö49–Ö57 durumları.
+
 ## v0.99.140 – 16.11.2026 (bot açılışta Telegram zaman aşımıyla kapanmaz; Ö57)
 - 16.11 23:01 yeniden başlatma: açılışta Telegram yanıt vermedi; kütüphane `TimedOut`'u beklemeden yeniden dener (her deneme ~7 sn), 20 deneme ~2 dakikada bitti (23:03:21 "Failed run number 20 of 20. Aborting."), bot 1 koduyla kapandı. "QuantBIST Bot" görevinin yeniden başlatma ayarı (3 × 5 dk) yalnız açılamayan görev için çalışır, hata koduyla çıkan programı yeniden açmaz: bot 19 dakika kapalı kaldı (23:20'de elle açıldı).
 - `bot/application.py` `BOOTSTRAP_RETRIES = -1`: ağ hatası ve zaman aşımı Telegram yanıt verene kadar denenir; yanlış token yine hemen durur. Görev kaydı değişmedi.
