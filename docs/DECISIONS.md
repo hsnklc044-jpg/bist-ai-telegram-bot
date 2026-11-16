@@ -2,6 +2,18 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 16.11.2026
+
+**K-88. Yürütme rotası (16.11.2026; kullanıcı talimatı, ölçüm değil işletim kaydı).** Kurallar CLAUDE.md, CHARTER ve DECISIONS'taki gibidir; bu rota onlarla çelişirse onlar geçerlidir, çelişki raporlanır. Her iddiaya kanıt (tam SHA, CI no, dosya:satır, çıktı). Claude soru sormaz, karar verip raporlar; yalnız (5)'tekileri kullanıcıya bırakır. Robot ve sonraki oturumlar bu sırayı uygular.
+- **(1) Hedefli doğrulama** (salt okunur, ≤ 30 dk): canlı HEAD/sürüm, yeniden başlatma sonrası 3 sinyal ve ERROR; dalda hazır işler tablosu (dal, tam SHA, sürüm, CI, tam test, bağımlılık, sürüm çakışması); canlı ve zincirdeki son K farkı, 14.11 sunucu kararı; ROADMAP Ö39–Ö56'nın commit ve testi; zamanlanmış görev çakışmaları. Çıktı tek tablo; KRİTİK/YÜKSEK varsa önce yalnız o düzeltilir.
+- **(2) 20.11'e kadar kuyruğu boşalt:** yeni iş açılmaz; dalda hazır işler bağımlılık sırasıyla kapıdan; kurulum kapının izin verdiği kadar, 18:00–20:00 ve seans saatlerinde yok. 14.11 sunucu kararı kayda geçer: "sunucu önerilir; kullanıcı ücretsiz seçenekte kaldı: PC 7/24 açık, uyku kapalı; aralık ortasında yeniden bakılır". Ö52/Ö53 belge düzeltmeleri. Healthchecks tatbikatı (OPERATIONS §7: `--drill`, ardından `--recover`), kanıtı MATURITY S2 izleme satırına. Bitiş: dalda bekleyen iş ≤ 1, DECISIONS canlıda güncel, S2 izleme satırı tam.
+- **(3) 07.12'ye kadar S2:** SLO'lar birinci öncelik; güncelleyici, yedek, geri yükleme değişikliği yalnız hafta sonu ve tek başına. Her cumartesi haftalık SLO tablosunun dosyaya yazıldığı doğrulanır, kaçarsa kayıtlardan yeniden hesaplanır. Bitiş: art arda 4 hafta 7/7 SLO, MATURITY S2 %100.
+- **(4) Kuyruk boşaldıkça:** A, B, C, D, E, F, H, I sırası değişmez; Ö47/Ö48 önce ön kayıt. KAP temel veri kaynağı araştırması: önce resmî kaynak ve kullanım şartları, yeniden yayımlama yasak. Ayda bir öz-denetim; Kasım sonu S4 ilk kararı ön kayıttaki ölçütle RESEARCH_LOG'a; 27.11 S3 30 gün sayacı. Dalda aynı anda en fazla 3 iş; fazlaysa yeni iş açılmaz.
+- **(5) Kullanıcıya kalır:** para gerektiren kararlar, token ya da hesap gerektiren adımlar, Ö54 ve yedek/güncelleyici değişikliklerinin hafta sonu komutu, kuralların kendisini değiştirmek.
+- **(6) Her tur sonu rapor** (≤ 8 satır; `OTONOM_RAPOR.md` ve 21:00 özeti): yapılanlar (kanıtlı); canlı sürüm, SLO x/7, ERROR sayısı; MATURITY S1–S4 % ve resmî seviye; dalda bekleyen iş sayısı; kullanıcıya kalan (yoksa "yok"); sonraki adım ve saati.
+- **Önceki kurallarla çelişki (raporlandı, 16.11):** hafta sonu robot görevi yedek/güncelleyici işlerini dr-drill sonrası kendisi birleştiriyor; (5) bunun hafta sonu komutunu kullanıcıya bırakıyor. Kullanıcı kararına kadar (5) uygulanır: robot bu işleri birleştirmez, hazır olduğunu bildirir.
+- **Reddedilen:** rotayı sonuca göre değiştirmek; kapıyı ya da güvenlik denetimini aşmak; (5)'tekileri Claude'un kendisinin yapması.
+
 ## 11.11.2026
 
 **K-87. Depo dışı dosyalar: hangisi depoya, hangisi değil (11.11.2026; kullanıcı isteği L).**
