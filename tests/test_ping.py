@@ -270,3 +270,29 @@ class AlarmDrillTest(unittest.TestCase):
         code, calls, text = self.run_drill({ping.REPORT_ENV: "", ping.BOT_ENV: ""}, ["--drill"])
         self.assertEqual((code, calls), (1, []))
         self.assertIn("OPERATIONS §7", text)
+
+
+class RetryTest(unittest.TestCase):
+    """Ö61: one network error used to lose the heartbeat (14.11: 18 failed pings in the evening, four in a
+    row 22:04–22:19, at the 20-minute grace limit). One short retry; a 4xx (wrong address) is not retried."""
+
+    def test_a_network_error_is_retried_once(self):
+        get = mock.Mock(side_effect=[OSError("ağ yok"), SimpleNamespace(status_code=200)])
+        with mock.patch("time.sleep") as slept, self.assertLogs("core.infrastructure.ping", level=logging.WARNING):
+            self.assertTrue(ping.ping(URL, get=get, name=ping.BOT_ENV))
+        self.assertEqual(get.call_count, 2)
+        slept.assert_called_once()
+        self.assertTrue(ping.last_pings()[ping.BOT_ENV]["ok"])
+
+    def test_a_server_error_is_retried_and_two_failures_stay_failed(self):
+        get = mock.Mock(side_effect=[SimpleNamespace(status_code=503), OSError("ağ yok")])
+        with mock.patch("time.sleep"), self.assertLogs("core.infrastructure.ping", level=logging.WARNING):
+            self.assertFalse(ping.ping(URL, get=get))
+        self.assertEqual(get.call_count, 2)
+
+    def test_a_wrong_address_is_not_retried(self):
+        get = mock.Mock(return_value=SimpleNamespace(status_code=400))
+        with mock.patch("time.sleep") as slept:
+            self.assertFalse(ping.ping(URL, get=get))
+        self.assertEqual(get.call_count, 1)
+        slept.assert_not_called()

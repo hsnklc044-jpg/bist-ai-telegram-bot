@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.145 – 17.11.2026 (Healthchecks sinyali bir kez yeniden denenir; Ö61)
+- `core/infrastructure/ping.py` `ping`: ağ hatası ya da 5xx yanıtında 30 sn sonra bir kez daha denenir; 4xx (yanlış adres) denenmez. Bot sinyali (`bot/scheduler.py` `heartbeat_job`) ve günlük rapor sinyali aynı yoldan geçer. Kısa ağ kesintisi (14.11 akşamı 18 başarısız sinyal, 22:04–22:19 art arda 4) artık yanlış alarm riskini büyütmez.
+- Doğrulama: `tests/test_ping.py` `RetryTest` önce kırmızıydı (2 başarısız: ağ hatası ve 503 yeniden denenmiyordu), düzeltmeden sonra yeşil.
+
 ## v0.99.144 – 17.11.2026 (belge: MATURITY S2 dışarıdan izleme ✅)
 - `docs/MATURITY.md` S2 izleme satırı: 17.11 Healthchecks tatbikatı (DOWN 09:00, UP 09:05:48, kesinti 5 dk 47 sn, e-posta alarmı ulaştı). Alarm e-posta ve Telegram'a gitti (Healthchecks Entegrasyonlar: ikisi de 2/2, teslim edildi). Kod değişmedi.
 - `docs/ROADMAP.md`: öz-denetim 11 (17.11), bulgular Ö58–Ö70; Ö60 (hafta sonu robotu ↔ K-88 §5) görev isteminde zaten düzeltilmiş, ✅.
