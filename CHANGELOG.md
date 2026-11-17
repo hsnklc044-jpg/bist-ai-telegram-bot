@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## Test ve belge – 18.11.2026, 2. gece paketi (sürüm artmadı; kod değişmedi)
+- Ö67: `tests/test_csvfiles.py` ve `tests/test_watchlist_scanner.py` (kişisel CSV okuma/ekleme ve izleme listesi taraması için ilk doğrudan testler). İlk çalıştırmada geçtiler; hata bulunmadı.
+- Ö66: ROADMAP durum sütunu doğrulandı ve kapatıldı. `docs/NIGHT_LOG_2026-11-18.md`: gece günlüğü ve sabah raporu.
+
 ## Belge – 18.11.2026 (sürüm artmadı, canlı v0.99.144 kalır; gece paketi: yalnız belge ve test; K-92 sonucu, K-93, K-94, S4/S5 hazırlık belgeleri)
 - Kod değişmedi; bot ve raporun davranışı aynı. Kullanıcının 18.11 gece kuralı gereği ana dala yalnız belge ve test girdi.
 - DECISIONS: K-92 (ön kayıt metni, kodu dalda) ve 14.11 sonucu (✅, CI 43587548333); K-93 (S4 canlı karar ölçütü, iki kaynak 4 hafta, S5 eşiği, kâğıt defter sınırları, S3 müdahale tanımı, SLO serisi önlemi); K-94 (S5 çıkış eşikleri).
