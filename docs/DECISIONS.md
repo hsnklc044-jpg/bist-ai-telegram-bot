@@ -2,6 +2,17 @@
 
 Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tarihli ve gerekçeli. En yenisi en üstte.
 
+## 17.11.2026
+
+**K-90. Ö47: aynı mumda hedef ve stop, açılış hedefin üstündeyse hedef (17.11.2026; ön kayıt, ölçüm yok).**
+- **Sorun:** `core/ml/features.py` `labels` ve `core/signals/store.py` `_follow`, aynı mumda hem stop hem hedef görülünce stopu sayıyor. Açılış hedefin üstündeyse (yukarı boşluk) hedef açılışta, stoptan önce dolar. `core/analytics/scenarios.py` `outcome` bu durumda açılışa zaten bakıyor (`o[i] >= target`).
+- **Kural (değişiklik):** Mumun açılışı hedefin üstünde ya da hedefe eşitse sonuç hedeftir ve çıkış açılış fiyatıdır. Bu, mumun düşüğü stopun altında olsa da geçerlidir. Açılış stopun altındaysa çıkış eskisi gibi açılışta stoptur. İkisi de değilse ve ikisine de dokunulduysa eskisi gibi stop sayılır (mum içi sıra bilinmiyor). K-75 kilitli gün kuralı değişmez.
+- **Kapsam:** Yalnız `features.labels` (K-62 `stop_hedef` etiketi, `ml_filter`) ve `store._follow` (kâğıt defteri, K-60/K-67) değişir. K-79 dondurma parçalarına dokunulmaz: `signal_filter.labels` kapanış bazlı, mum içine bakmıyor, bu durumu taşımıyor; `tests/test_k64_freeze.py` yeşil kalmalı.
+- **Ölçüt / kabul:** (1) Önce elle hesaplanmış iki sentetik test kırmızı, sonra yeşil. Etiket: giriş 100, ertesi mum açılış 105, düşük 97 → etiket 1, r = 105/100 − 1 − COST. Defter: aynı mum → durum `hedef`, çıkış 105. (2) Mevcut etiket ve defter testleri değişmeden yeşil, açılış giriş fiyatına eşit olan "ikisi aynı mumda = stop" testi dahil. (3) K-79 dondurma testi yeşil. (4) ruff temiz, tam takım bir kez.
+- **Deneme sayısı:** 0 ölçüm. Kodda doğruluk düzeltmesidir; etiketle eğitilmiş geçmiş ölçümler (K-62 vb.) yeniden çalıştırılmaz, sonuçları değiştirilmez. Bir sonraki `stop_hedef` ölçümü yeni kuralla yapılır ve bu K'yi anar.
+- **Beklenti:** Günlük mumda nadir (hedef %4 üstünde açılış ve aynı gün −%2 altında düşük); etiket dağılımında küçük değişiklik.
+- **Reddedilen:** Ölçüm sonucuna göre kuralı seçmek; hedefi açılış yerine hedef fiyatından saymak (boşlukta hedeften iyi fiyat gerçekten dolar, `scenarios.py` ile tutarlı).
+
 ## 16.11.2026
 
 **K-89. Sunucu kararı (K-23 ölçütüyle, 14.11.2026; kayda 17.11'de geçti).** 13.11 18:30 raporu (`logs/reports/rapor_2026-11-13.txt:42-49`), K-31 hesabı: Hafta 1 (02.11–09.11) bot %70,7 (kesinti 49,2 sa; PC kapalı/uykuda 10,1 sa; 20+ dk PC kaynaklı kesinti 1), rapor %80,0 (02.11 PC'den kaçtı) → (b) ve (c) koşulu. Hafta 2 (09.11–13.11) bot %98,5, rapor %100,0; (c) 1 kez. **KARAR: sunucu önerilir; kullanıcı ücretsiz seçenekte kaldı: PC 7/24 açık, uyku kapalı; aralık ortasında yeniden bakılır.** Hedefler gevşetilmez. Sunucu kiralamak (ödeme) kullanıcının adımıdır (K-88 §5); kurulum `docs/SERVER.md`.
