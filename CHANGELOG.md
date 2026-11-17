@@ -2,6 +2,13 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## Belge – 18.11.2026 (sürüm artmadı, canlı v0.99.144 kalır; gece paketi: yalnız belge ve test; K-92 sonucu, K-93, K-94, S4/S5 hazırlık belgeleri)
+- Kod değişmedi; bot ve raporun davranışı aynı. Kullanıcının 18.11 gece kuralı gereği ana dala yalnız belge ve test girdi.
+- DECISIONS: K-92 (ön kayıt metni, kodu dalda) ve 14.11 sonucu (✅, CI 43587548333); K-93 (S4 canlı karar ölçütü, iki kaynak 4 hafta, S5 eşiği, kâğıt defter sınırları, S3 müdahale tanımı, SLO serisi önlemi); K-94 (S5 çıkış eşikleri).
+- MATURITY: S2 sayacının kesilme nedeni (03.11 klasör taşıması), S3 30 gün 03.12, S4 satır tarihleri (canlı karar en erken 06.01.2027; "Kasım sonu" düzeltildi), S5 çıkış kanıtları taslağı. Yeni belgeler: `docs/S4_KARAR_NOTU.md`, `docs/PAPER_TRADING.md`. Ayrıca OPERATIONS §7a, RESEARCH_LOG şablonu, MODELS/ROADMAP tarihleri.
+- Test: `tests/test_no_orders.py`; kodda aracı kurum SDK'sı, emir ucu ya da KAP dışında POST olmadığını denetler.
+- **Sürüm numarası:** artmadı. Kod değişmediği için cad9bcd'deki gibi davranıldı (koordinatör notu, 18.11 00:30). Bekleyen 1a (ping, v0.99.145) ve 1d (S4/S5 kodu, v0.99.146) dalları bu ucun üstüne yeniden kurulur ve numaralarını korur. Eski dallar silinmez.
+
 ## v0.99.144 – 17.11.2026 (belge: MATURITY S2 dışarıdan izleme ✅)
 - `docs/MATURITY.md` S2 izleme satırı: 17.11 Healthchecks tatbikatı (DOWN 09:00, UP 09:05:48, kesinti 5 dk 47 sn, e-posta alarmı ulaştı). Alarm e-posta ve Telegram'a gitti (Healthchecks Entegrasyonlar: ikisi de 2/2, teslim edildi). Kod değişmedi.
 - `docs/ROADMAP.md`: öz-denetim 11 (17.11), bulgular Ö58–Ö70; Ö60 (hafta sonu robotu ↔ K-88 §5) görev isteminde zaten düzeltilmiş, ✅.

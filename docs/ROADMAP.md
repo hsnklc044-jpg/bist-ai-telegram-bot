@@ -16,7 +16,7 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 | E | Felaket kurtarma | kod hemen | E1 ve E3 v0.53.0 (docs/DISASTER_RECOVERY.md; adımları test_disaster_recovery denetler); E2 aylık tatbikat yerel otomasyonun işi (komut belgede) — **tamam** |
 | F | Altyapı kararı | ≥1 haftalık kayıt ya da SLO tutmazsa | bekliyor (03.11 sonrası) |
 | G | Araştırma | yazılım/dayanıklılık/veri işi bitince | **açık/engelli**: veri 2015'e uzatma için kaynaklı üyelik listesi yok (DECISIONS K-16); mevcut veriyle güç düşük |
-| H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (Kasım sonu) |
+| H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (en erken 06.01.2027, K-93; önce "Kasım sonu" yazıyordu, hesaba uymuyordu) |
 | I | Güvenlik ve bağımlılıklar | kod hemen | I1 haftalık pip-audit, I2 gizli bilgi testi v0.54.0; I3 kural DECISIONS'ta; kapsam kapısı %91 ve kalite SLO'su v0.54.1 — **tamam** |
 | J | Bakım ve devir | yazılım işi bitince | J1 HANDBOOK, J2 MAINTENANCE, J3 /durum 'Bakım takvimi', J4 CHANGELOG v0.55.0 — **tamam** |
 
@@ -72,8 +72,8 @@ Kontrol edilenler: güncelleyici geri sürüm kurmaz, kırmızı/süren CI'ı ku
 | Ö58 | ORTA | İki kural kaynağı: robot görevi (`quantbist-otonom/SKILL.md` adım 1) depo dışı `QuantBIST-araclar\otonom_kurallar.md`'yi okuyor; K-87 ve `docs/OTONOM_KURALLAR.md:1` tek kaynağın depodaki dosya olduğunu söylüyor. İki dosya ayrışmış: 12.11 otomatik fren devri, "Tam kontrol", "Kota modu" ve 12.11–17.11 sıra satırları yalnız depo dışında; 17.11 yetki bölümü (64de0a1) yalnız depoda. | açık: tek kaynağa birleştirme (belge dalı + görev metni). |
 | Ö59 | ORTA | `docs/OTONOM_KURALLAR.md:4-5` "ÖNCELİKLİ KURAL … her şeyden önce gelir: her seferinde kullanıcı onayı" duruyor; aynı dosyanın `:51` onay devri, `:75` "YENİDEN GEÇERLİ" bölümü ve OPERATIONS §5a ile çelişiyor. 64de0a1 üste yeni bölüm ekliyor, eski başlığı geçersiz kılmıyor. Ayrıca `:17` commit sonu "Claude Sonnet 5.5" (CLAUDE.md: "Claude"), `:16` "CI'a en fazla üç dakikada bir" (kota paylaşımı için ≥ 10 dk uygulanıyor). | açık: belge düzeltmesi; kural değişikliği değil, geçerli olanın işaretlenmesi. |
 | Ö60 | ORTA | Hafta sonu robot görevi (`quantbist-otonom-haftasonu/SKILL.md`) güncelleyici/yedek/geri yükleme işlerini dr-drill sonrası kendisinin yapabileceğini söylüyor; K-88 (5) ve K-88 "Önceki kurallarla çelişki" maddesi bunu kullanıcıya bırakıyor. Tarih kapısı 18.11'de açılıyor: ilk normal tur 21.11 13:00. Görev ayrıca eski "12.11 satırlarına" yönlendiriyor. | ✅ 17.11: görev istemi K-88 §5'e uyduruldu ("Robot bunları kendisi birleştirmez"; yalnız hazırlık ve kullanıcı komutu). "12.11 satırları" yönlendirmesi de kalktı. |
-| Ö61 | ORTA | Healthchecks bot sinyali yeniden denemesiz (`bot/scheduler.py:555`, `core/infrastructure/ping.py` TIMEOUT 10). Akşam ağ kümeleri: 14.11'de 18, 16.11'de 12 başarısız sinyal; 14.11 22:04–22:19 art arda 4 (20 dk grace sınırında). Yanlış alarm riski MATURITY S2 "yanlış alarm testi"ni tehdit eder. | açık: önce başarısız test (bir kısa yeniden deneme). |
-| Ö62 | ORTA | Haftalık SLO "Kalite (CI, kapsam)" 21:00'de GitHub API'ye bağlı; 14.11 ConnectError → ❔ (`logs/haftalik_slo/2026-11-14.txt`), hafta 6/7. K-88 (3) "art arda 4 hafta 7/7" serisini bir ağ kesintisi bozabilir. | açık: ölçüm kuralına dokunur → önce `on-kayit`. |
+| Ö61 | ORTA | Healthchecks bot sinyali yeniden denemesiz (`bot/scheduler.py:555`, `core/infrastructure/ping.py` TIMEOUT 10). Akşam ağ kümeleri: 14.11'de 18, 16.11'de 12 başarısız sinyal; 14.11 22:04–22:19 art arda 4 (20 dk grace sınırında). Yanlış alarm riski MATURITY S2 "yanlış alarm testi"ni tehdit eder. | dalda: `claude/olgunluk-belge-1811` cad9bcd (ağ hatası/5xx bir kez, 30 sn sonra yeniden denenir; `tests/test_ping.py` `RetryTest`), gece kuralı gereği sabah onayı bekliyor; canlıda değil. |
+| Ö62 | ORTA | Haftalık SLO "Kalite (CI, kapsam)" 21:00'de GitHub API'ye bağlı; 14.11 ConnectError → ❔ (`logs/haftalik_slo/2026-11-14.txt`), hafta 6/7. K-88 (3) "art arda 4 hafta 7/7" serisini bir ağ kesintisi bozabilir. | ön kayıt K-92; 14.11 haftası sonucu ✅ (K-92 Sonuç, CI 43587548333). Otomatik yeniden sorgu dalda (`claude/s4-s5-hazirlik`), sabah onayı bekliyor. |
 | Ö63 | DÜŞÜK | Heartbeat işi `run_repeating` ile varsayılan `misfire_grace_time` (1 sn) kullanıyor (`bot/scheduler.py:564`; diğer işlerde `LATE_START` `:43`): 17.11 08:30:45 sinyal 1,2 sn gecikmeyle atlandı (log "was missed by 0:00:01.247522"; `heartbeats.csv` 08:25→08:35 boşluk). | açık: önce başarısız test. |
 | Ö64 | DÜŞÜK | Türkçe klavyede büyük "İ": `core/alerts/budget.py:386,400` ve `core/analytics/scenarios.py:374` `normalize_symbol`'u (`core/market/symbols.py:13`) kullanmıyor; "İSCTR" → var olmayan sembol, hata verilmeden (doğrulandı: `parse_args(['ekle','İSCTR','5'])`). `normalize_symbol` aynı girdiyi açık hatayla reddeder. Ö57 altındaki "doğrulanmamış" ilk madde. | açık: önce başarısız test. |
 | Ö65 | DÜŞÜK | Robot skill'i (`.claude/skills/robot/SKILL.md:31`) her tur `docs/ROBOT_LOG.md`'ye satır ister; son satır 11.11 (a265623). Kayıt fiilen `cikti\OTONOM_RAPOR.md`'de. Aynı dosyanın durma koşulları (`:34-37`, "yalnız bunlar") zaman sınırını, kota eşiğini ve K-88 (5) hafta sonu komutunu içermiyor. | açık: belge düzeltmesi. |
@@ -451,7 +451,7 @@ Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe
   - 29.10: tatil.
   - 30.10: cuma canlı ölçüm satırı.
   - 31.10: zamanlanmış cumartesi araştırması.
-  - Kasım sonu: canlı ölçüm kararı. 5 seanslık ufukta 10 bağımsız dönem yaklaşık 50 seans sürer.
+  - 06.01.2027 (en erken; 18.11 düzeltmesi, önce "Kasım sonu"): canlı ölçüm kararı. 5 seanslık ufukta 10 bağımsız dönem 46 kayıt günü + 5 seans sürer (K-93).
 
 ## Bağımsız denetim (27.10.2026, v0.45.0 üzerinde)
 

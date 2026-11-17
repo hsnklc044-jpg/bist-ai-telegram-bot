@@ -188,6 +188,11 @@ Bilgisayar kapalıysa ya da internet kesikse 18:30 raporu ve 20:00 kontrolü kim
 
 **Adres yazım hataları (27.10'da yaşandı).** Adrese yanlışlıkla giren boşluklar kendiliğinden silinir. Örnek metin (`<…>`), `https://` eksikliği ya da kodsuz adres `/durum`'da "HC_… biçimi hatalı" diye, adres gösterilmeden yazılır; `--drill` bu durumda hiçbir şey göndermez (`test_ping.AddressTypoTest`).
 
+## 7a. Canlı klasör taşınırsa `logs/` da taşınır (K-93 (7), 18.11.2026)
+03.11.2026'da canlı kurulum elle `C:\Projeler\QuantBIST`'ten `QuantBIST-yeni`'ye taşındı, `logs/` taşınmadı. SLO kayıtları (`heartbeats.csv`, `runs.csv`, `freshness.csv`, `restore_tests.csv`) yeni klasörde 03.11 15:14'te sıfırdan başladı ve 1. haftanın (02–09.11) ölçümü kayıtsız saatleri kesinti saydı.
+- Kural: klasör taşınırsa ya da yeniden kurulursa, bot durdurulduktan sonra eski `logs/` klasörünün tamamı yenisine kopyalanır, sonra bot başlatılır. Bu bir müdahaledir; S3 sayacı yeniden başlar (K-93 (6)).
+- Önlem (kod dalda: `claude/s4-s5-hazirlik`, sabah onayı bekliyor): cumartesi 21:00'de haftalık seri satırı (`logs/haftalik_slo/seri.csv`, `core/reports/weekly_series.py`) bot kaydının ilk satırını da yazar. Kayıt haftanın başından sonra başlıyorsa satıra "kayıt eksik" yazılır, özet ⚠️ ile gösterir ve o hafta seride sayılmaz.
+
 ## 7b. Çalıştırma kayıtları (aranabilir)
 
 Her günlük rapor çalıştırması `logs/daily_<tarih>.log` ve `logs/quantbist.log` dosyalarına tek satırlık bir özet yazar:
