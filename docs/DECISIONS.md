@@ -4,6 +4,15 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 17.11.2026
 
+**K-92. Ö62: haftalık SLO "Kalite (CI, kapsam)" ağ hatasıyla ❔ kalırsa nasıl sayılır (17.11.2026; ön kayıt, ölçüm yok).**
+- **Soru:** 21:00'deki haftalık ölçümde GitHub'a ağ hatasıyla (ConnectError, zaman aşımı, 5xx; kota değil) ulaşılamadığında, o haftanın kalite satırı K-88 (3) "art arda 4 hafta 7/7" serisinde ✅ sayılabilir mi?
+- **Veri:** GitHub Actions `ci.yml` çalışmaları, dal `claude/borsa-bot-creation-n7nmc9` (`core/reports/slo.py` `quality`, `CI_API`); haftalık dosya `logs/haftalik_slo/<tarih>.txt`. Holdout'a dokunulmaz (fiyat/sinyal verisi kullanılmaz).
+- **Kural (değişiklik, yalnız seri sayımı):** Haftalık dosya ve tablo değişmez (❔ kalır). K-88 (3) cumartesi doğrulamasında, ❔'nin nedeni ağ hatasıysa GitHub yeniden sorulur: ölçüm anından (21:00) önce başlamış son tamamlanmış CI çalışması `success` ise o hafta seri için ✅ sayılır ve OTONOM_RAPOR'a "K-92 yeniden sorgu" satırı (çalışma no, tam SHA, başlama saati) yazılır. Kota dolu, kırmızı CI ya da çalışma yok durumunda ❔/⚠️ değişmez.
+- **Ölçüt:** geçti = yeniden sorguda ölçüm anından önceki son çalışma `success`; geçmedi = `failure`/`cancelled`; ölçülemedi = yeniden sorgu da yapılamadı ya da çalışma yok (hafta seriyi bozar).
+- **Deneme sayısı:** 0 ölçüm. 14.11 haftası (❔, ConnectError; son bilinen 07dfe92 success) bu kuralla ilk değerlendirilecek hafta olur; sonuç bu K'nın altına "Sonuç" olarak eklenir.
+- **Beklenti:** 14.11 haftası ✅ sayılır (son bilinen yanıt 13:55'te success idi).
+- **Reddedilen:** ❔'yi kanıtsız ✅ saymak; "son bilinen" önbellek satırını kanıt saymak (`slo.py` docstring: eski yeşil sağlıklı sayılmaz); ölçüm anından sonraki bir CI çalışmasını saymak; 4 hafta eşiğini ya da 7/7 hedefini değiştirmek.
+
 **K-91. Ö48: senaryo süre dolumunda son seans tabanda kilitliyse çıkış ilk kilitsiz açılış (17.11.2026; ön kayıt, ölçüm yok).**
 - **Sorun:** `core/analytics/scenarios.py` `outcome`, süre dolunca `c[t + horizon]` kapanışından satış sayıyor; o seans tabanda kilitliyse (K-75) satıcı dolmaz. Etiket (`features.labels`, Faz C M30-5) ve kâğıt defteri (`store._follow`, M32 O3) bu durumda ilk kilitsiz seansın açılışını kullanıyor; senaryo kullanmıyor.
 - **Kural (değişiklik):** Süre dolumunda son seans kilitliyse çıkış, ondan sonraki ilk kilitsiz ve fiyatı olan seansın açılışıdır; `sessions` ve `exit_day` o seansı gösterir. Öyle bir seans henüz yoksa sonuç bilinmiyor (`None`). Kilitsiz son seansta davranış değişmez. K-55 şablon parametreleri (seviyeler, ufuk 20, maliyet) değişmez.
