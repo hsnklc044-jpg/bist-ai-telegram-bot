@@ -70,6 +70,9 @@ def labels(df: pd.DataFrame, stop: float = STOP, target: float = TARGET, horizon
             break  # the outcome is not known yet
         result = None
         for d in range(t + 1, last + 1):
+            if o[d] >= entry * (1 + target):  # K-90 (Ö47): a gap over the target fills at the open, first
+                result = (1, o[d] / entry - 1, d)
+                break
             if low[d] <= entry * (1 - stop) and not locked[d]:
                 result = (0, -stop if o[d] > entry * (1 - stop) else o[d] / entry - 1, d)  # a gap fills at the open
                 break
