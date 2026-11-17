@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.142 – 17.11.2026 (belge: Ö52; tek başına)
+- `core/signals/store.py`: kâğıt defterinin stopu etiketten farklı (K-67 iz süren stop); "ML etiketleriyle aynı kurallar" cümlesi düzeltildi (Ö52). Yalnız modül açıklaması; davranış ve kayıt biçimi değişmedi.
+
 ## v0.99.141 – 17.11.2026 (belge: Ö53; sunucu kararı kayıtta, K-89)
 - `core/ml/ml_filter.py` `walk_forward`: "Wilson aralığı" değil blok bootstrap (Ö53). Davranış değişmedi.
 - DECISIONS K-89: 14.11 sunucu kararı; ROADMAP Ö49–Ö57 durumları.
