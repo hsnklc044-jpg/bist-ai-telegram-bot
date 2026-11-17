@@ -53,6 +53,15 @@ class LabelTest(unittest.TestCase):
                            (100, 100, 100, 100), (100, 100, 100, 100)])
         self.assertEqual(both["label"].iloc[0], 0)
 
+    def test_gap_above_the_target_fills_at_the_open_before_the_stop(self):
+        # K-90 (Ö47): entry 100; the next candle opens at 105 (over the 104 target) and dips to 97 (under the
+        # 98 stop): the target filled at the open, before anything else in that candle
+        out = self.label([(100, 100, 100, 100), (100, 101, 99, 100), (105, 106, 97, 100), (100, 100, 100, 100),
+                          (100, 100, 100, 100)])
+        self.assertEqual(out["label"].iloc[0], 1)
+        self.assertAlmostEqual(out["r"].iloc[0], 105 / 100 - 1 - F.COST)
+        self.assertEqual(out["label_end"].iloc[0], out.index[2])
+
     def test_gap_through_the_stop_fills_at_the_open(self):
         out = self.label([(100, 100, 100, 100), (100, 100, 99, 100), (95, 96, 94, 95), (95, 95, 95, 95),
                           (95, 95, 95, 95)])
