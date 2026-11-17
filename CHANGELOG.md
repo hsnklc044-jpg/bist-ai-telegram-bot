@@ -3,7 +3,7 @@
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
 ## v0.99.144 – 17.11.2026 (belge: MATURITY S2 dışarıdan izleme ✅)
-- `docs/MATURITY.md` S2 izleme satırı: 17.11 Healthchecks tatbikatı (DOWN 09:00, UP 09:05:48, kesinti 5 dk 47 sn, e-posta alarmı ulaştı). Telegram entegrasyonu Healthchecks'te yok; kanal e-posta. Kod değişmedi.
+- `docs/MATURITY.md` S2 izleme satırı: 17.11 Healthchecks tatbikatı (DOWN 09:00, UP 09:05:48, kesinti 5 dk 47 sn, e-posta alarmı ulaştı). Alarm e-posta ve Telegram'a gitti (Healthchecks Entegrasyonlar: ikisi de 2/2, teslim edildi). Kod değişmedi.
 
 ## v0.99.143 – 17.11.2026 (belge: robotun görevi ve yetkisi)
 - `docs/OTONOM_KURALLAR.md` en üstüne 17.11.2026 kullanıcı kararı: robot bütün ilerleme işlerini kullanıcıyı beklemeden yürütür; kesin sınırlar, kapı ve K-88 §5 (güncelleyici/yedek/geri yükleme hafta sonu kullanıcı komutu) değişmedi. Kod değişmedi.
