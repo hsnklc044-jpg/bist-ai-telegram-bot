@@ -165,8 +165,9 @@ def date_bootstrap(chosen: pd.DataFrame, repeats: int = BOOTSTRAP, seed: int = 0
 
 def walk_forward(data: pd.DataFrame, universe: str = "", first_year: int = FIRST_TEST_YEAR, holdout: bool = False,
                  make_model=model, rule: str = "stop_hedef") -> Report:
-    """stop_hedef (K-59): every test day, Wilson interval. goreli20 (K-62): test days 20 sessions
-    apart (no overlapping test labels of one stock) and a date-bootstrap interval."""
+    """stop_hedef (K-59): every test day, block-bootstrap interval (blocks of 2 x HORIZON dates; `interval`).
+    goreli20 (K-62): test days 20 sessions apart (no overlapping test labels of one stock) and a date-bootstrap
+    interval. `wilson` is not used here (Ö53)."""
 
     cut = holdout_start()
     data = data if holdout else data[(data["date"] < cut)]
