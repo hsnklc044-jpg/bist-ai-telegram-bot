@@ -56,6 +56,14 @@ class BookTest(unittest.TestCase):
         self.assertEqual(by["F.IS"].status, "sure")
         self.assertAlmostEqual(by["F.IS"].r, 50.2 / 50 - 1 - COST)
 
+    def test_gap_above_the_target_is_the_target_even_if_the_low_hits_the_stop(self):
+        # K-90 (Ö47): entry 100, trail 98,98 after day 1; day 2 opens at 105 (over 104) and dips to 97
+        S.add(self.conn, date(2026, 11, 2), "U.IS", 100.0)
+        S.update(self.conn, lambda s: bars([(100, 100, 100, 100), (100, 101, 99, 100), (105, 106, 97, 100)]))
+        s = S.signals(self.conn)[0]
+        self.assertEqual((s.status, s.exit_price), ("hedef", 105.0))
+        self.assertAlmostEqual(s.r, 105 / 100 - 1 - COST)
+
     def test_limit_up_open_is_not_filled(self):
         S.add(self.conn, date(2026, 11, 2), "L.IS", 100.0)
         S.update(self.conn, lambda s: bars([(100, 100, 100, 100), (110, 110, 110, 110)]))
