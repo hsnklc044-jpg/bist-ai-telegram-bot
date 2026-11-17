@@ -259,7 +259,9 @@ def _follow(s: Signal, df: pd.DataFrame, expire: bool = True) -> dict:
     hit = np.flatnonzero(((lows <= trail) & ~locked) | (highs >= target))
     if len(hit):
         i = hit[0]
-        if lows[i] <= trail[i]:  # both in one candle counts as the stop
+        if opens[i] >= target:  # K-90 (Ö47): a gap over the target fills at the open, before the stop
+            status, price = "hedef", opens[i]
+        elif lows[i] <= trail[i]:  # both in one candle counts as the stop
             status, price = "stop", min(trail[i], opens[i])
         else:
             status, price = "hedef", max(target, opens[i])
