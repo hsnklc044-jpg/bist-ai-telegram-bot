@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## Test ve belge – 18.11.2026, 2. gece paketi (sürüm artmadı; kod değişmedi)
+- Ö67: `tests/test_csvfiles.py` ve `tests/test_watchlist_scanner.py` (kişisel CSV okuma/ekleme ve izleme listesi taraması için ilk doğrudan testler). İlk çalıştırmada geçtiler; hata bulunmadı.
+- Ö66: ROADMAP durum sütunu doğrulandı ve kapatıldı. `docs/NIGHT_LOG_2026-11-18.md`: gece günlüğü ve sabah raporu.
+
 ## v0.99.146 – 18.11.2026 (S4/S5 hazırlığı: canlı karar hesabı, haftalık seri; K-93; gece belge paketinin üstüne yeniden kuruldu, a9ae94b ile aynı kod)
 - `core/reports/s4_decision.py` (yeni): her akşam 21:00 özetinden sonra canlı ölçümün ilk kararına bakar (K-93 (1): 5 seans, 5 görünüm, değişmeyen `forward._verdict`). Karar bir kez `logs/s4_ilk_karar.json`'a ve RESEARCH_LOG taslağı `logs/research_log_taslak/`'a yazılır, Telegram'a gider. S5 eşiğini (maliyet %0,30 sonrası %99 alt uç > 0, K-93 (4)) geçen görünüm varsa kanıtlı tek bir "Kural anlamlı çıktı" mesajı gider; hiçbir şey açılmaz.
 - `core/reports/weekly_series.py` (yeni): her cumartesi SLO tablosu `logs/haftalik_slo/seri.csv`'ye bir satır olarak eklenir; 14.11 gibi önceden kaydedilmiş cumartesiler geri doldurulur. Ağ hatasıyla ❔ kalan kalite satırı K-92 kuralıyla yeniden sorulur. Özet "SLO serisi x/4" ve "İki kaynak x/4" yazar. Bot kaydı haftanın başından sonra başlıyorsa "kayıt eksik" yazılır ve o hafta sayılmaz (03.11 klasör taşıması dersi, K-93 (7)).
