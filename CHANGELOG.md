@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.143 – 17.11.2026 (senaryo süre dolumu: kilitli son seansta ilk kilitsiz açılış; Ö48, K-91)
+- `core/analytics/scenarios.py` `outcome`: süre dolduğunda son seans tabanda kilitliyse çıkış artık ilk kilitsiz seansın açılışı; öyle bir seans yoksa sonuç bekler. Eskiden kilitli kapanıştan satılıyordu. Etiket ve kâğıt defterinin K-75 kuralıyla aynı.
+- Doğrulama: yeni elle hesaplanmış test önce kırmızıydı (('süre doldu', 91.0, 20) ≠ ('süre doldu', 93.0, 21)), düzeltmeden sonra yeşil; K-79 dondurma testi yeşil.
+
 ## v0.99.142 – 17.11.2026 (aynı mumda hedef ve stop: açılış hedefin üstündeyse hedef; Ö47, K-90)
 - `core/ml/features.py` `labels` ve `core/signals/store.py` `_follow`: mum hedefin üstünde açılırsa sonuç hedeftir, çıkış açılış fiyatıdır; aynı mumun düşüğü stopun altında olsa da. Eskiden stop sayılıyordu. `scenarios.py` zaten böyleydi.
 - Doğrulama: iki yeni elle hesaplanmış test önce kırmızıydı (etiket 0 ≠ 1; defter ('stop', 98.98) ≠ ('hedef', 105.0)), düzeltmeden sonra yeşil; K-79 dondurma testi yeşil (dokunulan parça yok).
