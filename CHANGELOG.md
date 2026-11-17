@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.145 – 17.11.2026 (Healthchecks sinyali bir kez yeniden denenir; Ö61)
+- `core/infrastructure/ping.py` `ping`: ağ hatası ya da 5xx yanıtında 30 sn sonra bir kez daha denenir; 4xx (yanlış adres) denenmez. Bot sinyali (`bot/scheduler.py` `heartbeat_job`) ve günlük rapor sinyali aynı yoldan geçer. Kısa ağ kesintisi (14.11 akşamı 18 başarısız sinyal, 22:04–22:19 art arda 4) artık yanlış alarm riskini büyütmez.
+- DECISIONS K-92 (Ö62 ön kaydı): ağ hatasıyla ❔ kalan haftalık kalite satırı, K-88 (3) serisinde yalnız yeniden sorguda ölçümden önceki CI çalışması yeşilse ✅ sayılır. Ölçüm yok.
+- Doğrulama: `tests/test_ping.py` `RetryTest` önce kırmızıydı (2 başarısız: ağ hatası ve 503 yeniden denenmiyordu), düzeltmeden sonra yeşil.
+
 ## Belge – 18.11.2026 (sürüm artmadı, canlı v0.99.144 kalır; gece paketi: yalnız belge ve test; K-92 sonucu, K-93, K-94, S4/S5 hazırlık belgeleri)
 - Kod değişmedi; bot ve raporun davranışı aynı. Kullanıcının 18.11 gece kuralı gereği ana dala yalnız belge ve test girdi.
 - DECISIONS: K-92 (ön kayıt metni, kodu dalda) ve 14.11 sonucu (✅, CI 43587548333); K-93 (S4 canlı karar ölçütü, iki kaynak 4 hafta, S5 eşiği, kâğıt defter sınırları, S3 müdahale tanımı, SLO serisi önlemi); K-94 (S5 çıkış eşikleri).

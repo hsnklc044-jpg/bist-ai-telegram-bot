@@ -8,7 +8,7 @@ switched-off computer. Two addresses in .env, both secret (anyone with them can 
     HC_REPORT_URL   pinged after every scheduled daily report (/fail when it did not go out)
     HC_BOT_URL      pinged with the bot's 5-minute heartbeat
 
-Without an address nothing is sent. A ping never raises, and the address is never logged.
+Without an address nothing is sent. A network error or 5xx is retried once (Ö61). A ping never raises, and the address is never logged.
 With `name`, the outcome (time, delivered, /fail or not; never the address) is kept in
 logs/monitoring.json for /durum.
 """
@@ -26,6 +26,7 @@ logger = get_logger(__name__)
 REPORT_ENV = "HC_REPORT_URL"
 BOT_ENV = "HC_BOT_URL"
 TIMEOUT = 10
+RETRY_WAIT = 30  # Ö61: one network error or 5xx is retried once after this many seconds (a 4xx is not)
 STATE_FILE = LOG_DIR / "monitoring.json"
 _http_get = None  # tests replace it: a test run must never reach the real monitoring service
 
@@ -57,13 +58,20 @@ def ping(url: str, fail: bool = False, get=None, name: str | None = None, state_
 
     if not url:
         return False
-    try:
-        get = get or _http_get or __import__("httpx").get
-        response = get(url.rstrip("/") + ("/fail" if fail else ""), timeout=TIMEOUT)
-        ok = int(getattr(response, "status_code", 200)) < 400
-    except Exception as exc:  # noqa: BLE001 - monitoring must never stop the report or the bot
-        logger.warning("Monitoring ping failed (%s)", type(exc).__name__)
-        ok = False
+    import time
+
+    get = get or _http_get or __import__("httpx").get
+    for attempt in range(2):
+        if attempt:
+            time.sleep(RETRY_WAIT)
+        try:
+            code = int(getattr(get(url.rstrip("/") + ("/fail" if fail else ""), timeout=TIMEOUT), "status_code", 200))
+        except Exception as exc:  # noqa: BLE001 - monitoring must never stop the report or the bot
+            logger.warning("Monitoring ping failed (%s)", type(exc).__name__)
+            code = None
+        ok = code is not None and code < 400
+        if ok or (code is not None and code < 500):  # delivered, or a wrong address a retry cannot fix
+            break
     if name:
         _record(name, ok, fail, state_path, now)
     return ok

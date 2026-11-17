@@ -76,6 +76,7 @@ def _private_run_files(tmp_path, monkeypatch):
     monkeypatch.setattr(health, "_http_get", offline)
     # with HC_*_URL in the user's .env, a test must never ping (a /fail would page the user)
     monkeypatch.setattr(ping, "_http_get", offline)
+    monkeypatch.setattr(ping, "RETRY_WAIT", 0)
     # /performans reads the committed live reference; tests use their own or none
     monkeypatch.setattr(expectations, "EXPECTATIONS_FILE", tmp_path / "view_expectations.csv")
     # SLO records (heartbeats, freshness, restore tests) and the monitoring state stay private too
