@@ -65,6 +65,14 @@ class OutcomeTest(unittest.TestCase):
         self.assertIsNone(S.outcome(candles(rows[:10]), 0, 95.0, 110.0))  # not decided yet
         self.assertIsNone(S.outcome(candles(rows[:1]), 0, 95.0, 110.0))  # no next open yet
 
+    def test_time_out_on_a_locked_last_session_sells_at_the_first_unlocked_open(self):
+        # K-91 (Ö48): session 20 is locked at the lower limit (91 all day, -9.9%): nobody buys at its close;
+        # the exit is the first unlocked open (93, session 21), as in the labels and the paper book (K-75)
+        rows = [(100, 100, 100, 100)] + [(101, 102, 100, 101)] * 19 + [(91, 91, 91, 91), (93, 95, 92, 94)]
+        out = S.outcome(candles(rows), 0, 85.0, 110.0)
+        self.assertEqual((out.result, out.exit, out.sessions), ("süre doldu", 93.0, 21))
+        self.assertIsNone(S.outcome(candles(rows[:21]), 0, 85.0, 110.0))  # no unlocked open yet
+
     def test_an_open_beyond_the_levels_is_not_filled(self):
         # K-55 addendum (29.10, found on the first real card): a gap past invalidation or target leaves
         # no scenario to enter; it was an undefined R before
