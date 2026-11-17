@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.144 – 17.11.2026 (belge: robotun görevi ve yetkisi)
+- `docs/OTONOM_KURALLAR.md` en üstüne 17.11.2026 kullanıcı kararı: robot bütün ilerleme işlerini kullanıcıyı beklemeden yürütür; kesin sınırlar, kapı ve K-88 §5 (güncelleyici/yedek/geri yükleme hafta sonu kullanıcı komutu) değişmedi. Kod değişmedi.
+
 ## v0.99.143 – 17.11.2026 (aynı mumda hedef ve stop: açılış hedefin üstündeyse hedef; Ö47, K-90)
 - `core/ml/features.py` `labels` ve `core/signals/store.py` `_follow`: mum hedefin üstünde açılırsa sonuç hedeftir, çıkış açılış fiyatıdır; aynı mumun düşüğü stopun altında olsa da. Eskiden stop sayılıyordu. `scenarios.py` zaten böyleydi.
 - Doğrulama: iki yeni elle hesaplanmış test önce kırmızıydı (etiket 0 ≠ 1; defter ('stop', 98.98) ≠ ('hedef', 105.0)), düzeltmeden sonra yeşil; K-79 dondurma testi yeşil (dokunulan parça yok). `store.py` değiştiği için kapı koşulu 7 gereği tek başına birleşir.
