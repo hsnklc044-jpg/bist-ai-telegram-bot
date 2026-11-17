@@ -5,7 +5,7 @@ S4 KANITLI ÖLÇÜM bugün %50 (2,5/5). Resmî seviye S1. Seviye atlanmadığı 
 ## 1. Satır satır durum ve tarihli adımlar
 | Satır | Bugün | Ön kayıttaki ölçüt | Adımlar ve tarih |
 |---|---|---|---|
-| Canlı ilk karar | ⏳ | K-93 (1): `forward._verdict` değişmeden kullanılıyor. 5 seans ufku, 5 görünüm, ≥ 20 gün ve ≥ 10 bağımsız dönem, %95 aralık | Kod yazıldı (dal `claude/s4-s5-hazirlik`, sabah onayı bekliyor; canlıda değil; `s4_decision`, her akşam 21:00) → **en erken 06.01.2027** (46 kayıt günü + 5 seans). Kaçan her kayıt günü 1 seans erteler |
+| Canlı ilk karar | ⏳ | K-93 (1): `forward._verdict` değişmeden kullanılıyor. 5 seans ufku, 5 görünüm, ≥ 20 gün ve ≥ 10 bağımsız dönem, %95 aralık | Kod hazır (v0.99.146, `s4_decision`, her akşam 21:00) → **en erken 06.01.2027** (46 kayıt günü + 5 seans). Kaçan her kayıt günü 1 seans erteler |
 | Backtest–canlı sapması | kısmi | K-30 nedenleri; geçmiş değer canlı %95 aralığın dışındaysa sapma var | 06.01.2027: taslak kendiliğinden `logs/research_log_taslak/` altına yazılır → **07.01.2027**: robot taslağı RESEARCH_LOG'a dal üzerinden taşır → satır ✅ |
 | Araştırma döngüsü (bütçe + holdout + ön kayıt) | kısmi | a4 ön kaydı (28.10, K-28): H4, H5; holdout 02.11.2026'dan | **27.04.2027** tarama (en erken) → **~30.04.2027** RESEARCH_LOG sonucu → satır ✅. Sonuç ne çıkarsa çıksın döngü tamamlanmış olur |
 | Reddedilen fikir türleri | ✅ 27.10 | — | — |
@@ -20,7 +20,7 @@ S4 KANITLI ÖLÇÜM bugün %50 (2,5/5). Resmî seviye S1. Seviye atlanmadığı 
 - **D. a3'ü (Aşama 3) "tam döngü" saymak.** a3, holdout kuralından önce ön kaydedildi; kanıt sayılmaz. **Reddedildi.**
 
 ## 3. Önerim
-**B.** Eşik, pencere ve parametreler değişmez. Kod hazırlıkları yazıldı ve test edildi (dal `claude/s4-s5-hazirlik`, sabah onayı bekliyor; canlıda değil): karar hesabı, RESEARCH_LOG şablonu, iki kaynak tablosu, S5 bildirimi ve "emir yok" testi. Kalan bekleme süresi §4'teki gibi kullanılır. Bu karar kullanıcının onayını bekliyor.
+**B.** Eşik, pencere ve parametreler değişmez. Kod hazırlıkları bu hafta bitti (v0.99.146): karar hesabı, RESEARCH_LOG şablonu, iki kaynak tablosu, S5 bildirimi ve "emir yok" testi. Kalan bekleme süresi §4'teki gibi kullanılır. Bu karar kullanıcının onayını bekliyor.
 
 ## 4. Araştırma döngüsü: bekleme süresini verimli kullanmak (öneri, uygulanmadı)
 Kural: holdout 02.11.2026'dan sonraki veridir. Bir döngüde en fazla 3 hipotez, 6 ayda bir. a4'te 2 hipotez var (H4, H5). a4 ön kaydı 3. hakkı açıkça kapatıyor: "Üçüncü hak bu döngüde kullanılmaz ve devredilmez" (RESEARCH_LOG "a4 ön kaydı"). Bu yüzden a4'e yeni hipotez **eklenemez**. Bunu önermek ön kaydı değiştirmek olurdu.

@@ -15,7 +15,7 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ## Şablon: canlı ölçüm ilk kararı (K-93 (2), 18.11.2026; kayıt değil)
 
-İlk olgun sonucun geldiği akşam bot bu şablonu dolduracak (kod dalda: `claude/s4-s5-hazirlik`, sabah onayı bekliyor) ve `logs/research_log_taslak/YYYY-MM-DD_canli_ilk_karar.md` olarak yazar (`core/reports/s4_decision.py` `TEMPLATE`). Bot `docs/`'a yazmaz. Robot taslağı buraya, en üste, **değiştirmeden** dal üzerinden taşır. Alanlar:
+İlk olgun sonucun geldiği akşam bot bu şablonu doldurur ve `logs/research_log_taslak/YYYY-MM-DD_canli_ilk_karar.md` olarak yazar (`core/reports/s4_decision.py` `TEMPLATE`). Bot `docs/`'a yazmaz. Robot taslağı buraya, en üste, **değiştirmeden** dal üzerinden taşır. Alanlar:
 - **Soru** (5 görünüm, 5 seans, XU100'e göre), **Veri** (kayıt günleri, giriş/çıkış kuralı, holdout'a dokunulmadı), **Ölçüt** (K-93 (1), `forward._verdict`, değişmedi).
 - **Sonuç:** görünüm başına ortalama, %95 aralık, gün, bağımsız dönem, isabet ve karar.
 - **Backtest–canlı sapması (K-30):** geçmiş değer, "uyumlu" ya da "sapma" ve sınanan nedenler.
