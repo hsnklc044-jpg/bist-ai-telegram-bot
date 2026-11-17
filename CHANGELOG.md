@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.142 – 17.11.2026 (senaryo süre dolumu: kilitli son seansta ilk kilitsiz açılış; Ö48, K-91)
+- `core/analytics/scenarios.py` `outcome`: süre dolduğunda son seans tabanda kilitliyse çıkış artık ilk kilitsiz seansın açılışı; öyle bir seans yoksa sonuç bekler. Eskiden kilitli kapanıştan satılıyordu. Etiket ve kâğıt defterinin K-75 kuralıyla aynı.
+- Doğrulama: yeni elle hesaplanmış test önce kırmızıydı (('süre doldu', 91.0, 20) ≠ ('süre doldu', 93.0, 21)), düzeltmeden sonra yeşil; K-79 dondurma testi yeşil.
+
 ## v0.99.141 – 17.11.2026 (belge: Ö53; sunucu kararı kayıtta, K-89)
 - `core/ml/ml_filter.py` `walk_forward`: "Wilson aralığı" değil blok bootstrap (Ö53). Davranış değişmedi.
 - DECISIONS K-89: 14.11 sunucu kararı; ROADMAP Ö49–Ö57 durumları.

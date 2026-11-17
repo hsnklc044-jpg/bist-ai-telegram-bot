@@ -167,6 +167,9 @@ def outcome(df: pd.DataFrame, t: int, invalidation: float, target: float, horizo
         if h[i] >= target:
             return done("hedef", target, i)
     if t + horizon < len(df):
+        if locked[t + horizon]:  # K-91 (Ö48): a locked last session has no buyer; the first unlocked open
+            later = next((d for d in range(t + horizon + 1, len(df)) if not locked[d] and o[d] > 0), None)
+            return None if later is None else done("süre doldu", o[later], later)
         return done("süre doldu", c[t + horizon], t + horizon)
     return None
 
