@@ -4,6 +4,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 
 ## v0.99.144 – 17.11.2026 (belge: MATURITY S2 dışarıdan izleme ✅)
 - `docs/MATURITY.md` S2 izleme satırı: 17.11 Healthchecks tatbikatı (DOWN 09:00, UP 09:05:48, kesinti 5 dk 47 sn, e-posta alarmı ulaştı). Alarm e-posta ve Telegram'a gitti (Healthchecks Entegrasyonlar: ikisi de 2/2, teslim edildi). Kod değişmedi.
+- `docs/ROADMAP.md`: öz-denetim 11 (17.11), bulgular Ö58–Ö70; Ö60 (hafta sonu robotu ↔ K-88 §5) görev isteminde zaten düzeltilmiş, ✅.
 
 ## v0.99.143 – 17.11.2026 (belge: robotun görevi ve yetkisi)
 - `docs/OTONOM_KURALLAR.md` en üstüne 17.11.2026 kullanıcı kararı: robot bütün ilerleme işlerini kullanıcıyı beklemeden yürütür; kesin sınırlar, kapı ve K-88 §5 (güncelleyici/yedek/geri yükleme hafta sonu kullanıcı komutu) değişmedi. Kod değişmedi.
