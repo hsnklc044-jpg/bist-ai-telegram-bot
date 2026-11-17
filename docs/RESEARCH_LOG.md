@@ -13,6 +13,17 @@ Haftalık otomatik çalışmaların tam metni ve özet tablosu GitHub'da `resear
 
 ---
 
+## Şablon: canlı ölçüm ilk kararı (K-93 (2), 18.11.2026; kayıt değil)
+
+İlk olgun sonucun geldiği akşam bot bu şablonu doldurur ve `logs/research_log_taslak/YYYY-MM-DD_canli_ilk_karar.md` olarak yazar (`core/reports/s4_decision.py` `TEMPLATE`). Bot `docs/`'a yazmaz. Robot taslağı buraya, en üste, **değiştirmeden** dal üzerinden taşır. Alanlar:
+- **Soru** (5 görünüm, 5 seans, XU100'e göre), **Veri** (kayıt günleri, giriş/çıkış kuralı, holdout'a dokunulmadı), **Ölçüt** (K-93 (1), `forward._verdict`, değişmedi).
+- **Sonuç:** görünüm başına ortalama, %95 aralık, gün, bağımsız dönem, isabet ve karar.
+- **Backtest–canlı sapması (K-30):** geçmiş değer, "uyumlu" ya da "sapma" ve sınanan nedenler.
+- **S5 eşiği (K-93 (4)):** maliyet sonrası %99 alt ucu sıfırın üstünde olan görünümler; yoksa "geçen görünüm yok".
+- **Deneme sayısı:** 14 (9 önceki kural ve 5 canlı görünüm).
+
+---
+
 ## 11.11.2026 – Borsa İstanbul resmî gün sonu verisi: kapsam (ölçüm değil)
 Kaynak DataStore (K-84), 01.1988–10.2026, 467 dosya; deneme veritabanında okundu. Getiri ölçülmedi, holdout'a bakılmadı.
 - 3.100.577 hisse-gün; 0 reddedilen dosya; Kasım 2015'in iki dosyasında çakışan gün yok.
@@ -92,7 +103,7 @@ Aşağıdaki kayıtların özeti; ayrıntı ve sayılar ilgili bölümlerde. 202
 | Endeks zamanlaması (H2 trend, H3 ay dönümü) | 200 günlük ortalama; ayın son/ilk 3 seansı | Aralıklar sıfırı içine alıyor; H3'ün kazancı neredeyse tamamen nakdin faizinden (%0 nakitle +1,4%) | Yüksek TL faizinde nakitte beklemek "zamanlama" gibi görünür; nakit getirisi ayrı ölçülmeli |
 | Veriyi düzelterek sonucu iyileştirmek | yalnız kapanış düzeltmeleri | 635 düzeltmenin 448'i yapay mum üretiyor; sonuç farkı küçük | Kapanış düzeltmeleri kapalı; düzeltme yalnız onaylı ve kaynaklı (`price_fix_approvals.csv`) |
 
-**Ortak sınır:** 3,2 yıllık veriyle güven aralıkları ±20–30 puan genişliğinde; yıllık 10 puanın altındaki gerçek bir üstünlük bu veriyle şanstan ayrılamaz. Daha uzun veri (2015'e uzatma) kaynak yokluğundan engelli (DECISIONS K-16). Bu yüzden yeni bir hipotez ancak yeni plan + kullanıcı onayı + holdout dönemiyle denenir ([RESEARCH_PROGRAM](RESEARCH_PROGRAM.md): bütçe, ileri holdout); asıl bağımsız kanıt canlı ölçümdür (ilk karar Kasım sonu).
+**Ortak sınır:** 3,2 yıllık veriyle güven aralıkları ±20–30 puan genişliğinde; yıllık 10 puanın altındaki gerçek bir üstünlük bu veriyle şanstan ayrılamaz. Daha uzun veri (2015'e uzatma) kaynak yokluğundan engelli (DECISIONS K-16). Bu yüzden yeni bir hipotez ancak yeni plan + kullanıcı onayı + holdout dönemiyle denenir ([RESEARCH_PROGRAM](RESEARCH_PROGRAM.md): bütçe, ileri holdout); asıl bağımsız kanıt canlı ölçümdür (ilk karar en erken 06.01.2027, K-93; önce "Kasım sonu" yazıyordu).
 
 ---
 

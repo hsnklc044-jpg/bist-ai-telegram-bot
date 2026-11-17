@@ -16,7 +16,7 @@ CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her 
 | E | Felaket kurtarma | kod hemen | E1 ve E3 v0.53.0 (docs/DISASTER_RECOVERY.md; adımları test_disaster_recovery denetler); E2 aylık tatbikat yerel otomasyonun işi (komut belgede) — **tamam** |
 | F | Altyapı kararı | ≥1 haftalık kayıt ya da SLO tutmazsa | bekliyor (03.11 sonrası) |
 | G | Araştırma | yazılım/dayanıklılık/veri işi bitince | **açık/engelli**: veri 2015'e uzatma için kaynaklı üyelik listesi yok (DECISIONS K-16); mevcut veriyle güç düşük |
-| H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (Kasım sonu) |
+| H | Canlı ölçüm kararı | yeterli bağımsız veri | bekliyor (en erken 06.01.2027, K-93; önce "Kasım sonu" yazıyordu, hesaba uymuyordu) |
 | I | Güvenlik ve bağımlılıklar | kod hemen | I1 haftalık pip-audit, I2 gizli bilgi testi v0.54.0; I3 kural DECISIONS'ta; kapsam kapısı %91 ve kalite SLO'su v0.54.1 — **tamam** |
 | J | Bakım ve devir | yazılım işi bitince | J1 HANDBOOK, J2 MAINTENANCE, J3 /durum 'Bakım takvimi', J4 CHANGELOG v0.55.0 — **tamam** |
 
@@ -451,7 +451,7 @@ Kullanıcı 04.11'de "sen kursan neler katardın" diye sordu. Plan şu gerçeğe
   - 29.10: tatil.
   - 30.10: cuma canlı ölçüm satırı.
   - 31.10: zamanlanmış cumartesi araştırması.
-  - Kasım sonu: canlı ölçüm kararı. 5 seanslık ufukta 10 bağımsız dönem yaklaşık 50 seans sürer.
+  - 06.01.2027 (en erken; 18.11 düzeltmesi, önce "Kasım sonu"): canlı ölçüm kararı. 5 seanslık ufukta 10 bağımsız dönem 46 kayıt günü + 5 seans sürer (K-93).
 
 ## Bağımsız denetim (27.10.2026, v0.45.0 üzerinde)
 

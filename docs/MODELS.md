@@ -79,9 +79,9 @@ Planlı, henüz kodu olmayan modeller şunlardır. Envantere kod yazıldığı s
 ### M2 Canlı ölçüm ve geçmiş referans
 - **Amaç:** Botun söylediklerini sonuç bilinmeden kaydetmek. Kayıtlar ertesi açılış girişiyle 5/20/60 seans tutulmuş ve XU100'e karşı ölçülür. Geçmiş referansla karşılaştırma yapar.
 - **Girdi:** `signal_log` (kişisel) ve fiyat deposu.
-- **Çıktı:** `/performans`, cuma özeti, Kasım sonu canlı ölçüm kararı (H).
+- **Çıktı:** `/performans`, cuma özeti, canlı ölçüm ilk kararı (H, K-93: en erken 06.01.2027, `core/reports/s4_decision.py`).
 - **Varsayımlar:** Giriş ertesi açılıştır. Ufuklar çakıştığı için bağımsız dönem sayısı azdır.
-- **Sınırlar:** 5 seanslık ufukta 10 bağımsız dönem yaklaşık 50 seans sürer. Kasım sonundan önce hüküm yoktur.
+- **Sınırlar:** 5 seanslık ufukta 10 bağımsız dönem en az 46 kayıt günü ve 5 seans sürer; ilk kayıt 23.10, 30.10 kaydı yok. 06.01.2027'den önce hüküm yoktur (18.11.2026 düzeltmesi; önceki "Kasım sonu" bu hesaba uymuyordu).
 - **Doğrulama:** bağımsız doğrulanmadı; birim testleri var.
 - **Risk:** ORTA.
 

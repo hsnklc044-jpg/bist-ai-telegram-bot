@@ -414,16 +414,39 @@ async def otonom_summary_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception:  # noqa: BLE001 - a summary never stops the bot
         logger.exception("Autonomous summary failed")
         return
+    if now.weekday() == 5:  # K-93 (3), (7): the Saturday row of the weekly series
+        try:
+            text += "\n" + "\n".join(await asyncio.to_thread(_weekly_series_lines, now))
+        except Exception:  # noqa: BLE001 - the series never stops the summary
+            logger.exception("Weekly SLO series could not be written")
     try:
         otonom.save_weekly(now, text)
     except OSError:
         logger.exception("Weekly SLO table could not be written")
+    try:  # K-93 (1), (4): the live first decision and the S5 notice, each written once
+        from core.reports import s4_decision
+
+        extra = await asyncio.to_thread(s4_decision.run, now.date())
+    except Exception:  # noqa: BLE001
+        logger.exception("S4 decision check failed")
+        extra = []
     chat = getattr(getattr(context, "job", None), "chat_id", None)
     if chat:
         from core.infrastructure import outbox
 
         with outbox.source("robot özeti"):
             await context.bot.send_message(chat, text)
+        with outbox.source("S4 kararı"):
+            for message in extra:
+                await context.bot.send_message(chat, message)
+
+
+def _weekly_series_lines(now) -> list[str]:
+    from core.reports import slo, weekly_series
+
+    weekly_series.backfill()  # saved Saturdays before the series existed (14.11.2026)
+    weekly_series.record(now, slo.measure(now))
+    return weekly_series.summary_lines(weekly_series.read())
 
 
 def schedule_otonom_summary(app: Application, chat_id: int | None = None) -> bool:

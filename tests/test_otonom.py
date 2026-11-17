@@ -135,9 +135,37 @@ def test_the_saturday_job_writes_the_file_before_sending(tmp_path, monkeypatch):
     monkeypatch.setattr(scheduler, "now_istanbul", lambda: SATURDAY)
     bot = SimpleNamespace(send_message=mock.AsyncMock())
     context = SimpleNamespace(job=SimpleNamespace(chat_id=42), bot=bot)
+    monkeypatch.setattr(scheduler, "_weekly_series_lines", lambda now: ["SLO serisi: 1/4"])
+    from core.reports import s4_decision
+
+    monkeypatch.setattr(s4_decision, "run", lambda day: [])
     asyncio.run(scheduler.otonom_summary_job(context))
-    assert (tmp_path / "haftalik_slo" / "2026-11-14.txt").read_text(encoding="utf-8") == "ROBOT · 14.11\n"
+    assert (tmp_path / "haftalik_slo" / "2026-11-14.txt").read_text(encoding="utf-8") == \
+        "ROBOT · 14.11\nSLO serisi: 1/4\n"
     bot.send_message.assert_awaited_once()
+
+
+def test_the_s4_decision_and_s5_notice_follow_the_summary(tmp_path, monkeypatch):
+    """K-93: the first decision / S5 notice go out after the summary; a failing check never stops it."""
+    from bot import scheduler
+    from core.reports import s4_decision
+
+    monkeypatch.setattr(otonom, "build_summary", lambda now: "ROBOT")
+    monkeypatch.setattr(scheduler, "now_istanbul", lambda: NOW)
+    monkeypatch.setattr(s4_decision, "run", lambda day: ["📏 S4 canlı ölçüm: ilk karar", "🔔 Kural anlamlı çıktı"])
+    bot = SimpleNamespace(send_message=mock.AsyncMock())
+    context = SimpleNamespace(job=SimpleNamespace(chat_id=42), bot=bot)
+    asyncio.run(scheduler.otonom_summary_job(context))
+    assert [c.args[1] for c in bot.send_message.await_args_list] == \
+        ["ROBOT", "📏 S4 canlı ölçüm: ilk karar", "🔔 Kural anlamlı çıktı"]
+
+    def broken(day):
+        raise RuntimeError("veri yok")
+
+    monkeypatch.setattr(s4_decision, "run", broken)
+    bot.send_message.reset_mock()
+    asyncio.run(scheduler.otonom_summary_job(context))
+    assert [c.args[1] for c in bot.send_message.await_args_list] == ["ROBOT"]
 
 
 
