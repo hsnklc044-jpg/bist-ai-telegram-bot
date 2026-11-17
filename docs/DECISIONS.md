@@ -4,6 +4,15 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 17.11.2026
 
+**K-91. Ö48: senaryo süre dolumunda son seans tabanda kilitliyse çıkış ilk kilitsiz açılış (17.11.2026; ön kayıt, ölçüm yok).**
+- **Sorun:** `core/analytics/scenarios.py` `outcome`, süre dolunca `c[t + horizon]` kapanışından satış sayıyor; o seans tabanda kilitliyse (K-75) satıcı dolmaz. Etiket (`features.labels`, Faz C M30-5) ve kâğıt defteri (`store._follow`, M32 O3) bu durumda ilk kilitsiz seansın açılışını kullanıyor; senaryo kullanmıyor.
+- **Kural (değişiklik):** Süre dolumunda son seans kilitliyse çıkış, ondan sonraki ilk kilitsiz ve fiyatı olan seansın açılışıdır; `sessions` ve `exit_day` o seansı gösterir. Öyle bir seans henüz yoksa sonuç bilinmiyor (`None`). Kilitsiz son seansta davranış değişmez. K-55 şablon parametreleri (seviyeler, ufuk 20, maliyet) değişmez.
+- **Kapsam:** Yalnız `scenarios.outcome`. K-79 dondurma parçalarına dokunulmaz; `tests/test_k64_freeze.py` yeşil kalmalı.
+- **Ölçüt / kabul:** (1) Önce elle hesaplanmış sentetik test kırmızı, sonra yeşil: giriş 101, 20. seans 91'de kilitli (−%9,9), 21. seans açılış 93 → `süre doldu`, çıkış 93, 21 seans; 21. seans yokken `None`. (2) Mevcut senaryo testleri değişmeden yeşil. (3) K-79 dondurma testi yeşil. (4) ruff temiz, tam takım bir kez.
+- **Deneme sayısı:** 0 ölçüm. Doğruluk düzeltmesidir; geçmiş senaryo çalışmaları (K-55 vb.) yeniden çalıştırılmaz, sonuçları değiştirilmez. Bir sonraki senaryo ölçümü yeni kuralla yapılır ve bu K'yi anar.
+- **Beklenti:** Çok nadir (ufkun son günü taban kilidi); R dağılımında fark ihmal edilebilir.
+- **Reddedilen:** Kilitli kapanıştan satışı tutmak (dolmayan fiyat); sonuca göre kural seçmek.
+
 **K-90. Ö47: aynı mumda hedef ve stop, açılış hedefin üstündeyse hedef (17.11.2026; ön kayıt, ölçüm yok).**
 - **Sorun:** `core/ml/features.py` `labels` ve `core/signals/store.py` `_follow`, aynı mumda hem stop hem hedef görülünce stopu sayıyor. Açılış hedefin üstündeyse (yukarı boşluk) hedef açılışta, stoptan önce dolar. `core/analytics/scenarios.py` `outcome` bu durumda açılışa zaten bakıyor (`o[i] >= target`).
 - **Kural (değişiklik):** Mumun açılışı hedefin üstünde ya da hedefe eşitse sonuç hedeftir ve çıkış açılış fiyatıdır. Bu, mumun düşüğü stopun altında olsa da geçerlidir. Açılış stopun altındaysa çıkış eskisi gibi açılışta stoptur. İkisi de değilse ve ikisine de dokunulduysa eskisi gibi stop sayılır (mum içi sıra bilinmiyor). K-75 kilitli gün kuralı değişmez.
