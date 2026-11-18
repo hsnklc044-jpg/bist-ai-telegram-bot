@@ -4,6 +4,12 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 18.11.2026
 
+### K-95: Sürüm kapısı 5. satırı, sürümü değiştirmeyen birleştirme bekleyen paket değildir
+- **Sorun:** Gece belge paketi 0af56f3 sürümü (0.99.144) değiştirmeden ana dala girdi. Güncelleyici yalnız daha yüksek sürümü kurduğu için 07:40'ta "yeni sürüm yok" dedi; bot dalı canlıdan (b1ab854) ileride kaldı ve `tip == head` koşulu hiçbir zaman sağlanamayacaktı (kapı kilitlendi).
+- **Karar:** 5. satır, bot dalının ucu canlı SHA'yla aynıysa ya da canlıyla aynı sürümdeyse geçer. Sürüm artmışsa paket güncelleyiciyi bekliyordur ve satır kapalı kalır. Sürüm okunamazsa satır kapalıdır.
+- **Değişmeyen:** günde ≤4 kurulum, diğer bütün satırlar, eşikler. Kapıyı tek seferlik elle geçmek reddedildi: kural açığı bir kez değil her belge birleştirmesinde tekrar eder.
+- **Karar veren:** Claude (kullanıcı 18.11: "karar kısmı sende"). Kanıt: `scripts/surum_kapisi.py` `nothing_pending`, `tests/test_surum_kapisi_paket.py`.
+
 **K-94. S5 çıkış kanıtlarının eşikleri ve kâğıt defter modeli (18.11.2026; ön kayıt, ölçüm yok).** Kullanıcının 18.11 talimatı (C). Bugün S4'te anlamlı kural yok; bu eşikler, bir kural anlamlı çıktığı gün zaman kaybedilmesin diye şimdi yazılıyor ve o gün değiştirilmiyor. Ayrıntı MATURITY S5 ve `docs/PAPER_TRADING.md`'de.
 - **Soru:** S4'te K-93 (4) eşiğini geçen bir kural, kâğıt üzerinde ve maliyetlerle uygulandığında da ön kayıttaki beklentiyi tutuyor mu?
 - **Veri:** Yalnız S5 açıldıktan sonraki seanslar (ileri veri). Holdout ya da geçmiş veri yeniden kullanılmaz.

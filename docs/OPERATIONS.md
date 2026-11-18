@@ -117,7 +117,7 @@ koşulların hepsini ✅ bulursa bot dalı ileri sarılır, güncelleyici sonrak
 | 2 | Canlı sürüm sağlıklı: SHA ve sürüm, "Telegram bot started", sonrasında ≥3 ERROR'suz yaşam sinyali |
 | 3 | Önceki kurulumdan beri hiçbir SLO kötüleşmedi |
 | 4 | Kurulum seans günü 09:40–18:15 ve 18:00–20:00 dışında; hafta sonu ve tatil açık (güncelleyici 07:40–23:40 arası saatte bir) |
-| 5 | Aynı anda tek paket (bot dalı = canlı SHA), günde en fazla 4 kurulum |
+| 5 | Aynı anda tek paket (bot dalı = canlı SHA ya da bot dalı canlıyla aynı sürümde, yani güncelleyicinin kuracağı bekleyen paket yok; K-95), günde en fazla 4 kurulum |
 | 6–7 | Zincir ileri sarılabilir; pakette güncelleyici, yedek, geri yükleme ya da kişisel kayıt biçimi değişikliği yok |
 
 - **Kuyruk sınırı (10.11.2026):** canlıya çıkmamış sürüm sayısı 5'i geçerse yeni dal açılmaz; önce kuyruk canlıya çıkarılır. Bu sırada yalnız kurtarma ve kuyruktaki dalların düzeltmeleri yapılır.

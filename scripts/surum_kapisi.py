@@ -117,6 +117,12 @@ def live_health(log_lines: list[str], beats: list[datetime], version: str) -> tu
                 + (f" (ilk: {errors[0][:100]})" if errors else ""))
 
 
+def nothing_pending(tip: str, head: str, tip_version: str | None, live_version: str) -> bool:
+    """Row 5: no package is waiting for the updater. The updater installs only a higher pyproject version, so a
+    bot-branch tip that keeps the live version (a docs/tests merge) is never installed and is not pending."""
+    return tip == head or (tip_version is not None and tip_version == live_version)
+
+
 def alone_files(changed: list[str]) -> list[str]:
     return [f for f in changed if f in ALONE]
 
@@ -202,8 +208,13 @@ def main(argv: list[str]) -> int:
 
     tip = _git("rev-parse", f"origin/{BRANCH}", cwd=here)
     today = installs_on(log, at.date())
-    check("5 tek paket, günde ≤4 kurulum", tip == head and len(today) < MAX_INSTALLS,
-          f"bot dalı {tip[:7]} / canlı {head[:7]}; {at:%d.%m} günü kurulan {len(today)} {today}")
+    tip_toml = _git("show", f"origin/{BRANCH}:pyproject.toml", cwd=here)
+    tip_match = re.search(r'^version = "([^"]+)"', tip_toml, re.M)
+    tip_version = tip_match.group(1) if tip_match else None
+    check("5 tek paket, günde ≤4 kurulum",
+          nothing_pending(tip, head, tip_version, version) and len(today) < MAX_INSTALLS,
+          f"bot dalı {tip[:7]} v{tip_version} / canlı {head[:7]} v{version}; "
+          f"{at:%d.%m} günü kurulan {len(today)} {today}")
 
     ff = subprocess.run(["git", "merge-base", "--is-ancestor", tip, sha], cwd=here).returncode == 0
     check("6 zincir ileri sarılabilir", ff, f"{tip[:7]} → {sha[:7]}")
