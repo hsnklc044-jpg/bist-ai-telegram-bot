@@ -6,6 +6,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 - DECISIONS K-96: Windows yeniden başlatmasından sonra oturum açmak S3 müdahalesidir. S3 30 gün sayacı 13.11'den başlar, en erken 12.12.2026'da dolar. MATURITY S3 satırı buna göre.
 - Ö67: `tests/test_csvfiles.py` ve `tests/test_watchlist_scanner.py` (kişisel CSV okuma/ekleme ve izleme listesi taraması için ilk doğrudan testler). İlk çalıştırmada geçtiler; hata bulunmadı.
 - Ö66: ROADMAP durum sütunu doğrulandı ve kapatıldı. `docs/NIGHT_LOG_2026-11-18.md`: gece günlüğü ve sabah raporu.
+- Kullanıcı çerçevesi (18.11): `docs/OTONOM_KURALLAR.md` başına "Kullanıcı çerçevesi" bölümü (amaç, karar yetkisi, değişmez kurallar, 6 başlıklı rapor, görev şablonu; kuralların tek kaynağı, Ö58). `docs/OPERATIONS.md` §0: kurulum, seans, rapor ve robot saatlerinin tek tablosu.
 - Sürüm numarası, belgelerin canlıya da girmesi için artırıldı (K-95: aynı sürümdeki paketi güncelleyici kurmaz).
 
 ## v0.99.148 – 18.11.2026 (öz-denetim 11: Ö63 yaşam sinyali, Ö64 "İ" harfi)
