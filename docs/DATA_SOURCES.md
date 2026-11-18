@@ -53,6 +53,7 @@ Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştır
 - **Koşul:** yfinance resmi bir API değildir. Yahoo'nun şartları otomatik yollarla veri toplamayı açık izin olmadan yasaklıyor (arşiv `sources/2026-10-29_09-28-44/007.html`, AUDIT D15).
 - **Karar (K-54):** ücretsiz ve uyumlu bir BIST kaynağı olmadığı için mevcut kişisel, ticari olmayan, günde bir toplu indirme kabul edilmiş risk olarak sürer.
   - **Ticari kullanım tetikleyicisi (K-109, 19.11.2026):** bu kabul yalnız kişisel ve ticari olmayan kullanım için geçerlidir. Gelire yönelik ilk adımdan önce (abonelik, ücretli kanal, reklam, veri ya da raporun satışı) K-54'ün koşulu bozulmuş sayılır. Bu durumda yfinance yerine lisanslı ya da ticari kullanıma izinli bir kaynak gerekir. TCMB ve TÜİK verisi için de ticari kullanım izni alınır (aşağıda). Kaynak seçimi ve ücreti sahibin kararıdır.
+  - **Kapsam düzeltmesi (02:05, kırmızı takım):** tetikleyici yalnız Yahoo, TCMB ve TÜİK'i değil, "kişisel ya da ticari olmayan kullanım" koşullu bütün kaynakları kapsar: Borsa İstanbul DataStore ve borsaistanbul.com dosyaları (bu tablo). KAP'ın kullanım koşulu teyit edilmedi; gelir adımından önce teyit edilir.
   - Kullanım genişletilmez: hisse başına ek sorgu ya da sayfa yok.
   - Veri depoya konmaz (`market.db` git dışında).
   - Uyumlu çözüm lisanslı bir veri kaynağıdır; bu bir ödeme kararıdır ve kullanıcınındır.
