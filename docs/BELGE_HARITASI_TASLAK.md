@@ -45,7 +45,7 @@ Durum: **var** (aynı kural yürürlükteki bir belgede) · **yeni** · **çeli�
 | K3 "S3 oturum açma çözümü" (İP-3) | uygulanamaz (şimdilik) | `docs/S3_OTURUMSUZ_BASLATMA.md`: S4U kipinde ağ erişimi belirsiz, önce deneme gerekir; görev değişikliği sahibin kararı ve ALONE | karar ve deneme sahibin |
 | K4 K-08 "kullanıcının süresi" otomatik | uygulanamaz (bugün) | süreyi ölçen bir kaynak yok | Öneri: vekil ölçü olarak haftalık onay mesajı sayısı ve "Senden beklenen" madde sayısı (Karar 4) |
 
-**Özet:** 25 satır. Var: 18 (biri ad farkıyla). Çelişiyor: 3 (K1-6, K1-7, K-09 eşlemesi). Taslakta yok: 1 (ANAYASA'nın 4 maddesi). Uygulanamaz: 2. Yeni kural: 0.
+**Özet:** 25 satır. Var: 19 (biri ad farkıyla). Çelişiyor: 3 (K1-6, K1-7, K-09 eşlemesi). Taslakta yok: 1 (ANAYASA'nın 4 maddesi). Uygulanamaz: 2. Yeni kural: 0.
 
 Taslak yeni bir kural getirmiyor; mevcut belgelerin iyi bir özeti. Asıl değeri 4 katmanlı yapı önerisinde.
 
