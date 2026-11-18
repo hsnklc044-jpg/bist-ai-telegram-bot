@@ -5,7 +5,9 @@
 Robot (07:00, 20:15, hafta sonu 13:00 turları) bütün ilerleme işlerini kullanıcıyı beklemeden yürütür: DECISIONS K-88 rotası ve `siradaki-is` sırasıyla sıradaki işi seçer; dal ve worktree açar; araştırma/ölçüm öncesi `on-kayit`; önce başarısız test, sonra düzeltme; CI; `surum-kapisi` ile birleştirme; kurulum sonrası sağlık (≥3 sinyal, ERROR 0); OTONOM_RAPOR.md'ye ve 21:00 özetine K-88 §6 raporu. Kullanıcıya yalnız bilgi verir; gerçekten kullanıcı kararı gereken bir şey çıkarsa tek soru yazar ve sıradaki işe geçer.
 Sınırlar değişmez: CHARTER kesin sınırları (K-54), kapı geçmeden birleştirme yok, canlı klasöre elle yazma yok, güvenlik denetimi reddederse başka yol denenmez. Güncelleyici, yedek ve geri yükleme değişikliklerinin hafta sonu birleştirmesi kullanıcının tek komutuyla olur (K-88 §5); robot bunları hazırlar (aynı SHA'da dr-drill yeşil, kapı tam) ve hazır olduğunu bildirir. Para, token ya da hesap gerektiren adımlar ve kuralların kendisini değiştirmek kullanıcıya kalır.
 
-## ÖNCELİKLİ KURAL (kullanıcı talimatı, 10.11.2026 16:40; bu dosyadaki her şeyden önce gelir)
+## ~~ÖNCELİKLİ KURAL~~ — GEÇERSİZ, tarihsel kayıt (kullanıcı talimatı, 10.11.2026 16:40)
+> **18.11.2026 işareti (öz-denetim 11, Ö59):** Bu bölüm artık geçerli değil. Yerine aşağıdaki "10.11.2026 ~19:27 — Tam otonom + robot modu YENİDEN GEÇERLİ" bölümü, OPERATIONS §5a onay devri (sürüm kapısı) ve en üstteki "Robotun görevi ve yetkisi (17.11.2026)" geçti. Metin değiştirilmedi, yalnız işaretlendi; kural değişikliği yok.
+
 - PR birleştirme, bot dalına her türlü push (ileri sarma dahil), canlı kurulum ve dağıtım için HER SEFERİNDE kullanıcının açık onayı gerekir. Aşağıdaki "Birleştirme kapısı" yalnızca ön koşuldur, onay yerine geçmez.
 - Haftalık tur: dalı hazırla, testleri ve CI'ı çalıştır, raporla; BİRLEŞTİRME. Hazır dalı `cikti\OTONOM_RAPOR.md` içinde "ONAY BEKLİYOR" olarak listele (dal, SHA, CI bağlantısı, değişen dosyalar).
 - Canlı görev ayarlarını (zamanlanmış görevler, Windows görevleri, iş akışları) değiştirmek gerekiyorsa önce kullanıcıdan onay iste.
@@ -18,8 +20,8 @@ Bu dosya iki zamanlanmış görevin tek kaynağıdır: `quantbist-gunluk-bakim` 
 - Geliştirme kopyası: `C:\Projeler\QuantBIST-araclar\wt-restore` (git worktree). Her iş için bot dalının ucundan yeni dal aç: `claude/otonom-<kısa-ad>`.
 - Bot dalı: `claude/borsa-bot-creation-n7nmc9`. Birleştirmek = bu dalı ileri sarmak (`git push origin <sha>:refs/heads/claude/borsa-bot-creation-n7nmc9`); güncelleyici kurar.
 - Python: `C:\Projeler\QuantBIST-yeni\.venv\Scripts\python.exe`; test: `python -m pytest -q -p no:cacheprovider`; lint: `python -m ruff check .`; her komutta `PYTHONPATH=.` ve `PYTHONIOENCODING=utf-8`.
-- GitHub API kimliksiz ve saatte 60 istek: CI'a en fazla üç dakikada bir bak; durum için mümkünse `git fetch` kullan.
-- Commit mesajı sonuna: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
+- GitHub API kimliksiz ve saatte 60 istek: CI'a en fazla 10 dakikada bir bak (istek kotası oturumlar arasında paylaşılıyor; 18.11 Ö59 düzeltmesi, eskiden "üç dakikada bir"); durum için mümkünse `git fetch` kullan.
+- Commit mesajı sonuna: `Co-Authored-By: Claude <noreply@anthropic.com>` (CLAUDE.md; 18.11 Ö59 düzeltmesi).
 - Kota: görev başında `get_usage` ile bak. Haftalık %70 ya da 5 saatlik %60 üstündeyse işe başlama, nedenini rapora yaz.
 
 ## Asla otomatik yapma (kullanıcının açık, her seferinde ayrı onayı olmadan)
