@@ -58,3 +58,24 @@ Durum sütunundaki değerler: **var** · **yeni** · **çelişiyor** · **uygula
 | çelişiyordu, düzeltildi | 1 |
 
 K-93 ve K-94 ile gerçek bir çelişki yok, çünkü ARS-1 kendi yürürlük kuralıyla onları dışarıda bırakıyor.
+
+## Ek bulgu (18:28): a4 ön kaydı zaten kesinleşmiş (en önemli satır)
+`docs/RESEARCH_LOG.md` satır 455'e göre a4 ön kaydı **28.10.2026'da onaylanmış ve "değiştirilmez"** diye kayda geçmiş (K-28 devriyle, Claude). Kayıt şunları sabitliyor:
+- hipotezler: H4 eşit ağırlık, H5 düşük işlem hacmi;
+- maliyet: %0,10 + %0,05;
+- ölçüt: XU100'e göre blok bootstrap güven aralığı, Bonferroni ile %97,5;
+- sağlamlık kapıları;
+- holdout: 250 seans, en erken Kasım 2027;
+- tarih kapısı: 27.04.2027, kodla zorlanıyor (`core/backtest/a4.py`).
+
+**Çelişki:**
+- 2027 planı (ROADMAP) ve ARS-1 yürürlük kuralı, a4 ön kaydının "Nisan başında bu standarda göre yazılacağını" söylüyor.
+- ANAYASA Md. 3 ve ARS-1'in kendi kuralı ("kesinleşmiş ön kayıtlar geriye dönük değiştirilmez") ise 28.10 kaydını koruyor.
+- 28.10 kaydını Nisan'da yeniden yazmak, sonuç görülmeden de olsa, ölçütü sonradan değiştirmek olur.
+
+**Seçenekler (sahibin kararı, ANAYASA Md. 7):**
+- **(a) Önerim.** a4 28.10 kaydıyla aynen çalışır. ARS-1 testleri (DSR, PBO, R-4 ve diğerleri) a4 için yalnız ek bilgi olarak raporlanır. ARS-1'e göre yazılacak ilk ön kayıt bir sonraki hipotez döngüsüdür (a5 ya da a6). 2027 planındaki "a4 ön kaydı Nisan başında yazılır" maddesi "a4 Nisan'da 28.10 kaydıyla çalışır; ARS ek raporu hazırlanır" diye düzeltilir.
+- **(b)** a4 iptal edilir, ARS-1'e göre yeni bir ön kayıt yazılır. Bu, kesinleşmiş bir kaydı bırakmak demektir; gerekçesi DECISIONS'a yazılır. Eski kayıt silinmez.
+
+Satır sayısı: 28 + 1 = 29.
+
