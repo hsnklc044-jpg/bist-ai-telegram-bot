@@ -1,0 +1,11 @@
+kontrol_no,anayasa_maddesi,risk,kontrol,tur,otomasyon,siklik,kanit,sahip,son_sonuc
+KT-01,Md.4,Gerçek emir kodu girer,"tests/test_no_orders.py: depoda aracı kurum ya da emir API'si yok",önleyici,otomatik,her CI,CI kaydı,koordinatör,"✅ 18.11 kanarya: geçici kopyaya eklenen sahte emir modülü 8 testin 3'ünü kırmızıya çevirdi (SDK importu, HTTP POST, emir adresi); kaldırınca 8/8 yeşil. Bağımlılık listesi ve kâğıt defter alt testlerinin kanaryası yok (⚠️ kısmi)"
+KT-02,Md.3,Sonuç görüldükten sonra eşik değişir,"DECISIONS'taki her eşiğin tarihi, ilgili ölçümün ilk tarihinden önce mi?",tespit edici,otomatik,haftalık,denetim çıktısı,koordinatör,doğrulanmamış (hafta 2)
+KT-03,Md.11,Kayıt geriye dönük değişir,"DECISIONS ve RESEARCH_LOG'da eski satırlar değişmiş mi (git geçmişiyle karşılaştırma)?",tespit edici,otomatik,günlük,fark raporu,koordinatör,doğrulanmamış (hafta 1)
+KT-04,Md.8,Onaysız davranış değişikliği canlıya çıkar,Canlıdaki her sürüm için onay kaydı var mı?,tespit edici,otomatik,her kurulum,kapı kaydı,koordinatör,doğrulanmamış (hafta 1)
+KT-05,Md.10,Kanıtsız iddia rapora girer,Raporlardaki her yüzde ve sonuç bir kaynağa bağlı mı?,tespit edici,yarı otomatik,aylık,örneklem,koordinatör,doğrulanmamış (ay 1)
+KT-06,Md.12,Sonuç yeniden üretilemez,Rastgele seçilen 1 sonuç tek komutla yeniden üretilir,tespit edici,otomatik,çeyreklik,yeniden üretim çıktısı,koordinatör,doğrulanmamış (ay 1)
+KT-07,Md.13,Arızada sistem güvensiz davranır,Fren ve güvenli mod tatbikatı,önleyici,elle,6 ayda bir,tatbikat raporu,kullanıcı + koordinatör,doğrulanmamış (ay 1)
+KT-08,Md.6,Bakım yükü sınırı aşılır,Kullanıcı müdahale sayısı ve süresi,tespit edici,otomatik,haftalık,ölçüm,koordinatör,doğrulanmamış (ay 1)
+KT-09,Md.14,Kalıcı bilgi kapalı biçimde,Kalıcı kayıtların biçim taraması,tespit edici,otomatik,çeyreklik,tarama çıktısı,koordinatör,"⚠️ 18.11 elle tarama: data/ 1127 CSV + 3 SQLite (.db) + MD/TXT/JSON; SQLite yorumu sahipte (ANAYASA_UYUM Ç7)"
+KT-10,"Md.1, 9",Yetki aşımı,Robot işlemlerinde yetki dışı komut ya da yol taraması,tespit edici,otomatik,günlük,denetim çıktısı,koordinatör,doğrulanmamış (hafta 2); önleyici parça var: PreToolUse kancası canli_koruma.py (18.11 iki komutu engelledi)
