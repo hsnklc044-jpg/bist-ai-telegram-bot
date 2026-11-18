@@ -1,12 +1,13 @@
 # S3 "müdahale" ve 30 gün sayacını bozabilecek riskler (18.11.2026)
 
-Bu belge yeni bir ölçüt ya da eşik koymaz. Tanım K-93 (6)'dır; oturum açma yorumu K-96'dır (18.11). Belge yalnız sayacı **12.12.2026**'ya kadar bozabilecek olayları, bugünkü korumayı ve önlemleri listeler. Kanıtlar 18.11 11:40'ta salt okunur olarak toplandı.
+Bu belge yeni bir ölçüt ya da eşik koymaz. Tanım K-93 (6)'dır; oturum açma yorumu K-96'dır (18.11). Belge yalnız sayacı **18.12.2026**'ya kadar (K-105; önce 12.12) bozabilecek olayları, bugünkü korumayı ve önlemleri listeler. Kanıtlar 18.11 11:40'ta salt okunur olarak toplandı.
 
 ## Tanım (K-93 (6), özet)
 - **Müdahale:** çalışan sistemin sürmesi için kullanıcının elle yaptığı onarım, kurulum, dosya düzenleme ya da yeniden başlatma.
 - **Müdahale sayılmaz:** kuralların kullanıcıya bıraktığı onaylar (K-88 §5), tatbikatlar (`--drill`), elektrik ya da ağ kesintisi. Bu kesintiler SLO'ya yazılır.
 - **Windows yeniden başlatmasından sonra oturum açmak müdahaledir (K-96).**
 - **Sayaç:** 13.11'de başladı, en erken **12.12.2026**'da dolar. K-93 (6)'daki 03.12 geçersizdir. Ölçüm 12.12 olgunluk ölçümünde, aşağıdaki §Ölçüm'e göre yapılır.
+- **Müdahale 18.11.2026 22:19 (K-105):** Office kurulumu için yeniden başlatma ve hemen oturum açma. Sayaç 19.11'de yeniden başladı, **en erken 18.12.2026**'da dolar; ölçüm 18.12'de. Yukarıdaki 12.12 tarihi bu kayıtla geçersizdir.
 
 ## Riskler
 
@@ -26,7 +27,7 @@ Bu belge yeni bir ölçüt ya da eşik koymaz. Tanım K-93 (6)'dır; oturum açm
 - Bu belgedeki önceki öneri (a, "sayılmaz") geçersizdir.
 - Reddedilen yollar: görevi "oturum açılmasa da çalıştır" yapmak ya da otomatik oturum açma. İkisi de Windows şifresini gerektirir; şifre kesin sınırdır. Kalıcı önlem bu yüzden kullanıcıya kalır.
 
-## Ölçüm (12.12.2026 olgunluk ölçümünde; yeni eşik yok)
-1. `cikti\OTONOM_RAPOR.md` ve `docs/ROBOT_LOG.md`'de 13.11–12.12 arasındaki "elle" kayıtlarına bakılır (K-93 (6)).
+## Ölçüm (18.12.2026 olgunluk ölçümünde; K-105, önce 12.12; yeni eşik yok)
+1. `cikti\OTONOM_RAPOR.md` ve `docs/ROBOT_LOG.md`'de 19.11–18.12 arasındaki "elle" kayıtlarına (K-105) bakılır (K-93 (6)).
 2. `logs/heartbeats.csv`'deki her kalp atışı boşluğu Sistem olay günlüğüyle (1074 yeniden başlatma) eşleştirilir. Boşluk bir Windows yeniden başlatmasıyla başlayıp oturum açılışıyla bitiyorsa müdahaledir (K-96). Elektrik ya da ağ kesintisi müdahale değildir, SLO'ya yazılır.
 3. Hiç müdahale yoksa S3'ün 30 gün satırı ✅ olur. Varsa sayaç, son müdahalenin ertesi günü yeniden başlar.
