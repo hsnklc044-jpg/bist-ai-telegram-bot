@@ -1,6 +1,6 @@
 # Karar notu taslağı: Borsa İstanbul resmî gün sonu verisi ikinci kaynak sayılır mı? (18.11.2026)
 
-**Durum: taslak. Uygulanmadı, eşik değişmedi. Karar kullanıcının.**
+**Durum: karar verildi (18.11.2026, kullanıcı): seçenek B, K-97. K-93 (3) ve eşik aynen kaldı.**
 
 ## 0. Bugünkü durum (önce bilinmesi gereken)
 - "Veri doğruluğu" SLO'su artık ❔ değil. 18.11 08:45 ölçümünde ✅ %99,5 çıktı: 206 hissede 1 hisse farklı (RALYH), kaynak "Borsa İstanbul resmî gün sonu" (`logs/price_second_source.json`, `core.reports.slo.accuracy`). ❔ durumu 12.11'deydi; o gün İş Yatırım kapalıydı (D13) ve resmî karşılaştırma daha bağlanmamıştı.

@@ -5,6 +5,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 ## v0.99.150 – 18.11.2026 (Ö66/Ö67: testler ve belge; kod değişmedi)
 - Ö67: `tests/test_csvfiles.py` ve `tests/test_watchlist_scanner.py` (kişisel CSV okuma/ekleme ve izleme listesi taraması için ilk doğrudan testler). İlk çalıştırmada geçtiler; hata bulunmadı.
 - Ö66: ROADMAP durum sütunu doğrulandı ve kapatıldı. `docs/NIGHT_LOG_2026-11-18.md`: gece günlüğü ve sabah raporu.
+- K-97 (kullanıcı, 18.11): K-84 seçenek B; K-93 (3) aynen, kanıt notu "Kasım dosyası ölçülünce iki ayı kapsar" (DECISIONS, MATURITY, K-84 notu). `docs/S3_OTURUMSUZ_BASLATMA.md`: yeniden başlamadan sonra oturum açılmadan dönüş için seçenekler ve deneme adımı (taslak, uygulanmadı). ROADMAP Ö71 (`bildir.py` eski klasör yolu).
 - T dalı (`claude/o66-o67-test-belge-v2`) kullanıcı onayıyla (18.11) yeni ana dal ucunun üstüne yeniden kuruldu; sürüm numarası ayrı paket olarak kurulabilmesi için artırıldı (K-95).
 
 ## v0.99.149 – 18.11.2026 (öz-denetim 11: Ö63 yaşam sinyali, Ö64 "İ" harfi)
