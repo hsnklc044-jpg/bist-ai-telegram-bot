@@ -85,7 +85,11 @@ def s5_passing(decision: dict | None) -> list[dict]:
 
 
 def _p(x) -> str:
-    return "—" if x is None or (isinstance(x, float) and math.isnan(x)) else f"%{x * 100:+.2f}"
+    """The report's own format ("+%1,49"), as in the drift reasons of the same draft (dry run 18.11)."""
+
+    from core.reports.daily import pct
+
+    return "—" if x is None or (isinstance(x, float) and math.isnan(x)) else pct(x, 2)
 
 
 TEMPLATE = """## {date} – Canlı ölçüm ilk kararı (K-93)
@@ -118,7 +122,11 @@ def research_log_draft(day: date, decision: dict) -> str:
         for v in decision["views"])
     passing = s5_passing(decision)
     s5 = ", ".join(f"{v['view']} ({_p(v['low99_after_cost'])})" for v in passing) or "geçen görünüm yok"
-    return TEMPLATE.format(date=f"{day:%d.%m.%Y}", first_day=decision["first_day"], last_day=decision["last_day"],
+    def dmy(text: str) -> str:
+        return f"{date.fromisoformat(str(text)[:10]):%d.%m.%Y}"
+
+    return TEMPLATE.format(date=f"{day:%d.%m.%Y}", first_day=dmy(decision["first_day"]),
+                           last_day=dmy(decision["last_day"]),
                            min_days=MIN_DAYS, min_periods=MIN_PERIODS, results=results, drift=drift, s5=s5,
                            trials=TRIALS, file=f"{day:%Y-%m-%d}_canli_ilk_karar.md")
 
