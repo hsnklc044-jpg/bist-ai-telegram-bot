@@ -126,3 +126,12 @@ Sürüm 1.0 (18.11.2026). Sahibi kullanıcı, uygulayıcısı koordinatör, sür
 - Kullanıcının harcadığı zaman azaldı mı?
 
 Üç göstergeden ikisi kötüye gidiyorsa döngünün kendisi yeniden tasarlanır.
+
+## 10. Araştırma standardı uygulaması (QB-ARS-1, 18.11.2026)
+[ARASTIRMA_STANDARDI](ARASTIRMA_STANDARDI.md) §8'deki fazlar programa eklenir:
+- **Faz A:** 25.11.2026'dan sonra; yalnız araç ve test.
+- **Faz B:** Aralık 2026 – Ocak 2027.
+- **Faz C:** Şubat – Mart 2027.
+- **Faz D:** Nisan 2027 başı.
+
+Faz A ve B program süresine (16.02.2027'ye kadar) girer ve İP-4 ile birlikte izlenir. Her faz önce testle başlar.
