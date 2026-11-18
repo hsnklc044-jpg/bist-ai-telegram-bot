@@ -2,10 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
-## v0.99.147 – 18.11.2026 (öz-denetim 11: Ö63 yaşam sinyali, Ö64 "İ" harfi)
+## v0.99.147 – 18.11.2026 (öz-denetim 11: Ö63 yaşam sinyali, Ö64 "İ" harfi; 18.11 gündüz paketiyle birlikte)
 - Ö63: 5 dakikalık yaşam sinyali işi 240 saniyeye kadar geç başlarsa yine çalışır ve biriken çalışmalar tek çalışmaya iner. Önceden varsayılan 1 saniyelik pay vardı: 17.11 08:30:45'te 1,2 saniye geç kalan sinyal atlandı (`heartbeats.csv`'de 08:25 → 08:35 boşluğu). Test: `tests/test_o63_heartbeat.py` önce kırmızıydı.
 - Ö64: `/risk ekle` ve `/senaryo` ASCII dışı harf içeren kodu (örneğin Türkçe klavyedeki "İSCTR") açık bir hatayla reddeder. Önceden bu kod, var olmayan "İSCTR.IS" sembolüne dönüşüyor ve hiç hata vermiyordu. Test: `tests/test_o64_symbols.py`, önce 3 kırmızı.
 - S4 kuru çalıştırma bulgusu (18.11, `docs/S4_KURU_CALISTIRMA.md`): ilk karar mesajı ve RESEARCH_LOG taslağı yüzdeleri raporun kendi biçimiyle yazar ("+%1,49"; önceden "%+1.49", aynı taslaktaki sapma nedenleriyle uyumsuzdu); kayıt günleri GG.AA.YYYY. Karar hesabı değişmedi. Test: `tests/test_s4_number_format.py`, önce 2 kırmızı.
+- Gündüz paketi (`claude/gunduz-1811`, araç ve belge; bot davranışı değişmez): sürüm kapısına 8. satır, bilgisayar pildeyse birleştirme ertelenir ve güç durumu `cikti/kapi_guc.csv`'ye yazılır (D.1b); cumartesi SLO tablosu `scripts/donem_kopyala.py` ile `docs/PERIODS/`'a kopyalanır (K-17); hız testi sınırı makinenin o anki hızına göre ölçeklenir (prizde 5 sn); S4 kuru çalıştırma (`docs/S4_KURU_CALISTIRMA.md`); K-84 ikinci kaynak notu; S3 müdahale riskleri (`docs/S3_MUDAHALE.md`, K-96); Ö59, Ö65.
 
 ## v0.99.146 – 18.11.2026 (S4/S5 hazırlığı: canlı karar hesabı, haftalık seri; K-93; gece belge paketinin üstüne yeniden kuruldu, a9ae94b ile aynı kod)
 - `core/reports/s4_decision.py` (yeni): her akşam 21:00 özetinden sonra canlı ölçümün ilk kararına bakar (K-93 (1): 5 seans, 5 görünüm, değişmeyen `forward._verdict`). Karar bir kez `logs/s4_ilk_karar.json`'a ve RESEARCH_LOG taslağı `logs/research_log_taslak/`'a yazılır, Telegram'a gider. S5 eşiğini (maliyet %0,30 sonrası %99 alt uç > 0, K-93 (4)) geçen görünüm varsa kanıtlı tek bir "Kural anlamlı çıktı" mesajı gider; hiçbir şey açılmaz.
