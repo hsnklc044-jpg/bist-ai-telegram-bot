@@ -79,6 +79,31 @@ class NoLeakTest(unittest.TestCase):
         train = np.concatenate([np.arange(0, 100), np.arange(200, 600)])  # no purge: both sides leak
         self.assertEqual(cpcv.leaks(train, test, horizon=5), [95, 96, 97, 98, 99, 200, 201, 202, 203, 204])
 
+    def test_brute_force_gap_for_many_settings(self):
+        # 19.11: independent of leaks() (which shares the purge logic). For every training point t and every
+        # test point s: a test point AFTER t must be more than `horizon` away (t's label ends before s),
+        # and a test point BEFORE t more than `horizon + embargo` away (purge plus embargo). Train and test
+        # never intersect, and train + test + dropped = all positions.
+        settings = [(n, g, k, h, e) for n in (37, 120, 301) for g, k in ((3, 1), (5, 2), (6, 3), (8, 2))
+                    for h in (0, 1, 4) for e in (0, 2) if n >= g]
+        for n, g, k, h, e in settings:
+            for train, test in cpcv.splits(n, n_groups=g, k_test=k, horizon=h, embargo=e):
+                msg = (n, g, k, h, e)
+                self.assertEqual(len(np.intersect1d(train, test)), 0, msg)
+                self.assertTrue(set(train) | set(test) <= set(range(n)), msg)
+                d = test[None, :] - train[:, None]  # > 0: test after train
+                after = np.where(d > 0, d, np.iinfo(np.int64).max).min(axis=1)
+                before = np.where(d < 0, -d, np.iinfo(np.int64).max).min(axis=1)
+                self.assertTrue(np.all(after > h), msg)
+                self.assertTrue(np.all(before > h + e), msg)
+
+    def test_purge_is_not_wider_than_needed(self):
+        # the gap is exactly horizon before and horizon + embargo after each test group, nothing more
+        train, test = next((tr, te) for tr, te in cpcv.splits(600, n_groups=6, k_test=1, horizon=5, embargo=3)
+                           if te[0] == 200)
+        self.assertEqual(sorted(set(range(600)) - set(train) - set(test)),
+                         list(range(195, 200)) + list(range(300, 308)))
+
     def test_bad_arguments_are_refused(self):
         for kwargs in ({"n_groups": 1, "k_test": 1}, {"n_groups": 6, "k_test": 0}, {"n_groups": 6, "k_test": 6},
                        {"n_groups": 6, "k_test": 2, "horizon": -1}, {"n_groups": 700, "k_test": 2}):
