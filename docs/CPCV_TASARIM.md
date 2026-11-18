@@ -1,6 +1,6 @@
 # CPCV ve PBO tasarım notu (QB-ARS-1 S-3, S-4; Faz B, 18.11.2026)
 
-**Durum:** yalnız tasarım; kod sonraki gecelerde ve önce testle yazılacak. Hiçbir karar, eşik ya da canlı rapor değişmez.
+**Durum (19.11.2026):** tasarım uygulandı: `core/research/cpcv.py` (358374b, kırmızı takım düzeltmeleri f2337e3). Kanıtlar aşağıda, "Uygulama ve kanıt" bölümünde. Hiçbir araç bunu henüz çağırmıyor. Hiçbir karar, eşik ya da canlı rapor değişmez. İlk satırdaki "yalnız tasarım" ifadesi 18.11 akşamına aitti; bu satır onun yerine geçer.
 
 ## Bugün ne var
 `core/backtest/overfit.py` (K-81) zaten iki ölçü hesaplıyor:
@@ -32,3 +32,28 @@
 
 ## Açık kararlar
 - N, k ve ambargo payı her araştırmanın ön kaydında sabitlenir. Bu belge yalnız varsayılanları önerir.
+
+## Uygulama ve kanıt (19.11.2026)
+**Üreteç.** `core/research/cpcv.py`:
+- `splits(n, N, k, horizon, embargo)` → (eğitim, test) konumları;
+- `paths()` → φ = k/N·C(N, k) yol;
+- `leaks()` → sızıntı denetimi;
+- `pbo()` → arındırılmış bölmelerde PBO.
+
+Arındırma iki yönlüdür. Etiketi [t, t+h] olan bir eğitim gözlemi, aynı pencereye sahip bir test gözlemiyle kesişiyorsa (|t − s| ≤ h) eğitimden çıkar. Ambargo, her test grubunun ardından h + e gözlem bırakır.
+
+**Testler** (`tests/test_research_cpcv.py`, `tests/test_research_redteam.py`):
+
+| Ne kanıtlanıyor | Test | Bağımsız mı |
+|---|---|---|
+| Eğitim ile test hiç kesişmez, zaman sırası korunur | `test_train_and_test_never_overlap_and_stay_in_time_order` | evet (küme kesişimi) |
+| **Kaba kuvvet boşluk testi, 72 ayarda:** her eğitim noktasıyla sonraki test noktaları arasında > h, önceki test noktaları arasında > h + e boşluk var | `test_brute_force_gap_for_many_settings` (19.11) | evet; `leaks()` ve üreteç kodu kullanılmaz, uzaklıklar doğrudan hesaplanır |
+| Arındırma ve ambargo gereğinden geniş değil (tam olarak h öncesi, h + e sonrası) | `test_purge_is_not_wider_than_needed` (19.11) | evet (el hesabı: 195–199 ve 300–307) |
+| El hesabıyla arındırma ve ambargo noktaları | `test_purge_drops_…`, `test_embargo_drops_…` | evet |
+| Kanarya: sızıntılı bir bölme yakalanır | `test_the_leak_check_catches_a_leaky_split` | evet |
+| Bölme ve yol sayıları: N=6, k=2 için 15 bölme ve 5 yol; her grup C(5,1) kez test ediliyor | `SplitCountTest` | evet (tanımdan gelen kombinatorik) |
+| h = e = 0, N = 16, k = 8'de PBO, K-81 CSCV'ye eşit | `test_equals_the_existing_cscv_without_purge` | hayır (aynı yöntem; yalnız tutarlılık) |
+
+**Bozma denemesi (19.11).** Üreteç iki kez kasıtlı bozuldu: ambargo kaldırıldı ve arındırma 1 gün kısaltıldı. Kaba kuvvet testi ikisinde de kırmızı oldu.
+
+**Kalan:** kitaptaki yayımlanmış örnek sayılar kaynaktan okunamadı. Sayılar tanımdan türetildi. Bu iş Bekleyenler'de kalıyor.

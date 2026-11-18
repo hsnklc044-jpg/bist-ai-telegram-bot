@@ -41,6 +41,35 @@ class IdentityTest(unittest.TestCase):
         self.assertAlmostEqual(dsr(0.05, 300, 0.0, 50), psr(0.05, 0.0, 300), places=12)
 
 
+class HandComputedTest(unittest.TestCase):
+    """19.11, owner's request: a value worked out by hand, independent of K-81.
+
+    Normal returns (skew 0, raw kurtosis 3, excess 0): the denominator 1 - skew*SR + (kurt-1)/4*SR^2 becomes
+    1 + SR^2/2, so PSR = Phi(SR * sqrt(T-1) / sqrt(1 + SR^2/2)).
+    SR = 0.1 per period, SR* = 0, T = 101:
+        sqrt(T-1) = 10;  1 + 0.01/2 = 1.005;  sqrt(1.005) = 1.0024969
+        z = 0.1 * 10 / 1.0024969 = 0.9975093
+        Phi(1) = 0.8413447, phi(1) = 0.2419707
+        Phi(0.9975093) ~ 0.8413447 - 0.0024907 * 0.2419707 = 0.8407420 (second-order term < 1e-6)
+    """
+
+    def test_normal_case_by_hand(self):
+        self.assertAlmostEqual(psr(0.1, 0.0, 101), 0.840742, places=5)
+        self.assertAlmostEqual(excess_kurtosis_to_raw(0.0), 3.0)
+        self.assertAlmostEqual(psr(0.1, 0.0, 101, skew=0.0, kurt_raw=excess_kurtosis_to_raw(0.0)), 0.840742, places=5)
+
+    def test_null_simulation_matches_the_chosen_level(self):
+        # true Sharpe 0: the share PSR calls significant (PSR > 1 - alpha) is close to alpha, fixed seed
+        rng = np.random.default_rng(20261119)
+        reps, t = 10000, 120
+        r = rng.standard_normal((reps, t))
+        sr = r.mean(axis=1) / r.std(axis=1, ddof=1)
+        for alpha in (0.05, 0.10):
+            rate = float(np.mean([psr(s, 0.0, t) > 1 - alpha for s in sr]))
+            se = math.sqrt(alpha * (1 - alpha) / reps)
+            self.assertAlmostEqual(rate, alpha, delta=3.5 * se, msg=(alpha, rate))
+
+
 class KnownValueTest(unittest.TestCase):
     def test_expected_max_of_100_standard_normals(self):
         # exact order-statistics value E[max of 100 iid N(0,1)] = 2.50759; the approximation is within 1.5 %
