@@ -88,6 +88,17 @@ Sahibin kendi yazısıyla verildi (koordinatör oturumu). [ANAYASA](ANAYASA.md)'
 - **2. sınıf:** yukarıdaki anayasa notuna göre uygulanır.
 - **3. sınıf:** ANAYASA Md. 7 ile aynıdır.
 
+## Dönem kuralı: "Az yeni şey, çok ölçüm" (19.11.2026–18.12.2026, kullanıcı; DECISIONS K-106)
+
+Yürürlük: 19.11 sabahının sözleri tamamlandıktan sonra (08:40 K kurulumundan sonra).
+1. **Dondurma.** Yeni yönetim belgesi, strateji, seviye ya da özellik açılmaz. Açık konular (S6, Md. 8 değişikliği ve benzerleri) beklemeye alınır ve 18.12'den sonra tek pakette sunulur.
+2. **Yapılabilecek dört iş:** (a) onaylı kurulum zinciri, (b) sayaçların korunması (S2 07.12, S3 18.12), (c) gerçek hata düzeltmesi, (d) veri kalitesi. Bu dördüne girmeyen iş Bekleyenler'e yazılır.
+3. **Veri kalitesi önce.** VERI_DENETIMI bulguları sırayla ele alınır: D-1, D-2, D-4. Önce etki ölçülür, sonra düzeltilir. Davranış değiştiren düzeltme ayrı dalda kalır ve onayla girer. K-93 ya da K-94'ü etkileyen bulgu düzeltilmez, karar talebi olur. Hedef: 06.01.2027'den önce açık YÜKSEK bulgu kalmaması.
+4. **Sadeleştirme (sınıf 1).** Aktif belgeler BELGE_HARITASI'ndaki 4 katmana iner; eskiler arşivlenir, silinmez. Çalışma klasörleri haftada bir temizlenir; dal silinmez. Kullanılmayan özellik için kaldırma önerisi Bekleyenler'e yazılır.
+5. **Sahibin zamanı:** haftada en fazla 30 dk (bir kısa kontrol ve ayda bir karar paketi). Her hafta "Senden beklenen" madde sayısı ve onay sayısı rapora yazılır; hedef iki hafta üst üste aşılırsa sadeleştirme önerilir. Sohbette en fazla 10 satır, ayrıntı dosyada.
+6. **Doğrulama ve dil.** "Bitti" yalnız kanıtla söylenir. Saatler Get-Date'ten okunur. Önemli hesap ve düzeltmeler kırmızı takımdan geçer. İyimser dil kullanılmaz; "kanıt gösteriyor" ile "henüz bilinmiyor" ayrı yazılır. Olumsuz S4 sonucu başarısızlık değildir (senaryo B).
+7. **Ritim:** pazartesi en fazla 3 işlik plan; cumartesi SLO satırı ve tek sayfalık özet; ayın son günü karar paketi; Telegram yalnız gerçek sorunda.
+
 ## Saat kuralı (19.11.2026, kullanıcı; yetki devri sınıf 1, kalıcı)
 
 1. Kayıtlara yazılan her saat o anda sistem saatinden okunur (`Get-Date`, `date`, `datetime.now()`). Saat tahmin edilmez.
