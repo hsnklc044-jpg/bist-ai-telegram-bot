@@ -6,7 +6,7 @@
 
 | Parametre | Öneri | Kaynak / gerekçe | Durum |
 |---|---|---|---|
-| Komisyon (tek yön) | %0,10 | a4 ön kaydı (RESEARCH_LOG:479; 28.10) ile aynı | proje içi tutarlılık |
+| Komisyon (tek yön) | %0,10 | a4 ön kaydı (RESEARCH_LOG:476; 28.10) ile aynı | proje içi tutarlılık |
 | Komisyon üzerine BSMV | %5 | BSMV oranı | **resmî kaynaktan doğrulanacak** |
 | Borsa payı (tek yön) | — | Borsa İstanbul tarifesi | **kaynaktan alınacak**; bu gece okunamadı |
 | Yarım alış-satış farkı | hissenin son 60 seanslık medyan farkının yarısı; yoksa bir fiyat adımı / fiyat | ölçülebilir, likiditeye bağlı | yöntem önerisi |
