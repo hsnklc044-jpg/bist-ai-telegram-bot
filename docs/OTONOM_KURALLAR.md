@@ -99,6 +99,15 @@ Yürürlük: 19.11 sabahının sözleri tamamlandıktan sonra (08:40 K kurulumun
 6. **Doğrulama ve dil.** "Bitti" yalnız kanıtla söylenir. Saatler Get-Date'ten okunur. Önemli hesap ve düzeltmeler kırmızı takımdan geçer. İyimser dil kullanılmaz; "kanıt gösteriyor" ile "henüz bilinmiyor" ayrı yazılır. Olumsuz S4 sonucu başarısızlık değildir (senaryo B).
 7. **Ritim:** pazartesi en fazla 3 işlik plan; cumartesi SLO satırı ve tek sayfalık özet; ayın son günü karar paketi; Telegram yalnız gerçek sorunda.
 
+## Sahibin bakışı (19.11.2026, kullanıcı; DECISIONS K-107)
+
+Yürürlük: K-106 ile birlikte, 19.11 08:40 K kurulumundan sonra.
+1. **Çıkış kararı, Mayıs 2027 (ön kayıtlı):** 27.04.2027 taramasından sonra, en geç 31.05.2027'de tek sayfalık "Devam / Bakım modu" sayfası sunulur. ARS-1 testlerini (maliyet sonrası, çoklu test düzeltmeli, rastgele kıyaslı) geçen en az bir S4 kuralı varsa DEVAM (S5 kâğıt izleme); yoksa BAKIM MODU (senaryo B). Ölçüt sonuç görüldükten sonra gevşetilmez; "biraz daha veri / bir parametre / bir hipotez daha" gerekçe değildir. Yeni hipotez yalnız yeni ön kayıt ve yeni veri dönemiyle açılır.
+2. **Gerçek para ayrımı (Md. 4):** hiçbir çıktı gerçek para kullanımını önermez, ima etmez, hesaplamaz ("X TL yatırsaydın" yok). Sonuçlar yalnız oran, olasılık ve kâğıt portföy olarak yazılır.
+3. **Sahibin dinlenmesi:** 23:00–07:00 arası sahipten karar, onay ya da işlem istenmez. Gece Telegram'ı yalnız ANAYASA KRİTİK durumları içindir. Sohbette yeni iş ya da ileri adım önerilmez; öneriler aylık karar paketinde gelir. Sahibin haftalık süresi haftalık özete tek satır olarak girer.
+4. **Kota şeffaflığı:** aylık karar paketinde tek satır: ayın ortalama ve en yüksek haftalık kotası, önceki ayla karşılaştırma. Plan önerisi ya da yorum yapılmaz.
+5. **Düşük bakım:** varsayılan hâl sessizce çalışan deneydir. Başarı, bir haftayı sahibe soru sormadan ve sorunsuz geçirmektir. Aylık karar paketinde tek satır: aktif belge, açık dal ve kural sayısı, önceki aya göre.
+
 ## Saat kuralı (19.11.2026, kullanıcı; yetki devri sınıf 1, kalıcı)
 
 1. Kayıtlara yazılan her saat o anda sistem saatinden okunur (`Get-Date`, `date`, `datetime.now()`). Saat tahmin edilmez.
