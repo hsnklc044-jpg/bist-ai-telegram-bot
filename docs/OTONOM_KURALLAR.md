@@ -44,6 +44,48 @@ BU SEFER ÖZEL: [örnek: K-84 Kasım dosyası gelirse karşılaştırmayı çal�
 Kalıcı çerçeve geçerli. Rapor [saat]'te, [dosya adı]'nın en üstünde.
 ```
 
+## Yetki devri (18.11.2026, kullanıcı; DECISIONS K-101)
+
+Sahibin kendi yazısıyla verildi (koordinatör oturumu). [ANAYASA](ANAYASA.md)'ya bağlıdır: çelişen kısım geçersizdir ve sahibe bildirilir (bkz. 5).
+
+**1. Devredilenler: sorma, yap, raporda bildir.**
+- Belge, test ve araç paketlerinin kapıdan geçirilmesi (CI yeşil, kapı 9/9).
+- Sahibin daha önce onayladığı kuyruğun sırası ve zamanlaması.
+- Hata düzeltmeleri: davranışı yalnız hatayı gidermek için değiştiren ve önce kırmızı testle kanıtlanmış düzeltmeler.
+- Belge birleştirme ve sadeleştirme. Eski belgeler arşivlenir, silinmez.
+- Kontrollerin (KT-01…KT-10) ve kanarya testlerinin eklenmesi.
+
+**2. İtiraz süreli devir: öner, 48 saat bekle, itiraz yoksa yap.**
+- Botun davranışını değiştiren küçük kodlar (yeni özellik değil, mevcut özelliğin iyileştirilmesi).
+- 90 günlük döngü önerisindeki iş paketleri.
+- Kullanılmayan bir özelliğin kaldırılması.
+
+Öneri Telegram'dan tek mesajla bildirilir. Sahip 48 saat içinde "dur" yazarsa yapılmaz.
+
+> **Anayasa notu (K-101).** Bu sınıf, sahibin sessizliğini onay sayar. ANAYASA Md. 8 ise "sessizlikten onay çıkarılamaz" der. Md. 8 çekirdek değildir (Md. 18); Md. 17 usulüyle değiştirilebilir. Bu değişiklik yapılana kadar 2. sınıf şöyle uygulanır:
+> - Öneri Telegram'dan tek mesajla gider.
+> - İş, sahip açıkça "evet" yazınca yapılır.
+> - 48 saat içinde cevap gelmezse iş yapılmaz ve "Bekleyenler"e yazılır.
+>
+> Md. 8'in değiştirilmesi önerisi K-101'dedir. Karar en erken 25.11.2026'da verilebilir (7 gün soğuma süresi).
+
+**3. Devredilmeyenler: her zaman sahibin kararı; sessizlik onay sayılmaz.**
+- Gerçek para, emir kodu, başkasına tavsiye.
+- Eşik, ölçüt, holdout ve ön kayıt; sayaç ve tanım yorumları.
+- Kapsam değişikliği, yeni hipotez, S-seviyelerinin kapanışı.
+- `.env`, zamanlanmış görevlerin saati ve izinleri, bilgisayar ayarları.
+- Bu yetki devrinin ve anayasanın değişmesi.
+
+**4. Güvence.**
+- Her raporda bir "Devirle yaptıklarım" bölümü bulunur: ne yapıldı, hangi madde, kanıt.
+- Devirle yapılan bir iş SLO ihlaline ya da sapmaya yol açarsa o iş türü devirden çıkar ve sahibe sorulur.
+- Bir işin hangi sınıfa girdiği belirsizse iş 3. sınıf sayılır ve sahibe sorulur.
+
+**5. Anayasayla ilişki (K-101).**
+- **1. sınıf:** sahibin açık yazısıyla verilmiş, iş türüyle sınırlı bir ön onaydır (Md. 8). Yetkiyi Claude kendinde varsaymaz (Md. 1); her iş raporda bildirilir. Bu sınıf K-100'deki "Ç3 = (b)" kararının yerine geçer. Ç2 (şüphede sor) ve Ç4 (silme yok) aynen sürer.
+- **2. sınıf:** yukarıdaki anayasa notuna göre uygulanır.
+- **3. sınıf:** ANAYASA Md. 7 ile aynıdır.
+
 ## Robotun görevi ve yetkisi (17.11.2026, kullanıcı)
 Robot (07:00, 20:15, hafta sonu 13:00 turları) bütün ilerleme işlerini kullanıcıyı beklemeden yürütür: DECISIONS K-88 rotası ve `siradaki-is` sırasıyla sıradaki işi seçer; dal ve worktree açar; araştırma/ölçüm öncesi `on-kayit`; önce başarısız test, sonra düzeltme; CI; `surum-kapisi` ile birleştirme; kurulum sonrası sağlık (≥3 sinyal, ERROR 0); OTONOM_RAPOR.md'ye ve 21:00 özetine K-88 §6 raporu. Kullanıcıya yalnız bilgi verir; gerçekten kullanıcı kararı gereken bir şey çıkarsa tek soru yazar ve sıradaki işe geçer.
 Sınırlar değişmez: CHARTER kesin sınırları (K-54), kapı geçmeden birleştirme yok, canlı klasöre elle yazma yok, güvenlik denetimi reddederse başka yol denenmez. Güncelleyici, yedek ve geri yükleme değişikliklerinin hafta sonu birleştirmesi kullanıcının tek komutuyla olur (K-88 §5); robot bunları hazırlar (aynı SHA'da dr-drill yeşil, kapı tam) ve hazır olduğunu bildirir. Para, token ya da hesap gerektiren adımlar ve kuralların kendisini değiştirmek kullanıcıya kalır.
