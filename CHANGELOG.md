@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.147 – 18.11.2026 (pilde kurulum düzeltmesi D.1b; K-17 dönem kopyası; S3 müdahale riskleri)
+- Hız testi sınırı makinenin ölçülen hızına bağlandı (`tests/speed_budget.py`): pilde işlemci yavaşlayınca test artık yanlışlıkla düşmez; prizde yavaş kod yine düşer. 17.11 akşamı iki kurulum bu yüzden düşmüştü (Kernel-Power 105). Test önce kırmızıydı.
+- Sürüm kapısı 8. satır: bilgisayar pildeyse birleştirme ertelenir (`scripts/surum_kapisi.py`, `tests/test_surum_kapisi_guc.py`).
+- K-17: cumartesi SLO tabloları `docs/PERIODS/` altına kopyalanır (`scripts/donem_kopyala.py`, `tests/test_donem_kopyala.py`).
+- S4 sahte veriyle kuru çalıştırma (`scripts/s4_kuru_calistirma.py`, `docs/S4_KURU_CALISTIRMA.md`).
+- Belgeler: `docs/S3_MUDAHALE.md` (müdahale tanımı, riskler, K-96 ile 12.12.2026), K-84 ikinci kaynak not taslağı, ROADMAP Ö59/Ö65, robot kuralları.
+- Sürüm numarası ayrı bir paket olarak kurulabilmesi için artırıldı: aynı sürümdeki paketi güncelleyici kurmaz (K-95).
+
 ## v0.99.146 – 18.11.2026 (S4/S5 hazırlığı: canlı karar hesabı, haftalık seri; K-93; gece belge paketinin üstüne yeniden kuruldu, a9ae94b ile aynı kod)
 - `core/reports/s4_decision.py` (yeni): her akşam 21:00 özetinden sonra canlı ölçümün ilk kararına bakar (K-93 (1): 5 seans, 5 görünüm, değişmeyen `forward._verdict`). Karar bir kez `logs/s4_ilk_karar.json`'a ve RESEARCH_LOG taslağı `logs/research_log_taslak/`'a yazılır, Telegram'a gider. S5 eşiğini (maliyet %0,30 sonrası %99 alt uç > 0, K-93 (4)) geçen görünüm varsa kanıtlı tek bir "Kural anlamlı çıktı" mesajı gider; hiçbir şey açılmaz.
 - `core/reports/weekly_series.py` (yeni): her cumartesi SLO tablosu `logs/haftalik_slo/seri.csv`'ye bir satır olarak eklenir; 14.11 gibi önceden kaydedilmiş cumartesiler geri doldurulur. Ağ hatasıyla ❔ kalan kalite satırı K-92 kuralıyla yeniden sorulur. Özet "SLO serisi x/4" ve "İki kaynak x/4" yazar. Bot kaydı haftanın başından sonra başlıyorsa "kayıt eksik" yazılır ve o hafta sayılmaz (03.11 klasör taşıması dersi, K-93 (7)).
