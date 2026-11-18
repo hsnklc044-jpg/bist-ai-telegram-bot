@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.148 – 18.11.2026 (K-96: S3 sayacı; kod değişmedi)
+- DECISIONS K-96: Windows yeniden başlatmasından sonra oturum açmak S3 müdahalesidir. S3 30 gün sayacı 13.11'den başlar, en erken 12.12.2026'da dolar. MATURITY S3 satırı buna göre.
+- Sürüm numarası, kararın ayrı paket olarak canlıya girmesi için artırıldı (K-95: aynı sürümdeki paketi güncelleyici kurmaz).
+
 ## v0.99.147 – 18.11.2026 (pilde kurulum düzeltmesi D.1b; K-17 dönem kopyası; S3 müdahale riskleri)
 - Hız testi sınırı makinenin ölçülen hızına bağlandı (`tests/speed_budget.py`): pilde işlemci yavaşlayınca test artık yanlışlıkla düşmez; prizde yavaş kod yine düşer. 17.11 akşamı iki kurulum bu yüzden düşmüştü (Kernel-Power 105). Test önce kırmızıydı.
 - Sürüm kapısı 8. satır: bilgisayar pildeyse birleştirme ertelenir (`scripts/surum_kapisi.py`, `tests/test_surum_kapisi_guc.py`).
