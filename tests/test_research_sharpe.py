@@ -8,17 +8,18 @@ true Sharpe ratio. They also pin the module to the K-81 implementation in core/b
 
 import math
 import unittest
+from statistics import NormalDist
 
 import numpy as np
 import pandas as pd
 
 from core.backtest.overfit import deflated_sharpe
-from core.research.sharpe import dsr, expected_max_sharpe, psr
+from core.research.sharpe import dsr, excess_kurtosis_to_raw, expected_max_sharpe, psr
 
 
 class IdentityTest(unittest.TestCase):
     def test_equal_to_benchmark_is_one_half(self):
-        self.assertAlmostEqual(psr(0.1, 0.1, 250, skew=-1.0, kurt=6.0), 0.5, places=12)
+        self.assertAlmostEqual(psr(0.1, 0.1, 250, skew=-1.0, kurt_raw=6.0), 0.5, places=12)
 
     def test_normal_returns_match_lo_2002_standard_error(self):
         # skew 0, kurt 3: denominator is 1 + SR^2 / 2 (Lo, 2002)
@@ -28,8 +29,8 @@ class IdentityTest(unittest.TestCase):
 
     def test_negative_skew_and_fat_tails_lower_the_probability(self):
         base = psr(0.1, 0.0, 250)
-        self.assertLess(psr(0.1, 0.0, 250, skew=-2.0), base)
-        self.assertLess(psr(0.1, 0.0, 250, kurt=10.0), base)
+        self.assertLess(psr(0.1, 0.0, 250, skew=-1.0), base)
+        self.assertLess(psr(0.1, 0.0, 250, kurt_raw=10.0), base)
 
     def test_more_trials_raise_the_bar(self):
         self.assertLess(expected_max_sharpe(1.0, 10), expected_max_sharpe(1.0, 100))
@@ -43,7 +44,16 @@ class IdentityTest(unittest.TestCase):
 class KnownValueTest(unittest.TestCase):
     def test_expected_max_of_100_standard_normals(self):
         # exact order-statistics value E[max of 100 iid N(0,1)] = 2.50759; the approximation is within 1.5 %
-        self.assertAlmostEqual(expected_max_sharpe(1.0, 100) / 2.50759, 1.0, delta=0.015)
+        self.assertAlmostEqual(expected_max_sharpe(1.0, 100) / 2.50759, 1.0092, delta=0.002)
+
+    def test_expected_max_coefficients_not_swapped(self):
+        # red team 19.11: swapping gamma and 1 - gamma stays inside a loose tolerance; pin the value
+        g, nd = 0.5772156649015329, NormalDist()
+        want = (1 - g) * nd.inv_cdf(1 - 1 / 100) + g * nd.inv_cdf(1 - 1 / (100 * math.e))
+        swapped = g * nd.inv_cdf(1 - 1 / 100) + (1 - g) * nd.inv_cdf(1 - 1 / (100 * math.e))
+        self.assertAlmostEqual(expected_max_sharpe(1.0, 100), want, places=12)
+        self.assertAlmostEqual(want, 2.5306028932, places=9)
+        self.assertGreater(abs(want - swapped), 0.05)
 
     def test_expected_max_matches_simulation(self):
         rng = np.random.default_rng(20261119)
@@ -74,8 +84,17 @@ class SameAsK81Test(unittest.TestCase):
         r = m[best].to_numpy()
         z = (r - r.mean()) / r.std()
         mine = dsr(float(sharpes[best]), len(m), float(np.var(sharpes.to_numpy(), ddof=1)), n,
-                   skew=float(np.mean(z ** 3)), kurt=float(np.mean(z ** 4)))
+                   skew=float(np.mean(z ** 3)), kurt_raw=float(np.mean(z ** 4)))
         self.assertAlmostEqual(mine, value, places=12)
+
+
+class KurtosisUnitTest(unittest.TestCase):
+    def test_pandas_excess_kurtosis_needs_plus_three(self):
+        rng = np.random.default_rng(5)
+        r = pd.Series(rng.standard_t(5, 200000))
+        raw = float(((r - r.mean()) ** 4).mean() / r.var(ddof=0) ** 2)
+        self.assertAlmostEqual(excess_kurtosis_to_raw(float(r.kurt())), raw, delta=0.05)
+        self.assertLess(psr(0.1, 0.0, 250, kurt_raw=raw), psr(0.1, 0.0, 250, kurt_raw=float(r.kurt())))
 
 
 class InputTest(unittest.TestCase):
@@ -85,8 +104,11 @@ class InputTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg=args):
                 psr(*args)
         with self.assertRaises(ValueError):
-            psr(2.0, 0.0, 100, skew=5.0, kurt=3.0)  # undefined standard error
-        for args in [(-1.0, 10), (1.0, 1), (1.0, 2.0), (1.0, True)]:
+            psr(0.1, 0.0, 100, skew=2.0, kurt_raw=1.5)  # impossible: kurt < 1 + skew^2 (red team 19.11)
+        for args in [(1e160, 0.0, 10), (0.1, 0.0, 10 ** 400)]:  # overflow becomes ValueError
+            with self.assertRaises(ValueError, msg=args):
+                psr(*args)
+        for args in [(-1.0, 10), (1.0, 1), (1.0, 2.0), (1.0, True), (1.0, 2 ** 60)]:
             with self.assertRaises(ValueError, msg=args):
                 expected_max_sharpe(*args)
 
