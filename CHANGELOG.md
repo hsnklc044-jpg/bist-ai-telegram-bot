@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.150 – 18.11.2026 (Ö66/Ö67: testler ve belge; kod değişmedi)
+- Ö67: `tests/test_csvfiles.py` ve `tests/test_watchlist_scanner.py` (kişisel CSV okuma/ekleme ve izleme listesi taraması için ilk doğrudan testler). İlk çalıştırmada geçtiler; hata bulunmadı.
+- Ö66: ROADMAP durum sütunu doğrulandı ve kapatıldı. `docs/NIGHT_LOG_2026-11-18.md`: gece günlüğü ve sabah raporu.
+- T dalı (`claude/o66-o67-test-belge-v2`) kullanıcı onayıyla (18.11) yeni ana dal ucunun üstüne yeniden kuruldu; sürüm numarası ayrı paket olarak kurulabilmesi için artırıldı (K-95).
+
 ## v0.99.149 – 18.11.2026 (öz-denetim 11: Ö63 yaşam sinyali, Ö64 "İ" harfi)
 - Ö63: 5 dakikalık yaşam sinyali işi 240 saniyeye kadar geç başlarsa yine çalışır ve biriken çalışmalar tek çalışmaya iner. Önceden varsayılan 1 saniyelik pay vardı: 17.11 08:30:45'te 1,2 saniye geç kalan sinyal atlandı (`heartbeats.csv`'de 08:25 → 08:35 boşluğu). Test: `tests/test_o63_heartbeat.py` önce kırmızıydı.
 - Ö64: `/risk ekle` ve `/senaryo` ASCII dışı harf içeren kodu (örneğin Türkçe klavyedeki "İSCTR") açık bir hatayla reddeder. Önceden bu kod, var olmayan "İSCTR.IS" sembolüne dönüşüyor ve hiç hata vermiyordu. Test: `tests/test_o64_symbols.py`, önce 3 kırmızı.
