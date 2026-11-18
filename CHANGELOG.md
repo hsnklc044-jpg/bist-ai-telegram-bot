@@ -8,6 +8,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 - K-17: cumartesi SLO tabloları `docs/PERIODS/` altına kopyalanır (`scripts/donem_kopyala.py`, `tests/test_donem_kopyala.py`).
 - S4 sahte veriyle kuru çalıştırma (`scripts/s4_kuru_calistirma.py`, `docs/S4_KURU_CALISTIRMA.md`).
 - Belgeler: `docs/S3_MUDAHALE.md` (müdahale tanımı, riskler, K-96 ile 12.12.2026), K-84 ikinci kaynak not taslağı, ROADMAP Ö59/Ö65, robot kuralları.
+- Kullanıcı çerçevesi (18.11): `docs/OTONOM_KURALLAR.md` başına "Kullanıcı çerçevesi" bölümü (amaç, karar yetkisi, değişmez kurallar, 6 başlıklı rapor, görev şablonu; kuralların tek kaynağı, Ö58). `docs/OPERATIONS.md` §0: kurulum, seans, rapor ve robot saatlerinin tek tablosu.
 - Sürüm numarası ayrı bir paket olarak kurulabilmesi için artırıldı: aynı sürümdeki paketi güncelleyici kurmaz (K-95).
 
 ## v0.99.146 – 18.11.2026 (S4/S5 hazırlığı: canlı karar hesabı, haftalık seri; K-93; gece belge paketinin üstüne yeniden kuruldu, a9ae94b ile aynı kod)

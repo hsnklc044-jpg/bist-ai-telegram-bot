@@ -2,6 +2,28 @@
 
 Bileşenler, arıza etkileri, korumalar ve kurtarma adımları. Durum: v0.38.0 (27.10.2026).
 
+## 0. Saatler (tek tablo; 18.11.2026, kullanıcı çerçevesi, `docs/OTONOM_KURALLAR.md`)
+
+Saatler İstanbul saatidir. Görev metniyle çelişirse bu tablo geçerlidir; çelişki kullanıcıya yazılır. Zamanlanmış görevlerin saatini yalnız kullanıcı değiştirir; uygulama görevleri birkaç dakika gecikmeyle (jitter) başlatabilir.
+
+| Ne | Saat | Kaynak |
+|---|---|---|
+| Seans (kurulum yok) | hafta içi 09:40–18:15 | `scripts/surum_kapisi.py` satır 4 |
+| Rapor penceresi (kurulum yok) | hafta içi 18:00–20:00 | `scripts/surum_kapisi.py` satır 4 |
+| Güncelleyici | her gün saat başı :40, 07:40–23:40 | `scripts/guncelle.py`, Windows görevi |
+| Kurulum penceresi | hafta içi 07:40, 08:40, 20:40, 21:40, 22:40, 23:40; hafta sonu ve tatil 07:40–23:40 | yukarıdaki iki satırın farkı |
+| Sabah taramaları | hafta içi 09:30 | `bot/scheduler.py` `MORNING_AT` |
+| Günlük rapor | hafta içi `DAILY_REPORT_AT` (18:30) | `.env`; `bot/scheduler.py` `report_time` |
+| Rapor gözcüsü | hafta içi 20:00 | `bot/scheduler.py` `WATCH_AT` |
+| Yedek telafisi, otonom özet | 21:00 (yedek hafta içi, özet her gün) | `bot/scheduler.py` `BACKUP_AT`, `OTONOM_AT` |
+| Resmî fiyat içe aktarma | 02:30 | `core/official/prices.py` `IMPORT_AT` |
+| Portföy sağlığı | cumartesi 10:00 | `bot/scheduler.py` `HEALTH_AT` |
+| Haftalık özet | pazar 18:00 | `bot/scheduler.py` `WEEKLY_AT` |
+| Haftalık izleme | pazartesi 09:00 | `bot/scheduler.py` `WEEKLY_WATCH_AT` |
+| Robot turları | 07:00; hafta içi 13:00 (yalnız hazırlık); 20:15, 21:15, 22:15; hafta sonu 10:15, 13:00, 17:15 | zamanlanmış görevler `quantbist-otonom-*` |
+| Günlük bakım (salt okunur) | hafta içi 19:15 | `quantbist-gunluk-bakim` |
+| Olgunluk ölçümü | 08:30 ve 23:30 | `quantbist-olgunluk-olcum`, `cikti/OLGUNLUK_GECMISI.md` |
+
 ## 1. Envanter
 
 | Bileşen | Yer | Bağımlılık | Arızada ne olur | Veri kaybı riski | Koruma |
