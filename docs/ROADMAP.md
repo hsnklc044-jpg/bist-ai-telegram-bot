@@ -44,6 +44,55 @@ Hedef dürüst ölçümle tutmazsa tarih kaydırılır. Ölçüt gevşetilmez.
 - canlı sistemde ERROR çıktıysa;
 - kullanıcının kararını bekleyen bir konu 48 saattir bekliyorsa.
 
+## Kullanıcı planı – 2027 (16.12.2026 – 2027 yazı; kullanıcı, 18.11.2026)
+
+Kalıcı çerçeve ve Aralık planı geçerli.
+
+**İlke.**
+- Her aşama bir öncekinin kanıtıyla açılır.
+- Tarihler hedeftir, söz değildir. Kanıt gelmezse tarih kayar, ölçüt gevşemez.
+- Gerçek para bu planın hiçbir aşamasında yoktur.
+
+### Aşama 1 — Sağlamlaştırma (16.12.2026 – 31.01.2027)
+Koşul: S2 ve S3 kapanmış olmalı. Kapanmadıysa önce onlar bitirilir.
+- S3 kapandıktan sonra Aralık ortasına bırakılan büyük işler yapılır: refaktör, teknik borç, öz-denetim ORTA bulguları. Her seferinde tek paket.
+- Yılbaşı ve bayram tatilleri: seans takvimi önceden doğrulanır. Tatil günleri SLO'yu bozmamalı.
+- Yedekten geri dönüş tatbikatı: tüm sistem sıfırdan kuru olarak kurulur ve süresi ölçülür. Sonuç S3 kanıtına eklenir.
+- Aylık dönem değerlendirmesi: her ayın son günü bir sayfalık rapor yazılır. Neler tuttu, neler tutmadı, sonraki ay ne yapılacak.
+
+### Aşama 2 — S4 kanıtlı ölçüm (Şubat – Nisan 2027)
+- Her ay sonunda:
+  - canlı sonuç backtest sonucuyla karşılaştırılır;
+  - sapmalar nedenleriyle yazılır;
+  - bir RESEARCH_LOG kaydı eklenir.
+- Veri iki kaynakla doğrulanır. Resmî aylık dosyalar her ay karşılaştırılır. Dosya yayımlanınca kullanıcıya Telegram'dan haber verilir.
+- **Holdout'a 27.04.2027'den önce bakılmaz.** Ara sonuç, "nasıl gidiyor" özeti ya da gizli kontrol de yok.
+- 27.04.2027'den önce, Nisan başında:
+  - a4 taramasının ön kaydı son haline getirilir: hangi kurallar, hangi maliyetler, hangi istatistik testi, hangi anlamlılık eşiği.
+  - Ön kayıt DECISIONS'a yazılır. **Onayı kullanıcı verir.**
+  - Onaydan sonra ön kayıt değişmez.
+- 27.04.2027 ve sonrası: tarama tek seferde çalıştırılır ve sonuç ne çıkarsa olduğu gibi yazılır. Hiçbir kural anlamlı çıkmazsa bu da geçerli bir sonuçtur. O durumda:
+  - S4 o haliyle kapanır;
+  - S5 açılmaz;
+  - kullanıcıya yeni araştırma seçenekleri sunulur.
+
+### Aşama 3 — S5 karar desteği (anlamlı kural çıkarsa; en erken Mayıs 2027)
+- Yalnız kâğıt üzerinde işlem (paper trading), K-94 ön kaydına göre. Gerçek emir kodu yok; `tests/test_no_orders.py` yeşil kalır.
+- En az 3 ay ileri veriyle izlenir. Ayda bir rapor: kâğıt sonuç, ön kayıttaki beklenti ve aradaki fark.
+- Bot yalnız karar desteği verir ("bu kural bugün şunu söylüyor"). Karar ve sorumluluk her zaman kullanıcıdadır.
+- 3 ay sonunda kullanıcıya bir değerlendirme sunulur: tuttu mu, tutmadı mı, neden.
+- **Gerçek parayla ilgili hiçbir adım önerilmez ya da hazırlanmaz.** Bu konu projenin kapsamı dışındadır. Konuşulacaksa ayrıca ve yalnız kullanıcı açar.
+
+### Sürekli kurallar (bütün aşamalarda)
+- İki haftada bir öz-denetim. Her ay sonu MATURITY ölçümü ve aylık rapor.
+- Her çeyrek sonunda (Mart, Haziran) "proje sağlığı" raporu:
+  - bakım yükü;
+  - kota kullanımı;
+  - kırılgan noktalar;
+  - bırakılması gereken işler.
+- Sistem büyüdükçe sadeleştirilir. Kullanılmayan özellikler kullanıcıya önerilir ve onayıyla kaldırılır. Daha fazla kod daha iyi sistem demek değildir.
+- Bir aşama 2 ay boyunca kanıt üretemiyorsa kullanıcıya açıkça "Bu yol tıkandı" yazılır ve seçenekler sunulur. Durum olduğundan iyi gösterilmez.
+
 ## Ana yönetim belgesine göre durum (docs/CHARTER.md, 27.10.2026)
 
 CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her turda karar algoritması (CHARTER §4) izlenir; kararlar DECISIONS.md'de.
