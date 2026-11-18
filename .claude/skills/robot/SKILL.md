@@ -28,12 +28,14 @@ Kurallar başka yerde; burada sayı kopyalanmaz:
 6. **Kapı ve kurulum:** `surum-kapisi` ile kuyruğu küçük paketlerle (OPERATIONS §5a) birleştir; her paket bir öncekinin canlıda
    sağlıklı olduğu görüldükten sonra. Kurulum penceresi kapalıysa beklemek durma nedeni değildir.
 7. **Sağlık:** kurulumdan sonra `surum-kapisi`'nin sağlık koşulu; sorun varsa geri dön ve fren kurallarını uygula.
-8. **Kayıt:** `docs/ROBOT_LOG.md`'ye tek satır (tarih saat · iş · dal/SHA · sonuç) ve `cikti\OTONOM_RAPOR.md`; 1. adıma dön.
+8. **Kayıt:** `cikti\OTONOM_RAPOR.md`'ye tek satır (tarih saat · iş · dal/SHA · sonuç); asıl kayıt budur. `docs/ROBOT_LOG.md` 11.11'den beri tutulmuyor, tarihsel kayıttır (18.11, Ö65). 1. adıma dön.
 
 ## Durma koşulları (yalnız bunlar)
 - Koşulu oluşan iş kalmadı; kalanlar yalnız zaman bekliyor (SLO serisi, 30 gün, canlı ölçüm tarihi gibi).
 - Fren devreye girdi.
 - Sıradaki adım kullanıcıya kalanlar listesinde (.env, token, ödeme, hesap, dış izleme ayarları).
+- Kota: haftalık %70 ya da 5 saatlik %60 üstü; yalnız sağlık kontrolü ve rapor (`docs/OTONOM_KURALLAR.md` "Ortam").
+- Sıradaki iş güncelleyici, yedek ya da geri yükleme birleştirmesi: hafta sonu kullanıcının tek komutuyla olur (K-88 §5); robot hazırlar ve bildirir, kendisi birleştirmez.
 
 Durunca kullanıcıya tek mesaj: bu çalışmada yapılanlar, kurulan sürümler, durma nedeni, bir sonraki zamanlanmış çalışmada ilk iş.
 Soru sorulmaz.
