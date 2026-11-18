@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.148 – 18.11.2026 (öz-denetim 11: Ö63 yaşam sinyali, Ö64 "İ" harfi)
+- Ö63: 5 dakikalık yaşam sinyali işi 240 saniyeye kadar geç başlarsa yine çalışır ve biriken çalışmalar tek çalışmaya iner. Önceden varsayılan 1 saniyelik pay vardı: 17.11 08:30:45'te 1,2 saniye geç kalan sinyal atlandı (`heartbeats.csv`'de 08:25 → 08:35 boşluğu). Test: `tests/test_o63_heartbeat.py` önce kırmızıydı.
+- Ö64: `/risk ekle` ve `/senaryo` ASCII dışı harf içeren kodu (örneğin Türkçe klavyedeki "İSCTR") açık bir hatayla reddeder. Önceden bu kod, var olmayan "İSCTR.IS" sembolüne dönüşüyor ve hiç hata vermiyordu. Test: `tests/test_o64_symbols.py`, önce 3 kırmızı.
+- S4 kuru çalıştırma bulgusu (18.11, `docs/S4_KURU_CALISTIRMA.md`): ilk karar mesajı ve RESEARCH_LOG taslağı yüzdeleri raporun kendi biçimiyle yazar ("+%1,49"; önceden "%+1.49", aynı taslaktaki sapma nedenleriyle uyumsuzdu); kayıt günleri GG.AA.YYYY. Karar hesabı değişmedi. Test: `tests/test_s4_number_format.py`, önce 2 kırmızı.
+
 ## v0.99.147 – 18.11.2026 (pilde kurulum düzeltmesi D.1b; K-17 dönem kopyası; S3 müdahale riskleri)
 - Hız testi sınırı makinenin ölçülen hızına bağlandı (`tests/speed_budget.py`): pilde işlemci yavaşlayınca test artık yanlışlıkla düşmez; prizde yavaş kod yine düşer. 17.11 akşamı iki kurulum bu yüzden düşmüştü (Kernel-Power 105). Test önce kırmızıydı.
 - Sürüm kapısı 8. satır: bilgisayar pildeyse birleştirme ertelenir (`scripts/surum_kapisi.py`, `tests/test_surum_kapisi_guc.py`).
