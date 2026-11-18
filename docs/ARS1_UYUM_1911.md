@@ -79,3 +79,5 @@ K-93 ve K-94 ile gerçek bir çelişki yok, çünkü ARS-1 kendi yürürlük kur
 
 Satır sayısı: 28 + 1 = 29.
 
+## Düzeltme (18:30, Md. 11: önceki satırlar değiştirilmedi)
+S-3 satırı "yeni" diyordu. Doğrusu **var (kısmi)**. Deflated Sharpe ve PBO, K-81 ile `core/backtest/overfit.py`'de zaten var ve araştırma raporunda yalnız bilgi olarak duruyor. Eksik olanlar PSR ve yayımlanmış bir sayıyla doğrulama. Sayım bu yüzden şöyle değişir: var ya da kısmi 14, yeni 7. Kaynak: `docs/VERI_DENETIMI_1911.md`.
