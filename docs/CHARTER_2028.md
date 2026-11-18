@@ -6,6 +6,8 @@
 
 Mevcut [CHARTER](CHARTER.md), kalıcı çerçeve ([OTONOM_KURALLAR](OTONOM_KURALLAR.md) "Kullanıcı çerçevesi"), Aralık planı ve 2027 planı ([ROADMAP](ROADMAP.md) en üstü) geçerliliğini korur. Çelişki olursa sıra: **CHARTER > kalıcı çerçeve > bu tüzük**.
 
+> **Not (18.11.2026, Anayasa yürürlüğü, K-98):** Bu belgenin üstünde [ANAYASA](ANAYASA.md) vardır. Sıra: ANAYASA > CHARTER > kalıcı çerçeve > tüzük ve stratejiler > görev metinleri. Çelişen kısım geçersizdir.
+
 ## 1. Vizyon
 QuantBIST, BIST için kanıta dayalı, tekrar üretilebilir ve bağımsız denetime açık bir araştırma ve karar destek platformudur.
 
