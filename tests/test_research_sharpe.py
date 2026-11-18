@@ -50,13 +50,32 @@ class HandComputedTest(unittest.TestCase):
         sqrt(T-1) = 10;  1 + 0.01/2 = 1.005;  sqrt(1.005) = 1.0024969
         z = 0.1 * 10 / 1.0024969 = 0.9975093
         Phi(1) = 0.8413447, phi(1) = 0.2419707
-        Phi(0.9975093) ~ 0.8413447 - 0.0024907 * 0.2419707 = 0.8407420 (second-order term < 1e-6)
+        Phi(0.9975093) ~ 0.8413447 - 0.0024907 * 0.2419707 = 0.8407420 (first-order step)
+        red team 19.11: exactly 0.8407413 with math.erf; the first-order step is 7e-7 off, inside places=5
     """
 
     def test_normal_case_by_hand(self):
         self.assertAlmostEqual(psr(0.1, 0.0, 101), 0.840742, places=5)
         self.assertAlmostEqual(excess_kurtosis_to_raw(0.0), 3.0)
         self.assertAlmostEqual(psr(0.1, 0.0, 101, skew=0.0, kurt_raw=excess_kurtosis_to_raw(0.0)), 0.840742, places=5)
+
+    def test_values_where_the_small_terms_matter(self):
+        # red team 19.11: under the null SR ~ 0, so sqrt(T) vs sqrt(T-1) and the SR^2/2 term barely move the
+        # simulation. These points use a large SR and a short T, where those errors are large. Reference values
+        # come from math.erf, not from NormalDist or the module, and skew/kurtosis enter by hand.
+        def by_hand(sr, t, skew=0.0, kurt=3.0):
+            z = sr * math.sqrt(t - 1) / math.sqrt(1 - skew * sr + (kurt - 1) / 4 * sr * sr)
+            return 0.5 * (1 + math.erf(z / math.sqrt(2)))
+        cases = [(0.5, 10), (0.3, 24), (1.0, 5), (0.4, 12, -1.0, 6.0), (0.2, 50, 0.5, 4.0)]
+        for case in cases:
+            sr, t, *rest = case
+            want = by_hand(sr, t, *rest)
+            self.assertAlmostEqual(psr(sr, 0.0, t, *rest), want, places=10, msg=case)
+            wrong_sqrt_t = 0.5 * (1 + math.erf(sr * math.sqrt(t) / math.sqrt(1 + sr * sr / 2) / math.sqrt(2)))
+            wrong_no_sr2 = 0.5 * (1 + math.erf(sr * math.sqrt(t - 1) / math.sqrt(2)))
+            if not rest:  # the wrong formulas are visibly different at these points
+                self.assertGreater(abs(want - wrong_sqrt_t), 1e-3, msg=case)
+                self.assertGreater(abs(want - wrong_no_sr2), 1e-3, msg=case)
 
     def test_null_simulation_matches_the_chosen_level(self):
         # true Sharpe 0: the share PSR calls significant (PSR > 1 - alpha) is close to alpha, fixed seed

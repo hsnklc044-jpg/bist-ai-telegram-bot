@@ -56,7 +56,11 @@ def leaks(train, test, horizon: int) -> list[int]:
 
 
 def splits(n: int, n_groups: int, k_test: int, horizon: int, embargo: int) -> list[tuple[np.ndarray, np.ndarray]]:
-    """(train, test) position arrays for every choice of k test groups, purged and embargoed."""
+    """(train, test) position arrays for every choice of k test groups, purged and embargoed.
+
+    Red team 19.11: a training array can be EMPTY when horizon + embargo cover everything outside the test
+    groups (e.g. n=10, N=5, k=2, embargo=100). pbo() returns None then; a direct caller must check len(train).
+    """
 
     _check(n, n_groups, k_test, horizon, embargo)
     groups = _groups(n, n_groups)

@@ -16,6 +16,8 @@ SR, SR*, V and T must use the same frequency. Information only; a decision rule 
 Red team 19.11: kurtosis is RAW (normal = 3). pandas .kurt() and scipy.stats.kurtosis return EXCESS
 kurtosis (normal = 0): add 3 first, or pass excess_kurtosis_to_raw(x). A wrong unit cannot be detected for
 fat tails, hence the parameter name kurt_raw. Moments must be possible (kurt_raw >= 1 + skew^2).
+Red team 19.11: the normal approximation behind PSR is slightly conservative for short samples (null false-alarm
+rate at alpha 0.05 about 0.042 at T=5, 0.045 at T=10, 0.050 at T=20); treat T < 30 as unreliable.
 """
 
 from __future__ import annotations

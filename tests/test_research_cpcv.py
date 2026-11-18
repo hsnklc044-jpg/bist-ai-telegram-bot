@@ -83,7 +83,8 @@ class NoLeakTest(unittest.TestCase):
         # 19.11: independent of leaks() (which shares the purge logic). For every training point t and every
         # test point s: a test point AFTER t must be more than `horizon` away (t's label ends before s),
         # and a test point BEFORE t more than `horizon + embargo` away (purge plus embargo). Train and test
-        # never intersect, and train + test + dropped = all positions.
+        # never intersect. Red team 19.11: a lower bound alone also accepts an over-wide or empty training set,
+        # so the training set must EQUAL the brute-force set of allowed points.
         settings = [(n, g, k, h, e) for n in (37, 120, 301) for g, k in ((3, 1), (5, 2), (6, 3), (8, 2))
                     for h in (0, 1, 4) for e in (0, 2) if n >= g]
         for n, g, k, h, e in settings:
@@ -96,6 +97,10 @@ class NoLeakTest(unittest.TestCase):
                 before = np.where(d < 0, -d, np.iinfo(np.int64).max).min(axis=1)
                 self.assertTrue(np.all(after > h), msg)
                 self.assertTrue(np.all(before > h + e), msg)
+                test_set = set(test.tolist())
+                allowed = [t for t in range(n) if t not in test_set
+                           and all((s - t > h) if s > t else (t - s > h + e) for s in test_set)]
+                self.assertEqual(train.tolist(), allowed, msg)
 
     def test_purge_is_not_wider_than_needed(self):
         # the gap is exactly horizon before and horizon + embargo after each test group, nothing more
