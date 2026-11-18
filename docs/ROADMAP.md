@@ -3,6 +3,47 @@
 Son doğrulanmış nokta, ardından önceliklendirilmiş işler. Her sürümden sonra
 güncellenir; tamamlanan iş, kanıtıyla birlikte "Doğrulanmış durum" bölümüne taşınır.
 
+## Kullanıcı planı – Aralık hedefi (19.11–15.12.2026; kullanıcı, 18.11.2026)
+
+Kalıcı çerçeve geçerli (`docs/OTONOM_KURALLAR.md` "Kullanıcı çerçevesi").
+
+**Hedef.** 15.12'ye kadar:
+- resmî seviye S3 olsun;
+- S4'ün ilk olgun ölçümü yapılmış ve RESEARCH_LOG'a yazılmış olsun.
+
+Hedef dürüst ölçümle tutmazsa tarih kaydırılır. Ölçüt gevşetilmez.
+
+**Kilometre taşları.** Her birinde kanıt ve tarih yazılır.
+
+| Tarih | Olay | Yapılacak | Kanıt |
+|---|---|---|---|
+| 21.11 ve 28.11 cumartesi | K-93 haftalık seri satırı | Satır 21:00'de yazıldı mı, hedefte mi bakılır. Hedef dışıysa nedeni ve önlemi aynı gece yazılır | `logs/haftalik_slo/seri.csv`. Kuru çalıştırma 18.11 ✅ (`docs/NIGHT_LOG_2026-11-19.md`) |
+| Kasım sonu | S4 ilk olgun sonuç | Drift nedenleri ve RESEARCH_LOG kaydı. S4 karar kodu ne diyorsa o yazılır, yorum eklenmez | `logs/s4_ilk_karar.json`, `logs/research_log_taslak/` |
+| Aralık başı | Kasım resmî veri dosyası (K-84, K-97) | Yayımlanınca kullanıcıya Telegram'dan haber verilir. Kullanıcı indirince karşılaştırma çalıştırılır | `data/inbox/bist/`, `logs/resmi_karsilastirma_2026-11.txt` |
+| 05.12 cumartesi | S2 dördüncü hafta | 4 hafta üst üste hedefteyse S2 kapanış önerisi kanıtlarıyla kullanıcıya sunulur | `seri.csv` 14.11–05.12 |
+| 07.12 | S2 en erken kapanış | Kapanışı kullanıcı onaylar. MATURITY onaydan sonra güncellenir | onay mesajı |
+| 12.12 | S3 sayacı dolar (K-96) | Sayacı bozan bir olay yoksa S3 kapanış önerisi kanıtlarıyla sunulur | `docs/S3_MUDAHALE.md` §Ölçüm |
+| 15.12 | Dönem değerlendirmesi | Neler tuttu, neler tutmadı; sonraki 4 haftanın planı | — |
+
+**Haftalık döngü** (her hafta aynı):
+- **Pazartesi:** haftanın işleri sıralanır. Her işin hangi MATURITY satırına hizmet ettiği yazılır.
+- **Hafta içi:** önce test, sonra kod, sonra belge. Davranış değiştiren her şey dalda kalır ve kullanıcı onayıyla girer.
+- **Cumartesi:** haftalık seri satırı kontrol edilir, kısa bir haftalık rapor yazılır.
+- **Pazar:** iki haftada bir öz-denetim. Yeni bulgular risk sırasıyla ROADMAP'e girer.
+
+**Sayaçları koruma** (S2 serisi ve S3 sayacı, 12.12'ye kadar):
+- Canlı sistemde riskli değişiklik yapılmaz. Büyük refaktör ya da yeni özellik Aralık ortasından sonraya kalır.
+- Kesinti olursa nedeni aynı gün yazılır. Bir sayacın sıfırlanıp sıfırlanmadığına kullanıcı karar verir.
+- Riskli olaylar (Windows Update, elektrik, pil) `docs/S3_MUDAHALE.md`'de izlenir. Yeni bir risk görülürse o belgeye eklenir.
+
+**S5 hazırlığı.** Yalnız belge, para yok. S4'te anlamlı bir kural çıkmadan S5 açılmaz. Çıkarsa kullanıcıya bildirilir; paper trading planı için onay beklenir.
+
+**Hemen Telegram'dan bildir:**
+- bir SLO haftası hedef dışı kalacak gibi görünüyorsa;
+- bir sayaç tehlikedeyse;
+- canlı sistemde ERROR çıktıysa;
+- kullanıcının kararını bekleyen bir konu 48 saattir bekliyorsa.
+
 ## Ana yönetim belgesine göre durum (docs/CHARTER.md, 27.10.2026)
 
 CHARTER tek kaynaktır (önceki "sürekli yol haritası"nın yerini aldı). Her turda karar algoritması (CHARTER §4) izlenir; kararlar DECISIONS.md'de.
