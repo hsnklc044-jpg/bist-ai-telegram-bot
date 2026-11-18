@@ -55,6 +55,6 @@ Kanıt: logs/s4_ilk_karar.json ve logs/s5_bildirim.json. Bu yalnız bildirimdir:
 - **Kaynak:** bot taslağı `logs/research_log_taslak/2027-01-06_canli_ilk_karar.md`; RESEARCH_LOG'a değiştirilmeden taşınır.
 ```
 
-## Kuru çalıştırmanın bulduğu (düzeltilmedi; bot çıktısını değiştirir, ayrı dal)
+## Kuru çalıştırmanın bulduğu (bu dalda düzeltilmedi; bot çıktısını değiştirir. Düzeltme ayrı davranış dalında: `claude/o63-o64` ea0f7af, `tests/test_s4_number_format.py`; aşağıdaki örnek eski biçimle)
 - Aynı taslakta iki sayı biçimi var: `s4_decision._p` "%+1.49" (nokta, işaret % işaretinden sonra) yazıyor, `drift.reasons` ise "+%1,4" (virgül, Türkçe biçim). Düzeltme önerisi: `_p` yerine `core.reports.daily.pct` kullanmak. Kararın kendisini etkilemez, yalnız metni etkiler.
 - Kayıt günleri ISO biçiminde ("2026-11-02 – 2027-01-04"); belgenin geri kalanı GG.AA.YYYY.
