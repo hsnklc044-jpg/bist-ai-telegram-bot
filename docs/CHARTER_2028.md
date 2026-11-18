@@ -24,6 +24,8 @@ Başarı getiriyle ölçülmez. Ölçü şu sorudur: "Bu sistemin söylediğine 
 **Kapsam dışı:**
 - gerçek emir ve gerçek para;
 - başkalarına sinyal, tavsiye ya da abonelik sunmak (bu, SPK yetkisi gerektiren yatırım danışmanlığıdır);
+  - **Resmî dayanak (19.11.2026, K-109; hukuki görüş değildir):** Yatırım danışmanlığı, SPKn md. 37/1-d'de sayılan bir yatırım hizmetidir. Md. 39/1'e göre "düzenli uğraşı, ticari veya mesleki faaliyet olarak" yapılması SPK izni ister. Tebliğ III-37.1 md. 45/1 tanımı: belli bir kişiye ya da mali durumu, risk ve getiri tercihi benzer bir gruba yönelik, yönlendirici nitelikte yorum ve tavsiye. Md. 45/3: başka portföylerin takip edilmesini ya da kopyalanmasını sağlayan elektronik imkânlar da danışmanlık sayılır. Md. 46: bu faaliyeti yalnız izinli aracı kurumlar, yatırım ve kalkınma bankaları ve portföy yönetim şirketleri yapabilir. "Genel yatırım tavsiyesi" (md. 73) da SPKn md. 38/1-c'deki bir yan hizmettir; EK/3 uyarı notu ister (md. 79). İzinsiz faaliyetin cezası 2–5 yıl hapis ve 5.000–10.000 gün adli para cezasıdır (md. 109/2). SPK internetteki içeriğe erişim engeli koyabilir (md. 99/3). Kaynak: 6362 sayılı SPKn md. 37/1-d, md. 39/1, md. 99/3, md. 109/2 (mevzuat.gov.tr, MevzuatNo 6362); SPK Tebliği III-37.1 md. 45, 46, 73, 79 ve EK/3 (mevzuat.gov.tr, MevzuatNo 18576); okuma 19.11.2026 01:57:04–01:59:55 arası (iki Get-Date çıktısı arasında).
+  - **Henüz bilinmiyor:** bir Telegram kanalı, abonelik ya da "genel" sinyal yayınının somut olarak hangi sınıfa girdiği. Bu, bir avukatın yazılı görüşüyle belirlenir; Claude bu konuda yorum yapmaz.
 - müşteri verisi.
 
 Kapsam değişikliğini yalnız kullanıcı, yazılı olarak açar.
