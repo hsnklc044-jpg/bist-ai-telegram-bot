@@ -37,7 +37,7 @@ Belgeler birbirine yakın konuları tekrar ediyor. Anayasa Md. 5 (orantılılık
 - KT-01, KT-03, KT-04 kontrolleri, kanarya testleri ve uyum panosu.
 - Kabul ölçütü: her kontrol kasıtlı bir ihlali yakalıyor ve pano haftalık rapora giriyor.
 
-**İP-2. Sayaçların korunması (sürekli, 12.12'ye kadar)**
+**İP-2. Sayaçların korunması (sürekli, 18.12'ye kadar; K-105, önce 12.12)**
 - Aralık planındaki kilometre taşları. S2 ve S3 kapanış önerileri kanıtlarıyla sunulur.
 - Kabul ölçütü: S2 ve S3 resmî olarak kapanmış, ya da kapanmama nedeni kanıtla yazılmış.
 
@@ -70,7 +70,7 @@ Belgeler birbirine yakın konuları tekrar ediyor. Anayasa Md. 5 (orantılılık
 ## 5. Kaynak bütçesi
 - **Sahibin zamanı:** haftada en fazla 30 dakika onay ve karar. Aşılırsa iş paketleri yavaşlatılır, kapsam küçültülür.
 - **Robot kotası:** haftalık kullanım ölçülür. %70'i geçerse düşük öncelikli işler durdurulur.
-- **Canlı sistem riski:** sayaç dönemlerinde (12.12'ye kadar) İP-1 ve İP-3 yalnız dalda hazırlanır; canlıya sahibin onayıyla geçer.
+- **Canlı sistem riski:** sayaç dönemlerinde (18.12'ye kadar; K-105, önce 12.12) İP-1 ve İP-3 yalnız dalda hazırlanır; canlıya sahibin onayıyla geçer.
 
 ## 6. Program göstergeleri
 Haftalık raporda tek tablo olarak yer alır.
