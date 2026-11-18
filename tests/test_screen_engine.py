@@ -15,6 +15,7 @@ from core.market.calendar import ISTANBUL
 from core.screen import engine, fields, language
 from core.screen.language import ScreenError, parse
 from core.strategy.score import score_frame
+from tests import speed_budget
 
 
 def bars(close, volume=2e6, start="2025-01-02", seed=0):
@@ -272,9 +273,12 @@ class LiveTest(unittest.TestCase):
             started = time.process_time()
             engine.run(query, frames, bench)
             elapsed = time.process_time() - started
+            # on battery the CPU clock drops and process_time stretches too (17.11: 10.45 s); the limit
+            # follows a fixed reference workload measured here, never below 5 s (tests/test_speed_budget.py)
+            limit = speed_budget.scaled_limit(5.0, speed_budget.reference_seconds())
         finally:
             sys.settrace(tracer)
-        self.assertLess(elapsed, 5.0)
+        self.assertLess(elapsed, limit)
 
 
 class UniverseTest(unittest.TestCase):
