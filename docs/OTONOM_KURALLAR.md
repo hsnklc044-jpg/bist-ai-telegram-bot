@@ -81,6 +81,8 @@ Sahibin kendi yazısıyla verildi (koordinatör oturumu). [ANAYASA](ANAYASA.md)'
 - Devirle yapılan bir iş SLO ihlaline ya da sapmaya yol açarsa o iş türü devirden çıkar ve sahibe sorulur.
 - Bir işin hangi sınıfa girdiği belirsizse iş 3. sınıf sayılır ve sahibe sorulur.
 
+**Onay (18.11.2026, K-102).** Sahip bu metni ayrıca onayladı. 2. sınıfın 48 saat kuralı için ANAYASA Md. 8 değişikliği Md. 17 usulüyle başladı; karar en erken 25.11.2026'da sahibe sunulur.
+
 **5. Anayasayla ilişki (K-101).**
 - **1. sınıf:** sahibin açık yazısıyla verilmiş, iş türüyle sınırlı bir ön onaydır (Md. 8). Yetkiyi Claude kendinde varsaymaz (Md. 1); her iş raporda bildirilir. Bu sınıf K-100'deki "Ç3 = (b)" kararının yerine geçer. Ç2 (şüphede sor) ve Ç4 (silme yok) aynen sürer.
 - **2. sınıf:** yukarıdaki anayasa notuna göre uygulanır.

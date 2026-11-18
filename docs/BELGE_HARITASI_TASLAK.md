@@ -78,3 +78,6 @@ Katman dışında kalanlar:
 
 ## 4. Otomasyon notu
 "Claude ile para kazanma sistemi" oturumu ayrı bir otomasyon oturumu kurmuyor. Sonraki adımı PROGRAM §9 döngüsü önerecek (ilk öneri 11.02.2027). Bu, K-100 ve 1s maddesiyle uyumlu; ek iş gerekmiyor.
+
+## 5. Sahibin kararları (18.11.2026, K-102)
+1b · 2: program süresince 30 dk, 16.02.2027 sonrası 15 dk · 3b · 4b · 5: KT · 6: onay (yapım 25.11'e kadar dalda, arşiv `docs/arsiv/`, silme yok).
