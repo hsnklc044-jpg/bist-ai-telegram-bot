@@ -584,7 +584,9 @@ def schedule_heartbeat(app: Application) -> bool:
 
     if app.job_queue is None:
         return False
-    app.job_queue.run_repeating(heartbeat_job, interval=300, first=5, name=HEARTBEAT_JOB)
+    # Ö63: the default 1 s grace skipped a heartbeat started 1.2 s late (17.11 08:30:45); < interval, merged
+    app.job_queue.run_repeating(heartbeat_job, interval=300, first=5, name=HEARTBEAT_JOB,
+                                job_kwargs={"misfire_grace_time": 240, "coalesce": True})
     return True
 
 
