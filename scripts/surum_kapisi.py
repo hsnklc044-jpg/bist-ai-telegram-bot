@@ -15,7 +15,10 @@ Conditions (all required):
 3. no SLO is worse than at the previous install (cikti/slo_son.json);
 4. the install (the updater's next :40 run after CI) is outside 09:40-18:15 and 18:00-20:00 on a session day
    (weekends and holidays are open all day; the updater runs 07:40-23:40);
-5. one package at a time (the bot branch equals the live SHA) and at most 4 installs a day.
+5. one package at a time (the bot branch equals the live SHA, or has the live version: K-95) and at most 4
+   installs a day;
+8. the PC is on mains power; on battery the merge waits (18.11.2026, D.1b: on battery the updater's speed test
+   failed the 17.11 20:40 and 21:40 installs). Every run appends its power state to cikti/kapi_guc.csv.
 Also: no stop flag, no local change in the live folder, the chain is a fast-forward, and a change to the
 updater, backup, restore or personal record format never goes in a package (asked, installed alone).
 """
@@ -123,6 +126,24 @@ def nothing_pending(tip: str, head: str, tip_version: str | None, live_version: 
     return tip == head or (tip_version is not None and tip_version == live_version)
 
 
+def power_state(ac_line_status: int | None) -> str:
+    """Windows SYSTEM_POWER_STATUS.ACLineStatus: 1 mains, 0 battery, 255 or missing unknown."""
+    return {1: "şebeke", 0: "pil"}.get(ac_line_status, "bilinmiyor")
+
+
+def power_ok(state: str) -> bool:
+    """Row 8: only on mains power; unknown counts as not mains."""
+    return state == "şebeke"
+
+
+def record_power(path: Path, at: str, sha: str, state: str) -> None:
+    new = not path.exists()
+    with path.open("a", encoding="utf-8", newline="\n") as f:
+        if new:
+            f.write("zaman,sha,guc\n")
+        f.write(f"{at},{sha},{state}\n")
+
+
 def alone_files(changed: list[str]) -> list[str]:
     return [f for f in changed if f in ALONE]
 
@@ -144,6 +165,23 @@ def _ci(sha: str) -> tuple[bool, str]:
         return False, "CI çalışması yok"
     ok = all(r["status"] == "completed" and r["conclusion"] == "success" for r in runs)
     return ok, ", ".join(f"{r['status']}/{r['conclusion']} {r['html_url']}" for r in runs)
+
+
+def _ac_line_status() -> int | None:
+    try:
+        import ctypes
+
+        class _Status(ctypes.Structure):
+            _fields_ = [("ACLineStatus", ctypes.c_ubyte), ("BatteryFlag", ctypes.c_ubyte),
+                        ("BatteryLifePercent", ctypes.c_ubyte), ("SystemStatusFlag", ctypes.c_ubyte),
+                        ("BatteryLifeTime", ctypes.c_ulong), ("BatteryFullLifeTime", ctypes.c_ulong)]
+
+        status = _Status()
+        if not ctypes.windll.kernel32.GetSystemPowerStatus(ctypes.byref(status)):
+            return None
+        return status.ACLineStatus
+    except (AttributeError, OSError):
+        return None
 
 
 def _slo_now() -> dict:
@@ -221,6 +259,10 @@ def main(argv: list[str]) -> int:
     changed = _git("diff", "--name-only", tip, sha, cwd=here).splitlines()
     alone = alone_files(changed)
     check("7 paket istisnası yok (güncelleyici/yedek/geri yükleme/kayıt biçimi)", not alone, alone or "yok")
+
+    power = power_state(_ac_line_status())
+    record_power(OUT / "kapi_guc.csv", f"{datetime.now():%Y-%m-%d %H:%M}", sha[:7], power)
+    check("8 şebeke gücü (pildeyse kurulum ertelenir)", power_ok(power), f"{power}; kayıt {OUT / 'kapi_guc.csv'}")
 
     if save:
         prev_file.write_text(json.dumps(current, ensure_ascii=False), encoding="utf-8")

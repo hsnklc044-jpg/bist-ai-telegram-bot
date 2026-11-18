@@ -119,6 +119,7 @@ koşulların hepsini ✅ bulursa bot dalı ileri sarılır, güncelleyici sonrak
 | 4 | Kurulum seans günü 09:40–18:15 ve 18:00–20:00 dışında; hafta sonu ve tatil açık (güncelleyici 07:40–23:40 arası saatte bir) |
 | 5 | Aynı anda tek paket (bot dalı = canlı SHA ya da bot dalı canlıyla aynı sürümde, yani güncelleyicinin kuracağı bekleyen paket yok; K-95), günde en fazla 4 kurulum |
 | 6–7 | Zincir ileri sarılabilir; pakette güncelleyici, yedek, geri yükleme ya da kişisel kayıt biçimi değişikliği yok |
+| 8 | Bilgisayar şebekede (prizde). Pildeyse birleştirme ertelenir; her çalışma güç durumunu `cikti/kapi_guc.csv`'ye yazar (18.11, D.1b: 17.11 20:40 ve 21:40 kurulumları pilde hız testinden düştü). Satır yalnız birleştirme anını görür: kurulum :40'ta olduğu için bilgisayar o saate kadar prizde kalmalı |
 
 - **Kuyruk sınırı (10.11.2026):** canlıya çıkmamış sürüm sayısı 5'i geçerse yeni dal açılmaz; önce kuyruk canlıya çıkarılır. Bu sırada yalnız kurtarma ve kuyruktaki dalların düzeltmeleri yapılır.
 - **Paketleme:** zincir halinde bekleyen dallar küçük paketlere bölünür (düşük risk ve bot davranışı ayrı); her paket bir öncekinin canlıda sağlıklı olduğu görüldükten sonra birleştirilir. Paketteki her dalın kendi CI'ı yeşil, tam test paketi geçmiş olmalı.

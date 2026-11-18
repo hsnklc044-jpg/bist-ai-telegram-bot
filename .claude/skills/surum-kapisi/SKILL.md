@@ -17,7 +17,7 @@ Canlıya giden her şey buradan geçer (kullanıcının 10.11.2026 onay devri; `
    0 bayrak yok, canlı klasör temiz (`git status`); 1 test+ruff ve aynı SHA'nın CI'ı yeşil; 2 canlı sürüm sağlıklı
    (SHA, sürüm, "Telegram bot started", ≥3 ERROR'suz yaşam sinyali); 3 önceki kurulumdan beri hiçbir SLO kötüleşmedi;
    4 kurulum (güncelleyicinin sonraki :40 çalışması, 07:40–23:40) seans günü 09:40–18:15 ve 18:00–20:00 dışında
-   (hafta sonu/tatil açık); 5 aynı anda tek paket, günde ≤4 kurulum; 6 ileri sarılabilir; 7 paket istisnası yok.
+   (hafta sonu/tatil açık); 5 aynı anda tek paket, günde ≤4 kurulum; 6 ileri sarılabilir; 7 paket istisnası yok; 8 şebeke gücü (pildeyse ertelenir, `cikti\kapi_guc.csv`).
 5. Hepsi ✅ ise `--birlestir` ile tekrar çalıştır (kilit dosyası iki oturumun aynı anda birleştirmesini önler).
    Biri ❌ ise birleştirme; nedenini `cikti\OTONOM_RAPOR.md`'ye yaz ve sonraki işe geç.
 6. Kurulumdan sonra tek satır rapor: sürüm, paketteki dallar, CI bağlantıları, canlı sağlık kanıtı (SHA, sürüm,
