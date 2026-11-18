@@ -10,7 +10,7 @@ text too, so a failed send still leaves it in the task log.
 import sys
 from pathlib import Path
 
-PROJECT = Path(r"C:\Projeler\QuantBIST")
+PROJECT = Path(__file__).resolve().parents[1]  # Ö71: the folder this script is in, as in guncelle.py
 sys.path.insert(0, str(PROJECT))
 
 from core.infrastructure.settings import require_bot_settings  # noqa: E402
