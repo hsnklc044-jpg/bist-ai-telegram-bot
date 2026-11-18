@@ -375,6 +375,8 @@ def parse_args(words: list[str]) -> tuple[str, tuple[float, float, float] | None
     if not words:
         raise ValueError(USAGE)
     code = words[0].upper().removesuffix(".IS")
+    if not code.isascii() or not code.isalnum():  # Ö64: "İSCTR" must not become a ticker that does not exist
+        raise ValueError(f"Geçersiz hisse kodu: {words[0]!r}\n{USAGE}")
     risk, values, rest = DEFAULT_RISK, {}, words[1:]
     names = {"giris": "entry", "destek": "entry", "gecersiz": "invalidation", "hedef": "target"}
     i = 0
