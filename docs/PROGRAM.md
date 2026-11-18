@@ -93,3 +93,36 @@ Haftalık raporda tek tablo olarak yer alır.
 - Program kapanış raporu: hedef/gerçekleşen tablosu, öğrenilen dersler, açık kalanlar.
 - Bağımsız oturumun kısa görüşü.
 - Sonraki 90 günlük programın taslağı; sahibin onayıyla açılır.
+
+## 9. Program sonrası işleyiş: sürekli iyileştirme döngüsü (QB-SID-1)
+Sürüm 1.0 (18.11.2026). Sahibi kullanıcı, uygulayıcısı koordinatör, süresiz. Yeni bir belge değildir; programın kendini yenileme kuralıdır.
+
+**9.1 İlke.** Bundan sonra bir sonraki talimat kullanıcının hayal gücünden değil, sistemin kendi ölçümlerinden doğar. Koordinatör her döngü sonunda bir sonraki döngünün talimatını kendisi önerir. Kullanıcı onaylar, değiştirir ya da reddeder.
+
+**9.2 Döngü** (90 günlük: Planla → Uygula → Ölç → İyileştir)
+- **Planla:** önceki döngünün ölçümlerinden en zayıf 3 nokta seçilir. Gerekçe veri olmalıdır, tahmin değil.
+- **Uygula:** her zayıf nokta için tek bir iş paketi yazılır. Her paketin kabul ölçütü sayısaldır.
+- **Ölç:** haftalık göstergeler ve uyum panosu.
+- **İyileştir:** döngü sonunda üç soru cevaplanır:
+  1. Ne tuttu?
+  2. Ne tutmadı ve neden?
+  3. Hangi kural, kontrol ya da belge artık gereksiz ve kaldırılmalı?
+
+**9.3 Talimat önerisi** (her döngünün 85. günü sahibe sunulur). İlk döngünün 85. günü 11.02.2027'dir. Öneri en fazla 1 sayfadır ve şunları içerir:
+- ölçümlere göre en zayıf 3 nokta, kanıtlarıyla;
+- önerilen 3 iş paketi ve kabul ölçütleri;
+- kaldırılması önerilen 1 şey (zorunlu; her döngü sistemi biraz sadeleştirir);
+- sahipten istenen kararlar;
+- sahibin tahmini zamanı (dakika/hafta).
+
+**9.4 Sınırlar**
+- Öneri ANAYASA'yı, ölçütleri ya da kapsamı değiştiremez. Bunlar gerekiyorsa ayrı bir karar talebi olarak sunulur.
+- Döngü önerisi kendiliğinden yürürlüğe girmez; sahibin onayı gerekir. Sahip 14 gün cevap vermezse önceki döngünün kuralları aynen devam eder ve yeni iş başlatılmaz.
+- En fazla 3 iş paketi önerilir. Daha fazlasına ihtiyaç duyulması sadeleştirme gerekçesi sayılır.
+
+**9.5 Döngünün kendisinin ölçülmesi.** Yılda bir şu sorular sorulur:
+- Önerilen paketlerin kaçı kabul ölçütüne ulaştı?
+- Sistem bir yılda sadeleşti mi, karmaşıklaştı mı (aktif kural, kontrol ve belge sayısı)?
+- Kullanıcının harcadığı zaman azaldı mı?
+
+Üç göstergeden ikisi kötüye gidiyorsa döngünün kendisi yeniden tasarlanır.
