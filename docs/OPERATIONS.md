@@ -238,6 +238,25 @@ Tek komut:
 
 Botun okuduğu kayıtlara dokunmaz. Kural ya da eşik değiştirmez. Bir tekrarlanabilirlik kontrolüdür, karar ölçümü değildir. Süre birkaç dakikadır. Bot açıkken çalıştırılabilir.
 
+## 7d. Olay kaydı biçimi (K-109, 19.11.2026)
+
+Her arıza, sapma ya da yanlış kayıt aynı biçimle yazılır. Kayıt o günün `docs/DAY_LOG_*` ya da `docs/NIGHT_LOG_*` dosyasında "Olay kaydı" başlığı altında durur; ayrı bir dosya açılmaz (K-106).
+Saatler Get-Date'ten ya da olayın kendi kanıtından alınır (1ab). Kayıt sonradan değiştirilmez; düzeltme yeni satırla yapılır (ANAYASA Md. 11).
+
+```
+### Olay kaydı OK-<yyyymmdd>-<n>: <tek satır başlık>
+- Önem: KRİTİK / YÜKSEK / ORTA / DÜŞÜK
+- Ne oldu: (gözlenen etki; başlangıç ve bitiş saati, kanıtıyla)
+- Nasıl fark edildi: (alarm, ölçüm, kullanıcı, robot)
+- Kök neden: (tek cümle; "neden?" sorusu artık yeni bir şey söylemeyene kadar)
+- Düzeltme: (yapılan iş; commit, test, dosya)
+- Tekrarını önleme: (kural, test ya da kontrol; nerede yazılı)
+- Sayaçlara etkisi: (S2 / S3 / SLO; yok ise "yok")
+- Açık kalan: (varsa, Bekleyenler'e)
+```
+
+İlk kayıt OK-20261119-1 (tahmini saatler), `docs/NIGHT_LOG_2026-11-19.md` içinde.
+
 ## 8. Kesintiler: ne olur, nasıl fark edilir, nasıl toparlanır, kimin işi
 
 Her satırın arkasında bir test var (parantez içinde). "Sistem" = kod kendiliğinden; "Otomasyon" = PC'deki yerel otomasyon; "Kullanıcı" = sen.
