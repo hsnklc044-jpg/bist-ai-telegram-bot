@@ -4,6 +4,8 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 18.11.2026
 
+**K-96. S3 sayacı: Windows yeniden başlatmasından sonra oturum açmak müdahaledir (18.11.2026; K-93 (6) yorumu, ölçümden önce).** Kullanıcı kararı Claude'a bıraktı ("Karar sende", 18.11). 12.11 05:46'da Windows Update bilgisayarı yeniden başlattı (olay 1074). "QuantBIST Bot" görevi yalnız oturum açılınca başladığı için bot, kullanıcı oturum açana kadar 109 dk kapalı kaldı (`logs/heartbeats.csv` 05:39–07:28 boş). **Karar: müdahale sayılır.** Bot ancak kullanıcının elle yaptığı bir işlemle geri geldi; elektrik ya da ağ kesintisinde sistem kendi kendine döner, burada dönmedi. Tanımı lehe yorumlamak ölçütü sonradan gevşetmek olurdu. **Sonuç: S3 30 gün sayacı 13.11.2026'da başlar, en erken 12.12.2026'da dolar** (K-93 (6)'daki 03.12 geçersiz). Aynı olay yeniden olursa sayaç yine sıfırlanır. Kalıcı önlem, görevin oturum açılmadan çalışmasıdır; bu Windows hesap şifresi gerektirir, kullanıcıya kalır (K-54). Robot yalnız bekleyen yeniden başlatmayı (`RebootRequired`) önceden bildirir. Ölçüm 12.12 olgunluk ölçümünde, `docs/S3_MUDAHALE.md` §Ölçüm'e göre yapılır.
+
 ### K-95: Sürüm kapısı 5. satırı, sürümü değiştirmeyen birleştirme bekleyen paket değildir
 - **Sorun:** Gece belge paketi 0af56f3 sürümü (0.99.144) değiştirmeden ana dala girdi. Güncelleyici yalnız daha yüksek sürümü kurduğu için 07:40'ta "yeni sürüm yok" dedi; bot dalı canlıdan (b1ab854) ileride kaldı ve `tip == head` koşulu hiçbir zaman sağlanamayacaktı (kapı kilitlendi).
 - **Karar:** 5. satır, bot dalının ucu canlı SHA'yla aynıysa ya da canlıyla aynı sürümdeyse geçer. Sürüm artmışsa paket güncelleyiciyi bekliyordur ve satır kapalı kalır. Sürüm okunamazsa satır kapalıdır.
