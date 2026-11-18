@@ -62,7 +62,7 @@ Birleştirme ve canlı kurulum için onay beklenmez; aşağıdaki kapının HEPS
 Yine kullanıcıya sorulur: scripts/guncelle.py, yedek, geri yükleme ya da kişisel kayıt biçimi değişikliği; dosya/klasör silme (eski sürüm temizliği dahil); .env, token, dış izleme ayarları. Yukarıdaki yasak dosya listesi ve K-79/K-78/K-80/holdout kuralları da aynen geçerli.
 Asla: gerçek para, aracı kurum, emir, al/sat önerisi, git geçmişini yeniden yazma (bot dalına force push yok).
 Sorun çıkarsa (bot başlamaz, ERROR, SLO düşer): önceki sürüme dön (bot dalına revert commit'i, ileri sarma; geçmiş yeniden yazılmaz), tüm birleştirmeleri durdur, kullanıcıya tek paragraf rapor; kullanıcı "devam" diyene kadar kapı kapalı.
-Rapor: her kurulumdan sonra tek satır (sürüm, SHA, CI bağlantısı, canlı sağlık kanıtı); cumartesi haftalık SLO tablosu ve olgunluk yüzdeleri. Öncelik sırası ve "boş iş üretme" kuralı geçerli.
+Rapor: her kurulumdan sonra tek satır (sürüm, SHA, CI bağlantısı, canlı sağlık kanıtı); cumartesi haftalık SLO tablosu ve olgunluk yüzdeleri. Cumartesi 21:00'den sonraki ilk turda `python scripts/donem_kopyala.py` çalıştırılır ve yeni `docs/PERIODS/` dosyası dalda commit'lenir (K-17). Öncelik sırası ve "boş iş üretme" kuralı geçerli.
 
 ## Güncelleme (10.11.2026 ~18:30): hızlı sürüm + tam otonom talimat
 - Kapı: rapor penceresi 18:00–20:00; hafta sonu/tatil açık; günde en fazla 4 kurulum; tek paket. Uygulama: worktree'den `scripts/surum_kapisi.py` (dal claude/skills ve sonrası). Zincir halindeki dallar tek paket (uç birleştirilir).
