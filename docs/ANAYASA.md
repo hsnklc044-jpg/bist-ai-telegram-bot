@@ -6,7 +6,7 @@
 
 Bu belgeyle çelişen her alt belge, çelişen kısmı bakımından geçersizdir. Çelişki sahibine bildirilir.
 
-**Yürürlük durumu:** kaydedildi 18.11.2026. Sahibin onayıyla yürürlüğe girer (bkz. Yürürlük).
+**Yürürlük durumu:** yürürlükte, 18.11.2026 17:23. Onay sahibin kendi yazısıyla verildi ("Evet, yürürlükte", koordinatör oturumu; DECISIONS K-98). Uyum taraması: [ANAYASA_UYUM_2026-11-18](ANAYASA_UYUM_2026-11-18.md).
 
 ## Başlangıç
 Bu sistem, belirsizlik altında dürüst karar vermeyi desteklemek için vardır. Teknoloji, model ve piyasa değişebilir. Aşağıdaki ilkeler değişmez.

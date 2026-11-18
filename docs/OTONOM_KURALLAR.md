@@ -3,6 +3,8 @@
 
 ## Kullanıcı çerçevesi (18.11.2026, kullanıcı; kalıcı, bu dosyadaki daha eski bütün maddelerin üstünde)
 
+> **Not (18.11.2026, Anayasa yürürlüğü, K-98):** Bu belgenin üstünde [ANAYASA](ANAYASA.md) vardır. Sıra: ANAYASA > CHARTER > kalıcı çerçeve > tüzük ve stratejiler > görev metinleri. Çelişen kısım geçersizdir.
+
 Bu dosya kuralların tek kaynağıdır (Ö58). Görev metinleri ve `cikti\otonom_kurallar.md` yalnız buraya yol gösterir; çelişki olursa bu bölüm geçerlidir.
 
 **Amaç.** Olgunluk merdiveninde kanıtla ilerlemek. İş seçerken önce şu soru sorulur: "Bu iş bir MATURITY satırını ❌'dan ✅'ya ya da kısmiye taşıyor mu, ya da bir takvim sayacını koruyor mu?" Taşımıyorsa ve sayaç da korumuyorsa, o iş düşük önceliklidir.

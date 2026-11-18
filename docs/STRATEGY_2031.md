@@ -9,6 +9,8 @@
 
 **Yürürlük:** bu belge 2028 sonundaki değerlendirmeden önce yürürlüğe girmez. O zamana kadar yalnız yön gösterir.
 
+> **Not (18.11.2026, Anayasa yürürlüğü, K-98):** Bu belgenin üstünde [ANAYASA](ANAYASA.md) vardır. Sıra: ANAYASA > CHARTER > kalıcı çerçeve > tüzük ve stratejiler > görev metinleri. Çelişen kısım geçersizdir.
+
 ## 0. Yönetici özeti
 2031'in hedefi daha fazla özellik değildir. Hedef üç şeydir:
 - kanıtlanmış bilginin korunması;
