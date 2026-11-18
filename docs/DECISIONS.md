@@ -4,6 +4,8 @@ Sürekli yol haritası (ROADMAP) gereği Claude'un verdiği teknik kararlar, tar
 
 ## 18.11.2026
 
+**K-96. S3 sayacı: Windows yeniden başlatmasından sonra oturum açmak müdahaledir (18.11.2026; K-93 (6) yorumu, ölçümden önce).** Kullanıcı kararı Claude'a bıraktı ("Karar sende", 18.11). 12.11 05:46'da Windows Update bilgisayarı yeniden başlattı (olay 1074). "QuantBIST Bot" görevi yalnız oturum açılınca başladığı için bot, kullanıcı oturum açana kadar 109 dk kapalı kaldı (`logs/heartbeats.csv` 05:39–07:28 boş). **Karar: müdahale sayılır.** Bot ancak kullanıcının elle yaptığı bir işlemle geri geldi; elektrik ya da ağ kesintisinde sistem kendi kendine döner, burada dönmedi. Tanımı lehe yorumlamak ölçütü sonradan gevşetmek olurdu. **Sonuç: S3 30 gün sayacı 13.11.2026'da başlar, en erken 12.12.2026'da dolar** (K-93 (6)'daki 03.12 geçersiz). Aynı olay yeniden olursa sayaç yine sıfırlanır. Kalıcı önlem, görevin oturum açılmadan çalışmasıdır; bu Windows hesap şifresi gerektirir, kullanıcıya kalır (K-54). Robot yalnız bekleyen yeniden başlatmayı (`RebootRequired`) önceden bildirir. Ölçüm 12.12 olgunluk ölçümünde, `docs/S3_MUDAHALE.md` §Ölçüm'e göre yapılır.
+
 **K-94. S5 çıkış kanıtlarının eşikleri ve kâğıt defter modeli (18.11.2026; ön kayıt, ölçüm yok).** Kullanıcının 18.11 talimatı (C). Bugün S4'te anlamlı kural yok; bu eşikler, bir kural anlamlı çıktığı gün zaman kaybedilmesin diye şimdi yazılıyor ve o gün değiştirilmiyor. Ayrıntı MATURITY S5 ve `docs/PAPER_TRADING.md`'de.
 - **Soru:** S4'te K-93 (4) eşiğini geçen bir kural, kâğıt üzerinde ve maliyetlerle uygulandığında da ön kayıttaki beklentiyi tutuyor mu?
 - **Veri:** Yalnız S5 açıldıktan sonraki seanslar (ileri veri). Holdout ya da geçmiş veri yeniden kullanılmaz.
