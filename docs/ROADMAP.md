@@ -22,7 +22,7 @@ Hedef dürüst ölçümle tutmazsa tarih kaydırılır. Ölçüt gevşetilmez.
 | Aralık başı | Kasım resmî veri dosyası (K-84, K-97) | Yayımlanınca kullanıcıya Telegram'dan haber verilir. Kullanıcı indirince karşılaştırma çalıştırılır | `data/inbox/bist/`, `logs/resmi_karsilastirma_2026-11.txt` |
 | 05.12 cumartesi | S2 dördüncü hafta | 4 hafta üst üste hedefteyse S2 kapanış önerisi kanıtlarıyla kullanıcıya sunulur | `seri.csv` 14.11–05.12 |
 | 07.12 | S2 en erken kapanış | Kapanışı kullanıcı onaylar. MATURITY onaydan sonra güncellenir | onay mesajı |
-| 12.12 | S3 sayacı dolar (K-96) | Sayacı bozan bir olay yoksa S3 kapanış önerisi kanıtlarıyla sunulur | `docs/S3_MUDAHALE.md` §Ölçüm |
+| 18.12 | S3 sayacı dolar (K-105; K-96'daki 12.12 geçersiz) | Sayacı bozan bir olay yoksa S3 kapanış önerisi kanıtlarıyla sunulur | `docs/S3_MUDAHALE.md` §Ölçüm |
 | 15.12 | Dönem değerlendirmesi | Neler tuttu, neler tutmadı; sonraki 4 haftanın planı | — |
 
 **Haftalık döngü** (her hafta aynı):
@@ -31,7 +31,7 @@ Hedef dürüst ölçümle tutmazsa tarih kaydırılır. Ölçüt gevşetilmez.
 - **Cumartesi:** haftalık seri satırı kontrol edilir, kısa bir haftalık rapor yazılır.
 - **Pazar:** iki haftada bir öz-denetim. Yeni bulgular risk sırasıyla ROADMAP'e girer.
 
-**Sayaçları koruma** (S2 serisi ve S3 sayacı, 12.12'ye kadar):
+**Sayaçları koruma** (S2 serisi ve S3 sayacı, 18.12'ye kadar; K-105, önce 12.12):
 - Canlı sistemde riskli değişiklik yapılmaz. Büyük refaktör ya da yeni özellik Aralık ortasından sonraya kalır.
 - Kesinti olursa nedeni aynı gün yazılır. Bir sayacın sıfırlanıp sıfırlanmadığına kullanıcı karar verir.
 - Riskli olaylar (Windows Update, elektrik, pil) `docs/S3_MUDAHALE.md`'de izlenir. Yeni bir risk görülürse o belgeye eklenir.
