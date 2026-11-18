@@ -88,6 +88,14 @@ Sahibin kendi yazısıyla verildi (koordinatör oturumu). [ANAYASA](ANAYASA.md)'
 - **2. sınıf:** yukarıdaki anayasa notuna göre uygulanır.
 - **3. sınıf:** ANAYASA Md. 7 ile aynıdır.
 
+## Saat kuralı (19.11.2026, kullanıcı; yetki devri sınıf 1, kalıcı)
+
+1. Kayıtlara yazılan her saat o anda sistem saatinden okunur (`Get-Date`, `date`, `datetime.now()`). Saat tahmin edilmez.
+2. Geçmiş bir olayın saati kendi kanıtından alınır: commit zamanı, dosya zamanı, olay günlüğü, log satırı. Kanıt yoksa "saat bilinmiyor" yazılır.
+3. Yanlış yazılmış saat silinmez, üzerine yazılmaz; altına "Düzeltme: gerçek saat HH:MM (Get-Date / commit zamanı)" satırı eklenir (ANAYASA Md. 11).
+4. Söz verilen saatler gerçek sistem saatine göre işler; bekleme, saati okuyan bir betikle yapılır.
+5. Neden: 19.11 gecesi koordinatör, kayıtlara iş süresinden tahmin ettiği saatleri yazdı (ör. gerçek 00:35 yerine 01:55). Ayrıntı: `docs/NIGHT_LOG_2026-11-19.md`.
+
 ## Robotun görevi ve yetkisi (17.11.2026, kullanıcı)
 Robot (07:00, 20:15, hafta sonu 13:00 turları) bütün ilerleme işlerini kullanıcıyı beklemeden yürütür: DECISIONS K-88 rotası ve `siradaki-is` sırasıyla sıradaki işi seçer; dal ve worktree açar; araştırma/ölçüm öncesi `on-kayit`; önce başarısız test, sonra düzeltme; CI; `surum-kapisi` ile birleştirme; kurulum sonrası sağlık (≥3 sinyal, ERROR 0); OTONOM_RAPOR.md'ye ve 21:00 özetine K-88 §6 raporu. Kullanıcıya yalnız bilgi verir; gerçekten kullanıcı kararı gereken bir şey çıkarsa tek soru yazar ve sıradaki işe geçer.
 Sınırlar değişmez: CHARTER kesin sınırları (K-54), kapı geçmeden birleştirme yok, canlı klasöre elle yazma yok, güvenlik denetimi reddederse başka yol denenmez. Güncelleyici, yedek ve geri yükleme değişikliklerinin hafta sonu birleştirmesi kullanıcının tek komutuyla olur (K-88 §5); robot bunları hazırlar (aynı SHA'da dr-drill yeşil, kapı tam) ve hazır olduğunu bildirir. Para, token ya da hesap gerektiren adımlar ve kuralların kendisini değiştirmek kullanıcıya kalır.
