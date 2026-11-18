@@ -245,6 +245,7 @@ Saatler Get-Date'ten ya da olayın kendi kanıtından alınır (1ab). Kayıt son
 
 ```
 ### Olay kaydı OK-<yyyymmdd>-<n>: <tek satır başlık>
+- Kayıt: (bu kaydın yazıldığı saat, Get-Date; 19.11 kırmızı takım eki)
 - Önem: KRİTİK / YÜKSEK / ORTA / DÜŞÜK
 - Ne oldu: (gözlenen etki; başlangıç ve bitiş saati, kanıtıyla)
 - Nasıl fark edildi: (alarm, ölçüm, kullanıcı, robot)
