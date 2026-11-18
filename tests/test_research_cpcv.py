@@ -76,8 +76,8 @@ class NoLeakTest(unittest.TestCase):
 
     def test_the_leak_check_catches_a_leaky_split(self):  # canary
         test = np.arange(100, 200)
-        train = np.concatenate([np.arange(0, 100), np.arange(200, 600)])  # no purge: 95..99 leak
-        self.assertEqual(cpcv.leaks(train, test, horizon=5), [95, 96, 97, 98, 99])
+        train = np.concatenate([np.arange(0, 100), np.arange(200, 600)])  # no purge: both sides leak
+        self.assertEqual(cpcv.leaks(train, test, horizon=5), [95, 96, 97, 98, 99, 200, 201, 202, 203, 204])
 
     def test_bad_arguments_are_refused(self):
         for kwargs in ({"n_groups": 1, "k_test": 1}, {"n_groups": 6, "k_test": 0}, {"n_groups": 6, "k_test": 6},

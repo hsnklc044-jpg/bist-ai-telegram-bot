@@ -10,12 +10,16 @@ Which one a study uses is chosen in its pre-registration, before results are see
 from __future__ import annotations
 
 import math
+import numbers
 
 
 def _check(ps) -> list[float]:
-    values = [float(p) for p in ps]
-    if not values:
+    raw = list(ps)
+    if not raw:
         raise ValueError("p değeri listesi boş")
+    if any(isinstance(p, bool) or not isinstance(p, numbers.Real) for p in raw):  # red team 18.11
+        raise ValueError("p değerleri sayı olmalı")
+    values = [float(p) for p in raw]
     for p in values:
         if math.isnan(p) or not 0.0 <= p <= 1.0:
             raise ValueError(f"p değeri 0 ile 1 arasında olmalı: {p}")
@@ -36,7 +40,7 @@ def bonferroni_adjust(ps) -> list[float]:
 
 def bonferroni_reject(ps, alpha: float = 0.05) -> list[bool]:
     alpha = _check_alpha(alpha)
-    return [p < alpha for p in bonferroni_adjust(ps)]
+    return [p <= alpha for p in bonferroni_adjust(ps)]  # same boundary rule as bh_reject (red team 18.11)
 
 
 def bh_adjust(ps) -> list[float]:

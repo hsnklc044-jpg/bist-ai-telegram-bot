@@ -1,9 +1,9 @@
 """Combinatorial purged cross-validation and PBO over it (QB-ARS-1 S-3, S-4; Faz B, 18.11.2026).
 
 Pure functions on observation positions 0..n-1 in time order (never shuffled):
-- splits(): N contiguous groups, every choice of k test groups; training drops observations whose label
-  window [t+1, t+horizon] reaches into a test group (purge) and the `embargo` observations right after
-  each test group.
+- splits(): N contiguous groups, every choice of k test groups; training drops the `horizon` observations
+  on both sides of each test group, whose spans overlap test spans (purge), and then `embargo` more right
+  after each test group.
 - paths(): the phi = k/N * C(N, k) backtest paths, each covering every observation once.
 - leaks(): training observations whose label reaches into test (empty for a correct split).
 - pbo(): probability of backtest overfitting over these splits; with horizon = embargo = 0 it equals the
@@ -19,6 +19,8 @@ from itertools import combinations
 
 import numpy as np
 import pandas as pd
+
+MIN_ROWS = 5  # as core.backtest.overfit.MIN_PER_BLOCK: fewer rows give no usable Sharpe ratio
 
 
 def _groups(n: int, n_groups: int) -> list[np.ndarray]:
@@ -39,11 +41,18 @@ def n_paths(n_groups: int, k_test: int) -> int:
 
 
 def leaks(train, test, horizon: int) -> list[int]:
-    """Training positions t with any of t+1..t+horizon in the test set, or t itself in it."""
+    """Training positions whose span [t, t+horizon] overlaps the span [s, s+horizon] of a test position s,
+    i.e. |t - s| <= horizon (López de Prado's purge; both sides of each test group). Red team 18.11: the
+    first version looked only forward and missed the points right after a test group."""
 
-    test_set = set(np.asarray(test).tolist())
-    return [int(t) for t in np.asarray(train)
-            if t in test_set or any(t + j in test_set for j in range(1, horizon + 1))]
+    test_arr = np.sort(np.asarray(test))
+    out = []
+    for t in np.asarray(train):
+        i = np.searchsorted(test_arr, t)
+        near = [test_arr[j] for j in (i - 1, i) if 0 <= j < len(test_arr)]
+        if any(abs(int(t) - int(s)) <= horizon for s in near):
+            out.append(int(t))
+    return out
 
 
 def splits(n: int, n_groups: int, k_test: int, horizon: int, embargo: int) -> list[tuple[np.ndarray, np.ndarray]]:
@@ -59,7 +68,7 @@ def splits(n: int, n_groups: int, k_test: int, horizon: int, embargo: int) -> li
         for g in chosen:
             start, end = int(groups[g][0]), int(groups[g][-1])
             drop[max(0, start - horizon):start] = True  # purge: labels of these reach into the test group
-            drop[end + 1:min(n, end + 1 + embargo)] = True  # embargo after the test group
+            drop[end + 1:min(n, end + 1 + horizon + embargo)] = True  # purge after, then the embargo
         train = np.flatnonzero(~drop)
         out.append((train, test))
     return out
@@ -93,6 +102,8 @@ def pbo(returns: pd.DataFrame, n_groups: int, k_test: int, horizon: int, embargo
     n = data.shape[1]
     below = 0
     every = splits(len(data), n_groups, k_test, horizon, embargo)
+    if any(len(train) < MIN_ROWS or len(test) < MIN_ROWS for train, test in every):
+        return None  # red team 18.11: an empty training set made argmax pick column 0 and gave 0.0
     for train, test in every:
         best = int(np.argmax(_sharpe(data, train)))
         oos = _sharpe(data, test)

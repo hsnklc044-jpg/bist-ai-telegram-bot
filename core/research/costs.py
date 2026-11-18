@@ -10,24 +10,29 @@ from __future__ import annotations
 import math
 from decimal import ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_UP, Decimal
 
+PRICE_DIGITS = Decimal("1e-8")  # red team 18.11: 0.1 + 0.2 must not round up a whole tick
+MODES = {"nearest": ROUND_HALF_UP, "buy": ROUND_CEILING, "sell": ROUND_FLOOR}
+
 
 def _nonneg(**values: float) -> None:
     for name, v in values.items():
-        if v is None or math.isnan(v) or v < 0:
-            raise ValueError(f"{name} negatif ya da eksik olamaz: {v}")
+        if v is None or isinstance(v, bool) or not math.isfinite(v) or v < 0:
+            raise ValueError(f"{name} negatif, sonsuz ya da eksik olamaz: {v}")
 
 
-def _check_table(table) -> list[tuple[float, float]]:
-    rows = [(float(lo), float(tick)) for lo, tick in table]
-    if not rows or rows[0][0] != 0.0:
+def _check_table(table) -> list[tuple[Decimal, Decimal]]:
+    rows = [(Decimal(str(float(lo))), Decimal(str(float(tick)))) for lo, tick in table]
+    if not rows or rows[0][0] != 0:
         raise ValueError("fiyat adımı tablosu 0'dan başlamalı")
-    for (lo1, t1), (lo2, _t2) in zip(rows, rows[1:], strict=False):
+    if any(not t.is_finite() or t <= 0 for _, t in rows):
+        raise ValueError("fiyat adımı pozitif ve sonlu olmalı")
+    for (lo1, t1), (lo2, t2) in zip(rows, rows[1:], strict=False):
         if not lo2 > lo1:
             raise ValueError("tablo alt sınırları artan olmalı")
-    if any(t <= 0 for _, t in rows):
-        raise ValueError("fiyat adımı pozitif olmalı")
-    if any(t2 < t1 for (_, t1), (_, t2) in zip(rows, rows[1:], strict=False)):
-        raise ValueError("fiyat adımı fiyatla azalamaz")
+        if t2 < t1:
+            raise ValueError("fiyat adımı fiyatla azalamaz")
+    if any(lo % t != 0 for lo, t in rows):
+        raise ValueError("her bandın alt sınırı kendi fiyat adımının katı olmalı")
     return rows
 
 
@@ -36,11 +41,12 @@ def round_to_tick(price: float, table, side: str = "nearest") -> float:
 
     rows = _check_table(table)
     _nonneg(price=price)
-    tick = next(t for lo, t in reversed(rows) if price >= lo)
-    mode = {"nearest": ROUND_HALF_UP, "buy": ROUND_CEILING, "sell": ROUND_FLOOR}[side]
-    q = Decimal(str(tick))
-    steps = (Decimal(str(price)) / q).to_integral_value(rounding=mode)
-    return float(steps * q)
+    if side not in MODES:
+        raise ValueError(f"side 'nearest', 'buy' ya da 'sell' olmalı: {side!r}")
+    p = Decimal(str(price)).quantize(PRICE_DIGITS, rounding=ROUND_HALF_UP)
+    tick = next(t for lo, t in reversed(rows) if p >= lo)
+    steps = (p / tick).to_integral_value(rounding=MODES[side])
+    return float(steps * tick)
 
 
 def one_way_cost(commission: float, bsmv_on_commission: float, exchange_fee: float, half_spread: float,
