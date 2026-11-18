@@ -399,7 +399,10 @@ def parse_args(words: list[str]) -> tuple[str, str, tuple[str, float] | None]:
             raise ValueError(USAGE) from None
         if quantity <= 0:
             raise ValueError("Adet pozitif olmalı.\n" + USAGE)
-        return "add", account, (f"{words[1].upper().removesuffix('.IS')}.IS", quantity)
+        code = words[1].upper().removesuffix(".IS")
+        if not code.isascii() or not code.isalnum():  # Ö64: "İSCTR" must not become a ticker that does not exist
+            raise ValueError(f"Geçersiz hisse kodu: {words[1]!r}\n{USAGE}")
+        return "add", account, (f"{code}.IS", quantity)
     raise ValueError(USAGE)
 
 
