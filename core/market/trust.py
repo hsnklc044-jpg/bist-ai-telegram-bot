@@ -29,6 +29,16 @@ LEVEL_NAMES = {
     3: "doğrulanmamış",
 }
 NOTE = "Veri: doğrulanmamış kaynak"
+# Owner's instruction #15 (4): the one switch for the data line. None keeps NOTE on level 3 data (today's
+# behaviour); a date (the day the prices were verified) writes "Veri: doğrulandı (<tarih>)" under the title instead.
+VERIFIED_ON: date | None = None
+
+
+def note_line() -> str:
+    """The data line under a data message's title (NOTE until VERIFIED_ON is set)."""
+
+    return NOTE if VERIFIED_ON is None else f"Veri: doğrulandı ({VERIFIED_ON:%d.%m.%Y})"
+
 PASSED, PRELIMINARY, FAILED = "geçti", "ön bulgu", "geçmedi"
 
 # the user's file check (core.market.second_source) writes this; the "Veri doğruluğu" SLO reads the same file
@@ -90,17 +100,18 @@ def price_trust(now: datetime) -> Trust:
 
 def with_note(text: str, t: Trust) -> str:
     """The note on its own line right under the title (the first line outside a <pre> block); level 1 and 2 add
-    nothing; a text that already has it is returned as it is."""
+    nothing (unless VERIFIED_ON is set); a text that already has it is returned as it is."""
 
-    if t.level < 3 or NOTE in text:
+    note = note_line()
+    if (t.level < 3 and VERIFIED_ON is None) or note in text:
         return text
     lines = text.split("\n")
     depth = 0
     for i, line in enumerate(lines):
         depth += line.count("<pre>") - line.count("</pre>")
         if depth <= 0:
-            return "\n".join([*lines[: i + 1], NOTE, *lines[i + 1:]])
-    return text + "\n" + NOTE
+            return "\n".join([*lines[: i + 1], note, *lines[i + 1:]])
+    return text + "\n" + note
 
 
 OFFICIAL = "Borsa İstanbul resmî gün sonu"
@@ -174,6 +185,7 @@ def tagged(handler):
     return wrapper
 
 
-__all__ = ["DATA_COMMANDS", "FAILED", "LEVEL_NAMES", "NOTE", "PASSED", "PRELIMINARY", "Trust", "clear_cache",
-           "data_message", "for_day", "note_outgoing", "price_trust", "research_line", "research_verdict", "tagged", "weakest",
+__all__ = ["DATA_COMMANDS", "FAILED", "LEVEL_NAMES", "NOTE", "PASSED", "PRELIMINARY", "Trust", "VERIFIED_ON",
+           "clear_cache",
+           "data_message", "for_day", "note_line", "note_outgoing", "price_trust", "research_line", "research_verdict", "tagged", "weakest",
            "with_note"]
