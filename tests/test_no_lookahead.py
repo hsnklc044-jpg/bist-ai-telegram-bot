@@ -112,16 +112,13 @@ class NoLookaheadTest(unittest.TestCase):
 
         self.check_signals(build, "trend+regime+eligibility")
 
-    def test_momentum_scrambled(self):
-        self.check_signals(
-            lambda f, b: momentum_signals(f, 63, 10, 4, regime=regime_filter(b, 100)),
-            "momentum",
-            truncation_ok=False,
-        )
+    def test_momentum(self):
+        # data audit #2: month ends come from the session calendar, so a truncated history must agree too
+        self.check_signals(lambda f, b: momentum_signals(f, 63, 10, 4, regime=regime_filter(b, 100)), "momentum")
 
-    def test_low_volatility_scrambled(self):
-        # Aşama 3 H1; like momentum, a truncated history makes the cut day a month end
-        self.check_signals(lambda f, b: low_volatility_signals(f, 60, 4), "low_volatility", truncation_ok=False)
+    def test_low_volatility(self):
+        # Aşama 3 H1; data audit #2, as for momentum
+        self.check_signals(lambda f, b: low_volatility_signals(f, 60, 4), "low_volatility")
 
     def test_index_trend(self):
         # Aşama 3 H2; months are timed by the session calendar, so a truncated history must agree too
