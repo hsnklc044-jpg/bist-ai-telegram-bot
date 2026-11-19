@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.160 – 19.11.2026 (K-119: Ana Plan v1 onayı, yalnız belge)
+- DECISIONS K-119 ve KARAR_DEFTERI satırı: sahibin Ana Plan v1 onayı ve uygulama yorumu (ön kayıtlar değişmez, eşikler yalnız yeni ön kayıtlara, F2 a5 tarihi açık soru).
+
 ## v0.99.159 – 19.11.2026 (K-118: sahibin kalıcı yetki devri, yalnız belge)
 - DECISIONS K-118 ve KARAR_DEFTERI satırı: teknik, operasyonel, kayıtlı plana uygun araştırma ve planlama işlerinde sahipten ayrıca onay beklenmez; para/hesap/token, ANAYASA, eşik ve ön kayıt onayı, geri alınamaz silme sahipte kalır. Doğrulama: tam test 2018 geçti, ruff temiz.
 
