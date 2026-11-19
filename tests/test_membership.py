@@ -31,31 +31,41 @@ class CommittedStableListTest(unittest.TestCase):
         for full in (False, True):
             events = m.load_changes(full_history=full)
             stable = m.load_stable(full_history=full)
-            self.assertEqual(len(stable), 44 if full else 50)
+            self.assertEqual(len(stable), 42 if full else 50)
             self.assertEqual(set(m.check_sizes(events, stable).values()), {m.INDEX_SIZE})
 
     def test_sizes_cover_the_day_before_the_first_change(self):
         events = m.load_changes(full_history=True)
         first = min(d for ev in events.values() for d, _ in ev)
-        self.assertEqual(first, D("2019-01-02"))
+        self.assertEqual(first, D("2018-01-02"))
         sizes = m.check_sizes(events, m.load_stable(full_history=True))
-        self.assertIn(D("2019-01-01"), sizes)
+        self.assertIn(D("2018-01-01"), sizes)
         self.assertIn(D("2021-04-01"), sizes)
 
     def test_q4_2020_sise_merger(self):
-        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ecam merger); AKSGY came in
+        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬ÂÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬ÂÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ecam merger); AKSGY came in
         before = m.members_on(D("2020-09-30"), full_history=True)
         after = m.members_on(D("2020-10-01"), full_history=True)
         self.assertTrue({"TRKCM", "ANACM", "SODA"} <= before)
         self.assertFalse({"TRKCM", "ANACM", "SODA"} & after)
         self.assertIn("AKSGY", after - before)
 
+    def test_2018_and_sokm_fast_entry(self):
+        # 11466 / 11443 / 12512 / 12465; KAP statement quoted 24.05.2018: SOKM in, DGATE out from 24/05/2018
+        events = m.load_changes(full_history=True)
+        stable = m.load_stable(full_history=True)
+        sizes = m.check_sizes(events, stable)
+        self.assertIn(D("2018-01-01"), sizes)
+        self.assertEqual(set(sizes.values()), {m.INDEX_SIZE})
+        before, after = m.members_on(D("2018-05-23"), events, stable), m.members_on(D("2018-05-24"), events, stable)
+        self.assertEqual((after - before, before - after), ({"SOKM"}, {"DGATE"}))
+        self.assertFalse({"SOKM", "HEKTS"} & stable)
     def test_2019_and_gusgr_rename(self):
         # 12304 / 12070 / 11867 / 11632; GUSGR (2019-10-01 add) is TURSG after the 31.08.2020 rename
         events = m.load_changes(full_history=True)
         stable = m.load_stable(full_history=True)
         sizes = m.check_sizes(events, stable)
-        self.assertIn(D("2019-01-01"), sizes)
+        self.assertIn(D("2019-01-02"), sizes)
         self.assertEqual(set(sizes.values()), {m.INDEX_SIZE})
         self.assertIn("TURSG", m.members_on(D("2019-10-01"), events, stable) - m.members_on(D("2019-09-30"), events, stable))
         self.assertNotIn("DOAS", stable)
