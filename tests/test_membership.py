@@ -43,12 +43,19 @@ class CommittedStableListTest(unittest.TestCase):
         self.assertIn(D("2021-04-01"), sizes)
 
     def test_q4_2020_sise_merger(self):
-        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (Şişecam merger); AKSGY came in
+        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (ÅiÅŸecam merger); AKSGY came in
         before = m.members_on(D("2020-09-30"), full_history=True)
         after = m.members_on(D("2020-10-01"), full_history=True)
         self.assertTrue({"TRKCM", "ANACM", "SODA"} <= before)
         self.assertFalse({"TRKCM", "ANACM", "SODA"} & after)
         self.assertIn("AKSGY", after - before)
+
+    def test_off_cycle_change_june_2021(self):
+        # KAP 942442 (15.06.2021): BAGFS to Yakin Izleme Pazari, ECZYT (1st reserve) in from 16.06.2021
+        before = m.members_on(D("2021-06-15"), full_history=True)
+        after = m.members_on(D("2021-06-16"), full_history=True)
+        self.assertIn("BAGFS", before - after)
+        self.assertIn("ECZYT", after - before)
 
     def test_off_cycle_change_june_2026(self):
         events = m.load_changes()
