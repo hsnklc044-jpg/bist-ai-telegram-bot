@@ -31,6 +31,25 @@ Aşağıdaki "Durma noktası" bölümündeki iki sorun KAP bildirimleriyle çöz
 - `ever_members(full_history=True)` 234 hisse. Her tarihte 100 üye (test: `test_2020_q1_to_q3_and_adana_merger`).
 - Daha geri (2019 ve öncesi) bu notta yok; sonraki adım 2019 Ç4'ten 2015 Ç3'e, her dönem dışı olay için KAP kaynağıyla.
 
+## Ek 2: 2019 (19.11.2026 öğleden sonra)
+
+| Yürürlük | Duyuru | Satır |
+|---|---|---|
+| 2019-10-01 | 11632 (20.09.2019) | 12 |
+| 2019-07-01 | 11867 (21.06.2019) | 10 |
+| 2019-04-01 | 12070 (18.03.2019) | 8 |
+| 2019-01-02 | 12304 (21.12.2018; dönem "02/01/2019") | 10 |
+
+- GUSGR 2019-10-01'de alınıyor, hiç çıkarılmıyor: Güneş Sigorta 31.08.2020'de Türkiye Sigorta oldu, kod TURSG (şirketin
+  31.08.2020 özel durum açıklaması; Ziraat Yatırım TURSG ayrılma akçesi dokümanında aktarılıyor). `ALIASES` GUSGR→TURSG
+  eklendi; TURSG'nin kayıttaki ilk olayı 2023-07-03 çıkarılma, zincir bununla her tarihte 100. Kesin KAP bildirim numarası
+  bulunmadı (açık uç).
+- 11867'de "A.V.O.D" yazılı; kod AVOD.
+- DOAS (2019-01-02 çıkış, 2019-10-01 giriş) sabit listeden kayda geçti. Sabit hisse (tam geçmiş) 45 → 44; varsayılan
+  sonuçlar değişmedi (202 hisse). `ever_members(full_history=True)` 239.
+- 2015 Ç4–2018 Ç4 duyuru numaraları `duyurular-eski` sayfalarında bulundu (11751, 11669, 11596, 11564, 11532, 11511, 11492,
+  11503, 11473, 11466, 11443, 12512, 12465); 2015 Ç3 duyurusu daha eski sayfalarda, henüz aranmadı.
+
 ## Durma noktası: 2020 Ç3 eklenmedi (çözüldü, yukarıdaki ek)
 
 2020-07-01 (duyuru 12559) eklenince zincir bozuluyor:

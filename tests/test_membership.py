@@ -31,31 +31,40 @@ class CommittedStableListTest(unittest.TestCase):
         for full in (False, True):
             events = m.load_changes(full_history=full)
             stable = m.load_stable(full_history=full)
-            self.assertEqual(len(stable), 45 if full else 50)
+            self.assertEqual(len(stable), 44 if full else 50)
             self.assertEqual(set(m.check_sizes(events, stable).values()), {m.INDEX_SIZE})
 
     def test_sizes_cover_the_day_before_the_first_change(self):
         events = m.load_changes(full_history=True)
         first = min(d for ev in events.values() for d, _ in ev)
-        self.assertEqual(first, D("2020-01-01"))
+        self.assertEqual(first, D("2019-01-02"))
         sizes = m.check_sizes(events, m.load_stable(full_history=True))
-        self.assertIn(D("2019-12-31"), sizes)
+        self.assertIn(D("2019-01-01"), sizes)
         self.assertIn(D("2021-04-01"), sizes)
 
     def test_q4_2020_sise_merger(self):
-        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (Ãƒâ€¦Ã‚ÂiÃƒâ€¦Ã…Â¸ecam merger); AKSGY came in
+        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¸ecam merger); AKSGY came in
         before = m.members_on(D("2020-09-30"), full_history=True)
         after = m.members_on(D("2020-10-01"), full_history=True)
         self.assertTrue({"TRKCM", "ANACM", "SODA"} <= before)
         self.assertFalse({"TRKCM", "ANACM", "SODA"} & after)
         self.assertIn("AKSGY", after - before)
 
+    def test_2019_and_gusgr_rename(self):
+        # 12304 / 12070 / 11867 / 11632; GUSGR (2019-10-01 add) is TURSG after the 31.08.2020 rename
+        events = m.load_changes(full_history=True)
+        stable = m.load_stable(full_history=True)
+        sizes = m.check_sizes(events, stable)
+        self.assertIn(D("2019-01-01"), sizes)
+        self.assertEqual(set(sizes.values()), {m.INDEX_SIZE})
+        self.assertIn("TURSG", m.members_on(D("2019-10-01"), events, stable) - m.members_on(D("2019-09-30"), events, stable))
+        self.assertNotIn("DOAS", stable)
     def test_2020_q1_to_q3_and_adana_merger(self):
         # 11428 / 12557 / 12559 quarterly tables; KAP 845949: ADANA out, SARKY (1st reserve) in from 21.05.2020
         events = m.load_changes(full_history=True)
         stable = m.load_stable(full_history=True)
         sizes = m.check_sizes(events, stable)
-        self.assertIn(D("2019-12-31"), sizes)
+        self.assertIn(D("2020-01-01"), sizes)
         self.assertIn(D("2020-05-21"), sizes)
         self.assertIn("AFYON", m.members_on(D("2019-12-31"), events, stable))
         self.assertIn("ADANA", m.members_on(D("2020-05-20"), events, stable) - m.members_on(D("2020-05-21"), events, stable))
