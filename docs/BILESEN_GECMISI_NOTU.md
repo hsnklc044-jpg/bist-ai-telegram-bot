@@ -13,7 +13,25 @@ Yürürlük tarihi, duyurunun yazdığı dönemin ilk günüdür.
 | 2021-01-01 | 14132 | 12 |
 | 2020-10-01 | 14118 | 12 |
 
-## Durma noktası: 2020 Ç3 eklenmedi
+## Ek: 2020 Ç1–Ç3 ve iki dönem dışı olay (19.11.2026 öğleden sonra)
+
+Aşağıdaki "Durma noktası" bölümündeki iki sorun KAP bildirimleriyle çözüldü; kayıt 2020-01-01'e uzatıldı (68 satır daha).
+
+| Yürürlük | Kaynak | Satır | Not |
+|---|---|---|---|
+| 2021-06-16 | KAP 942442 (15.06.2021) | 2 | BAGFS Yakın İzleme Pazarı'na geçti, çıkarıldı; yerine 1. yedek ECZYT |
+| 2020-07-01 | duyuru 12559 (19.06.2020) | 8 | |
+| 2020-05-21 | KAP 845949 (20.05.2020) | 2 | OYAK Çimento birleşmesi: ADANA çıkarıldı; yerine 1. yedek SARKY |
+| 2020-04-01 | duyuru 12557 (19.03.2020) | 10 | |
+| 2020-01-01 | duyuru 11428 (17.12.2019) | 46 | |
+
+- KAP bildirimleri haber sitelerindeki birebir kopyalarından okundu (bigpara, uzmanpara); kaynak sütununa KAP adresi yazıldı.
+- CIMSA (2020-01-01) ve OYAKC (2020-07-01) alınıp bir daha çıkarılmadığı için sabit listeden değişiklik kaydına geçti.
+  Sabit hisse (tam geçmiş) 47 → 45; varsayılan sonuçlar değişmedi (202 hisse, eski dosyalarla aynı).
+- `ever_members(full_history=True)` 234 hisse. Her tarihte 100 üye (test: `test_2020_q1_to_q3_and_adana_merger`).
+- Daha geri (2019 ve öncesi) bu notta yok; sonraki adım 2019 Ç4'ten 2015 Ç3'e, her dönem dışı olay için KAP kaynağıyla.
+
+## Durma noktası: 2020 Ç3 eklenmedi (çözüldü, yukarıdaki ek)
 
 2020-07-01 (duyuru 12559) eklenince zincir bozuluyor:
 
