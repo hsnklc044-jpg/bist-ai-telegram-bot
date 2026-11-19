@@ -151,11 +151,10 @@ class NoLookaheadTest(unittest.TestCase):
 
 class MonthEndRebalanceTest(unittest.TestCase):
     """
-    Momentum rebalances on the last session of each month. With
-    truncated data the newest day is not known to be a month end, so a
-    live run and the backtest agree on every day except possibly the
-    newest one. This test documents that the difference is limited to
-    the newest day.
+    Momentum rebalances on the last session of each month. Since data
+    audit #2 the month end comes from the session calendar, so a live run
+    and the backtest agree on every day (NoLookaheadTest.test_momentum);
+    this older, weaker check is kept.
     """
 
     def test_only_newest_day_can_differ(self):

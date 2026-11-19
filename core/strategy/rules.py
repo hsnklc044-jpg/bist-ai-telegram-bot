@@ -87,6 +87,17 @@ def regime_filter(benchmark: pd.DataFrame, window: int = 200) -> pd.Series:
     return (close > average).fillna(False)
 
 
+def _month_end_sessions(index: pd.DatetimeIndex):
+    """
+    Mask of the days that are the last session of their month by the session calendar
+    (data audit #2). The newest candle counts only if the calendar has no later session
+    in its month, so a truncated (live) history and the full history agree on every day.
+    """
+
+    calendar = session_calendar(index)
+    return pd.DatetimeIndex(index).normalize().isin(_month_last_sessions(calendar)[:-1])
+
+
 def momentum_signals(
     frames: dict[str, pd.DataFrame],
     lookback: int = 126,
@@ -111,8 +122,7 @@ def momentum_signals(
         ok = eligible.reindex(index=closes.index, columns=closes.columns).ffill().fillna(False).astype(bool)
         momentum = momentum.where(ok)
 
-    month_end = closes.index.to_series().groupby(closes.index.to_period("M")).max()
-    rebalance = closes.index.isin(month_end.values)
+    rebalance = _month_end_sessions(closes.index)
 
     in_top = pd.DataFrame(index=closes.index, columns=closes.columns, dtype="float")
     for day in closes.index[rebalance]:
@@ -163,8 +173,7 @@ def low_volatility_signals(
         ok = eligible.reindex(index=closes.index, columns=closes.columns).ffill().fillna(False).astype(bool)
         volatility = volatility.where(ok)
 
-    month_end = closes.index.to_series().groupby(closes.index.to_period("M")).max()
-    rebalance = closes.index.isin(month_end.values)
+    rebalance = _month_end_sessions(closes.index)
 
     in_top = pd.DataFrame(index=closes.index, columns=closes.columns, dtype="float")
     for day in closes.index[rebalance]:
