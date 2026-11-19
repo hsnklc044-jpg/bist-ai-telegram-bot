@@ -32,6 +32,9 @@ from core.strategy.score import score_frame
 from tests.golden import load_prices
 
 CUTS = (260, 330, 400)
+# data audit #2: a cut on a real month end (2026-03-31). A cut before a holiday is not
+# testable here: the synthetic fixture has candles on holidays (e.g. 27-29.05.2026).
+MONTH_END_CUTS = (271,)
 
 
 def scramble(frames: dict[str, pd.DataFrame], cut_day: pd.Timestamp, seed: int = 7):
@@ -62,8 +65,8 @@ class NoLookaheadTest(unittest.TestCase):
         cls.frames, cls.bench = load_prices()
         cls.dates = cls.frames["S01"].index
 
-    def variants(self):
-        for i in CUTS:
+    def variants(self, cuts=CUTS):
+        for i in cuts:
             cut = self.dates[i]
             frames_s = scramble(self.frames, cut)
             bench_s = scramble({"B": self.bench}, cut, seed=11)["B"]
@@ -80,9 +83,9 @@ class NoLookaheadTest(unittest.TestCase):
             obj=label,
         )
 
-    def check_signals(self, build, name, truncation_ok=True):
+    def check_signals(self, build, name, truncation_ok=True, cuts=CUTS):
         base = build(self.frames, self.bench)
-        for cut, kind, frames, bench in self.variants():
+        for cut, kind, frames, bench in self.variants(cuts):
             if kind == "truncated" and not truncation_ok:
                 continue
             with self.subTest(rule=name, cut=str(cut.date()), kind=kind):
@@ -114,11 +117,13 @@ class NoLookaheadTest(unittest.TestCase):
 
     def test_momentum(self):
         # data audit #2: month ends come from the session calendar, so a truncated history must agree too
-        self.check_signals(lambda f, b: momentum_signals(f, 63, 10, 4, regime=regime_filter(b, 100)), "momentum")
+        self.check_signals(lambda f, b: momentum_signals(f, 63, 10, 4, regime=regime_filter(b, 100)), "momentum",
+                           cuts=CUTS + MONTH_END_CUTS)
 
     def test_low_volatility(self):
         # Aşama 3 H1; data audit #2, as for momentum
-        self.check_signals(lambda f, b: low_volatility_signals(f, 60, 4), "low_volatility")
+        self.check_signals(lambda f, b: low_volatility_signals(f, 60, 4), "low_volatility",
+                           cuts=CUTS + MONTH_END_CUTS)
 
     def test_index_trend(self):
         # Aşama 3 H2; months are timed by the session calendar, so a truncated history must agree too
