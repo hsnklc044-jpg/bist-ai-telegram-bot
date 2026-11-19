@@ -3,7 +3,7 @@ QuantBIST
 Point-in-time BIST 100 membership (survivorship-bias control).
 
 Two inputs:
-- data/bist100_changes.csv   every quarterly addition / removal since Q2 2022,
+- data/bist100_changes.csv   every quarterly addition / removal since Q4 2020,
                              one row per stock, with the Borsa İstanbul source
 - data/bist100_stable.csv    the stocks that were members during the whole
                              period (never in a change row). Built once from an
@@ -23,7 +23,7 @@ from __future__ import annotations
 import argparse
 import csv
 from collections import defaultdict
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -97,15 +97,21 @@ def members_on(on: date, events=None, stable: set[str] | None = None) -> set[str
     return stable | dynamic_members(events, on)
 
 
-def check_sizes(events, stable: set[str], start: date = date(2022, 1, 3)) -> dict[date, int]:
-    """Membership size on the first day and on every change date (must all be 100)."""
+def check_sizes(events, stable: set[str], start: date | None = None) -> dict[date, int]:
+    """Membership size on the first day and on every change date (must all be 100).
 
-    days = sorted({start} | {d for ev in events.values() for d, _ in ev if d >= start})
+    The first day defaults to the day before the earliest change, so the membership
+    computed for dates before any change row is checked too."""
+
+    change_days = {d for ev in events.values() for d, _ in ev}
+    if start is None:
+        start = min(change_days) - timedelta(days=1)
+    days = sorted({start} | {d for d in change_days if d >= start})
     return {d: len(stable | dynamic_members(events, d)) for d in days}
 
 
 def stable_from_current(current: list[str], events, on: date) -> set[str]:
-    """Stable stocks = today's official list minus the stocks that changed since 2022."""
+    """Stable stocks = today's official list minus the stocks in the change log (since Q4 2020)."""
 
     current_codes = {_code(s) for s in current}
     if len(current_codes) != INDEX_SIZE:
@@ -145,7 +151,7 @@ def membership_panel(index: pd.DatetimeIndex, symbols: list[str], events=None, s
 
 
 def ever_members(events=None, stable=None) -> list[str]:
-    """Every stock that was a BIST 100 member at some point since 2022 (with .IS)."""
+    """Every stock that was a BIST 100 member at some point since the change log starts (Q4 2020; with .IS)."""
 
     events = events if events is not None else load_changes()
     stable = stable if stable is not None else load_stable()
@@ -170,13 +176,13 @@ def main(argv: list[str] | None = None) -> None:
             writer = csv.writer(fh, lineterminator="\n")
             writer.writerow(["symbol", "source"])
             for s in sorted(stable):
-                writer.writerow([f"{s}.IS", f"resmi BIST100 listesi {on} eksi 2022-2026 değişiklikleri"])
+                writer.writerow([f"{s}.IS", f"resmi BIST100 listesi {on} eksi değişiklik kayıtları"])
         print(f"Doğrulandı: her tarihte 100 üye. {len(stable)} sabit hisse {STABLE_FILE} dosyasına yazıldı.")
     stable = load_stable()
     sizes = check_sizes(events, stable)
     print(f"{len(events)} hisse değişiklik kaydında, {len(stable)} sabit hisse; "
           f"üye sayıları: {sorted(set(sizes.values()))}")
-    print(f"2022'den beri üye olmuş toplam hisse: {len(ever_members(events, stable))}")
+    print(f"Değişiklik kaydı başından beri üye olmuş toplam hisse: {len(ever_members(events, stable))}")
 
 
 if __name__ == "__main__":

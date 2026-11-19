@@ -20,15 +20,33 @@ class RealChangeLogTest(unittest.TestCase):
     def test_changing_part_has_constant_size(self):
         events = m.load_changes()
         sizes = m.check_sizes(events, stable=set())
-        self.assertEqual(set(sizes.values()), {50})
+        self.assertEqual(set(sizes.values()), {m.INDEX_SIZE - len(m.load_stable())})
 
 
 class CommittedStableListTest(unittest.TestCase):
     def test_membership_is_100_on_every_date(self):
         events = m.load_changes()
         stable = m.load_stable()
-        self.assertEqual(len(stable), 50)
+        self.assertEqual(len(stable), 47)
         self.assertEqual(set(m.check_sizes(events, stable).values()), {m.INDEX_SIZE})
+
+    def test_sizes_cover_the_day_before_the_first_change(self):
+        events = m.load_changes()
+        first = min(d for ev in events.values() for d, _ in ev)
+        self.assertEqual(first, D("2020-10-01"))
+        sizes = m.check_sizes(events, m.load_stable())
+        self.assertIn(D("2020-09-30"), sizes)
+        self.assertIn(D("2021-04-01"), sizes)
+
+    def test_q4_2020_sise_merger(self):
+        # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (Şişecam merger); AKSGY came in
+        events = m.load_changes()
+        stable = m.load_stable()
+        before = m.members_on(D("2020-09-30"), events, stable)
+        after = m.members_on(D("2020-10-01"), events, stable)
+        self.assertTrue({"TRKCM", "ANACM", "SODA"} <= before)
+        self.assertFalse({"TRKCM", "ANACM", "SODA"} & after)
+        self.assertIn("AKSGY", after - before)
 
     def test_off_cycle_change_june_2026(self):
         events = m.load_changes()
@@ -80,10 +98,10 @@ class StableFromCurrentTest(unittest.TestCase):
     def test_wrong_list_is_refused(self):
         events = m.load_changes()
         dynamic = m.dynamic_members(events, D("2026-10-23"))
-        stable_guess = [f"S{i:03d}" for i in range(50)]
+        stable_guess = [f"S{i:03d}" for i in range(m.INDEX_SIZE - len(dynamic))]
         good = sorted(dynamic) + stable_guess
         stable = m.stable_from_current(good, events, D("2026-10-23"))
-        self.assertEqual(len(stable), 50)
+        self.assertEqual(len(stable), len(stable_guess))
         # a list missing a current dynamic member, or containing a removed stock, is refused
         broken = good[1:] + ["SKBNK"]  # SKBNK left the index on 2026-10-01
         with self.assertRaises(m.MembershipError):

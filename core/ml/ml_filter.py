@@ -84,12 +84,15 @@ def interval(chosen: pd.DataFrame, rule: str) -> tuple[float, float]:
     return date_bootstrap(chosen) if rule == "goreli20" else block_bootstrap(chosen, block=2 * HORIZON)
 
 
+# K-77 md.2: the first day of the sourced change record when K-77 was written. The record was later
+# extended back (docs/BILESEN_GECMISI_NOTU.md); moving this start is a new decision, not a data update.
+K77_START = pd.Timestamp("2022-04-01")
+
+
 def membership_start() -> pd.Timestamp:
-    """The first day of the sourced BIST 100 change record (data/bist100_changes.csv)."""
+    """Start of the M30 measurement and the live model fit (K-77 md.2), fixed at 01.04.2022."""
 
-    from core.market.membership import load_changes
-
-    return pd.Timestamp(min(d for events in load_changes().values() for d, _ in events))
+    return K77_START
 
 
 def point_in_time(data: pd.DataFrame, start: pd.Timestamp | None = None) -> tuple[pd.DataFrame, int]:
