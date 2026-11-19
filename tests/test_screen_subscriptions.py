@@ -137,6 +137,17 @@ class RunTest(Files):
         self.assertEqual(self.state.read_text() if self.state.exists() else None, before)
         self.assertTrue(messages[0].rstrip().endswith(command.DISCLAIMER))
 
+    def test_owner_choice_k114_excludes_two_screens_from_the_morning_table(self):
+        """K-114: the owner kept A100, GC, KRL; bist30_aday and bist100_trend are not shown (definitions kept)."""
+        self.assertEqual(subscriptions.MORNING_EXCLUDED, frozenset({"bist30_aday", "bist100_trend"}))
+        frames, bench = market()
+        self.sub("dusuk")
+        kwargs = dict(live=lambda _s: (frames, bench), suspects=set(), universe_of=lambda *_: list(frames), **self.paths)
+        with mock.patch("core.signals.store.locked", return_value=False), \
+                mock.patch("core.market.calendar.is_session_day", return_value=True), \
+                mock.patch.object(subscriptions, "MORNING_EXCLUDED", frozenset({"dusuk"})):
+            self.assertEqual(subscriptions.morning(DAY, **kwargs), [])
+
     def test_morning_is_silent_on_a_holiday_or_a_lock(self):
         frames, bench = market()
         self.sub("dusuk")

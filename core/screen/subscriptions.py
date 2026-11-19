@@ -28,6 +28,9 @@ logger = get_logger(__name__)
 
 SUBSCRIPTIONS_FILE = SCREEN_SUBSCRIPTIONS_FILE
 STATE_FILE = LOG_DIR / "screen_subscriptions_state.json"
+# K-114 (owner, 19.11.2026): the morning table keeps A100, GC and KRL. These two are left out of the morning
+# table only; their definitions and subscriptions are kept (personal records are not edited).
+MORNING_EXCLUDED = frozenset({"bist30_aday", "bist100_trend"})
 COLUMNS = ("at", "chat", "name", "action")
 SUBSCRIBE, CANCEL = "abone", "iptal"
 MAX_SUBSCRIPTIONS = 5
@@ -249,7 +252,7 @@ def morning(day: date, live=None, path: Path | None = None, saved_path: Path | N
     from core.screen.command import DISCLAIMER, _live
     from core.signals import store
 
-    subscribed = sorted(active(path).items())
+    subscribed = sorted((n, c) for n, c in active(path).items() if n not in MORNING_EXCLUDED)
     if not subscribed or not is_session_day(day) or store.locked(day):
         return []
     results: dict[str, list[str]] = {}

@@ -11,7 +11,7 @@ from core.research import karar_defteri as kd
 
 
 def entry(**kw):
-    base = dict(tarih="2026-11-20", karar_no="K-113", tur="esik_onayi", kart="T1", ozet="Eşik onaylandı.",
+    base = dict(tarih="2026-11-20", karar_no="K-999", tur="esik_onayi", kart="T1", ozet="Eşik onaylandı.",
                 beklenti="b", en_kotu_senaryo="e", gerekce="g", n_etkisi="1", sayaci_sifirlar="hayir")
     base.update(kw)
     return base
@@ -28,7 +28,7 @@ class JournalTest(unittest.TestCase):
 
     def test_project_journal_seeded_and_valid(self):
         rows = kd.read(kd.JOURNAL)
-        self.assertEqual([r["karar_no"] for r in rows], ["K-110", "K-111", "K-112"])
+        self.assertEqual([r["karar_no"] for r in rows][:3], ["K-110", "K-111", "K-112"])
         self.assertEqual({r["n_etkisi"] for r in rows}, {"0"})
         with open(kd.JOURNAL, encoding="utf-8", newline="") as f:
             self.assertEqual(tuple(next(csv.reader(f))), kd.COLUMNS)
@@ -44,14 +44,15 @@ class JournalTest(unittest.TestCase):
         kd.check(entry(tur="kural_duzeltmesi", sayaci_sifirlar="evet"))
 
     def test_append_adds_at_end_only(self):
+        count = len(kd.read(self.path))
         before = self.path.read_text(encoding="utf-8")
         kd.append(entry(), self.path)
         after = self.path.read_text(encoding="utf-8")
         self.assertTrue(after.startswith(before))
-        self.assertEqual(kd.read(self.path)[-1]["karar_no"], "K-113")
+        self.assertEqual(kd.read(self.path)[-1]["karar_no"], "K-999")
         with self.assertRaises(ValueError):
             kd.append(entry(tur="yok"), self.path)
-        self.assertEqual(len(kd.read(self.path)), 4)
+        self.assertEqual(len(kd.read(self.path)), count + 1)
 
     def test_edited_or_reordered_old_row_detected(self):
         base = self.path.read_text(encoding="utf-8")
