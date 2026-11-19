@@ -42,7 +42,7 @@ COVERAGE_START = date(2022, 4, 1)  # K-77: first day of the change record before
 
 # Ticker renames: old code -> code used in the price store
 ALIASES = {
-    "GUSGR": "TURSG",  # 31.08.2020 (Güneş Sigorta → Türkiye Sigorta; şirketin özel durum açıklaması), full_history only
+    "GUSGR": "TURSG",  # 31.08.2020 (Güneş Sigorta → Türkiye Sigorta; şirketin özel durum açıklaması); its rows are all pre-2022
     "EFORC": "EFOR",  # inferred: EFORC added 2025-04, EFOR removed 2026-10 (chain only consistent if same stock)
     "IPEKE": "TRENJ",  # 24.11.2025
     "KERVT": "BESLR",  # 02.06.2025 (Kerevitaş → Besler Gıda; Borsa İstanbul duyurusu, D4)

@@ -43,7 +43,10 @@ Aşağıdaki "Durma noktası" bölümündeki iki sorun KAP bildirimleriyle çöz
 - GUSGR 2019-10-01'de alınıyor, hiç çıkarılmıyor: Güneş Sigorta 31.08.2020'de Türkiye Sigorta oldu, kod TURSG (şirketin
   31.08.2020 özel durum açıklaması; Ziraat Yatırım TURSG ayrılma akçesi dokümanında aktarılıyor). `ALIASES` GUSGR→TURSG
   eklendi; TURSG'nin kayıttaki ilk olayı 2023-07-03 çıkarılma, zincir bununla her tarihte 100. Kesin KAP bildirim numarası
-  bulunmadı (açık uç).
+  bulunmadı (açık uç). Kırmızı takım: birleşmede yalnız HALKS işlemden kaldırıldı (son işlem 01.09.2020), eski Güneş
+  Sigorta payları Yıldız Pazar'da devam etti (QNB duyurusu "Payların İşlem Görmekten Men Edilmesi – HALKS, GUSGR").
+- 2019 için KAP "Endeks Şirketlerinde Değişiklik" taraması yapılmadı (açık uç). Web aramasında dönem dışı değişiklik
+  bulunmadı; 100 üye denetimi çoğu kaçırmayı yakalar ama kanıt değildir.
 - 11867'de "A.V.O.D" yazılı; kod AVOD.
 - DOAS (2019-01-02 çıkış, 2019-10-01 giriş) sabit listeden kayda geçti. Sabit hisse (tam geçmiş) 45 → 44; varsayılan
   sonuçlar değişmedi (202 hisse). `ever_members(full_history=True)` 239.
