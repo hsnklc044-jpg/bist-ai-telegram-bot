@@ -142,3 +142,9 @@ Yeni bir lisanslı kaynak bağlandığında ilk iş eski veriyle karşılaştır
 - AUDIT D14: Borsa İstanbul telif bildirimi ile mevcut kullanım.
 - KAP kullanım koşulu (K-48, D'nin kapısı).
 - Yahoo ve İş Yatırım lisans durumu (D5, D13).
+
+## Dalga 1 #4 notu (19.11.2026 09:56)
+
+- **EVDS kullanılmıyor ve Claude kurmaz:** anahtar için hesap açmak ve token kullanmak gerekir (CLAUDE.md kesin sınırları). Sahip isterse anahtarı kendisi alır ve `.env`'e kendisi yazar; Claude anahtarı görmez.
+- **Gerek karşılanıyor (anahtarsız):** USD/TRY için TCMB gösterge kur bülteni (saat başı, Yahoo ile ikinci kaynak kıyası). TÜFE için TÜİK verisi, TCMB sayfasından (`data/macro/cpi.csv`). Politika faizi `data/cash/policy_rate.csv`'de; elle güncelleniyor, son satır 23.10.2026. Sonuçlar `four_basis` ile TL, reel, USD ve nakde göre raporlanıyor (günlük rapor, ileri test, araştırma).
+- **Eksik:** mevduat faizi serisi yok. Politika faizinin güncelliği sağlık kontrolünde izlenmiyor. Risksiz oran olarak politika faizi kullanılıyor.
