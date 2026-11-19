@@ -1,0 +1,19 @@
+# ÖRNEK DOSYA: biçimi göstermek içindir; gerçek bir strateji değildir, hiçbir yerde çalıştırılmaz.
+# Değerler uydurmadır; öneri ya da ön kayıt değildir (#8, K-113 Dalga 2; core/research/strategy_config.py).
+# Hash: python -c "from core.research import strategy_config as s; print(s.config_hash(s.load('config/strategies/ornek.toml')))"
+
+ad = "ornek"
+surum = "0"
+evren = "BIST100"
+olusturma_tarihi = 2026-11-19
+aciklama = "ÖRNEK: dosya biçimini gösterir; gerçek strateji değildir."
+ornek = true
+
+[parametreler]
+pencere_gun = 20
+esik = 0.5
+yontem = "ornek_yontem"
+
+[maliyet]
+komisyon_bps = 0.0
+kayma_bps = 0.0
