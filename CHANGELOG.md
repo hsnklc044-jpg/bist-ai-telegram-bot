@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.157 – 19.11.2026 (K-116: haftalık araştırmanın kural testleri 18.12'ye kadar durur)
+- `research.yml`: strateji araştırması (üç adım), Aşama 3, a4 ve aday kurallar `if: false  # K-116` ile durdu; fiyat ve USD/TRY adımları çalışıyor. Rapor dosyalarına gerekçe satırı yazılıyor, iş yeşil bitiyor.
+- a4 ön kaydı ve 27.04.2027 taraması değişmedi; a4 ay sonu kalıbı kararı 18.12 paketinde (DECISIONS K-116 notu).
+- Test: `tests/test_research_workflow_pause.py` (önce kırmızı).
+
 ## v0.99.152 – 19.11.2026 (K-113 Dalga 1: sabah tek tablo, defter sütunları, karar defteri, veri kalitesi denetimi)
 - K-114 (sahibin seçimi): sabah tablosunda A100, GC, KRL kalır; `bist30_aday` ve `bist100_trend` yalnız sabah tablosundan çıkar (tanımlar silinmez).
 - #15 Sabah mesajı tek tablo: her hisse bir satır; sütunlar filtre kodları (A100, A30, TRD, GC, KRL), göreli güç sırası, destek/direnç uzaklığı, uzaklık/ATR (1'in altı "gürültü içinde"), olay bayrağı (şimdilik "—"), USD trendi (gösterim alanı: USD fiyatı 200 günlük ortalamasının üstünde mi). İlk satır: "Bu filtreler henüz test edilmedi (testler 18.12 sonrası). Filtre sonucudur, karar dayanağı değildir." Veri satırı aynen "doğrulanmamış kaynak". Her sabahın satırları `data/filtre_kayitlari.csv`'ye eklenir (yalnız kayıt sütunları; sonuç sütunu yok); 20 seans sonra nominal, XU100'e göre, USD ve reel sonuç `data/filtre_sonuclari.csv`'ye yazılır (kayıt, test değil). 20. seansta hissenin kapanışı yoksa sonraki akşamlar yeniden denenir; 10 seans daha geçerse satır boş getirilerle ve "veri yok" notuyla kesin yazılır. Telegram'ın 4096 karakter sınırı aşılacaksa tablo sonraki mesajda sürer (her mesaj uyarı satırıyla başlar, hiçbir satır düşmez); hata satırları kısaltılır; bir parçanın gönderilememesi diğerlerini durdurmaz. Boş (NaN) uzaklık ve ATR "—" görünür. Filtre tanımları değişmedi.
