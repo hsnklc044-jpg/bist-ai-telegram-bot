@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          # full history and the bot branch ref: the decision journal test compares docs/KARAR_DEFTERI.csv
+          # with the merge-base (core/research/karar_defteri.py base_ref); a shallow clone would skip it
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"

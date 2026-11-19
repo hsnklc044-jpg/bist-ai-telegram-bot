@@ -115,6 +115,10 @@ GUIDANCE = {
                       "docs/MAINTENANCE.md (bakım takvimi)"),
     "Dışarıdan izleme": ("bilgisayar kapalıyken ya da bot dururken kimse uyarılmaz",
                          "OPERATIONS §7; .env'deki HC_REPORT_URL ve HC_BOT_URL, internet bağlantısı"),
+    "Veri kalitesi": ("şüpheli ya da eski fiyatlı hisselerde rapor, tarama ve seviye sonuçları yanlış olabilir, "
+                      "otomatik düzeltme yapılmaz",
+                      "satırdaki hisse ve günü KAP'ta kontrol edin; doğrulanan işlemi data/corporate_actions.csv'ye, "
+                      "gerçek hareketi data/candle_exceptions.csv'ye kaynağıyla ekleyin"),
     "Telegram botu": ("komutlar ve 20:00 kontrolü çalışmaz",
                       "PowerShell: Start-ScheduledTask \"QuantBIST Bot\" (elle python main.py açmayın)"),
 }
@@ -123,6 +127,7 @@ SEVERITY = {
     "Fiyat veritabanı": "KRİTİK", "Veri şeması": "KRİTİK", "Kişisel dosyalar": "KRİTİK", "Günlük rapor": "YÜKSEK", "Yedek": "YÜKSEK",
     "Canlı ölçüm kaydı": "YÜKSEK", "Telegram botu": "YÜKSEK", "Disk": "YÜKSEK", "Fiyat verisi": "ORTA",
     "Sanal hesap kaydı": "ORTA", "Tatil takvimi": "DÜŞÜK", "Makro veri": "DÜŞÜK", "Model doğrulama": "DÜŞÜK", "GitHub araştırması": "DÜŞÜK", "Dışarıdan izleme": "DÜŞÜK", "Bakım takvimi": "ORTA",
+    "Veri kalitesi": "ORTA",
 }
 LEVELS = ["KRİTİK", "YÜKSEK", "ORTA", "DÜŞÜK"]
 
@@ -357,9 +362,12 @@ async def morning_screens_job(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told
         logger.exception("Morning screens failed")
         messages = [html.escape(f"⚠️ Sabah aday listesi hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}")]
-    for text in messages:  # owner's instruction #15: one HTML message with the table in <pre>
-        with trust.data_message():
-            await context.bot.send_message(chat, text, parse_mode="HTML")
+    with trust.data_message():  # owner's instruction #15: HTML, the table in <pre>; the data line on the first
+        for text in messages:
+            try:  # one part that cannot be sent never loses the others
+                await context.bot.send_message(chat, text, parse_mode="HTML")
+            except Exception:  # noqa: BLE001
+                logger.exception("Morning screens message part not sent")
 
 
 def schedule_morning_screens(app: Application, chat_id: int | None = None) -> bool:

@@ -232,7 +232,9 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
 def morning(day: date, live=None, path: Path | None = None, saved_path: Path | None = None, suspects=None,
             universe_of=None, usd=None, record_path: Path | None = None) -> list[str]:
     """
-    Owner's instruction #15: ONE message before the session with ONE table, one row per stock and the codes of
+    Owner's instruction #15: one message (more only when Telegram's 4096 characters require it: the table goes
+    on in the next message, each one starting with the warning line; every line is cut to fit, see
+    core.screen.morning_table.pack) with ONE table, one row per stock and the codes of
     every subscribed screen it passed (core.screen.morning_table), from the last closes. The first line is the
     untested-filter warning; the bot adds the data line under it (core.market.trust). The rows are appended to
     the filter record (core.screen.filtre_kayitlari; a record failure never stops the message). It reads and
@@ -266,7 +268,7 @@ def morning(day: date, live=None, path: Path | None = None, saved_path: Path | N
             matches = engine.run(query, frames, bench, found).matches
         except Exception as exc:  # noqa: BLE001 - one screen never stops the others
             logger.exception("Morning list %s failed", name)
-            problems.append(f"⚠️ Sabah listesi {name} hazırlanamadı: {exc}")
+            problems.append(f"⚠️ Sabah listesi {name} hazırlanamadı: {type(exc).__name__}: {exc}")
             continue
         criteria_of_name[name] = criteria
         results[name] = [m.symbol for m in matches]
@@ -317,20 +319,26 @@ def morning(day: date, live=None, path: Path | None = None, saved_path: Path | N
     code_of = mt.codes(criteria_of_name)
     last = max((df.index.max() for df in frames_all.values() if df is not None and len(df)), default=None)
     head = "🌅 Sabah filtre tablosu" + (f" · son kapanış {last:%d.%m.%Y}" if last is not None else "")
-    lines = [mt.WARNING, html.escape(f"{head} · {len(rows)} hisse")]
+    blocks = []
     if rows:
-        lines.append(mt.table(rows, code_of))
-        lines.append(html.escape("Kodlar: " + ", ".join(f"{code_of[n]}={n}" for n in sorted(criteria_of_name))))
-        lines.append("GG: 20 seans göreli güç sırası (1 en yüksek) · D%/R%: en yakın küme destek/direnç uzaklığı · "
-                     f"ATR: yakın seviyenin ATR cinsinden uzaklığı (&lt;1: {mt.NOISE}) · USD: dolar fiyatı 200 "
-                     "günlük ortalamasının üstünde ↑, altında ↓ (gösterim alanı)")
+        try:
+            blocks += mt.table_parts(rows, code_of)
+        except Exception as exc:  # noqa: BLE001 - the rest of the message still goes out
+            logger.exception("Morning table failed")
+            problems.append(f"⚠️ Sabah tablosu hazırlanamadı: {type(exc).__name__}: {exc}")
+        legend = "Kodlar: " + ", ".join(f"{code_of[n]}={n}" for n in sorted(criteria_of_name))
+        blocks.append(html.escape(mt.short(legend, mt.BUDGET // 8)))
+        blocks.append("GG: 20 seans göreli güç sırası (1 en yüksek) · D%/R%: en yakın küme destek/direnç uzaklığı · "
+                      f"ATR: yakın seviyenin ATR cinsinden uzaklığı (&lt;1: {mt.NOISE}) · USD: dolar fiyatı 200 "
+                      "günlük ortalamasının üstünde ↑, altında ↓ (gösterim alanı)")
     if empty:
-        lines.append(html.escape(f"Hisse çıkmayan taramalar: {', '.join(empty)}."))
-    lines += [html.escape(p) for p in problems]
+        blocks.append(html.escape(mt.short(f"Hisse çıkmayan taramalar: {', '.join(empty)}.", mt.BUDGET // 8)))
+    blocks += [html.escape(mt.short(p)) for p in problems]
     if rows:
-        lines.append("Koşul değerleri: /tara_aciklama KOD AD")
-    lines.append(DISCLAIMER)
-    return ["\n".join(lines)]
+        blocks.append("Koşul değerleri: /tara_aciklama KOD AD")
+    blocks.append(DISCLAIMER)
+    return mt.pack([mt.WARNING, html.escape(f"{head} · {len(rows)} hisse")], blocks,
+                   html.escape(f"{head} (devam)"))
 
 
 def save_state(outcome: Outcome, path: Path | None = None) -> None:

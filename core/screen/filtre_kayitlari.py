@@ -13,7 +13,10 @@ written once per record, the same pattern as core.research.tahmin_defteri daily(
 - USD: macro.usd_return (both legs at the TCMB rate of their day);
 - real: macro.real_return (TÜFE, months after the last published one are never estimated).
 
-Missing data leaves the field empty; nothing is guessed. This is a record, not a test: no statistics and
+Missing data leaves the field empty; nothing is guessed. A stock with no close on the 20th session (halted,
+or the store is behind) is tried again on later evenings; after 10 more XU100 sessions its row is written with
+empty returns and "veri yok" in the `not` column (final). The record file holds the record only; files written
+before this rule keep their four always-empty sonuc_* columns and are still read and appended to. This is a record, not a test: no statistics and
 no hit rates are computed here. Both files are personal (not in git).
 """
 
@@ -33,11 +36,13 @@ logger = get_logger(__name__)
 
 RECORDS = DATA_DIR / "filtre_kayitlari.csv"
 RESULTS = DATA_DIR / "filtre_sonuclari.csv"
-RECORD_COLUMNS = ("kayit_tarihi", "hisse", "filtreler", "referans_tarihi", "referans_kapanis",
-                  "sonuc_nominal", "sonuc_xu100_goreli", "sonuc_usd", "sonuc_reel")
+RECORD_COLUMNS = ("kayit_tarihi", "hisse", "filtreler", "referans_tarihi", "referans_kapanis")
+OLD_RECORD_COLUMNS = (*RECORD_COLUMNS, "sonuc_nominal", "sonuc_xu100_goreli", "sonuc_usd", "sonuc_reel")
 RESULT_COLUMNS = ("kayit_tarihi", "hisse", "referans_tarihi", "bitis_tarihi", "nominal_yuzde",
-                  "xu100_goreli_yuzde", "usd_yuzde", "reel_yuzde", "isaretlendi")
+                  "xu100_goreli_yuzde", "usd_yuzde", "reel_yuzde", "isaretlendi", "not")
 SESSIONS = 20
+GRACE = 10  # more XU100 sessions to wait for a missing 20th-session close before the result is final
+NO_DATA = "veri yok"
 BENCH = "XU100.IS"
 
 
@@ -59,14 +64,26 @@ def _read(path) -> list[dict]:
         return list(csv.DictReader(fh))
 
 
+def _header(path) -> tuple[str, ...]:
+    from pathlib import Path
+
+    path = Path(path)
+    if not path.exists() or not path.stat().st_size:
+        return ()
+    with open(path, encoding="utf-8", newline="") as fh:
+        return tuple(next(csv.reader(fh), ()))
+
+
 def append_records(records: list[Record], day: date, path=None) -> int:
-    """Append today's rows; a stock already recorded today is skipped. Returns the number written."""
+    """Append today's rows; a stock already recorded today is skipped. Returns the number written. A file in
+    the old layout (OLD_RECORD_COLUMNS) gets its empty columns, so its rows stay aligned."""
 
     path = path or RECORDS
     done = {(r.get("kayit_tarihi"), r.get("hisse")) for r in _read(path)}
     new = [r for r in records if (day.isoformat(), r.code) not in done]
     if not new:
         return 0
+    pad = [""] * (len(OLD_RECORD_COLUMNS) - len(RECORD_COLUMNS)) if _header(path) == OLD_RECORD_COLUMNS else []
     fh, new_file = open_append(path)
     with fh:
         out = csv.writer(fh, lineterminator="\n")
@@ -74,7 +91,7 @@ def append_records(records: list[Record], day: date, path=None) -> int:
             out.writerow(RECORD_COLUMNS)
         for r in new:
             out.writerow([day.isoformat(), r.code, ";".join(r.screens), r.ref_day.isoformat(),
-                          f"{r.ref_close:.6g}", "", "", "", ""])
+                          f"{r.ref_close:.6g}", *pad])
     return len(new)
 
 
@@ -99,7 +116,9 @@ def _num(value: float | None) -> str:
 
 
 def outcome(row: dict, bench: pd.Series, read, usd, cpi, today: date) -> dict | None:
-    """The results row of a due record; None while its 20 trading days have not passed."""
+    """The results row of a due record; None while its 20 trading days have not passed, and None while the
+    stock has no close on the 20th session until GRACE more XU100 sessions have passed: then the row is written
+    with empty returns and "veri yok" in `not` (final)."""
 
     from core.market import macro
 
@@ -114,6 +133,8 @@ def outcome(row: dict, bench: pd.Series, read, usd, cpi, today: date) -> dict | 
     except KeyError:
         stock = None
     end_close = _close_on(stock, end)
+    if end_close is None and (len(after) < SESSIONS + GRACE or after[SESSIONS + GRACE - 1].date() > today):
+        return None  # tried again on a later evening
     nominal = end_close / ref_close - 1 if end_close is not None and ref_close > 0 else None
     relative = usd_value = real = None
     if nominal is not None:
@@ -124,7 +145,7 @@ def outcome(row: dict, bench: pd.Series, read, usd, cpi, today: date) -> dict | 
     return {"kayit_tarihi": row["kayit_tarihi"], "hisse": row["hisse"], "referans_tarihi": ref.isoformat(),
             "bitis_tarihi": end.date().isoformat(), "nominal_yuzde": _num(nominal),
             "xu100_goreli_yuzde": _num(relative), "usd_yuzde": _num(usd_value), "reel_yuzde": _num(real),
-            "isaretlendi": today.isoformat()}
+            "isaretlendi": today.isoformat(), "not": "" if nominal is not None else NO_DATA}
 
 
 def _store_read(symbol: str) -> pd.DataFrame:
@@ -165,9 +186,10 @@ def fill_results(today: date, records=None, results=None, read=None, usd=None, c
             done.add(key)
     if not new:
         return []
+    fields = _header(results) or RESULT_COLUMNS  # an older results file keeps its own columns
     fh, new_file = open_append(results)
     with fh:
-        out = csv.DictWriter(fh, fieldnames=RESULT_COLUMNS, lineterminator="\n")
+        out = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n", extrasaction="ignore")
         if new_file:
             out.writeheader()
         out.writerows(new)
@@ -175,5 +197,5 @@ def fill_results(today: date, records=None, results=None, read=None, usd=None, c
             for r in new]
 
 
-__all__ = ["RECORDS", "RECORD_COLUMNS", "RESULTS", "RESULT_COLUMNS", "Record", "append_records", "fill_results",
+__all__ = ["GRACE", "NO_DATA", "OLD_RECORD_COLUMNS", "RECORDS", "RECORD_COLUMNS", "RESULTS", "RESULT_COLUMNS", "Record", "append_records", "fill_results",
            "outcome"]

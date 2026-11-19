@@ -230,8 +230,9 @@ class ResultsTest(unittest.TestCase):
         self.assertFalse(self.results.exists())
 
     def test_fills_four_returns_and_leaves_missing_data_empty(self):
-        lines = self.fill(self.days[30].date())
-        self.assertEqual(len(lines), 2)
+        self.assertEqual(len(self.fill(self.days[30].date())), 1)  # BBB: no 20th close, tried again later
+        lines = self.fill(self.days[35].date())  # 10 sessions after the 20th: BBB final with "veri yok"
+        self.assertEqual(len(lines), 1)
         rows = {r["hisse"]: r for r in self.rows()}
         a = rows["AAA"]
         end = self.days[22]
@@ -246,6 +247,7 @@ class ResultsTest(unittest.TestCase):
         self.assertEqual(a["reel_yuzde"], "")  # no CPI: empty, never guessed
         b = rows["BBB"]
         self.assertEqual((b["nominal_yuzde"], b["xu100_goreli_yuzde"], b["usd_yuzde"]), ("", "", ""))
+        self.assertEqual((a["not"], b["not"]), ("", "veri yok"))
 
     def test_results_are_append_only_and_written_once(self):
         self.fill(self.days[30].date())
@@ -262,7 +264,7 @@ class ResultsTest(unittest.TestCase):
         fk.append_records([fk.Record("BAD", ["x"], self.ref, 10.0)], self.days[3].date(), self.records)
         with self.records.open("a", encoding="utf-8") as fh:
             fh.write("2026-09-04,CCC,x,tarih-degil,abc,,,,\n")
-        lines = self.fill(self.days[30].date())
+        lines = self.fill(self.days[35].date())
         self.assertEqual(sorted(r["hisse"] for r in self.rows()), ["AAA", "BBB"])
         self.assertEqual(len(lines), 2)
 

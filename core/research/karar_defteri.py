@@ -6,8 +6,9 @@ card's N (`n_etkisi` 0/1) and whether it resets an incubation counter (`sayaci_s
 a bug fix does not).
 
 The journal is append-only (ANAYASA Md. 11): `append` only adds at the end, and `verify` compares the file
-with an earlier copy (by default the committed one, `git show HEAD:docs/KARAR_DEFTERI.csv`): every earlier row
-must still be there, unchanged and in the same place. A row is corrected by a new row, never by editing.
+with an earlier committed copy: every earlier row must still be there, unchanged and in the same place. A row
+is corrected by a new row, never by editing. Enforcement is a test only: tests/test_dalga1_redteam.py, run by
+CI with full history, checks docs/KARAR_DEFTERI.csv against the merge-base with the bot branch (or HEAD~1).
 
 `n_by_card` = the journal's `n_etkisi` per card + the runs core.research.experiments counted for that card
 (experiment names are lowercase, so card "T1" is experiment "t1").
@@ -101,23 +102,57 @@ def _write_rows(rows: Iterable[Mapping], path: Path | str) -> None:
         out.writerows({c: r.get(c, "") for c in COLUMNS} for r in rows)
 
 
-def committed_text(path: Path | str = JOURNAL) -> str | None:
-    """The journal as committed at HEAD; None without git or before the file was first committed."""
-    path = Path(path).resolve()
+BOT_BRANCH = "origin/claude/borsa-bot-creation-n7nmc9"
+UNVERIFIED = "doğrulanamadı"
+
+
+def _git(*args: str) -> str | None:
+    """stdout of a git command in the project; None when git is missing or the command fails."""
     try:
-        rel = path.relative_to(ROOT).as_posix()
-        got = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=ROOT, capture_output=True, timeout=30)
+        got = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, timeout=30)
     except (OSError, ValueError, subprocess.SubprocessError):
         return None
     return got.stdout.decode("utf-8").replace("\r\n", "\n") if got.returncode == 0 else None
 
 
-def verify(path: Path | str = JOURNAL, base: str | None = None) -> list[str]:
-    """Problems when an earlier row was edited, moved or deleted (compared with `base`, by default the
-    committed file). Rows added at the end are fine. No base to compare with: no problems."""
-    base = committed_text(path) if base is None else base
+def _commit(ref: str) -> str | None:
+    out = _git("rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+    return out.strip() or None if out else None
+
+
+def base_ref(branch: str = BOT_BRANCH) -> str | None:
+    """The commit to compare the journal with: the merge-base of HEAD and the bot branch when it differs from
+    HEAD, otherwise HEAD~1 (on the bot branch itself, or without its ref); None without git or history."""
+    head = _commit("HEAD")
+    if head is None:
+        return None
+    if _commit(branch):
+        out = _git("merge-base", "HEAD", branch)
+        base = out.strip() if out else ""
+        if base and base != head:
+            return base
+    return _commit("HEAD~1")
+
+
+def committed_text(path: Path | str = JOURNAL, ref: str = "HEAD") -> str | None:
+    """The journal as committed at `ref`; None without git, without that commit or when the file is not in it."""
+    try:
+        rel = Path(path).resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return None
+    return _git("show", f"{ref}:{rel}")
+
+
+def verify(path: Path | str = JOURNAL, base: str | None = None, ref: str = "HEAD") -> list[str]:
+    """Problems when an earlier row was edited, moved or deleted, compared with `base` (a text) or, by default,
+    the file as committed at `ref`. Rows added at the end are fine; a file not yet in `ref` has no earlier rows.
+    Without git or without that commit the answer is one "doğrulanamadı: ..." line, never an empty list."""
     if base is None:
-        return []
+        if _commit(ref) is None:
+            return [f"{UNVERIFIED}: git ya da {ref} yok"]
+        base = committed_text(path, ref)
+        if base is None:
+            return []
     old_header, old = _parse(base.replace("\r\n", "\n"))
     header, rows = _parse(Path(path).read_text(encoding="utf-8"))
     if header != old_header:
@@ -141,4 +176,5 @@ def n_by_card(path: Path | str = JOURNAL, root: Path = experiments.ROOT) -> dict
     return {card: n + experiments.trial_count(card.lower(), root) for card, n in totals.items()}
 
 
-__all__ = ["COLUMNS", "JOURNAL", "KINDS", "append", "check", "committed_text", "n_by_card", "read", "verify"]
+__all__ = ["BOT_BRANCH", "COLUMNS", "JOURNAL", "KINDS", "UNVERIFIED", "append", "base_ref", "check",
+           "committed_text", "n_by_card", "read", "verify"]

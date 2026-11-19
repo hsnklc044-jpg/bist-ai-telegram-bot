@@ -261,12 +261,22 @@ def recent_sessions(last, n: int = RECENT_SESSIONS) -> list:
     return days[::-1]
 
 
-def recent_problems(frames: dict[str, pd.DataFrame], sessions: list, exceptions=None) -> dict[str, list[str]]:
+JUMP_KIND = "olası düzeltilmemiş sıçrama"
+BREACH_KIND = "limit aşımı"
+STALE_KIND = "bayat son mum"
+NO_DATA_KIND = "veri yok"
+
+
+def recent_problems(frames: dict[str, pd.DataFrame], sessions: list, exceptions=None,
+                    actions=None) -> dict[str, list[str]]:
     """Health check #2 over the given sessions (frames already corrected with `clean`): per kind, the
     "SYMBOL detail" items. Kinds: zero or negative prices, sessions missing between the symbol's first and last
-    candle, moves beyond the session limit (SESSION_LIMIT, compounded over the days since the previous candle)
-    that are not market-wide and not a real move in data/candle_exceptions.csv, and a last candle older than
-    the last session. A symbol with no candle at all is "veri yok". Only data already stored is read."""
+    candle, moves (compounded over the days since the previous candle) that are not market-wide, not a real
+    move in data/candle_exceptions.csv and not on the ex-date of a corporate action (`actions`,
+    data/corporate_actions.csv): beyond DAILY_LIMIT (±20%) "olası düzeltilmemiş sıçrama", between
+    SESSION_LIMIT and DAILY_LIMIT "limit aşımı" (the store has no dividend table and Yahoo's dividend and
+    base-price adjustment makes such moves, so the caller only counts them), and a last candle older than the
+    last session. A symbol with no candle at all is "veri yok". Only data already stored is read."""
 
     from core.market.corrections import real_moves
 
@@ -274,15 +284,21 @@ def recent_problems(frames: dict[str, pd.DataFrame], sessions: list, exceptions=
     calendar = pd.DatetimeIndex([pd.Timestamp(d) for d in sessions])
     windows = {s: df[df.index.normalize() >= start] for s, df in frames.items() if not df.empty}
     market_wide = market_wide_moves(windows)
-    found: dict[str, list[str]] = {"veri yok": [], "sıfır/negatif fiyat": [], "eksik seans": [],
-                                   "seans limiti dışı hareket": [], "bayat son mum": []}
+    found: dict[str, list[str]] = {NO_DATA_KIND: [], "sıfır/negatif fiyat": [], "eksik seans": [],
+                                   JUMP_KIND: [], BREACH_KIND: [], STALE_KIND: []}
+    action_days: dict[str, set] = {}
+    for a in actions or ():
+        action_days.setdefault(a.symbol, set()).add(pd.Timestamp(a.ex_date).date())
 
     def short(symbol: str) -> str:
         return symbol.removesuffix(".IS")
 
+    def listed(symbol: str, moves: pd.Series) -> str:
+        return f"{short(symbol)} " + ", ".join(f"{t:%d.%m} {v * 100:+.1f}%" for t, v in moves.items())
+
     for symbol, df in frames.items():
         if df.empty:
-            found["veri yok"].append(short(symbol))
+            found[NO_DATA_KIND].append(short(symbol))
             continue
         df = df.sort_index()
         dates = df.index.normalize()
@@ -298,16 +314,17 @@ def recent_problems(frames: dict[str, pd.DataFrame], sessions: list, exceptions=
         priced = df[df["close"] > 0]  # a zero close is reported above, not as a move
         recent = priced.index.normalize() >= start
         moves = limit_breaches(pd.concat([priced[~recent].tail(1), priced[recent]]), market_wide)
-        real = real_moves(symbol, exceptions)
-        keep = (moves.index.normalize() >= start) & ~pd.Index(moves.index.date).isin(list(real))
+        explained = set(real_moves(symbol, exceptions)) | action_days.get(symbol, set())
+        keep = (moves.index.normalize() >= start) & ~pd.Index(moves.index.date).isin(list(explained))
         moves = moves[keep]
-        if len(moves):
-            found["seans limiti dışı hareket"].append(
-                f"{short(symbol)} " + ", ".join(f"{t:%d.%m} {v * 100:+.1f}%" for t, v in moves.items()))
+        if (moves.abs() > DAILY_LIMIT).any():
+            found[JUMP_KIND].append(listed(symbol, moves[moves.abs() > DAILY_LIMIT]))
+        if (moves.abs() <= DAILY_LIMIT).any():
+            found[BREACH_KIND].append(listed(symbol, moves[moves.abs() <= DAILY_LIMIT]))
         if last < end:
             behind = int((calendar > last).sum())
             text = f"{last:%d.%m.%Y}" + (f" ({behind} seans geride)" if last >= start else "")
-            found["bayat son mum"].append(f"{short(symbol)} {text}")
+            found[STALE_KIND].append(f"{short(symbol)} {text}")
     return {k: v for k, v in found.items() if v}
 
 

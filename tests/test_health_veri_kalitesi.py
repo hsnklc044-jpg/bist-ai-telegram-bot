@@ -57,15 +57,16 @@ class DataQualityCheckTest(unittest.TestCase):
         self.assertIn("eksik seans", check.text)
         self.assertIn("AAA", check.text)
 
-    def test_move_beyond_session_limit_flagged_with_unverified_threshold(self):
+    def test_move_beyond_20_percent_flagged_with_unverified_threshold(self):
+        # red-team fix: 10.5-20% moves are an INFO count (tests/test_dalga1_redteam.py); beyond 20% warns
         def step(df, days):
-            df.loc[df.index >= pd.Timestamp(days[-4]), ["open", "high", "low", "close"]] *= 1.15
+            df.loc[df.index >= pd.Timestamp(days[-4]), ["open", "high", "low", "close"]] *= 1.25
             return df
 
         frames = universe(**{"CCC.IS": step})
         check = run(frames)
         self.assertEqual(check.state, health.WARN)
-        self.assertIn("seans limiti dışı", check.text)
+        self.assertIn("olası düzeltilmemiş sıçrama", check.text)
         self.assertIn("CCC", check.text)
         self.assertIn(THRESHOLD, check.text)
         days = quality.recent_sessions(date(2026, 11, 19), 45)
