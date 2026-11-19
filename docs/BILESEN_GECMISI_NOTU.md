@@ -50,23 +50,6 @@ Aşağıdaki "Durma noktası" bölümündeki iki sorun KAP bildirimleriyle çöz
 - 11867'de "A.V.O.D" yazılı; kod AVOD.
 - DOAS (2019-01-02 çıkış, 2019-10-01 giriş) sabit listeden kayda geçti. Sabit hisse (tam geçmiş) 45 → 44; varsayılan
   sonuçlar değişmedi (202 hisse). `ever_members(full_history=True)` 239.
-## Ek 3: 2018 (19.11.2026 öğleden sonra)
-
-| Yürürlük | Kaynak | Satır |
-|---|---|---|
-| 2018-10-01 | duyuru 12465 (19.09.2018) | 8 |
-| 2018-07-02 | duyuru 12512 (19.06.2018) | 12 |
-| 2018-05-24 | KAP açıklaması (borsaningundemi.com 24.05.2018 haberi aynen aktarıyor) | 2 |
-| 2018-04-02 | duyuru 11443 (22.03.2018) | 10 |
-| 2018-01-02 | duyuru 11466 (18.12.2017) | 14 |
-
-- DGATE 2018-04-02'de alınıyor, hiç çıkarılmıyor: 24/05/2018'den itibaren SOKM (halka arz) BIST 100'e alındı, DGATE
-  çıkarıldı (aynı açıklamada OTKAR BIST 30'dan çıktı). KAP bildirim numarası bulunamadı (açık uç); kaynak, KAP
-  açıklamasını tırnak içinde aktaran haber.
-- SOKM ve HEKTS sabit listeden kayda geçti. Sabit hisse (tam geçmiş) 44 → 42; varsayılan değişmedi (202).
-  `ever_members(full_history=True)` 245. Her tarihte 100 üye (test: `test_2018_and_sokm_fast_entry`).
-- 2018 için de KAP "Endeks Şirketlerinde Değişiklik" taraması yapılmadı (açık uç).
-
 - 2015 Ç4–2018 Ç4 duyuru numaraları `duyurular-eski` sayfalarında bulundu (11751, 11669, 11596, 11564, 11532, 11511, 11492,
   11503, 11473, 11466, 11443, 12512, 12465); 2015 Ç3 duyurusu daha eski sayfalarda, henüz aranmadı.
 
