@@ -2,6 +2,9 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.159 – 19.11.2026 (K-118: sahibin kalıcı yetki devri, yalnız belge)
+- DECISIONS K-118 ve KARAR_DEFTERI satırı: teknik, operasyonel, kayıtlı plana uygun araştırma ve planlama işlerinde sahipten ayrıca onay beklenmez; para/hesap/token, ANAYASA, eşik ve ön kayıt onayı, geri alınamaz silme sahipte kalır. Doğrulama: tam test 2018 geçti, ruff temiz.
+
 ## v0.99.158 – 19.11.2026 (K-117: öğrenci döngüsü, yalnız belge)
 - DECISIONS K-117 ve KARAR_DEFTERI satırı: her akşam tekrar (AAR), önce onarım, düzeltme + koruma, 1/7/30 gün yeniden kontrol, aşama kapısı, hata bütçesi (eşikler varsayılan).
 - OPERATIONS §0 saat satırları ve §0a; OTONOM_KURALLAR "Öğrenci döngüsü (K-117)" bölümü.
