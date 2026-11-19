@@ -2,11 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
-## v0.99.153 – 19.11.2026 (veri denetimi #2: momentum ve düşük oynaklıkta ay sonu günü takvimden)
+## v0.99.156 – 19.11.2026 (veri denetimi #2: momentum ve düşük oynaklıkta ay sonu günü takvimden)
 - Momentum ve düşük oynaklık kuralları aylık yeniden dengeleme gününü artık seans takviminden alıyor (`session_calendar`, endeks trendi kuralının yöntemi). Önce, verinin o aydaki son mumu ay sonu sayılıyordu; geçmiş kesilince (canlı kullanım) en yeni gün yanlışlıkla ay sonu oluyordu.
 - Etki (yalnız sentetik test verisi): düşük oynaklıkta en yeni günün 2 sinyal satırı değişti, momentumda hiçbiri; işlem sayısı ve özsermaye eğrisi aynı. Canlı raporlar, sabah tablosu, aday listeleri ve K-93/K-94 ön kayıtları bu kuralları kullanmıyor.
 - Test: `tests/test_no_lookahead.py` iki kural için "kesilmiş geçmiş" değişkenini açtı; önce 10 alt test kırmızıydı (66c4a6b), düzeltmeyle yeşil.
-- Sürüm numarası: 0.99.152'yi `dalga1`, `dalga2` ve `k115` dalları paylaşıyor; bu dal 0.99.153'ü kullanır.
+- Sürüm numarası: 0.99.152'yi `dalga1`, `dalga2` ve `k115` dalları paylaşıyor; 0.99.153–155 sadeleştirme önerisinde k115, dalga2 ve d5'e ayrıldı (OTONOM_RAPOR 19.11 15:35); bu dal 0.99.156'yı kullanır.
 
 ## v0.99.152 – 19.11.2026 (K-113 Dalga 1: sabah tek tablo, defter sütunları, karar defteri, veri kalitesi denetimi)
 - K-114 (sahibin seçimi): sabah tablosunda A100, GC, KRL kalır; `bist30_aday` ve `bist100_trend` yalnız sabah tablosundan çıkar (tanımlar silinmez).
