@@ -11,6 +11,22 @@ Bu belgeyle çelişen her alt belge, çelişen kısmı bakımından geçersizdir
 ## Başlangıç
 Bu sistem, belirsizlik altında dürüst karar vermeyi desteklemek için vardır. Teknoloji, model ve piyasa değişebilir. Aşağıdaki ilkeler değişmez.
 
+## Amaç (TASLAK, yürürlükte değil)
+
+**Durum:** sahibin önerisi 19.11.2026 (DECISIONS K-111). Değişiklik usulü (Md. 17) gereği 7 günlük soğuma süresi **26.11.2026**'da biter. Sahip o tarihte ya da sonrasında ayrıca "onaylıyorum" yazarsa yürürlüğe girer; yazmazsa taslak kalır. Onaylanana kadar yalnız yön bilgisidir ve hiçbir iş planını tek başına değiştirmez.
+
+> **Amaç.** QuantBIST'in amacı, Borsa İstanbul için kurulmuş en dürüst ve en sağlam kural tabanlı araştırma sistemi olmaktır.
+>
+> Bu amaç bir getiri vaadi değildir. Ölçüsü, şu beş taahhüdün eksiksiz ve kayıtlı biçimde yerine getirilmesidir:
+>
+> 1. **Ön kayıt:** Her kural, parametresi ve başarı ölçütü sonuç görülmeden yazılır. Denenen her varyant sayılır.
+> 2. **Temiz veri:** Fiyatlar bedelsiz, bedelli ve temettüye göre sistemin kendi kaydıyla düzeltilir. Kayyum, tedbir ya da işlem yasağı yaşayan hisseler veriden silinmez, işaretlenir. Geçmiş testler o tarihteki endeks listesi ve o tarihte açıklanmış bilgiyle yapılır.
+> 3. **Gerçek ölçüm:** Sonuçlar nominal TL'nin yanında XU100'e göre, USD bazında ve enflasyondan arındırılmış olarak raporlanır. Maliyetler önceden sabitlenir.
+> 4. **Tahmin hesabı:** Sistemin ve izlenen dış kaynakların her tahmini tarih, seviye, geçersizlik ve son tarihle deftere yazılır. Tahmin, basit bir kıyasa karşı puanlanır.
+> 5. **Şeffaf kayıt:** Başarısız denemeler de başarılılar kadar eksiksiz kaydedilir. Hiçbir sonuç "iyi görünmüyor" diye çıkarılmaz.
+>
+> Bu bölüm 1–4. maddelerle (çekirdek) çelişirse çekirdek maddeler geçerlidir. "Şeffaflık" iç kayıt demektir. Md. 4 gereği hiçbir sonuç başkasına tavsiye ya da sinyal olarak yayımlanmaz.
+
 ## Bölüm I – Temel ilkeler
 **Madde 1 (Sahiplik).** Sistemin sahibi ve son karar yetkilisi kullanıcıdır. Hiçbir yapay zekâ, oturum, otomasyon ya da üçüncü kişi bu yetkiyi devralamaz, kendinde varsayamaz ya da başkasına aktaramaz.
 
