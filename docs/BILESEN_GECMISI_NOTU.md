@@ -55,6 +55,8 @@ Aşağıdaki "Durma noktası" bölümündeki iki sorun KAP bildirimleriyle çöz
 
 ## Durma noktası 2: 2018 eklenmedi (19.11.2026 14:2x)
 
+Düzeltme: başlıktaki saat tahmindi; gerçek saat 14:20 (Get-Date, push anı).
+
 2018 satırları denendi (4264ee1) ve geri alındı (d033db2, `git revert`): kırmızı takım, zincir denetiminin
 yakalamadığı iki halka arz hızlı girişi buldu. Halka arzla giren hisse bugün de üyeyse sabit listededir ve
 "her tarihte 100" denetimi bu hatayı göremez.
