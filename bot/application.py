@@ -18,6 +18,7 @@ from bot.scheduler import (
     schedule_official_prices,
     schedule_otonom_summary,
     schedule_portfolio_health,
+    schedule_prediction_ledger,
     schedule_report_watch,
     schedule_signal_tracking,
     schedule_weekly_summary,
@@ -115,6 +116,7 @@ def build_app() -> Application:
     schedule_morning_screens(app, config.chat_id)
     schedule_signal_tracking(app, config.chat_id)
     schedule_official_prices(app, config.chat_id)
+    schedule_prediction_ledger(app, config.chat_id)
 
     return app
 

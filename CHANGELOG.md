@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.151 – 19.11.2026 (K-112: tahmin defteri her iş günü akşamı işaretlenir)
+- Bot, hafta içi 19:15'te `docs/TAHMIN_DEFTERI.csv`'deki süresi dolan otomatik satırları günlük kapanışla K-110 kurallarına göre işaretler. Sonuçlar `data/tahmin_sonuclari.csv`'ye eklenir; izlenen defter dosyasına bot yazmaz, bu yüzden güncelleyici takılmaz. Bir satır işaretlendiğinde tek mesaj gelir ("Bu bir kayıttır; yatırım tavsiyesi değildir."); işaretlenecek satır yoksa mesaj yok.
+- Test: `tests/test_tahmin_defteri_job.py` önce kırmızıydı (7 test): defter dosyası değişmiyor, sonuç bir kez yazılıyor, elle satırlar hiç işaretlenmiyor, iş hafta içi 18:30 raporundan sonra kayıtlı.
+- Bu dal (`claude/zincir3-f-1911`) gece belge ve araştırma dalının (faz-a2) T ucuna yeniden kurulmuş hâlidir: K-98–K-111 kayıtları, Faz B araçları (PSR/DSR, CPCV, Bonferroni/BH), tahmin defteri ve piyasa notu şablonu (bota bağlı değil), ANAYASA Amaç taslağı (yürürlükte değil). 8bddfb8 atlandı (K-105 zaten K paketinde).
+
 ## v0.99.150 – 18.11.2026 (Ö66/Ö67: testler ve belge; kod değişmedi)
 - Ö67: `tests/test_csvfiles.py` ve `tests/test_watchlist_scanner.py` (kişisel CSV okuma/ekleme ve izleme listesi taraması için ilk doğrudan testler). İlk çalıştırmada geçtiler; hata bulunmadı.
 - Ö66: ROADMAP durum sütunu doğrulandı ve kapatıldı. `docs/NIGHT_LOG_2026-11-18.md`: gece günlüğü ve sabah raporu.

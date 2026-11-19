@@ -504,6 +504,33 @@ def schedule_macro_refresh(app: Application) -> bool:
     return True
 
 
+LEDGER_JOB = "prediction_ledger"
+LEDGER_AT = time(19, 15, tzinfo=ISTANBUL)  # after the 18:30 report has stored the day's closes
+
+
+async def prediction_ledger_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """K-112: weekday evening, due rows of the prediction ledger are marked from daily closes (K-110 rules)."""
+
+    from core.market.calendar import now_istanbul
+    from core.research import tahmin_defteri
+
+    today = now_istanbul().date()
+    lines = await _guarded(context, "tahmin defteri", lambda: tahmin_defteri.daily(today))
+    if lines:
+        from core.infrastructure import outbox
+
+        with outbox.source("tahmin defteri"):
+            await context.bot.send_message(context.job.chat_id, tahmin_defteri.message(lines))
+
+
+def schedule_prediction_ledger(app: Application, chat_id: int) -> bool:
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_daily(prediction_ledger_job, time=LEDGER_AT, days=WEEKDAYS, name=LEDGER_JOB, chat_id=chat_id,
+                            job_kwargs=LATE_START)
+    return True
+
+
 OFFICIAL_JOB = "official_prices"
 
 

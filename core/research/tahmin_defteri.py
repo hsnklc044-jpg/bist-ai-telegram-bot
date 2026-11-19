@@ -19,7 +19,8 @@ Rows marked `elle` (non-BIST assets with no data here, or a trigger that is not 
 `olculemez` rows are never touched. `gecersiz` is only set by hand.
 
 Nothing here is a buy or sell suggestion; the ledger only records whether a stated scenario
-happened. The marking command is not scheduled; wiring it into the bot needs the owner's approval.
+happened. K-112: the bot runs `daily` every weekday evening. Results go to `data/tahmin_sonuclari.csv`
+(untracked); the tracked ledger in docs/ is never written by the bot, so the updater is not blocked.
 """
 
 from __future__ import annotations
@@ -33,7 +34,14 @@ from typing import Iterable, Mapping
 
 import pandas as pd
 
+from core.infrastructure.logger import get_logger
+
+logger = get_logger(__name__)
+
 LEDGER = Path(__file__).resolve().parents[2] / "docs" / "TAHMIN_DEFTERI.csv"
+RESULTS = Path(__file__).resolve().parents[2] / "data" / "tahmin_sonuclari.csv"
+RESULT_COLUMNS = ("id", "sonuc", "sonuc_tarihi", "isaretlendi")
+NOTICE = "Bu bir kayıttır; yatırım tavsiyesi değildir."
 
 COLUMNS = (
     "id", "tarih", "kayit_turu", "kaynak", "kaynak_puani_11", "varlik", "sembol", "fiyat", "fiyat_saati",
@@ -41,16 +49,17 @@ COLUMNS = (
     "gecersizlik_seviye", "son_tarih", "son_tarih_kaynagi", "isaretleme", "sonuc", "sonuc_tarihi",
     "al_etiketi", "sat_etiketi", "not",
 )
-RESULTS = {"", "tuttu", "tutmadi", "tetiklenmedi", "gecersiz", "olculemez"}
+RESULT_VALUES = {"", "tuttu", "tutmadi", "tetiklenmedi", "gecersiz", "olculemez"}
 TRIGGERS = {"hemen", "kapanis_ustu", "kapanis_alti", "elle"}
 MIN_N = 10
 
 
-def read(path: Path | str = LEDGER) -> list[dict]:
+def read(path: Path | str = LEDGER, strict: bool = True) -> list[dict]:
     with open(path, encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
-    for row in rows:
-        check(row)
+    if strict:
+        for row in rows:
+            check(row)
     return rows
 
 
@@ -67,7 +76,7 @@ def check(row: Mapping) -> None:
     missing = [c for c in COLUMNS if c not in row]
     if missing:
         raise ValueError(f"{row.get('id')}: eksik sütun {missing}")
-    if row["sonuc"] not in RESULTS:
+    if row["sonuc"] not in RESULT_VALUES:
         raise ValueError(f"{row['id']}: bilinmeyen sonuç {row['sonuc']!r}")
     if row["isaretleme"] not in {"otomatik", "elle", "olculemez"}:
         raise ValueError(f"{row['id']}: bilinmeyen işaretleme {row['isaretleme']!r}")
@@ -132,17 +141,84 @@ def evaluate(row: Mapping, closes: pd.Series, today: date) -> tuple[str, str] | 
     return ("tutmadi" if triggered else "tetiklenmedi"), deadline.isoformat()
 
 
-def mark(rows: list[dict], closes_for, today: date) -> list[str]:
-    """Mark due automatic rows in place; `closes_for(symbol)` gives a close series. Returns changed ids."""
+def mark(rows: list[dict], closes_for, today: date, problems: list[str] | None = None) -> list[str]:
+    """Mark due automatic rows in place; `closes_for(symbol)` gives a close series. Returns changed ids.
+
+    A bad row or a symbol whose closes cannot be read is skipped and named in `problems` (when given);
+    without `problems` the error is raised. One bad row never stops the others.
+    """
     changed = []
     for row in rows:
-        if row["isaretleme"] != "otomatik" or row["sonuc"] or today <= _day(row["son_tarih"]):
+        try:
+            if row.get("isaretleme") != "otomatik" or row.get("sonuc") or today <= _day(row["son_tarih"]):
+                continue
+            got = evaluate(row, closes_for(row["sembol"]), today)
+        except Exception as exc:  # noqa: BLE001 - one bad row or symbol must not stop the rest
+            if problems is None:
+                raise
+            problems.append(f"{row.get('id', '?')}: {exc}")
             continue
-        got = evaluate(row, closes_for(row["sembol"]), today)
         if got:
             row["sonuc"], row["sonuc_tarihi"] = got
             changed.append(row["id"])
     return changed
+
+
+def _read_results(path: Path | str) -> dict[str, dict]:
+    path = Path(path)
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8", newline="") as f:
+        return {r["id"]: r for r in csv.DictReader(f)}
+
+
+def read_with_results(ledger: Path | str | None = None, results: Path | str | None = None,
+                      strict: bool = True) -> list[dict]:
+    """Ledger rows with the bot's results applied (a result written by hand in the ledger wins)."""
+    rows = read(ledger or LEDGER, strict=strict)
+    results = results or RESULTS
+    done = _read_results(results)
+    for row in rows:
+        got = done.get(row["id"])
+        if got and not row["sonuc"]:
+            row["sonuc"], row["sonuc_tarihi"] = got["sonuc"], got["sonuc_tarihi"]
+    return rows
+
+
+def daily(today: date, ledger: Path | str | None = None, results: Path | str | None = None,
+          closes_for=None) -> list[str]:
+    """Mark the due automatic rows; append new results to `results`. One line per newly marked row.
+
+    A missing ledger means nothing to do (logged). Bad rows are skipped and logged, never fatal.
+    """
+    ledger, results = Path(ledger or LEDGER), Path(results or RESULTS)
+    if not ledger.exists():
+        logger.warning("Tahmin defteri yok: %s", ledger)
+        return []
+    rows = read_with_results(ledger, results, strict=False)
+    problems: list[str] = []
+    changed = mark(rows, closes_for or _store_closes, today, problems)
+    for problem in problems:
+        logger.warning("Tahmin defteri satırı atlandı: %s", problem)
+    if not changed:
+        return []
+    path = results
+    path.parent.mkdir(parents=True, exist_ok=True)
+    new_file = not path.exists()
+    with open(path, "a", encoding="utf-8", newline="") as f:
+        out = csv.DictWriter(f, fieldnames=RESULT_COLUMNS, lineterminator="\n")
+        if new_file:
+            out.writeheader()
+        for row in rows:
+            if row["id"] in changed:
+                out.writerow({"id": row["id"], "sonuc": row["sonuc"], "sonuc_tarihi": row["sonuc_tarihi"],
+                              "isaretlendi": today.isoformat()})
+    return [f"{r['id']} ({r['varlik']}, kaynak {r['kaynak']}): {r['sonuc']}, {r['sonuc_tarihi']}"
+            for r in rows if r["id"] in changed]
+
+
+def message(lines: list[str]) -> str:
+    return "\n".join(["📒 Tahmin defteri (K-110): süresi dolan satırlar işaretlendi", *lines, NOTICE])
 
 
 @dataclass(frozen=True)
@@ -197,14 +273,12 @@ def main(argv: list[str] | None = None) -> int:
 
     p = argparse.ArgumentParser(description="Tahmin defteri: süresi dolan otomatik satırları işaretle, karneyi yaz.")
     p.add_argument("--defter", default=str(LEDGER))
-    p.add_argument("--isaretle", action="store_true", help="süresi dolan otomatik satırları kapanışla işaretle")
+    p.add_argument("--isaretle", action="store_true", help="süresi dolan otomatik satırları kapanışla işaretle (sonuç data/ altına)")
     a = p.parse_args(argv)
-    rows = read(a.defter)
     if a.isaretle:
-        changed = mark(rows, _store_closes, date.today())
-        if changed:
-            write(rows, a.defter)
-        print("işaretlenen:", ", ".join(changed) or "yok")
+        lines = daily(date.today(), Path(a.defter))
+        print("işaretlenen:", "; ".join(lines) or "yok")
+    rows = read_with_results(a.defter)
     for c in scorecard(rows):
         avg = "—" if c.ortalama_puan is None else f"{c.ortalama_puan:.1f}/11"
         print(f"{c.kaynak}: {c.satir} satır, puan {avg}, isabet {c.isabet()}, "
