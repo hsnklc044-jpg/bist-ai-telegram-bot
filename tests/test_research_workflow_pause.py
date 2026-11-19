@@ -37,6 +37,16 @@ def test_data_steps_keep_running():
         assert not re.search(r"(?m)^ {8}if:", steps[0]), command
 
 
+def test_pause_is_explained_in_reports():
+    steps = _steps()
+    note = [s for s in steps if s.startswith("name: K-116 pause note")]
+    assert len(note) == 1 and not re.search(r"(?m)^ {8}if:", note[0])
+    for name in ("research", "research_today", "research_fixed", "phase3", "a4", "candidates"):
+        assert re.search(rf"for f in [^\n]*\b{name}\b", note[0]), name
+    compare = [s for s in steps if "python -m core.backtest.history" in s]
+    assert len(compare) == 1 and "K-116" in compare[0] and "if: always()" in compare[0]
+
+
 def test_no_other_step_is_paused():
     for s in _steps():
         if not RULE_TEST.search(s):

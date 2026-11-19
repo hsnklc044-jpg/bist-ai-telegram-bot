@@ -135,7 +135,9 @@ jobs:
         run: python -m core.market.crosscheck --days 30 --summary results/crosscheck/latest.json 2>&1 | tee crosscheck.txt || true
       - name: Compare with the previous run
         if: always()
-        run: python -m core.backtest.history results/history.csv 2>&1 | tee history.txt
+        run: |  # K-116: the first line goes with the pause (18.12.2026 package)
+          echo "K-116: araştırma 18.12.2026'ya kadar durduruldu; aşağıdaki son çalışma durdurmadan öncekidir." > history.txt
+          python -m core.backtest.history results/history.csv 2>&1 | tee -a history.txt
       - name: Save results
         if: always()
         run: |
