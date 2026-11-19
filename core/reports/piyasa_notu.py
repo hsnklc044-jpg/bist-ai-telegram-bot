@@ -15,11 +15,23 @@ WARNING = "Uyarı: Bu not bir senaryo kaydıdır; yatırım tavsiyesi değildir.
 NOT_MEASURED = "henüz ölçülmedi"
 NO_DATA = "veri yok"
 
-# Whole words only: "sat" must not hit "satır", "al" must not hit "alt".
-BANNED = ("al", "sat", "alın", "satın", "alım fırsatı", "satış fırsatı", "güçlü", "güçlüce", "kalıcı",
-          "sert", "kesin", "kesinlikle", "fırsat")
-_BANNED_RE = re.compile(r"(?<![\wçğıöşü])(" + "|".join(re.escape(w) for w in BANNED) + r")(?![\wçğıöşü])",
-                        re.IGNORECASE)
+# Stems are matched at the start of a word and take any Turkish suffix ("alınabilir", "satış baskısı",
+# "güçlüdür"); bare "al"/"sat" and their verb forms are listed so "alt", "alan", "satır" stay allowed.
+# "kesin" is not banned: "bu sayım kesin değil" is the owner's own good example.
+_STEMS = ("alın", "alım", "alış", "alabil", "alsın", "satın", "satış", "satıl", "satabil", "satsın",
+          "güçlü", "kalıcı", "fırsat")
+_WORDS = ("al", "sat", "alınız", "satınız")
+_L = "a-zçğıöşüâîû"
+_BANNED_RE = re.compile(rf"(?<![{_L}])(?:(?:{'|'.join(_STEMS)})[{_L}]*|(?:{'|'.join(_WORDS)})(?![{_L}]))")
+
+
+def _lower(text: str) -> str:
+    return text.replace("İ", "i").replace("I", "ı").lower()
+
+
+def _tr(x: float) -> str:
+    """Turkish number format: 11.300,00."""
+    return f"{x:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
 
 
 @dataclass(frozen=True)
@@ -30,6 +42,8 @@ class Note:
     sure: str                    # "Günlük, 10 işlem günü"
     konum_tl: str | None         # trend and position against 20/50/200-day averages, TL basis
     konum_usd: str | None        # the same in USD basis
+    kucuk_resim: str | None      # RSI value and rule-defined divergence
+    bolgeler: str | None         # high-volume zone and last breakout zone
     bekleme_bolgesi: str | None  # "345–350"
     teyit: str | None            # "350 üstü günlük kapanış"
     hedefler: str | None         # "360 / 365–370"
@@ -38,37 +52,42 @@ class Note:
     hedef_atr: float | None      # distance to the first target in ATRs
     gecmis_oran: str | None      # "%X (N örnek)"; None -> "henüz ölçülmedi"
     ozet: str
+    alternatif: str | None = None  # alternative scenario: trigger and target
+    arka_plan: str | None = None   # only with data or a named source
 
 
 def problems(text: str) -> list[str]:
     """Banned words found in a note (case-insensitive, whole words)."""
-    return sorted({m.group(1).lower() for m in _BANNED_RE.finditer(text)})
+    return sorted({m.group(0) for m in _BANNED_RE.finditer(_lower(text))})
 
 
 def render(n: Note) -> str:
     if n.gecersizlik_yonu not in {"altı", "üstü"}:
         raise ValueError("geçersizlik yönü 'altı' ya da 'üstü' olmalı")
-    if n.fiyat is not None and not n.fiyat_zamani:
-        raise ValueError("fiyat tarih ve saatsiz yazılmaz")
+    if n.fiyat is not None and not re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", n.fiyat_zamani or ""):
+        raise ValueError("fiyat tarih ve saatsiz yazılmaz (YYYY-AA-GG SS:DD)")
     if not n.ozet or len(re.findall(r"[.!?](\s|$)", n.ozet.strip())) > 1:
         raise ValueError("özet tek cümle olmalı")
-    price = NO_DATA if n.fiyat is None else f"{n.fiyat:,.2f} ({n.fiyat_zamani})"
-    inv = NO_DATA if n.gecersizlik is None else f"{n.gecersizlik:,.2f} {n.gecersizlik_yonu} günlük kapanış"
+    price = NO_DATA if n.fiyat is None else f"{_tr(n.fiyat)} ({n.fiyat_zamani})"
+    inv = NO_DATA if n.gecersizlik is None else f"{_tr(n.gecersizlik)} {n.gecersizlik_yonu} günlük kapanış"
     if n.hedef_atr is None:
         atr = NOT_MEASURED
     else:
-        atr = f"{n.hedef_atr:.1f} ATR" + (" (1'in altı: gürültü)" if n.hedef_atr < 1 else "")
+        atr = f"{n.hedef_atr:.1f}".replace(".", ",") + " ATR" + (" (1'in altı: gürültü)" if n.hedef_atr < 1 else "")
     lines = [
         f"{n.varlik}",
         f"Fiyat: {price}",
         f"Süre: {n.sure}",
         f"Konum (TL): {n.konum_tl or NO_DATA}",
         f"Konum (USD): {n.konum_usd or NO_DATA}",
-        f"Bekleme bölgesi: {n.bekleme_bolgesi or NO_DATA}; teyit: {n.teyit or NO_DATA}",
-        f"Hedefler: {n.hedefler or NO_DATA}",
+        f"Küçük resim: {n.kucuk_resim or NO_DATA}",
+        f"Bölgeler: {n.bolgeler or NO_DATA}",
+        f"Ana senaryo: bekleme bölgesi {n.bekleme_bolgesi or NO_DATA}; teyit: {n.teyit or NO_DATA}; hedefler: {n.hedefler or NO_DATA}",
+        f"Alternatif senaryo: {n.alternatif or NO_DATA}",
         f"Geçersizlik: {inv}",
         f"Hedef / ATR: {atr}",
         f"Geçmiş oran: {n.gecmis_oran or NOT_MEASURED}",
+        f"Arka plan: {n.arka_plan or NO_DATA}",
         f"Özet: {n.ozet}",
         WARNING,
     ]

@@ -11,7 +11,9 @@ do not count):
   close < level); the target is checked from the trigger day itself (up: close >= target,
   down: close <= target) and gives `tuttu`;
 - deadline passed without trigger: `tetiklenmedi`; triggered but target not reached: `tutmadi`;
-- no close in the window: `olculemez`.
+- no close in the window although the store already reaches the deadline: `olculemez`;
+- the store does not yet hold the deadline-day close and nothing was decided on the closes it has:
+  the row waits (not marked).
 
 Rows marked `elle` (non-BIST assets with no data here, or a trigger that is not a rule) and
 `olculemez` rows are never touched. `gecersiz` is only set by hand.
@@ -85,6 +87,10 @@ def check(row: Mapping) -> None:
         inv = float(row["gecersizlik_seviye"])
         if (up and inv >= target) or (not up and inv <= target):
             raise ValueError(f"{row['id']}: geçersizlik hedefin yanlış tarafında")
+        if row["tetik_seviye"]:
+            level = float(row["tetik_seviye"])
+            if (up and inv >= level) or (not up and inv <= level):
+                raise ValueError(f"{row['id']}: geçersizlik tetiğin yanlış tarafında")
 
 
 def _day(text: str) -> date:
@@ -101,9 +107,12 @@ def evaluate(row: Mapping, closes: pd.Series, today: date) -> tuple[str, str] | 
         return None
     s = closes.dropna()
     s.index = pd.to_datetime(s.index)
+    if s.index.tz is not None:  # bar dates are Istanbul days
+        s.index = s.index.tz_convert("Europe/Istanbul").tz_localize(None)
+    complete = not s.empty and s.index.max().date() >= deadline
     window = s[(s.index.date > start) & (s.index.date <= deadline)].sort_index()
     if window.empty:
-        return "olculemez", deadline.isoformat()
+        return ("olculemez", deadline.isoformat()) if complete else None
     up = row["yon"] == "yukari"
     target = float(row["hedef_seviye"])
     inv = float(row["gecersizlik_seviye"]) if row["gecersizlik_seviye"] else None
@@ -118,6 +127,8 @@ def evaluate(row: Mapping, closes: pd.Series, today: date) -> tuple[str, str] | 
             triggered = (kind == "kapanis_ustu" and close > level) or (kind == "kapanis_alti" and close < level)
         if triggered and ((up and close >= target) or (not up and close <= target)):
             return "tuttu", day
+    if not complete:
+        return None  # a hit or a miss already seen is final; otherwise wait for the deadline-day close
     return ("tutmadi" if triggered else "tetiklenmedi"), deadline.isoformat()
 
 
@@ -158,8 +169,7 @@ def scorecard(rows: Iterable[Mapping]) -> list[Card]:
     """Per source: mean 11-point score, hit rate (only from N >= 10), direction changes per asset."""
     by = defaultdict(list)
     for row in rows:
-        if row["kayit_turu"] == "tahmin":
-            by[row["kaynak"]].append(row)
+        by[row["kaynak"]].append(row)  # community rows get their own card too
     cards = []
     for source, items in sorted(by.items()):
         scores = [float(r["kaynak_puani_11"]) for r in items if r["kaynak_puani_11"]]
