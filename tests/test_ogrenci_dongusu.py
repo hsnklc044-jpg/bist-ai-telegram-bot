@@ -7,6 +7,7 @@ spaced re-checks). The evening review and the K-117 rules are wired into OPERATI
 
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 DOCS = Path(__file__).resolve().parents[1] / "docs"
@@ -42,6 +43,14 @@ def test_kapi_kontrol_listesi_exists():
 
 
 def test_k117_wired_into_rules_and_hours():
-    assert "K-117" in (DOCS / "OTONOM_KURALLAR.md").read_text(encoding="utf-8")
-    ops = (DOCS / "OPERATIONS.md").read_text(encoding="utf-8")
-    assert "Akşam tekrarı" in ops and "K-117" in ops
+    assert "## Öğrenci döngüsü (K-117)" in _lines("OTONOM_KURALLAR.md")
+    ops = _lines("OPERATIONS.md")
+    assert "### 0a. Öğrenci döngüsü (K-117, 19.11.2026)" in ops
+    assert any(line.startswith("| Akşam tekrarı (K-117) |") for line in ops)
+
+
+def test_k117_karar_defteri_row():
+    with (DOCS / "KARAR_DEFTERI.csv").open(encoding="utf-8", newline="") as f:
+        rows = list(csv.reader(f))
+    k117 = [r for r in rows if len(r) > 1 and r[1] == "K-117"]
+    assert len(k117) == 1 and len(k117[0]) == len(rows[0]) == 10

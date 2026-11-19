@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.158 – 19.11.2026 (K-117: öğrenci döngüsü, yalnız belge)
+- DECISIONS K-117 ve KARAR_DEFTERI satırı: her akşam tekrar (AAR), önce onarım, düzeltme + koruma, 1/7/30 gün yeniden kontrol, aşama kapısı, hata bütçesi (eşikler varsayılan).
+- OPERATIONS §0 saat satırları ve §0a; OTONOM_KURALLAR "Öğrenci döngüsü (K-117)" bölümü.
+- Yeni `docs/DERS_DEFTERI.md` (boş tablo, yalnız ekleme) ve `docs/KAPI_KONTROL_LISTESI.md` (boş liste).
+- Test: `tests/test_ogrenci_dongusu.py` (önce kırmızı; defter başlığı ve sütun sayısı, dosyalar, bağlantılar).
+
 ## v0.99.157 – 19.11.2026 (K-116: haftalık araştırmanın kural testleri 18.12'ye kadar durur)
 - `research.yml`: strateji araştırması (üç adım), Aşama 3, a4 ve aday kurallar `if: false  # K-116` ile durdu; fiyat ve USD/TRY adımları çalışıyor. Rapor dosyalarına gerekçe satırı yazılıyor, iş yeşil bitiyor.
 - a4 ön kaydı ve 27.04.2027 taraması değişmedi; a4 ay sonu kalıbı kararı 18.12 paketinde (DECISIONS K-116 notu).

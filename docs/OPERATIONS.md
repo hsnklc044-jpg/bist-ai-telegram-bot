@@ -23,6 +23,17 @@ Saatler İstanbul saatidir. Görev metniyle çelişirse bu tablo geçerlidir; ç
 | Robot turları | 07:00; hafta içi 13:00 (yalnız hazırlık); 20:15, 21:15, 22:15; hafta sonu 10:15, 13:00, 17:15 | zamanlanmış görevler `quantbist-otonom-*` |
 | Günlük bakım (salt okunur) | hafta içi 19:15 | `quantbist-gunluk-bakim` |
 | Olgunluk ölçümü | 08:30 ve 23:30 | `quantbist-olgunluk-olcum`, `cikti/OLGUNLUK_GECMISI.md` |
+| Önce onarım (K-117) | günün ilk robot turunun ilk işi (07:00) | §0a, `docs/OTONOM_KURALLAR.md` |
+| Akşam tekrarı (K-117) | her gün, günün son kurulumunun sağlık kontrolünden hemen sonra; kurulum yoksa son robot turunun sonunda | §0a, `docs/DERS_DEFTERI.md` |
+| Haftalık karne ekleri (K-117) | pazar, robotun haftalık raporunda (bot kodundaki haftalık özet değişmedi) | §0a |
+| Aylık denetime yanıt (K-117) | denetim bulgusundan sonra en geç 7 gün | §0a |
+
+### 0a. Öğrenci döngüsü (K-117, 19.11.2026)
+
+- **Akşam tekrarı:** saat yukarıdaki satırdır; kayda gerçek başlama saati `Get-Date` ile yazılır. Son kurulum gece yarısını geçerse tekrar o günün tarihiyle yine yapılır; sahibe soru 07:00'yi bekler. Günün commit'leri, kurulumları, kararları ve robot turları için AAR'nin dört sorusu sorulur: ne olmalıydı, ne oldu, fark neden oluştu, neyi sürdürüyor neyi iyileştiriyoruz. Her cevap kanıtla (test, sağlık, log, Telegram mesajı); "çalıştı sanıyorum" kanıt değildir. Bulgular `docs/DERS_DEFTERI.md`'ye yalnız ekleme ile yazılır; hata yoksa tek satır "Bugün yeni hata yok." Tekrar sahipten bir şey istemez; 23:00'ten sonra soru yazılmaz (K-107 (3)).
+- **Önce onarım:** sabahın ilk işi açık kritik ve orta bulgular, sonra "anlaşılamadı" etiketliler ve o günün 1/7/30 gün yeniden kontrolleri. Ayrıntı `docs/OTONOM_KURALLAR.md` "Öğrenci döngüsü (K-117)".
+- **Haftalık karne:** "Devam et / Bırak / Başla" bölümü; hata bütçesinin durumu; eğilimler: yakalanan hata sayısı, ortalama kapanma süresi, tekrar eden hata oranı, kaçan hata oranı (canlıda yakalanan / kapıda yakalanan).
+- **Aylık A–Z denetimi:** bağımsız doğrulayıcıdır. Her bulgusuna 7 gün içinde "kabul / ret + gerekçe" yanıtı verilir ve DERS_DEFTERI'ne yazılır.
 
 ## 1. Envanter
 

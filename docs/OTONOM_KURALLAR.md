@@ -109,6 +109,20 @@ Yürürlük: K-106 ile birlikte, 19.11 08:40 K kurulumundan sonra.
 4. **Kota şeffaflığı:** aylık karar paketinde tek satır: ayın ortalama ve en yüksek haftalık kotası, önceki ayla karşılaştırma. Plan önerisi ya da yorum yapılmaz.
 5. **Düşük bakım:** varsayılan hâl sessizce çalışan deneydir. Başarı, bir haftayı sahibe soru sormadan ve sorunsuz geçirmektir. Aylık karar paketinde tek satır: aktif belge, açık dal ve kural sayısı, önceki aya göre.
 
+## Öğrenci döngüsü (K-117)
+
+19.11.2026, sahibin talimatı; kalıcı. Saatler OPERATIONS §0 ve §0a'dadır.
+1. **Sabah önce onarım.** Günün ilk turu önce `docs/DERS_DEFTERI.md`'deki açık kritik ve orta bulguları ele alır, sonra "anlaşılamadı" etiketlileri araştırır, sonra o günün 1/7/30 gün yeniden kontrollerini yapar. Anlaşılamadı sürerse sahibe 07:00–23:00 arasında, o günün bütün belirsizlikleri tek mesajda toplanarak sorulur (K-107 (3) ve (5): soru az tutulur).
+2. **Açık kritik/orta varken yeni aşama yok** (gerekçeyle ertelenmiş bulgu hariç). Yeni özellik, dalga ya da madde açılmaz. Kapatılamayan bulgu gerekçesiyle ertelenir ve deftere yazılır. Düşükler sıraya girer.
+3. **Düzeltme + koruma.** Her düzeltmeyle aynı hatayı yakalayan bir test ya da otomatik kontrol eklenir; "dikkat ederiz" koruma değildir. Kritik ve orta bulguda 5 Neden yazılır, kişiye değil sürece bakılır.
+4. **Tekrar eden hata → süreç değişikliği.** Aynı tür hata ikinci kez görülürse ya da yeniden kontrolde geri gelirse bulgu "tekrar eden hata" olarak (yeniden) açılır ve süreç değiştirilir.
+5. **Ders → kontrol maddesi.** Her dersten bir madde `docs/KAPI_KONTROL_LISTESI.md`'ye eklenir; her `surum-kapisi` çalışmasından önce liste okunur ve işaretlenir.
+6. **Aşama kapısı.** Bir aşama (Dalga 1, Dalga 2, 18.12 hazırlığı vb.) ancak şunlarla biter: bütün maddeler kanıtla bitmiş; o aşamaya ait açık kritik/orta bulgu yok; tam test paketi yeşil; o aşamada kapanan bulguların 7. gün kontrolleri geçmiş. Geçiş DECISIONS ve KARAR_DEFTERI'ne yazılır, sonra yeni aşama açılır.
+7. **Hata bütçesi (varsayılan; eşikleri sahip değiştirir).** Bir haftada 1'den fazla kritik ya da 4'ten fazla orta yeni hata ya da herhangi bir tekrar eden hata olursa ertesi hafta yalnız onarım haftasıdır: yeni özellik ya da aşama açılmaz. Durum haftalık karnede yazılır.
+8. **Akşam tekrarı** günün son kurulumunun sağlık kontrolünden hemen sonra yapılır (AAR dört soru, kanıtla); hata yoksa "Bugün yeni hata yok."
+9. Bu bölüm K-106 dönemi iş türlerini (a)–(e) genişletmez. Açık kritik/orta bulgu varken ya da yalnız onarım haftasında da onaylı kurulum zinciri ve sayaçların korunması (S2, S3) sürer; durdurulan, (e) dalga hazırlığına yeni madde açmak ve yeni özelliktir.
+10. **Kapı listesi uygulaması.** `scripts/surum_kapisi.py` bu listeyi bugün okumuyor; kapıya bağlanması ayrı bir koddur. O zamana kadar robot listeyi kapıdan önce okur ve işaretlemeyi kurulum günlüğüne yazar. Haftalık karne ekleri de bot kodunda değil, robotun haftalık raporundadır.
+
 ## Saat kuralı (19.11.2026, kullanıcı; yetki devri sınıf 1, kalıcı)
 
 1. Kayıtlara yazılan her saat o anda sistem saatinden okunur (`Get-Date`, `date`, `datetime.now()`). Saat tahmin edilmez.
