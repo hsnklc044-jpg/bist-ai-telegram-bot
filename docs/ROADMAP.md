@@ -25,6 +25,8 @@ Hedef dürüst ölçümle tutmazsa tarih kaydırılır. Ölçüt gevşetilmez.
 | 18.12 | S3 sayacı dolar (K-105; K-96'daki 12.12 geçersiz) | Sayacı bozan bir olay yoksa S3 kapanış önerisi kanıtlarıyla sunulur | `docs/S3_MUDAHALE.md` §Ölçüm |
 | 15.12 | Dönem değerlendirmesi | Neler tuttu, neler tutmadı; sonraki 4 haftanın planı | — |
 
+**Not (18.11.2026 22:19, K-105):** S3 sayacı yeniden başlatmayla sıfırlandı. 12.12 satırının yerine 18.12 geçer ve "15.12'ye kadar resmî S3" hedefi tutmaz. Plan gereği tarih kayar, ölçüt gevşemez; yeni hedef 15.12 dönem değerlendirmesinde önerilecek.
+
 **Haftalık döngü** (her hafta aynı):
 - **Pazartesi:** haftanın işleri sıralanır. Her işin hangi MATURITY satırına hizmet ettiği yazılır.
 - **Hafta içi:** önce test, sonra kod, sonra belge. Davranış değiştiren her şey dalda kalır ve kullanıcı onayıyla girer.
