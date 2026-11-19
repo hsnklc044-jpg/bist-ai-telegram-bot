@@ -2,6 +2,14 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.152 – 19.11.2026 (K-113 Dalga 1: sabah tek tablo, defter sütunları, karar defteri, veri kalitesi denetimi)
+- #15 Sabah mesajı tek tablo: her hisse bir satır; sütunlar filtre kodları (A100, A30, TRD, GC, KRL), göreli güç sırası, destek/direnç uzaklığı, uzaklık/ATR (1'in altı "gürültü içinde"), olay bayrağı (şimdilik "—"), USD trendi (gösterim alanı: USD fiyatı 200 günlük ortalamasının üstünde mi). İlk satır: "Bu filtreler henüz test edilmedi (testler 18.12 sonrası). Filtre sonucudur, karar dayanağı değildir." Veri satırı aynen "doğrulanmamış kaynak". Her sabahın satırları `data/filtre_kayitlari.csv`'ye eklenir; 20 seans sonra nominal, XU100'e göre, USD ve reel sonuç `data/filtre_sonuclari.csv`'ye yazılır (kayıt, test değil). Filtre tanımları değişmedi.
+- #12 Tahmin defterine 9 sütun: olasılık, referans fiyat, varsayım alanları, çözüm kuralı (K-110), yön doğru mu, "hep boğa" kıyası, TL/USD/XU100'e göre getiri. Brier skoru yalnız 20 ve üstü olasılıklı sonuçta.
+- #13 Karar defteri `docs/KARAR_DEFTERI.csv` (yalnız eklenir; eski satır değişirse yakalanır) ve kart başına N sayacı.
+- #2 Hafta içi 20:00 sağlık kontrolüne "veri kalitesi": sıfır/negatif fiyat, eksik gün, açıklanmamış %10 üstü hareket (eşik Pay Piyasası Prosedürü'nden teyit edilmedi), eski son çubuk. Ağ çağrısı yok.
+- Belge: #7 maliyet ve icra taslağı (MALIYET_ONERI), #4 makro notu (DATA_SOURCES; EVDS kullanılmıyor).
+- Test: her özellik önce kırmızı test; yeni test dosyaları test_morning_table, test_tahmin_defteri_sutunlar, test_karar_defteri, test_health_veri_kalitesi.
+
 ## v0.99.151 – 19.11.2026 (K-112: tahmin defteri her iş günü akşamı işaretlenir)
 - Bot, hafta içi 19:15'te `docs/TAHMIN_DEFTERI.csv`'deki süresi dolan otomatik satırları günlük kapanışla K-110 kurallarına göre işaretler. Sonuçlar `data/tahmin_sonuclari.csv`'ye eklenir; izlenen defter dosyasına bot yazmaz, bu yüzden güncelleyici takılmaz. Bir satır işaretlendiğinde tek mesaj gelir ("Bu bir kayıttır; yatırım tavsiyesi değildir."); işaretlenecek satır yoksa mesaj yok.
 - Test: `tests/test_tahmin_defteri_job.py` önce kırmızıydı (7 test): defter dosyası değişmiyor, sonuç bir kez yazılıyor, elle satırlar hiç işaretlenmiyor, iş hafta içi 18:30 raporundan sonra kayıtlı.
