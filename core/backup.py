@@ -81,7 +81,14 @@ PERSONAL_FILES = (
     RISK_LIMITS_FILE,
     SIGNALS_DB,  # SQLite; written only by the daily run, briefly
     EVENTS_FILE,
+    # Denetim 19.11 #5: append-only records that are in neither git (.gitignore) nor any other copy
+    DATA_DIR / "tahmin_sonuclari.csv",  # core.research.tahmin_defteri.RESULTS (K-112)
+    DATA_DIR / "filtre_kayitlari.csv",  # core.screen.filtre_kayitlari.RECORDS (K-113)
+    DATA_DIR / "filtre_sonuclari.csv",  # core.screen.filtre_kayitlari.RESULTS (K-113)
+    LOG_DIR / "heartbeats.csv",  # core.reports.slo.HEARTBEATS_FILE: S2/S3 counter evidence
+    LOG_DIR / "runs.csv",  # core.reports.runs.RUNS_FILE
 )
+LOG_PREFIX = "logs/"  # name inside the zip of a file in LOG_DIR; restored to LOG_DIR, not to data/
 WEEKLY_SLO_DIR = LOG_DIR / "haftalik_slo"  # same folder as core.otonom.WEEKLY_DIR: dated Saturday SLO tables (2b)
 WEEKLY_PREFIX = "haftalik_slo/"  # their name inside the zip; restored to WEEKLY_SLO_DIR, not to data/
 MANIFEST = "manifest.json"
@@ -142,12 +149,18 @@ def _weekly_files() -> list[Path]:
 
 
 def _arcname(path: Path) -> str:
-    return WEEKLY_PREFIX + path.name if path.parent == WEEKLY_SLO_DIR else path.name
+    if path.parent == WEEKLY_SLO_DIR:
+        return WEEKLY_PREFIX + path.name
+    if path.parent == LOG_DIR:
+        return LOG_PREFIX + path.name
+    return path.name
 
 
 def _restore_path(name: str, data_dir: Path) -> Path:
     if name.startswith(WEEKLY_PREFIX):
         return WEEKLY_SLO_DIR / Path(name).name
+    if name.startswith(LOG_PREFIX):
+        return LOG_DIR / Path(name).name
     return data_dir / name
 
 

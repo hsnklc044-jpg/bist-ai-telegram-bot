@@ -172,6 +172,61 @@ class WeeklySloBackupTest(unittest.TestCase):
         self.assertTrue(any("haftalık SLO 2026-11-14" in line for line in lines), lines)
 
 
+def test_new_append_only_records_are_backed_up():
+    """Denetim 19.11 #5: K-110/K-112/K-113 records and the S2/S3 counter evidence were in neither git nor the backup."""
+
+    from core.config.paths import DATA_DIR, LOG_DIR
+    from core.reports import runs, slo
+    from core.research import tahmin_defteri
+    from core.screen import filtre_kayitlari
+
+    # the writers' own names (tests may point the writers at a temp folder, so the folder is checked separately)
+    expected = [DATA_DIR / tahmin_defteri.RESULTS.name, DATA_DIR / filtre_kayitlari.RECORDS.name,
+                DATA_DIR / filtre_kayitlari.RESULTS.name, LOG_DIR / slo.HEARTBEATS_FILE.name, LOG_DIR / runs.RUNS_FILE.name]
+    for path in expected:
+        assert path in backup.PERSONAL_FILES, path
+
+
+class LogRecordsBackupTest(unittest.TestCase):
+    """logs/heartbeats.csv and logs/runs.csv go back to logs/, not to data/."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.data = self.root / "data"
+        self.data.mkdir()
+        self.logs = self.root / "logs"
+        self.logs.mkdir()
+        self.beats = self.logs / "heartbeats.csv"
+        self.beats.write_text("at,pid\n2026-11-19T10:00:00+03:00,42\n", encoding="utf-8")
+        self.target = self.root / "backups"
+        for name, value in (("LOG_DIR", self.logs), ("WEEKLY_SLO_DIR", self.logs / "haftalik_slo")):
+            patcher = mock.patch.object(backup, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def test_log_records_round_trip_into_logs(self):
+        with mock.patch.object(backup, "PERSONAL_FILES", (self.beats,)):
+            path = backup.create_backup(target=self.target).path
+        self.assertIn("logs/heartbeats.csv", backup.verify(path))
+        self.beats.unlink()
+
+        names, _ = backup.restore_backup(path, data_dir=self.data)
+
+        self.assertEqual(names, ["logs/heartbeats.csv"])
+        self.assertIn("42", self.beats.read_text(encoding="utf-8"))
+        self.assertFalse((self.data / "heartbeats.csv").exists())
+
+    def test_restore_test_reads_log_records(self):
+        with mock.patch.object(backup, "PERSONAL_FILES", (self.beats,)):
+            path = backup.create_backup(target=self.target).path
+
+        lines = backup.test_restore([path])
+
+        self.assertTrue(any("heartbeats 1 satır" in line for line in lines), lines)
+
+
 def test_weekly_slo_dir_is_the_saturday_writers_folder():
     from core import otonom
 
