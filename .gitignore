@@ -92,6 +92,8 @@ data/fundamentals.csv
 data/risk_limits.csv
 data/events.csv
 data/tahmin_sonuclari.csv
+data/filtre_kayitlari.csv
+data/filtre_sonuclari.csv
 data/panic.lock
 data/otonom_dur.flag
 data/signal_log.csv

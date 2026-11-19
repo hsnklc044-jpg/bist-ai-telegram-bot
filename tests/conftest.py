@@ -97,6 +97,11 @@ def _private_run_files(tmp_path, monkeypatch):
     from core.market import trust as _trust
 
     monkeypatch.setattr(_trust, "SECOND_SOURCE_FILE", tmp_path / "price_second_source.json")
+    from core.screen import filtre_kayitlari as _filtre
+
+    # the morning filter record and its results file (owner's instruction #15) stay private too
+    monkeypatch.setattr(_filtre, "RECORDS", tmp_path / "filtre_kayitlari.csv")
+    monkeypatch.setattr(_filtre, "RESULTS", tmp_path / "filtre_sonuclari.csv")
     _trust.clear_cache()
     from core import otonom as _otonom
 

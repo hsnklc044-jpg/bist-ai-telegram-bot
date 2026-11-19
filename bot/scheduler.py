@@ -16,6 +16,7 @@ message per data day.
 from __future__ import annotations
 
 import asyncio
+import html
 import os
 from datetime import time
 
@@ -355,10 +356,10 @@ async def morning_screens_job(context: ContextTypes.DEFAULT_TYPE) -> None:
         messages = await asyncio.to_thread(subscriptions.morning, now_istanbul().date())
     except Exception as exc:  # noqa: BLE001 - the bot never stops on this; the user is told
         logger.exception("Morning screens failed")
-        messages = [f"⚠️ Sabah aday listesi hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}"]
-    for text in messages:
+        messages = [html.escape(f"⚠️ Sabah aday listesi hazırlanamadı: {type(exc).__name__}: {str(exc)[:200]}")]
+    for text in messages:  # owner's instruction #15: one HTML message with the table in <pre>
         with trust.data_message():
-            await context.bot.send_message(chat, text)
+            await context.bot.send_message(chat, text, parse_mode="HTML")
 
 
 def schedule_morning_screens(app: Application, chat_id: int | None = None) -> bool:
@@ -509,12 +510,21 @@ LEDGER_AT = time(19, 15, tzinfo=ISTANBUL)  # after the 18:30 report has stored t
 
 
 async def prediction_ledger_job(context: ContextTypes.DEFAULT_TYPE) -> None:
-    """K-112: weekday evening, due rows of the prediction ledger are marked from daily closes (K-110 rules)."""
+    """K-112: weekday evening, due rows of the prediction ledger are marked from daily closes (K-110 rules).
+    Owner's instruction #15: the same job fills the filter record's 20-session results (log only, no message;
+    a failure there never stops the ledger)."""
 
     from core.market.calendar import now_istanbul
     from core.research import tahmin_defteri
+    from core.screen import filtre_kayitlari
 
     today = now_istanbul().date()
+    try:
+        filled = await asyncio.to_thread(filtre_kayitlari.fill_results, today)
+        for line in filled or []:
+            logger.info("Filtre sonucu yazıldı: %s", line)
+    except Exception:  # noqa: BLE001 - the filter record never stops the job
+        logger.exception("Filter results failed")
     lines = await _guarded(context, "tahmin defteri", lambda: tahmin_defteri.daily(today))
     if lines:
         from core.infrastructure import outbox

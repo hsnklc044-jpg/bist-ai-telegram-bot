@@ -130,9 +130,10 @@ class RunTest(Files):
                 mock.patch("core.market.calendar.is_session_day", return_value=True):
             messages = subscriptions.morning(DAY, **kwargs)
         self.assertEqual(len(messages), 1)
-        self.assertIn("Sabah aday listesi: dusuk", messages[0])
+        self.assertIn("Sabah filtre tablosu", messages[0])  # owner's instruction #15: one table
+        self.assertIn("DUSU=dusuk", messages[0])
         self.assertIn("S00", messages[0])
-        self.assertIn("Yakın destek", messages[0])
+        self.assertIn("D%/R%", messages[0])
         self.assertEqual(self.state.read_text() if self.state.exists() else None, before)
         self.assertTrue(messages[0].rstrip().endswith(command.DISCLAIMER))
 
@@ -167,7 +168,7 @@ class RunTest(Files):
 
         sent = []
 
-        async def send_message(chat_id, text):
+        async def send_message(chat_id, text, **_kw):
             sent.append(text)
 
         context = SimpleNamespace(bot=SimpleNamespace(send_message=send_message), job=SimpleNamespace(chat_id=7))

@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
+import pandas as pd
+
 from core.config.paths import LOG_DIR, SCREEN_SUBSCRIPTIONS_FILE
 from core.infrastructure.csvfiles import open_append, read_rows
 from core.infrastructure.logger import get_logger
@@ -228,22 +230,30 @@ def run(day: date, live=None, path: Path | None = None, saved_path: Path | None 
 
 
 def morning(day: date, live=None, path: Path | None = None, saved_path: Path | None = None, suspects=None,
-            universe_of=None) -> list[str]:
+            universe_of=None, usd=None, record_path: Path | None = None) -> list[str]:
     """
-    The full candidate list of every subscription before the session, from the last closes. It reads and
-    changes no evening state, so the 18:30 changes message stays as it was. Nothing on a holiday or while
-    the breaker or panic lock is on.
+    Owner's instruction #15: ONE message before the session with ONE table, one row per stock and the codes of
+    every subscribed screen it passed (core.screen.morning_table), from the last closes. The first line is the
+    untested-filter warning; the bot adds the data line under it (core.market.trust). The rows are appended to
+    the filter record (core.screen.filtre_kayitlari; a record failure never stops the message). It reads and
+    changes no evening state. Nothing on a holiday or while the breaker or panic lock is on. HTML text.
     """
 
+    import html
+
     from core.market.calendar import is_session_day
-    from core.screen import engine, universe
+    from core.screen import engine, filtre_kayitlari, universe
+    from core.screen import morning_table as mt
     from core.screen.command import DISCLAIMER, _live
     from core.signals import store
 
     subscribed = sorted(active(path).items())
     if not subscribed or not is_session_day(day) or store.locked(day):
         return []
-    messages, empty = [], []
+    results: dict[str, list[str]] = {}
+    frames_all: dict = {}
+    gg: dict[str, float] = {}
+    problems, empty, criteria_of_name = [], [], {}
     for name, chat in subscribed:
         criteria = criteria_of(name, saved_path)
         if criteria is None:
@@ -253,21 +263,74 @@ def morning(day: date, live=None, path: Path | None = None, saved_path: Path | N
             chat_id = int(chat) if str(chat).lstrip("-").isdigit() else None
             frames, bench = (live or _live)((universe_of or universe.symbols)(query.universe, chat_id))
             found = universe.suspects() if suspects is None else suspects
-            symbols = [m.symbol for m in engine.run(query, frames, bench, found).matches]
+            matches = engine.run(query, frames, bench, found).matches
         except Exception as exc:  # noqa: BLE001 - one screen never stops the others
             logger.exception("Morning list %s failed", name)
-            messages.append(f"⚠️ Sabah listesi {name} hazırlanamadı: {exc}")
+            problems.append(f"⚠️ Sabah listesi {name} hazırlanamadı: {exc}")
             continue
-        if not symbols:
+        criteria_of_name[name] = criteria
+        results[name] = [m.symbol for m in matches]
+        for m in matches:
+            gg.setdefault(m.symbol, m.values.get("gg_20", float("nan")))
+            frames_all.setdefault(m.symbol, frames.get(m.symbol))
+        if not matches:
             empty.append(name)
-            continue
-        last = max(df.index.max() for df in frames.values() if len(df))
-        messages.append("\n".join([f"🌅 Sabah aday listesi: {name} ({criteria}) · son kapanış {last:%d.%m.%Y}",
-                                   f"{len(symbols)} hisse: {_codes(symbols)}", *_level_lines(symbols, frames),
-                                   f"Koşul değerleri: /tara_aciklama KOD {name}", DISCLAIMER]))
+    for screen, other, kind in mt.overlaps({n: set(s) for n, s in results.items()}):
+        logger.info("Morning screens: %s is %s of %s today", screen, kind, other)
+
+    by_symbol: dict[str, list[str]] = {}
+    for name, symbols in results.items():
+        for symbol in symbols:
+            by_symbol.setdefault(symbol, []).append(name)
+    if usd is None:
+        try:
+            from core.market import macro
+
+            usd = macro.load_usdtry()
+        except Exception:  # noqa: BLE001 - no rates: the USD column says "—"
+            logger.exception("USD/TRY not read for the morning table")
+            usd = pd.Series(dtype=float)
+    rows = []
+    for symbol, names in by_symbol.items():
+        row = mt.Row(symbol, names, gg.get(symbol), event=mt.event_flag(symbol, day))
+        df = frames_all.get(symbol)
+        if df is not None and len(df):
+            try:
+                row.support_pct, row.resistance_pct, row.distance_atr = mt.nearest_levels(df)
+            except Exception:  # noqa: BLE001 - a level never stops the table
+                logger.exception("Levels failed for %s", symbol)
+            row.usd = mt.usd_trend(df["close"], usd)
+        rows.append(row)
+    rows = mt.rank(rows)
+
+    records = []
+    for row in rows:
+        df = frames_all.get(row.symbol)
+        if df is not None and len(df):
+            records.append(filtre_kayitlari.Record(row.symbol.removesuffix(".IS"), row.screens,
+                                                   df.index[-1].date(), float(df["close"].iloc[-1])))
+    try:
+        filtre_kayitlari.append_records(records, day, record_path)
+    except Exception:  # noqa: BLE001 - the record never stops the message
+        logger.exception("Filter record not written")
+
+    code_of = mt.codes(criteria_of_name)
+    last = max((df.index.max() for df in frames_all.values() if df is not None and len(df)), default=None)
+    head = "🌅 Sabah filtre tablosu" + (f" · son kapanış {last:%d.%m.%Y}" if last is not None else "")
+    lines = [mt.WARNING, html.escape(f"{head} · {len(rows)} hisse")]
+    if rows:
+        lines.append(mt.table(rows, code_of))
+        lines.append(html.escape("Kodlar: " + ", ".join(f"{code_of[n]}={n}" for n in sorted(criteria_of_name))))
+        lines.append("GG: 20 seans göreli güç sırası (1 en yüksek) · D%/R%: en yakın küme destek/direnç uzaklığı · "
+                     f"ATR: yakın seviyenin ATR cinsinden uzaklığı (&lt;1: {mt.NOISE}) · USD: dolar fiyatı 200 "
+                     "günlük ortalamasının üstünde ↑, altında ↓ (gösterim alanı)")
     if empty:
-        messages.append(f"🌅 Sabah listesinde hisse çıkmayan taramalar: {', '.join(empty)}.")
-    return messages
+        lines.append(html.escape(f"Hisse çıkmayan taramalar: {', '.join(empty)}."))
+    lines += [html.escape(p) for p in problems]
+    if rows:
+        lines.append("Koşul değerleri: /tara_aciklama KOD AD")
+    lines.append(DISCLAIMER)
+    return ["\n".join(lines)]
 
 
 def save_state(outcome: Outcome, path: Path | None = None) -> None:
