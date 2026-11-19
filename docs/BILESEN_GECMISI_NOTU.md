@@ -53,6 +53,22 @@ Aşağıdaki "Durma noktası" bölümündeki iki sorun KAP bildirimleriyle çöz
 - 2015 Ç4–2018 Ç4 duyuru numaraları `duyurular-eski` sayfalarında bulundu (11751, 11669, 11596, 11564, 11532, 11511, 11492,
   11503, 11473, 11466, 11443, 12512, 12465); 2015 Ç3 duyurusu daha eski sayfalarda, henüz aranmadı.
 
+## Durma noktası 2: 2018 eklenmedi (19.11.2026 14:2x)
+
+2018 satırları denendi (4264ee1) ve geri alındı (d033db2, `git revert`): kırmızı takım, zincir denetiminin
+yakalamadığı iki halka arz hızlı girişi buldu. Halka arzla giren hisse bugün de üyeyse sabit listededir ve
+"her tarihte 100" denetimi bu hatayı göremez.
+
+- ENJSA 14.02.2018'de BIST 100/50/30'a alındı, CRFSA BIST 100'den çıkarıldı (borsaningundemi.com
+  "endeks-sirketlerinde-degisiklik-yapildi-1275739", 08.02.2018, Borsa İstanbul açıklamasını aktarıyor). Bulundu.
+- SOKM 24.05.2018'de BIST 100/30'a alındı, DGATE BIST 100'den çıkarıldı (borsaningundemi.com
+  "3-sirketin-endeksi-degisti-1308763", KAP açıklamasını aynen aktarıyor). Bulundu.
+- MPARK 13.02.2018'de işlem görmeye başladı; 11443 onu BIST 30'dan çıkarıyor, yani Nisan 2018'den önce endekse girmiş.
+  Giriş tarihi ve yerine çıkan hisse BULUNAMADI. Tahmin yazılmadı; 2018 bu bulunmadan eklenmez.
+
+Açık uç (2019–2021 için de geçerli): aynı tür halka arz hızlı girişi 2019-01-02 sonrasında olduysa kayıtta yoktur.
+Sabit listedeki hisselerin halka arz tarihleri 2019–2021 ile karşılaştırılmalı (yapılmadı).
+
 ## Durma noktası: 2020 Ç3 eklenmedi (çözüldü, yukarıdaki ek)
 
 2020-07-01 (duyuru 12559) eklenince zincir bozuluyor:
