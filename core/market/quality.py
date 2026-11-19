@@ -240,6 +240,77 @@ def check_symbol(
     return result
 
 
+RECENT_SESSIONS = 30
+# The ±10% daily price limit is taken from the data and earlier notes, not from the Pay Piyasası Prosedürü
+# text (not verified). Every message that uses it must say so.
+THRESHOLD_TEXT = "eşik %10 (Pay Piyasası Prosedürü'nden teyit edilmedi)"
+
+
+def recent_sessions(last, n: int = RECENT_SESSIONS) -> list:
+    """The last `n` market-calendar sessions up to and including `last` (data/bist_holidays.csv), oldest first."""
+
+    from datetime import timedelta
+
+    from core.market.calendar import is_session_day
+
+    days, day = [], last
+    while len(days) < n:
+        if is_session_day(day):
+            days.append(day)
+        day -= timedelta(days=1)
+    return days[::-1]
+
+
+def recent_problems(frames: dict[str, pd.DataFrame], sessions: list, exceptions=None) -> dict[str, list[str]]:
+    """Health check #2 over the given sessions (frames already corrected with `clean`): per kind, the
+    "SYMBOL detail" items. Kinds: zero or negative prices, sessions missing between the symbol's first and last
+    candle, moves beyond the session limit (SESSION_LIMIT, compounded over the days since the previous candle)
+    that are not market-wide and not a real move in data/candle_exceptions.csv, and a last candle older than
+    the last session. A symbol with no candle at all is "veri yok". Only data already stored is read."""
+
+    from core.market.corrections import real_moves
+
+    start, end = pd.Timestamp(sessions[0]), pd.Timestamp(sessions[-1])
+    calendar = pd.DatetimeIndex([pd.Timestamp(d) for d in sessions])
+    windows = {s: df[df.index.normalize() >= start] for s, df in frames.items() if not df.empty}
+    market_wide = market_wide_moves(windows)
+    found: dict[str, list[str]] = {"veri yok": [], "sıfır/negatif fiyat": [], "eksik seans": [],
+                                   "seans limiti dışı hareket": [], "bayat son mum": []}
+
+    def short(symbol: str) -> str:
+        return symbol.removesuffix(".IS")
+
+    for symbol, df in frames.items():
+        if df.empty:
+            found["veri yok"].append(short(symbol))
+            continue
+        df = df.sort_index()
+        dates = df.index.normalize()
+        window = df[dates >= start]
+        bad = window[(window[["open", "high", "low", "close"]] <= 0).any(axis=1)]
+        if len(bad):
+            found["sıfır/negatif fiyat"].append(f"{short(symbol)} " + ", ".join(f"{t:%d.%m}" for t in bad.index))
+        last = dates.max()
+        span = calendar[(calendar >= max(start, dates.min())) & (calendar <= last)]
+        missing = span.difference(dates)
+        if len(missing):
+            found["eksik seans"].append(f"{short(symbol)} " + ", ".join(f"{t:%d.%m}" for t in missing))
+        priced = df[df["close"] > 0]  # a zero close is reported above, not as a move
+        recent = priced.index.normalize() >= start
+        moves = limit_breaches(pd.concat([priced[~recent].tail(1), priced[recent]]), market_wide)
+        real = real_moves(symbol, exceptions)
+        keep = (moves.index.normalize() >= start) & ~pd.Index(moves.index.date).isin(list(real))
+        moves = moves[keep]
+        if len(moves):
+            found["seans limiti dışı hareket"].append(
+                f"{short(symbol)} " + ", ".join(f"{t:%d.%m} {v * 100:+.1f}%" for t, v in moves.items()))
+        if last < end:
+            behind = int((calendar > last).sum())
+            text = f"{last:%d.%m.%Y}" + (f" ({behind} seans geride)" if last >= start else "")
+            found["bayat son mum"].append(f"{short(symbol)} {text}")
+    return {k: v for k, v in found.items() if v}
+
+
 def build_report(symbols: list[str] | None = None, before=None) -> list[SymbolQuality]:
     """`before`: judge each stock only on its candles before that day (Faz C M5-2: the /tara card's
     universe must not depend on holdout data)."""

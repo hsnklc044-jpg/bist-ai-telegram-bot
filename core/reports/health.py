@@ -149,6 +149,48 @@ def price_check(now: datetime, bars=adjusted_bars) -> Check:
     return Check("Fiyat verisi", WARN, f"XU100 son kapanış {_date(last)}; {behind} seans geride")
 
 
+DATA_QUALITY_SHOWN = 5  # items per kind in the one-line text; the rest is counted
+
+
+def data_quality_check(now: datetime, symbols: list[str] | None = None, read=None, exceptions=None) -> Check:
+    """#2: the stored universe over the last 30 sessions (core.market.quality.recent_problems): zero or
+    negative prices, missing sessions, moves beyond the session limit that data/candle_exceptions.csv or the
+    corrections do not explain, stale last candles. Only problems are listed. Reads the price store only;
+    no network. The ±10% limit is not verified from the Pay Piyasası Prosedürü and the text says so. A daily
+    comparison with a second source is not part of this check (the official files and core.market.trust
+    cover that separately)."""
+
+    name = "Veri kalitesi"
+    try:
+        from core.market import quality
+        from core.market import store
+        from core.market.calendar import drop_open_candle
+        from core.market.corrections import clean, load_candle_exceptions
+        from core.market.universe import load_universe
+
+        symbols = symbols or [BENCHMARK, *load_universe()]
+        read = read or store.read
+        exceptions = load_candle_exceptions() if exceptions is None else exceptions
+        sessions = quality.recent_sessions(due_session(now))
+        start = sessions[0] - timedelta(days=20)  # a candle before the window for the first day's move
+        frames = {s: drop_open_candle(clean(read(s, start), s), now) for s in symbols}
+        found = quality.recent_problems(frames, sessions, exceptions)
+    except Exception as exc:  # noqa: BLE001 - /durum must still answer
+        return Check(name, UNKNOWN, f"okunamadı ({type(exc).__name__})")
+    head = f"son {len(sessions)} seans, {len(symbols)} sembol"
+    limit = f"seans limiti {quality.THRESHOLD_TEXT}"
+    if len(found.get("veri yok", ())) == len(symbols):
+        return Check(name, UNKNOWN, f"{head}: fiyat verisi yok")
+    if not found:
+        return Check(name, OK, f"{head}: sorun yok; {limit}")
+    parts = []
+    for kind, items in found.items():
+        more = len(items) - DATA_QUALITY_SHOWN
+        parts.append(f"{kind} ({len(items)}): " + "; ".join(items[:DATA_QUALITY_SHOWN])
+                     + (f"; +{more} daha" if more > 0 else ""))
+    return Check(name, WARN, f"{head}; " + " | ".join(parts) + f" | {limit}")
+
+
 def levels_check(path: Path | str | None = None, now: datetime | None = None) -> Check:
     """Özellik A §2.5: the last day the evening report wrote the levels (logs/levels_log.csv)."""
 
@@ -708,6 +750,7 @@ def health_checks(now: datetime | None = None, bars=adjusted_bars, online: bool 
         bot_check(now),
         report_check(now),
         price_check(now, bars),
+        data_quality_check(now),
         database_check(),
         signal_check(now=now),
         equity_check(),
