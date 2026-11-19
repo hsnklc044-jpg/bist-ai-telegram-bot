@@ -43,7 +43,7 @@ eklenince üye sayısı 101 oluyor. 2020 Ç3 ve öncesi bu iki dönem dışı ol
   gerekmedi. Aynı çeyrekte hem alınan hem çıkarılan hisse yok.
 - `bist100_stable.csv`'den değişiklik kaydına geçen 3 hisse: ENKAI (2021-07), MAVI (2021-10), BRYAT (2022-01).
   Sabit hisse 50 → 47.
-- `ever_members()` 202 → 225 hisse (yalnız 2020-2022 arasında üye olan 23 hisse eklendi).
+- `ever_members(full_history=True)` 225 hisse (varsayılan 202; fark yalnız 2020-2022 arasında üye olan 23 hisse).
 
 ## Kaynak adresleri
 
@@ -59,9 +59,11 @@ Duyuru sayfaları 2017'ye kadar aynı biçimde (11473 = 2017 Ç4, 11503 = 2017 �
 Asıl iş tablo okumak değil, dönem dışı değişiklikleri (birleşme, kod değişikliği, borsadan çıkma) bulmak: her biri
 zinciri bozuyor ve Borsa İstanbul duyuru listesinde ayrı başlıkla görünmüyor.
 
-## Etkilenen kod
+## Etkilenen kod: bugün davranış değişmez
 
-- `core/ml/ml_filter.membership_start()` kaydın ilk gününü okuyordu; uzatma M30 ölçüm penceresini ve canlı modelin
-  eğitim penceresini 2020-10-01'e kaydıracaktı. K-77 md.2 başlangıcı 01.04.2022 olarak yazdığı için tarih sabitlendi
-  (`K77_START`). Daha erken başlamak yeni bir karar ister.
-- `ever_members()` kullanan araştırma evreni 23 hisse büyür; bu hisseler 2022-04 sonrası pencerelerde üye değildir.
+- `COVERAGE_START = 2022-04-01` (K-77). Bütün fonksiyonlar (`load_changes`, `load_stable`, `members_on`,
+  `membership_panel`, `ever_members`) varsayılan olarak bu tarihten önceki satırları yok sayar; satırları yalnız
+  bu tarihten önce olan ve "add" ile biten hisseler (ENKAI, MAVI, BRYAT) sabit sayılır. Sonuç eski dosyalarla
+  birebir aynıdır: 202 hisse, aynı üyelikler (test: `tests/fixtures/bist100_2022/` eski dosyalarla karşılaştırır).
+- Eski satırlar yalnız `full_history=True` ile kullanılır (225 hisse). Günlük indirme seti, K-77 / M30 ve
+  K-93 / K-94 ön kayıtları değişmez; varsayılanı değiştirmek sahibin kararıdır (18.12 sonrası).

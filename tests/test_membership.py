@@ -21,29 +21,31 @@ class RealChangeLogTest(unittest.TestCase):
         events = m.load_changes()
         sizes = m.check_sizes(events, stable=set())
         self.assertEqual(set(sizes.values()), {m.INDEX_SIZE - len(m.load_stable())})
+        full = m.load_changes(full_history=True)
+        sizes = m.check_sizes(full, stable=set())
+        self.assertEqual(set(sizes.values()), {m.INDEX_SIZE - len(m.load_stable(full_history=True))})
 
 
 class CommittedStableListTest(unittest.TestCase):
     def test_membership_is_100_on_every_date(self):
-        events = m.load_changes()
-        stable = m.load_stable()
-        self.assertEqual(len(stable), 47)
-        self.assertEqual(set(m.check_sizes(events, stable).values()), {m.INDEX_SIZE})
+        for full in (False, True):
+            events = m.load_changes(full_history=full)
+            stable = m.load_stable(full_history=full)
+            self.assertEqual(len(stable), 47 if full else 50)
+            self.assertEqual(set(m.check_sizes(events, stable).values()), {m.INDEX_SIZE})
 
     def test_sizes_cover_the_day_before_the_first_change(self):
-        events = m.load_changes()
+        events = m.load_changes(full_history=True)
         first = min(d for ev in events.values() for d, _ in ev)
         self.assertEqual(first, D("2020-10-01"))
-        sizes = m.check_sizes(events, m.load_stable())
+        sizes = m.check_sizes(events, m.load_stable(full_history=True))
         self.assertIn(D("2020-09-30"), sizes)
         self.assertIn(D("2021-04-01"), sizes)
 
     def test_q4_2020_sise_merger(self):
         # 14118: TRKCM, ANACM, SODA left on 01.10.2020 (Şişecam merger); AKSGY came in
-        events = m.load_changes()
-        stable = m.load_stable()
-        before = m.members_on(D("2020-09-30"), events, stable)
-        after = m.members_on(D("2020-10-01"), events, stable)
+        before = m.members_on(D("2020-09-30"), full_history=True)
+        after = m.members_on(D("2020-10-01"), full_history=True)
         self.assertTrue({"TRKCM", "ANACM", "SODA"} <= before)
         self.assertFalse({"TRKCM", "ANACM", "SODA"} & after)
         self.assertIn("AKSGY", after - before)
@@ -54,6 +56,44 @@ class CommittedStableListTest(unittest.TestCase):
         self.assertIn("KONTR", m.members_on(D("2026-06-17"), events, stable))
         self.assertNotIn("KONTR", m.members_on(D("2026-06-18"), events, stable))
         self.assertIn("BERA", m.members_on(D("2026-06-18"), events, stable))
+
+
+OLD = Path(__file__).parent / "fixtures" / "bist100_2022"
+
+
+class DefaultEqualsOldFilesTest(unittest.TestCase):
+    """Rows before COVERAGE_START are opt-in: by default every result equals the 2022-04 files."""
+
+    def setUp(self):
+        self.old_events = m.load_changes(OLD / "bist100_changes.csv")
+        self.old_stable = m.load_stable(OLD / "bist100_stable.csv", changes_path=OLD / "bist100_changes.csv")
+
+    def test_coverage_start(self):
+        self.assertEqual(m.COVERAGE_START, D("2022-04-01"))
+
+    def test_ever_members(self):
+        old = m.ever_members(self.old_events, self.old_stable)
+        self.assertEqual(len(old), 202)
+        self.assertEqual(m.ever_members(), old)
+        self.assertGreater(len(m.ever_members(full_history=True)), 202)
+
+    def test_members_on(self):
+        for day in ("2020-06-01", "2021-06-01", "2022-03-31", "2022-04-01", "2024-01-02", "2026-11-02"):
+            with self.subTest(day=day):
+                self.assertEqual(m.members_on(D(day)), m.members_on(D(day), self.old_events, self.old_stable))
+
+    def test_loaders_and_panel(self):
+        self.assertEqual(m.load_changes(), self.old_events)
+        self.assertEqual(m.load_stable(), self.old_stable)
+        idx = pd.DatetimeIndex(["2021-06-01", "2022-03-31", "2022-04-01", "2026-11-02"])
+        symbols = ["ENKAI.IS", "BAGFS.IS", "ECZYT.IS", "AKSGY.IS", "ARASE.IS"]
+        pd.testing.assert_frame_equal(
+            m.membership_panel(idx, symbols), m.membership_panel(idx, symbols, self.old_events, self.old_stable)
+        )
+
+    def test_full_history_differs_before_coverage(self):
+        self.assertNotIn("ENKAI", m.members_on(D("2021-06-01"), full_history=True))
+        self.assertIn("ENKAI", m.members_on(D("2021-06-01")))
 
 
 class SyntheticTest(unittest.TestCase):

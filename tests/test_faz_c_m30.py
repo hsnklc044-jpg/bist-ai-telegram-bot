@@ -87,12 +87,6 @@ class TestRowsTest(unittest.TestCase):
     def test_membership_record_start(self):
         self.assertEqual(M.membership_start(), pd.Timestamp("2022-04-01"))
 
-    def test_k77_start_does_not_follow_the_extended_record(self):
-        from core.market.membership import load_changes
-
-        record_start = min(d for events in load_changes().values() for d, _ in events)
-        self.assertLess(pd.Timestamp(record_start), M.membership_start())
-
 
 class PassRuleTest(unittest.TestCase):
     def base(self, **kw):

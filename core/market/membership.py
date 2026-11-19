@@ -16,6 +16,11 @@ Membership on a date = stable stocks
 
 Checks (also run by the tests): changes alternate add/remove per stock, and the
 membership has exactly 100 stocks on every date. A list that fails is refused.
+
+Rows before COVERAGE_START (the coverage K-77 and the later pre-registrations were written on)
+are opt-in: by default every function ignores them and reads the stable list as it was then,
+so results equal the 2022-04 files exactly. full_history=True uses the older rows
+(docs/BILESEN_GECMISI_NOTU.md).
 """
 
 from __future__ import annotations
@@ -33,6 +38,7 @@ from core.config.paths import DATA_DIR
 CHANGES_FILE = DATA_DIR / "bist100_changes.csv"
 STABLE_FILE = DATA_DIR / "bist100_stable.csv"
 INDEX_SIZE = 100
+COVERAGE_START = date(2022, 4, 1)  # K-77: first day of the change record before it was extended back
 
 # Ticker renames: old code -> code used in the price store
 ALIASES = {
@@ -53,7 +59,7 @@ def _code(symbol: str) -> str:
     return ALIASES.get(code, code)
 
 
-def load_changes(path: Path | str | None = None) -> dict[str, list[tuple[date, str]]]:
+def load_changes(path: Path | str | None = None, full_history: bool = False) -> dict[str, list[tuple[date, str]]]:
     events: dict[str, list[tuple[date, str]]] = defaultdict(list)
     with open(path or CHANGES_FILE, encoding="utf-8-sig", newline="") as fh:
         for row in csv.DictReader(fh):
@@ -65,7 +71,9 @@ def load_changes(path: Path | str | None = None) -> dict[str, list[tuple[date, s
         for (d1, a1), (d2, a2) in zip(ev, ev[1:], strict=False):
             if a1 == a2:
                 raise MembershipError(f"{symbol}: {d1} ve {d2} tarihlerinde art arda '{a1}'")
-    return dict(events)
+    if not full_history:
+        events = {s: [e for e in ev if e[0] >= COVERAGE_START] for s, ev in events.items()}
+    return {s: ev for s, ev in events.items() if ev}
 
 
 def dynamic_members(events: dict[str, list[tuple[date, str]]], on: date) -> set[str]:
@@ -80,7 +88,12 @@ def dynamic_members(events: dict[str, list[tuple[date, str]]], on: date) -> set[
     return members
 
 
-def load_stable(path: Path | str | None = None) -> set[str]:
+def load_stable(
+    path: Path | str | None = None, full_history: bool = False, changes_path: Path | str | None = None
+) -> set[str]:
+    """Stable stocks. By default also the stocks whose change rows all lie before COVERAGE_START and
+    end with "add": they were members for the whole period from COVERAGE_START on."""
+
     path = Path(path or STABLE_FILE)
     if not path.exists():
         raise MembershipError(
@@ -88,12 +101,17 @@ def load_stable(path: Path | str | None = None) -> set[str]:
             "python -m core.market.membership --current liste.txt"
         )
     with open(path, encoding="utf-8-sig", newline="") as fh:
-        return {_code(r["symbol"]) for r in csv.DictReader(fh)}
+        stable = {_code(r["symbol"]) for r in csv.DictReader(fh)}
+    if not full_history:
+        for symbol, ev in load_changes(changes_path, full_history=True).items():
+            if ev[-1][0] < COVERAGE_START and ev[-1][1] == "add":
+                stable.add(symbol)
+    return stable
 
 
-def members_on(on: date, events=None, stable: set[str] | None = None) -> set[str]:
-    events = events if events is not None else load_changes()
-    stable = stable if stable is not None else load_stable()
+def members_on(on: date, events=None, stable: set[str] | None = None, full_history: bool = False) -> set[str]:
+    events = events if events is not None else load_changes(full_history=full_history)
+    stable = stable if stable is not None else load_stable(full_history=full_history)
     return stable | dynamic_members(events, on)
 
 
@@ -111,7 +129,8 @@ def check_sizes(events, stable: set[str], start: date | None = None) -> dict[dat
 
 
 def stable_from_current(current: list[str], events, on: date) -> set[str]:
-    """Stable stocks = today's official list minus the stocks in the change log (since Q4 2020)."""
+    """Stable stocks = today's official list minus the stocks that changed since COVERAGE_START
+    (pass events loaded with full_history=True to compute the file's stable list)."""
 
     current_codes = {_code(s) for s in current}
     if len(current_codes) != INDEX_SIZE:
@@ -133,11 +152,13 @@ def stable_from_current(current: list[str], events, on: date) -> set[str]:
     return stable
 
 
-def membership_panel(index: pd.DatetimeIndex, symbols: list[str], events=None, stable=None) -> pd.DataFrame:
+def membership_panel(
+    index: pd.DatetimeIndex, symbols: list[str], events=None, stable=None, full_history: bool = False
+) -> pd.DataFrame:
     """Boolean panel (dates x symbols with .IS) for apply_eligibility()."""
 
-    events = events if events is not None else load_changes()
-    stable = stable if stable is not None else load_stable()
+    events = events if events is not None else load_changes(full_history=full_history)
+    stable = stable if stable is not None else load_stable(full_history=full_history)
     change_days = sorted({d for ev in events.values() for d, _ in ev})
     out = pd.DataFrame(False, index=index, columns=symbols)
     cache: dict[date, set[str]] = {}
@@ -150,11 +171,12 @@ def membership_panel(index: pd.DatetimeIndex, symbols: list[str], events=None, s
     return out
 
 
-def ever_members(events=None, stable=None) -> list[str]:
-    """Every stock that was a BIST 100 member at some point since the change log starts (Q4 2020; with .IS)."""
+def ever_members(events=None, stable=None, full_history: bool = False) -> list[str]:
+    """Every stock that was a BIST 100 member at some point since COVERAGE_START (with .IS);
+    full_history=True: since the change log starts (Q4 2020)."""
 
-    events = events if events is not None else load_changes()
-    stable = stable if stable is not None else load_stable()
+    events = events if events is not None else load_changes(full_history=full_history)
+    stable = stable if stable is not None else load_stable(full_history=full_history)
     return sorted(f"{s}.IS" for s in set(events) | stable)
 
 
@@ -164,25 +186,25 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--on", default=None, help="date of that list (default: today)")
     args = parser.parse_args(argv)
 
-    events = load_changes()
     if args.current:
         import re
 
         text = Path(args.current).read_text(encoding="utf-8-sig")
         tickers = re.findall(r"[A-ZÇĞİÖŞÜ0-9]{3,6}", text.upper())
         on = date.fromisoformat(args.on) if args.on else date.today()
-        stable = stable_from_current(tickers, events, on)
+        stable = stable_from_current(tickers, load_changes(full_history=True), on)
         with open(STABLE_FILE, "w", encoding="utf-8", newline="") as fh:
             writer = csv.writer(fh, lineterminator="\n")
             writer.writerow(["symbol", "source"])
             for s in sorted(stable):
                 writer.writerow([f"{s}.IS", f"resmi BIST100 listesi {on} eksi değişiklik kayıtları"])
         print(f"Doğrulandı: her tarihte 100 üye. {len(stable)} sabit hisse {STABLE_FILE} dosyasına yazıldı.")
-    stable = load_stable()
-    sizes = check_sizes(events, stable)
-    print(f"{len(events)} hisse değişiklik kaydında, {len(stable)} sabit hisse; "
-          f"üye sayıları: {sorted(set(sizes.values()))}")
-    print(f"Değişiklik kaydı başından beri üye olmuş toplam hisse: {len(ever_members(events, stable))}")
+    for full in (False, True):
+        events, stable = load_changes(full_history=full), load_stable(full_history=full)
+        sizes = check_sizes(events, stable)
+        print(f"{'tüm geçmiş' if full else f'{COVERAGE_START} sonrası'}: {len(events)} hisse değişiklik kaydında, "
+              f"{len(stable)} sabit hisse; üye sayıları: {sorted(set(sizes.values()))}; "
+              f"üye olmuş toplam hisse: {len(ever_members(events, stable))}")
 
 
 if __name__ == "__main__":
