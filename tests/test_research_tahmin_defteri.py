@@ -38,7 +38,8 @@ class MarkingRuleTest(unittest.TestCase):
         self.assertEqual(td.evaluate(row(), closes(361), AFTER), ("tuttu", "2026-11-20"))
 
     def test_triggered_but_target_missed(self):
-        self.assertEqual(td.evaluate(row(), closes(351, 355, 359), AFTER), ("tutmadi", "2026-11-25"))
+        self.assertEqual(td.evaluate(row(), closes(351, 355, 359, 358), AFTER), ("tutmadi", "2026-11-25"))
+        self.assertIsNone(td.evaluate(row(), closes(351, 355, 359), AFTER))  # deadline-day close missing
 
     def test_invalidation_first_is_a_miss_even_before_trigger(self):
         r = row(gecersizlik_seviye="340")
@@ -59,8 +60,19 @@ class MarkingRuleTest(unittest.TestCase):
         self.assertIsNone(td.evaluate(row(isaretleme="elle"), closes(361), AFTER))
         self.assertIsNone(td.evaluate(row(sonuc="tuttu"), closes(300), AFTER))
 
-    def test_no_data_is_unmeasurable(self):
-        self.assertEqual(td.evaluate(row(), pd.Series(dtype=float), AFTER)[0], "olculemez")
+    def test_no_close_in_window_is_unmeasurable_but_missing_data_waits(self):
+        later = pd.Series([361.0], index=pd.to_datetime(["2026-11-26"]))
+        self.assertEqual(td.evaluate(row(), later, date(2026, 11, 27))[0], "olculemez")
+        self.assertIsNone(td.evaluate(row(), pd.Series(dtype=float), AFTER))
+        self.assertIsNone(td.evaluate(row(), closes(351, 355), AFTER))  # store stops before the deadline
+
+    def test_tz_aware_index_uses_istanbul_days(self):
+        s = pd.Series([351.0, 365.0], index=pd.to_datetime(["2026-11-20", "2026-11-26"]).tz_localize("Europe/Istanbul"))
+        self.assertEqual(td.evaluate(row(), s.tz_convert("UTC"), date(2026, 11, 27)), ("tutmadi", "2026-11-25"))
+
+    def test_invalidation_beyond_trigger_refused(self):
+        with self.assertRaises(ValueError):
+            td.check(row(gecersizlik_seviye="355"))
 
     def test_bad_rows_refused(self):
         with self.assertRaises(ValueError):
@@ -95,6 +107,10 @@ class ScorecardTest(unittest.TestCase):
                 row(id="3", tarih="2026-11-05", yon="yukari"), row(id="4", varlik="BBB", yon="asagi")]
         self.assertEqual(td.scorecard(rows)[0].yon_degisimi, 2)
 
+    def test_community_rows_get_a_card(self):
+        rows = [row(id="1", kayit_turu="topluluk", kaynak="topluluk-xu100")]
+        self.assertEqual([c.kaynak for c in td.scorecard(rows)], ["topluluk-xu100"])
+
     def test_mean_score_skips_blank(self):
         rows = [row(id="1", kaynak_puani_11="11"), row(id="2", kaynak_puani_11="6"), row(id="3", kaynak_puani_11="")]
         self.assertAlmostEqual(td.scorecard(rows)[0].ortalama_puan, 8.5)
@@ -117,7 +133,7 @@ class LedgerFileTest(unittest.TestCase):
 
 def note(**kw):
     base = dict(varlik="AAA", fiyat=348.0, fiyat_zamani="2026-11-19 18:10 (günlük kapanış)", sure="Günlük, 10 işlem günü",
-                konum_tl="200 günlük ortalamanın altında", konum_usd=None, bekleme_bolgesi="345–350",
+                konum_tl="200 günlük ortalamanın altında", konum_usd=None, kucuk_resim=None, bolgeler=None, bekleme_bolgesi="345–350",
                 teyit="350 üstü günlük kapanış", hedefler="360 / 365–370", gecersizlik=340.0, gecersizlik_yonu="altı",
                 hedef_atr=0.8, gecmis_oran=None, ozet="Senaryo 350 üstü kapanışla başlar.")
     base.update(kw)
@@ -127,8 +143,10 @@ def note(**kw):
 class MarketNoteTest(unittest.TestCase):
     def test_all_fields_written_and_missing_ones_named(self):
         text = pn.render(note())
-        for part in ("Fiyat: 348.00 (2026-11-19 18:10", "Konum (USD): veri yok", "Geçmiş oran: henüz ölçülmedi",
-                     "0.8 ATR (1'in altı: gürültü)", "Geçersizlik: 340.00 altı günlük kapanış", pn.WARNING):
+        text = pn.render(note(fiyat=11300.0, gecersizlik=12600.0, gecersizlik_yonu="üstü"))
+        for part in ("Fiyat: 11.300,00 (2026-11-19 18:10", "Konum (USD): veri yok", "Geçmiş oran: henüz ölçülmedi",
+                     "0,8 ATR (1'in altı: gürültü)", "Geçersizlik: 12.600,00 üstü günlük kapanış", "Alternatif senaryo: veri yok",
+                     "Arka plan: veri yok", "Küçük resim: veri yok", pn.WARNING):
             self.assertIn(part, text)
 
     def test_banned_words_refused_but_not_inside_words(self):
@@ -136,11 +154,15 @@ class MarketNoteTest(unittest.TestCase):
             pn.render(note(ozet="Güçlü kırılımda al."))
         with self.assertRaises(ValueError):
             pn.render(note(teyit="kalıcı kırılım"))
-        self.assertEqual(pn.problems("satır alt salı alan"), [])
+        self.assertEqual(pn.problems("satır alt salı alan altı kesin değil sayım"), [])
+        for bad in ("alınabilir", "satış baskısı", "kademeli alım", "satılabilir", "alsın", "güçlüdür",
+                    "kalıcılık", "fırsatı", "ALINABİLİR", "AL", "Sat"):
+            self.assertTrue(pn.problems(bad), bad)
 
     def test_price_needs_time_and_summary_one_sentence(self):
-        with self.assertRaises(ValueError):
-            pn.render(note(fiyat_zamani=""))
+        for stamp in ("", "x", "2026-11-19"):
+            with self.assertRaises(ValueError):
+                pn.render(note(fiyat_zamani=stamp))
         with self.assertRaises(ValueError):
             pn.render(note(ozet="Bir. İki."))
 
