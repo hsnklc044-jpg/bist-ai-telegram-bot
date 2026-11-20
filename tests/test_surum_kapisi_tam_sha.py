@@ -15,12 +15,12 @@ spec.loader.exec_module(kapi)
 
 
 def test_short_sha_resolves_to_full():
-    full = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    full = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout.strip()
     assert kapi.resolve_full_sha(full[:7], cwd=ROOT) == full
 
 
 def test_full_sha_is_unchanged():
-    full = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    full = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout.strip()
     assert kapi.resolve_full_sha(full, cwd=ROOT) == full
 
 
