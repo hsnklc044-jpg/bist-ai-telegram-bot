@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.163 – 21.11.2026 (bulgu 7: canlı yol kancası göreli yola yazmayı da yakalar; K-117 defter aktarımı)
+- Canlı yol kancasının (`canli_koruma.py`, PreToolUse) depo kopyası `scripts/hooks/` altına girdi. Çalışma klasörü canlı kurulumken (ya da komut `cd`/`Set-Location` ile oraya geçiyorsa) yapılan göreli yola yazma artık reddedilir. Kapsam: yönlendirme (`>`, `>>`), `Set-Content`/`Out-File`/`New-Item`/`tee`/`touch` ve benzerleri. Okuma, `2>$null`, `2>&1` ve başka mutlak klasörlere yazma serbest kalır. 19.11'deki boş `tests/test_research_workflow_pause.py` dosyası bu yoldan yazılmıştı. Etkin kanca depo dışındadır (`QuantBIST-araclar\hooks`); kopyalama kurulumdan sonra ayrı bir adımdır.
+- `docs/DERS_DEFTERI.md`: taslağın 14 satırı aynen aktarıldı, 15. satır eklendi (hafta sonu robot turları izin onayı beklerken kesildi). OPERATIONS'a 23–29.11 onarım haftası, KAPI_KONTROL_LISTESI'ne ".git'siz deneme kopyası" maddesi yazıldı. S3 kaydına 21.11 güç olayları eklendi (müdahale değil).
+- Doğrulama: yeni kanca testi önce 13 başarısız, düzeltmeden sonra 36 geçti; eski kanca testleri yeni kancayla 3/3 geçti; tam test ve ruff dal kaydında.
 ## v0.99.162 – 21.11.2026 (bulgu 14: tam SHA testleri güncelleyicinin deneme kopyasında da geçer)
 - v0.99.161'in (bulgu 8: kapı kısa SHA'yı `git rev-parse` ile tama çevirir) iki testi projenin kendi deposunun HEAD'ini okuyordu; güncelleyicinin `.git`'siz deneme kopyasında boş döndü ve v0.99.161 dört turda (08:40–11:40) kurulmadı. Testler artık kendi geçici deposunu kurar; koruma testi dosyayı `.git`'siz bir kopyada çalıştırır (güncelleyici koşulunun taklidi).
 - Doğrulama: eski test `.git`'siz kopyada 2 başarısız (güncelleyici kaydıyla aynı), yeni test 5 geçti; tam test ve ruff aşağıdaki dal kaydında.
