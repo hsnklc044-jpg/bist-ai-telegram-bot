@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.162 – 21.11.2026 (bulgu 14: tam SHA testleri güncelleyicinin deneme kopyasında da geçer)
+- v0.99.161'in (bulgu 8: kapı kısa SHA'yı `git rev-parse` ile tama çevirir) iki testi projenin kendi deposunun HEAD'ini okuyordu; güncelleyicinin `.git`'siz deneme kopyasında boş döndü ve v0.99.161 dört turda (08:40–11:40) kurulmadı. Testler artık kendi geçici deposunu kurar; koruma testi dosyayı `.git`'siz bir kopyada çalıştırır (güncelleyici koşulunun taklidi).
+- Doğrulama: eski test `.git`'siz kopyada 2 başarısız (güncelleyici kaydıyla aynı), yeni test 5 geçti; tam test ve ruff aşağıdaki dal kaydında.
+
 ## v0.99.160 – 19.11.2026 (K-119: Ana Plan v1 onayı, yalnız belge)
 - DECISIONS K-119 ve KARAR_DEFTERI satırı: sahibin Ana Plan v1 onayı ve uygulama yorumu (ön kayıtlar değişmez, eşikler yalnız yeni ön kayıtlara, F2 a5 tarihi açık soru).
 
@@ -58,7 +62,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 - Sürüm numarası ayrı bir paket olarak kurulabilmesi için artırıldı: aynı sürümdeki paketi güncelleyici kurmaz (K-95).
 
 ## v0.99.146 – 18.11.2026 (S4/S5 hazırlığı: canlı karar hesabı, haftalık seri; K-93; gece belge paketinin üstüne yeniden kuruldu, a9ae94b ile aynı kod)- `core/reports/s4_decision.py` (yeni): her akşam 21:00 özetinden sonra canlı ölçümün ilk kararına bakar (K-93 (1): 5 seans, 5 görünüm, değişmeyen `forward._verdict`). Karar bir kez `logs/s4_ilk_karar.json`'a ve RESEARCH_LOG taslağı `logs/research_log_taslak/`'a yazılır, Telegram'a gider. S5 eşiğini (maliyet %0,30 sonrası %99 alt uç > 0, K-93 (4)) geçen görünüm varsa kanıtlı tek bir "Kural anlamlı çıktı" mesajı gider; hiçbir şey açılmaz.- `core/reports/weekly_series.py` (yeni): her cumartesi SLO tablosu `logs/haftalik_slo/seri.csv`'ye bir satır olarak eklenir; 14.11 gibi önceden kaydedilmiş cumartesiler geri doldurulur. Ağ hatasıyla ❔ kalan kalite satırı K-92 kuralıyla yeniden sorulur. Özet "SLO serisi x/4" ve "İki kaynak x/4" yazar. Bot kaydı haftanın başından sonra başlıyorsa "kayıt eksik" yazılır ve o hafta sayılmaz (03.11 klasör taşıması dersi, K-93 (7)).- `tests/test_no_orders.py` (yeni): kodda aracı kurum ya da borsa SDK'sı, emir ucu, KAP dışında HTTP POST yok; kâğıt defterleri ağsız.- Belgeler: DECISIONS K-93, K-94 ve K-92 sonucu (14.11 haftası ✅, CI 43587548333). MATURITY: S2 sayacının açıklaması, S3 03.12, S4 satır tarihleri ve S5 çıkış kanıtları taslağı. Yeni dosyalar: `docs/S4_KARAR_NOTU.md`, `docs/PAPER_TRADING.md`. OPERATIONS §7a. Canlı karar tarihi "Kasım sonu" yerine en erken 06.01.2027 (MODELS, ROADMAP, RESEARCH_LOG).- Sürüm kapısı 5. satır: güncelleyici yalnız sürüm numarası artınca kurar. Bu yüzden sürümü değiştirmeyen belge/test birleştirmesi (0af56f3) bot dalını canlının önünde bıraktı ve kapı kendiliğinden hiç açılamayacaktı. Artık bot dalının ucu canlıyla aynı sürümdeyse bekleyen paket sayılmaz (`nothing_pending`, `tests/test_surum_kapisi_paket.py`, önce 4 kırmızı). Tasarım kararı: DECISIONS K-95.
-- Doğrulama: `test_s4_decision`, `test_weekly_series` ve `test_otonom` içindeki iki yeni test önce kırmızıydı (modül yok / 2 başarısız), sonra yeşil.
+- Doğrulama: `test_s4_decision`, `test_weekly_series` ve `test_otonom` içindeki iki yeni test önce kırmızıydı (modül yok / 2 başarısız), sonra yeşil.
 ## v0.99.145 – 17.11.2026 (Healthchecks sinyali bir kez yeniden denenir; Ö61)
 
 - `core/infrastructure/ping.py` `ping`: ağ hatası ya da 5xx yanıtında 30 sn sonra bir kez daha denenir; 4xx (yanlış adres) denenmez. Bot sinyali (`bot/scheduler.py` `heartbeat_job`) ve günlük rapor sinyali aynı yoldan geçer. Kısa ağ kesintisi (14.11 akşamı 18 başarısız sinyal, 22:04–22:19 art arda 4) artık yanlış alarm riskini büyütmez.
