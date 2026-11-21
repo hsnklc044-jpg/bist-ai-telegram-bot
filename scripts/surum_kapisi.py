@@ -154,13 +154,6 @@ def _git(*args, cwd=LIVE) -> str:
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8").stdout.strip()
 
 
-def resolve_full_sha(sha: str, cwd=None) -> str | None:
-    """Short SHA -> full SHA (GitHub's head_sha filter matches only the full one; finding 8, 19.11.2026)."""
-    out = subprocess.run(["git", "rev-parse", "--verify", "--quiet", f"{sha}^{{commit}}"],
-                         cwd=cwd or Path.cwd(), capture_output=True, text=True, encoding="utf-8").stdout.strip()
-    return out if re.fullmatch(r"[0-9a-f]{40}", out) else None
-
-
 def _ci(sha: str) -> tuple[bool, str]:
     try:
         url = f"https://api.github.com/repos/{REPO}/actions/runs?head_sha={sha}"
@@ -205,11 +198,6 @@ def _slo_now() -> dict:
 def main(argv: list[str]) -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sha = argv[0]
-    full = resolve_full_sha(sha)
-    if full is None:
-        print(f"❌ SHA çözümlenemedi: {sha}")
-        return 2
-    sha = full
     tests_ok, merge, save = "--testler-gecti" in argv, "--birlestir" in argv, "--slo-kaydet" in argv
     here = Path.cwd().resolve()
     if here == LIVE.resolve() or LIVE.resolve() in here.parents:
