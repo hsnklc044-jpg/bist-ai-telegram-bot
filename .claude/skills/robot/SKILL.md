@@ -28,6 +28,7 @@ Kurallar başka yerde; burada sayı kopyalanmaz:
 6. **Kapı ve kurulum:** `surum-kapisi` ile kuyruğu küçük paketlerle (OPERATIONS §5a) birleştir; her paket bir öncekinin canlıda
    sağlıklı olduğu görüldükten sonra. Kurulum penceresi kapalıysa beklemek durma nedeni değildir.
 7. **Sağlık:** kurulumdan sonra `surum-kapisi`'nin sağlık koşulu; sorun varsa geri dön ve fren kurallarını uygula.
+   Günün son kurulumunun sağlık kontrolünden sonra (kurulum yoksa günün son turunun sonunda) akşam tekrarı yapılır; yöntem: `aksam-tekrari` kılavuzu (OPERATIONS §0a, K-122).
 8. **Kayıt:** `cikti\OTONOM_RAPOR.md`'ye tek satır (tarih saat · iş · dal/SHA · sonuç); asıl kayıt budur. `docs/ROBOT_LOG.md` 11.11'den beri tutulmuyor, tarihsel kayıttır (18.11, Ö65). 1. adıma dön.
 
 ## Durma koşulları (yalnız bunlar)
