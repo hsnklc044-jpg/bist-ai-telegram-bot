@@ -54,3 +54,14 @@ def test_k117_karar_defteri_row():
         rows = list(csv.reader(f))
     k117 = [r for r in rows if len(r) > 1 and r[1] == "K-117"]
     assert len(k117) == 1 and len(k117[0]) == len(rows[0]) == 10
+
+
+def test_ders_defteri_draft_transferred_and_deneme_kopyasi_item():
+    lines = _lines("DERS_DEFTERI.md")
+    start = lines.index(HEADER) + 2
+    rows = [r for r in lines[start:] if r.startswith("|")]
+    assert len(rows) >= 15
+    assert rows[13].startswith("| 21.11 | v0.99.161 (b8)")
+    kapi = (DOCS / "KAPI_KONTROL_LISTESI.md").read_text(encoding="utf-8")
+    assert "git'e bağımlı test .git'siz deneme kopyasında da çalışmalı" in kapi
+    assert any(line.startswith("- **Onarım haftası 23–29.11.2026") for line in _lines("OPERATIONS.md"))

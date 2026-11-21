@@ -34,6 +34,7 @@ Saatler İstanbul saatidir. Görev metniyle çelişirse bu tablo geçerlidir; ç
 - **Önce onarım:** sabahın ilk işi açık kritik ve orta bulgular, sonra "anlaşılamadı" etiketliler ve o günün 1/7/30 gün yeniden kontrolleri. Ayrıntı `docs/OTONOM_KURALLAR.md` "Öğrenci döngüsü (K-117)".
 - **Haftalık karne:** "Devam et / Bırak / Başla" bölümü; hata bütçesinin durumu; eğilimler: yakalanan hata sayısı, ortalama kapanma süresi, tekrar eden hata oranı, kaçan hata oranı (canlıda yakalanan / kapıda yakalanan).
 - **Aylık A–Z denetimi:** bağımsız doğrulayıcıdır. Her bulgusuna 7 gün içinde "kabul / ret + gerekçe" yanıtı verilir ve DERS_DEFTERI'ne yazılır.
+- **Onarım haftası 23–29.11.2026 (hata bütçesi, `docs/DERS_DEFTERI.md` satır 9 tekrar eden hata):** bu hafta yalnız onarım yapılır. İş sırası: DERS_DEFTERI açık orta bulguları (7 canlı yol kancası, 15 robot turu izi, 8, 9, 11, 12, 13, 14). Ardından birleşmiş ve temiz worktree'lerin temizliği (liste `cikti/WORKTREE_LISTESI_2111.txt`; birleşmemiş iş silinmez). Onaylı kurulum zinciri ve sayaçlar sürer (OTONOM_KURALLAR §Öğrenci döngüsü 9). Haftalık karne 22.11 ve 29.11'de bütçenin durumunu yazar.
 
 ## 1. Envanter
 

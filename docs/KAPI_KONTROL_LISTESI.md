@@ -5,3 +5,4 @@ Maddeler `docs/DERS_DEFTERI.md`'deki derslerden çıkar (her dersten bir kısa m
 Biçim: `- [ ] <madde> (kaynak: DERS_DEFTERI <tarih>, <bulgu kısa adı>)`
 
 ## Maddeler
+- [ ] git'e bağımlı test .git'siz deneme kopyasında da çalışmalı (kaynak: DERS_DEFTERI 21.11, bulgu 14 deneme kopyası)
