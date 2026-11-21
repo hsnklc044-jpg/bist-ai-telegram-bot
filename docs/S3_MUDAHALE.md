@@ -31,3 +31,13 @@ Bu belge yeni bir ölçüt ya da eşik koymaz. Tanım K-93 (6)'dır; oturum açm
 1. `cikti\OTONOM_RAPOR.md` ve `docs/ROBOT_LOG.md`'de 19.11–18.12 arasındaki "elle" kayıtlarına (K-105) bakılır (K-93 (6)).
 2. `logs/heartbeats.csv`'deki her kalp atışı boşluğu Sistem olay günlüğüyle (1074 yeniden başlatma) eşleştirilir. Boşluk bir Windows yeniden başlatmasıyla başlayıp oturum açılışıyla bitiyorsa müdahaledir (K-96). Elektrik ya da ağ kesintisi müdahale değildir, SLO'ya yazılır.
 3. Hiç müdahale yoksa S3'ün 30 gün satırı ✅ olur. Varsa sayaç, son müdahalenin ertesi günü yeniden başlar.
+
+## 21.11.2026 olayları (müdahale değil; gerekçe: yukarıdaki "Müdahale sayılmaz" satırı, belge satır 7)
+- Güç olayları, kaynak Merkez'in 21.11 19:00 sistem kontrolü (Windows güç olayları):
+  - 00:14–02:10 pil, en düşük ~%39;
+  - 18:02–18:29 pil, sahip 18:30'da prize taktı (OTONOM_RAPOR 18:30 satırı, Win32_Battery 2);
+  - 02:19–12:09 modern bekleme. `logs/heartbeats.csv`'de boşluk yok (Merkez).
+  - Bunlar elektrik olayıdır: yeniden başlatma, oturum açma ya da onarım yok, müdahale sayılmaz. SLO'ya güç olayı olarak yazılır.
+- Sahibin 18:09 yazısı ("A. d26eba7 geri alma kaydını bot dalına göndermeni onaylıyorum. Sonra v0.99.162'yi kurulum kapısından geçirip kur.") kuralların sahibe bıraktığı bir onaydır (K-88 §5, K-120). Müdahale değildir.
+- v0.99.162 kurulumu (20:44:53–20:45:45, `guncelle_20261121-2040.log`) güncelleyicinin kendi işidir, elle yapılmadı.
+- Sayaç bu olaylarla değişmez (son durum: 20.11'den başlar, en erken 19.12.2026; DERS_DEFTERI satır 11, zamanlanmış görev quantbist-olgunluk-s3-2012-oto).
