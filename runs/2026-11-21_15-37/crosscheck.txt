@@ -1,0 +1,1 @@
+İş Yatırım ikinci kaynak kapalı: sitenin robots.txt'si /_layouts/ yolunu bütün otomatik erişime yasaklıyor (D13, K-54)

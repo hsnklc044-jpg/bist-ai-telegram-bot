@@ -1,0 +1,1 @@
+K-116: kural testi adımı 18.12.2026 paketine kadar durduruldu (veri adımları çalışıyor).
