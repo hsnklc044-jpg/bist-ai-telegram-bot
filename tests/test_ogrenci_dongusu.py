@@ -113,7 +113,11 @@ def test_aksam_tekrari_kilavuzu_on_bilgi():
 
 
 def test_aksam_tekrari_kilavuzunda_tarih_saat_yok():
-    assert tarih_saat_bul(SKILL.read_text(encoding="utf-8")) == []
+    # Red-team: a time moved into a second file of the skill folder would bypass a SKILL.md-only check.
+    files = [p for p in SKILL.parent.rglob("*") if p.is_file()]
+    assert SKILL in files
+    for p in files:
+        assert tarih_saat_bul(p.read_text(encoding="utf-8")) == [], p.name
 
 
 def test_aksam_tekrari_saatleri_get_date_ile():
