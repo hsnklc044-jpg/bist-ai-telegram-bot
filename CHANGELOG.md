@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.165 – 21.11.2026 (yedek: yeni yalnız-ekleme kayıtları ve sayaç günlükleri; TEK BAŞINA kurulur)
+- `core/backup.py`: `data/tahmin_sonuclari.csv`, `filtre_kayitlari.csv`, `filtre_sonuclari.csv` ile `logs/heartbeats.csv` ve `logs/runs.csv` ne git'te ne günlük yedekteydi (19.11 denetimi #5). Artık `PERSONAL_FILES` içinde; `logs/` dosyaları yedekte `logs/<ad>` olarak durur ve geri yüklemede `data/`'ya değil `LOG_DIR`'e döner.
+- Bu sürüm **tek başına** kurulur, zincirle birleştirilmez: `core/backup.py` kapının TEK BAŞINA dosyasıdır (koşul 7; K-88 §5 hafta sonu, kullanıcının tek komutu). Commit `claude/yedek-kayitlar-1911` dalındaki ed638b3'ün `cherry-pick -x` kopyasıdır, canlı v0.99.162 üzerine yeniden hazırlandı. Sürüm numarası v0.99.163–164 zincirinin arkasına girebilsin diye 0.99.165'tir.
+- Doğrulama: yedek testi düzeltmesiz 2 başarısız (asıl dal kaydı), düzeltmeyle geçti; tam test ve ruff dal kaydında.
 ## v0.99.162 – 21.11.2026 (bulgu 14: tam SHA testleri güncelleyicinin deneme kopyasında da geçer)
 - v0.99.161'in (bulgu 8: kapı kısa SHA'yı `git rev-parse` ile tama çevirir) iki testi projenin kendi deposunun HEAD'ini okuyordu; güncelleyicinin `.git`'siz deneme kopyasında boş döndü ve v0.99.161 dört turda (08:40–11:40) kurulmadı. Testler artık kendi geçici deposunu kurar; koruma testi dosyayı `.git`'siz bir kopyada çalıştırır (güncelleyici koşulunun taklidi).
 - Doğrulama: eski test `.git`'siz kopyada 2 başarısız (güncelleyici kaydıyla aynı), yeni test 5 geçti; tam test ve ruff aşağıdaki dal kaydında.
