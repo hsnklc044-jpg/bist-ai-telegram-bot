@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.165 – 22.11.2026 (yedek: yeni yalnız-ekleme kayıtları ve sayaç günlükleri; TEK BAŞINA kurulur)
+- `core/backup.py`: `data/tahmin_sonuclari.csv`, `filtre_kayitlari.csv`, `filtre_sonuclari.csv` ile `logs/heartbeats.csv` ve `logs/runs.csv` ne git'te ne günlük yedekteydi (19.11 denetimi #5). Artık `PERSONAL_FILES` içinde; `logs/` dosyaları yedekte `logs/<ad>` olarak durur ve geri yüklemede `data/`'ya değil `LOG_DIR`'e döner.
+- Bu sürüm **tek başına** kurulur: `core/backup.py` kapının TEK BAŞINA dosyasıdır (koşul 7). Commit `claude/yedek-kayitlar-1911` dalındaki ed638b3'ün `cherry-pick -x` kopyasıdır, canlı v0.99.164 (d81762c) üzerine yeniden hazırlandı; eski d782c62 kullanılmaz.
+- Doğrulama: yedek testi düzeltmesiz 2 başarısız (asıl dal kaydı), düzeltmeyle geçti; yerel tam test 2070 geçti/2 atlandı, ruff temiz.
+
 ## v0.99.164 – 21.11.2026 (K-122: akşam tekrarı kılavuzu; bulgu 13: gün sonu sinyali 23:40'tan önce)
 - Yeni proje kılavuzu `.claude/skills/aksam-tekrari/SKILL.md`: K-117 akşam tekrarının adımları (kanıt, AAR dört soru, sınıflama, 5 neden, DERS_DEFTERI yalnız ekleme, koruma, kontrol maddesi, 1/7/30 gün kontrolleri, hata bütçesi, önce onarım listesi, kayıt, bildirim). Kılavuz tarih ve saat içermez, OPERATIONS ve OTONOM_KURALLAR'a işaret eder; saatler `Get-Date` ile okunur. OPERATIONS §0 ve §0a ile `robot` kılavuzuna "yöntem: `aksam-tekrari` kılavuzu" atfı eklendi; kural değişmedi.
 - Bulgu 13: OPERATIONS §0'a "Gün sonu sinyali (K-122)" satırı. GÜN SONU HAZIR 23:40'tan önce yazılır; sağlık doğrulaması bekliyorsa sinyal ertelenmez, "doğrulama 07:00 turunda" notuyla yazılır. 7 günlük deneme K-122'de.
