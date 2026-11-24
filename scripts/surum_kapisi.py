@@ -161,11 +161,33 @@ def resolve_full_sha(sha: str, cwd=None) -> str | None:
     return out if re.fullmatch(r"[0-9a-f]{40}", out) else None
 
 
+def _get_json(url: str) -> dict:
+    return json.load(urllib.request.urlopen(url, timeout=15))
+
+
+def _branches_of(sha: str) -> list[str]:
+    """Remote branches that contain the SHA (for the branch-query fallback; repair queue 3, 24.11.2026)."""
+    out = _git("branch", "-r", "--contains", sha, "--format=%(refname:short)")
+    return [b.removeprefix("origin/") for b in out.splitlines() if b.startswith("origin/") and "HEAD" not in b][:3]
+
+
+def _ci_runs(sha: str) -> list[dict]:
+    """CI runs of the SHA. If the head_sha query is empty, retry by branch and match the SHA ourselves."""
+    base = f"https://api.github.com/repos/{REPO}/actions/runs"
+    runs = [r for r in _get_json(f"{base}?head_sha={sha}").get("workflow_runs", []) if r.get("name") == "CI"]
+    if runs:
+        return runs
+    for branch in _branches_of(sha):
+        found = [r for r in _get_json(f"{base}?branch={branch}&per_page=50").get("workflow_runs", [])
+                 if r.get("name") == "CI" and r.get("head_sha") == sha]
+        if found:
+            return found
+    return []
+
+
 def _ci(sha: str) -> tuple[bool, str]:
     try:
-        url = f"https://api.github.com/repos/{REPO}/actions/runs?head_sha={sha}"
-        runs = [r for r in json.load(urllib.request.urlopen(url, timeout=15)).get("workflow_runs", [])
-                if r.get("name") == "CI"]
+        runs = _ci_runs(sha)
     except Exception as exc:  # noqa: BLE001
         return False, f"CI sorgulanamadı ({type(exc).__name__})"
     if not runs:
