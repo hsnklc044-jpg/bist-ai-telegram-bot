@@ -55,12 +55,12 @@ Sahibin kendi yazısıyla verildi (koordinatör oturumu). [ANAYASA](ANAYASA.md)'
 - Belge birleştirme ve sadeleştirme. Eski belgeler arşivlenir, silinmez.
 - Kontrollerin (KT-01…KT-10) ve kanarya testlerinin eklenmesi.
 
-**2. İtiraz süreli devir: öner, 48 saat bekle, itiraz yoksa yap.**
+**2. Haftalık toplu liste: öner, sahip açıkça evet derse yap (K-124).**
 - Botun davranışını değiştiren küçük kodlar (yeni özellik değil, mevcut özelliğin iyileştirilmesi).
 - 90 günlük döngü önerisindeki iş paketleri.
 - Kullanılmayan bir özelliğin kaldırılması.
 
-Öneri Telegram'dan tek mesajla bildirilir. Sahip 48 saat içinde "dur" yazarsa yapılmaz.
+**Karar (25.11.2026, K-124).** Md. 8 değişmedi; sessizlik onay sayılmaz. 2. sınıf öneriler haftada bir toplu liste olarak sahibe gider. Sahip tek satırla her madde için evet ya da hayır yazar; yalnız "evet" alan iş yapılır. 48 saat içinde cevap gelmezse iş yapılmaz ve sonraki haftanın listesine kalır. Aşağıdaki anayasa notu tarihçedir.
 
 > **Anayasa notu (K-101).** Bu sınıf, sahibin sessizliğini onay sayar. ANAYASA Md. 8 ise "sessizlikten onay çıkarılamaz" der. Md. 8 çekirdek değildir (Md. 18); Md. 17 usulüyle değiştirilebilir. Bu değişiklik yapılana kadar 2. sınıf şöyle uygulanır:
 > - Öneri Telegram'dan tek mesajla gider.
