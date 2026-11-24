@@ -153,3 +153,13 @@ def test_k122_kayitli():
         rows = list(csv.reader(f))
     k122 = [r for r in rows if len(r) > 1 and r[1] == "K-122"]
     assert len(k122) == 1 and len(k122[0]) == len(rows[0])
+
+
+def test_ders_defteri_transfer_rows_16_to_30_present():
+    """24.11 repair-week transfer: draft rows 16-30 (cikti draft, 19.11 to 24.11) are in the ledger as-is."""
+    lines = _lines("DERS_DEFTERI.md")
+    rows = [ln for ln in lines if ln.startswith("| ") and ln != HEADER and not ln.startswith("| ---")]
+    assert len(rows) >= 30
+    text = "\n".join(rows)
+    assert "SEC_E_UNTRUSTED_ROOT" in text
+    assert "depo_disi_2026-11-11" in text
