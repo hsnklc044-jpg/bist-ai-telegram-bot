@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.167 – 25.11.2026 (güç izleme: pilde ve düşükken sahibe tek satır)
+- Tekrar eden hata (19.11, 21.11, 24.11): bilgisayar pilde kalıp uyudu, rapor ve nabız kayboldu. Yeni `core/infrastructure/power.py` (Windows `GetSystemPowerStatus`, ctypes, yeni bağımlılık yok) ve `bot/scheduler.py` `power_job`: 15 dakikada bir bakar. Pilde ve %30 altındaysa tek Telegram satırı ("Bilgisayar pilde, %N; prize takın"); %15 altında bir kez daha. Prize takılınca yeni döngü. 23:00–07:00 arası mesaj gitmez (tüketilmez: 07:00'de hâlâ pildeyse gider). Okunamayan durum sessiz kalır.
+- Sürüm 0.99.167: kapı dalı cc2a38b (v0.99.166) ile çakışmasın diye; o dal önce girerse bu dal onun üstüne yeniden kurulur. Dokunulan dosyalar kapı koşulu 7 (ALONE) listesinde DEĞİL.
+- Doğrulama: önce başarısız test (`tests/test_guc_izleme.py`, 10 test), sonra kod; yerel tam test aşağıdaki turda.
+
 ## v0.99.166 – 24.11.2026 (onarım kuyruğu 3: kapı satır 1, `head_sha` sorgusu boşsa dal sorgusuyla eşleştirme)
 - `scripts/surum_kapisi.py`: `head_sha` sorgusu CI çalışması döndürmezse kapı, SHA'yı içeren uzak dalın (`git branch -r --contains`) çalışmalarını sorgular ve `head_sha` eşleşmesini kendisi yapar. Sahte bir ❌ "CI çalışması yok" kurulumu geciktirmesin (bulgu 8). Başarısız ya da başka SHA'nın çalışması hiçbir zaman yeşile çevrilmez.
 - Doğrulama: `tests/test_surum_kapisi_ci_yedek.py` düzeltmeden önce 2 başarısız, sonra 4/4 geçti; kapı testleri 16/16, ruff temiz. Bot davranışı değişmez (araç).

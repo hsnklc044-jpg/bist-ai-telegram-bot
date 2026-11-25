@@ -18,6 +18,7 @@ from bot.scheduler import (
     schedule_official_prices,
     schedule_otonom_summary,
     schedule_portfolio_health,
+    schedule_power_watch,
     schedule_prediction_ledger,
     schedule_report_watch,
     schedule_signal_tracking,
@@ -107,6 +108,7 @@ def build_app() -> Application:
     schedule_daily_report(app)
     schedule_report_watch(app, config.chat_id)
     schedule_heartbeat(app)
+    schedule_power_watch(app, config.chat_id)
     schedule_macro_refresh(app)
     schedule_backup_catch_up(app, config.chat_id)
     schedule_fundamentals_inbox(app, config.chat_id)

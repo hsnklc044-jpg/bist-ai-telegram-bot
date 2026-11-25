@@ -635,6 +635,38 @@ def schedule_heartbeat(app: Application) -> bool:
     return True
 
 
+POWER_JOB = "power_watch"
+_power_watch = None
+
+
+async def power_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Repair queue 1 (25.11.2026): tell the owner once when the PC is on a low battery (core.infrastructure.power)."""
+
+    from core.infrastructure import power
+
+    global _power_watch
+    if _power_watch is None:
+        _power_watch = power.PowerWatch()
+    ac_line, percent = await asyncio.to_thread(power.read_status)
+    text = _power_watch.check(ac_line, percent, now_istanbul())
+    if text is None:
+        return
+    logger.warning("Power watch: %s", text)
+    chat = getattr(getattr(context, "job", None), "chat_id", None)
+    if chat:
+        await context.bot.send_message(chat, text)
+
+
+def schedule_power_watch(app: Application, chat_id: int | None = None) -> bool:
+    """Every 15 minutes the bot looks at the power state."""
+
+    if app.job_queue is None:
+        return False
+    app.job_queue.run_repeating(power_job, interval=900, first=90, name=POWER_JOB, chat_id=chat_id,
+                                job_kwargs={"misfire_grace_time": 600, "coalesce": True})
+    return True
+
+
 def schedule_report_watch(app: Application, chat_id: int) -> bool:
     """Weekday 20:00 check that today's report went out."""
 
@@ -646,5 +678,5 @@ def schedule_report_watch(app: Application, chat_id: int) -> bool:
     return True
 
 
-__all__ = ["CATCHUP_JOB", "ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_report_watch",
+__all__ = ["CATCHUP_JOB", "ENV", "report_time", "schedule_daily_report", "schedule_heartbeat", "schedule_power_watch", "schedule_report_watch",
            "schedule_signal_tracking"]
