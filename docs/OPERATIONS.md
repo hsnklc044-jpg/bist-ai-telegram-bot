@@ -22,6 +22,9 @@ Saatler İstanbul saatidir. Görev metniyle çelişirse bu tablo geçerlidir; ç
 | Haftalık izleme | pazartesi 09:00 | `bot/scheduler.py` `WEEKLY_WATCH_AT` |
 | Robot turları | 07:00; hafta içi 13:00 (yalnız hazırlık); 20:15, 21:15, 22:15; hafta sonu 10:15, 13:00, 17:15 | zamanlanmış görevler `quantbist-otonom-*` |
 | Günlük bakım (salt okunur) | hafta içi 19:15 | `quantbist-gunluk-bakim` |
+| Hazırlık turları (kurulum yok) | her gün 01:17 ve 04:17; hafta içi 10:17 ve 16:17 | `quantbist-hazirlik-gece`, `quantbist-hazirlik-ikindi` (27.11 eklendi) |
+| Merkez gözetimi ve gelişim döngüsü (salt okunur) | 08:47; 18:37 | `quantbist-merkez-gozetim`, `quantbist-gelisim-dongusu` |
+| Gün sonu kapanış denetimi (salt okunur) | 23:37 (gün sonu sinyaliyle ya da bu yedek saatte) | `quantbist-gun-sonu-kapanis` |
 | Olgunluk ölçümü | 08:30 ve 23:30 | `quantbist-olgunluk-olcum`, `cikti/OLGUNLUK_GECMISI.md` |
 | Önce onarım (K-117) | günün ilk robot turunun ilk işi (07:00) | §0a, `docs/OTONOM_KURALLAR.md` |
 | Akşam tekrarı (K-117) | her gün, günün son kurulumunun sağlık kontrolünden hemen sonra; kurulum yoksa son robot turunun sonunda | §0a, `docs/DERS_DEFTERI.md`; yöntem: `aksam-tekrari` kılavuzu |

@@ -11,7 +11,7 @@
 **Yeri:** belge hiyerarşisinde Katman 2'ye (strateji) bağlıdır. [ANAYASA](ANAYASA.md) Md. 2, 3 ve 12'yi araştırma yöntemine çevirir. Kayıt: DECISIONS K-103, K-104.
 
 **Yürürlük kuralı:**
-- Standart, yürürlüğe girdikten sonra **açılan** hipotezlere ve henüz kesinleşmemiş ön kayıtlara uygulanır. 27.04.2027 a4 ön kaydı da bunlara dahildir; Nisan başında bu standarda göre yazılır.
+- Standart, yürürlüğe girdikten sonra **açılan** hipotezlere ve henüz kesinleşmemiş ön kayıtlara uygulanır. ARS-1 yalnız a5 ve sonrasına uygulanır; 27.04.2027 a4 ön kaydına yalnız tarihli EK olarak eklenir, karar ölçütü olmaz (K-28, K-119; düzeltme 27.11.2026).
 - Daha önce kesinleşmiş ön kayıtlar (K-93, K-94) geriye dönük **değiştirilmez**. Bu standardın testleri onlar için yalnız "ek bilgi" olarak raporlanır, karar ölçütü olmaz.
 
 ## 0. Amaç
