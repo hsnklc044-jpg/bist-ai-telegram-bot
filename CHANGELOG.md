@@ -2,6 +2,12 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.170 – 27.11.2026 (belge onarımları: belge haritası, OPERATIONS saatleri, ARS-1 kapsamı, ders defteri atfı)
+- docs/BELGE_HARITASI.md son hali (K-102) ve yapım planı; 25.11 sözü kaçmıştı (DUZELTME S31).
+- OPERATIONS §0: hazırlık turları, merkez gözetimi, gelişim döngüsü ve gün sonu kapanış saatleri tabloya girdi (hazırlık kuyruğu 3, S29).
+- ARASTIRMA_STANDARDI: ARS-1 yalnız a5 ve sonrasına; a4'e yalnız tarihli ek (K-28, K-119; hazırlık kuyruğu 2, S29).
+- Ders defteri: kayan satır atfı düzeltildi (S30). Yalnız belge, kod değişmedi.
+
 ## v0.99.169 – 27.11.2026 (onarım: 21:00 özetinde eski 'sıradaki iş', ders defteri aktarımı)
 - 21:00 özeti, 2 günden eski ve güncellenmemiş 'sıradaki iş' kaydını tarihiyle ve ⚠️ ile gösterir; 26.11 özeti 18.11'in işini yarının işi gibi göstermişti (DUZELTME S26).
 - Ders defteri: taslak satır 31–44 aktarıldı (DUZELTME S22). Belge değişikliği.
