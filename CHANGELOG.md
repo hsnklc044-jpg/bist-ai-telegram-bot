@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.169 – 27.11.2026 (onarım: 21:00 özetinde eski 'sıradaki iş', ders defteri aktarımı)
+- 21:00 özeti, 2 günden eski ve güncellenmemiş 'sıradaki iş' kaydını tarihiyle ve ⚠️ ile gösterir; 26.11 özeti 18.11'in işini yarının işi gibi göstermişti (DUZELTME S26).
+- Ders defteri: taslak satır 31–44 aktarıldı (DUZELTME S22). Belge değişikliği.
+- Kurulum sırası: 55fb360 → cf53e30 → 7ed59aa → bu sürüm; birer birer, kapı satır 3 ✅ olunca.
+
 ## v0.99.168 – 27.11.2026 (onarım: log döndürmesinden sonra kapı botu görmüyordu)
 - Bulgu (27.11): `quantbist.log` 27.11 04:50'de döndü; 22.11 başlangıç satırı `quantbist.log.1`'de kaldı. Kapı yalnız yeni dosyayı okuduğu için satır 2 sağlıklı bota 'başlangıç satırı yok' dedi; satır 5 kurulum sayısı da aynı satırlardan geliyor.
 - `scripts/surum_kapisi.py`: yeni `read_bot_log`, döndürülmüş dosyaları eskiden yeniye okur. Kapı ölçütleri değişmedi. Bot davranışı değişmez (araç).
