@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.171 – 27.11.2026 (yedek listeleme: manifestsiz zip komutu durdurmaz)
+- `python -m core.backup --list`, manifesti olmayan zip'i (depo dışı kopya quantbist_depo_disi_*.zip) 'doğrulanamadı' diye yazar ve listelemeye devam eder; 23.11'den beri hatayla duruyordu (ders defteri 23.11, kuyruk 9, KUSURLAR S33).
+- Yedek dosyasına dokunduğu için TEK BAŞINA kurulur: hafta sonu, aynı SHA'da dr-drill başarılı, son komut sahipte (KARARLAR 2). Önceki dallar fed5723 ve 6f17f79 bunun yerine geçti, kullanılmaz.
+
 ## v0.99.170 – 27.11.2026 (belge onarımları: belge haritası, OPERATIONS saatleri, ARS-1 kapsamı, ders defteri atfı)
 - K-126 (sahibin eksik ve kusur talimatı) ve K-127 (sahibin sistem kontrolü talimatı, 28.11) DECISIONS'a yazıldı; K-115 uygulama öncesi denetim notu (docs/K115_DENETIM_NOTU.md); CHANGELOG'da yalnız CR ile ayrılmış 5 satır CRLF oldu (S19).
 - docs/BELGE_HARITASI.md son hali (K-102) ve yapım planı; 25.11 sözü kaçmıştı (DUZELTME S31).
