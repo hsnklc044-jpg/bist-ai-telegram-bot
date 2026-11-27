@@ -3,6 +3,7 @@
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
 ## v0.99.170 – 27.11.2026 (belge onarımları: belge haritası, OPERATIONS saatleri, ARS-1 kapsamı, ders defteri atfı)
+- K-126 (sahibin eksik ve kusur talimatı) DECISIONS'a yazıldı; K-115 uygulama öncesi denetim notu (docs/K115_DENETIM_NOTU.md); CHANGELOG'da yalnız CR ile ayrılmış 5 satır CRLF oldu (S19).
 - docs/BELGE_HARITASI.md son hali (K-102) ve yapım planı; 25.11 sözü kaçmıştı (DUZELTME S31).
 - OPERATIONS §0: hazırlık turları, merkez gözetimi, gelişim döngüsü ve gün sonu kapanış saatleri tabloya girdi (hazırlık kuyruğu 3, S29).
 - ARASTIRMA_STANDARDI: ARS-1 yalnız a5 ve sonrasına; a4'e yalnız tarihli ek (K-28, K-119; hazırlık kuyruğu 2, S29).
