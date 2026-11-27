@@ -465,7 +465,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.list:
             backups = list_backups()
             for p in backups:
-                print(f"{p.name}  {len(verify(p))} dosya")
+                try:
+                    print(f"{p.name}  {len(verify(p))} dosya")
+                except BackupError as exc:  # e.g. the off-repo copy has no manifest (lesson 23.11)
+                    print(f"{p.name}  doğrulanamadı: {exc}")
             print(f"{len(backups)} yedek, klasör: {backup_dir()}")
             return 0
 
