@@ -2,6 +2,10 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.170 – 27.11.2026 (yedek listeleme: manifestsiz zip komutu durdurmaz)
+- `python -m core.backup --list`, manifesti olmayan zip'i (depo dışı kopya quantbist_depo_disi_*.zip) 'doğrulanamadı' diye yazar ve listelemeye devam eder; 23.11'den beri hatayla duruyordu (ders defteri 23.11, kuyruk 9).
+- Yedek dosyasına dokunduğu için TEK BAŞINA kurulur: hafta sonu, aynı SHA'da dr-drill başarılı, son komut sahipte (KARARLAR 2).
+
 ## v0.99.169 – 27.11.2026 (onarım: 21:00 özetinde eski 'sıradaki iş', ders defteri aktarımı)
 - 21:00 özeti, 2 günden eski ve güncellenmemiş 'sıradaki iş' kaydını tarihiyle ve ⚠️ ile gösterir; 26.11 özeti 18.11'in işini yarının işi gibi göstermişti (DUZELTME S26).
 - Ders defteri: taslak satır 31–44 aktarıldı (DUZELTME S22). Belge değişikliği.
