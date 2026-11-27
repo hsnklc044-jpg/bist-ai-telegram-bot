@@ -236,3 +236,20 @@ class CommandLineRestoreTestIsRecordedTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ListSkipsCopiesWithoutManifestTest(unittest.TestCase):
+    """23.11 (lesson book, kuyruk 9): `--list` stopped with 'manifest.json yok' on the off-repo copy
+    quantbist_depo_disi_*.zip, which is a plain zip and not a records backup."""
+
+    def test_a_zip_without_manifest_is_listed_as_unverified_and_the_command_succeeds(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp)
+            with zipfile.ZipFile(target / "quantbist_depo_disi_2026-11-27.zip", "w") as zf:
+                zf.writestr("a.txt", "x")
+            with mock.patch.object(backup, "backup_dir", return_value=target), \
+                    mock.patch("builtins.print") as out:
+                self.assertEqual(backup.main(["--list"]), 0)
+            printed = " ".join(str(c.args[0]) for c in out.call_args_list)
+            self.assertIn("quantbist_depo_disi_2026-11-27.zip  doğrulanamadı", printed)
+            self.assertIn("1 yedek", printed)
