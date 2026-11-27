@@ -100,6 +100,14 @@ class SummaryTest(unittest.TestCase):
         self.assertIn("Geri dönüş: 0", text)
         self.assertIn("Yarın sıradaki iş: x", text)
 
+    def test_a_stale_next_job_is_marked_with_its_date(self):
+        """26.11 summary showed the 18.11 next job as tomorrow's (DUZELTME S26)."""
+        otonom.day_file().parent.mkdir(parents=True)
+        otonom.day_file().write_text(json.dumps({"day": "2026-11-01", "next": "eski is"}), encoding="utf-8")
+        with mock.patch("core.reports.slo.measure", return_value=SLO),                 mock.patch.object(otonom, "LOG_DIR", otonom.TOOLS_DIR):
+            text = otonom.build_summary(NOW)
+        self.assertIn("Yarın sıradaki iş: eski is (⚠️ kayıt 01.11 tarihli, güncel değil)", text)
+
     def test_the_job_is_scheduled_at_21(self):
         from bot import scheduler
 

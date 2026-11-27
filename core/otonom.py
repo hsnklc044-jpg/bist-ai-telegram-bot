@@ -186,7 +186,11 @@ def build_summary(now: datetime) -> str:
     try:
         record = json.loads(day_file().read_text(encoding="utf-8"))
         if record.get("day") != now.date().isoformat():
-            record = {"next": record.get("next")}
+            nxt = record.get("next")
+            day = date.fromisoformat(record.get("day") or "1970-01-01")
+            if nxt and (now.date() - day).days >= 2:  # a record nobody updated (DUZELTME S26, 27.11.2026)
+                nxt += f" (⚠️ kayıt {day:%d.%m} tarihli, güncel değil)"
+            record = {"next": nxt}
     except (OSError, ValueError):
         record = None
     checks = [branches_line(), outside_copy_line(None, now)]
