@@ -79,6 +79,14 @@ def window_ok(at: datetime, session_day: bool) -> tuple[bool, str]:
     return True, f"{at:%a %d.%m %H:%M} seans ve rapor penceresi dışında"
 
 
+def read_bot_log(log_dir: Path) -> list[str]:
+    """Bot log lines, rotated files first (oldest to newest): the start line may be in quantbist.log.N."""
+
+    rotated = sorted(log_dir.glob("quantbist.log.*"), key=lambda p: int(p.suffix[1:]), reverse=True)
+    return [line for path in (*rotated, log_dir / "quantbist.log")
+            for line in path.read_text(encoding="utf-8", errors="replace").splitlines()]
+
+
 def installs_on(log_lines: list[str], day: date) -> list[str]:
     """Versions installed on `day`: a "Telegram bot started" line whose version differs from the one before."""
 
@@ -255,7 +263,7 @@ def main(argv: list[str]) -> int:
     subprocess.run(["git", "fetch", "-q", "origin", BRANCH], cwd=here)
     head = _git("rev-parse", "HEAD")
     version = re.search(r'^version = "([^"]+)"', _git("show", "HEAD:pyproject.toml"), re.M).group(1)
-    log = (LIVE / "logs" / "quantbist.log").read_text(encoding="utf-8", errors="replace").splitlines()
+    log = read_bot_log(LIVE / "logs")
     beats = [datetime.fromisoformat(r.split(",")[0])
              for r in (LIVE / "logs" / "heartbeats.csv").read_text(encoding="utf-8").splitlines()[1:] if r]
     ok, detail = live_health(log, beats, version)

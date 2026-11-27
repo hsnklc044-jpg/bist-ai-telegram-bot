@@ -2,6 +2,11 @@
 
 Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm testler, v0.54.1'den beri kapsam ≥ %91) geçti; aksi yazılıysa o sürüm kırmızıydı ve bir sonraki düzeltti. Daha eski sürümler: `git log`.
 
+## v0.99.168 – 27.11.2026 (onarım: log döndürmesinden sonra kapı botu görmüyordu)
+- Bulgu (27.11): `quantbist.log` 27.11 04:50'de döndü; 22.11 başlangıç satırı `quantbist.log.1`'de kaldı. Kapı yalnız yeni dosyayı okuduğu için satır 2 sağlıklı bota 'başlangıç satırı yok' dedi; satır 5 kurulum sayısı da aynı satırlardan geliyor.
+- `scripts/surum_kapisi.py`: yeni `read_bot_log`, döndürülmüş dosyaları eskiden yeniye okur. Kapı ölçütleri değişmedi. Bot davranışı değişmez (araç).
+- Doğrulama: önce başarısız test (`tests/test_surum_kapisi_log_dondurme.py`, 3 test), sonra kod.
+
 ## v0.99.167 – 25.11.2026 (güç izleme: pilde ve düşükken sahibe tek satır)
 - Tekrar eden hata (19.11, 21.11, 24.11): bilgisayar pilde kalıp uyudu, rapor ve nabız kayboldu. Yeni `core/infrastructure/power.py` (Windows `GetSystemPowerStatus`, ctypes, yeni bağımlılık yok) ve `bot/scheduler.py` `power_job`: 15 dakikada bir bakar. Pilde ve %30 altındaysa tek Telegram satırı ("Bilgisayar pilde, %N; prize takın"); %15 altında bir kez daha. Prize takılınca yeni döngü. 23:00–07:00 arası mesaj gitmez (tüketilmez: 07:00'de hâlâ pildeyse gider). Okunamayan durum sessiz kalır.
 - Sürüm 0.99.167: kapı dalı cc2a38b (v0.99.166) ile çakışmasın diye; o dal önce girerse bu dal onun üstüne yeniden kurulur. Dokunulan dosyalar kapı koşulu 7 (ALONE) listesinde DEĞİL.
