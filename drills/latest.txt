@@ -1,19 +1,19 @@
-DR drill 2026-11-27_21-24 (12335fde4ec9ba686b1520a7b055dc082fbcc29f): success
-run: https://github.com/hsnklc044-jpg/bist-ai-telegram-bot/actions/runs/46048238543
-🩺 QuantBIST v0.99.171 durum – 27.11.2026 21:24
+DR drill 2026-11-28_08-41 (b1a7af2d634e66ce21b6623b2af9d0cac2843c62): success
+run: https://github.com/hsnklc044-jpg/bist-ai-telegram-bot/actions/runs/46112820960
+🩺 QuantBIST v0.99.171 durum – 28.11.2026 08:41
 ⚠️ UYARI: dikkat gereken bileşen var
 
 ❔ BİLİNMİYOR · Telegram botu: yaşam sinyali yok (bot v0.37.0 öncesi ya da hiç başlamadı)
 ❔ BİLİNMİYOR · Günlük rapor: henüz gönderim kaydı yok (kayıt v0.22.0 ile başladı)
 ✅ SAĞLIKLI · Fiyat verisi: XU100 son kapanış 27.11.2026
-ℹ️ BİLGİ · Veri kalitesi: son 30 seans, 118 sembol: sorun yok; bilgi: bayat son mum/veri yok (1): ENTRA | seans limiti eşik %10 (Pay Piyasası Prosedürü'nden teyit edilmedi)
+⚠️ UYARI · Veri kalitesi: son 30 seans, 118 sembol; bayat son mum/veri yok (117): ADESE 26.11.2026 (1 seans geride); AEFES 26.11.2026 (1 seans geride); AFYON 26.11.2026 (1 seans geride); AGHOL 26.11.2026 (1 seans geride); AGROT 26.11.2026 (1 seans geride); +112 daha | seans limiti eşik %10 (Pay Piyasası Prosedürü'nden teyit edilmedi)
 ✅ SAĞLIKLI · Fiyat veritabanı: bütünlük ok (23 MB)
 ❔ BİLİNMİYOR · Canlı ölçüm kaydı: signal_log.csv yok
 ❔ BİLİNMİYOR · Sanal hesap kaydı: equity_log.csv yok
 ✅ SAĞLIKLI · Veri şeması: 2 dosya bu sürümle uyumlu
 ✅ SAĞLIKLI · Kişisel dosyalar: 3 dosya sonuna kadar okundu
-⚠️ UYARI · Yedek: quantbist_2026-11-27.zip (27.11 21:23); yedek verilerle aynı diskte; disk arızasında ikisi birlikte kaybolur. BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın
-✅ SAĞLIKLI · Disk: 30.6 GB boş
+⚠️ UYARI · Yedek: quantbist_2026-11-28.zip (28.11 08:40); yedek verilerle aynı diskte; disk arızasında ikisi birlikte kaybolur. BACKUP_DIR'i OneDrive'a veya başka bir diske ayarlayın
+✅ SAĞLIKLI · Disk: 27.6 GB boş
 ℹ️ BİLGİ · Resmî veri içe aktarımı: henüz çalışma kaydı yok (gece 02:30 işi)
 ✅ SAĞLIKLI · Tatil takvimi: 2027 sonuna kadar; 2027 geçici
 ℹ️ BİLGİ · Temel veri: veri yok. KAP'tan otomatik çekme kullanım koşulları teyit edilene kadar kapalı (K-48); içe aktarma: python -m core.fundamentals.store --import DOSYA
@@ -26,16 +26,16 @@ run: https://github.com/hsnklc044-jpg/bist-ai-telegram-bot/actions/runs/46048238
 ✅ SAĞLIKLI · GitHub araştırması: son çalışma 21.11 15:37: success
 📦 Fiyat verisi: Yahoo · Seviye 3 (doğrulanmamış)
 
-📐 SLO (son 7 gün): 2/7 hedefte, 5 ölçülemiyor
+📐 SLO (son 7 gün): 1/7 hedefte, 5 ölçülemiyor
   ❔ Rapor teslimi: — (hedef ≥ %99 seans 19:00'a kadar) · runs.csv yok
   ❔ Bot ayakta kalma: — (hedef ≥ %98) · veri birikiyor; en az 1 günlük yaşam sinyali gerekir
   ❔ Veri tazeliği: — (hedef ≥ %98 hisse 19:00'da güncel) · freshness.csv yok (ilk raporla başlar)
   ❔ Veri doğruluğu: — (hedef ≤ %1 hisse ikinci kaynaktan farklı) · İş Yatırım ikinci kaynak kapalı: sitenin robots.txt'si /_layouts/ yolunu bütün otomatik erişime yasaklıyor (D13, K-54)
-  ✅ Yedek: %100.0 (hedef her gün + haftalık geri yükleme testi) · 1/1 seans günü yedekli; ölçüm 27.11'de başladı; geri yükleme testi 27.11 başarılı
+  ⚠️ Yedek: — (hedef her gün + haftalık geri yükleme testi) · 0/0 seans günü yedekli; ölçüm 28.11'de başladı; geri yükleme testi 28.11 başarılı
   ❔ Kayıt bütünlüğü: — (hedef 0 bozuk / tekrar / eksik) · signal_log.csv yok
   ✅ Kalite (CI, kapsam): — (hedef CI yeşil, kapsam ≥ %90) · son CI 22.11 13:50 (3050572): success; testler, ruff ve kapsam kapısı %91 geçti
-🎯 Güvenilirlik (K-70): gözlem 0/20 seans · SLO 2/7 · model doğrulama 14/14
-  tam güvenilir: hayır (eksik: gözlem 0/20 seans; SLO 2/7 hedefte; veri doğruluğu ölçülmedi)
+🎯 Güvenilirlik (K-70): gözlem 0/20 seans · SLO 1/7 · model doğrulama 14/14
+  tam güvenilir: hayır (eksik: gözlem 0/20 seans; SLO 1/7 hedefte; veri doğruluğu ölçülmedi)
 
 🧪 Sanal kasa: 100.000 TL; sinyal defteri boş (sistem kendiliğinden sinyal yazmaz: ML katmanı örneklem dışı ölçümü geçmedi; /tara ai kartındaki ✅ ile siz girersiniz)
 
