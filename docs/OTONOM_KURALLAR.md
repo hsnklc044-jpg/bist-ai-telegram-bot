@@ -210,7 +210,7 @@ Rapor: her kurulumdan sonra tek satır (sürüm, SHA, CI bağlantısı, canlı s
 
 ## 10.11.2026 ~19:27 — Tam otonom + robot modu YENİDEN GEÇERLİ (en yeni talimat; Nirvana'daki onay şartının yerine geçer)
 - Kapı ve paketleme kuralları (hızlı sürüm) ile tam otonom kurallar geçerli; kullanıcıya soru sorulmaz, yalnız bilgi verilir. Sana kalanlar: .env, token, ödeme, hesap, dış izleme; fren "devam".
-- Robot döngüsü: fren → durum → CHARTER §4 iş → worktree'de dal (önce başarısız test) → CI (arka planda) → kapı + paket → sağlık → docs/ROBOT_LOG.md satırı → baştan. Durur: iş kalmadı (yalnız zaman bekleyenler), fren, ya da sıradaki adım kullanıcıya kalan.
+- Robot döngüsü: fren → durum → CHARTER §4 iş → worktree'de dal (önce başarısız test) → CI (arka planda) → kapı + paket → sağlık → `cikti\OTONOM_RAPOR.md` satırı (docs/ROBOT_LOG.md 11.11'den beri tarihsel; 28.11 düzeltmesi, KUSURLAR S42) → baştan. Durur: iş kalmadı (yalnız zaman bekleyenler), fren, ya da sıradaki adım kullanıcıya kalan.
 - Kilit: C:\Projeler\QuantBIST_otomasyon\robot.lock (başlama saati); varsa ikinci robot başlamaz; 6 saatten eskiyse devralınır ve raporlanır.
 - Nirvana denetim raporu (cikti\DENETIM_2026-11-10.md) iş listesi olarak geçerli.
 

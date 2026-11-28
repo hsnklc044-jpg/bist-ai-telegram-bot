@@ -31,4 +31,4 @@ skill'inden geçer.
 - `surum-kapisi`: birleştirme ve canlı kurulum kapısı (`scripts/surum_kapisi.py`).
 - `olgunluk`: MATURITY seviyelerinin yüzdesi (salt okunur).
 - `on-kayit`: ölçümden önce DECISIONS kaydı.
-- `robot`: tek düğme; döngüyü durma koşuluna kadar çalıştırır (günlük: `docs/ROBOT_LOG.md`).
+- `robot`: tek düğme; döngüyü durma koşuluna kadar çalıştırır (günlük: `C:\Projeler\QuantBIST-araclar\cikti\OTONOM_RAPOR.md`; `docs/ROBOT_LOG.md` 11.11'den beri tarihsel).

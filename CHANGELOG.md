@@ -7,7 +7,7 @@ Sade dille: ne değişti, nasıl doğrulandı. Her sürüm CI'da (ruff, tüm tes
 - docs/BELGE_HARITASI.md son hali (K-102) ve yapım planı; 25.11 sözü kaçmıştı (DUZELTME S31).
 - OPERATIONS §0: hazırlık turları, merkez gözetimi, gelişim döngüsü ve gün sonu kapanış saatleri tabloya girdi (hazırlık kuyruğu 3, S29).
 - ARASTIRMA_STANDARDI: ARS-1 yalnız a5 ve sonrasına; a4'e yalnız tarihli ek (K-28, K-119; hazırlık kuyruğu 2, S29).
-- Ders defteri: kayan satır atfı düzeltildi (S30). Yalnız belge, kod değişmedi.
+- Ders defteri: kayan satır atfı düzeltildi (S30). CLAUDE.md ve OTONOM_KURALLAR robot günlüğünü 11.11'den beri tutulmayan docs/ROBOT_LOG.md diye gösteriyordu; asıl kayıt cikti\OTONOM_RAPOR.md (Ö65, KUSURLAR S42, 28.11). Yalnız belge, kod değişmedi.
 
 ## v0.99.169 – 27.11.2026 (onarım: 21:00 özetinde eski 'sıradaki iş', ders defteri aktarımı)
 - 21:00 özeti, 2 günden eski ve güncellenmemiş 'sıradaki iş' kaydını tarihiyle ve ⚠️ ile gösterir; 26.11 özeti 18.11'in işini yarının işi gibi göstermişti (DUZELTME S26).
